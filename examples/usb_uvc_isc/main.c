@@ -107,19 +107,20 @@
 #include "chip.h"
 #include "trace.h"
 #include "compiler.h"
-#include "rand.h"
-
-#include "misc/console.h"
 #include "timer.h"
 
-#include "irq/irq.h"
-#include "peripherals/isc.h"
-#include "misc/cache.h"
 #include "gpio/pio.h"
+
+#include "irq/irq.h"
+
+#include "misc/cache.h"
+#include "misc/console.h"
+
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
 
 #include "video/image_sensor_inf.h"
+#include "video/isc.h"
 
 #include "usb/common/uvc/usb_video.h"
 #include "usb/common/uvc/uvc_descriptors.h"
@@ -252,7 +253,7 @@ static void configure_isc(void)
 	isc_dma_configure_input_mode(ISC_DCFG_IMODE_PACKED8);
 	isc_dma_configure_desc_entry((uint32_t)&isc_dma_desc);
 	isc_dma_enable(ISC_DCTRL_DVIEW_PACKED | ISC_DCTRL_DE);
-	isc_dma_adderss(0, (uint32_t)stream_buffers, 0);
+	isc_dma_address(0, (uint32_t)stream_buffers, 0);
 
 	isc_update_profile();
 	irq_add_handler(ID_ISC, isc_handler, NULL);

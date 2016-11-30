@@ -89,21 +89,23 @@
 
 #include "board.h"
 #include "chip.h"
+#include "timer.h"
+#include "trace.h"
+
+#include "dma/xdmacd.h"
+
+#include "gpio/pio.h"
 
 #include "irq/irq.h"
-#include "peripherals/isc.h"
-#include "peripherals/lcdc.h"
-#include "gpio/pio.h"
-#include "peripherals/pmc.h"
-#include "dma/xdmacd.h"
 
 #include "misc/cache.h"
 #include "misc/console.h"
 
-#include "video/image_sensor_inf.h"
-#include "timer.h"
+#include "peripherals/lcdc.h"
+#include "peripherals/pmc.h"
 
-#include "trace.h"
+#include "video/image_sensor_inf.h"
+#include "video/isc.h"
 
 #include <assert.h>
 #include <stdbool.h>
@@ -535,9 +537,9 @@ static void configure_isc(void)
 				|| (lcd_mode == LCD_MODE_YUV420_SEMIPLANAR )){
 				isc_dma_enable(ISC_DCTRL_DVIEW_SEMIPLANAR | ISC_DCTRL_DE);
 			}
-			isc_dma_adderss(0, ISC_OUTPUT_BASE_ADDRESS, 0);
-			isc_dma_adderss(0, ISC_OUTPUT_BASE_ADDRESS2, 0);
-			isc_dma_adderss(0, ISC_OUTPUT_BASE_ADDRESS1, 0);
+			isc_dma_address(0, ISC_OUTPUT_BASE_ADDRESS, 0);
+			isc_dma_address(0, ISC_OUTPUT_BASE_ADDRESS2, 0);
+			isc_dma_address(0, ISC_OUTPUT_BASE_ADDRESS1, 0);
 		}
 		if (lcd_mode == LCD_MODE_RGB565) {
 			/* Configure RGB 565 output format before the
@@ -549,7 +551,7 @@ static void configure_isc(void)
 			isc_dma_configure_input_mode(ISC_DCFG_IMODE_PACKED16);
 			isc_dma_configure_desc_entry((uint32_t)&dma_descs[0]);
 			isc_dma_enable(ISC_DCTRL_DVIEW_PACKED | ISC_DCTRL_DE);
-			isc_dma_adderss(0, ISC_OUTPUT_BASE_ADDRESS, 0);
+			isc_dma_address(0, ISC_OUTPUT_BASE_ADDRESS, 0);
 		}
 	}
 	if (sensor_mode == YUV_422) {
@@ -566,7 +568,7 @@ static void configure_isc(void)
 		isc_dma_configure_input_mode(ISC_DCFG_IMODE_PACKED8);
 		isc_dma_configure_desc_entry((uint32_t)&dma_descs[0]);
 		isc_dma_enable(ISC_DCTRL_DVIEW_PACKED | ISC_DCTRL_DE);
-		isc_dma_adderss(0, ISC_OUTPUT_BASE_ADDRESS, 0);
+		isc_dma_address(0, ISC_OUTPUT_BASE_ADDRESS, 0);
 	}
 
 	isc_histogram_enabled(1);

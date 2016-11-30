@@ -33,7 +33,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
-#include "peripherals/isc.h"
+#include "video/isc.h"
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -79,7 +79,7 @@ void isc_stop_capture(void)
  */
 uint32_t isc_get_ctrl_status(void)
 {
-	return (ISC->ISC_CTRLSR);
+	return ISC->ISC_CTRLSR;
 }
 
 /**
@@ -89,7 +89,7 @@ void isc_update_profile(void)
 {
 	while (isc_is_sip_asserted());
 	ISC->ISC_CTRLEN = ISC_CTRLEN_UPPRO;
-	while((ISC->ISC_CTRLSR & ISC_CTRLSR_UPPRO) == ISC_CTRLSR_UPPRO);
+	while ((ISC->ISC_CTRLSR & ISC_CTRLSR_UPPRO) == ISC_CTRLSR_UPPRO);
 }
 
 /**
@@ -148,18 +148,19 @@ void isc_pfe_set_field_polarity(uint32_t fpol)
 	ISC->ISC_PFE_CFG0 |= fpol ;
 }
 
-
 /**
  * \brief Enables/disable PFE(Parallel Front End) cropping
- * \param enCol: Column Cropping enable/disable(1/0)
- * \param enRow: Row Cropping enable/disable(1/0)
+ * \param enable_column: Column Cropping enable/disable(1/0)
+ * \param enable_row: Row Cropping enable/disable(1/0)
  */
-void isc_pfe_set_cropping_enabled(uint8_t enCol, uint8_t enRow)
+void isc_pfe_set_cropping_enabled(uint8_t enable_column, uint8_t enable_row)
 {
 	ISC->ISC_PFE_CFG0 &= ~ISC_PFE_CFG0_COLEN;
 	ISC->ISC_PFE_CFG0 &= ~ISC_PFE_CFG0_ROWEN;
-	if (enCol) ISC->ISC_PFE_CFG0 |=ISC_PFE_CFG0_COLEN;
-	if (enRow) ISC->ISC_PFE_CFG0 |=ISC_PFE_CFG0_ROWEN;
+	if (enable_column)
+		ISC->ISC_PFE_CFG0 |= ISC_PFE_CFG0_COLEN;
+	if (enable_row)
+		ISC->ISC_PFE_CFG0 |= ISC_PFE_CFG0_ROWEN;
 }
 
 /**
@@ -188,15 +189,15 @@ void isc_pfe_set_continuous_shot(void)
 	ISC->ISC_PFE_CFG0 |= ISC_PFE_CFG0_CONT;
 }
 
-
 /**
  * \brief set PFE(Parallel Front End) gated clock.
- * \param en: enable/disable gated clock.
+ * \param enable: enable/disable gated clock.
  */
-void isc_pfe_set_gated_clock(uint8_t en)
+void isc_pfe_set_gated_clock(uint8_t enable)
 {
 	ISC->ISC_PFE_CFG0 &= ~ISC_PFE_CFG0_GATED;
-	if (en) ISC->ISC_PFE_CFG0 |= ISC_PFE_CFG0_GATED ;
+	if (enable)
+		ISC->ISC_PFE_CFG0 |= ISC_PFE_CFG0_GATED;
 }
 /**
  * \brief  configure PFE(Parallel Front End) cropping area.
@@ -205,11 +206,11 @@ void isc_pfe_set_gated_clock(uint8_t en)
  * \param Vstart: Vertical starting position of the cropping area
  * \param Hend: Vertical ending position of the cropping area
  */
-void isc_pfe_set_cropping_area(
-					uint32_t Hstart, uint32_t Hend, uint32_t Vstart, uint32_t Vend)
+void isc_pfe_set_cropping_area(uint32_t hstart, uint32_t hend,
+                               uint32_t vstart, uint32_t vend)
 {
-	ISC->ISC_PFE_CFG1 = ISC_PFE_CFG1_COLMIN(Hstart) | ISC_PFE_CFG1_COLMAX(Hend);
-	ISC->ISC_PFE_CFG2 = ISC_PFE_CFG2_ROWMIN(Vstart) | ISC_PFE_CFG2_ROWMAX(Vend);
+	ISC->ISC_PFE_CFG1 = ISC_PFE_CFG1_COLMIN(hstart) | ISC_PFE_CFG1_COLMAX(hend);
+	ISC->ISC_PFE_CFG2 = ISC_PFE_CFG2_ROWMIN(vstart) | ISC_PFE_CFG2_ROWMAX(vend);
 }
 
 /*------------------------------------------
@@ -226,7 +227,9 @@ void isc_pfe_set_cropping_area(
 void isc_configure_isp_clock(uint32_t ispClockDiv, uint32_t ispClockSelection)
 {
 	uint32_t clkcfg = ISC->ISC_CLKCFG & ~(ISC_CLKCFG_ICDIV_Msk | ISC_CLKCFG_ICSEL);
-	ISC->ISC_CLKCFG = clkcfg | ISC_CLKCFG_ICDIV(ispClockDiv) | (ispClockSelection << 8);
+	ISC->ISC_CLKCFG = clkcfg |
+                          ISC_CLKCFG_ICDIV(ispClockDiv) |
+                          (ispClockSelection << 8);
 }
 
 /**
@@ -264,8 +267,9 @@ void isc_reset_isp_clock(void)
 void isc_configure_master_clock(uint32_t masterClockDiv, uint32_t masterClockSelection)
 {
 	uint32_t clkcfg = ISC->ISC_CLKCFG & ~(ISC_CLKCFG_MCDIV_Msk | ISC_CLKCFG_MCSEL_Msk);
-	ISC->ISC_CLKCFG = clkcfg | ISC_CLKCFG_MCDIV(masterClockDiv)
-		                     | ISC_CLKCFG_MCSEL(masterClockSelection);
+	ISC->ISC_CLKCFG = clkcfg |
+                          ISC_CLKCFG_MCDIV(masterClockDiv) |
+                          ISC_CLKCFG_MCSEL(masterClockSelection);
 }
 
 /**
@@ -297,7 +301,7 @@ void isc_reset_master_clock(void)
  */
 uint32_t isc_get_clock_status(void)
 {
-	return (ISC->ISC_CLKSR);
+	return ISC->ISC_CLKSR;
 }
 
 /*------------------------------------------
@@ -327,9 +331,8 @@ void isc_disable_interrupt(uint32_t flag)
  */
 uint32_t isc_interrupt_status(void)
 {
-	return(ISC->ISC_INTSR);
+	return ISC->ISC_INTSR;
 }
-
 
 /*------------------------------------------
  *         White Balance functions
@@ -355,33 +358,34 @@ void isc_wb_set_bayer_pattern(uint8_t pattern)
 
 /**
  * \brief adjust White Balance with color component.
- * \param rOffset Offset Red Component (signed 13 bits 1:12:0)
- * \param grOffset Offset Green Component for Red Row (signed 13 bits 1:12:0)
- * \param bOffset Offset Blue Component (signed 13 bits, 1:12:0)
- * \param gbOffset Offset Green Component for Blue Row (signed 13 bits, 1:12:0)
- * \param rGain Red Component Gain (unsigned 13 bits, 0:4:9)
- * \param grGain Green Component (Red row) Gain (unsigned 13 bits, 0:4:9)
- * \param bGain Blue Component Gain (unsigned 13 bits, 0:4:9)
- * \param gbGain Green Component (Blue row) Gain (unsigned 13 bits, 0:4:9)
+ * \param r_offset  Offset Red Component (signed 13 bits 1:12:0)
+ * \param gr_offset Offset Green Component for Red Row (signed 13 bits 1:12:0)
+ * \param b_offset  Offset Blue Component (signed 13 bits, 1:12:0)
+ * \param gb_offset Offset Green Component for Blue Row (signed 13 bits, 1:12:0)
+ * \param r_gain    Red Component Gain (unsigned 13 bits, 0:4:9)
+ * \param gr_gain   Green Component (Red row) Gain (unsigned 13 bits, 0:4:9)
+ * \param b_gain    Blue Component Gain (unsigned 13 bits, 0:4:9)
+ * \param gb_gain   Green Component (Blue row) Gain (unsigned 13 bits, 0:4:9)
  */
-void isc_wb_adjust_bayer_color(uint32_t rOffset, uint32_t grOffset,
-			       uint32_t bOffset, uint32_t gbOffset,
-			       uint32_t rGain, uint32_t grGain,
-			       uint32_t bGain, uint32_t gbGain)
+void isc_wb_adjust_bayer_color(uint32_t r_offset, uint32_t gr_offset,
+			       uint32_t b_offset, uint32_t gb_offset,
+			       uint32_t r_gain, uint32_t gr_gain,
+			       uint32_t b_gain, uint32_t gb_gain)
 {
-	ISC->ISC_WB_O_RGR =
-		ISC_WB_O_RGR_ROFST(rOffset) | ISC_WB_O_RGR_GROFST(grOffset);
-	ISC->ISC_WB_O_BGB =
-		ISC_WB_O_BGB_BOFST(bOffset) | ISC_WB_O_BGB_GBOFST(gbOffset);
-	ISC->ISC_WB_G_RGR =
-		ISC_WB_G_RGR_RGAIN(rGain) | ISC_WB_G_RGR_GRGAIN(grGain);
-	ISC->ISC_WB_G_BGB =
-		ISC_WB_G_BGB_BGAIN(bGain) | ISC_WB_G_BGB_GBGAIN(gbGain);
+	ISC->ISC_WB_O_RGR = ISC_WB_O_RGR_ROFST(r_offset) |
+	                    ISC_WB_O_RGR_GROFST(gr_offset);
+	ISC->ISC_WB_O_BGB = ISC_WB_O_BGB_BOFST(b_offset) |
+	                    ISC_WB_O_BGB_GBOFST(gb_offset);
+	ISC->ISC_WB_G_RGR = ISC_WB_G_RGR_RGAIN(r_gain) |
+	                    ISC_WB_G_RGR_GRGAIN(gr_gain);
+	ISC->ISC_WB_G_BGB = ISC_WB_G_BGB_BGAIN(b_gain) |
+	                    ISC_WB_G_BGB_GBGAIN(gb_gain);
 }
 
 /*------------------------------------------
  *         Color Filter Array functions
  *----------------------------------------*/
+
 /**
  * \brief Enables/disable Color Filter Array Interpolation.
  */
@@ -425,18 +429,12 @@ void isc_cc_enabled(uint8_t enabled)
  */
 void isc_cc_configure(struct _color_correct* cc)
 {
-	ISC->ISC_CC_RR_RG =
-		ISC_CC_RR_RG_RRGAIN(cc->rrGain) | ISC_CC_RR_RG_RGGAIN(cc->rgGain);
-	ISC->ISC_CC_RB_OR =
-		ISC_CC_RB_OR_RBGAIN(cc->rbGain) | ISC_CC_RB_OR_ROFST(cc->rOffset);
-	ISC->ISC_CC_GR_GG =
-		ISC_CC_GR_GG_GRGAIN(cc->grGain) | ISC_CC_GR_GG_GGGAIN(cc->ggGain);
-	ISC->ISC_CC_GB_OG =
-		ISC_CC_GB_OG_GBGAIN(cc->gbGain) | ISC_CC_GB_OG_ROFST(cc->gOffset);
-	ISC->ISC_CC_BR_BG =
-		ISC_CC_BR_BG_BRGAIN(cc->brGain) | ISC_CC_BR_BG_BGGAIN(cc->bgGain);
-	ISC->ISC_CC_BB_OB =
-		ISC_CC_BB_OB_BBGAIN(cc->bbGain) | ISC_CC_BB_OB_BOFST(cc->bOffset);
+	ISC->ISC_CC_RR_RG = ISC_CC_RR_RG_RRGAIN(cc->rr_gain) | ISC_CC_RR_RG_RGGAIN(cc->rg_gain);
+	ISC->ISC_CC_RB_OR = ISC_CC_RB_OR_RBGAIN(cc->rb_gain) | ISC_CC_RB_OR_ROFST(cc->r_offset);
+	ISC->ISC_CC_GR_GG = ISC_CC_GR_GG_GRGAIN(cc->gr_gain) | ISC_CC_GR_GG_GGGAIN(cc->gg_gain);
+	ISC->ISC_CC_GB_OG = ISC_CC_GB_OG_GBGAIN(cc->gb_gain) | ISC_CC_GB_OG_ROFST(cc->g_offset);
+	ISC->ISC_CC_BR_BG = ISC_CC_BR_BG_BRGAIN(cc->br_gain) | ISC_CC_BR_BG_BGGAIN(cc->bg_gain);
+	ISC->ISC_CC_BB_OB = ISC_CC_BB_OB_BBGAIN(cc->bb_gain) | ISC_CC_BB_OB_BOFST(cc->b_offset);
 }
 
 /*------------------------------------------
@@ -457,34 +455,32 @@ void isc_gamma_enabled(uint8_t enabled, uint8_t channels)
 
 /**
  * \brief Configure gamma correction with give table.
- * \param rGamConstant Pointer to red Color Constant instance (64 half-word).
- * \param rGamSlope Pointer to red Color Slope instance (64 half-word).
- * \param gGamConstant Pointer to green Color Constant instance (64 half-word).
- * \param gGamSlope Pointer to green Color Slope instance (64 half-word).
- * \param bGamConstant Pointer to blue Color Constant instance (64 half-word).
- * \param bGamSlope Pointer to blue Color Slope instance (64 half-word).
+ * \param r_gam_constant Pointer to red Color Constant instance (64 half-word).
+ * \param r_gam_slope    Pointer to red Color Slope instance (64 half-word).
+ * \param g_gam_constant Pointer to green Color Constant instance (64 half-word).
+ * \param g_gam_slope    Pointer to green Color Slope instance (64 half-word).
+ * \param b_gam_constant Pointer to blue Color Constant instance (64 half-word).
+ * \param b_gam_slope    Pointer to blue Color Slope instance (64 half-word).
  */
-void isc_gamma_configure(uint16_t* rGamConstant, uint16_t* rGamSlope,
-						uint16_t* gGamConstant, uint16_t* gGamSlope,
-						uint16_t* bGamConstant, uint16_t* bGamSlope)
+void isc_gamma_configure(uint16_t* r_gam_constant, uint16_t* r_gam_slope,
+                         uint16_t* g_gam_constant, uint16_t* g_gam_slope,
+                         uint16_t* b_gam_constant, uint16_t* b_gam_slope)
 {
 	uint8_t i;
 	for (i = 0; i < 64 ; i++) {
-		ISC->ISC_GAM_BENTRY[i] =
-			ISC_GAM_BENTRY_BCONSTANT(bGamConstant[i])
-			| ISC_GAM_BENTRY_BSLOPE(bGamSlope[i]);
-		ISC->ISC_GAM_GENTRY[i] =
-			ISC_GAM_GENTRY_GCONSTANT(bGamConstant[i])
-			| ISC_GAM_GENTRY_GSLOPE(bGamSlope[i]);
-		ISC->ISC_GAM_RENTRY[i] =
-			ISC_GAM_RENTRY_RCONSTANT(bGamConstant[i])
-			| ISC_GAM_RENTRY_RSLOPE(bGamSlope[i]);
+		ISC->ISC_GAM_BENTRY[i] = ISC_GAM_BENTRY_BCONSTANT(b_gam_constant[i]) |
+		                         ISC_GAM_BENTRY_BSLOPE(b_gam_slope[i]);
+		ISC->ISC_GAM_GENTRY[i] = ISC_GAM_GENTRY_GCONSTANT(b_gam_constant[i]) |
+		                         ISC_GAM_GENTRY_GSLOPE(b_gam_slope[i]);
+		ISC->ISC_GAM_RENTRY[i] = ISC_GAM_RENTRY_RCONSTANT(b_gam_constant[i]) |
+		                         ISC_GAM_RENTRY_RSLOPE(b_gam_slope[i]);
 	}
 }
 
 /*------------------------------------------
  *        Color Space Conversion functions
  *----------------------------------------*/
+
 /**
  * \brief Enables/disable Color Space Conversion.
  */
@@ -502,18 +498,18 @@ void isc_csc_enabled(uint8_t enabled)
  */
 void isc_csc_configure(struct _color_space* cs)
 {
-	ISC->ISC_CSC_YR_YG = ISC_CSC_YR_YG_YRGAIN(cs->YrGain)
-		| ISC_CSC_YR_YG_YGGAIN(cs->YgGain);
-	ISC->ISC_CSC_YB_OY = ISC_CSC_YB_OY_YBGAIN(cs->YbGain)
-		| ISC_CSC_YB_OY_YOFST(cs->Yoffset);
-	ISC->ISC_CSC_CBR_CBG = ISC_CSC_CBR_CBG_CBRGAIN(cs->cbrGain)
-		| ISC_CSC_CBR_CBG_CBGGAIN(cs->cbgGain);
-	ISC->ISC_CSC_CBB_OCB = ISC_CSC_CBB_OCB_CBBGAIN(cs->cbbGain)
-		| ISC_CSC_CBB_OCB_CBOFST(cs->cbOffset);
-	ISC->ISC_CSC_CRR_CRG = ISC_CSC_CRR_CRG_CRRGAIN(cs->crrGain)
-		| ISC_CSC_CRR_CRG_CRGGAIN(cs->crgGain);
-	ISC->ISC_CSC_CRB_OCR = ISC_CSC_CRB_OCR_CRBGAIN(cs->crbGain)
-		| ISC_CSC_CRB_OCR_CROFST(cs->crOffset);
+	ISC->ISC_CSC_YR_YG = ISC_CSC_YR_YG_YRGAIN(cs->yr_gain) |
+	                     ISC_CSC_YR_YG_YGGAIN(cs->yg_gain);
+	ISC->ISC_CSC_YB_OY = ISC_CSC_YB_OY_YBGAIN(cs->yb_gain) |
+	                     ISC_CSC_YB_OY_YOFST(cs->y_offset);
+	ISC->ISC_CSC_CBR_CBG = ISC_CSC_CBR_CBG_CBRGAIN(cs->cbr_gain) |
+	                       ISC_CSC_CBR_CBG_CBGGAIN(cs->cbg_gain);
+	ISC->ISC_CSC_CBB_OCB = ISC_CSC_CBB_OCB_CBBGAIN(cs->cbb_gain) |
+	                       ISC_CSC_CBB_OCB_CBOFST(cs->cb_offset);
+	ISC->ISC_CSC_CRR_CRG = ISC_CSC_CRR_CRG_CRRGAIN(cs->crr_gain) |
+	                       ISC_CSC_CRR_CRG_CRGGAIN(cs->crg_gain);
+	ISC->ISC_CSC_CRB_OCR = ISC_CSC_CRB_OCR_CRBGAIN(cs->crb_gain) |
+	                       ISC_CSC_CRB_OCR_CROFST(cs->cr_offset);
 }
 
 /*------------------------------------------
@@ -535,15 +531,15 @@ void isc_cbc_enabled(uint8_t enabled)
  * \param ccir656 CCIR656 Stream Enable.
 				0: Raw mode
 				1: CCIR mode
- * \param byteOrder CCIR656 Byte Ordering.
+ * \param byte_order CCIR656 Byte Ordering.
  * \param brightness Brightness Control (signed 11 bits 1:10:0).
- * \param Contrast Contrast (signed 12 bits 1:3:8).
+ * \param contrast Contrast (signed 12 bits 1:3:8).
  */
-void isc_cbc_configure(uint8_t ccir656, uint8_t byteOrder,
+void isc_cbc_configure(uint8_t ccir656, uint8_t byte_order,
 		       uint16_t brightness, uint16_t contrast)
 {
-   if (ccir656)
-		ISC->ISC_CBC_CFG = ISC_CBC_CFG_CCIR | byteOrder ;
+	if (ccir656)
+		ISC->ISC_CBC_CFG = ISC_CBC_CFG_CCIR | byte_order;
 	else
 		ISC->ISC_CBC_CFG = 0;
 	ISC->ISC_CBC_BRIGHT = ISC_CBC_BRIGHT_BRIGHT(brightness);
@@ -553,6 +549,7 @@ void isc_cbc_configure(uint8_t ccir656, uint8_t byteOrder,
 /*------------------------------------------
  *       Sub-sampling functions
  *----------------------------------------*/
+
 /**
  * \brief Enables/disable 4:4:4 to 4:2:2 Chrominance Horizontal Subsampling Filter Enable.
  */
@@ -569,13 +566,13 @@ void isc_sub422_enabled(uint8_t enabled)
  * \param ccir656 CCIR656 Stream Enable.
 				0: Raw mode
 				1: CCIR mode
- * \param byteOrder CCIR656 Byte Ordering.
+ * \param byte_order CCIR656 Byte Ordering.
  * \param lpf Low Pass Filter Selection.
  */
-void isc_sub422_configure(uint8_t ccir656, uint8_t byteOrder, uint8_t lpf)
+void isc_sub422_configure(uint8_t ccir656, uint8_t byte_order, uint8_t lpf)
 {
 	if (ccir656)
-		ISC->ISC_SUB422_CFG = ISC_SUB422_CFG_CCIR | byteOrder ;
+		ISC->ISC_SUB422_CFG = ISC_SUB422_CFG_CCIR | byte_order;
 	else
 		ISC->ISC_SUB422_CFG = 0;
 	ISC->ISC_SUB422_CFG &= ~ISC_SUB422_CFG_FILTER_Msk;
@@ -597,9 +594,8 @@ void isc_sub420_configure(uint8_t enabled, uint8_t filter)
 {
 	if (enabled){
 		ISC->ISC_SUB420_CTRL = ISC_SUB420_CTRL_ENABLE;
-		if (filter){
+		if (filter)
 			ISC->ISC_SUB420_CTRL |= ISC_SUB420_CTRL_FILTER;
-		}
 	} else {
 		ISC->ISC_SUB420_CTRL = 0;
 	}
@@ -608,14 +604,15 @@ void isc_sub420_configure(uint8_t enabled, uint8_t filter)
 /*------------------------------------------
  * Rounding, Limiting and Packing functions
  *----------------------------------------*/
+
 /**
  * \brief Configure Rounding, Limiting and Packing Mode.
- * \param rlpMode Rounding, Limiting and Packing Mode.
+ * \param rlp_mode Rounding, Limiting and Packing Mode.
  * \param alpha Alpha Value for Alpha-enabled RGB Mode.
  */
-void isc_rlp_configure(uint8_t rlpMode, uint8_t alpha)
+void isc_rlp_configure(uint8_t rlp_mode, uint8_t alpha)
 {
-	ISC->ISC_RLP_CFG = rlpMode;
+	ISC->ISC_RLP_CFG = rlp_mode;
 	if (alpha)
 		ISC->ISC_RLP_CFG |= ISC_RLP_CFG_ALPHA(alpha);
 }
@@ -623,6 +620,7 @@ void isc_rlp_configure(uint8_t rlpMode, uint8_t alpha)
 /*------------------------------------------
  *         Histogram functions
  *----------------------------------------*/
+
 /**
  * \brief Enables/disable Histogram
  */
@@ -642,9 +640,9 @@ void isc_histogram_enabled(uint8_t enabled)
 			0: Reset after read mode is disabled
 			1: Reset after read mode is enabled.
  */
-void isc_histogram_configure(uint8_t mode, uint8_t baySel, uint8_t reset)
+void isc_histogram_configure(uint8_t mode, uint8_t bay_sel, uint8_t reset)
 {
-	ISC->ISC_HIS_CFG = mode | baySel;
+	ISC->ISC_HIS_CFG = mode | bay_sel;
 	if (reset)
 		ISC->ISC_HIS_CFG |= ISC_HIS_CFG_RAR;
 }
@@ -654,7 +652,7 @@ void isc_histogram_configure(uint8_t mode, uint8_t baySel, uint8_t reset)
  */
 void isc_update_histogram_table(void)
 {
-	while((ISC->ISC_CTRLSR & ISC_CTRLSR_HISREQ) == ISC_CTRLSR_HISREQ);
+	while ((ISC->ISC_CTRLSR & ISC_CTRLSR_HISREQ) == ISC_CTRLSR_HISREQ);
 	ISC->ISC_CTRLEN = ISC_CTRLEN_HISREQ;
 }
 
@@ -670,6 +668,7 @@ void isc_clear_histogram_table(void)
 /*------------------------------------------
  *         DMA functions
  *----------------------------------------*/
+
 /**
  * \brief Configure ISC DMA input mode.
  * \param mode Operating Mode.
@@ -703,7 +702,7 @@ void isc_dma_enable(uint32_t ctrl)
  * \param address address for giving channel.
  * \param stride stride for giving channel.
  */
-void isc_dma_adderss(uint8_t channel, uint32_t address, uint32_t stride)
+void isc_dma_address(uint8_t channel, uint32_t address, uint32_t stride)
 {
 	ISC->ISC_SUB0[channel].ISC_DAD = address;
 	ISC->ISC_SUB0[channel].ISC_DST = stride;

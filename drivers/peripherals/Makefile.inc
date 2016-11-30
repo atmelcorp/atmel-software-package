@@ -48,7 +48,6 @@ drivers-$(CONFIG_HAVE_SDMMC) += drivers/peripherals/sdmmc.o
 
 drivers-$(CONFIG_HAVE_ACC) += drivers/peripherals/acc.o
 drivers-$(CONFIG_HAVE_CLASSD) += drivers/peripherals/classd.o
-drivers-$(CONFIG_HAVE_ISC) += drivers/peripherals/isc.o
 drivers-$(CONFIG_HAVE_PDMIC) += drivers/peripherals/pdmic.o
 drivers-$(CONFIG_HAVE_SFRBU) += drivers/peripherals/sfrbu.o
 
