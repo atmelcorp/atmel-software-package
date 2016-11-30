@@ -39,3 +39,4 @@ drivers-$(CONFIG_HAVE_QT1070) += drivers/video/qt1070.o
 drivers-$(CONFIG_HAVE_ISC) += drivers/video/isc.o
 drivers-$(CONFIG_HAVE_ISC) += drivers/video/iscd.o
 drivers-$(CONFIG_HAVE_ISI) += drivers/video/isi.o
+drivers-$(CONFIG_HAVE_ISI) += drivers/video/isid.o
