@@ -34,7 +34,7 @@
 #include "trace.h"
 #include "timer.h"
 #include "dma/dma.h"
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/sfc.h"
 #include "misc/console.h"

@@ -46,7 +46,7 @@
 #include "nand_flash_common.h"
 #include "nand_flash_model.h"
 
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 
 /*------------------------------------------------------------------------*/
 /*                      Type                                              */

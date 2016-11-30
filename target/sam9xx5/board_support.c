@@ -45,7 +45,7 @@
 #ifdef CONFIG_HAVE_LCDC
 #include "peripherals/lcdc.h"
 #endif
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/smc.h"
 #include "peripherals/wdt.h"

@@ -54,7 +54,7 @@
 
 #include "trace.h"
 
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "memories/qspiflash.h"
 
 #include "interface.h"

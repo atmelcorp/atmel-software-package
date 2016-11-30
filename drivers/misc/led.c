@@ -39,7 +39,7 @@
 
 #include "misc/led.h"
 
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 
 /*------------------------------------------------------------------------------
  *         Local Variables

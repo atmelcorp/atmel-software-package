@@ -42,7 +42,7 @@
 #include "trace.h"
 #include "compiler.h"
 
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 
 #include "usb/device/usbd.h"
 

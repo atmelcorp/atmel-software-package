@@ -33,7 +33,7 @@
 /*         Headers                                                       */
 /*---------------------------------------------------------------------- */
 
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/pmecc.h"
 #include "peripherals/smc.h"
 

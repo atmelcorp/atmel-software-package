@@ -48,7 +48,7 @@
 #ifdef CONFIG_HAVE_L2CC
 #include "peripherals/l2cc.h"
 #endif
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/pmc.h"
 #include "serial/uart.h"
 #include "serial/usart.h"

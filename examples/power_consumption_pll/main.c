@@ -109,7 +109,7 @@
 
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 
 #include "misc/led.h"
 #include "misc/console.h"

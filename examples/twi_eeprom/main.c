@@ -92,7 +92,7 @@
 #include "board_twi.h"
 #include "trace.h"
 
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/twid.h"
 
 #include "bus/twi-bus.h"

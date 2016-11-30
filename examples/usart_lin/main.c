@@ -102,7 +102,7 @@
 
 #include "peripherals/irq.h"
 #include "peripherals/pmc.h"
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/l2cc.h"
 #include "peripherals/tc.h"

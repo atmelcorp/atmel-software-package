@@ -57,8 +57,6 @@ drivers-$(CONFIG_HAVE_TWI) += drivers/peripherals/twid.o
 drivers-y += drivers/peripherals/wdt.o
 
 drivers-$(CONFIG_HAVE_FLEXCOM) += drivers/peripherals/flexcom.o
-drivers-$(CONFIG_HAVE_PIO3) += drivers/peripherals/pio3.o
-drivers-$(CONFIG_HAVE_PIO4) += drivers/peripherals/pio4.o
 drivers-$(CONFIG_HAVE_QSPI) += drivers/peripherals/qspi.o
 drivers-$(CONFIG_HAVE_MCAN) += drivers/peripherals/mcan.o
 drivers-$(CONFIG_HAVE_SDMMC) += drivers/peripherals/sdmmc.o

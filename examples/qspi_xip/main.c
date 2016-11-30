@@ -93,7 +93,7 @@
 #ifdef CONFIG_HAVE_QSPI_DMA
 #include "dma/dma.h"
 #endif
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/qspi.h"
 
 #include "memories/qspiflash.h"

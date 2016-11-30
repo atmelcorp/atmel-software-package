@@ -43,7 +43,7 @@
 #include "peripherals/sdmmc.h"
 #include "peripherals/wdt.h"
 #include "peripherals/pmc.h"
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "libsdmmc/libsdmmc.h"
 
 #include <assert.h>

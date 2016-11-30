@@ -37,7 +37,7 @@
 #ifndef WM8731_H
 #define WM8731_H
 
-#include <peripherals/pio.h>
+#include <gpio/pio.h>
 #include <peripherals/twid.h>
 
 #include <stdint.h>

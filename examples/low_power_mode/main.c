@@ -116,7 +116,7 @@
 #include "peripherals/rtc.h"
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/l2cc.h"
 #include "peripherals/shdwc.h"
 #ifdef CONFIG_HAVE_SFRBU

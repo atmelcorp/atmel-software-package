@@ -36,7 +36,7 @@
 
 #include "bus/spi-bus.h"
 
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 
 #include "memories/at25.h"
 

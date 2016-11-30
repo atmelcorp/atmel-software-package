@@ -106,7 +106,7 @@
 #include "peripherals/irq.h"
 #include "peripherals/mcan.h"
 #include "peripherals/pmc.h"
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 
 #include "misc/console.h"
 

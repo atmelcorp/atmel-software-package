@@ -112,7 +112,7 @@
 #include "timer.h"
 #include "wav.h"
 
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
 #include "dma/dma.h"

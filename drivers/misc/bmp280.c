@@ -41,7 +41,7 @@
 #include "chip.h"
 #include "math.h"
 #include "misc/bmp280.h"
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/twid.h"
 #include "bus/twi-bus.h"
 #include <stdio.h>

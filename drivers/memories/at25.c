@@ -36,7 +36,7 @@
 #include "compiler.h"
 #include "intmath.h"
 #include "memories/at25.h"
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/pmc.h"
 #include "bus/spi-bus.h"
 #include <stdio.h>

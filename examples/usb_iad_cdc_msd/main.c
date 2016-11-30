@@ -150,7 +150,7 @@
 
 #include "misc/console.h"
 
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 
 
 #include "libstoragemedia/media.h"

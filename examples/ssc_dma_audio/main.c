@@ -97,7 +97,7 @@
 #include "misc/led.h"
 
 #include "misc/cache.h"
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/pit.h"
 #include "dma/dma.h"
 #include "peripherals/ssc.h"

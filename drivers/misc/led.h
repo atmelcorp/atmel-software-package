@@ -57,7 +57,7 @@
 #ifdef CONFIG_HAVE_LED
 
 #include <stdint.h>
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 
 //------------------------------------------------------------------------------
 //         Global Functions

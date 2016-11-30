@@ -33,7 +33,7 @@
 
 #include "chip.h"
 
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/flexcom.h"
 #include "bus/twi-bus.h"

@@ -48,7 +48,7 @@
 #include "peripherals/l2cc.h"
 #include "peripherals/lcdc.h"
 #include "peripherals/matrix.h"
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/sdmmc.h"
 #include "peripherals/sfc.h"

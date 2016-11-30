@@ -37,7 +37,7 @@
 #include "trace.h"
 #include "intmath.h"
 
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/pmecc.h"
 #include "peripherals/pmecc_gf_1024.h"
 #include "peripherals/pmecc_gf_512.h"

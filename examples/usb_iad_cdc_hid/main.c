@@ -148,7 +148,7 @@
 #include "misc/console.h"
 #include "misc/led.h"
 
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
 

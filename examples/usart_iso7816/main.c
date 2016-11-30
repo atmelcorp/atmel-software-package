@@ -105,7 +105,7 @@
 #include "timer.h"
 
 #include "peripherals/pmc.h"
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/pit.h"
 #include "serial/usart_iso7816_4.h"
 

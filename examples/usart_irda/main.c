@@ -90,7 +90,7 @@
 #include "timer.h"
 
 #include "peripherals/irq.h"
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "serial/usartd.h"
 #include "serial/usart.h"
 

@@ -30,7 +30,7 @@
 #ifndef _PIN_DEFS_H_
 #define _PIN_DEFS_H_
 
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/qspi.h"
 #include <stdint.h>
 

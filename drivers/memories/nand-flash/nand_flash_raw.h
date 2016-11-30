@@ -58,7 +58,7 @@
 
 #include <stdint.h>
 
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 
 #include "nand_flash.h"
 

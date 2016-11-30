@@ -114,7 +114,7 @@
 #include "peripherals/pmc.h"
 #include "peripherals/pwmc.h"
 #include "peripherals/pit.h"
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/tc.h"
 
 #include "misc/cache.h"

@@ -31,7 +31,7 @@
 #define AUDIO_DEVICE_API_H
 
 #include "dma/dma.h"
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 
 #if defined(CONFIG_HAVE_CLASSD)
 #include "peripherals/classd.h"

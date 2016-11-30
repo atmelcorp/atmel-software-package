@@ -45,7 +45,7 @@
 #include "peripherals/irq.h"
 #include "peripherals/lcdc.h"
 #include "peripherals/matrix.h"
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/smc.h"
 #include "peripherals/wdt.h"

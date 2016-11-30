@@ -35,7 +35,7 @@
 
 #include "bus/twi-bus.h"
 
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 
 #include "memories/at24.h"
 

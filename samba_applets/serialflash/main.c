@@ -36,7 +36,7 @@
 #include "chip.h"
 #include "memories/at25.h"
 #include "bus/spi-bus.h"
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/spid.h"
 #include "pin_defs.h"

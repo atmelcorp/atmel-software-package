@@ -108,7 +108,7 @@
 #include "peripherals/irq.h"
 #include "peripherals/isi.h"
 #include "misc/cache.h"
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
 

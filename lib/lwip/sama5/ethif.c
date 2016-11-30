@@ -45,7 +45,7 @@
 #include "compiler.h"
 
 #include "network/ethd.h"
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "network/phy.h"
 
 #include "lwip/opt.h"

@@ -62,7 +62,7 @@
 
 #include "chip.h"
 #include "peripherals/irq.h"
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/pmc.h"
 
 #include "trace.h"

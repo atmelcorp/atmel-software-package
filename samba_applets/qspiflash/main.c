@@ -34,7 +34,7 @@
 #include "applet.h"
 #include "board.h"
 #include "chip.h"
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/qspi.h"
 #include "memories/qspiflash.h"

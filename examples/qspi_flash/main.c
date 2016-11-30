@@ -7,7 +7,7 @@
 #include "trace.h"
 #include "compiler.h"
 
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/pmc.h"
 #include "peripherals/qspi.h"
 #include "crypto/trng.h"

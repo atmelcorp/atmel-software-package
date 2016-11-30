@@ -142,7 +142,7 @@
 #include "trace.h"
 #include "compiler.h"
 
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/spid.h"
 
 #include "bus/spi-bus.h"

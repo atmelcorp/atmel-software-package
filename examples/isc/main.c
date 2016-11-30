@@ -93,7 +93,7 @@
 #include "peripherals/irq.h"
 #include "peripherals/isc.h"
 #include "peripherals/lcdc.h"
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "peripherals/pmc.h"
 #include "dma/xdmacd.h"
 

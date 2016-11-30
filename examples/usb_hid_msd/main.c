@@ -152,7 +152,7 @@
 #include "board.h"
 #include "trace.h"
 
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 
 #include "libstoragemedia/media.h"
 #include "libstoragemedia/media_private.h"

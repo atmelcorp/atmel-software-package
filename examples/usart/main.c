@@ -33,7 +33,7 @@
 #include "chip.h"
 
 #include "peripherals/pmc.h"
-#include "peripherals/pio.h"
+#include "gpio/pio.h"
 #include "serial/usartd.h"
 #include "serial/usart.h"
 
