@@ -110,7 +110,7 @@
 #include "timer.h"
 
 #include "misc/console.h"
-#include "peripherals/ethd.h"
+#include "network/ethd.h"
 
 #include "uip/uip.h"
 #include "uip/uip_arp.h"

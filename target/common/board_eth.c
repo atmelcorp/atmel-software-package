@@ -45,7 +45,7 @@
 
 #include "memories/at24.h"
 
-#include "peripherals/ethd.h"
+#include "network/ethd.h"
 #include "peripherals/pio.h"
 
 #include "network/phy.h"

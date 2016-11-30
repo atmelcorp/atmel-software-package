@@ -37,10 +37,10 @@
 #include "ring.h"
 
 #ifdef CONFIG_HAVE_EMAC
-#include "peripherals/emacd.h"
+#include "network/emacd.h"
 #endif
 #ifdef CONFIG_HAVE_GMAC
-#include "peripherals/gmacd.h"
+#include "network/gmacd.h"
 #endif
 
 #include "misc/cache.h"

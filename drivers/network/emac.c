@@ -40,7 +40,7 @@
 
 #include "chip.h"
 #include "trace.h"
-#include "peripherals/emac.h"
+#include "network/emac.h"
 #include "peripherals/pmc.h"
 #include <stdio.h>
 #include <string.h>

@@ -108,7 +108,7 @@
 #include "trace.h"
 #include "timer.h"
 
-#include "peripherals/ethd.h"
+#include "network/ethd.h"
 
 #include "misc/console.h"
 

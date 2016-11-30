@@ -26,4 +26,9 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
+drivers-$(CONFIG_HAVE_ETH) += drivers/network/ethd.o
+drivers-$(CONFIG_HAVE_EMAC) += drivers/network/emacd.o
+drivers-$(CONFIG_HAVE_EMAC) += drivers/network/emac.o
+drivers-$(CONFIG_HAVE_GMAC) += drivers/network/gmacd.o
+drivers-$(CONFIG_HAVE_GMAC) += drivers/network/gmac.o
 drivers-$(CONFIG_HAVE_ETH) += drivers/network/phy.o

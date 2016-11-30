@@ -114,7 +114,7 @@
 
 #include "misc/cache.h"
 #include "misc/console.h"
-#include "peripherals/ethd.h"
+#include "network/ethd.h"
 #include "peripherals/pio.h"
 #include "peripherals/pmc.h"
 

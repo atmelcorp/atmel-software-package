@@ -35,7 +35,7 @@
 #include "trace.h"
 #include "ring.h"
 
-#include "peripherals/gmacd.h"
+#include "network/gmacd.h"
 #include "peripherals/irq.h"
 #include "misc/cache.h"
 #include "peripherals/pmc.h"

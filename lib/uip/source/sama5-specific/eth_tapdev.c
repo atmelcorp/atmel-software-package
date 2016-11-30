@@ -35,7 +35,7 @@
 #include "board.h"
 #include "board_eth.h"
 #include "trace.h"
-#include "peripherals/ethd.h"
+#include "network/ethd.h"
 
 #include "uip.h"
 #include "uip_arp.h"

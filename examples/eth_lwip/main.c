@@ -109,7 +109,7 @@
 #include "board.h"
 #include "board_eth.h"
 
-#include "peripherals/ethd.h"
+#include "network/ethd.h"
 
 #include "misc/console.h"
 

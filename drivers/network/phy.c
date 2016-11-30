@@ -38,10 +38,10 @@
 #include "timer.h"
 
 #ifdef CONFIG_HAVE_EMAC
-#include "peripherals/emac.h"
+#include "network/emac.h"
 #endif
 #ifdef CONFIG_HAVE_GMAC
-#include "peripherals/gmac.h"
+#include "network/gmac.h"
 #endif
 
 #include "network/phy.h"

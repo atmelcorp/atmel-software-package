@@ -29,45 +29,45 @@
 
 /** \file */
 
-/** \addtogroup gmacd_module
+/** \addtogroup emacd_module
  * @{
- * Implement GMAC data transfer and PHY management functions.
+ * Implement EMAC data transfer and PHY management functions.
  *
  * \section Usage
- * -# Initialize the instance with gmacd_configure() and gmacd_setup_queue(),
- *    so that GMAC data can be transmitted/received.
- * -# Some management callbacks can be set by gmacd_set_rx_callback()
+ * -# Initialize the instance with emacd_configure() and emacd_setup_queue(),
+ *    so that EMAC data can be transmitted/received.
+ * -# Some management callbacks can be set by emacd_set_rx_callback()
  *    and ethd_set_tx_wakeup_callback().
  * -# Send ethernet packets using ethd_send(), ethd_get_tx_load() is used
  *    to get the free space in TX queue.
  * -# Check and obtain received ethernet packets via ethd_poll().
  *
- * \sa \ref gmacb_module, \ref gmac_module
+ * \sa \ref macb_module, \ref emac_module
  *
  * Related files:\n
- * \ref gmacd.c\n
- * \ref gmacd.h.\n
+ * \ref emacd.c\n
+ * \ref emacd.h.\n
  *
- *  \defgroup gmacd_defines GMAC Driver Defines
- *  \defgroup gmacd_types GMAC Driver Types
- *  \defgroup gmacd_functions GMAC Driver Functions
+ *  \defgroup emacd_defines EMAC Driver Defines
+ *  \defgroup emacd_types EMAC Driver Types
+ *  \defgroup emacd_functions EMAC Driver Functions
  */
 /**@}*/
 
-#ifndef _GMACD_H_
-#define _GMACD_H_
+#ifndef _EMACD_H_
+#define _EMACD_H_
 
-#ifdef CONFIG_HAVE_GMAC
+#ifdef CONFIG_HAVE_EMAC
 /*---------------------------------------------------------------------------
  *         Headers
  *---------------------------------------------------------------------------*/
 
-#include "peripherals/gmac.h"
+#include "network/emac.h"
 
 /*---------------------------------------------------------------------------
  *         Definitions
  *---------------------------------------------------------------------------*/
-/** \addtogroup gmacd_defines
+/** \addtogroup emacd_defines
     @{*/
 
 /** @}*/
@@ -75,51 +75,51 @@
 /*---------------------------------------------------------------------------
  *         Types
  *---------------------------------------------------------------------------*/
-/** \addtogroup gmacd_types
+/** \addtogroup emacd_types
     @{*/
 
 /** @}*/
 
 /*---------------------------------------------------------------------------
- *         GMAC Exported variables
+ *         EMAC Exported variables
  *---------------------------------------------------------------------------*/
 
-extern const struct _ethd_op _gmac_op;
+extern const struct _ethd_op _emac_op;
 
-/** \addtogroup gmacd_functions
+/** \addtogroup emacd_functions
     @{*/
 
 /*---------------------------------------------------------------------------
- *         GMAC Exported functions
+ *         EMAC Exported functions
  *---------------------------------------------------------------------------*/
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern void gmacd_configure(struct _ethd* gmacd, Gmac *pHw, uint8_t enableCAF, uint8_t enableNBC);
+extern void emacd_configure(struct _ethd* emacd, Emac *pHw, uint8_t enableCAF, uint8_t enableNBC);
 
-extern uint8_t gmacd_setup_queue(struct _ethd* gmacd, uint8_t queue,
+extern uint8_t emacd_setup_queue(struct _ethd* emacd, uint8_t queue,
 		uint16_t rx_size, uint8_t* rx_buffer, struct _eth_desc* rx_desc,
 		uint16_t tx_size, uint8_t* tx_buffer, struct _eth_desc* tx_desc,
 		ethd_callback_t *tx_callbacks);
 
-extern void gmacd_start(struct _ethd* gmacd);
+extern void emacd_start(struct _ethd* emacd);
 
-extern void gmacd_reset(struct _ethd* gmacd);
+extern void emacd_reset(struct _ethd* emacd);
 
-extern uint8_t gmacd_send_sg(struct _ethd* gmacd, uint8_t queue,
+extern uint8_t emacd_send_sg(struct _ethd* emacd, uint8_t queue,
 		const struct _eth_sg_list* sgl, ethd_callback_t callback);
 
-extern uint8_t gmacd_send(struct _ethd* gmacd, uint8_t queue, void *buffer,
+extern uint8_t emacd_send(struct _ethd* emacd, uint8_t queue, void *buffer,
 		uint32_t size, ethd_callback_t callback);
 
-extern uint32_t gmacd_get_tx_load(struct _ethd* gmacd, uint8_t queue);
+extern uint32_t emacd_get_tx_load(struct _ethd* emacd, uint8_t queue);
 
-extern uint8_t gmacd_poll(struct _ethd* gmacd, uint8_t queue,
+extern uint8_t emacd_poll(struct _ethd* emacd, uint8_t queue,
 		uint8_t* buffer, uint32_t buffer_size, uint32_t* recv_size);
 
-extern void gmacd_set_rx_callback(struct _ethd *gmacd, uint8_t queue,
+extern void emacd_set_rx_callback(struct _ethd *emacd, uint8_t queue,
 		ethd_callback_t callback);
 
 /** @}*/
@@ -128,6 +128,6 @@ extern void gmacd_set_rx_callback(struct _ethd *gmacd, uint8_t queue,
 }
 #endif
 
-#endif /* CONFIG_HAVE_GMAC */
+#endif /* CONFIG_HAVE_EMAC */
 
-#endif /* _GMACD_H_ */
+#endif /* _EMACD_H_ */
