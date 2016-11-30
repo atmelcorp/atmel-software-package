@@ -86,20 +86,20 @@
 
 #include "board.h"
 #include "chip.h"
+#include "compiler.h"
+#include "trace.h"
+#include "timer.h"
 
-#include "peripherals/isi.h"
-#include "peripherals/lcdc.h"
 #include "gpio/pio.h"
-#include "peripherals/pmc.h"
 
 #include "misc/cache.h"
 #include "misc/console.h"
 
-#include "video/image_sensor_inf.h"
+#include "peripherals/lcdc.h"
+#include "peripherals/pmc.h"
 
-#include "compiler.h"
-#include "trace.h"
-#include "timer.h"
+#include "video/image_sensor_inf.h"
+#include "video/isi.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -284,7 +284,7 @@ extern int main( void )
 			while (1);
 		}
 	} else {
-		printf("-E- Can't detect sensor connected to board");
+		printf("-E- Can't detect supported sensor connected to board\r\n");
 		while (1);
 	}
 

@@ -33,9 +33,9 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
-#include "peripherals/isi.h"
-
 #include "trace.h"
+
+#include "video/isi.h"
 
 /*----------------------------------------------------------------------------
  *        Export functions
@@ -57,8 +57,8 @@ void isi_disable(void)
 {
 	/* Write one to this field to disable the module */
 	ISI->ISI_CR = ISI_CR_ISI_DIS;
-	/* Software must poll DIS_DONE field in the ISI_STATUS register to verify that the command
-	has successfully completed.*/
+	/* Software must poll DIS_DONE field in the ISI_STATUS register to 
+	verify that the command has successfully completed.*/
 	while ((ISI->ISI_SR & ISI_SR_DIS_DONE) != ISI_SR_DIS_DONE);
 }
 
@@ -144,7 +144,7 @@ void isi_codec_wait_dma_completed(void)
  */
 void isi_preview_wait_dma_completed(void)
 {
-	while ((ISI->ISI_SR & ISI_SR_CXFR_DONE) != ISI_SR_CXFR_DONE);
+	while ((ISI->ISI_SR & ISI_SR_PXFR_DONE) != ISI_SR_PXFR_DONE);
 }
 
 /**
@@ -177,7 +177,7 @@ void isi_set_framerate(uint32_t frame)
 {
 	uint32_t isicfg1 = ISI->ISI_CFG1 & ~ISI_CFG1_FRATE_Msk;
 	if (frame > 7) {
-		trace_error("rate too big\n\r");
+		trace_error("rate too big\r\n");
 		frame = 7;
 	}
 	ISI->ISI_CFG1 = isicfg1 | ISI_CFG1_FRATE(frame);
@@ -217,13 +217,10 @@ void isi_reset(void)
 	// Finish capturing the current frame and then shut down the module.
 	ISI->ISI_CR = ISI_CR_ISI_SRST | ISI_CR_ISI_DIS;
 	// wait Software reset has completed successfully.
-	while( (!(ISI->ISI_SR & ISI_SR_SRST))
-			&& (timeout < 0x50000) ) {
+	while (!(ISI->ISI_SR & ISI_SR_SRST) && timeout < 0x50000)
 		timeout++;
-	}
-	if( timeout == 0x50000) {
-		trace_error("ISI-Reset timeout\n\r");
-	}
+	if (timeout == 0x50000)
+		trace_error("ISI-Reset timeout\r\n");
 }
 
 /**
@@ -233,7 +230,8 @@ void isi_reset(void)
  */
 void isi_set_blank(uint8_t horizontal_bank, uint8_t vertical_bank)
 {
-	uint32_t isicfg1 = ISI->ISI_CFG1 & ~(ISI_CFG1_SLD_Msk | ISI_CFG1_SFD_Msk);
+	uint32_t isicfg1 = ISI->ISI_CFG1;
+	isicfg1 &= ~(ISI_CFG1_SLD_Msk | ISI_CFG1_SFD_Msk);
 	ISI->ISI_CFG1 = isicfg1
 	              | ISI_CFG1_SLD(horizontal_bank)
 	              | ISI_CFG1_SFD(vertical_bank);
@@ -246,7 +244,8 @@ void isi_set_blank(uint8_t horizontal_bank, uint8_t vertical_bank)
  */
 void isi_set_sensor_size(uint32_t horizontal_size, uint32_t vertical_size)
 {
-	uint32_t isicfg2 = ISI->ISI_CFG2 & ~(ISI_CFG2_IM_VSIZE_Msk | ISI_CFG2_IM_HSIZE_Msk);
+	uint32_t isicfg2 = ISI->ISI_CFG2;
+       isicfg2 &= ~(ISI_CFG2_IM_VSIZE_Msk | ISI_CFG2_IM_HSIZE_Msk);
 	// IM_VSIZE: Vertical size of the Image sensor [0..2047]
 	// Vertical size = IM_VSIZE + 1
 	// IM_HSIZE: Horizontal size of the Image sensor [0..2047]
@@ -290,14 +289,20 @@ void isi_ycrcb_format(uint32_t yuv_swap)
 
 /**
  * \brief Input image is assumed to be grayscale-coded.
+ * \param enable 1: enable grayscale mode, 0: disable grayscale mode.
  * \param pixel_format  0: 2 pixels per word, 1:1 pixel per word.
  */
-void isi_set_grayscale_mode(uint32_t pixel_format)
+void isi_set_grayscale_mode(uint8_t enable, uint32_t pixel_format)
 {
-	if (pixel_format)
-		ISI->ISI_CFG2 |= ISI_CFG2_GS_MODE;
-	else
-		ISI->ISI_CFG2 &= ~ISI_CFG2_GS_MODE;
+	if (enable) {
+		ISI->ISI_CFG2 |= ISI_CFG2_GRAYSCALE;
+		if (pixel_format)
+			ISI->ISI_CFG2 |= ISI_CFG2_GS_MODE;
+		else
+			ISI->ISI_CFG2 &= ~ISI_CFG2_GS_MODE;
+	} else {
+		ISI->ISI_CFG2 &= ~ISI_CFG2_GRAYSCALE;
+	}
 }
 
 /**
@@ -335,19 +340,18 @@ void isi_set_preview_size(uint32_t horizontal_size, uint32_t vertical_size)
  */
 void isi_calc_scaler_factor(void)
 {
-	uint32_t horizontal_lcd_size, horizontal_sensor_size;
-	uint32_t vertical_lcd_size, vertical_sensor_size;
-	uint32_t horizontal_ratio, vertical_ratio, ratio;
+	uint32_t lw, lh; /* LCD width/height */
+	uint32_t sw, sh; /* Sensor width/height */
+	uint32_t ratiow, ratioh, ratio;
 
-	horizontal_lcd_size = ((ISI->ISI_PSIZE & ISI_PSIZE_PREV_HSIZE_Msk) >> ISI_PSIZE_PREV_HSIZE_Pos) + 1;
-	horizontal_sensor_size = ((ISI->ISI_CFG2 & ISI_CFG2_IM_HSIZE_Msk ) >> ISI_CFG2_IM_HSIZE_Pos) + 1;
+	lw = ((ISI->ISI_PSIZE & ISI_PSIZE_PREV_HSIZE_Msk) >> ISI_PSIZE_PREV_HSIZE_Pos) + 1;
+	lh = ((ISI->ISI_PSIZE & ISI_PSIZE_PREV_VSIZE_Msk) >> ISI_PSIZE_PREV_VSIZE_Pos) + 1;
+	sw = ((ISI->ISI_CFG2 & ISI_CFG2_IM_HSIZE_Msk ) >> ISI_CFG2_IM_HSIZE_Pos) + 1;
+	sh = ((ISI->ISI_CFG2 & ISI_CFG2_IM_VSIZE_Msk ) >> ISI_CFG2_IM_VSIZE_Pos) + 1;
 
-	vertical_lcd_size = ((ISI->ISI_PSIZE & ISI_PSIZE_PREV_VSIZE_Msk) >> ISI_PSIZE_PREV_VSIZE_Pos) + 1;
-	vertical_sensor_size = ((ISI->ISI_CFG2 & ISI_CFG2_IM_VSIZE_Msk ) >> ISI_CFG2_IM_VSIZE_Pos) + 1;
-
-	horizontal_ratio = (1600 * horizontal_sensor_size ) / horizontal_lcd_size;
-	vertical_ratio = (1600 * vertical_sensor_size ) / vertical_lcd_size;
-	ratio = (horizontal_ratio > vertical_ratio) ? vertical_ratio : horizontal_ratio;
+	ratiow = (1600 * sw) / lw;
+	ratioh = (1600 * sh) / lh;
+	ratio = (ratiow > ratioh) ? ratioh : ratiow;
 	ratio = (ratio > 16) ? ratio : 16;
 	ISI->ISI_PDECF = ratio / 100;
 }
@@ -359,8 +363,8 @@ void isi_calc_scaler_factor(void)
  * \param frame_buffer_address  DMA Preview Base Address.
  */
 void isi_set_dma_preview_path(uint32_t descriptor_address,
-		uint32_t descriptor_dma_control,
-		uint32_t frame_buffer_address)
+                              uint32_t descriptor_dma_control,
+                              uint32_t frame_buffer_address)
 {
 	ISI->ISI_DMA_P_DSCR = descriptor_address;
 	ISI->ISI_DMA_P_CTRL = descriptor_dma_control;
@@ -374,8 +378,8 @@ void isi_set_dma_preview_path(uint32_t descriptor_address,
  * \param frame_buffer_address  DMA Preview Base Address.
  */
 void isi_set_dma_codec_path(uint32_t descriptor_address,
-		uint32_t descriptor_dma_control,
-		uint32_t frame_buffer_address)
+                            uint32_t descriptor_dma_control,
+                            uint32_t frame_buffer_address)
 {
 	ISI->ISI_DMA_C_DSCR = descriptor_address;
 	ISI->ISI_DMA_C_CTRL = descriptor_dma_control;

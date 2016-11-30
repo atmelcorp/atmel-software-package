@@ -27,24 +27,6 @@
  * ----------------------------------------------------------------------------
  */
 
-/** \file */
-
-/** \addtogroup isi_module
- * @{
- * \section gmac_usage Usage
- * - ISI_Init: initialize ISI with default parameters
- * - ISI_EnableInterrupt: enable one or more interrupts
- * - ISI_DisableInterrupt: disable one or more interrupts
- * - ISI_Enable: enable isi module
- * - ISI_Disable: disable isi module
- * - ISI_CodecPathFull: enable codec path
- * - ISI_SetFrame: set frame rate
- * - ISI_BytesForOnePixel: return number of byte for one pixel
- * - ISI_StatusRegister: return ISI status register
- * - ISI_Reset: make a software reset
- */
-/**@}*/
-
 #ifndef ISI_H_
 #define ISI_H_
 
@@ -53,16 +35,17 @@
 /*----------------------------------------------------------------------------
  *        Definition
  *----------------------------------------------------------------------------*/
-#define YUV_INPUT          0
-#define RGB_INPUT          1
-#define GRAYSCALE_INPUT    2
 
-#define ONE_BYTE_PER_PIXEL    1
-#define TWO_BYTE_PER_PIXEL    2
-#define THREE_BYTE_PER_PIXEL  3
+#define YUV_INPUT       0
+#define RGB_INPUT       1
+#define GRAYSCALE_INPUT 2
 
-#define YUV_INPUT    0
-#define RGB_INPUT    1
+#define ONE_BYTE_PER_PIXEL   1
+#define TWO_BYTE_PER_PIXEL   2
+#define THREE_BYTE_PER_PIXEL 3
+
+#define YUV_INPUT 0
+#define RGB_INPUT 1
 
 /*----------------------------------------------------------------------------
  *        Types
@@ -172,7 +155,7 @@ extern void isi_rgb_swap_mode(uint32_t rgb_swap);
 
 extern void isi_ycrcb_format(uint32_t yuv_swap);
 
-extern void isi_set_grayscale_mode(uint32_t pixel_format);
+extern void isi_set_grayscale_mode(uint8_t enable, uint32_t pixel_format);
 
 extern void isi_set_input_stream(uint32_t stream_mode);
 
@@ -192,4 +175,3 @@ extern void isi_set_matrix_rgb2yuv(struct _isi_rgb2yuv *rgb2yuv);
 #endif /* CONFIG_HAVE_ISI */
 
 #endif /* ISI_H_ */
-

@@ -100,19 +100,20 @@
 #include "chip.h"
 #include "trace.h"
 #include "compiler.h"
-#include "rand.h"
-
-#include "misc/console.h"
 #include "timer.h"
 
-#include "irq/irq.h"
-#include "peripherals/isi.h"
-#include "misc/cache.h"
 #include "gpio/pio.h"
+
+#include "irq/irq.h"
+
+#include "misc/cache.h"
+#include "misc/console.h"
+
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
 
 #include "video/image_sensor_inf.h"
+#include "video/isi.h"
 
 #include "usb/common/uvc/usb_video.h"
 #include "usb/common/uvc/uvc_descriptors.h"
@@ -299,7 +300,7 @@ extern int main( void )
 			while (1);
 		}
 	} else {
-		printf("-E- Can't detect sensor connected to board");
+		printf("-E- Can't detect supported sensor connected to board\r\n");
 		while (1);
 	}
 
