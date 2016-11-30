@@ -39,6 +39,7 @@ TOP := ../..
 
 BINNAME = usb_mass_storage
 
+CONFIG_USB = y
 CONFIG_LIB_USB = y
 CONFIG_LIB_USB_MSD = y
 CONFIG_LIB_STORAGEMEDIA = y

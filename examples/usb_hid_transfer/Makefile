@@ -33,6 +33,7 @@ TOP := ../..
 BINNAME = usb_hid_transfer
 
 CONFIG_LED = y
+CONFIG_USB = y
 CONFIG_LIB_USB = y
 CONFIG_LIB_USB_HID = y
 

@@ -36,6 +36,7 @@ TOP := ../..
 BINNAME = usb_uvc_isi
 
 CONFIG_IMAGE_SENSOR = y
+CONFIG_USB = y
 CONFIG_ISI = y
 CONFIG_LIB_USB = y
 CONFIG_LIB_USB_UVC = y

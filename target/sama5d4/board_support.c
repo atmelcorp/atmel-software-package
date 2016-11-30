@@ -325,6 +325,7 @@ void board_cfg_mmu(void)
 	           | TTB_SECT_SHAREABLE_DEVICE
 	           | TTB_TYPE_SECT;
 
+#ifdef CONFIG_HAVE_UDPHS
 	/* 0x00400000: UDPHS (RAM) */
 	tlb[0x004] = TTB_SECT_ADDR(0x00400000)
 	           | TTB_SECT_AP_FULL_ACCESS
@@ -348,6 +349,7 @@ void board_cfg_mmu(void)
 	           | TTB_SECT_EXEC_NEVER
 	           | TTB_SECT_SHAREABLE_DEVICE
 	           | TTB_TYPE_SECT;
+#endif /* CONFIG_HAVE_UDPHS */
 
 	/* 0x00700000: AXI Matrix */
 	tlb[0x007] = TTB_SECT_ADDR(0x00700000)

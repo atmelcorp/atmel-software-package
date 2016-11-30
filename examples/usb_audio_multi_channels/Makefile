@@ -36,6 +36,7 @@ BINNAME = usb_audio_multi_channels
 VARIANT ?= ddram
 
 CONFIG_AUDIO = y
+CONFIG_USB = y
 CONFIG_LIB_USB = y
 CONFIG_LIB_USB_AUDIO = y
 

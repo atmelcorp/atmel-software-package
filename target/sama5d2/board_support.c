@@ -344,6 +344,7 @@ void board_cfg_mmu(void)
 	           | TTB_SECT_CACHEABLE_WB
 	           | TTB_TYPE_SECT;
 
+#ifdef CONFIG_HAVE_UDPHS
 	/* 0x00300000: UDPHS (RAM) */
 	tlb[0x003] = TTB_SECT_ADDR(0x00300000)
 	           | TTB_SECT_AP_FULL_ACCESS
@@ -367,6 +368,7 @@ void board_cfg_mmu(void)
 	           | TTB_SECT_EXEC_NEVER
 	           | TTB_SECT_SHAREABLE_DEVICE
 	           | TTB_TYPE_SECT;
+#endif /* CONFIG_HAVE_UDPHS */
 
 	/* 0x00600000: AXIMX */
 	tlb[0x006] = TTB_SECT_ADDR(0x00600000)

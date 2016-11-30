@@ -265,6 +265,7 @@ void board_cfg_mmu(void)
 	           | TTB_SECT_SBO
 	           | TTB_TYPE_SECT;
 
+#ifdef CONFIG_HAVE_UDPHS
 	/* 0x00500000: UDPHS RAM */
 	tlb[0x005] = TTB_SECT_ADDR(0x00500000)
 	           | TTB_SECT_AP_FULL_ACCESS
@@ -288,6 +289,7 @@ void board_cfg_mmu(void)
 	           | TTB_SECT_SHAREABLE_DEVICE
 	           | TTB_SECT_SBO
 	           | TTB_TYPE_SECT;
+#endif /* CONFIG_HAVE_UDPHS */
 
 	/* 0x10000000: EBI Chip Select 0 */
 	for (addr = 0x100; addr < 0x200; addr++)

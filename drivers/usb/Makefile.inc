@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2015, Atmel Corporation
+# Copyright (c) 2016, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -26,4 +26,4 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-drivers-$(CONFIG_LIB_USB) += drivers/usb/usbd_hal.o
+drivers-$(CONFIG_HAVE_UDPHS) += drivers/usb/usbd_udphs.o

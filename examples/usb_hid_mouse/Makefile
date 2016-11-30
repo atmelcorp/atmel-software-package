@@ -32,6 +32,7 @@ TOP := ../..
 
 BINNAME = usb_hid_mouse
 
+CONFIG_USB = y
 CONFIG_LIB_USB = y
 CONFIG_LIB_USB_HID = y
 

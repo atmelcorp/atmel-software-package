@@ -250,7 +250,7 @@ void board_save_misc_power(void)
 	/* Disable audio clock */
 	pmc_disable_audio();
 #endif
-	
+
 	/* disable system clocks */
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_DDR);
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_LCD);
@@ -327,6 +327,7 @@ void board_cfg_mmu(void)
 	           | TTB_SECT_SHAREABLE_DEVICE
 	           | TTB_TYPE_SECT;
 
+#ifdef CONFIG_HAVE_UDPHS
 	/* 0x00500000: UDPHS (RAM) */
 	tlb[0x005] = TTB_SECT_ADDR(0x00500000)
 	           | TTB_SECT_AP_FULL_ACCESS
@@ -350,6 +351,7 @@ void board_cfg_mmu(void)
 	           | TTB_SECT_EXEC_NEVER
 	           | TTB_SECT_SHAREABLE_DEVICE
 	           | TTB_TYPE_SECT;
+#endif /* CONFIG_HAVE_UDPHS */
 
 	/* 0x00800000: AXI Matrix */
 	tlb[0x008] = TTB_SECT_ADDR(0x00800000)
@@ -643,7 +645,7 @@ bool board_power_sdmmc_device(uint32_t periph_id, bool on)
 		/* This slot doesn't support switching VDD off */
 		return on;
 	if (on) {
-		/* 
+		/*
 		 * Workaround HW issue affecting SAMA5D4-EK and SAMA5D4-XULT;
 		 * flipping straight the VDD switch often causes the VCC_3V3
 		 * rail to drop and trigger reset upon under-voltage.
