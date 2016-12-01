@@ -246,7 +246,7 @@
 /* =================== ISI device definition =================== */
 
 #define BOARD_ISI_TWI_BUS  1
-#define BOARD_ISI_PINS     PINS_ISI
+#define BOARD_ISI_PINS     PINS_ISI_8BIT
 #define BOARD_ISI_RST_PIN  { PIO_GROUP_E, PIO_PE24, PIO_OUTPUT_1, PIO_DEFAULT }
 #define BOARD_ISI_PWD_PIN  { PIO_GROUP_E, PIO_PE29, PIO_OUTPUT_1, PIO_DEFAULT }
 

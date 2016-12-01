@@ -404,12 +404,18 @@
 /** Image Sensor Interface MCK. */
 #define PIN_ISI_MCK { PIO_GROUP_D, PIO_PD31B_PCK1, PIO_PERIPH_B, PIO_DEFAULT }
 
-/** Image Sensor Interface data pins. */
-#define PINS_ISI_DATA {PIO_GROUP_A, 0x00FF0000, PIO_PERIPH_C, PIO_DEFAULT },\
-					{PIO_GROUP_C, 0x3CFF0000, PIO_PERIPH_C, PIO_DEFAULT }
+/** Image Sensor Interface data pins (8-bit) */
+#define PINS_ISI_DATA_8BIT { PIO_GROUP_A, 0x00FF0000, PIO_PERIPH_C, PIO_DEFAULT }
 
-/** Image Sensor Interface pin list. */
-#define PINS_ISI { PIN_ISI_VSYNC, PIN_ISI_HSYNC, PIN_ISI_PCK, PIN_ISI_MCK, PINS_ISI_DATA }
+/** Image Sensor Interface data pins (12-bit) */
+#define PINS_ISI_DATA_12BIT PINS_ISI_DATA_8BIT,\
+                            { PIO_GROUP_C, 0x3C000000, PIO_PERIPH_C, PIO_DEFAULT }
+
+/** Image Sensor Interface pin list (8-bit data) */
+#define PINS_ISI_8BIT { PIN_ISI_VSYNC, PIN_ISI_HSYNC, PIN_ISI_PCK, PIN_ISI_MCK, PINS_ISI_DATA_8BIT }
+
+/** Image Sensor Interface pin list (12-bit data) */
+#define PINS_ISI_12BIT { PIN_ISI_VSYNC, PIN_ISI_HSYNC, PIN_ISI_PCK, PIN_ISI_MCK, PINS_ISI_DATA_12BIT }
 
 /* ========== Pio PIN definition for HSMCI0 peripheral ========== */
 
