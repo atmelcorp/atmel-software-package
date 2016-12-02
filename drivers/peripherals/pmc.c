@@ -332,6 +332,37 @@ static bool _pmc_get_system_clock_bits(enum _pmc_system_clock clock,
 	return true;
 }
 
+#ifdef CONFIG_HAVE_PMC_PERIPH_DIV
+static void _pmc_configure_peripheral_div(uint32_t id, uint32_t div)
+{
+	uint32_t clk_max;
+	bool can_divide;
+
+	can_divide = peripheral_has_clock_div(id);
+	clk_max = get_peripheral_clock_max_freq(id);
+
+	if (div == 0) {
+		if (can_divide) {
+			for (div = 0; div < ((PMC_PCR_DIV_Msk >> PMC_PCR_DIV_Pos)); div++)
+				if ((pmc_get_master_clock() >> div) <= clk_max)
+					break;
+		}
+	} else {
+		if (div > 1 && !can_divide)
+			trace_fatal("Peripheral does not support divided clock\r\n");
+		div--;
+	}
+
+	if ((pmc_get_master_clock() >> div) <= clk_max) {
+		PMC->PMC_PCR = PMC_PCR_PID(id);
+		volatile uint32_t pcr = PMC->PMC_PCR;
+		PMC->PMC_PCR = (pcr & ~PMC_PCR_DIV_Msk) | PMC_PCR_DIV(div) | PMC_PCR_CMD;
+	} else {
+		trace_fatal("Peripheral clock for periph#%d is too high\r\n", (int)id);
+	}
+}
+#endif
+
 /*----------------------------------------------------------------------------
  *        Exported functions (General)
  *----------------------------------------------------------------------------*/
@@ -463,7 +494,7 @@ void pmc_select_external_osc(void)
 	 */
 	pmc_enable_internal_osc();
 	pmc_enable_external_osc();
-	
+
 	/* switch MAIN clock to external OSC 12 MHz */
 	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_KEY_Msk) | CKGR_MOR_MOSCSEL
 	    | CKGR_MOR_KEY_PASSWD;
@@ -497,7 +528,7 @@ void pmc_enable_external_osc(void)
 #else
 	/* Enable external osc 12 MHz when needed */
 	if ((cgmor & CKGR_MOR_MOSCXTEN) != CKGR_MOR_MOSCXTEN) {
-		cgmor = (cgmor & ~CKGR_MOR_MOSCXTST_Msk & ~CKGR_MOR_KEY_Msk) 
+		cgmor = (cgmor & ~CKGR_MOR_MOSCXTST_Msk & ~CKGR_MOR_KEY_Msk)
 		    | CKGR_MOR_MOSCXTST(18) | CKGR_MOR_MOSCXTEN | CKGR_MOR_KEY_PASSWD;
 		PMC->CKGR_MOR = cgmor;
 		/* Wait Main Oscillator ready */
@@ -516,7 +547,7 @@ void pmc_disable_external_osc(void)
 void pmc_select_internal_osc(void)
 {
 	pmc_enable_internal_osc();
-	
+
 	/* switch MAIN clock to internal RC 12 MHz */
 	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_MOSCSEL & ~CKGR_MOR_KEY_Msk) | CKGR_MOR_KEY_PASSWD;
 
@@ -767,37 +798,49 @@ void pmc_set_custom_pck_mck(struct pck_mck_cfg *cfg)
  *        Exported functions (Peripherals)
  *----------------------------------------------------------------------------*/
 
+void pmc_configure_peripheral(uint32_t id, struct _pmc_periph_cfg* cfg, bool enable)
+{
+	assert(id < ID_PERIPH_COUNT);
+
+	pmc_disable_peripheral(id);
+
+	if (cfg != NULL) {
+#ifdef CONFIG_HAVE_PMC_GENERATED_CLOCKS
+		if (cfg->gck.div > 0)
+			pmc_configure_gck(id, cfg->gck.css, cfg->gck.div);
+#endif
+
+#ifdef CONFIG_HAVE_PMC_PERIPH_DIV
+		_pmc_configure_peripheral_div(id, cfg->div);
+#endif
+	} else {
+#ifdef CONFIG_HAVE_PMC_GENERATED_CLOCKS
+		pmc_disable_gck(id);
+#endif
+#ifdef CONFIG_HAVE_PMC_PERIPH_DIV
+		_pmc_configure_peripheral_div(id, 0);
+#endif
+	}
+
+	/* Enable peripheral, gck or only configure it */
+	if (enable) {
+#ifdef CONFIG_HAVE_PMC_GENERATED_CLOCKS
+		if (cfg && cfg->gck.div > 0)
+			pmc_enable_gck(id);
+#endif
+		pmc_enable_peripheral(id);
+	}
+}
+
 void pmc_enable_peripheral(uint32_t id)
 {
-	uint32_t div = 0;
-
 	assert(id < ID_PERIPH_COUNT);
 
 	// select peripheral
 	PMC->PMC_PCR = PMC_PCR_PID(id);
 
-#ifdef PMC_PCR_DIV
-	PMC->PMC_PCR = (PMC->PMC_PCR & ~PMC_PCR_DIV_Msk) | PMC_PCR_CMD;
-	{
-		volatile uint32_t i;
-		uint32_t clk_max;
-
-		clk_max = get_peripheral_clock_max_freq(id);
-		for (i = 0 ; i < 4 ; i++)
-			if ((pmc_get_master_clock() >> i) <= clk_max)
-				break;
-
-		if (i == 4)
-			i = 3; /* 4 is not a valid value */
-		div = PMC_PCR_DIV(i);
-	}
-#else
-	PMC->PMC_PCR = PMC->PMC_PCR | PMC_PCR_CMD;
-#endif
-
-	PMC->PMC_PCR = PMC_PCR_PID(id);
 	volatile uint32_t pcr = PMC->PMC_PCR;
-	PMC->PMC_PCR = pcr | div | PMC_PCR_CMD | PMC_PCR_EN;
+	PMC->PMC_PCR = pcr | PMC_PCR_CMD | PMC_PCR_EN;
 }
 
 void pmc_disable_peripheral(uint32_t id)
@@ -825,17 +868,14 @@ uint32_t pmc_get_peripheral_clock(uint32_t id)
 {
 	assert(id < ID_PERIPH_COUNT);
 
-	uint32_t div = get_peripheral_clock_divider(id);
-#ifdef PMC_PCR_DIV
+	uint32_t div = get_peripheral_clock_matrix_div(id);
+#ifdef CONFIG_HAVE_PMC_PERIPH_DIV
 	PMC->PMC_PCR = PMC_PCR_PID(id);
 	volatile uint32_t pcr = PMC->PMC_PCR;
-	div *= (1 << ((pcr & PMC_PCR_DIV_Msk) >> PMC_PCR_DIV_Pos));
+	div *= 1 << ((pcr & PMC_PCR_DIV_Msk) >> PMC_PCR_DIV_Pos);
 #endif
-	
-	if (div)
-		return pmc_get_master_clock() / div;
 
-	return 0;
+	return pmc_get_master_clock() / div;
 }
 
 void pmc_disable_all_peripherals(void)
@@ -1039,17 +1079,18 @@ void pmc_disable_upll_bias(void)
  *----------------------------------------------------------------------------*/
 
 #ifdef CONFIG_HAVE_PMC_GENERATED_CLOCKS
+
 void pmc_configure_gck(uint32_t id, uint32_t clock_source, uint32_t div)
 {
 	assert(id < ID_PERIPH_COUNT);
 	assert(!(clock_source & ~PMC_PCR_GCKCSS_Msk));
-	assert(!(div << PMC_PCR_GCKDIV_Pos & ~PMC_PCR_GCKDIV_Msk));
+	assert(div > 0);
+	assert(!((div << PMC_PCR_GCKDIV_Pos) & ~PMC_PCR_GCKDIV_Msk));
 
 	pmc_disable_gck(id);
 	PMC->PMC_PCR = PMC_PCR_PID(id);
-	volatile uint32_t pcr = PMC->PMC_PCR;
-	PMC->PMC_PCR = (pcr & ~PMC_PCR_GCKCSS_Msk & ~PMC_PCR_GCKDIV_Msk)
-	    | clock_source | PMC_PCR_CMD | PMC_PCR_GCKDIV(div);
+	volatile uint32_t pcr = PMC->PMC_PCR & ~(PMC_PCR_GCKCSS_Msk | PMC_PCR_GCKDIV_Msk);
+	PMC->PMC_PCR = pcr | clock_source | PMC_PCR_CMD | PMC_PCR_GCKDIV(div - 1);
 }
 
 void pmc_enable_gck(uint32_t id)

@@ -1761,6 +1761,7 @@ bool sdmmc_initialize(struct sdmmc_set *set, uint32_t periph_id,
 	set->blk_size = val <= 0x2 ? 512 << val : 512;
 
 	/* Prepare our Timer/Counter */
+	pmc_configure_peripheral(get_tc_id_from_addr(tc_module), NULL, true);
 	tc_configure(tc_module, tc_ch, TC_CMR_WAVE | TC_CMR_WAVSEL_UP
 	    | TC_CMR_CPCDIS | TC_CMR_BURST_NONE | TC_CMR_TCCLKS_TIMER_CLOCK2);
 	set->timer->TC_EMR |= TC_EMR_NODIVCLK;

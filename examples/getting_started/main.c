@@ -264,7 +264,7 @@ static void configure_tc(void)
 	uint32_t tc_id = get_tc_id_from_addr(TC_ADDR);
 
 	/** Enable peripheral clock. */
-	pmc_enable_peripheral(tc_id);
+	pmc_configure_peripheral(tc_id, NULL, true);
 
 	/** Configure TC for a 4Hz frequency and trigger on RC compare. */
 	tc_trigger_on_freq(TC_ADDR, TC_CHAN, 4);

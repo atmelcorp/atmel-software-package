@@ -147,7 +147,7 @@ void ssc_configure(struct _ssc_desc* desc)
 	ssc_configure_transmitter(desc, tcmr, tfmr);
 
 	/* Enable SSC peripheral clock */
-	pmc_enable_peripheral(id);
+	pmc_configure_peripheral(id, NULL, true);
 }
 
 /**

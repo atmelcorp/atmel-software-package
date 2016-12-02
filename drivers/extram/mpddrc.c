@@ -325,7 +325,7 @@ extern void mpddrc_configure(struct _mpddrc_desc* desc)
 
 	/* controller and DDR clock */
 #ifdef ID_MPDDRC
-	pmc_enable_peripheral(ID_MPDDRC);
+	pmc_configure_peripheral(ID_MPDDRC, NULL, true);
 #endif
 	pmc_enable_system_clock(PMC_SYSTEM_CLOCK_DDR);
 

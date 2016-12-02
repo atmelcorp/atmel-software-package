@@ -128,7 +128,7 @@ static void _emac_set_link_speed(Emac* emac, enum _eth_speed speed, enum _eth_du
 
 bool emac_configure(Emac* emac)
 {
-	pmc_enable_peripheral(get_emac_id_from_addr(emac));
+	pmc_configure_peripheral(get_emac_id_from_addr(emac), NULL, true);
 
 	/* Disable TX & RX and more */
 	emac_set_network_control_register(emac, 0);

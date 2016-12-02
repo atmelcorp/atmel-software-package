@@ -174,7 +174,7 @@ void console_configure(void* addr, uint32_t baudrate)
 	console_addr = addr;
 
 	/* Initialize driver to use */
-	pmc_enable_peripheral(id);
+	pmc_configure_peripheral(id, NULL, true);
 	console.init(console_addr, console.mode, baudrate);
 
 	/* Finally */

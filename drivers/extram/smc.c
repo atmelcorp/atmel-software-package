@@ -54,7 +54,7 @@
 void smc_nand_configure(uint8_t bus_width)
 {
 #ifdef ID_SMC
-	pmc_enable_peripheral(ID_SMC);
+	pmc_configure_peripheral(ID_SMC, NULL, true);
 #endif
 
 	SMC->SMC_CS[NAND_EBI_CS].SMC_SETUP =
@@ -98,7 +98,7 @@ void smc_nand_configure(uint8_t bus_width)
 void smc_nor_configure(uint8_t cs, uint8_t bus_width)
 {
 #ifdef ID_SMC
-	pmc_enable_peripheral(ID_SMC);
+	pmc_configure_peripheral(ID_SMC, NULL, true);
 #endif
 
 	SMC->SMC_CS[cs].SMC_SETUP =

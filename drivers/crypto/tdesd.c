@@ -284,7 +284,7 @@ void tdesd_wait_transfer(struct _tdesd_desc* desc)
 void tdesd_init(void)
 {
 	/* Enable peripheral clock */
-	pmc_enable_peripheral(ID_TDES);
+	pmc_configure_peripheral(ID_TDES, NULL, true);
 	/* Enable peripheral interrupt */
 	irq_add_handler(ID_TDES, _tdesd_handler, NULL);
 	irq_enable(ID_TDES);

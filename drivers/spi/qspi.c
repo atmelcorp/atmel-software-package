@@ -94,7 +94,7 @@ static void qspi_memcpy(uint8_t *dst, const uint8_t *src, int count, bool use_dm
 
 void qspi_initialize(Qspi *qspi)
 {
-	pmc_enable_peripheral(get_qspi_id_from_addr(qspi));
+	pmc_configure_peripheral(get_qspi_id_from_addr(qspi), NULL, true);
 
 	/* Disable write protection */
 	qspi->QSPI_WPMR = QSPI_WPMR_WPKEY_PASSWD;

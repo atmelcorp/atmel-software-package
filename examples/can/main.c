@@ -419,9 +419,13 @@ int main(void)
 	/* Configure GCLK3 = <Master clock> divided by 1
 	 * FIXME follow datasheet recommendation: configure GCLK3 = <UPLL clock>
 	 * divided by 24, 12 or 6 */
-	pmc_configure_gck(mcan_cfg.id, PMC_PCR_GCKCSS_MCK_CLK, 1 - 1);
-	pmc_enable_gck(mcan_cfg.id);
-	pmc_enable_peripheral(mcan_cfg.id);
+	struct _pmc_periph_cfg cfg = {
+			.gck = {
+				.css = PMC_PCR_GCKCSS_MCK_CLK,
+				.div = 1,
+				},
+		};
+	pmc_configure_peripheral(mcan_cfg.id, &cfg, true);
 	/* Configure peripheral PIO's (CANTX and CANRX) */
 	pio_configure(can_pins, ARRAY_SIZE(can_pins));
 	/* Enable peripheral interrupt */

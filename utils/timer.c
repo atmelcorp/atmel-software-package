@@ -73,19 +73,22 @@ void timer_configure(struct _timer* timer)
 {
 	uint32_t rc = 0;
 	uint32_t tc_clks = 0;
-#if !defined(CONFIG_TIMER_POLLING) || defined(CONFIG_HAVE_PMC_GENERATED_CLOCKS)
 	uint32_t tc_id = get_tc_id_from_addr(timer->tc);
-#endif
 
 	memcpy(&_sys_timer, timer, sizeof(_sys_timer));
 
 #ifdef CONFIG_HAVE_PMC_GENERATED_CLOCKS
 	// For devices that support generated clock, configure TC to use Main
 	// Clock as generated clock source
-	if (!pmc_is_gck_enabled(tc_id)) {
-		pmc_configure_gck(tc_id, PMC_PCR_GCKCSS_MAIN_CLK, 1);
-		pmc_enable_gck(tc_id);
-	}
+	struct _pmc_periph_cfg cfg = {
+		.gck = {
+			.css = PMC_PCR_GCKCSS_MAIN_CLK,
+			.div = 1,
+		},
+	};
+	pmc_configure_peripheral(tc_id, &cfg, true);
+#else
+	pmc_configure_peripheral(tc_id, NULL, true);
 #endif
 
 	// Select clock source, configure tc base on timer clock

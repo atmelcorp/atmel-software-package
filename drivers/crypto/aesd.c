@@ -320,7 +320,7 @@ void aesd_configure_mode(struct _aesd_desc* desc)
 void aesd_init(void)
 {
 	/* Enable peripheral clock */
-	pmc_enable_peripheral(ID_AES);
+	pmc_configure_peripheral(ID_AES, NULL, true);
 	/* Enable peripheral interrupt */
 	irq_add_handler(ID_AES, _aesd_handler, NULL);
 	irq_enable(ID_AES);

@@ -133,7 +133,7 @@ uint32_t adc_get_resolution(void)
 void adc_initialize(void)
 {
 	/* Enable peripheral clock */
-	pmc_enable_peripheral(ID_ADC);
+	pmc_configure_peripheral(ID_ADC, NULL, true);
 
 	/*  Reset the controller */
 	ADC->ADC_CR = ADC_CR_SWRST;

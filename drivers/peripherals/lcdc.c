@@ -395,7 +395,7 @@ void lcdc_configure(const struct _lcdc_desc *desc)
 	lcdc_canvas.buffer = NULL;
 
 	/* Enable peripheral clock */
-	pmc_enable_peripheral(ID_LCDC);
+	pmc_configure_peripheral(ID_LCDC, NULL, true);
 	pmc_enable_system_clock(PMC_SYSTEM_CLOCK_LCD);
 
 	/* Timing Engine Configuration */
@@ -1177,7 +1177,7 @@ void lcdc_on(void)
 		lcdc_config.height + lcdc_config.timing_vfp;
 
 	/* Enable peripheral clock and ISC system clock */
-	pmc_enable_peripheral(ID_LCDC);
+	pmc_configure_peripheral(ID_LCDC, NULL, true);
 	pmc_enable_system_clock(PMC_SYSTEM_CLOCK_LCD);
 
 	/* 1. Configure LCD timing parameters, signal polarity and clock period. */

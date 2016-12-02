@@ -576,7 +576,7 @@ uint8_t iso7816_init(struct _iso7816_desc* iso7816, const struct _iso7816_opt* o
 	/* MOD = 1, 3V3 */
 	pio_set(&iso7816->pin_mod_vcc);
 
-	pmc_enable_peripheral(iso7816->id);
+	pmc_configure_peripheral(iso7816->id, NULL, true);
 
 #ifdef CONFIG_HAVE_FLEXCOM
 	/* switch Flexcom to Usart mode */

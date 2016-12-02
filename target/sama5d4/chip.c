@@ -466,7 +466,7 @@ Matrix* get_peripheral_matrix(uint32_t id)
 	return MATRIX1; // AHB 32-bit matrix
 }
 
-uint32_t get_peripheral_clock_divider(uint32_t id)
+uint32_t get_peripheral_clock_matrix_div(uint32_t id)
 {
 	Matrix* matrix = get_peripheral_matrix(id);
 

@@ -283,9 +283,13 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	 * Configure GCLKx = <PLLA clock> divided by 1
 	 * As of writing, the PLLA clock runs at 498 MHz */
 	sdmmc_id = get_sdmmc_id_from_addr(instance_def->addr);
-	pmc_enable_peripheral(sdmmc_id);
-	pmc_configure_gck(sdmmc_id, PMC_PCR_GCKCSS_PLLA_CLK, 1 - 1);
-	pmc_enable_gck(sdmmc_id);
+	struct _pmc_periph_cfg cfg = {
+		.gck = {
+			.css = PMC_PCR_GCKCSS_PLLA_CLK,
+			.div = 1,
+		},
+	};
+	pmc_configure_peripheral(sdmmc_id, &cfg, true);
 
 	// set SDMMC controller capabilities
 	caps0 = SDMMC_CA0R_SLTYPE_EMBEDDED;

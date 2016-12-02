@@ -215,7 +215,7 @@ int main( void )
 	console_example_info("ICM Example");
 
 	/* Enable ICM peripheral clock */
-	pmc_enable_peripheral(ID_ICM);
+	pmc_configure_peripheral(ID_ICM, NULL, true);
 
 	printf("\n\r-I- Configure region 0 with SHA1 algorithm (free message)\n\r");
 	memcpy((uint8_t*)message_region0_sha1, message_ref0,

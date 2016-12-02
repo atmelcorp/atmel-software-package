@@ -282,7 +282,7 @@ static void _tc_capture_initialize(void)
 	              | TC_CMR_ABETRG
 	              | TC_CMR_ETRGEDG_FALLING;
 
-	pmc_enable_peripheral(tc_id);
+	pmc_configure_peripheral(tc_id, NULL, true);
 
 	/* disable all channels to avoid spurious interrupts */
 	tc_stop(tc_capture.addr, 0);
@@ -370,7 +370,7 @@ static void _tc_fault_initialize(void)
 
 	uint32_t rc = 2 * pmc_get_slow_clock();
 
-	pmc_enable_peripheral(tc_id);
+	pmc_configure_peripheral(tc_id, NULL, true);
 
 	/* disable all channels to avoid spurious interrupts */
 	tc_stop(tc_capture.addr, 0);
@@ -525,7 +525,7 @@ int main(void)
 	pio_configure(pins_pwm, ARRAY_SIZE(pins_pwm));
 
 	/* Enable PWM peripheral clock */
-	pmc_enable_peripheral(ID_PWM);
+	pmc_configure_peripheral(ID_PWM, NULL, true);
 
 	/* Enable PWM interrupt */
 	irq_add_handler(ID_PWM, _pwm_handler, NULL);

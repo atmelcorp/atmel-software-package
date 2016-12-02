@@ -289,6 +289,7 @@ static void _tc_capture_handler(uint32_t source, void* user_arg)
  */
 static void _tc_waveform_configure(struct _tc_desc *tcd, uint32_t tc_clks)
 {
+	uint32_t tc_id = get_tc_id_from_addr(tcd->addr);
 	uint32_t frequency;
 	uint32_t mode;
 	uint32_t ra, rc;
@@ -298,6 +299,7 @@ static void _tc_waveform_configure(struct _tc_desc *tcd, uint32_t tc_clks)
 	     | TC_CMR_ACPA_SET
 	     | TC_CMR_ACPC_CLEAR
 	     | TC_CMR_CPCTRG;
+	pmc_configure_peripheral(tc_id, NULL, true);
 	tc_configure(tcd->addr, tcd->channel, mode);
 
 	frequency = tc_get_available_freq(tcd->addr, tc_clks);
@@ -338,7 +340,7 @@ static void _tc_waveform_initialize(struct _tc_desc *tcd)
  */
 static void _tc_capture_initialize(struct _tc_desc *tcd)
 {
-	uint32_t tc_id = get_tc_id_from_addr(tc_capture.addr);
+	uint32_t tc_id = get_tc_id_from_addr(tcd->addr);
 
 	uint32_t mode = capture_clock_sel
 		| TC_CMR_LDRA_RISING
@@ -346,7 +348,7 @@ static void _tc_capture_initialize(struct _tc_desc *tcd)
 		| TC_CMR_ABETRG
 		| TC_CMR_ETRGEDG_FALLING;;
 
-	pmc_enable_peripheral(tc_id);
+	pmc_configure_peripheral(tc_id, NULL, true);
 	tc_configure(tcd->addr, tcd->channel, mode);
 
 	irq_add_handler(tc_id, _tc_capture_handler, NULL);
@@ -376,7 +378,7 @@ int main(void)
 	pio_configure(pins_tc, ARRAY_SIZE(pins_tc));
 
 	tc_id = get_tc_id_from_addr(tc_waveform.addr);
-	pmc_enable_peripheral(tc_id);
+	pmc_configure_peripheral(tc_id, NULL, true);
 
 	/* Configure one TC as waveform operating mode */
 	printf("Configure TC channel %d as waveform operating mode \n\r",

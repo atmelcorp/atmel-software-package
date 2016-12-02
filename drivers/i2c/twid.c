@@ -666,7 +666,7 @@ void twid_configure(struct _twi_desc* desc)
 	}
 #endif
 
-	pmc_enable_peripheral(id);
+	pmc_configure_peripheral(id, NULL, true);
 	twi_configure_master(desc->addr, desc->freq);
 #ifdef CONFIG_HAVE_TWI_FIFO
 	twid_fifo_configure(desc);
@@ -691,7 +691,7 @@ void twid_slave_configure(struct _twi_slave_desc *desc, struct _twi_slave_ops* o
 	async_desc[adesc_index].twi_slave_desc = desc;
 
 	/* Configure TWI slave */
-	pmc_enable_peripheral(twi_id);
+	pmc_configure_peripheral(twi_id, NULL, true);
 	twi_configure_slave(desc->twi, desc->addr);
 	irq_add_handler(twi_id, _twid_slave_handler, &async_desc[adesc_index]);
 	twi_enable_it(desc->twi, TWI_IER_SVACC | TWI_IER_EOSACC);

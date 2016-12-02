@@ -308,7 +308,7 @@ static void _tc_handler(uint32_t source, void* user_arg)
 static void _configure_tc(void)
 {
 	/** Enable peripheral clock. */
-	pmc_enable_peripheral(ID_TC0);
+	pmc_configure_peripheral(ID_TC0, NULL, true);
 
 	/* Put the source vector */
 	irq_add_handler(ID_TC0, _tc_handler, NULL);

@@ -235,7 +235,7 @@ uint8_t lin_init(struct _lin_desc* lin_desc, uint8_t node)
 	/* Configure ENABLE pin */
 	pio_configure(&lin_desc->pin_enable, 1);
 
-	pmc_enable_peripheral(id);
+	pmc_configure_peripheral(id, NULL, true);
 
 #ifdef CONFIG_HAVE_FLEXCOM
 	{

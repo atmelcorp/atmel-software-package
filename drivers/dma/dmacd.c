@@ -311,8 +311,8 @@ static uint32_t dmacd_prepare_channel(struct _dmacd_channel *channel)
 	/* Clear status */
 	dmac_get_global_isr(dmac);
 
-	/* Enable clock of the DMA peripheral */
-	pmc_enable_peripheral(get_dmac_id_from_addr(dmac));
+	/* Enable clock of the DMA peripheral */	
+	pmc_configure_peripheral(get_dmac_id_from_addr(dmac), NULL, true);
 
 	/* Clear status */
 	dmac_get_channel_status(dmac);

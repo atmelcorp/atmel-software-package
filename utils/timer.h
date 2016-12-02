@@ -51,6 +51,7 @@
  *         Headers
  *----------------------------------------------------------------------------*/
 
+#include "board.h"
 #include <stdint.h>
 
 struct _timeout

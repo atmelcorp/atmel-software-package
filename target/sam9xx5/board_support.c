@@ -511,7 +511,7 @@ void board_cfg_isi(void)
 	msleep(10);
 
 	/* Enable ISI peripheral clock */
-	pmc_enable_peripheral(ID_ISI);
+	pmc_configure_peripheral(ID_ISI, NULL, true);
 }
 #endif
 

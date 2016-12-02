@@ -239,7 +239,13 @@ bool pdmic_init(struct _pdmic_desc *desc)
 	/* The gclk clock frequency must always be three times
 	 * lower than the pclk clock frequency
 	 */
-	pmc_configure_gck(ID_PDMIC, PMC_PCR_GCKCSS_PLLA_CLK, 18 - 1);
+	struct _pmc_periph_cfg cfg = {
+		.gck = {
+			.css = PMC_PCR_GCKCSS_PLLA_CLK,
+			.div = 18,
+		},
+	};
+	pmc_configure_peripheral(ID_PDMIC, &cfg, false);
 
 #if (TRACE_LEVEL >= TRACE_LEVEL_DEBUG)
 	gclk = pmc_get_gck_clock(ID_PDMIC);
@@ -262,7 +268,7 @@ void pdmic_dma_transfer(void *buffer, uint32_t size,
 {
 	struct dma_xfer_cfg cfg;
 	/* Configure PDMIC DMA transfer */
-	
+
 	cfg.sa = (void *)&PDMIC->PDMIC_CDR;
 	cfg.da = buffer;
 	cfg.upd_sa_per_data = 0;

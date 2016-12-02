@@ -363,12 +363,12 @@ uint32_t get_emac_id_from_addr(const Emac* addr);
  */
 extern Matrix* get_peripheral_matrix(uint32_t id);
 
-/** \brief Returns the clock divider for the given peripheral
+/** \brief Returns the matrix clock divider for the given peripheral
  *
  * \param id the Peripheral ID
  * \return the clock divider for the peripheral
  */
-extern uint32_t get_peripheral_clock_divider(uint32_t id);
+extern uint32_t get_peripheral_clock_matrix_div(uint32_t id);
 
 /** \brief Returns the max clock frequency for the given peripheral
  *
@@ -376,6 +376,14 @@ extern uint32_t get_peripheral_clock_divider(uint32_t id);
  * \return the max clock frequency for the peripheral
  */
 extern uint32_t get_peripheral_clock_max_freq(uint32_t id);
+
+/** \brief Checks if the peripheral can be configured with a divided clock
+ *
+ * \param id the Peripheral ID
+ * \return true if the peripheral can be configured with a divided clock, false
+ * otherwise
+ */
+extern bool peripheral_has_clock_div(uint32_t id);
 
 /**
  * \brief retrieve DMAC ID from its base address
@@ -407,6 +415,13 @@ extern uint8_t get_peripheral_dma_channel(uint32_t id, Dmac *dmac,
  * false otherwise
  */
 extern bool is_peripheral_on_dma_controller(uint32_t id, Dmac *dmac);
+
+/** \brief Checks if a peripheral is configurable with divided clk
+ *
+ * \return true if the peripheral is configurable with a nonzero div
+ * false non-configurable
+ */
+extern bool is_peripheral_configurable(uint32_t id);
 
 #ifdef __cplusplus
 }

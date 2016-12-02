@@ -535,19 +535,20 @@ int main(void)
 	/* Output example information */
 	console_example_info("SD/MMC Example");
 
-	pmc_enable_peripheral(TIMER0_MODULE);
+	pmc_configure_peripheral(TIMER0_MODULE, NULL, true);
 #if TIMER1_MODULE != TIMER0_MODULE
-	pmc_enable_peripheral(TIMER1_MODULE);
+	pmc_configure_peripheral(TIMER1_MODULE, NULL, true);
 #endif
 
 	/* The HSMCI peripherals are clocked by the Master Clock (at least on
 	 * SAMA5D4x).
 	 * The SDMMC peripherals are clocked by their Peripheral Clock, the
 	 * Master Clock, and a Generated Clock (at least on SAMA5D2x). */
-	pmc_enable_peripheral(HOST0_ID);
-	pmc_enable_peripheral(HOST1_ID);
+	pmc_configure_peripheral(HOST0_ID, NULL, true);
+	pmc_configure_peripheral(HOST1_ID, NULL, true);
 
-#if defined(CONFIG_HAVE_SDMMC) && defined(SDMMC_USE_FASTEST_CLK)
+#ifdef CONFIG_HAVE_SDMMC
+#ifdef SDMMC_USE_FASTEST_CLK
 	/* Running on a board which has its SDMMC0 slot equipped with an e.MMC
 	 * device supporting the HS200 bus speed mode, or accepts UHS-I SD
 	 * devices. Target the maximum device clock frequency supported by
@@ -555,8 +556,14 @@ int main(void)
 	 * Use the UTMI PLL, since it runs at 480 MHz. */
 	pmc_enable_upll_clock();
 	pmc_enable_upll_bias();
-	pmc_configure_gck(HOST0_ID, PMC_PCR_GCKCSS_UPLL_CLK, 1 - 1);
-	pmc_enable_gck(HOST0_ID);
+
+	struct _pmc_periph_cfg cfg = {
+		.gck = {
+			.css = PMC_PCR_GCKCSS_UPLL_CLK,
+			.div = 1,
+		},
+	};
+	pmc_configure_peripheral(HOST0_ID, &cfg, true);
 
 	/* On the SDMMC1 slot, target SD High Speed mode @ 50 MHz.
 	 * Use the Audio PLL and set AUDIOCORECLK frequency to
@@ -567,10 +574,10 @@ int main(void)
 	audio_pll_cfg.qdpmc = 6;
 	pmc_configure_audio(&audio_pll_cfg);
 	pmc_enable_audio(true, false);
-	pmc_configure_gck(HOST1_ID, PMC_PCR_GCKCSS_AUDIO_CLK, 1 - 1);
-	pmc_enable_gck(HOST1_ID);
 
-#elif defined(CONFIG_HAVE_SDMMC)
+	cfg.gck.css = PMC_PCR_GCKCSS_AUDIO_CLK;
+	pmc_configure_peripheral(HOST1_ID, &cfg,true);
+#else /* !SDMMC_USE_FASTEST_CLK */
 	/* The regular SAMA5D2-XULT board wires on the SDMMC0 slot an e.MMC
 	 * device whose fastest timing mode is High Speed DDR mode @ 52 MHz.
 	 * Target a device clock frequency of 52 MHz. Use the Audio PLL and set
@@ -580,8 +587,14 @@ int main(void)
 	audio_pll_cfg.qdpmc = 5;
 	pmc_configure_audio(&audio_pll_cfg);
 	pmc_enable_audio(true, false);
-	pmc_configure_gck(HOST0_ID, PMC_PCR_GCKCSS_AUDIO_CLK, 1 - 1);
-	pmc_enable_gck(HOST0_ID);
+
+	struct _pmc_periph_cfg cfg = {
+		.gck = {
+			.css = PMC_PCR_GCKCSS_AUDIO_CLK,
+			.div = 1,
+		},
+	};
+	pmc_configure_peripheral(HOST0_ID, &cfg, true);
 
 	/* The regular SAMA5D2-XULT board wires on the SDMMC1 slot a MMC/SD
 	 * connector. SD cards are the most likely devices. Since the SDMMC1
@@ -589,9 +602,10 @@ int main(void)
 	 * mode @ 50 MHz.
 	 * The Audio PLL being optimized for SDMMC0, fall back on PLLA, since,
 	 * as of writing, PLLACK/2 is configured to run at 498 MHz. */
-	pmc_configure_gck(HOST1_ID, PMC_PCR_GCKCSS_PLLA_CLK, 1 - 1);
-	pmc_enable_gck(HOST1_ID);
-#endif
+	cfg.gck.css = PMC_PCR_GCKCSS_PLLA_CLK;
+	pmc_configure_peripheral(HOST1_ID, &cfg, true);
+#endif /* !SDMMC_USE_FASTEST_CLK */
+#endif /* CONFIG_HAVE_SDMMC */
 
 	rc = board_cfg_sdmmc(HOST0_ID) ? 1 : 0;
 	rc &= board_cfg_sdmmc(HOST1_ID) ? 1 : 0;

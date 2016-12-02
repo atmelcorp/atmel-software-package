@@ -213,10 +213,16 @@ bool classd_configure(struct _classd_desc *desc)
 	if (!_dspclk_configure(dsp_clk_set))
 		return false;
 
-	/* enable peripheral clock, disable audio clock for now */
-	pmc_enable_peripheral(ID_CLASSD);
-	pmc_disable_gck(ID_CLASSD);
-	pmc_configure_gck(ID_CLASSD, PMC_PCR_GCKCSS_AUDIO_CLK, 0);
+	/* enable peripheral clock, disable audio clock for now */	
+	pmc_configure_peripheral(ID_CLASSD, NULL, true);
+	
+	struct _pmc_periph_cfg cfg = {
+		.gck = {
+			.css = PMC_PCR_GCKCSS_AUDIO_CLK,
+			.div = 1,
+		},
+	};
+	pmc_configure_peripheral(ID_CLASSD, &cfg, false);
 
 	/* perform soft reset */
 	CLASSD->CLASSD_CR  = CLASSD_CR_SWRST;

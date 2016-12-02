@@ -387,12 +387,12 @@ extern uint32_t get_ebi_addr_from_cs(uint32_t cs);
  */
 extern Matrix* get_peripheral_matrix(uint32_t id);
 
-/** \brief Returns the clock divider for the given peripheral
+/** \brief Returns the matrix clock divider for the given peripheral
  *
  * \param id the Peripheral ID
  * \return the clock divider for the peripheral
  */
-extern uint32_t get_peripheral_clock_divider(uint32_t id);
+extern uint32_t get_peripheral_clock_matrix_div(uint32_t id);
 
 /**
  * \brief retrieve XDMAC ID from its base address

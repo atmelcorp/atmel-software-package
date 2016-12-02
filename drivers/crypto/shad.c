@@ -236,7 +236,7 @@ void shad_wait_transfer(struct _shad_desc* desc)
 void shad_init(void)
 {
 	/* Enable peripheral clock */
-	pmc_enable_peripheral(ID_SHA);
+	pmc_configure_peripheral(ID_SHA, NULL, true);
 	/* Enable peripheral interrupt */
 	irq_add_handler(ID_SHA, _shad_handler, NULL);
 	irq_enable(ID_SHA);

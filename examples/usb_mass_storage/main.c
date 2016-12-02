@@ -288,17 +288,17 @@ static void sd_driver_configure(void)
 #endif
 	uint8_t rc;
 
-	pmc_enable_peripheral(TIMER0_MODULE);
+	pmc_configure_peripheral(TIMER0_MODULE, NULL, true);
 #if TIMER1_MODULE != TIMER0_MODULE
-	pmc_enable_peripheral(TIMER1_MODULE);
+	pmc_configure_peripheral(TIMER1_MODULE, NULL, true);
 #endif
 
 	/* The HSMCI peripherals are clocked by the Master Clock (at least on
 	 * SAMA5D4x).
 	 * The SDMMC peripherals are clocked by their Peripheral Clock, the
 	 * Master Clock, and a Generated Clock (at least on SAMA5D2x). */
-	pmc_enable_peripheral(HOST0_ID);
-	pmc_enable_peripheral(HOST1_ID);
+	pmc_configure_peripheral(HOST0_ID, NULL, true);
+	pmc_configure_peripheral(HOST1_ID, NULL, true);
 
 #ifdef CONFIG_HAVE_SDMMC
 	/* The regular SAMA5D2-XULT board wires on the SDMMC0 slot an e.MMC
@@ -310,17 +310,21 @@ static void sd_driver_configure(void)
 	audio_pll_cfg.qdpmc = 5;
 	pmc_configure_audio(&audio_pll_cfg);
 	pmc_enable_audio(true, false);
-	pmc_configure_gck(HOST0_ID, PMC_PCR_GCKCSS_AUDIO_CLK, 1 - 1);
-	pmc_enable_gck(HOST0_ID);
-
+	struct _pmc_periph_cfg cfg = {
+		.gck = {
+			.css = PMC_PCR_GCKCSS_AUDIO_CLK,
+			.div = 1,
+		},
+	};
+	pmc_configure_peripheral(HOST0_ID, &cfg, true);
 	/* The regular SAMA5D2-XULT board wires on the SDMMC1 slot a MMC/SD
 	 * connector. SD cards are the most likely devices. Since the SDMMC1
 	 * peripheral supports 3.3V signaling level only, target SD High Speed
 	 * mode @ 50 MHz.
 	 * The Audio PLL being optimized for SDMMC0, fall back on PLLA, since,
 	 * as of writing, PLLACK/2 is configured to run at 498 MHz. */
-	pmc_configure_gck(HOST1_ID, PMC_PCR_GCKCSS_PLLA_CLK, 1 - 1);
-	pmc_enable_gck(HOST1_ID);
+	cfg.gck.css = PMC_PCR_GCKCSS_PLLA_CLK;
+	pmc_configure_peripheral(HOST1_ID, &cfg, true);
 #endif
 
 	rc = board_cfg_sdmmc(HOST0_ID) ? 1 : 0;

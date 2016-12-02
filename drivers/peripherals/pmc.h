@@ -93,6 +93,28 @@ struct pck_mck_cfg {
 #endif
 };
 
+struct	_pmc_periph_cfg{
+#ifdef CONFIG_HAVE_PMC_PERIPH_DIV
+	/** Peripheral clock divisor (0 means use lowest divider possible) */
+	uint32_t div;
+#endif
+
+#ifdef CONFIG_HAVE_PMC_GENERATED_CLOCKS
+	struct {
+		/** gck source selection: SLOW, MAIN, PLLA, UPLL, MCK or AUDIO */
+		uint32_t css;
+		/** gck division ratio (0 means disable, n >= 1 divide by n) */
+		uint32_t div;
+	} gck;
+#endif
+
+#if defined(__ICCARM__) && \
+    !defined(CONFIG_HAVE_PMC_PERIPH_DIV) && \
+    !defined(CONFIG_HAVE_PMC_GENERATED_CLOCKS)
+	uint8_t dummy; /* IAR compiler doesn't like empty structs */
+#endif
+};
+
 /**
  * \brief System clock identifiers, used for pmc_{enable,disable}_system_clock
  */
@@ -317,6 +339,16 @@ extern void pmc_set_fast_startup_polarity(uint32_t high_level,
 #endif /* CONFIG_HAVE_PMC_FAST_STARTUP */
 
 /**
+ * \brief Config the peripheral clock. The peripheral ID is used
+ * to identify which peripheral is targeted.
+ *
+ * \param id  Peripheral ID (ID_xxx).
+ * \param cfg pcr configuration
+ * \param enable enable peripheral clk
+ */
+extern void pmc_configure_peripheral(uint32_t id,struct _pmc_periph_cfg* cfg, bool enable);
+
+/**
  * \brief Enables the clock of a peripheral. The peripheral ID is used
  * to identify which peripheral is targeted.
  *
@@ -413,10 +445,8 @@ extern void pmc_disable_upll_bias(void);
  * \brief Configure the generated clock (GCK) for the given peripheral with the
  * given master clock source and clock prescaler
  * \param id Peripheral ID (ID_xxx)
- * \param clock_source Clock source selection (one of the
- * PMC_PCR_GCKCSS_xxx_CLK constants)
- * \param div Generated Clock Division Ratio (selected clock is divided by
- * div + 1)
+ * \param clock_source Clock source selection (one of the PMC_PCR_GCKCSS_xxx_CLK constants)
+ * \param div Generated Clock Division Ratio (selected clock is divided by div)
  */
 extern void pmc_configure_gck(uint32_t id, uint32_t clock_source, uint32_t div);
 
@@ -446,7 +476,6 @@ extern uint32_t pmc_get_gck_clock(uint32_t id);
  * \param id  Peripheral ID (ID_xxx).
  */
 extern bool pmc_is_gck_enabled(uint32_t id);
-
 #endif /* CONFIG_HAVE_PMC_GENERATED_CLOCKS */
 
 #ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK

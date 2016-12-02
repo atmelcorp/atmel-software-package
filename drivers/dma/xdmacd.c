@@ -323,7 +323,7 @@ static uint32_t xdmacd_prepare_channel(struct _xdmacd_channel *channel)
 	xdmac_get_global_isr(xdmac);
 
 	/* Enable clock of the DMA peripheral */
-	pmc_enable_peripheral(get_xdmac_id_from_addr(xdmac));
+	pmc_configure_peripheral(get_xdmac_id_from_addr(xdmac), NULL, true);
 
 	/* Clear status */
 	xdmac_get_channel_isr(xdmac, channel->id);

@@ -134,7 +134,7 @@ int main(void)
 	console_example_info("QSPI AESB Example");
 
 	/* Enable peripheral clock */
-	pmc_enable_peripheral(ID_AESB);
+	pmc_configure_peripheral(ID_AESB, NULL, true);
 	/* Perform a software-triggered hardware reset of the AES interface */
 	aesb_swrst();
 

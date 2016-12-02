@@ -867,6 +867,7 @@ bool hsmci_initialize(struct hsmci_set *set, uint32_t periph_id,
 	dma_initialize(false);
 
 	/* Prepare our Timer/Counter */
+	pmc_configure_peripheral(get_tc_id_from_addr(tc_module), NULL, true);
 	tc_configure(tc_module, tc_ch, TC_CMR_WAVE | TC_CMR_WAVSEL_UP
 		| TC_CMR_CPCDIS | TC_CMR_BURST_NONE
 		| TC_CMR_TCCLKS_TIMER_CLOCK2);

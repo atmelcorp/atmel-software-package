@@ -96,28 +96,34 @@ static const struct peripheral_dma _dmac1_peripherals[] = {
 	{ ID_TDES,     20, 21 },
 };
 
-/** Array of Max peripheral Frequence support for SAMA5 chip*/
+/** max peripheral frequency */
 static const struct peripheral_max_freq _peripheral_clock_max_freq[] = {
-    /* peripheral ID, Max frequency */
-	{ ID_SMD     , 24000000 },
-	{ ID_USART0  , 66000000 },
-	{ ID_USART1  , 66000000 },
-	{ ID_USART2  , 66000000 },
-	{ ID_USART3  , 66000000 },
-	{ ID_UART0   , 66000000 },
-	{ ID_UART1   , 66000000 },
-	{ ID_TWI0    , 33000000 },
-	{ ID_TWI1    , 33000000 },
-	{ ID_TWI2    , 33000000 },
-	{ ID_SPI0    , 133000000 },
-	{ ID_SPI1    , 133000000 },
-	{ ID_TC0     , 66000000 },
-	{ ID_TC1     , 66000000 },
-	{ ID_ADC     , 66000000 },
-	{ ID_SSC0    , 66000000 },
-	{ ID_SSC1    , 66000000 },
-	{ ID_CAN0    , 66000000 },
-	{ ID_CAN1    , 66000000 },
+	{ ID_SMD,     24000000 },
+	{ ID_USART0,  66000000 },
+	{ ID_USART1,  66000000 },
+	{ ID_USART2,  66000000 },
+	{ ID_USART3,  66000000 },
+	{ ID_UART0,   66000000 },
+	{ ID_UART1,   66000000 },
+	{ ID_TWI0,    33000000 },
+	{ ID_TWI1,    33000000 },
+	{ ID_TWI2,    33000000 },
+	{ ID_SPI0,   133000000 },
+	{ ID_SPI1,   133000000 },
+	{ ID_TC0,     66000000 },
+	{ ID_TC1,     66000000 },
+	{ ID_ADC,     66000000 },
+	{ ID_SSC0,    66000000 },
+	{ ID_SSC1,    66000000 },
+	{ ID_CAN0,    66000000 },
+	{ ID_CAN1,    66000000 },
+};
+
+/* must be sorted by peripheral ID */
+static const uint32_t _div_peripherals[] = {
+	ID_USART0, ID_USART1, ID_USART2, ID_USART3, ID_UART0, ID_UART1,
+	ID_TWI0, ID_TWI1, ID_TWI2, ID_SPI0, ID_SPI1, ID_TC0, ID_TC1, ID_ADC,
+	ID_SSC0, ID_SSC1, ID_CAN0, ID_CAN1
 };
 
 /*----------------------------------------------------------------------------
@@ -355,7 +361,7 @@ Matrix* get_peripheral_matrix(uint32_t id)
 	return MATRIX; // AHB 32-bit matrix
 }
 
-uint32_t get_peripheral_clock_divider(uint32_t id)
+uint32_t get_peripheral_clock_matrix_div(uint32_t id)
 {
 	return 1;
 }
@@ -368,6 +374,15 @@ uint32_t get_peripheral_clock_max_freq(uint32_t id)
 		if (_peripheral_clock_max_freq[i].id == id)
 			return _peripheral_clock_max_freq[i].freq;
 	return pmc_get_master_clock();
+}
+
+bool peripheral_has_clock_div(uint32_t id)
+{
+	int i;
+	for (i = 0; i < ARRAY_SIZE(_div_peripherals) && _div_peripherals[i] <= id; i++)
+		if (_div_peripherals[i] == id)
+			return true;
+	return false;
 }
 
 uint32_t get_dmac_id_from_addr(const Dmac* addr)

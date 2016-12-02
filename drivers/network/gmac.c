@@ -144,7 +144,7 @@ static void _gmac_set_link_speed(Gmac* gmac, enum _eth_speed speed, enum _eth_du
 
 bool gmac_configure(Gmac* gmac)
 {
-	pmc_enable_peripheral(get_gmac_id_from_addr(gmac));
+	pmc_configure_peripheral(get_gmac_id_from_addr(gmac), NULL, true);
 
 	/* Disable TX & RX and more */
 	gmac_set_network_control_register(gmac, 0);

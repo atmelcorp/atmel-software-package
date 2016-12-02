@@ -629,8 +629,8 @@ void board_cfg_isi(void)
 	pio_set(&pin_rst);
 	msleep(10);
 
-	/* Enable ISI peripheral clock */
-	pmc_enable_peripheral(ID_ISI);
+	/* Enable ISI peripheral clock */	
+	pmc_configure_peripheral(ID_ISI, NULL, true);
 }
 #endif
 

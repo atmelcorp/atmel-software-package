@@ -85,6 +85,16 @@ static const struct peripheral_dma _dmac1_peripherals[] = {
 	{ ID_USART2,     12,   13 },
 };
 
+/* must be sorted by peripheral ID */
+static const uint32_t _div_peripherals[] = {
+	ID_PIOA, ID_PIOC, ID_USART0, ID_USART1, ID_USART2, ID_TWI0, ID_TWI1,
+	ID_TWI2, ID_SPI0, ID_SPI1, ID_UART0, ID_UART1, ID_TC0, ID_TC1, ID_PWM,
+	ID_ADC, ID_SSC0,
+#ifdef CONFIG_HAVE_CAN
+	ID_CAN0, ID_CAN1
+#endif
+};
+
 /*----------------------------------------------------------------------------
  *        Private functions
  *----------------------------------------------------------------------------*/
@@ -342,7 +352,7 @@ Matrix* get_peripheral_matrix(uint32_t id)
 	return MATRIX; // AHB matrix
 }
 
-uint32_t get_peripheral_clock_divider(uint32_t id)
+uint32_t get_peripheral_clock_matrix_div(uint32_t id)
 {
 	return 1;
 }
@@ -350,6 +360,15 @@ uint32_t get_peripheral_clock_divider(uint32_t id)
 uint32_t get_peripheral_clock_max_freq(uint32_t id)
 {
 	return pmc_get_master_clock();
+}
+
+bool peripheral_has_clock_div(uint32_t id)
+{
+	int i;
+	for (i = 0; i < ARRAY_SIZE(_div_peripherals) && _div_peripherals[i] <= id; i++)
+		if (_div_peripherals[i] == id)
+			return true;
+	return false;
 }
 
 uint32_t get_dmac_id_from_addr(const Dmac* addr)

@@ -206,7 +206,7 @@ void pio_configure(const struct _pin *pin_list, uint32_t size)
 
 		/* The PIO input logic requires the peripheral clock */
 		if (pin->type == PIO_INPUT)
-			pmc_enable_peripheral(ID_PIOA);
+			pmc_configure_peripheral(ID_PIOA, NULL, true);
 
 		/* Configure pins as non-secure */
 		PIOA->S_PIO_IO[pin->group].S_PIO_SIONR = pin->mask;

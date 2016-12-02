@@ -232,7 +232,7 @@ static void _check_ddr_ready(void)
 #ifdef CONFIG_HAVE_SFRBU
 	if (sfrbu_is_ddr_backup_enabled()) {
 		/* Enable the DDR Controller clock signal at PMC level */
-		pmc_enable_peripheral(ID_MPDDRC);
+		pmc_configure_peripheral(ID_MPDDRC, NULL, true);
 		/* Enable ddrclk */
 		pmc_enable_system_clock(PMC_SYSTEM_CLOCK_DDR);
 		/* Disable DDR Backup mode */

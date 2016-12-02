@@ -411,7 +411,7 @@ void spid_configure(struct _spi_desc* desc)
 	if (flexcom)
 		flexcom_select(flexcom, FLEX_MR_OPMODE_SPI);
 #endif
-	pmc_enable_peripheral(id);
+	pmc_configure_peripheral(id, NULL, true);
 	spi_configure(desc->addr);
 	spi_mode_master_enable(desc->addr, true);
 #ifdef CONFIG_HAVE_SPI_FIFO

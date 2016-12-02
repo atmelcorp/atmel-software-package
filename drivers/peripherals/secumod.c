@@ -278,7 +278,7 @@ static void secumod_irq_handler(uint32_t source, void* user_arg)
 void secumod_initialize(void)
 {
 	/* Enable SECUMOD module clock in PMC */
-	pmc_enable_peripheral(ID_SECUMOD);
+	pmc_configure_peripheral(ID_SECUMOD, NULL, true);
 
 	secumod_inst.tamper_info.total_tampers = 0;
 	secumod_inst.tamper_info.tampers = 0;

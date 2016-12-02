@@ -260,7 +260,7 @@ void pio_configure(const struct _pin *pin_list, uint32_t size)
 
 		/* The PIO input logic requires the peripheral clock */
 		if (pin->type == PIO_INPUT)
-			pmc_enable_peripheral(_pio_get_periph_id(pin->group));
+			pmc_configure_peripheral(_pio_get_periph_id(pin->group), NULL, true);
 
 		/* Enable pull-up resistors as requested */
 		if (pin->attribute & PIO_PULLUP)
@@ -449,7 +449,7 @@ uint32_t pio_get_write_protect_violation_info(void)
 void pio_output_low(uint32_t group, uint32_t mask)
 {
 	Pio* pio = _pio_get_instance(group);
-	pmc_enable_peripheral(_pio_get_periph_id(group));
+	pmc_configure_peripheral(_pio_get_periph_id(group), NULL, true);
 	pio->PIO_PUDR = mask;	// all Pull-up Disable
 	pio->PIO_PPDDR = mask;	// all Pull-down Disable
 	pio->PIO_PER = mask;	// all PIO enable

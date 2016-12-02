@@ -256,7 +256,7 @@ void sha_plugin_initialize(struct sha_set *set, bool use_dma)
 		dma_set_callback(set->dma_ch, sha_dma_callback, set);
 	}
 	/* Enable peripheral clock */
-	pmc_enable_peripheral(ID_SHA);
+	pmc_configure_peripheral(ID_SHA, NULL, true);
 	/* Perform a software-triggered hardware reset of the SHA interface */
 	sha_soft_reset();
 	busy = false;

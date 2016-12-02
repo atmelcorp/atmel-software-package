@@ -253,7 +253,7 @@ void usartd_configure(uint8_t iface, struct _usart_desc* config)
 		flexcom_select(flexcom, FLEX_MR_OPMODE_USART);
 	}
 #endif
-	pmc_enable_peripheral(id);
+	pmc_configure_peripheral(id, NULL, true);
 	usart_configure(config->addr, config->mode, config->baudrate);
 	usart_set_rx_timeout(config->addr, config->baudrate, config->timeout);
 	irq_add_handler(get_usart_id_from_addr(config->addr), _usartd_handler, NULL);
