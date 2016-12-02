@@ -41,6 +41,34 @@
 
 static void _set_ddr_timings(struct _mpddrc_desc* desc)
 {
+#ifdef CONFIG_HAVE_MPDDRC_SDRAM
+	uint8_t trc_trfc, txsr;
+
+	/* single register value for tRC and tRFC, use max */
+	trc_trfc = desc->timings.trc;
+	if (desc->timings.trfc > trc_trfc)
+		trc_trfc = desc->timings.trfc;
+
+	/* single register value for tXSRD and tXSNR */
+	txsr = desc->timings.txsrd;
+	if (desc->timings.txsnr > txsr)
+		txsr = desc->timings.txsnr;
+
+	uint32_t cr = MPDDRC->MPDDRC_CR;
+	cr &= ~(MPDDRC_CR_TWR_Msk |
+	        MPDDRC_CR_TRC_TRFC_Msk |
+	        MPDDRC_CR_TRP_Msk |
+	        MPDDRC_CR_TRCD_Msk |
+	        MPDDRC_CR_TRAS_Msk |
+	        MPDDRC_CR_TXSR_Msk);
+	cr |= MPDDRC_CR_TWR(desc->timings.twr)
+	    | MPDDRC_CR_TRC_TRFC(trc_trfc)
+	    | MPDDRC_CR_TRP(desc->timings.trp)
+	    | MPDDRC_CR_TRCD(desc->timings.trcd)
+	    | MPDDRC_CR_TRAS(desc->timings.tras)
+	    | MPDDRC_CR_TXSR(txsr);
+	MPDDRC->MPDDRC_CR = cr;
+#else /* !CONFIG_HAVE_MPDDRC_SDRAM */
 	MPDDRC->MPDDRC_TPR0 = MPDDRC_TPR0_TMRD(desc->timings.tmrd)
 	                    | MPDDRC_TPR0_TWTR(desc->timings.twtr)
 	                    | MPDDRC_TPR0_TRRD(desc->timings.trrd)
@@ -58,19 +86,28 @@ static void _set_ddr_timings(struct _mpddrc_desc* desc)
 	                    | MPDDRC_TPR2_TRPA(desc->timings.trpa)
 	                    | MPDDRC_TPR2_TXARDS(desc->timings.txards)
 	                    | MPDDRC_TPR2_TXARD(desc->timings.txard);
+#endif /* !CONFIG_HAVE_MPDDRC_SDRAM */
 }
 
-/* Compute BA[] offset according to CR configuration */
+/* Compute BA[] offset according to configuration */
 static uint32_t _compute_ba_offset(void)
 {
-	uint32_t offset = (MPDDRC->MPDDRC_CR & MPDDRC_CR_NC_Msk) + 9;
+	uint8_t nc, nr;
+	bool interleaved, dbw16;
 
-	if ((MPDDRC->MPDDRC_CR & MPDDRC_CR_DECOD_INTERLEAVED) == 0)
-		offset += ((MPDDRC->MPDDRC_CR & MPDDRC_CR_NR_Msk) >> 2) + 11;
+#if defined CONFIG_HAVE_MPDDRC_SDRAM
+	nc = ((MPDDRC->MPDDRC_CR & MPDDRC_CR_NC_Msk) >> MPDDRC_CR_NC_Pos) + 8;
+	nr = ((MPDDRC->MPDDRC_CR & MPDDRC_CR_NR_Msk) >> MPDDRC_CR_NR_Pos) + 11;
+	interleaved = false;
+	dbw16 = (MPDDRC->MPDDRC_CR & MPDDRC_CR_DBW) != 0;
+#else
+	nc = ((MPDDRC->MPDDRC_CR & MPDDRC_CR_NC_Msk) >> MPDDRC_CR_NC_Pos) + 9;
+	nr = ((MPDDRC->MPDDRC_CR & MPDDRC_CR_NR_Msk) >> MPDDRC_CR_NR_Pos) + 11;
+	interleaved = (MPDDRC->MPDDRC_CR & MPDDRC_CR_DECOD_INTERLEAVED) != 0;
+	dbw16 = (MPDDRC->MPDDRC_MD & MPDDRC_MD_DBW) != 0;
+#endif
 
-	offset += (MPDDRC->MPDDRC_MD & MPDDRC_MD_DBW) ? 1 : 2;
-
-	return offset;
+	return nc + (interleaved ? 0 : nr) + (dbw16 ? 1 : 2);
 }
 
 static void _send_ddr_cmd(uint32_t cmd)
@@ -330,6 +367,49 @@ static void _configure_lpddr2(struct _mpddrc_desc* desc)
 
 #endif /* CONFIG_HAVE_MPDDRC_LPDDR2 */
 
+#ifdef CONFIG_HAVE_MPDDRC_SDRAM
+
+/* Configure SDRAM */
+static void _configure_sdram(struct _mpddrc_desc* desc)
+{
+	uint32_t ba_offset = _compute_ba_offset();
+	volatile uint32_t i;
+
+	/* Timings */
+	_set_ddr_timings(desc);
+
+	MPDDRC->MPDDRC_CFR1 |= MPDDRC_CFR1_UNAL;
+
+	/* Step 4: A pause of at least 200μs must be observed before issuing a
+	 * Reset command. */
+	usleep(200);
+
+	/* Step 5: Issue a NOP command. */
+	_send_ddr_cmd(MPDDRC_MR_MODE_NOP_CMD);
+
+	/* Step 6: Issue all banks precharge command. */
+	_send_ddr_cmd(MPDDRC_MR_MODE_PRCGALL_CMD);
+
+	/* Step 7: Issue auto-refresh (CBR) cycles command for eight times */
+	for (i = 0; i < 8; i++)
+		_send_ddr_cmd(MPDDRC_MR_MODE_RFSH_CMD);
+
+	/* Step 8: Issue an Extended Mode Register Set (EMRS3) cycle to set all
+	 * registers to 0. */
+	_send_ddr_cmd(MPDDRC_MR_MODE_LMR_CMD);
+
+	/* Step 9: For mobile SDRAM , Issue Extended Mode Register Set 2 (EMR)
+		cycle to choose between commercial or high temperature operations.*/
+	if (desc->mode & MPDDRC_MD_MD_LPSDRAM)
+		_send_ext_lmr_cmd(0x1, ba_offset);
+
+	/* Step 10: A mode Normal command is provided. Program the Normal mode
+	 * into Mode Register. */
+	_send_ddr_cmd(MPDDRC_MR_MODE_NORMAL_CMD);
+}
+
+#endif /* CONFIG_HAVE_MPDDRC_SDRAM */
+
 extern void mpddrc_configure(struct _mpddrc_desc* desc)
 {
 #ifdef MPDDRC_HS_DIS_ANTICIP_READ
@@ -392,6 +472,11 @@ extern void mpddrc_configure(struct _mpddrc_desc* desc)
 #endif /* CONFIG_HAVE_MPDDRC_DDR3 */
 
 	switch(desc->type) {
+#ifdef CONFIG_HAVE_MPDDRC_SDRAM
+	case MPDDRC_TYPE_SDRAM:
+		_configure_sdram(desc);
+		break;
+#endif
 #ifdef CONFIG_HAVE_MPDDRC_DDR2
 	case MPDDRC_TYPE_DDR2:
 		_configure_ddr2(desc);
