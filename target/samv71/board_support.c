@@ -35,6 +35,7 @@
 #include "trace.h"
 #include "timer.h"
 
+#include "extram/ddram.h"
 #include "gpio/pio.h"
 #include "irq/irq.h"
 #include "nvm/eefc.h"
@@ -104,6 +105,11 @@ void board_cfg_lowlevel(bool clocks, bool ddram, bool mpu)
 
 	/* Configure system timer */
 	board_cfg_timer();
+
+	if (ddram) {
+		/* Configure DDRAM */
+		board_cfg_ddram();
+	}
 }
 
 void board_cfg_timer(void)
@@ -137,5 +143,24 @@ void board_cfg_console(uint32_t baudrate)
 	const struct _pin console_pins[] = PINS_UART0;
 	pio_configure(console_pins, ARRAY_SIZE(console_pins));
 	console_configure(UART0, baudrate);
+#endif
+}
+
+void board_cfg_matrix_for_ddr(void)
+{
+	MATRIX->CCFG_SMCNFCS = CCFG_SMCNFCS_SDRAMEN;
+}
+
+void board_cfg_ddram(void)
+{
+#ifdef BOARD_DDRAM_TYPE
+#ifdef BOARD_DDRAM_PINS
+	const struct _pin ddram_pins[] = BOARD_DDRAM_PINS;
+	pio_configure(ddram_pins, ARRAY_SIZE(ddram_pins));
+#endif
+	board_cfg_matrix_for_ddr();
+	struct _mpddrc_desc desc;
+	ddram_init_descriptor(&desc, BOARD_DDRAM_TYPE);
+	ddram_configure(&desc);
 #endif
 }

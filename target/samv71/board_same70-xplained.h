@@ -61,6 +61,20 @@
 /** Frequency of the board main clock oscillator */
 #define BOARD_MAIN_CLOCK_EXT_OSC 12000000
 
+/** /def Definition of SDRAM type */
+#define BOARD_DDRAM_TYPE         IS42S16100E
+
+/** \def Board DDR memory size in bytes */
+#define BOARD_DDR_MEMORY_SIZE    (2*1024*1024)
+
+/** SDRAM pin definition */
+#define BOARD_DDRAM_PINS {\
+	PIN_SDRAM_D0_7, PIN_SDRAM_D8_13, PIN_SDRAM_D14_15,\
+	PIN_SDRAM_A0_9, PIN_SDRAM_A10_ALT,\
+	PIN_SDRAM_BA0, PIN_SDRAM_CAS, PIN_SDRAM_RAS,\
+	PIN_SDRAM_SDCKE, PIN_SDRAM_SDCK, PIN_SDRAM_SDCS,\
+	PIN_SDRAM_NBS0, PIN_SDRAM_NBS1, PIN_SDRAM_SDWE }
+
 /** \def Board System timer resolution */
 #define BOARD_TIMER_TC          TC1
 #define BOARD_TIMER_CHANNEL     0

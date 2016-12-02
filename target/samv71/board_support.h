@@ -65,6 +65,16 @@ extern void board_cfg_clocks(void);
 extern void board_cfg_lowlevel(bool clocks, bool ddram, bool mpu);
 
 /**
+ * \brief Configure the MATRIX for DDR
+ */
+extern void board_cfg_matrix_for_ddr(void);
+
+/**
+ * \brief Configures DDR (calls board_cfg_matrix_for_ddr)
+ */
+extern void board_cfg_ddram(void);
+
+/**
  * \brief Configure the system timer
  */
 extern void board_cfg_timer(void);
