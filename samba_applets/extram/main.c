@@ -111,6 +111,14 @@ static bool init_extram_from_preset(uint32_t preset)
 		break;
   #endif
 #endif
+#ifdef CONFIG_HAVE_MPDDRC_SDRAM
+  #ifdef CONFIG_HAVE_SDRAM_IS42S16100E
+	case 6:
+		trace_info_wp("Preset 6 (IS42S16100E)\r\n");
+		device = IS42S16100E;
+		break;
+  #endif
+#endif
 	default:
 		trace_error("Unsupported DDRAM preset (%u).\r\n",
 				(unsigned)preset);
