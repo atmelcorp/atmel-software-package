@@ -35,6 +35,7 @@
 #include "board.h"
 #include "board_can.h"
 #include "board_eth.h"
+#include "board_isi.h"
 #include "board_led.h"
 #include "board_spi.h"
 #include "board_twi.h"

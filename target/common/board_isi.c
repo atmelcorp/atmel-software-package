@@ -27,99 +27,47 @@
  * ----------------------------------------------------------------------------
  */
 
- /*----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
+#include "timer.h"
 #include "board.h"
-#include "board_eth.h"
-#include "board_can.h"
 #include "board_isi.h"
-#include "board_led.h"
-#include "board_spi.h"
-#include "board_twi.h"
-#include "compiler.h"
 
-#include "dma/dma.h"
+#include "gpio/pio.h"
 
-#include "board_support.h"
+#include "peripherals/pmc.h"
 
 /*----------------------------------------------------------------------------
- *        Exported functions
+ *        Public Functions
  *----------------------------------------------------------------------------*/
 
-WEAK void board_init(void)
+void board_cfg_isi(void)
 {
-#ifdef VARIANT_DDRAM
-	bool ddram = false;
-#else
-	bool ddram = true;
-#endif
+	const struct _pin pins_isi[]= BOARD_ISI_PINS;
+	const struct _pin pin_mck = BOARD_ISI_MCK_PIN;
+	const struct _pin pin_rst = BOARD_ISI_RST_PIN;
+	const struct _pin pin_pwd = BOARD_ISI_PWD_PIN;
 
-#ifdef VARIANT_SRAM
-	bool clocks = true;
-#else
-	bool clocks = false;
-#endif
+	/* Configure ISI pins */
+	pio_configure(pins_isi, ARRAY_SIZE(pins_isi));
 
-	/* Configure misc low-level stuff */
-	board_cfg_lowlevel(clocks, ddram, true);
+	/* Configure PMC programmable clock (PCK1) */
+	pio_configure(&pin_mck, 1);
+	pmc_configure_pck(BOARD_ISI_MCK_PCK,
+	                  BOARD_ISI_MCK_PCK_SRC,
+	                  BOARD_ISI_MCK_PCK_DIV);
+	pmc_enable_pck(BOARD_ISI_MCK_PCK);
 
-	/* Configure console */
-	board_cfg_console(0);
+	/* Reset sensor */
+	pio_configure(&pin_rst, 1);
+	pio_configure(&pin_pwd, 1);
+	pio_clear(&pin_pwd);
+	pio_clear(&pin_rst);
+	pio_set(&pin_rst);
+	msleep(10);
 
-	/* DMA Driver init */
-	dma_initialize(false);
-
-#ifdef CONFIG_HAVE_CAN_BUS
-	/* Configure CAN bus */
-	board_cfg_can_bus();
-#endif
-
-#ifdef CONFIG_HAVE_SPI_BUS
-	/* Configure SPI bus */
-	board_cfg_spi_bus();
-
-#ifdef CONFIG_HAVE_SPI_AT25
-	board_cfg_at25();
-#endif
-#endif
-
-#ifdef CONFIG_HAVE_TWI_BUS
-	/* Configure TWI bus */
-	board_cfg_twi_bus();
-
-	/* Configure PMIC */
-	board_cfg_pmic();
-#endif
-
-#ifdef CONFIG_HAVE_LED
-	/* Configure LEDs */
-	board_cfg_led();
-#endif
-
-#ifdef CONFIG_HAVE_ETH
-	board_cfg_net(0);
-	board_cfg_net(1);
-#endif
-
-#ifdef CONFIG_HAVE_LCDC
-	/* Configure LCD controller/display */
-	board_cfg_lcd();
-#endif
-
-#ifdef CONFIG_HAVE_ISI
-	/* Configure image sensor */
-	board_cfg_isi();
-#endif
-
-#ifdef CONFIG_HAVE_NAND_FLASH
-	/* Configure NAND flash */
-	board_cfg_nand_flash();
-#endif
-
-#ifdef CONFIG_HAVE_SSC
-	board_cfg_ssc();
-#endif
+	/* Enable ISI peripheral clock */
+	pmc_configure_peripheral(ID_ISI, NULL, true);
 }

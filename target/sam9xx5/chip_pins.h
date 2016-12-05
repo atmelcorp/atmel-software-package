@@ -310,14 +310,11 @@
 /** Image Sensor Interface data clock. */
 #define PIN_ISI_PCK { PIO_GROUP_C, PIO_PC12B_ISI_PCK, PIO_PERIPH_B, PIO_DEFAULT }
 
-/** Image Sensor Interface MCK. */
-#define PIN_ISI_MCK { PIO_GROUP_C, PIO_PC15C_PCK0, PIO_PERIPH_C, PIO_DEFAULT }
-
 /** Image Sensor Interface data pins. */
 #define PINS_ISI_DATA { PIO_GROUP_C, 0x00000FFF, PIO_PERIPH_B, PIO_DEFAULT } // pc0-11
 
 /** Image Sensor Interface pin list. */
-#define PINS_ISI { PIN_ISI_VSYNC, PIN_ISI_HSYNC, PIN_ISI_PCK, PIN_ISI_MCK, PINS_ISI_DATA }
+#define PINS_ISI { PIN_ISI_VSYNC, PIN_ISI_HSYNC, PIN_ISI_PCK, PINS_ISI_DATA }
 
 /* ========== Pio PIN definition for ADC peripheral ========== */
 

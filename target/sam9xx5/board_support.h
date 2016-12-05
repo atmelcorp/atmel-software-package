@@ -117,13 +117,6 @@ extern void board_cfg_nand_flash(void);
 #endif /* CONFIG_HAVE_NAND_FLASH */
 
 /**
- * \brief Configures ISI for the board.
- */
-#ifdef CONFIG_HAVE_ISI
-extern void board_cfg_isi(void);
-#endif
-
-/**
  * \brief Configures LCD for the board.
  */
 #ifdef CONFIG_HAVE_LCDC

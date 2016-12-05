@@ -267,10 +267,14 @@
 
 /* =================== ISI device definition =================== */
 
-#define BOARD_ISI_TWI_BUS  0
-#define BOARD_ISI_PINS     PINS_ISI_8BIT
-#define BOARD_ISI_RST_PIN  { PIO_GROUP_B, PIO_PB11, PIO_OUTPUT_1, PIO_DEFAULT }
-#define BOARD_ISI_PWD_PIN  { PIO_GROUP_B, PIO_PB5, PIO_OUTPUT_1, PIO_DEFAULT }
+#define BOARD_ISI_TWI_BUS     0
+#define BOARD_ISI_PINS        PINS_ISI_8BIT
+#define BOARD_ISI_RST_PIN     { PIO_GROUP_B, PIO_PB11, PIO_OUTPUT_1, PIO_DEFAULT }
+#define BOARD_ISI_PWD_PIN     { PIO_GROUP_B, PIO_PB5, PIO_OUTPUT_1, PIO_DEFAULT }
+#define BOARD_ISI_MCK_PCK     1
+#define BOARD_ISI_MCK_PCK_SRC PMC_PCK_CSS_MCK
+#define BOARD_ISI_MCK_PCK_DIV 3
+#define BOARD_ISI_MCK_PIN     PIN_PCK1
 
 /* ================== ACT8865 PMIC definition ====================== */
 

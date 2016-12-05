@@ -136,13 +136,6 @@ extern void board_cfg_lcd(void);
 #endif
 
 /**
- * \brief Configures ISI for the board
- */
-#ifdef CONFIG_HAVE_ISI
-extern void board_cfg_isi(void);
-#endif
-
-/**
  * \brief Configure a SD/MMC slot of the board
  * \param hsmci_id  HSMCI peripheral ID (ID_HSMCIx).
  * \note The application shall have enabled the clocks assigned to this HSMCI

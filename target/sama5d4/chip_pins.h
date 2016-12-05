@@ -465,9 +465,6 @@
 /** Image Sensor Interface data clock. */
 #define PIN_ISI_PCK { PIO_GROUP_B, PIO_PB1C_ISI_PCK, PIO_PERIPH_C, PIO_DEFAULT }
 
-/** Image Sensor Interface MCK. */
-#define PIN_ISI_MCK { PIO_GROUP_C, PIO_PC4C_PCK1, PIO_PERIPH_C, PIO_DEFAULT }
-
 /** Image Sensor Interface data pins (8-bit) */
 #define PINS_ISI_DATA_8BIT { PIO_GROUP_C, 0x07F80000, PIO_PERIPH_A, PIO_DEFAULT }
 
@@ -476,10 +473,10 @@
                             { PIO_GROUP_C, 0x0000000F, PIO_PERIPH_C, PIO_DEFAULT }
 
 /** Image Sensor Interface pin list (8-bit data) */
-#define PINS_ISI_8BIT { PIN_ISI_VSYNC, PIN_ISI_HSYNC, PIN_ISI_PCK, PIN_ISI_MCK, PINS_ISI_DATA_8BIT }
+#define PINS_ISI_8BIT { PIN_ISI_VSYNC, PIN_ISI_HSYNC, PIN_ISI_PCK, PINS_ISI_DATA_8BIT }
 
 /** Image Sensor Interface pin list (12-bit data) */
-#define PINS_ISI_12BIT { PIN_ISI_VSYNC, PIN_ISI_HSYNC, PIN_ISI_PCK, PIN_ISI_MCK, PINS_ISI_DATA_12BIT }
+#define PINS_ISI_12BIT { PIN_ISI_VSYNC, PIN_ISI_HSYNC, PIN_ISI_PCK, PINS_ISI_DATA_12BIT }
 
 /** List of all HSMCI pin definitions. */
 

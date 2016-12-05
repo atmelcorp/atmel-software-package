@@ -607,33 +607,6 @@ void board_cfg_pmic()
 #endif
 }
 
-#ifdef CONFIG_HAVE_ISI
-void board_cfg_isi(void)
-{
-	const struct _pin pins_isi[] = BOARD_ISI_PINS;
-	const struct _pin pin_rst = BOARD_ISI_RST_PIN;
-	const struct _pin pin_pwd = BOARD_ISI_PWD_PIN;
-
-	/* Configure ISI pins */
-	pio_configure(pins_isi, ARRAY_SIZE(pins_isi));
-
-	/* Configure PMC programmable clock (PCK1) */
-	pmc_configure_pck(1, PMC_PCK_CSS_MCK, 3);
-	pmc_enable_pck(1);
-
-	/* Reset sensor */
-	pio_configure(&pin_rst,1);
-	pio_configure(&pin_pwd,1);
-	pio_clear(&pin_pwd);
-	pio_clear(&pin_rst);
-	pio_set(&pin_rst);
-	msleep(10);
-
-	/* Enable ISI peripheral clock */	
-	pmc_configure_peripheral(ID_ISI, NULL, true);
-}
-#endif
-
 #ifdef CONFIG_HAVE_LCDC
 void board_cfg_lcd(void)
 {

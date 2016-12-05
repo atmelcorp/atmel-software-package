@@ -236,10 +236,14 @@
 
 /* =================== ISI device definition =================== */
 
-#define BOARD_ISI_TWI_BUS  0
-#define BOARD_ISI_PINS     PINS_ISI
-#define BOARD_ISI_RST_PIN  { PIO_GROUP_A, PIO_PA7, PIO_OUTPUT_1, PIO_DEFAULT }
-#define BOARD_ISI_PWD_PIN  { PIO_GROUP_A, PIO_PA13, PIO_OUTPUT_1, PIO_DEFAULT }
+#define BOARD_ISI_TWI_BUS     0
+#define BOARD_ISI_PINS        PINS_ISI
+#define BOARD_ISI_RST_PIN     { PIO_GROUP_A, PIO_PA7, PIO_OUTPUT_1, PIO_DEFAULT }
+#define BOARD_ISI_PWD_PIN     { PIO_GROUP_A, PIO_PA13, PIO_OUTPUT_1, PIO_DEFAULT }
+#define BOARD_ISI_MCK_PCK     0
+#define BOARD_ISI_MCK_PCK_SRC PMC_PCK_CSS_PLLA_CLK
+#define BOARD_ISI_MCK_PCK_DIV 4
+#define BOARD_ISI_MCK_PIN     PIN_PCK0_ALT
 
 /* ================== CAN bus definition ====================== */
 

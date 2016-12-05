@@ -488,33 +488,6 @@ bool board_power_sdmmc_device(uint32_t periph_id, bool on)
 	return true;
 }
 
-#ifdef CONFIG_HAVE_ISI
-void board_cfg_isi(void)
-{
-	const struct _pin pins_isi[]= BOARD_ISI_PINS;
-	const struct _pin pin_rst = BOARD_ISI_RST_PIN;
-	const struct _pin pin_pwd = BOARD_ISI_PWD_PIN;
-
-	/* Configure ISI pins */
-	pio_configure(pins_isi, ARRAY_SIZE(pins_isi));
-
-	/* Configure PMC programmable clock (PCK0) */
-	pmc_configure_pck(0, PMC_PCK_CSS_PLLA_CLK, 4);
-	pmc_enable_pck(0);
-
-	/* Reset sensor */
-	pio_configure(&pin_rst,1);
-	pio_configure(&pin_pwd,1);
-	pio_clear(&pin_pwd);
-	pio_clear(&pin_rst);
-	pio_set(&pin_rst);
-	msleep(10);
-
-	/* Enable ISI peripheral clock */
-	pmc_configure_peripheral(ID_ISI, NULL, true);
-}
-#endif
-
 #ifdef CONFIG_HAVE_SSC
 void board_cfg_ssc(void)
 {
