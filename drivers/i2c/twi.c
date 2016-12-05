@@ -93,12 +93,29 @@
 #include <assert.h>
 
 /*----------------------------------------------------------------------------
+ *        Definitions
+ *----------------------------------------------------------------------------*/
+
+#if defined(CONFIG_SOC_SAM9XX5)
+#define TWI_CLK_OFFSET (4)
+#elif defined(CONFIG_SOC_SAMA5D2)
+#define TWI_CLK_OFFSET (3) /* TODO: handle GCK case (offset=0) */
+#elif defined(CONFIG_SOC_SAMA5D3)
+#define TWI_CLK_OFFSET (4)
+#elif defined(CONFIG_SOC_SAMA5D4)
+#define TWI_CLK_OFFSET (4)
+#else
+#error Unsupported SoC!
+#endif
+
+
+/*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
 uint32_t twi_configure_master(Twi *twi, uint32_t twi_clock)
 {
-	uint32_t ck_div, clh_div, ok, clock;
+	uint32_t ck_div, clh_div, clock;
 	uint32_t hold = 0;
 	uint32_t id = get_twi_id_from_addr(twi);
 
@@ -113,15 +130,11 @@ uint32_t twi_configure_master(Twi *twi, uint32_t twi_clock)
 
 	/* Compute clock */
 	clock = pmc_get_peripheral_clock(id);
-	ck_div = 0; ok = 0;
-	while (!ok) {
-		clh_div = ((clock / (2 * twi_clock)) - 3) >> ck_div;
+	for (ck_div = 0; ck_div < 7; ck_div++) {
+		clh_div = ((clock / (2 * twi_clock)) - TWI_CLK_OFFSET) >> ck_div;
 		if (clh_div <= 255)
-			ok = 1;
-		else
-			ck_div++;
+			break;
 	}
-	assert(ck_div < 8);
 
 #ifdef TWI_CWGR_HOLD
 	/* Compute holding time (I2C spec requires 300ns) */
@@ -138,7 +151,7 @@ uint32_t twi_configure_master(Twi *twi, uint32_t twi_clock)
 	twi->TWI_CR = TWI_CR_SVDIS;
 	twi->TWI_CR = TWI_CR_MSEN;
 
-	return ROUND_INT_DIV(clock, (((clh_div * 2) << ck_div) + 3));
+	return clock / (((clh_div * 2) << ck_div) + TWI_CLK_OFFSET);
 }
 
 void twi_configure_slave(Twi *twi, uint8_t slave_address)
