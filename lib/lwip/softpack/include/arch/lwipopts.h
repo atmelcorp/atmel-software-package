@@ -404,17 +404,4 @@
  */
 #define TCP_OUTPUT_DEBUG                LWIP_DBG_ON
 
-/*
-   ---------------------------------------
-   ---------- Misc ----------
-   ---------------------------------------
-*/
-
-/* No assert */
-#define LWIP_NOASSERT
-
-/* No error output */
-#define LWIP_ERROR(message, expression, handler)
-
 #endif /* #ifndef _LWIPOPTS_H */
-

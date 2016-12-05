@@ -26,7 +26,8 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-CFLAGS_INC += -I$(TOP)/lib/lwip/sama5
+CFLAGS_INC += -I$(TOP)/lib/lwip/softpack/include
+CFLAGS_INC += -I$(TOP)/lib/lwip/softpack/include/arch
 
-lwip-y += lib/lwip/sama5/ethif.o
-lwip-y += lib/lwip/sama5/arch/sys_arch.o
+lwip-y += lib/lwip/softpack/netif/ethif.o
+lwip-y += lib/lwip/softpack/sys_arch.o

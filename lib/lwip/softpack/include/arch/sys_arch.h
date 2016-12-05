@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
- *         SAM Software Package License
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
- * Copyright (c) 2013, Atmel Corporation
+ * Copyright (c) 2010, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -25,57 +25,12 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ----------------------------------------------------------------------------
+ *
+ * This file is part of the lwIP TCP/IP stack.
+ *
  */
 
-#ifndef _CC_H
-#define _CC_H
+#ifndef _SYS_ARCH_H
+#define _SYS_ARCH_H
 
-/* Define platform endianness */
-#define BYTE_ORDER LITTLE_ENDIAN
-
-/* The unsigned data types */
-typedef unsigned char   u8_t;
-typedef unsigned short  u16_t;
-typedef unsigned int    u32_t;
-
-/* The signed counterparts */
-typedef signed char     s8_t;
-typedef signed short    s16_t;
-typedef signed int      s32_t;
-
-/* A generic pointer type */
-typedef u32_t mem_ptr_t;
-
-/* Display name of types */
-#define U16_F           "hu"
-#define S16_F           "hd"
-#define X16_F           "hx"
-#define U32_F           "u"
-#define S32_F           "d"
-#define X32_F           "x"
-
-/* Compiler hints for packing lwip's structures */
-#if defined(__CC_ARM)
-    /* Setup PACKing macros for MDK Tools */
-    #define PACK_STRUCT_BEGIN
-    #define PACK_STRUCT_STRUCT __attribute__ ((packed))
-    #define PACK_STRUCT_END
-    #define PACK_STRUCT_FIELD(x) x
-#elif defined (__ICCARM__)
-    /* Setup PACKing macros for EWARM Tools */
-    #define PACK_STRUCT_BEGIN __packed
-    #define PACK_STRUCT_STRUCT
-    #define PACK_STRUCT_END
-    #define PACK_STRUCT_FIELD(x) x
-#elif defined (__GNUC__)
-    /* Setup PACKing macros for GCC Tools */
-    #define PACK_STRUCT_BEGIN
-    #define PACK_STRUCT_STRUCT __attribute__ ((packed))
-    #define PACK_STRUCT_END
-    #define PACK_STRUCT_FIELD(x) x
-#else
-    #error "This compiler does not support."
 #endif
-
-#endif  /* _CC_H */
-

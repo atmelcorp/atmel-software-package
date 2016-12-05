@@ -34,7 +34,7 @@ lib-y += lib/lwip.a
 
 lwip-y :=
 
-include $(TOP)/lib/lwip/sama5/Makefile.inc
+include $(TOP)/lib/lwip/softpack/Makefile.inc
 include $(TOP)/lib/lwip/src/Makefile.inc
 
 LWIP_OBJS := $(addprefix $(BUILDDIR)/,$(lwip-y))

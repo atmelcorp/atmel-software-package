@@ -119,34 +119,9 @@
 #include <stdio.h>
 #include <string.h>
 
-/*----------------------------------------------------------------------------
- *        Types
- *----------------------------------------------------------------------------*/
-
-/* Timer for calling lwIP tmr functions without system */
-typedef struct _timers_info {
-	uint32_t timer;
-	uint32_t timer_interval;
-	void (*timer_func)(void);
-} timers_info;
-
 /*---------------------------------------------------------------------------
  *         Variables
  *---------------------------------------------------------------------------*/
-
-/* lwIP tmr functions list */
-static timers_info timers_table[] = {
-	/* LWIP_TCP */
-	{ 0, TCP_FAST_INTERVAL,     tcp_fasttmr},
-	{ 0, TCP_SLOW_INTERVAL,     tcp_slowtmr},
-	/* LWIP_ARP */
-	{ 0, ARP_TMR_INTERVAL,      etharp_tmr},
-	/* LWIP_DHCP */
-#if LWIP_DHCP
-	{ 0, DHCP_COARSE_TIMER_SECS, dhcp_coarse_tmr},
-	{ 0, DHCP_FINE_TIMER_MSECS,  dhcp_fine_tmr},
-#endif
-};
 
 /* The MAC address used for demo */
 static uint8_t _mac_addr[6];
@@ -191,37 +166,6 @@ static uint8_t select_eth_port(void)
 	}
 
 	return send_port;
-}
-
-/**
- * Process timing functions
- */
-static void timers_update(void)
-{
-	static uint32_t last_time;
-	uint32_t cur_time, time_diff, idxtimer;
-	timers_info * ptmr_inf;
-
-	cur_time = sys_get_ms();
-	if (cur_time >= last_time)
-		time_diff = cur_time - last_time;
-	else
-		time_diff = 0xFFFFFFFF - last_time + cur_time;
-
-	if (time_diff) {
-		last_time = cur_time;
-		for (idxtimer = 0;
-			idxtimer < (sizeof(timers_table)/sizeof(timers_info));
-			idxtimer++) {
-			ptmr_inf = &timers_table[idxtimer];
-			ptmr_inf->timer += time_diff;
-			if (ptmr_inf->timer > ptmr_inf->timer_interval) {
-				if (ptmr_inf->timer_func)
-					ptmr_inf->timer_func();
-				ptmr_inf->timer -= ptmr_inf->timer_interval;
-			}
-		}
-	}
 }
 
 /*----------------------------------------------------------------------------
@@ -280,7 +224,6 @@ int main(void)
 	netif_set_default(netif);
 	netif_set_up(netif);
 
-
 	/* Initialize http server application */
 	if (ERR_OK != httpd_init()) {
 		printf("httpd_init ERR_OK!");
@@ -288,9 +231,6 @@ int main(void)
 	}
 	printf ("Type the IP address of the device in a web browser, http://192.168.1.3 \n\r");
 	while(1) {
-		/* Run periodic tasks */
-		timers_update();
-
 		/* Run polling tasks */
 		ethif_poll(netif);
 	}

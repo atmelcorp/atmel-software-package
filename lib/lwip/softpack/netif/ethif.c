@@ -49,13 +49,16 @@
 #include "network/phy.h"
 
 #include "lwip/opt.h"
-#include "ethif.h"
+#include "netif/ethif.h"
 #include "lwip/def.h"
 #include "lwip/mem.h"
 #include "lwip/pbuf.h"
 #include "lwip/sys.h"
 #include "lwip/stats.h"
 #include "netif/etharp.h"
+
+#include "timer.h"
+#include "lwip/tcp.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -69,8 +72,68 @@
 #define IFNAME1 'n'
 
 /*----------------------------------------------------------------------------
+ *        Types
+ *----------------------------------------------------------------------------*/
+
+/* Timer for calling lwIP tmr functions without system */
+typedef struct _timers_info {
+	uint32_t timer;
+	uint32_t timer_interval;
+	void (*timer_func)(void);
+} timers_info;
+
+/*---------------------------------------------------------------------------
+ *         Variables
+ *---------------------------------------------------------------------------*/
+
+/* lwIP tmr functions list */
+static timers_info timers_table[] = {
+	/* LWIP_TCP */
+	{ 0, TCP_FAST_INTERVAL,     tcp_fasttmr},
+	{ 0, TCP_SLOW_INTERVAL,     tcp_slowtmr},
+	/* LWIP_ARP */
+	{ 0, ARP_TMR_INTERVAL,      etharp_tmr},
+	/* LWIP_DHCP */
+#if LWIP_DHCP
+	{ 0, DHCP_COARSE_TIMER_SECS, dhcp_coarse_tmr},
+	{ 0, DHCP_FINE_TIMER_MSECS,  dhcp_fine_tmr},
+#endif
+};
+
+/*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
+
+/**
+ * Process timing functions
+ */
+static void timers_update(void)
+{
+	static uint32_t last_time;
+	uint32_t cur_time, time_diff, idxtimer;
+	timers_info * ptmr_inf;
+
+	cur_time = timer_get_tick();
+	if (cur_time >= last_time)
+		time_diff = cur_time - last_time;
+	else
+		time_diff = 0xFFFFFFFF - last_time + cur_time;
+
+	if (time_diff) {
+		last_time = cur_time;
+		for (idxtimer = 0;
+			idxtimer < (sizeof(timers_table)/sizeof(timers_info));
+			idxtimer++) {
+			ptmr_inf = &timers_table[idxtimer];
+			ptmr_inf->timer += time_diff;
+			if (ptmr_inf->timer > ptmr_inf->timer_interval) {
+				if (ptmr_inf->timer_func)
+					ptmr_inf->timer_func();
+				ptmr_inf->timer -= ptmr_inf->timer_interval;
+			}
+		}
+	}
+}
 
 /* Forward declarations. */
 static void  ethif_input(struct netif *netif);
@@ -264,13 +327,13 @@ static void ethif_input(struct netif *netif)
  */
 err_t ethif_init(struct netif *netif)
 {
-    netif->name[0] = IFNAME0;
-    netif->name[1] = IFNAME1;
-    netif->output = ethif_output;
-    netif->linkoutput = glow_level_output;
-    glow_level_init(netif, board_get_eth(netif->num));
-    etharp_init();
-    return ERR_OK;
+	netif->name[0] = IFNAME0;
+	netif->name[1] = IFNAME1;
+	netif->output = ethif_output;
+	netif->linkoutput = glow_level_output;
+	glow_level_init(netif, board_get_eth(netif->num));
+	etharp_init();
+	return ERR_OK;
 }
 
 /**
@@ -280,6 +343,8 @@ err_t ethif_init(struct netif *netif)
  */
 void ethif_poll(struct netif *netif)
 {
-    ethif_input(netif);
-}
+	/* Run periodic tasks */
+	timers_update();
 
+	ethif_input(netif);
+}
