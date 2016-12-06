@@ -183,13 +183,13 @@
 /** TWI1 pins */
 #define PINS_TWI1 { PIN_TWI_TWD1, PIN_TWI_TWCK1 }
 
-/** TWI1 data pin */
+/** TWI2 data pin */
 #define PIN_TWI_TWD2 { PIO_GROUP_A, PIO_PA18B_TWD2, PIO_PERIPH_B, PIO_DEFAULT }
 
-/** TWI1 clock pin */
+/** TWI2 clock pin */
 #define PIN_TWI_TWCK2 { PIO_GROUP_A, PIO_PA19B_TWCK2, PIO_PERIPH_B, PIO_DEFAULT }
 
-/** TWI1 pins */
+/** TWI2 pins */
 #define PINS_TWI2 { PIN_TWI_TWD2, PIN_TWI_TWCK2 }
 
 /** List of all CAN pin deinitions. */
