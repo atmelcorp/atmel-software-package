@@ -51,7 +51,7 @@
  */
 
 /** Name of the board */
-#define BOARD_NAME "sama5d3-ek"
+#define BOARD_NAME "sama5d3-ek" /* for mainboard revision D or later */
 
 /*----------------------------------------------------------------------------*/
 
@@ -85,7 +85,6 @@
 /* RGB LED index */
 #define LED_BLUE   0
 #define LED_RED    1
-
 
 /** LED #0 pin definition (Blue). */
 #define PIN_LED_0 { PIO_GROUP_E, PIO_PE25, PIO_OUTPUT_1, PIO_DEFAULT }
@@ -227,15 +226,10 @@
 
 /* ================== TWI bus definition ====================== */
 
-#define BOARD_TWI_BUS0      TWI0
-#define BOARD_TWI_BUS0_FREQ 400000
-#define BOARD_TWI_BUS0_PINS PINS_TWI0
+#define BOARD_TWI_BUS0      TWI1
+#define BOARD_TWI_BUS0_FREQ 300000
+#define BOARD_TWI_BUS0_PINS PINS_TWI1
 #define BOARD_TWI_BUS0_MODE TWID_MODE_DMA
-
-#define BOARD_TWI_BUS1      TWI1
-#define BOARD_TWI_BUS1_FREQ 400000
-#define BOARD_TWI_BUS1_PINS PINS_TWI1
-#define BOARD_TWI_BUS1_MODE TWID_MODE_DMA
 
 /* ================== SPI bus definition ====================== */
 
@@ -245,7 +239,7 @@
 
 /* =================== ISI device definition =================== */
 
-#define BOARD_ISI_TWI_BUS     1
+#define BOARD_ISI_TWI_BUS     0
 #define BOARD_ISI_PINS        PINS_ISI_8BIT
 #define BOARD_ISI_RST_PIN     { PIO_GROUP_E, PIO_PE24, PIO_OUTPUT_1, PIO_DEFAULT }
 #define BOARD_ISI_PWD_PIN     { PIO_GROUP_E, PIO_PE29, PIO_OUTPUT_1, PIO_DEFAULT }
