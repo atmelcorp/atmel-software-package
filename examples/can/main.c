@@ -462,6 +462,8 @@ static void display_menu(void)
 	chk_box[0] = loop_back ? 'X' : ' ';
 	printf("   l: [%c] Integrated CANTX->CANRX loop-back\r\n", chk_box[0]);
 	printf("   p: Send sample messages\r\n");
+	printf("   r: Receive a specified message\r\n");
+	printf("   t: Send out a specified message\r\n");
 	printf("   h: Display this menu\r\n");
 	printf("\r\n");
 }
@@ -540,6 +542,45 @@ int main(void)
 			send_message(0);
 			send_message(1);
 			break;
+		case 'r': {
+			struct _buffer buf_rx = {
+					.data = rx_buffers[_RX_BUFF_SIMPLE],
+					.size = sizeof(rx_buffers[_RX_BUFF_SIMPLE]),
+					.attr = CAND_BUF_ATTR_STANDARD | CAND_BUF_ATTR_RX,
+				};
+			if (CAND_OK != can_bus_activate(1, CAN_TO)) {
+				trace_error("Failed to enable CAN/MCAN.\r\n");
+				break;
+			}
+			can_bus_transfer(1, 0x222, 0x7FF, &buf_rx, NULL, NULL);
+			if (!can_bus_wait_transfer_done(&buf_rx, 10 * CAN_TO)) {
+				trace_warning("RX failed!\r\n");
+			} else {
+				trace_info("CAN1 RX, len %d:", buf_rx.size);
+				print_buffer(buf_rx.size, buf_rx.data);
+			}
+			break;
+		}
+		case 't': {
+			struct _buffer buf_tx = {
+					.data = (uint8_t*)msg_2,
+					.size = 8,
+					.attr = CAND_BUF_ATTR_STANDARD | CAND_BUF_ATTR_TX,
+				};
+			if (CAND_OK != can_bus_activate(1, CAN_TO)) {
+				trace_error("Failed to enable CAN/MCAN.\n\r");
+				break;
+			}
+			trace_info("CAN1 TX, ID 0x222, len %d:", buf_tx.size);
+			print_buffer(buf_tx.size, buf_tx.data);
+
+			can_bus_transfer(1, 0x222, 0, &buf_tx, NULL, NULL);
+			if (!can_bus_wait_transfer_done(&buf_tx, CAN_TO))
+				trace_error("TX failed!\r\n");
+			else
+				trace_info("TX OK!\r\n");
+			break;
+		}
 		}
 	}
 }

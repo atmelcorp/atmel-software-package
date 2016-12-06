@@ -263,8 +263,8 @@ static void _can_handler(uint32_t source, void* user_arg)
 /**
  * \brief Calculate and configure the baudrate
  * \param can      Pointer to Can instance.
- * \param baudrate Baudrate value (kB/s)
- *                 allowed: 100, 800, 500, 250, 125, 50, 25, 10
+ * \param baudrate Baudrate value (b/s)
+ *                 allowed: 100000, 800000, 500000, 250000, 125000, 50000, 25000, 10000
  * \return 1 in success, otherwise return 0.
  */
 static uint8_t cand_set_baudrate(Can* can, uint32_t baudrate)
@@ -272,19 +272,19 @@ static uint8_t cand_set_baudrate(Can* can, uint32_t baudrate)
 	uint32_t brp, propag, phase1, phase2, sjw;
 	uint8_t  tq;
 	uint32_t t1t2;
-	uint32_t max_clock;
+	uint32_t clock;
 	uint32_t id;
 
 	id = get_can_id_from_addr(can);
 	assert(id < ID_PERIPH_COUNT);
 
-	max_clock = get_peripheral_clock_max_freq(id);
-
+	clock = pmc_get_peripheral_clock(id);
+	baudrate /= 1000;
 	if (baudrate >= 1000)
 		tq = 8;
 	else
 		tq = 16;
-	brp = (max_clock / (baudrate * 1000 * tq)) - 1;
+	brp = (clock / (baudrate * 1000 * tq)) - 1;
 	if (brp == 0)
 		return 0;
 

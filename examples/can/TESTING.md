@@ -43,6 +43,8 @@ Press [c|f|s] to set CAN or CAN FD mode
 Press [l] to toggle the integrated MCAN loop-back on/off
    l: [ ] Integrated CANTX->CANRX loop-back
    p: Send sample messages
+   r: Receive a specified message
+   t: Send out a specified message
    h: Display this menu
 ```
 ## Start the application (SAM9X25-EK, SAM9X35-EK, SAMA5D2-XPLAINED, SAMA5D3-EK, SAMA5D3-XPLAINED)
@@ -53,6 +55,8 @@ Tested with IAR and GCC
  - SAMA5D2: ddram configration
  - SAMA5D3: sram ddram configration
 
+To test transfer between two boards, the can cables should be connected correctly before doing the tests.
+
 In order to test this example, the process is the following:
 
 Step | Description | Expected Result | Result
@@ -61,5 +65,7 @@ Press 'c'.'p' | ISO 11898-1 CAN,| PASSED | PASSED
 Press 'f'.'p' | ISO 11898-7 CAN FD, 64-byte data| PASSED | PASSED
 Press 's'.'p' | ISO 11898-7 CAN FD, 64-byte data, 2 Mbps data bit| PASSED | PASSED
 Press 'l'.'p' | toggle the integrated MCAN loop-back off| FAILED | PASSED
+Press 'r' on one board | prepare to receive the specified message | FAILED | PASSED
+Press 't' on the other board | send out the specified message| FAILED | PASSED
 Press 'l' | toggle the integrated MCAN loop-back on| PASSED | PASSED
 

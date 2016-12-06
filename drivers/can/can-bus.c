@@ -27,14 +27,14 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "can-bus.h"
-#include "board.h"
+#include <assert.h>
+#include <string.h>
 
+#include "board.h"
+#include "can-bus.h"
+#include "errno.h"
 #include "timer.h"
 #include "trace.h"
-
-#include <string.h>
-#include <assert.h>
 
 static struct _can_bus_desc _can_bus[CAN_IFACE_COUNT];
 
@@ -146,7 +146,6 @@ bool can_bus_wait_transfer_done(struct _buffer *buf, uint32_t wait_ms)
 		while (!timer_timeout_reached(&timeout)) {
 			if (buf->attr & CAND_BUF_ATTR_TRANSFER_MSK)
 				return true;
-			timer_sleep(1);
 		}
 	} else {
 		if (buf->attr & CAND_BUF_ATTR_TRANSFER_MSK)
@@ -178,7 +177,6 @@ int32_t can_bus_activate(uint8_t bus_id, uint32_t wait_ms)
 		if (mcan_is_enabled(mcan))
 #endif
 			return CAND_OK;
-		timer_sleep(1);
 	}
 	return 1;
 }

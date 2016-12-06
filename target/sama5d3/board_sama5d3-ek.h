@@ -252,11 +252,11 @@
 
 #define BOARD_CAN_BUS0      CAN0
 #define BOARD_CAN_BUS0_PINS PINS_CAN0
-#define BOARD_CAN_BUS0_FREQ 1000
+#define BOARD_CAN_BUS0_FREQ 1000000
 
 #define BOARD_CAN_BUS1      CAN1
 #define BOARD_CAN_BUS1_PINS PINS_CAN1
-#define BOARD_CAN_BUS1_FREQ 1000
+#define BOARD_CAN_BUS1_FREQ 1000000
 
 /* =================== AT25 device definition =================== */
 

@@ -37,6 +37,7 @@
 
 #include "board.h"
 
+#include "barriers.h"
 #include "irq/irq.h"
 #include "peripherals/pmc.h"
 #include "mm/cache.h"
@@ -444,7 +445,6 @@ static void _mcand_tx_buffer_handler(struct _mcan_desc *desc)
 {
 	uint32_t buf_idx;
 	uint32_t status;
-	uint32_t id;
 	struct _cand_ram_item *ram_item;
 	uint32_t *tx_buf;
 
@@ -467,10 +467,6 @@ static void _mcand_tx_buffer_handler(struct _mcan_desc *desc)
 			if (tx_buf[0] & MCAN_RAM_BUF_RTR) {
 				// Remote Transmission Request
 			}
-			if (tx_buf[0] & MCAN_RAM_BUF_XTD)
-				id = (tx_buf[0] & MCAN_RAM_BUF_ID_XTD_Msk) >> MCAN_RAM_BUF_ID_XTD_Pos;
-			else
-				id = (tx_buf[0] & MCAN_RAM_BUF_ID_STD_Msk) >> MCAN_RAM_BUF_ID_STD_Pos;
 
 			if (ram_item->buf)
 				ram_item->buf->attr |= CAND_BUF_ATTR_TRANSFER_DONE;
@@ -554,8 +550,6 @@ static void _mcand_rx_proc(struct _mcan_desc *desc, enum _mcan_ram ram, uint32_t
 	uint32_t *rx_buf;
 	uint32_t ram_size;
 
-	uint32_t id;
-	uint32_t timestamp;
 	uint32_t len;
 	enum _mcan_ram filter;
 	uint8_t filter_idx;
@@ -584,17 +578,14 @@ static void _mcand_rx_proc(struct _mcan_desc *desc, enum _mcan_ram ram, uint32_t
 	if (rx_buf[0] & MCAN_RAM_BUF_XTD) {
 		filter = MCAN_RAM_EXT_FILTER;
 		filter_cnt = desc->set.cfg.item_count[MCAN_RAM_EXT_FILTER];
-		id = (rx_buf[0] & MCAN_RAM_BUF_ID_XTD_Msk) >> MCAN_RAM_BUF_ID_XTD_Pos;
 	} else {
 		filter = MCAN_RAM_STD_FILTER;
 		filter_cnt = desc->set.cfg.item_count[MCAN_RAM_STD_FILTER];
-		id = (rx_buf[0] & MCAN_RAM_BUF_ID_STD_Msk) >> MCAN_RAM_BUF_ID_STD_Pos;
 	}
 
 	filter_idx = (rx_buf[1] & MCAN_RAM_BUF_FIDX_Msk) >> MCAN_RAM_BUF_FIDX_Pos;
 	len = get_data_length((enum mcan_dlc)
 			((rx_buf[1] & MCAN_RAM_BUF_DLC_Msk) >> MCAN_RAM_BUF_DLC_Pos));
-	timestamp = (rx_buf[1] & MCAN_RAM_BUF_RXTS_Msk) >> MCAN_RAM_BUF_RXTS_Pos;
 
 	if (ram_item->buf) {
 		/* copy data from the Rx FIFO/Buffer to the application-owned buffer */
