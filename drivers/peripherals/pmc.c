@@ -392,33 +392,27 @@ uint32_t pmc_get_slow_clock(void)
 uint32_t pmc_get_main_clock(void)
 {
 	if (PMC->CKGR_MOR & CKGR_MOR_MOSCSEL)
-		return _pmc_oscillators.internal.main; /* on-chip main clock RC */
-	else
 		return _pmc_oscillators.external.main; /* external crystal */
+	else
+		return _pmc_oscillators.internal.main; /* on-chip main clock RC */
 }
 
 uint32_t pmc_get_plla_clock(void)
 {
 	uint32_t pllaclk, pllar, pllmula, plldiva;
 
-	if (PMC->CKGR_MOR & CKGR_MOR_MOSCSEL)
-		pllaclk = _pmc_oscillators.internal.main; /* on-chip main clock RC */
-	else
-		pllaclk = _pmc_oscillators.external.main; /* external crystal */
-
 	pllar = PMC->CKGR_PLLAR;
 	pllmula = (pllar & CKGR_PLLAR_MULA_Msk) >> CKGR_PLLAR_MULA_Pos;
 	plldiva = (pllar & CKGR_PLLAR_DIVA_Msk) >> CKGR_PLLAR_DIVA_Pos;
-	if (plldiva == 0 || pllmula == 0) {
-		pllaclk = 0;
-	} else {
-		pllaclk = pllaclk * (pllmula + 1) / plldiva;
-#ifdef CONFIG_HAVE_PMC_PLLADIV2
-		if (PMC->PMC_MCKR & PMC_MCKR_PLLADIV2)
-			pllaclk >>= 1;
-#endif
-	}
+	if (plldiva == 0 || pllmula == 0)
+		return 0;
 
+	pllaclk = pmc_get_main_clock();
+	pllaclk = pllaclk * (pllmula + 1) / plldiva;
+#ifdef CONFIG_HAVE_PMC_PLLADIV2
+	if (PMC->PMC_MCKR & PMC_MCKR_PLLADIV2)
+		pllaclk >>= 1;
+#endif
 	return pllaclk;
 }
 
