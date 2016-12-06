@@ -32,22 +32,23 @@ CFLAGS_INC += -I$(TOP)/target/samv71
 
 gnu-debug-lib-y ?= $(TOP)/target/samv71/toolchain/gnu/common.gdb
 gnu-cstartup-y ?= target/samv71/toolchain/cstartup.o
-#iar-cstartup-y ?= target/samv71/toolchain/cstartup.o
+iar-cstartup-y ?= target/samv71/toolchain/cstartup.o
+iar-program-entry-y ?= reset_handler
 
 # SRAM variant
 ifeq ($(VARIANT),sram)
 gnu-linker-script-y ?= $(TOP)/target/samv71/toolchain/gnu/sram.ld
 gnu-debug-script-y ?= $(TOP)/target/samv71/toolchain/gnu/sram.gdb
-#iar-linker-script-y ?= $(TOP)/target/samv71/toolchain/iar/sram.icf
-#iar-debug-script-y ?= $(TOP)/target/samv71/toolchain/iar/sram.mac
+iar-linker-script-y ?= $(TOP)/target/samv71/toolchain/iar/sram.icf
+iar-debug-script-y ?= $(TOP)/target/samv71/toolchain/iar/sram.mac
 endif
 
 # FLASH variant
 ifeq ($(VARIANT),flash)
 gnu-linker-script-y ?= $(TOP)/target/samv71/toolchain/gnu/flash.ld
 gnu-debug-script-y ?= $(TOP)/target/samv71/toolchain/gnu/flash.gdb
-#iar-linker-script-y ?= $(TOP)/target/samv71/toolchain/iar/flash.icf
-#iar-debug-script-y ?= $(TOP)/target/samv71/toolchain/iar/flash.mac
+iar-linker-script-y ?= $(TOP)/target/samv71/toolchain/iar/flash.icf
+iar-debug-script-y ?= $(TOP)/target/samv71/toolchain/iar/flash.mac
 endif
 
 chip-family = samv71

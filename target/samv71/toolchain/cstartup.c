@@ -29,6 +29,13 @@ extern uint32_t _ezero;
 
 #define CSTACK_TOP (&_cstack)
 
+#elif defined(__ICCARM__)
+
+void __iar_data_init3(void);
+
+#pragma section="CSTACK"
+#define CSTACK_TOP __section_end("CSTACK")
+
 #endif
 
 /*----------------------------------------------------------------------------
@@ -54,7 +61,7 @@ SECTION(".vectors") USED
 static const struct {
 	void*          stack;
 	nvic_handler_t handlers[15];
-} boot_vectors = {
+} __vector_table = {
 	.stack = CSTACK_TOP,
 	.handlers = {
 		reset_handler,
@@ -189,6 +196,11 @@ void reset_handler(void)
 
 	/* initialize the C library */
 	__libc_init_array();
+
+#elif defined(__ICCARM__)
+
+	/* Execute relocations & zero BSS */
+	__iar_data_init3();
 
 #endif
 

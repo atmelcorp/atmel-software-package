@@ -1,0 +1,39 @@
+define memory mem with size = 4G;
+define region RAM_region = mem:[from 0x20400000 to 0x2045EFFF];
+define region RAM_NC_region = mem:[from 0x2045F000 to 0x2045FFFF];
+define region EXTRAM_region = mem:[from 0x70000000 to 0x700FFFFF];
+define region FLASH_region = mem:[from 0x00400000 to 0x005FFFFF];
+
+define block CSTACK with alignment = 8, size = 0x400 { };
+define block HEAP   with alignment = 4, size = 0x200 { };
+
+define block SRAM { section .region_sram  };
+define block EXTRAM { section .region_ddr };
+
+/* Please see drivers/mm/cache.h for details on the "Cache-aligned" sections */
+define block NO_CACHE { section .region_nocache };
+define block CACHE_ALIGNED with alignment = 32 { section .region_cache_aligned };
+define block CACHE_ALIGNED_CONST with alignment = 32 { section .region_cache_aligned_const };
+define block DDR_CACHE_ALIGNED with alignment = 32 { section .region_ddr_cache_aligned };
+
+do not initialize { section .region_sram };
+do not initialize { section .region_ddr };
+do not initialize { section .region_nocache };
+do not initialize { section .region_cache_aligned };
+do not initialize { section .region_ddr_cache_aligned };
+
+place at start of RAM_region { section .vectors };
+place in RAM_region { section .cstartup };
+place in RAM_region { ro };
+place in RAM_region { rw };
+place in RAM_region { block CACHE_ALIGNED_CONST };
+place in RAM_region { zi };
+place in RAM_region { block CACHE_ALIGNED };
+place in RAM_region { block SRAM };
+place in RAM_region { block HEAP };
+place in RAM_region { block CSTACK };
+
+place in RAM_NC_region { block NO_CACHE };
+
+place in EXTRAM_region { block DDR_CACHE_ALIGNED };
+place in EXTRAM_region { block EXTRAM };
