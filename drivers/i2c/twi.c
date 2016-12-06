@@ -131,8 +131,8 @@ uint32_t twi_configure_master(Twi *twi, uint32_t twi_clock)
 	/* Compute clock */
 	clock = pmc_get_peripheral_clock(id);
 	for (ck_div = 0; ck_div < 7; ck_div++) {
-		clh_div = ((clock / (2 * twi_clock)) - TWI_CLK_OFFSET) >> ck_div;
-		if (clh_div <= 255)
+		clh_div = ((clock / twi_clock) - 2 * TWI_CLK_OFFSET) >> ck_div;
+		if (clh_div <= 511)
 			break;
 	}
 
@@ -143,15 +143,15 @@ uint32_t twi_configure_master(Twi *twi, uint32_t twi_clock)
 
 	/* Configure clock */
 	twi->TWI_CWGR = TWI_CWGR_CKDIV(ck_div)
-	              | TWI_CWGR_CHDIV(clh_div)
-	              | TWI_CWGR_CLDIV(clh_div)
+	              | TWI_CWGR_CHDIV(clh_div >> 1)
+	              | TWI_CWGR_CLDIV(clh_div >> 1)
 	              | hold;
 
 	/* Set master mode */
 	twi->TWI_CR = TWI_CR_SVDIS;
 	twi->TWI_CR = TWI_CR_MSEN;
 
-	return clock / (((clh_div * 2) << ck_div) + TWI_CLK_OFFSET);
+	return clock / ((clh_div << ck_div) + 2 * TWI_CLK_OFFSET);
 }
 
 void twi_configure_slave(Twi *twi, uint8_t slave_address)
