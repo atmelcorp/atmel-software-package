@@ -40,7 +40,7 @@
 
 #include "chip.h"
 #include "math.h"
-#include "misc/bmp280.h"
+#include "sensor/bmp280.h"
 #include "gpio/pio.h"
 #include "i2c/twid.h"
 #include "i2c/twi-bus.h"
