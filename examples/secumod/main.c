@@ -142,8 +142,8 @@
  *
  * \section References
  * - examples/secumod/main.c
- * - drivers/peripherals/secumod.c
- * - drivers/peripherals/secumod.h
+ * - drivers/security/secumod.c
+ * - drivers/security/secumod.h
  */
 
 /**
@@ -166,7 +166,7 @@
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
 #include "peripherals/rtc.h"
-#include "peripherals/secumod.h"
+#include "security/secumod.h"
 #include "peripherals/shdwc.h"
 
 #include "serial/console.h"
