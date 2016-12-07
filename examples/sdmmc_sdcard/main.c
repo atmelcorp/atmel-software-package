@@ -105,10 +105,10 @@
 #include "peripherals/pmc.h"
 
 #ifdef CONFIG_HAVE_SDMMC
-#  include "peripherals/sdmmc.h"
+#  include "sdmmc/sdmmc.h"
 #elif defined(CONFIG_HAVE_HSMCI)
-#  include "peripherals/hsmci.h"
-#  include "peripherals/hsmcid.h"
+#  include "sdmmc/hsmci.h"
+#  include "sdmmc/hsmcid.h"
 #else
 #  error No peripheral for SD/MMC devices
 #endif

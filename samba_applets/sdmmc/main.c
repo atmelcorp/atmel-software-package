@@ -40,7 +40,7 @@
 #include "pin_defs.h"
 #include "serial/console.h"
 #include "mm/cache.h"
-#include "peripherals/sdmmc.h"
+#include "sdmmc/sdmmc.h"
 #include "peripherals/wdt.h"
 #include "peripherals/pmc.h"
 #include "gpio/pio.h"

@@ -72,7 +72,7 @@
 #include "irq/irq.h"
 #include "peripherals/pmc.h"
 #include "peripherals/tc.h"
-#include "peripherals/sdmmc.h"
+#include "sdmmc/sdmmc.h"
 
 #include "libsdmmc/sdmmc_hal.h"
 #include "libsdmmc/sdmmc_api.h"   /* Included for debug functions only */

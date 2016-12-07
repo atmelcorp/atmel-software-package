@@ -50,7 +50,7 @@
 #include "peripherals/matrix.h"
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/sdmmc.h"
+#include "sdmmc/sdmmc.h"
 #include "nvm/sfc.h"
 #include "extram/smc.h"
 #include "peripherals/wdt.h"

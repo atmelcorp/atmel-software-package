@@ -39,9 +39,5 @@ drivers-y += drivers/peripherals/tc.o
 drivers-y += drivers/peripherals/wdt.o
 
 drivers-$(CONFIG_HAVE_FLEXCOM) += drivers/peripherals/flexcom.o
-drivers-$(CONFIG_HAVE_SDMMC) += drivers/peripherals/sdmmc.o
 
 drivers-$(CONFIG_HAVE_SFRBU) += drivers/peripherals/sfrbu.o
-
-drivers-$(CONFIG_HAVE_HSMCI) += drivers/peripherals/hsmci.o
-drivers-$(CONFIG_HAVE_HSMCI) += drivers/peripherals/hsmcid.o
