@@ -96,7 +96,7 @@
 #include "mm/cache.h"
 #include "serial/console.h"
 
-#include "peripherals/lcdc.h"
+#include "display/lcdc.h"
 
 #include "video/image_sensor_inf.h"
 #include "video/isc.h"

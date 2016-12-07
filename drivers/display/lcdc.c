@@ -36,7 +36,7 @@
 #include "chip.h"
 #include "compiler.h"
 
-#include "peripherals/lcdc.h"
+#include "display/lcdc.h"
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"
 #include "mm/cache.h"

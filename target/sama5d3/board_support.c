@@ -43,7 +43,7 @@
 #include "timer.h"
 
 #include "irq/irq.h"
-#include "peripherals/lcdc.h"
+#include "display/lcdc.h"
 #include "peripherals/matrix.h"
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"

@@ -43,7 +43,7 @@
 #include "board.h"
 #include "compiler.h"
 
-#include "peripherals/lcdc.h"
+#include "display/lcdc.h"
 
 #include "lcd_draw.h"
 #include "lcd_font.h"

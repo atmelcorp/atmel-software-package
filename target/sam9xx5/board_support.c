@@ -43,7 +43,7 @@
 
 #include "irq/irq.h"
 #ifdef CONFIG_HAVE_LCDC
-#include "peripherals/lcdc.h"
+#include "display/lcdc.h"
 #endif
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"

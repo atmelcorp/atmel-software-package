@@ -91,7 +91,7 @@
 
 #include "serial/console.h"
 
-#include "peripherals/lcdc.h"
+#include "display/lcdc.h"
 
 #include "video/image_sensor_inf.h"
 #include "video/isi.h"

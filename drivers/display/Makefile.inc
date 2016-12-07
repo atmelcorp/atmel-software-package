@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2015, Atmel Corporation
+# Copyright (c) 2016, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -26,22 +26,4 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-drivers-y += drivers/peripherals/matrix.o
-drivers-$(CONFIG_HAVE_PIT) += drivers/peripherals/pit.o
-drivers-y += drivers/peripherals/pmc.o
-drivers-$(CONFIG_HAVE_PWMC) += drivers/peripherals/pwmc.o
-drivers-y += drivers/peripherals/rstc.o
-drivers-y += drivers/peripherals/rtc.o
-drivers-$(CONFIG_HAVE_SECUMOD) += drivers/peripherals/secumod.o
-drivers-$(CONFIG_HAVE_SHDWC) += drivers/peripherals/shdwc.o
-drivers-$(CONFIG_HAVE_SCKC) += drivers/peripherals/slowclock_sckc.o
-drivers-y += drivers/peripherals/tc.o
-drivers-y += drivers/peripherals/wdt.o
-
-drivers-$(CONFIG_HAVE_FLEXCOM) += drivers/peripherals/flexcom.o
-drivers-$(CONFIG_HAVE_SDMMC) += drivers/peripherals/sdmmc.o
-
-drivers-$(CONFIG_HAVE_SFRBU) += drivers/peripherals/sfrbu.o
-
-drivers-$(CONFIG_HAVE_HSMCI) += drivers/peripherals/hsmci.o
-drivers-$(CONFIG_HAVE_HSMCI) += drivers/peripherals/hsmcid.o
+drivers-$(CONFIG_HAVE_LCDC) += drivers/display/lcdc.o
