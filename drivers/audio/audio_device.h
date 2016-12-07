@@ -34,15 +34,15 @@
 #include "gpio/pio.h"
 
 #if defined(CONFIG_HAVE_CLASSD)
-#include "peripherals/classd.h"
+#include "audio/classd.h"
 #endif
 
 #if defined(CONFIG_HAVE_PDMIC)
-#include "peripherals/pdmic.h"
+#include "audio/pdmic.h"
 #endif
 
 #if defined(CONFIG_HAVE_SSC)
-#include "peripherals/ssc.h"
+#include "audio/ssc.h"
 #ifdef CONFIG_HAVE_AUDIO_WM8904
 #include "audio/wm8904.h"
 #endif

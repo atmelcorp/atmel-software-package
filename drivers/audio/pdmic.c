@@ -34,7 +34,7 @@
 #include "chip.h"
 #include "trace.h"
 
-#include "peripherals/pdmic.h"
+#include "audio/pdmic.h"
 #include "peripherals/pmc.h"
 #include "dma/dma.h"
 

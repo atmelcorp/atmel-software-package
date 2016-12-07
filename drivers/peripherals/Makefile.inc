@@ -46,10 +46,7 @@ drivers-$(CONFIG_HAVE_FLEXCOM) += drivers/peripherals/flexcom.o
 drivers-$(CONFIG_HAVE_SDMMC) += drivers/peripherals/sdmmc.o
 
 drivers-$(CONFIG_HAVE_ACC) += drivers/peripherals/acc.o
-drivers-$(CONFIG_HAVE_CLASSD) += drivers/peripherals/classd.o
-drivers-$(CONFIG_HAVE_PDMIC) += drivers/peripherals/pdmic.o
 drivers-$(CONFIG_HAVE_SFRBU) += drivers/peripherals/sfrbu.o
 
 drivers-$(CONFIG_HAVE_HSMCI) += drivers/peripherals/hsmci.o
 drivers-$(CONFIG_HAVE_HSMCI) += drivers/peripherals/hsmcid.o
-drivers-$(CONFIG_HAVE_SSC) += drivers/peripherals/ssc.o

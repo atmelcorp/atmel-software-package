@@ -101,7 +101,7 @@
 #include "trace.h"
 #include "timer.h"
 
-#include "peripherals/classd.h"
+#include "audio/classd.h"
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"
 #include "dma/xdmacd.h"

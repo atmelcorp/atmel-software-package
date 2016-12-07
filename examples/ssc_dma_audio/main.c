@@ -100,7 +100,7 @@
 #include "gpio/pio.h"
 #include "peripherals/pit.h"
 #include "dma/dma.h"
-#include "peripherals/ssc.h"
+#include "audio/ssc.h"
 #include "peripherals/pmc.h"
 
 #if defined(CONFIG_HAVE_AUDIO_WM8904)

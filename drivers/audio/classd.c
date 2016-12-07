@@ -34,7 +34,7 @@
 #include "chip.h"
 #include "trace.h"
 
-#include "peripherals/classd.h"
+#include "audio/classd.h"
 #include "peripherals/pmc.h"
 
 #include <stdio.h>

@@ -101,8 +101,8 @@
 #include "timer.h"
 #include "wav.h"
 
-#include "peripherals/pdmic.h"
-#include "peripherals/classd.h"
+#include "audio/pdmic.h"
+#include "audio/classd.h"
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"
 #include "dma/dma.h"
