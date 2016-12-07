@@ -125,7 +125,7 @@
 #include "extram/mpddrc.h"
 #include "i2c/twi-bus.h"
 
-#include "misc/led.h"
+#include "led/led.h"
 
 #include "serial/console.h"
 

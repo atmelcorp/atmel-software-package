@@ -108,7 +108,7 @@
 #include "peripherals/tc.h"
 #include "serial/usart.h"
 
-#include "misc/led.h"
+#include "led/led.h"
 #include "serial/console.h"
 
 

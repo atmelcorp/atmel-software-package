@@ -123,7 +123,7 @@
 
 #include "misc/cache.h"
 #include "serial/console.h"
-#include "misc/led.h"
+#include "led/led.h"
 
 
 #include "usb/device/hid/hidd_transfer_driver.h"

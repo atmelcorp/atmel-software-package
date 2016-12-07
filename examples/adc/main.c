@@ -123,7 +123,7 @@
 #include "component/component_tc.h"
 #include "dma/dma.h"
 
-#include "misc/led.h"
+#include "led/led.h"
 #include "serial/console.h"
 
 

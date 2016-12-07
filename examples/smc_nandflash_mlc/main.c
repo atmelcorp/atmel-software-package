@@ -119,7 +119,7 @@
 #include "nvm/nand/nand_flash_raw.h"
 
 #include "serial/console.h"
-#include "misc/led.h"
+#include "led/led.h"
 
 #include <stdbool.h>
 #include <stdio.h>

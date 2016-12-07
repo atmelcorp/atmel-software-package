@@ -118,7 +118,7 @@
 
 #include "serial/console.h"
 #include "misc/cache.h"
-#include "misc/led.h"
+#include "led/led.h"
 
 #include <stdbool.h>
 #include <stdio.h>

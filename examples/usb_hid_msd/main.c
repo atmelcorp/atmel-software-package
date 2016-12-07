@@ -159,7 +159,7 @@
 #include "libstoragemedia/media_ramdisk.h"
 
 #include "serial/console.h"
-#include "misc/led.h"
+#include "led/led.h"
 
 #include "usb/device/msd/msd_driver.h"
 #include "usb/device/msd/msd_lun.h"

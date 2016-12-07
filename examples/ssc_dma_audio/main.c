@@ -94,7 +94,7 @@
 #include "timer.h"
 
 #include "serial/console.h"
-#include "misc/led.h"
+#include "led/led.h"
 
 #include "misc/cache.h"
 #include "gpio/pio.h"

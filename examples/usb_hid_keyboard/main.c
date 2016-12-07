@@ -132,7 +132,7 @@
 #include "peripherals/tc.h"
 
 #include "serial/console.h"
-#include "misc/led.h"
+#include "led/led.h"
 
 #include "usb/device/hid/hidd_keyboard_driver.h"
 #include "usb/device/usbd.h"

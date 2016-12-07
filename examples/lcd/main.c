@@ -101,7 +101,7 @@
 
 #include "misc/cache.h"
 #include "serial/console.h"
-#include "misc/led.h"
+#include "led/led.h"
 
 #include "lcd_draw.h"
 #include "lcd_font.h"

@@ -46,12 +46,11 @@
 
 #include "timer.h"
 
-#include "is31fl3728.h"
+#include "led/is31fl3728.h"
 
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
-
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -87,7 +86,7 @@ static void _is31fl3728_write_reg(struct _is31fl3728* is31fl3728, uint8_t iaddr,
 	twi_bus_wait_transfer(is31fl3728->twi.bus);
 	twi_bus_stop_transaction(is31fl3728->twi.bus);
 }
-	
+
 
 /*----------------------------------------------------------------------------
  *        Exported functions

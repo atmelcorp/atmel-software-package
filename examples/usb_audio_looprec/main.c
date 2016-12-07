@@ -109,7 +109,7 @@
 
 #include "misc/cache.h"
 #include "serial/console.h"
-#include "misc/led.h"
+#include "led/led.h"
 
 #include "gpio/pio.h"
 #include "peripherals/pit.h"

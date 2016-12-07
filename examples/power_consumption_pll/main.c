@@ -111,7 +111,7 @@
 #include "peripherals/wdt.h"
 #include "gpio/pio.h"
 
-#include "misc/led.h"
+#include "led/led.h"
 #include "serial/console.h"
 
 #include "clk-config.h"

@@ -33,7 +33,7 @@
 
 #include "board_led.h"
 
-#include "misc/led.h"
+#include "led/led.h"
 
 /*----------------------------------------------------------------------------
  *        Local constants

@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2015, Atmel Corporation
+# Copyright (c) 2016, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -26,4 +26,6 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-drivers-y += drivers/misc/cache.o
+
+drivers-$(CONFIG_HAVE_LED) += drivers/led/led.o
+drivers-$(CONFIG_HAVE_IS31FL3728) += drivers/led/is31fl3728.o

@@ -109,7 +109,7 @@
 #include "peripherals/pit.h"
 #include "serial/usart_iso7816_4.h"
 
-#include "misc/led.h"
+#include "led/led.h"
 #include "serial/console.h"
 
 
