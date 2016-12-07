@@ -100,7 +100,7 @@
 #include "gpio/pio.h"
 
 #include "misc/cache.h"
-#include "misc/console.h"
+#include "serial/console.h"
 #include "misc/led.h"
 
 #include "lcd_draw.h"

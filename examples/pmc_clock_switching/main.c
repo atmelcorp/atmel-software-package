@@ -100,7 +100,7 @@
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
 #include "gpio/pio.h"
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include <stdbool.h>
 #include <stdio.h>

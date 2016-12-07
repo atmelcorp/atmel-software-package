@@ -169,7 +169,7 @@
 #include "peripherals/secumod.h"
 #include "peripherals/shdwc.h"
 
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include <stdint.h>
 #include <stdio.h>

@@ -110,7 +110,7 @@
 #include "serial/usart_iso7816_4.h"
 
 #include "misc/led.h"
-#include "misc/console.h"
+#include "serial/console.h"
 
 
 #include <stdbool.h>

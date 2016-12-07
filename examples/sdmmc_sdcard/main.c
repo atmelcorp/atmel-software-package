@@ -101,7 +101,7 @@
 #include "trace.h"
 #include "plugin_sha.h"
 #include "misc/cache.h"
-#include "misc/console.h"
+#include "serial/console.h"
 #include "peripherals/pmc.h"
 
 #ifdef CONFIG_HAVE_SDMMC

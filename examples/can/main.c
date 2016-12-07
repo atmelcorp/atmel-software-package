@@ -108,7 +108,7 @@
 #include "trace.h"
 
 #include "can/can-bus.h"
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include <ctype.h>
 #include <string.h>

@@ -143,7 +143,7 @@
 #include "trace.h"
 #include "compiler.h"
 
-#include "misc/console.h"
+#include "serial/console.h"
 #include "misc/led.h"
 
 #include "misc/cache.h"

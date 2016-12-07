@@ -118,7 +118,7 @@
 #include "crypto/tdesd.h"
 
 #include "misc/cache.h"
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include <stdio.h>
 #include <stdlib.h>

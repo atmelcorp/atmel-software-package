@@ -90,7 +90,7 @@
 #include "board.h"
 #include "chip.h"
 
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include "crypto/trng.h"
 

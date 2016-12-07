@@ -116,7 +116,7 @@
 #include "compiler.h"
 
 #include "misc/cache.h"
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include "irq/irq.h"
 #include "gpio/pio.h"

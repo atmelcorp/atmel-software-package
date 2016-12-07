@@ -14,7 +14,7 @@
 
 #include "nvm/spi-nor/qspiflash.h"
 #include "misc/cache.h"
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include <stdbool.h>
 #include <stdio.h>

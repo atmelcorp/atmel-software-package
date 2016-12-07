@@ -59,7 +59,7 @@
 #include "extram/ddram.h"
 
 #include "misc/cache.h"
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include "board_support.h"
 

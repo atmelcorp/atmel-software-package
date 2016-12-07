@@ -127,7 +127,7 @@
 
 #include "misc/led.h"
 
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include <assert.h>
 #include <stdbool.h>

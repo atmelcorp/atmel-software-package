@@ -95,7 +95,7 @@
 
 #include "misc/cache.h"
 #include "dma/dmacd.h"
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include <string.h>
 #include <stdio.h>

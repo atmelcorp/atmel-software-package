@@ -31,7 +31,7 @@
 
 #include "irq/irq.h"
 
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include <string.h>
 

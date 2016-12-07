@@ -102,7 +102,7 @@
 #include "compiler.h"
 
 #include "misc/cache.h"
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include "video/image_sensor_inf.h"
 #include "video/isi.h"

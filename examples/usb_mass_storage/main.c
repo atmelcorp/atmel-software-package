@@ -100,7 +100,7 @@
 
 #include "board.h"
 #include "trace.h"
-#include "misc/console.h"
+#include "serial/console.h"
 #include "misc/cache.h"
 #include "peripherals/pmc.h"
 

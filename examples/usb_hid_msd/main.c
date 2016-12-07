@@ -158,7 +158,7 @@
 #include "libstoragemedia/media_private.h"
 #include "libstoragemedia/media_ramdisk.h"
 
-#include "misc/console.h"
+#include "serial/console.h"
 #include "misc/led.h"
 
 #include "usb/device/msd/msd_driver.h"

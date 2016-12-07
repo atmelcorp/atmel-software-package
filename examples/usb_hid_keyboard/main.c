@@ -131,7 +131,7 @@
 #include "peripherals/pmc.h"
 #include "peripherals/tc.h"
 
-#include "misc/console.h"
+#include "serial/console.h"
 #include "misc/led.h"
 
 #include "usb/device/hid/hidd_keyboard_driver.h"

@@ -97,7 +97,7 @@
 #include "spi/qspi.h"
 
 #include "nvm/spi-nor/qspiflash.h"
-#include "misc/console.h"
+#include "serial/console.h"
 #include "misc/cache.h"
 
 #include <stdbool.h>

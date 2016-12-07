@@ -26,6 +26,7 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
+drivers-y += drivers/serial/console.o
 drivers-$(CONFIG_HAVE_DBGU) += drivers/serial/dbgu.o
 drivers-y += drivers/serial/uart.o
 drivers-y += drivers/serial/usart.o

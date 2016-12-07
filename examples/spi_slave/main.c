@@ -147,7 +147,7 @@
 
 #include "spi/spi-bus.h"
 
-#include "misc/console.h"
+#include "serial/console.h"
 #include "misc/cache.h"
 
 #include <stdbool.h>

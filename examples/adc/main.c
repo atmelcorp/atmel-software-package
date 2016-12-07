@@ -124,7 +124,7 @@
 #include "dma/dma.h"
 
 #include "misc/led.h"
-#include "misc/console.h"
+#include "serial/console.h"
 
 
 #include <stdio.h>

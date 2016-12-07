@@ -98,7 +98,7 @@
 #include "crypto/aesb.h"
 
 #include "nvm/spi-nor/qspiflash.h"
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include <stdbool.h>
 #include <stdio.h>

@@ -35,7 +35,7 @@
 
 #include "board.h"
 #include "trace.h"
-#include "misc/console.h"
+#include "serial/console.h"
 #include "gpio/pio.h"
 
 /*------------------------------------------------------------------------------

@@ -99,7 +99,7 @@
 #include "peripherals/pmc.h"
 #include "peripherals/tc.h"
 #include "peripherals/wdt.h"
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include <assert.h>
 #include <stdbool.h>

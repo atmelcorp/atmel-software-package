@@ -94,7 +94,7 @@
 #include "serial/usartd.h"
 #include "serial/usart.h"
 
-#include "misc/console.h"
+#include "serial/console.h"
 
 
 #include <stdbool.h>

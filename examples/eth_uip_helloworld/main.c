@@ -109,7 +109,7 @@
 #include "trace.h"
 #include "timer.h"
 
-#include "misc/console.h"
+#include "serial/console.h"
 #include "network/ethd.h"
 
 #include "uip/uip.h"

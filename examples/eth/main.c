@@ -113,7 +113,7 @@
 #include "trace.h"
 
 #include "misc/cache.h"
-#include "misc/console.h"
+#include "serial/console.h"
 #include "network/ethd.h"
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"

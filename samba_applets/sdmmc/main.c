@@ -38,7 +38,7 @@
 #include "trace.h"
 
 #include "pin_defs.h"
-#include "misc/console.h"
+#include "serial/console.h"
 #include "misc/cache.h"
 #include "peripherals/sdmmc.h"
 #include "peripherals/wdt.h"

@@ -53,7 +53,7 @@
 #include "rand.h"
 #include "trace.h"
 
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include <stdbool.h>
 #include <stdio.h>

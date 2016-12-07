@@ -110,7 +110,7 @@
 
 #include "network/ethd.h"
 
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include "uip/uip.h"
 #include "uip/uip_arp.h"

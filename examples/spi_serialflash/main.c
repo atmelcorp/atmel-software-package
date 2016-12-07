@@ -45,7 +45,7 @@
 #include "gpio/pio.h"
 #include "spi/spid.h"
 
-#include "misc/console.h"
+#include "serial/console.h"
 #include "misc/cache.h"
 
 #include "nvm/spi-nor/at25.h"

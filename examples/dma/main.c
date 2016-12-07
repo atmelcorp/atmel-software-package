@@ -94,7 +94,7 @@
 
 #include "misc/cache.h"
 #include "dma/dma.h"
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include <string.h>
 #include <stdio.h>

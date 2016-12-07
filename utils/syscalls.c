@@ -38,7 +38,7 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 #include "compiler.h"
-#include "misc/console.h"
+#include "serial/console.h"
 
 #ifdef __GNUC__
 

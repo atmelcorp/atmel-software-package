@@ -112,7 +112,7 @@
 #include "compiler.h"
 
 #include "misc/cache.h"
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include "peripherals/pmc.h"
 #include "gpio/pio.h"

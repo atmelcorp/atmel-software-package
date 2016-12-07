@@ -26,7 +26,6 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-drivers-y += drivers/misc/console.o
 drivers-$(CONFIG_HAVE_LED) += drivers/misc/led.o
 drivers-y += drivers/misc/cache.o
 

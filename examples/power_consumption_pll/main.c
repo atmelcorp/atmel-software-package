@@ -112,7 +112,7 @@
 #include "gpio/pio.h"
 
 #include "misc/led.h"
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include "clk-config.h"
 

@@ -114,7 +114,7 @@
 #include "board.h"
 #include "trace.h"
 
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include "irq/irq.h"
 #include "peripherals/pmc.h"

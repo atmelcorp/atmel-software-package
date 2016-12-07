@@ -89,7 +89,7 @@
 #include "compiler.h"
 #include "trace.h"
 
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include "peripherals/lcdc.h"
 

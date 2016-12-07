@@ -37,7 +37,7 @@
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"
 #include "nvm/sfc.h"
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include <string.h>
 

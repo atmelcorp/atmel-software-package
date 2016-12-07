@@ -94,7 +94,7 @@
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"
 
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include <stdbool.h>
 #include <stdio.h>

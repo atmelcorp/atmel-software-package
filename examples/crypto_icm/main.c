@@ -97,7 +97,7 @@
 #include "irq/irq.h"
 #include "peripherals/pmc.h"
 #include "crypto/icm.h"
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include <assert.h>
 #include <stdbool.h>

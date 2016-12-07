@@ -148,7 +148,7 @@
 
 #include "compiler.h"
 
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include "gpio/pio.h"
 

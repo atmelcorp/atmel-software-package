@@ -111,7 +111,7 @@
 
 #include "network/ethd.h"
 
-#include "misc/console.h"
+#include "serial/console.h"
 
 #include "liblwip.h"
 #include "httpd.h"
