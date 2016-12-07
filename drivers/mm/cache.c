@@ -35,9 +35,9 @@
 
 #include "chip.h"
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 
-#include "peripherals/l2cc.h"
+#include "mm/l2cc.h"
 
 #include <assert.h>
 

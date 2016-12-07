@@ -100,7 +100,7 @@
 #include "chip.h"
 #include "trace.h"
 #include "plugin_sha.h"
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "serial/console.h"
 #include "peripherals/pmc.h"
 

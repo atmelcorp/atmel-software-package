@@ -119,7 +119,7 @@
 
 #include "compiler.h"
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "serial/console.h"
 
 #include <string.h>

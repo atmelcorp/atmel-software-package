@@ -77,7 +77,7 @@
 #include "libsdmmc/sdmmc_hal.h"
 #include "libsdmmc/sdmmc_api.h"   /* Included for debug functions only */
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 
 #include <assert.h>
 #include <string.h>

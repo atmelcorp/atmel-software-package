@@ -37,7 +37,7 @@
 #include "trace.h"
 #ifdef CONFIG_HAVE_QSPI_DMA
 #include "dma/dma.h"
-#include "misc/cache.h"
+#include "mm/cache.h"
 #endif
 #include "peripherals/pmc.h"
 #include "spi/qspi.h"

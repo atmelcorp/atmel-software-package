@@ -42,7 +42,7 @@ include $(TOP)/drivers/gpio/Makefile.inc
 include $(TOP)/drivers/i2c/Makefile.inc
 include $(TOP)/drivers/irq/Makefile.inc
 include $(TOP)/drivers/led/Makefile.inc
-include $(TOP)/drivers/misc/Makefile.inc
+include $(TOP)/drivers/mm/Makefile.inc
 include $(TOP)/drivers/nvm/Makefile.inc
 include $(TOP)/drivers/network/Makefile.inc
 include $(TOP)/drivers/peripherals/Makefile.inc

@@ -38,7 +38,7 @@
 
 #include "i2c/twi-bus.h"
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 
 #include "nvm/i2c/at24.h"
 

@@ -42,7 +42,7 @@
 #include "usb/device/msd/msd_lun.h"
 #include "usb/device/usbd.h"
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 
 #include <assert.h>
 #include <string.h>

@@ -106,7 +106,7 @@
 #include "crypto/shad.h"
 #include "peripherals/pmc.h"
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "serial/console.h"
 #include "trace.h"
 

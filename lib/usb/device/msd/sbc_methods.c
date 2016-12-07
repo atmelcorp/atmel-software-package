@@ -45,7 +45,7 @@
 #include "usb/device/msd/msd_io_fifo.h"
 #include "usb/device/msd/sbc_methods.h"
 #include "usb/device/usbd.h"
-#include "misc/cache.h"
+#include "mm/cache.h"
 /*------------------------------------------------------------------------------
  *      Constants
  *------------------------------------------------------------------------------*/

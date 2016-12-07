@@ -118,7 +118,7 @@
 
 #include "peripherals/adc.h"
 #include "peripherals/adcd.h"
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "peripherals/tc.h"
 #include "component/component_tc.h"
 #include "dma/dma.h"

@@ -93,7 +93,7 @@
 #include "trace.h"
 #include "compiler.h"
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "irq/irq.h"
 #include "peripherals/pmc.h"
 #include "crypto/icm.h"

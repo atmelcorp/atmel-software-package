@@ -36,7 +36,7 @@
 #include "spi/spid.h"
 #include "spi/spi.h"
 #include "dma/dma.h"
-#include "misc/cache.h"
+#include "mm/cache.h"
 
 #include "trace.h"
 

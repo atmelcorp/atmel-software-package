@@ -58,7 +58,7 @@
 #include "dma/dma.h"
 #include "libsdmmc/sdmmc_hal.h"
 #include "libsdmmc/sdmmc_api.h"
-#include "misc/cache.h"
+#include "mm/cache.h"
 
 #include <assert.h>
 #include <string.h>

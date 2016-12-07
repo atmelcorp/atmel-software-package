@@ -36,7 +36,7 @@
 #include "chip.h"
 #include "compiler.h"
 
-#include "peripherals/l2cc.h"
+#include "mm/l2cc.h"
 
 #include <assert.h>
 #include <stdbool.h>

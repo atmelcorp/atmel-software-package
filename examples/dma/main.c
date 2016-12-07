@@ -92,7 +92,7 @@
 #include "chip.h"
 #include "board.h"
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "dma/dma.h"
 #include "serial/console.h"
 

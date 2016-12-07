@@ -40,7 +40,7 @@
 #include "nand_flash_spare_scheme.h"
 #include "nand_flash_raw.h"
 #include "nand_flash_ecc.h"
-#include "misc/cache.h"
+#include "mm/cache.h"
 
 #include <string.h>
 

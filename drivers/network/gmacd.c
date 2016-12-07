@@ -37,7 +37,7 @@
 
 #include "network/gmacd.h"
 #include "irq/irq.h"
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "peripherals/pmc.h"
 
 #include <string.h>

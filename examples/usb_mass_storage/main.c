@@ -101,7 +101,7 @@
 #include "board.h"
 #include "trace.h"
 #include "serial/console.h"
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "peripherals/pmc.h"
 
 #ifdef CONFIG_HAVE_SDMMC

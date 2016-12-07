@@ -46,7 +46,7 @@
 #include "serial/dbgu.h"
 #endif
 #ifdef CONFIG_HAVE_L2CC
-#include "peripherals/l2cc.h"
+#include "mm/l2cc.h"
 #endif
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"

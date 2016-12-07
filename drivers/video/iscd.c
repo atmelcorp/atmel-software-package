@@ -29,7 +29,7 @@
 
 #include "irq/irq.h"
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 
 #include "video/image_sensor_inf.h"
 #include "video/isc.h"

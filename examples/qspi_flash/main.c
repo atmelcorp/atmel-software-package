@@ -13,7 +13,7 @@
 #include "crypto/trng.h"
 
 #include "nvm/spi-nor/qspiflash.h"
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "serial/console.h"
 
 #include <stdbool.h>

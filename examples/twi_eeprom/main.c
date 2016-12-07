@@ -99,7 +99,7 @@
 
 #include "nvm/i2c/at24.h"
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "serial/console.h"
 
 #include "at24_emulator.h"

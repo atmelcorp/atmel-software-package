@@ -39,7 +39,7 @@
 
 #include "irq/irq.h"
 #include "peripherals/pmc.h"
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "trace.h"
 #include "can/mcand.h"
 #include <assert.h>

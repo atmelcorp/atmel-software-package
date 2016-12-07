@@ -43,7 +43,7 @@
 #include "network/gmacd.h"
 #endif
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 
 #include "ethd.h"
 

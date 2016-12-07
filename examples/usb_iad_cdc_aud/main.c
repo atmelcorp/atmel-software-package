@@ -146,7 +146,7 @@
 #include "serial/console.h"
 #include "led/led.h"
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "gpio/pio.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"

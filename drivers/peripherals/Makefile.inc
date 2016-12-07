@@ -28,7 +28,6 @@
 
 drivers-$(CONFIG_HAVE_ADC) += drivers/peripherals/adc.o
 drivers-$(CONFIG_HAVE_ADC) += drivers/peripherals/adcd.o
-drivers-$(CONFIG_HAVE_L2CC) += drivers/peripherals/l2cc.o
 drivers-$(CONFIG_HAVE_LCDC) += drivers/peripherals/lcdc.o
 drivers-y += drivers/peripherals/matrix.o
 drivers-$(CONFIG_HAVE_PIT) += drivers/peripherals/pit.o

@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2015, Atmel Corporation
+# Copyright (c) 2016, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -26,4 +26,5 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-drivers-y += drivers/misc/cache.o
+drivers-y += drivers/mm/cache.o
+drivers-$(CONFIG_HAVE_L2CC) += drivers/mm/l2cc.o

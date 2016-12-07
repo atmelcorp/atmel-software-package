@@ -31,7 +31,7 @@
 
 #include "peripherals/matrix.h"
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 
 #include <assert.h>
 

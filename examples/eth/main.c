@@ -112,7 +112,7 @@
 #include "timer.h"
 #include "trace.h"
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "serial/console.h"
 #include "network/ethd.h"
 #include "gpio/pio.h"

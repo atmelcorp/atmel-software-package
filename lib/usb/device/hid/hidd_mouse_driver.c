@@ -37,7 +37,7 @@
  *------------------------------------------------------------------------------*/
 
 #include "trace.h"
-#include "misc/cache.h"
+#include "mm/cache.h"
 
 #include "usb/device/hid/hidd_function.h"
 #include "usb/device/hid/hidd_mouse_driver.h"

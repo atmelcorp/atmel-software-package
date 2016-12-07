@@ -105,7 +105,7 @@
 #include "peripherals/pmc.h"
 #include "peripherals/tc.h"
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 
 #include "nvm/nand/pmecc.h"
 #include "nvm/nand/nand_flash.h"

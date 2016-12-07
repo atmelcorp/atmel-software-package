@@ -36,7 +36,7 @@
 #include "compiler.h"
 #include "intmath.h"
 #include "plugin_sha.h"
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "irq/irq.h"
 #include "peripherals/pmc.h"
 #include "dma/dma.h"

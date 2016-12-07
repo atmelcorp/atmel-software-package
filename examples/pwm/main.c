@@ -117,7 +117,7 @@
 #include "gpio/pio.h"
 #include "peripherals/tc.h"
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "serial/console.h"
 
 #include "timer.h"

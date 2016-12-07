@@ -33,7 +33,7 @@
 #include "peripherals/adcd.h"
 #include "peripherals/adc.h"
 #include "dma/dma.h"
-#include "misc/cache.h"
+#include "mm/cache.h"
 
 #include "trace.h"
 

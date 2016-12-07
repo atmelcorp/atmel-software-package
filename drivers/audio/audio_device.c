@@ -34,11 +34,6 @@
 #include "chip.h"
 #include "trace.h"
 
-#include "peripherals/l2cc.h"
-#include "gpio/pio.h"
-#include "peripherals/pit.h"
-#include "peripherals/pmc.h"
-
 #include "dma/dma.h"
 #include "audio_device.h"
 
@@ -46,7 +41,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 
 #if defined(CONFIG_HAVE_CLASSD)
 /**

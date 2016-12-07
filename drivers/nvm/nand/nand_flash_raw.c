@@ -41,7 +41,7 @@
 #include "nvm/nand/pmecc.h"
 #include "extram/smc.h"
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 
 #include "nand_flash.h"
 #include "nand_flash_raw.h"

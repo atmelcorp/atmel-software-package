@@ -39,7 +39,7 @@
 #include "peripherals/lcdc.h"
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"
-#include "misc/cache.h"
+#include "mm/cache.h"
 
 #include <math.h>
 #include <string.h>

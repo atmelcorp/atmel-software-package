@@ -96,7 +96,7 @@
 #include "trace.h"
 #include "compiler.h"
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "peripherals/pmc.h"
 #include "crypto/aesb.h"
 #include "serial/console.h"

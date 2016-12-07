@@ -85,7 +85,7 @@
 #ifdef CONFIG_HAVE_XDMAC
 #include "dma/xdmacd.h"
 #endif
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "trace.h"
 
 #include <stdint.h>

@@ -37,7 +37,7 @@
 
 #include "nand_flash_common.h"
 #include "nand_flash_dma.h"
-#include "misc/cache.h"
+#include "mm/cache.h"
 
 #include <assert.h>
 #include <stdlib.h>

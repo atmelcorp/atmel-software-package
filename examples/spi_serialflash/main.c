@@ -46,7 +46,7 @@
 #include "spi/spid.h"
 
 #include "serial/console.h"
-#include "misc/cache.h"
+#include "mm/cache.h"
 
 #include "nvm/spi-nor/at25.h"
 

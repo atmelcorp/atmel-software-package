@@ -117,7 +117,7 @@
 #include "nvm/nand/nand_flash_raw.h"
 
 #include "serial/console.h"
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "led/led.h"
 
 #include <stdbool.h>

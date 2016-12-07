@@ -46,7 +46,7 @@
 #include "chip.h"
 #include "trace.h"
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "irq/irq.h"
 #include "peripherals/pmc.h"
 

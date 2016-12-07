@@ -40,7 +40,7 @@
 #include "trace.h"
 
 #include "chip.h"
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "usb/common/usb_requests.h"
 #include "usb/common/hid/hid_descriptors.h"
 #include "usb/common/hid/hid_reports.h"

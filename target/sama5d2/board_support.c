@@ -45,7 +45,7 @@
 #ifdef CONFIG_HAVE_ISC
 #include "video/isc.h"
 #endif
-#include "peripherals/l2cc.h"
+#include "mm/l2cc.h"
 #include "peripherals/lcdc.h"
 #include "peripherals/matrix.h"
 #include "gpio/pio.h"
@@ -58,7 +58,7 @@
 #include "timer.h"
 #include "extram/ddram.h"
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "serial/console.h"
 
 #include "board_support.h"

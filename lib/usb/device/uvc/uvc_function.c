@@ -33,7 +33,7 @@
 #include "chip.h"
 
 #include "trace.h"
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "usb/common/uvc/usb_video.h"
 #include "usb/common/uvc/uvc_descriptors.h"
 #include "usb/device/usbd_driver.h"

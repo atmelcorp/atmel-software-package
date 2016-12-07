@@ -14,7 +14,7 @@ define block HEAP      with alignment = 4, size = 0x200 { };
 define block SRAM { section .region_sram  };
 define block DDRAM { section .region_ddr };
 
-/* Please see drivers/misc/cache.h for details on the "Cache-aligned" sections */
+/* Please see drivers/mm/cache.h for details on the "Cache-aligned" sections */
 define block DDR_NO_CACHE { section .region_ddr_nocache };
 define block CACHE_ALIGNED with alignment = 32 { section .region_cache_aligned };
 define block CACHE_ALIGNED_CONST with alignment = 32 { section .region_cache_aligned_const };

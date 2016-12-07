@@ -99,7 +99,7 @@
 #include "peripherals/pmc.h"
 #include "gpio/pio.h"
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "serial/console.h"
 #include "led/led.h"
 

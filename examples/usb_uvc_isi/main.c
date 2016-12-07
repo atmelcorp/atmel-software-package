@@ -101,7 +101,7 @@
 #include "trace.h"
 #include "compiler.h"
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "serial/console.h"
 
 #include "video/image_sensor_inf.h"

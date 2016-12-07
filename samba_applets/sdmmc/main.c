@@ -39,7 +39,7 @@
 
 #include "pin_defs.h"
 #include "serial/console.h"
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "peripherals/sdmmc.h"
 #include "peripherals/wdt.h"
 #include "peripherals/pmc.h"

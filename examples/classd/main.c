@@ -106,7 +106,7 @@
 #include "peripherals/pmc.h"
 #include "dma/xdmacd.h"
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "serial/console.h"
 
 #include <string.h>

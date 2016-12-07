@@ -107,40 +107,34 @@
  *----------------------------------------------------------------------------
  */
 
-#include "board.h"
-#include "board_led.h"
-#include "board_twi.h"
-#include "chip.h"
-
-#include "irq/irq.h"
-#include "peripherals/rtc.h"
-#include "peripherals/pmc.h"
-#include "peripherals/wdt.h"
-#include "gpio/pio.h"
-#include "peripherals/l2cc.h"
-#include "peripherals/shdwc.h"
-#ifdef CONFIG_HAVE_SFRBU
-#include "peripherals/sfrbu.h"
-#endif
-#include "extram/mpddrc.h"
-#include "i2c/twi-bus.h"
-
-#include "led/led.h"
-
-#include "serial/console.h"
-
 #include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 
-#include "peripherals/tc.h"
+#include "board.h"
+#include "board_led.h"
+#include "board_twi.h"
+#include "chip.h"
+#include "extram/mpddrc.h"
+#include "gpio/pio.h"
+#include "i2c/twi-bus.h"
+#include "irq/irq.h"
+#include "led/led.h"
+#include "mm/l2cc.h"
 #include "peripherals/pit.h"
+#include "peripherals/pmc.h"
+#include "peripherals/rtc.h"
+#ifdef CONFIG_HAVE_SFRBU
+#include "peripherals/sfrbu.h"
+#endif
+#include "peripherals/shdwc.h"
+#include "peripherals/tc.h"
+#include "peripherals/wdt.h"
+#include "serial/console.h"
+#include "timer.h"
+#include "trace.h"
 
 #include "clk-config.h"
-
-#include "trace.h"
-#include "timer.h"
-#include "compiler.h"
 
 /*----------------------------------------------------------------------------
  *        Local variables

@@ -96,26 +96,21 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
-#include "chip.h"
-#include "timer.h"
-
-#include "irq/irq.h"
-#include "peripherals/pmc.h"
-#include "gpio/pio.h"
-#include "peripherals/pit.h"
-#include "peripherals/l2cc.h"
-#include "peripherals/tc.h"
-#include "serial/usart.h"
-
-#include "led/led.h"
-#include "serial/console.h"
-
-
-#include "lin.h"
-
 #include <stdio.h>
 #include <string.h>
+
+#include "board.h"
+#include "chip.h"
+#include "gpio/pio.h"
+#include "irq/irq.h"
+#include "led/led.h"
+#include "lin.h"
+#include "peripherals/pit.h"
+#include "peripherals/pmc.h"
+#include "peripherals/tc.h"
+#include "serial/console.h"
+#include "serial/usart.h"
+#include "timer.h"
 
 /*----------------------------------------------------------------------------
  *        Local definitions

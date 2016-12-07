@@ -40,7 +40,7 @@
 
 #include "peripherals/pmc.h"
 #include "dma/dma.h"
-#include "misc/cache.h"
+#include "mm/cache.h"
 
 #include <assert.h>
 #include "compiler.h"

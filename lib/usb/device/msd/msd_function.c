@@ -41,7 +41,7 @@
 #include "chip.h"
 #include "compiler.h"
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 
 #include "usb/common/msd/msd_descriptors.h"
 #include "usb/device/msd/msd_driver.h"

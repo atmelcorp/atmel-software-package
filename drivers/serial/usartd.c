@@ -37,7 +37,7 @@
 #include "serial/usartd.h"
 #include "serial/usart.h"
 #include "dma/dma.h"
-#include "misc/cache.h"
+#include "mm/cache.h"
 
 #include "trace.h"
 #include "io.h"

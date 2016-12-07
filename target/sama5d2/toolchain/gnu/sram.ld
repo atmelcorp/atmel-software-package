@@ -121,7 +121,7 @@ SECTIONS
 	. = ALIGN(4);
 	_etext = .;
 
-	/* Please see drivers/misc/cache.h for details on the "Cache-aligned" sections */
+	/* Please see drivers/mm/cache.h for details on the "Cache-aligned" sections */
 
 	.region_cache_aligned_const :
 	{
@@ -159,7 +159,7 @@ SECTIONS
 		_ezero = .;
 	} >sram
 
-	/* Please see drivers/misc/cache.h for details on the "Cache-aligned" sections */
+	/* Please see drivers/mm/cache.h for details on the "Cache-aligned" sections */
 
 	.region_cache_aligned (NOLOAD) :
 	{

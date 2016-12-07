@@ -105,7 +105,7 @@
 #include "peripherals/pmc.h"
 #include "dma/dma.h"
 
-#include "misc/cache.h"
+#include "mm/cache.h"
 #include "serial/console.h"
 #include "trace.h"
 
