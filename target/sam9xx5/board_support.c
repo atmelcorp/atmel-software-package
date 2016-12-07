@@ -52,7 +52,7 @@
 
 #include "extram/ddram.h"
 
-#include "mm/cache.h"
+#include "mm/l1cache.h"
 #include "serial/console.h"
 
 #include "timer.h"
@@ -379,14 +379,9 @@ void board_cfg_mmu(void)
 
 	/* Enable MMU, I-Cache and D-Cache */
 	mmu_configure(tlb);
-	cp15_icache_enable();
+	icache_enable();
 	cp15_mmu_enable();
-	cp15_dcache_enable();
-}
-
-void board_cfg_l2cc(void)
-{
-	/* N/A on SAM9 */
+	dcache_enable();
 }
 
 void board_cfg_matrix_for_ddr(void)

@@ -40,6 +40,10 @@
 #include "extram/mpddrc.h"
 #include "peripherals/pmc.h"
 
+#include "mm/l1cache.h"
+
+#include <assert.h>
+
 /*------------------------------------------------------------------------------
  *        Macro
  *----------------------------------------------------------------------------*/
@@ -457,17 +461,6 @@ void ddram_init_descriptor(struct _mpddrc_desc* desc,
 
 void ddram_configure(struct _mpddrc_desc* desc)
 {
-	bool mmu = cp15_mmu_is_enabled();
-	bool dcache = cp15_dcache_is_enabled();
-
-	if (mmu)
-		cp15_mmu_disable();
-
+	assert(!dcache_is_enabled());
 	mpddrc_configure(desc);
-
-	if (mmu) {
-		cp15_mmu_enable();
-		if (dcache)
-			cp15_dcache_enable();
-	}
 }

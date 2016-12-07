@@ -27,16 +27,14 @@
  * ----------------------------------------------------------------------------
  */
 
-/** \file */
-
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
-#include "compiler.h"
 
-#include "mm/l2cc.h"
+#include "mm/l2cache.h"
+#include "mm/l2cache_l2cc.h"
 
 #include <assert.h>
 #include <stdbool.h>
@@ -53,12 +51,12 @@
  *        Functions
  *----------------------------------------------------------------------------*/
 
-bool l2cc_is_enabled(void)
+bool l2cache_is_enabled(void)
 {
 	return (L2CC->L2CC_CR & L2CC_CR_L2CEN) != 0;
 }
 
-void l2cc_enable(void)
+void l2cache_enable(void)
 {
 #ifdef SFR_L2CC_HRAMC_SRAM_SEL
 	SFR->SFR_L2CC_HRAMC = SFR_L2CC_HRAMC_SRAM_SEL;
@@ -68,30 +66,28 @@ void l2cc_enable(void)
 	isb();
 }
 
-void l2cc_disable(void)
+void l2cache_disable(void)
 {
 	L2CC->L2CC_CR &= ~L2CC_CR_L2CEN;
 	dsb();
 	isb();
 }
 
-void l2cc_set_exclusive(void)
+void l2cache_set_exclusive(void)
 {
-	assert(!l2cc_is_enabled());
-	cp15_cache_set_exclusive();
+	assert(!l2cache_is_enabled());
 	L2CC->L2CC_ACR |= L2CC_ACR_EXCC;
 }
 
-void l2cc_set_non_exclusive(void)
+void l2cache_set_non_exclusive(void)
 {
-	assert(!l2cc_is_enabled());
-	cp15_cache_set_non_exclusive();
+	assert(!l2cache_is_enabled());
 	L2CC->L2CC_ACR &= ~L2CC_ACR_EXCC;
 }
 
 void l2cc_set_tag_ram_latency(const struct _l2cc_ram_latency *latency)
 {
-	assert(!l2cc_is_enabled());
+	assert(!l2cache_is_enabled());
 
 	L2CC->L2CC_TRCR = L2CC_TRCR_TSETLAT(latency->setup) |
 	                  L2CC_TRCR_TRDLAT(latency->read) |
@@ -100,7 +96,7 @@ void l2cc_set_tag_ram_latency(const struct _l2cc_ram_latency *latency)
 
 void l2cc_set_data_ram_latency(const struct _l2cc_ram_latency *latency)
 {
-	assert(!l2cc_is_enabled());
+	assert(!l2cache_is_enabled());
 
 	L2CC->L2CC_DRCR = L2CC_DRCR_DSETLAT(latency->setup) |
 	                  L2CC_DRCR_DRDLAT(latency->read) |
@@ -113,7 +109,7 @@ void l2cc_set_config(const struct _l2cc_config* cfg)
 	       cfg->offset == 15 ||
 	       cfg->offset == 23 ||
 	       cfg->offset == 31);
-	assert(!l2cc_is_enabled());
+	assert(!l2cache_is_enabled());
 
 	L2CC->L2CC_ACR = (cfg->high_prior_so ? L2CC_ACR_HPSO : 0) |
 	                 (cfg->store_buff_dev_limit ? L2CC_ACR_SBDLE : 0) |
@@ -173,7 +169,7 @@ void l2cc_enable_event_counter(uint8_t event_counter)
 void l2cc_event_config(uint8_t event_counter, uint8_t source, uint8_t it)
 {
 	assert(event_counter < 2);
-	assert(!l2cc_is_enabled());
+	assert(!l2cache_is_enabled());
 
 	switch (event_counter) {
 	case 0:
@@ -319,9 +315,9 @@ void l2cc_instruction_lockdown(uint8_t way)
 	while (L2CC->L2CC_CSR & L2CC_CSR_C) {}
 }
 
-void l2cc_clean(void)
+void l2cache_clean(void)
 {
-	if (l2cc_is_enabled()) {
+	if (l2cache_is_enabled()) {
 		// forces the address out past level 2
 		l2cc_clean_way(0xFF);
 		// Ensures completion of the L2 clean
@@ -329,9 +325,9 @@ void l2cc_clean(void)
 	}
 }
 
-void l2cc_invalidate(void)
+void l2cache_invalidate(void)
 {
-	if (l2cc_is_enabled()) {
+	if (l2cache_is_enabled()) {
 		// forces the address out past level 2
 		l2cc_invalidate_way(0xFF);
 		// Ensures completion of the L2 inval
@@ -339,9 +335,9 @@ void l2cc_invalidate(void)
 	}
 }
 
-void l2cc_clean_invalidate(void)
+void l2cache_clean_invalidate(void)
 {
-	if (l2cc_is_enabled()) {
+	if (l2cache_is_enabled()) {
 		/* forces the address out past level 2 */
 		l2cc_clean_invalidate_way(0xFF);
 		/* Ensures completion of the L2 inval */
@@ -349,11 +345,11 @@ void l2cc_clean_invalidate(void)
 	}
 }
 
-void l2cc_invalidate_region(uint32_t start, uint32_t end)
+void l2cache_invalidate_region(uint32_t start, uint32_t end)
 {
 	assert(start < end);
 	uint32_t current = start & ~0x1f;
-	if (l2cc_is_enabled()) {
+	if (l2cache_is_enabled()) {
 		while (current <= end) {
 			l2cc_invalidate_pal(current);
 			current += 32;
@@ -362,11 +358,11 @@ void l2cc_invalidate_region(uint32_t start, uint32_t end)
 	}
 }
 
-void l2cc_clean_region(uint32_t start, uint32_t end)
+void l2cache_clean_region(uint32_t start, uint32_t end)
 {
 	assert(start < end);
 	uint32_t current = start & ~0x1f;
-	if (l2cc_is_enabled()) {
+	if (l2cache_is_enabled()) {
 		while (current <= end) {
 			l2cc_clean_pal(current);
 			current += 32;
@@ -375,9 +371,22 @@ void l2cc_clean_region(uint32_t start, uint32_t end)
 	}
 }
 
+void l2cache_clean_invalidate_region(uint32_t start, uint32_t end)
+{
+	assert(start < end);
+	uint32_t current = start & ~0x1f;
+	if (l2cache_is_enabled()) {
+		while (current <= end) {
+			l2cc_clean_invalidate_pal(current);
+			current += 32;
+		}
+		l2cc_clean_invalidate_pal(end);
+	}
+}
+
 void l2cc_configure(const struct _l2cc_config* cfg)
 {
-	assert(!l2cc_is_enabled());
+	assert(!l2cache_is_enabled());
 
 	l2cc_event_config(0, L2CC_ECFGR0_ESRC_SRC_DRHIT,
 	                  L2CC_ECFGR0_EIGEN_INT_DIS);
@@ -403,8 +412,8 @@ void l2cc_configure(const struct _l2cc_config* cfg)
 	l2cc_it_clear(0xFF);
 
 	/* Set exclusive mode */
-	l2cc_set_exclusive();
+	l2cache_set_exclusive();
 
 	/* Enable L2CC */
-	l2cc_enable();
+	l2cache_enable();
 }

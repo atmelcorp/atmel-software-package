@@ -33,13 +33,9 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
-
 #include "mm/cache.h"
-
-#include "mm/l2cc.h"
-
-#include <assert.h>
+#include "mm/l1cache.h"
+#include "mm/l2cache.h"
 
 /*----------------------------------------------------------------------------
  *        Functions
@@ -50,13 +46,15 @@ void cache_invalidate_region(void *start, uint32_t length)
 	uint32_t start_addr = (uint32_t)start;
 	uint32_t end_addr = start_addr + length;
 
-	if (cp15_dcache_is_enabled()) {
-		cp15_dcache_invalidate_region(start_addr, end_addr);
-#ifdef CONFIG_HAVE_L2CC
-		if (l2cc_is_enabled())
-			l2cc_invalidate_region(start_addr, end_addr);
-#endif
+#ifdef CONFIG_HAVE_L1CACHE
+	if (dcache_is_enabled()) {
+		dcache_invalidate_region(start_addr, end_addr);
+#ifdef CONFIG_HAVE_L2CACHE
+		if (l2cache_is_enabled())
+			l2cache_invalidate_region(start_addr, end_addr);
+#endif /* CONFIG_HAVE_L2CACHE */
 	}
+#endif /* CONFIG_HAVE_L1CACHE */
 }
 
 void cache_clean_region(const void *start, uint32_t length)
@@ -64,11 +62,13 @@ void cache_clean_region(const void *start, uint32_t length)
 	uint32_t start_addr = (uint32_t)start;
 	uint32_t end_addr = start_addr + length;
 
-	if (cp15_dcache_is_enabled()) {
-		cp15_dcache_clean_region(start_addr, end_addr);
-#ifdef CONFIG_HAVE_L2CC
-		if (l2cc_is_enabled())
-			l2cc_clean_region(start_addr, end_addr);
-#endif
+#ifdef CONFIG_HAVE_L1CACHE
+	if (dcache_is_enabled()) {
+		dcache_clean_region(start_addr, end_addr);
+#ifdef CONFIG_HAVE_L2CACHE
+		if (l2cache_is_enabled())
+			l2cache_clean_region(start_addr, end_addr);
+#endif /* CONFIG_HAVE_L2CACHE */
 	}
+#endif /* CONFIG_HAVE_L1CACHE */
 }

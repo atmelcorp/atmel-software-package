@@ -27,6 +27,10 @@
  * ----------------------------------------------------------------------------
  */
 
+/*
+ * L1 Cache functions implementation for ARMv5-TE and ARMv7-A
+ */
+
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
@@ -35,6 +39,7 @@
 #include "compiler.h"
 
 #include "arm_cp15.h"
+#include "mm/l1cache.h"
 
 #include <assert.h>
 #include <stdbool.h>
@@ -75,10 +80,10 @@ void cp15_mmu_disable(void)
 
 	control = cp15_read_control();
 	if (control & CP15_M_BIT) {
-		cp15_dcache_clean();
+		dcache_clean();
 		control &= ~(CP15_M_BIT | CP15_C_BIT);
 		cp15_write_control(control);
-		cp15_dcache_invalidate();
+		dcache_invalidate();
 	}
 }
 
@@ -94,7 +99,7 @@ void cp15_write_ttb(uint32_t value)
 	asm("mcr p15, 0, %0, c2, c0, 0" :: "r"(value));
 }
 
-void cp15_cache_set_exclusive(void)
+void dcache_set_exclusive(void)
 {
 	uint32_t actlr;
 	asm("mrc p15, 0, %0, c1, c0, 1" : "=r"(actlr));
@@ -102,7 +107,7 @@ void cp15_cache_set_exclusive(void)
 	asm("mcr p15, 0, %0, c1, c0, 1" :: "r"(actlr));
 }
 
-void cp15_cache_set_non_exclusive(void)
+void dcache_set_non_exclusive(void)
 {
 	uint32_t actlr;
 	asm("mrc p15, 0, %0, c1, c0, 1" : "=r"(actlr));
@@ -110,64 +115,64 @@ void cp15_cache_set_non_exclusive(void)
 	asm("mcr p15, 0, %0, c1, c0, 1" :: "r"(actlr));
 }
 
-void cp15_icache_invalidate(void)
+void icache_invalidate(void)
 {
 	/* ICIALLU - Invalidate I-cache */
 	asm("mcr p15, 0, %0, c7, c5, 0" :: "r"(0));
 	isb();
 }
 
-bool cp15_icache_is_enabled(void)
+bool icache_is_enabled(void)
 {
 	return (cp15_read_control() & CP15_I_BIT) != 0;
 }
 
-void cp15_icache_enable(void)
+void icache_enable(void)
 {
 	uint32_t control = cp15_read_control();
 	if ((control & CP15_I_BIT) == 0) {
-		cp15_icache_invalidate();
+		icache_invalidate();
 		cp15_write_control(control | CP15_I_BIT);
 	}
 }
 
-void cp15_icache_disable(void)
+void icache_disable(void)
 {
 	uint32_t control = cp15_read_control();
 	if (control & CP15_I_BIT) {
 		cp15_write_control(control & ~CP15_I_BIT);
-		cp15_icache_invalidate();
+		icache_invalidate();
 	}
 }
 
-bool cp15_dcache_is_enabled(void)
+bool dcache_is_enabled(void)
 {
 	return (cp15_read_control() & (CP15_C_BIT | CP15_M_BIT)) ==
 		(CP15_C_BIT | CP15_M_BIT);
 }
 
-void cp15_dcache_enable(void)
+void dcache_enable(void)
 {
 	uint32_t control = cp15_read_control();
 	if (control & CP15_M_BIT) {
 		if ((control & CP15_C_BIT) == 0) {
-			cp15_dcache_invalidate();
+			dcache_invalidate();
 			cp15_write_control(control | CP15_C_BIT);
 		}
 	}
 }
 
-void cp15_dcache_disable(void)
+void dcache_disable(void)
 {
 	uint32_t control = cp15_read_control();
 	if (control & CP15_C_BIT) {
-		cp15_dcache_clean();
+		dcache_clean();
 		cp15_write_control(control & ~CP15_C_BIT);
-		cp15_dcache_invalidate();
+		dcache_invalidate();
 	}
 }
 
-void cp15_dcache_clean(void)
+void dcache_clean(void)
 {
 	uint32_t set, way;
 
@@ -182,7 +187,7 @@ void cp15_dcache_clean(void)
 	dsb();
 }
 
-void cp15_dcache_invalidate(void)
+void dcache_invalidate(void)
 {
 	uint32_t set, way;
 
@@ -197,7 +202,7 @@ void cp15_dcache_invalidate(void)
 	dsb();
 }
 
-void cp15_dcache_clean_invalidate(void)
+void dcache_clean_invalidate(void)
 {
 	uint32_t set, way;
 
@@ -212,7 +217,7 @@ void cp15_dcache_clean_invalidate(void)
 	dsb();
 }
 
-void cp15_dcache_invalidate_region(uint32_t start, uint32_t end)
+void dcache_invalidate_region(uint32_t start, uint32_t end)
 {
 	uint32_t mva;
 
@@ -226,7 +231,7 @@ void cp15_dcache_invalidate_region(uint32_t start, uint32_t end)
 	dsb();
 }
 
-void cp15_dcache_clean_region(uint32_t start, uint32_t end)
+void dcache_clean_region(uint32_t start, uint32_t end)
 {
 	uint32_t mva;
 
@@ -240,7 +245,7 @@ void cp15_dcache_clean_region(uint32_t start, uint32_t end)
 	dsb();
 }
 
-void cp15_dcache_clean_invalidate_region(uint32_t start, uint32_t end)
+void dcache_clean_invalidate_region(uint32_t start, uint32_t end)
 {
 	uint32_t mva;
 

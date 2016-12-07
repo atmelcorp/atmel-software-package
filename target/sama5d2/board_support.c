@@ -45,7 +45,6 @@
 #ifdef CONFIG_HAVE_ISC
 #include "video/isc.h"
 #endif
-#include "mm/l2cc.h"
 #include "display/lcdc.h"
 #include "peripherals/matrix.h"
 #include "gpio/pio.h"
@@ -58,7 +57,8 @@
 #include "timer.h"
 #include "extram/ddram.h"
 
-#include "mm/cache.h"
+#include "mm/l1cache.h"
+#include "mm/l2cache_l2cc.h"
 #include "serial/console.h"
 
 #include "board_support.h"
@@ -546,9 +546,9 @@ void board_cfg_mmu(void)
 
 	/* Enable MMU, I-Cache and D-Cache */
 	mmu_configure(tlb);
-	cp15_icache_enable();
+	icache_enable();
 	cp15_mmu_enable();
-	cp15_dcache_enable();
+	dcache_enable();
 }
 
 void board_cfg_l2cc(void)

@@ -53,6 +53,7 @@
 #include "rand.h"
 #include "trace.h"
 
+#include "mm/l1cache.h"
 #include "serial/console.h"
 
 #include <stdbool.h>
@@ -140,7 +141,7 @@ void board_init(void)
 {
 	/* Configure misc low-level stuff */
 	board_cfg_lowlevel(true, true, false);
-	cp15_icache_enable();
+	icache_enable();
 
 	/* Configure console */
 	board_cfg_console(0);

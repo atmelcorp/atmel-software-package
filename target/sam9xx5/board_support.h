@@ -89,11 +89,6 @@ extern void board_cfg_mmu(void);
 extern void board_update_tlb_ddr_attr(uint32_t *tlb, bool cacheable);
 
 /**
- * \brief Configures L2CC for the board
- */
-extern void board_cfg_l2cc(void);
-
-/**
  * \brief Configure the MATRIX for DDR
  */
 extern void board_cfg_matrix_for_ddr(void);

@@ -45,8 +45,11 @@
 #ifdef CONFIG_HAVE_DBGU
 #include "serial/dbgu.h"
 #endif
-#ifdef CONFIG_HAVE_L2CC
-#include "mm/l2cc.h"
+#ifdef CONFIG_HAVE_L1CACHE
+#include "mm/l1cache.h"
+#endif
+#ifdef CONFIG_HAVE_L2CACHE
+#include "mm/l2cache.h"
 #endif
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"
@@ -255,10 +258,12 @@ void console_example_info(const char *example_name)
 	printf("Processor clock: %u MHz\r\n", (unsigned)(pmc_get_processor_clock() / 1000000));
 	printf("Master clock: %u MHz\r\n", (unsigned)(pmc_get_master_clock() / 1000000));
 	printf("MMU is %s\r\n", cp15_mmu_is_enabled() ? "enabled" : "disabled");
-	printf("I-Cache is %s\r\n", cp15_icache_is_enabled() ? "enabled" : "disabled");
-	printf("D-Cache is %s\r\n", cp15_dcache_is_enabled() ? "enabled" : "disabled");
-#ifdef CONFIG_HAVE_L2CC
-	printf("L2-Cache is %s\r\n", l2cc_is_enabled() ? "enabled" : "disabled");
+#ifdef CONFIG_HAVE_L1CACHE
+	printf("I-Cache is %s\r\n", icache_is_enabled() ? "enabled" : "disabled");
+	printf("D-Cache is %s\r\n", dcache_is_enabled() ? "enabled" : "disabled");
+#endif
+#ifdef CONFIG_HAVE_L2CACHE
+	printf("L2-Cache is %s\r\n", l2cache_is_enabled() ? "enabled" : "disabled");
 #endif
 #endif
 	printf("\r\n");

@@ -27,26 +27,6 @@
  * ----------------------------------------------------------------------------
  */
 
-/**
- * \file
- *
- * Interface for Level 2 cache (L2CC) controller.
- *
- */
-
-/** \addtogroup l2cc_module L2 Cache Operations
- * \ingroup cache_module
- * \section Usage
- * - Enable or disable L2CC with L2CC_Enable() or L2CC_Disable().
- * - Check if L2CC is enabled with L2CC_IsEnabled().
- * - Enable or disable L2CC interrupt with L2CC_EnableIT() or L2CC_DisableIT().
- * - Enable data or instruction prefetch with L2CC_DataPrefetchEnable() or L2CC_InstPrefetchEnable().
- *
- * Related files:\n
- * \ref l2cc.h\n
- * \ref l2cc.c\n
- */
-
 #ifndef L2CC_H_
 #define L2CC_H_
 
@@ -55,17 +35,13 @@
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
-#include "chip.h"
 
-#include <assert.h>
+#include <stdint.h>
+#include <stdbool.h>
 
 /*----------------------------------------------------------------------------
  *        Define
  *----------------------------------------------------------------------------*/
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #define L2CC_FWA_DEFAULT            0
 #define L2CC_FWA_NO_ALLOCATE        1
@@ -84,79 +60,33 @@ struct _l2cc_ram_latency {
 
 /** L2CC structure */
 struct _l2cc_config {
-	/** High Priority for SO and Dev Reads Enable */
-	uint32_t high_prior_so:    1,
-	/** Store Buffer Device Limitation Enable */
-		store_buff_dev_limit:    1,
-	/** Shared Attribute Invalidate Enable */
-		shared_attr_invalidate:     1,
-	/** Event Monitor Bus Enable */
-		evt_mon_bus:    1,
-	/** Parity Enable */
-		parity:      1,
-	/** Shared Attribute Override Enable */
-		shared_attr_override:    1,
-	/** Force Write Allocate */
-		force_write_alloc:      2,
-	/** Cache Replacement Policy */
-		cache_replacement:    1,
-	/** Non-Secure Lockdown Enable*/
-		non_sec_lockdown:    1,
-	/** Non-Secure Interrupt Access Control */
-		it_acces_non_sec:    1,
-	/** Data Prefetch Enable*/
-		data_prefetch:     1,
-	/** Instruction Prefetch Enable */
-		instruct_prefetch:     1,
-	/** Prefetch Offset */
-		offset:   5,
-	/** Not Same ID on Exclusive Sequence Enable */
-		exclusive_seq_same_id:   1,
-	/** INCR Double Linefill Enable */
-		incr_double_linefill:    1,
-	/** Prefetch Drop Enable*/
-		prefetch_drop:     1,
-	/** Double Linefill on WRAP Read Disable */
-		DLFWRDIS: 1,
-	/** Double linefill Enable */
-		double_linefill:     1,
-	/** Standby Mode Enable */
-		standby_mode:   1,
-	/** Dynamic Clock Gating Enable */
-		dyn_clock_gating: 1,
-	/** Disable Cache Linefill*/
-		no_cache_linefill:      1,
-	/** Disable Write-back, Force Write-through */
-		no_write_back:      1;
+	uint32_t high_prior_so:1;          /* High Priority for SO and Dev Reads Enable */
+	uint32_t store_buff_dev_limit:1;   /* Store Buffer Device Limitation Enable */
+	uint32_t shared_attr_invalidate:1; /* Shared Attribute Invalidate Enable */
+	uint32_t evt_mon_bus:1;            /* Event Monitor Bus Enable */
+	uint32_t parity:1;                 /* Parity Enable */
+	uint32_t shared_attr_override:1;   /* Shared Attribute Override Enable */
+	uint32_t force_write_alloc:2;      /* Force Write Allocate */
+	uint32_t cache_replacement:1;      /* Cache Replacement Policy */
+	uint32_t non_sec_lockdown:1;       /* Non-Secure Lockdown Enable*/
+	uint32_t it_acces_non_sec:1;       /* Non-Secure Interrupt Access Control */
+	uint32_t data_prefetch:1;          /* Data Prefetch Enable*/
+	uint32_t instruct_prefetch:1;      /* Instruction Prefetch Enable */
+	uint32_t offset:5;                 /* Prefetch Offset */
+	uint32_t exclusive_seq_same_id:1;  /* Not Same ID on Exclusive Sequence Enable */
+	uint32_t incr_double_linefill:1;   /* INCR Double Linefill Enable */
+	uint32_t prefetch_drop:1;          /* Prefetch Drop Enable*/
+	uint32_t DLFWRDIS:1;               /* Double Linefill on WRAP Read Disable */
+	uint32_t double_linefill:1;        /* Double linefill Enable */
+	uint32_t standby_mode:1;           /* Standby Mode Enable */
+	uint32_t dyn_clock_gating:1;       /* Dynamic Clock Gating Enable */
+	uint32_t no_cache_linefill:1;      /* Disable Cache Linefill*/
+	uint32_t no_write_back:1;          /* Disable Write-back, Force Write-through */
 };
+
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
-
-/**
- * \brief Check if Level 2 cache is enable.
- */
-extern bool l2cc_is_enabled(void);
-
-/**
- * \brief Enable Level 2 cache.
- */
-extern void l2cc_enable(void);
-
-/**
- * \brief Disable Level 2 cache.
- */
-extern void l2cc_disable(void);
-
-/**
- * \brief Configures Level 2 cache as exclusive cache.
- */
-extern void l2cc_set_exclusive(void);
-
-/**
- * \brief Configures Level 2 cache as non-exclusive cache.
- */
-extern void l2cc_set_non_exclusive(void);
 
 /**
  * \brief Configures Level 2 cache Tag RAM Latency
@@ -311,46 +241,11 @@ extern void l2cc_data_lockdown(uint8_t way);
 extern void l2cc_instruction_lockdown(uint8_t way);
 
 /**
- *  \brief Clean L2 DCache
- */
-extern void l2cc_clean(void);
-
-/**
- *  \brief Invalidate L2 DCache
- */
-extern void l2cc_invalidate(void);
-
-/**
- *  \brief Clean & Invalidate L2 DCache
- */
-extern void l2cc_clean_invalidate(void);
-
-/**
- *  \brief Invalidate cache lines corresponding to a memory region
- *
- *  \param start Beginning of the memory region
- *  \param end End of the memory region
- */
-extern void l2cc_invalidate_region(uint32_t start, uint32_t end);
-
-/**
- *  \brief Clean cache lines corresponding to a memory region
- *
- *  \param start Beginning of the memory region
- *  \param end End of the memory region
- */
-extern void l2cc_clean_region(uint32_t start, uint32_t end);
-
-/**
  *  \brief configure and enable L2 cache controller (L2CC)
  *
  *  \param cfg configuration to apply: \sa #_l2cc_config
  */
 extern void l2cc_configure(const struct _l2cc_config* cfg);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* CONFIG_HAVE_L2CC */
 

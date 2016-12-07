@@ -27,4 +27,4 @@
 # ----------------------------------------------------------------------------
 
 drivers-y += drivers/mm/cache.o
-drivers-$(CONFIG_HAVE_L2CC) += drivers/mm/l2cc.o
+drivers-$(CONFIG_HAVE_L2CC) += drivers/mm/l2cache_l2cc.o

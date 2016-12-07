@@ -120,7 +120,7 @@
 #include "i2c/twi-bus.h"
 #include "irq/irq.h"
 #include "led/led.h"
-#include "mm/l2cc.h"
+#include "mm/l2cache.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
 #include "peripherals/rtc.h"
@@ -724,7 +724,7 @@ int main(void)
 	board_cfg_l2cc();
 
 	/* Disable L2 cache */
-	l2cc_disable();
+	l2cache_disable();
 #endif
 
 	/* Set the I/Os to an appropriate state */
