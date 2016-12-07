@@ -30,8 +30,8 @@
 
 #include "irq/aic.h"
 #include "peripherals/pmc.h"
-#include "peripherals/adcd.h"
-#include "peripherals/adc.h"
+#include "analog/adcd.h"
+#include "analog/adc.h"
 #include "dma/dma.h"
 #include "mm/cache.h"
 

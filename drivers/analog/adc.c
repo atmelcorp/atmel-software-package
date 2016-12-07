@@ -85,7 +85,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
-#include "peripherals/adc.h"
+#include "analog/adc.h"
 #include "peripherals/pmc.h"
 
 #include "trace.h"

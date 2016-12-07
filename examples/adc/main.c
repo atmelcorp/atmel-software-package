@@ -116,8 +116,8 @@
 #include "gpio/pio.h"
 #include "peripherals/pit.h"
 
-#include "peripherals/adc.h"
-#include "peripherals/adcd.h"
+#include "analog/adc.h"
+#include "analog/adcd.h"
 #include "mm/cache.h"
 #include "peripherals/tc.h"
 #include "component/component_tc.h"

@@ -26,8 +26,6 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-drivers-$(CONFIG_HAVE_ADC) += drivers/peripherals/adc.o
-drivers-$(CONFIG_HAVE_ADC) += drivers/peripherals/adcd.o
 drivers-$(CONFIG_HAVE_LCDC) += drivers/peripherals/lcdc.o
 drivers-y += drivers/peripherals/matrix.o
 drivers-$(CONFIG_HAVE_PIT) += drivers/peripherals/pit.o
@@ -44,7 +42,6 @@ drivers-y += drivers/peripherals/wdt.o
 drivers-$(CONFIG_HAVE_FLEXCOM) += drivers/peripherals/flexcom.o
 drivers-$(CONFIG_HAVE_SDMMC) += drivers/peripherals/sdmmc.o
 
-drivers-$(CONFIG_HAVE_ACC) += drivers/peripherals/acc.o
 drivers-$(CONFIG_HAVE_SFRBU) += drivers/peripherals/sfrbu.o
 
 drivers-$(CONFIG_HAVE_HSMCI) += drivers/peripherals/hsmci.o
