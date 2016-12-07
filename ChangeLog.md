@@ -1,4 +1,51 @@
-# Atmel SAMA5 Software Package
+# Atmel Software Package
+
+## Version 2.7 - 2016-12
+
+### New drivers/examples
+
+- Added IRQ abstraction (irq/irq.h) with support for interrupt sharing.
+- Added CAN bus abstraction, with support for both MCAN (SAMA5D2) and
+  CAN (SAM9XX5, SAMA5D3).
+- Added QT1070 driver
+- Added adcd driver: handle configuration and DMA transfer on its own
+- Added iscd driver: handle configuration and DMA transfer on its own
+- Added isid driver: handle configuration and DMA transfer on its own
+
+### Enhancements
+
+- Some board initialization was made common between all targets (SPI, TWI, ISI,
+  Ethernet).
+- Reworked directory hierarchy for drivers (work in progress, this effort will
+  continue on the next release).
+- Compilation of several drivers is now conditional. This improves the build
+  time for building programs that do not use all drivers.
+- Improved pmc_configure_peripheral function. GCK and peripheral divisor can
+  now be configured in a single call.
+- Added support for KSZ9021 and KSZ9031 PHY.
+- Added support for UTC mode and Persian calendar to RTC driver
+- Removed direct TC usingthe DDRAM initialization, use new functions from timer
+  driver instead.
+- Added utils/errno.h with POSIX error codes. Used in QSPI and AT25 drivers,
+  will be used in more drivers in later releases.
+- SAMA5D3-EK support updated to support boards revision D or later. Older
+  revisions are not supported anymore.
+
+### Fixes
+
+- Fixed pin definitions for GMAC MII and RMII modes on SAMA5D3
+- Reduced default stack size in linker scripts to 1KB
+- Fixed twi_eeprom example to have a working slave implementation on all
+  targets.
+- Fixed internal RC / external oscillator clock frequency inversion in PMC
+
+
+## Version 2.6.1 - 2016-11
+
+### Fixes
+
+- Fixed an issue with timer on SAMA5D2. Timer would run too fast on cold reset.
+
 
 ## Version 2.6 - 2016-11
 
