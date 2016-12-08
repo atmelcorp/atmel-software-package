@@ -71,8 +71,8 @@ gnu-debug-script-$(CONFIG_SOC_SAMA5D4) = $(TOP)/samba_applets/common/sama5d4/ddr
 iar-linker-script-$(CONFIG_SOC_SAMA5D4) = $(TOP)/samba_applets/common/sama5d4/ddram.icf
 endif
 
-gnu-cstartup-y = samba_applets/common/cstartup_gnu.S
-iar-cstartup-y = samba_applets/common/cstartup_iar.s
+gnu-cstartup-y = samba_applets/common/cstartup_gnu.o
+iar-cstartup-y = samba_applets/common/cstartup_iar.o
 
 iar-debug-script-y =
 iar-flashloader-script-y =

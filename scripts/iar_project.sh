@@ -41,6 +41,20 @@ tpl-finalize() {
     sed -i -e "s/\(__REPLACE_DEP_LIST__\|__REPLACE_PROJECT_FILES__\)//g" "$tpl"
 }
 
+find-source() {
+    local dir="$1"
+    local obj="$2"
+    local path=${obj//.o/.c}
+    if [ ! -f "$dir/$path" ]; then
+        path=${obj//.o/.s}
+        if [ ! -f "$dir/$path" ]; then
+            echo "File $path not found!" 1>&2
+            exit 3
+        fi
+    fi
+    echo $path
+}
+
 tpl-set-prj-files() {
     local tpl="$1"
     local section="$2"; shift; shift
@@ -50,15 +64,7 @@ tpl-set-prj-files() {
 
     (
         for path in ${input}; do
-            path=${path//.o/.c}
-            path=${path//_gcc.c/_iar.s}
-
-            if [ ! -f "$DIR/$TOP/$path" ]; then
-                echo "File $path not found!" 1>&2
-                rm -f "$tmpxml" 2>&1 > /dev/null
-                exit 3
-            fi
-
+            path=$(find-source "$DIR/$TOP" "$path")
             local win_path=$(helper-use-windows-path "$TOP/$path")
             echo -e "  <file><name>\$PROJ_DIR\$\\\\$win_path</name></file>"
         done
@@ -80,14 +86,7 @@ tpl-set-deps() {
     (
         echo $path
         for path in ${input}; do
-            path=${path//.o/.c}
-            path=${path//_gcc.c/_iar.s}
-
-            if [ ! -f "$DIR/$TOP/$path" ]; then
-                echo "File $path not found!" 1>&2
-                rm -f "$tmpxml" 2>&1 > /dev/null
-                exit 3
-            fi
+            path=$(find-source "$DIR/$TOP" "$path")
 
             if [ "$empty_group" = true ]
             then

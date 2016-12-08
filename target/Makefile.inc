@@ -47,7 +47,6 @@ $(BUILDDIR)/target/target.a: $(TARGET_OBJS)
 
 ifeq ($(VARIANT),ddram)
 BOOTSTRAP_OBJS := $(addprefix $(BUILDDIR)/,$(bootstrap-y))
-BOOTSTRAP_OBJS += $(addprefix $(BUILDDIR)/,$(gnu-cstartup-y:.S=.o))
-
+BOOTSTRAP_OBJS += $(addprefix $(BUILDDIR)/,$(gnu-cstartup-y))
 -include $(BOOTSTRAP_OBJS:.o:.d)
 endif

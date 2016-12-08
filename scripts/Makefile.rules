@@ -48,7 +48,7 @@ include $(TOP)/lib/Makefile.inc
 vpath %.c $(TOP)
 vpath %.S $(TOP)
 
-OBJS := $(addprefix $(BUILDDIR)/,$(gnu-cstartup-y:.S=.o) $(obj-y))
+OBJS := $(addprefix $(BUILDDIR)/,$(gnu-cstartup-y) $(obj-y))
 LIBS := $(addprefix $(BUILDDIR)/,$(lib-y))
 
 -include $(OBJS:.o=.d)

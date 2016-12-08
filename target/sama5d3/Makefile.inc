@@ -31,8 +31,8 @@ ifeq ($(CONFIG_SOC_SAMA5D3),y)
 CFLAGS_INC += -I$(TOP)/target/sama5d3
 
 gnu-debug-lib-y ?= $(TOP)/target/sama5d3/toolchain/gnu/common.gdb
-gnu-cstartup-y ?= target/sama5d3/toolchain/gnu/cstartup.S
-iar-cstartup-y ?= target/sama5d3/toolchain/iar/cstartup.s
+gnu-cstartup-y ?= target/sama5d3/toolchain/gnu/cstartup.o
+iar-cstartup-y ?= target/sama5d3/toolchain/iar/cstartup.o
 
 # SRAM variant
 ifeq ($(VARIANT),sram)
