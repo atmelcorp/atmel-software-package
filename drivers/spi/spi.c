@@ -162,10 +162,9 @@ void spi_select_cs(Spi * spi, uint8_t cs)
 	spi->SPI_MR = mr | SPI_MR_PCS((1 << cs) - 1);
 }
 
-void spi_release_cs(Spi * spi, uint8_t cs)
+void spi_release_cs(Spi * spi)
 {
-	/* spi->SPI_CR = SPI_CR_LASTXFER; */
-	spi->SPI_CSR[cs] &= ~SPI_CSR_CSAAT;
+	spi->SPI_CR = SPI_CR_LASTXFER;
 }
 
 void spi_configure_cs(Spi * spi, uint8_t cs, uint32_t bitrate,

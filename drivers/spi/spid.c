@@ -342,7 +342,7 @@ static void _spid_transfer_next_buffer(struct _spi_desc* desc)
 		_spid_transfer_current_buffer(desc);
 	} else {
 		if (desc->xfer.current->attr & SPID_BUF_ATTR_RELEASE_CS)
-			spi_release_cs(desc->addr, desc->chip_select);
+			spi_release_cs(desc->addr);
 
 		desc->xfer.current = NULL;
 		if (desc->xfer.callback)

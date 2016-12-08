@@ -146,9 +146,8 @@ extern void spi_select_cs(Spi * spi, uint8_t cs);
  * \brief Configures SPI to release last used CS line.
  *
  * \param spi  Pointer to an Spi instance.
- * \param cs   Chip select of NPSCx.
  */
-extern void spi_release_cs(Spi * spi, uint8_t cs);
+extern void spi_release_cs(Spi * spi);
 
 /**
  * \brief Write one data from SPI peripheral.
