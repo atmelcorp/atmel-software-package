@@ -89,12 +89,6 @@
 /** \addtogroup gmac_defines
 	@{*/
 
-#ifdef CONFIG_HAVE_GMAC_QUEUES
-#define GMAC_NUM_QUEUES 3
-#else
-#define GMAC_NUM_QUEUES 1
-#endif
-
 #define GMAC_MAX_JUMBO_FRAME_LENGTH 10240
 
 /**@}*/

@@ -206,14 +206,29 @@
 #define GMAC_IFACE_COUNT (1)
 #endif
 
+/** GMAC Queue max */
+#ifndef GMAC_QUEUE_COUNT
+#define GMAC_QUEUE_COUNT (1)
+#endif
+
 /** EMAC Interface max */
 #ifndef EMAC_IFACE_COUNT
 #define EMAC_IFACE_COUNT (1)
 #endif
 
+/** EMAC Queue max */
+#ifndef EMAC_QUEUE_COUNT
+#define EMAC_QUEUE_COUNT (1)
+#endif
+
 /** Ethernet Interface max */
 #ifndef ETH_IFACE_COUNT
 #define ETH_IFACE_COUNT (EMAC_IFACE_COUNT + GMAC_IFACE_COUNT)
+#endif
+
+/** Ethernet Queue max */
+#ifndef ETH_QUEUE_COUNT
+#define ETH_QUEUE_COUNT (EMAC_QUEUE_COUNT + GMAC_QUEUE_COUNT)
 #endif
 
 /** Indicates chip has an UDP High Speed. */

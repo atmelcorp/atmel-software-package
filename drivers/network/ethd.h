@@ -76,8 +76,6 @@ enum _eth_speed {
 	ETH_SPEED_1000M,
 };
 
-#define ETH_NUM_QUEUES 3
-
 /** The MAC can support frame lengths up to 1536 bytes. */
 #define ETH_MAX_FRAME_LENGTH 1536
 
@@ -241,7 +239,7 @@ struct _ethd {
 		Gmac *gmac;       /**< GMAC instance */
 #endif
 	};
-	struct _ethd_queue queues[ETH_NUM_QUEUES];
+	struct _ethd_queue queues[ETH_QUEUE_COUNT];
 	const struct _ethd_op *op;
 };
 

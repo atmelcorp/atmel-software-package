@@ -73,29 +73,51 @@ struct _gmacd_irq_handler {
  *         IRQ Handlers
  *---------------------------------------------------------------------------*/
 
-#if ETH_NUM_QUEUES < GMAC_NUM_QUEUES
+#if ETH_QUEUE_COUNT < GMAC_QUEUE_COUNT
 #error The number of queues for ETH is too small for GMAC!
 #endif
 
 #ifdef CONFIG_HAVE_GMAC_QUEUES
-#if GMAC_NUM_QUEUES != 3
-#error This driver assumes that GMAC_NUM_QUEUES is 3
+#if GMAC_QUEUE_COUNT > 6
+#error This driver assumes that GMAC_QUEUE_COUNT strictly less than 6
 #endif
 #endif
 
 static struct _gmacd_irq_handler _gmacd_irq_handlers[] = {
 	{ GMAC0, 0, NULL, ID_GMAC0 },
-#ifdef CONFIG_HAVE_GMAC_QUEUES
+#if GMAC_QUEUE_COUNT >= 2
 	{ GMAC0, 1, NULL, ID_GMAC0_Q1 },
+#endif
+#if GMAC_QUEUE_COUNT >= 3
 	{ GMAC0, 2, NULL, ID_GMAC0_Q2 },
+#endif
+#if GMAC_QUEUE_COUNT >= 4
+	{ GMAC0, 3, NULL, ID_GMAC0_Q3 },
+#endif
+#if GMAC_QUEUE_COUNT >= 5
+	{ GMAC0, 4, NULL, ID_GMAC0_Q4 },
+#endif
+#if GMAC_QUEUE_COUNT >= 6
+	{ GMAC0, 5, NULL, ID_GMAC0_Q5 },
 #endif
 #ifdef GMAC1
 	{ GMAC1, 0, NULL, ID_GMAC1 },
-#ifdef CONFIG_HAVE_GMAC_QUEUES
+#if GMAC_QUEUE_COUNT >= 2
 	{ GMAC1, 1, NULL, ID_GMAC1_Q1 },
+#endif
+#if GMAC_QUEUE_COUNT >= 3
 	{ GMAC1, 2, NULL, ID_GMAC1_Q2 },
 #endif
+#if GMAC_QUEUE_COUNT >= 4
+	{ GMAC1, 3, NULL, ID_GMAC1_Q3 },
 #endif
+#if GMAC_QUEUE_COUNT >= 5
+	{ GMAC1, 4, NULL, ID_GMAC1_Q4 },
+#endif
+#if GMAC_QUEUE_COUNT >= 6
+	{ GMAC1, 5, NULL, ID_GMAC1_Q5 },
+#endif
+#endif /* GMAC1 */
 };
 
 /*---------------------------------------------------------------------------
@@ -403,7 +425,7 @@ void gmacd_configure(struct _ethd * gmacd,
 	}
 	gmac_set_network_config_register(gmac, ncfgr);
 
-	for (i = 0; i < GMAC_NUM_QUEUES; i++) {
+	for (i = 0; i < GMAC_QUEUE_COUNT; i++) {
 		gmacd_setup_queue(gmacd, i,
 				DUMMY_BUFFERS, dummy_buffer, dummy_rx_desc,
 				DUMMY_BUFFERS, dummy_buffer, dummy_tx_desc,
@@ -489,7 +511,7 @@ void gmacd_start(struct _ethd * gmacd)
 void gmacd_reset(struct _ethd* gmacd)
 {
 	int i;
-	for (i = 0; i < GMAC_NUM_QUEUES; i++) {
+	for (i = 0; i < GMAC_QUEUE_COUNT; i++) {
 		_gmacd_reset_rx(gmacd, i);
 		_gmacd_reset_tx(gmacd, i);
 	}

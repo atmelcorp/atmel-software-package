@@ -233,9 +233,19 @@
 #define GMAC_IFACE_COUNT (2)
 #endif
 
+/** GMAC Queue max */
+#ifndef GMAC_QUEUE_COUNT
+#define GMAC_QUEUE_COUNT (1)
+#endif
+
 /** Ethernet Interface max */
 #ifndef ETH_IFACE_COUNT
 #define ETH_IFACE_COUNT GMAC_IFACE_COUNT
+#endif
+
+/** Ethernet Queue max */
+#ifndef ETH_QUEUE_COUNT
+#define ETH_QUEUE_COUNT GMAC_QUEUE_COUNT
 #endif
 
 /** AIC redirection unlock key */

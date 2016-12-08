@@ -355,7 +355,7 @@ void gmac_set_rx_desc(Gmac* gmac, uint8_t queue, struct _eth_desc* desc)
 		gmac->GMAC_RBQB = ((uint32_t)desc) & GMAC_RBQB_ADDR_Msk;
 	}
 #ifdef CONFIG_HAVE_GMAC_QUEUES
-	else if (queue <= GMAC_NUM_QUEUES) {
+	else if (queue <= GMAC_QUEUE_COUNT) {
 		gmac->GMAC_RBQBAPQ[queue - 1] = ((uint32_t)desc) & GMAC_RBQBAPQ_RXBQBA_Msk;
 	}
 #endif
@@ -370,7 +370,7 @@ struct _eth_desc* gmac_get_rx_desc(Gmac* gmac, uint8_t queue)
 		return (struct _eth_desc*)(gmac->GMAC_RBQB & GMAC_RBQB_ADDR_Msk);
 	}
 #ifdef CONFIG_HAVE_GMAC_QUEUES
-	else if (queue <= GMAC_NUM_QUEUES) {
+	else if (queue <= GMAC_QUEUE_COUNT) {
 		return (struct _eth_desc*)(gmac->GMAC_RBQBAPQ[queue - 1] & GMAC_RBQBAPQ_RXBQBA_Msk);
 	}
 #endif
@@ -386,7 +386,7 @@ void gmac_set_tx_desc(Gmac* gmac, uint8_t queue, struct _eth_desc* desc)
 		gmac->GMAC_TBQB = ((uint32_t)desc) & GMAC_TBQB_ADDR_Msk;
 	}
 #ifdef CONFIG_HAVE_GMAC_QUEUES
-	else if (queue <= GMAC_NUM_QUEUES) {
+	else if (queue <= GMAC_QUEUE_COUNT) {
 		gmac->GMAC_TBQBAPQ[queue - 1] = ((uint32_t)desc) & GMAC_TBQBAPQ_TXBQBA_Msk;
 	}
 #endif
@@ -401,7 +401,7 @@ struct _eth_desc* gmac_get_tx_desc(Gmac* gmac, uint8_t queue)
 		return (struct _eth_desc*)(gmac->GMAC_TBQB & GMAC_TBQB_ADDR_Msk);
 	}
 #ifdef CONFIG_HAVE_GMAC_QUEUES
-	else if (queue <= GMAC_NUM_QUEUES) {
+	else if (queue <= GMAC_QUEUE_COUNT) {
 		return (struct _eth_desc*)(gmac->GMAC_TBQBAPQ[queue - 1] & GMAC_TBQBAPQ_TXBQBA_Msk);
 	}
 #endif
@@ -417,7 +417,7 @@ uint32_t gmac_get_it_mask(Gmac* gmac, uint8_t queue)
 		return gmac->GMAC_IMR;
 	}
 #ifdef CONFIG_HAVE_GMAC_QUEUES
-	else if (queue <= GMAC_NUM_QUEUES) {
+	else if (queue <= GMAC_QUEUE_COUNT) {
 		return gmac->GMAC_IMRPQ[queue - 1];
 	}
 #endif
@@ -433,7 +433,7 @@ void gmac_enable_it(Gmac* gmac, uint8_t queue, uint32_t mask)
 		gmac->GMAC_IER = mask;
 	}
 #ifdef CONFIG_HAVE_GMAC_QUEUES
-	else if (queue <= GMAC_NUM_QUEUES) {
+	else if (queue <= GMAC_QUEUE_COUNT) {
 		gmac->GMAC_IERPQ[queue - 1] = mask;
 	}
 #endif
@@ -448,7 +448,7 @@ void gmac_disable_it(Gmac * gmac, uint8_t queue, uint32_t mask)
 		gmac->GMAC_IDR = mask;
 	}
 #ifdef CONFIG_HAVE_GMAC_QUEUES
-	else if (queue <= GMAC_NUM_QUEUES) {
+	else if (queue <= GMAC_QUEUE_COUNT) {
 		gmac->GMAC_IDRPQ[queue - 1] = mask;
 	}
 #endif
@@ -463,7 +463,7 @@ uint32_t gmac_get_it_status(Gmac* gmac, uint8_t queue)
 		return gmac->GMAC_ISR;
 	}
 #ifdef CONFIG_HAVE_GMAC_QUEUES
-	else if (queue <= GMAC_NUM_QUEUES) {
+	else if (queue <= GMAC_QUEUE_COUNT) {
 		return gmac->GMAC_ISRPQ[queue - 1];
 	}
 #endif

@@ -59,7 +59,6 @@
 
 struct _emacd_irq_handler {
 	Emac*         addr;
-	uint32_t      queue;
 	struct _ethd* emacd;
 	uint32_t      irq;
 };
@@ -68,19 +67,19 @@ struct _emacd_irq_handler {
  *         IRQ Handlers
  *---------------------------------------------------------------------------*/
 
-#if ETH_NUM_QUEUES < EMAC_NUM_QUEUES
-#error The number of queues for ETH is too small for EMAC!
+#if EMAC_QUEUE_COUNT != 1
+#error EMAC only supports a single queue!
 #endif
 
 static struct _emacd_irq_handler _emacd_irq_handlers[] = {
-	{ EMAC0, 0, NULL, ID_EMAC0 },
+	{ EMAC0, NULL, ID_EMAC0 },
 #ifdef EMAC1
-	{ EMAC1, 0, NULL, ID_EMAC1 },
+	{ EMAC1, NULL, ID_EMAC1 },
 #endif
 };
 
 /*---------------------------------------------------------------------------
- *         Dummy Buffers for unconfigured queues
+ *         Dummy Buffers for unconfigured queue
  *---------------------------------------------------------------------------*/
 
 #define DUMMY_BUFFERS 2
@@ -108,7 +107,7 @@ static uint8_t dummy_buffer[DUMMY_BUFFERS * DUMMY_UNITSIZE];
  */
 static void _emacd_reset_tx(struct _ethd* emacd)
 {
-	struct _ethd_queue* q = &emacd->queues[EMAC_QUEUE_INDEX];
+	struct _ethd_queue* q = &emacd->queues[0];
 	uint32_t addr = (uint32_t)q->tx_buffer;
 	uint32_t i;
 
@@ -135,7 +134,7 @@ static void _emacd_reset_tx(struct _ethd* emacd)
  */
 static void _emacd_reset_rx(struct _ethd* emacd)
 {
-	struct _ethd_queue* q = &emacd->queues[EMAC_QUEUE_INDEX];
+	struct _ethd_queue* q = &emacd->queues[0];
 	uint32_t addr = (uint32_t)q->rx_buffer;
 	uint32_t i;
 
@@ -160,10 +159,10 @@ static void _emacd_reset_rx(struct _ethd* emacd)
  *  \brief Process successfully sent packets
  *  \param emacd Pointer to EMAC Driver instance.
  */
-static void _emacd_tx_complete_handler(struct _ethd* emacd, uint8_t queue)
+static void _emacd_tx_complete_handler(struct _ethd* emacd)
 {
 	Emac* emac = emacd->emac;
-	struct _ethd_queue* q = &emacd->queues[queue];
+	struct _ethd_queue* q = &emacd->queues[0];
 	struct _eth_desc *desc;
 	ethd_callback_t callback;
 	uint32_t tsr;
@@ -196,7 +195,7 @@ static void _emacd_tx_complete_handler(struct _ethd* emacd, uint8_t queue)
 		if (q->tx_callbacks) {
 			callback = q->tx_callbacks[q->tx_tail];
 			if (callback)
-				callback(queue, tsr);
+				callback(0, tsr);
 		}
 
 		/* Go to next frame */
@@ -208,7 +207,7 @@ static void _emacd_tx_complete_handler(struct _ethd* emacd, uint8_t queue)
 	if (q->tx_wakeup_callback) {
 		if (RING_SPACE(q->tx_head, q->tx_tail, q->tx_size) >=
 				q->tx_wakeup_threshold) {
-			q->tx_wakeup_callback(queue);
+			q->tx_wakeup_callback(0);
 		}
 	}
 }
@@ -217,10 +216,10 @@ static void _emacd_tx_complete_handler(struct _ethd* emacd, uint8_t queue)
  *  \brief Reset TX queue when errors are detected
  *  \param emacd Pointer to EMAC Driver instance.
  */
-static void _emacd_tx_error_handler(struct _ethd* emacd, uint8_t queue)
+static void _emacd_tx_error_handler(struct _ethd* emacd)
 {
 	Emac *emac = emacd->emac;
-	struct _ethd_queue* q = &emacd->queues[queue];
+	struct _ethd_queue* q = &emacd->queues[0];
 	struct _eth_desc* desc;
 	ethd_callback_t callback;
 	uint32_t tsr;
@@ -271,7 +270,7 @@ static void _emacd_tx_error_handler(struct _ethd* emacd, uint8_t queue)
 		if (q->tx_callbacks) {
 			callback = q->tx_callbacks[q->tx_tail];
 			if (callback)
-				callback(queue, tx_completed ? EMAC_TSR_COMP : 0);
+				callback(0, tx_completed ? EMAC_TSR_COMP : 0);
 		}
 
 		/* Go to next frame */
@@ -288,17 +287,17 @@ static void _emacd_tx_error_handler(struct _ethd* emacd, uint8_t queue)
 	/* Now we are ready to start transmission again */
 	emac_transmit_enable(emac, true);
 	if (q->tx_wakeup_callback)
-		q->tx_wakeup_callback(queue);
+		q->tx_wakeup_callback(0);
 }
 
 /**
  *  \brief EMAC Interrupt handler
  *  \param gmacd Pointer to EMAC Driver instance.
  */
-static void _emacd_handler(struct _ethd * emacd, uint8_t queue)
+static void _emacd_handler(struct _ethd * emacd)
 {
 	Emac *emac = emacd->emac;
-	struct _ethd_queue* q = &emacd->queues[queue];
+	struct _ethd_queue* q = &emacd->queues[0];
 	uint32_t isr;
 	uint32_t rsr;
 
@@ -312,18 +311,18 @@ static void _emacd_handler(struct _ethd * emacd, uint8_t queue)
 
 			/* Invoke callback */
 			if (q->rx_callback)
-				q->rx_callback(queue, rsr);
+				q->rx_callback(0, rsr);
 		}
 
 		/* TX error */
 		if (isr & EMAC_INT_TX_ERR_BITS) {
-			_emacd_tx_error_handler(emacd, queue);
+			_emacd_tx_error_handler(emacd);
 			break;
 		}
 
 		/* TX packet */
 		if (isr & EMAC_IER_TCOMP) {
-			_emacd_tx_complete_handler(emacd, queue);
+			_emacd_tx_complete_handler(emacd);
 		}
 
 		/* HRESP not OK */
@@ -336,7 +335,7 @@ static void _emacd_handler(struct _ethd * emacd, uint8_t queue)
 static void _emacd_emac_irq_handler(uint32_t source, void* user_arg)
 {
 	struct _emacd_irq_handler* handler = (struct _emacd_irq_handler*)user_arg;
-	_emacd_handler(handler->emacd, handler->queue);
+	_emacd_handler(handler->emacd);
 }
 
 /*---------------------------------------------------------------------------
@@ -384,7 +383,7 @@ void emacd_configure(struct _ethd * emacd,
 	}
 	emac_set_network_config_register(emac, ncfgr);
 
-	emacd_setup_queue(emacd, EMAC_QUEUE_INDEX,
+	emacd_setup_queue(emacd, 0,
 			DUMMY_BUFFERS, dummy_buffer, dummy_rx_desc,
 			DUMMY_BUFFERS, dummy_buffer, dummy_tx_desc,
 			NULL);
@@ -416,7 +415,9 @@ uint8_t emacd_setup_queue(struct _ethd* emacd, uint8_t queue,
 		ethd_callback_t *tx_callbacks)
 {
 	Emac *emac = emacd->emac;
-	struct _ethd_queue* q = &emacd->queues[queue];
+	struct _ethd_queue* q = &emacd->queues[0];
+
+	assert(queue == 0);
 
 	if (rx_size <= 1 || tx_size <= 1)
 		return ETH_PARAM;
@@ -487,7 +488,8 @@ void emacd_reset(struct _ethd* emacd)
  */
 void emacd_set_rx_callback(struct _ethd* emacd,  uint8_t queue, ethd_callback_t callback)
 {
-	struct _ethd_queue* q = &emacd->queues[queue];
+	struct _ethd_queue* q = &emacd->queues[0];
+	assert(queue == 0);
 	if (!callback) {
 		emac_disable_it(emacd->emac, EMAC_IDR_RCOMP);
 		q->rx_callback = NULL;
