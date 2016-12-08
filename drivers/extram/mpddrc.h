@@ -31,7 +31,6 @@
 #define MPDDRC_HEADER_
 
 #include <stdint.h>
-#include <extram/mpddrc.h>
 
 enum _ram_type {
 #ifdef CONFIG_HAVE_MPDDRC_DDR2
@@ -58,9 +57,27 @@ struct _mpddrc_desc {
 #endif
 	uint32_t mode;
 	uint32_t control;
-	uint32_t tpr0;
-	uint32_t tpr1;
-	uint32_t tpr2;
+
+	struct {
+		uint8_t tmrd;   /**< Load Mode Register Command to Activate or Refresh Command */
+		uint8_t twtr;   /**< Internal Write to Read Delay */
+		uint8_t trrd;   /**< Active BankA to Active BankB */
+		uint8_t trp;    /**< Row Precharge Delay */
+		uint8_t trc;    /**< Row Cycle Delay */
+		uint8_t twr;    /**< Write Recovery Delay */
+		uint8_t trcd;   /**< Row to Column Delay */
+		uint8_t tras;   /**< Active to Precharge Delay */
+		uint8_t txp;    /**< Exit Powerdown Delay to First Command */
+		uint8_t txsrd;  /**< Exit Self-refresh Delay to Read Command */
+		uint8_t txsnr;  /**< Exit Self-refresh Delay to Non-Read Command */
+		uint8_t trfc;   /**< Row Cycle Delay */
+		uint8_t tfaw;   /**< Four Active Windows */
+		uint8_t trtp;   /**< Read to Precharge */
+		uint8_t trpa;   /**< Row Precharge All Delay */
+		uint8_t txards; /**< Exit Active Powerdown Delay to Read Command in Mode "Slow Exit" */
+		uint8_t txard;  /**< Exit Active Powerdown Delay to Read Command in Mode "Fast Exit" */
+	} timings;
+
 	uint32_t refresh_window; /* in ms */
 	uint32_t refresh_cycles;
 };

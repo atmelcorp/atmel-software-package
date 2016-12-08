@@ -43,6 +43,7 @@
 #include "mm/l1cache.h"
 
 #include <assert.h>
+#include <string.h>
 
 /*------------------------------------------------------------------------------
  *        Macro
@@ -99,25 +100,20 @@ static void _init_mt41k128m16(struct _mpddrc_desc* desc)
 
 	/* timings */
 
-	desc->tpr0 = MPDDRC_TPR0_TRAS(NS2CYCLES(35, mck)) // 35ns
-	           | MPDDRC_TPR0_TRCD(NS2CYCLES(14, mck)) // 13.75ns
-	           | MPDDRC_TPR0_TWR(NS2CYCLES(15, mck))  // 15ns
-	           | MPDDRC_TPR0_TRC(NS2CYCLES(49, mck))  // 48.75ns
-	           | MPDDRC_TPR0_TRP(NS2CYCLES(14, mck))  // 13.75ns
-	           | MPDDRC_TPR0_TRRD(4)                  // greater of 4CK or 6ns
-	           | MPDDRC_TPR0_TWTR(4)                  // greater of 4CK or 7.5ns
-	           | MPDDRC_TPR0_TMRD(4);                 // min = 4CK
-
-	desc->tpr1 = MPDDRC_TPR1_TRFC(NS2CYCLES(160, mck))  // 160ns
-	           | MPDDRC_TPR1_TXSNR(NS2CYCLES(170, mck)) // tRFC+10ns
-	           | MPDDRC_TPR1_TXSRD(0)                   // 0 for DDL Off mode
-	           | MPDDRC_TPR1_TXP(10);                   // greater of 10CK or or 24ns
-
-	desc->tpr2 = MPDDRC_TPR2_TXARD(0)                  // only for DDR2
-	           | MPDDRC_TPR2_TXARDS(0)                 // only for DDR2
-	           | MPDDRC_TPR2_TRPA(0)                   // only for DDR2
-	           | MPDDRC_TPR2_TRTP(4)                   // greater of 4CK or 7.5ns
-	           | MPDDRC_TPR2_TFAW(NS2CYCLES(40, mck)); // 40ns
+	memset(&desc->timings, 0, sizeof(desc->timings));
+	desc->timings.tras  = NS2CYCLES(35, mck);          // 35ns
+	desc->timings.trcd  = NS2CYCLES(14, mck);          // 13.75ns
+	desc->timings.twr   = NS2CYCLES(15, mck);          // 15ns
+	desc->timings.trc   = NS2CYCLES(49, mck);          // 48.75ns
+	desc->timings.trp   = NS2CYCLES(14, mck);          // 13.75ns
+	desc->timings.trrd  = MAX(NS2CYCLES(6, mck), 4);   // max(6ns, 4ck)
+	desc->timings.twtr  = MAX(NS2CYCLES(8, mck), 4);   // max(7.5ns, 4ck)
+	desc->timings.tmrd  = 4;                           // min 4ck
+	desc->timings.trfc  = NS2CYCLES(160, mck);         // 160ns
+	desc->timings.txsnr = NS2CYCLES(170, mck);         // tRFC+10ns
+	desc->timings.txp   = MAX(NS2CYCLES(14, mck), 10); // max(24ns, 10ck)
+	desc->timings.trtp  = MAX(NS2CYCLES(8, mck), 4);   // mac(7.5ns, 4ck)
+	desc->timings.tfaw  = NS2CYCLES(40, mck);          // 40ns
 
 	desc->refresh_window = 64;
 	desc->refresh_cycles = 8192;
@@ -156,25 +152,20 @@ static void _init_edf8164a3ma(struct _mpddrc_desc* desc)
 
 	/* timings */
 
-	desc->tpr0 = MPDDRC_TPR0_TRAS(NS2CYCLES(42, mck))           // 42ns
-	           | MPDDRC_TPR0_TRCD(MAX(NS2CYCLES(18, mck), 3))   // max(18ns | 3ck)
-	           | MPDDRC_TPR0_TWR(MAX(NS2CYCLES(15, mck), 3))    // max(15ns | 3ck)
-	           | MPDDRC_TPR0_TRC(NS2CYCLES(55, mck))            // 55ns
-	           | MPDDRC_TPR0_TRP(MAX(NS2CYCLES(8, mck), 4))     // max(7.5ns, 4ck)
-	           | MPDDRC_TPR0_TRRD(MAX(NS2CYCLES(10, mck), 2))   // max(10ns, 2ck)
-	           | MPDDRC_TPR0_TWTR(MAX(NS2CYCLES(8, mck), 4))    // max(7.5ns, 4ck)
-	           | MPDDRC_TPR0_TMRD(MAX(NS2CYCLES(14, mck), 10)); // max(14ns, 10ck)
-
-	desc->tpr1 = MPDDRC_TPR1_TRFC(NS2CYCLES(130, mck))       // 130ns
-	           | MPDDRC_TPR1_TXSNR(NS2CYCLES(140, mck))      // 140ns
-	           | MPDDRC_TPR1_TXSRD(0)                        // Only for DDR2/3
-	           | MPDDRC_TPR1_TXP(MAX(NS2CYCLES(8, mck), 2)); // max(7.5ns, 2ck)
-
-	desc->tpr2 = MPDDRC_TPR2_TXARD(0)                          // Only for DDR2
-	           | MPDDRC_TPR2_TXARDS(0)                         // Only for DDR2
-	           | MPDDRC_TPR2_TRPA(0)                           // Only for DDR2
-	           | MPDDRC_TPR2_TRTP(MAX(NS2CYCLES(8, mck), 4))   // max(7.5ns, 4ck)
-	           | MPDDRC_TPR2_TFAW(MAX(NS2CYCLES(50, mck), 8)); // max(50ns, 8ck)
+	memset(&desc->timings, 0, sizeof(desc->timings));
+	desc->timings.tras  = NS2CYCLES(42, mck);          // 42ns
+	desc->timings.trcd  = MAX(NS2CYCLES(18, mck), 3);  // max(18ns, 3ck)
+	desc->timings.twr   = MAX(NS2CYCLES(15, mck), 3);  // max(15ns, 3ck)
+	desc->timings.trc   = NS2CYCLES(55, mck);          // 55ns
+	desc->timings.trp   = MAX(NS2CYCLES(8, mck), 4);   // max(7.5ns, 4ck)
+	desc->timings.trrd  = MAX(NS2CYCLES(10, mck), 2);  // max(10ns, 2ck)
+	desc->timings.twtr  = MAX(NS2CYCLES(8, mck), 4);   // max(7.5ns, 4ck)
+	desc->timings.tmrd  = MAX(NS2CYCLES(14, mck), 10); // max(14ns, 10ck)
+	desc->timings.trfc  = NS2CYCLES(130, mck);         // 130ns
+	desc->timings.txsnr = NS2CYCLES(140, mck);         // 140ns
+	desc->timings.txp   = MAX(NS2CYCLES(8, mck), 2);   // max(7.5ns, 2ck)
+	desc->timings.trtp  = MAX(NS2CYCLES(8, mck), 4);   // max(7.5ns, 4ck)
+	desc->timings.tfaw  = MAX(NS2CYCLES(50, mck), 8);  // max(50ns, 8ck)
 
 	desc->refresh_window = 64;
 	desc->refresh_cycles = 8192;
@@ -216,25 +207,24 @@ static void _init_mt47h128m8(struct _mpddrc_desc* desc)
 
 	/* timings */
 
-	desc->tpr0 = MPDDRC_TPR0_TRAS(NS2CYCLES(40, mck)) // 40ns
-	           | MPDDRC_TPR0_TRCD(NS2CYCLES(13, mck)) // 12.5ns
-	           | MPDDRC_TPR0_TWR(NS2CYCLES(15, mck))  // 15ns
-	           | MPDDRC_TPR0_TRC(NS2CYCLES(55, mck))  // 55ns
-	           | MPDDRC_TPR0_TRP(NS2CYCLES(13, mck))  // 12.5ns
-	           | MPDDRC_TPR0_TRRD(NS2CYCLES(8, mck))  // 7.5ns
-	           | MPDDRC_TPR0_TWTR(NS2CYCLES(10, mck)) // 10ns
-	           | MPDDRC_TPR0_TMRD(2);                 // 2 clock cycles
-
-	desc->tpr1 = MPDDRC_TPR1_TRFC(NS2CYCLES(128, mck))  // 127.5ns
-	           | MPDDRC_TPR1_TXSNR(NS2CYCLES(138, mck)) // (tRFC)+10 = 128.5ns
-	           | MPDDRC_TPR1_TXSRD(200)                 // 200ck
-	           | MPDDRC_TPR1_TXP(2);                    // 2ck
-
-	desc->tpr2 = MPDDRC_TPR2_TXARD(8)                  // 8ck
-	           | MPDDRC_TPR2_TXARDS(2)                 // 2ck
-	           | MPDDRC_TPR2_TRPA(NS2CYCLES(15, mck))  // 15ns
-	           | MPDDRC_TPR2_TRTP(NS2CYCLES(8, mck))   // 7.5ns
-	           | MPDDRC_TPR2_TFAW(NS2CYCLES(35, mck)); // 35ns
+	memset(&desc->timings, 0, sizeof(desc->timings));
+	desc->timings.tras   = NS2CYCLES(40, mck);  // 40ns
+	desc->timings.trcd   = NS2CYCLES(13, mck);  // 12.5ns
+	desc->timings.twr    = NS2CYCLES(15, mck);  // 15ns
+	desc->timings.trc    = NS2CYCLES(55, mck);  // 55ns
+	desc->timings.trp    = NS2CYCLES(13, mck);  // 12.5ns
+	desc->timings.trrd   = NS2CYCLES(8, mck);   // 7.5ns
+	desc->timings.twtr   = NS2CYCLES(10, mck);  // 10ns
+	desc->timings.tmrd   = 2;                   // 2ck
+	desc->timings.trfc   = NS2CYCLES(128, mck); // 127.5ns
+	desc->timings.txsnr  = NS2CYCLES(138, mck); // tRFC+10ns
+	desc->timings.txsrd  = 200;                 // 200ck
+	desc->timings.txp    = 2;                   // 2ck
+	desc->timings.txard  = 8;                   // 8ck
+	desc->timings.txards = 2;                   // 2ck
+	desc->timings.trpa   = NS2CYCLES(15, mck);  // 15ns
+	desc->timings.trtp   = NS2CYCLES(8, mck);   // 7.5ns
+	desc->timings.tfaw   = NS2CYCLES(35, mck);  // 35ns
 
 	desc->refresh_window = 64;
 	desc->refresh_cycles = 8192;
@@ -273,25 +263,24 @@ static void _init_mt47h64m16(struct _mpddrc_desc* desc)
 
 	/* timings */
 
-	desc->tpr0 = MPDDRC_TPR0_TRAS(NS2CYCLES(45, mck)) // 45ns
-	           | MPDDRC_TPR0_TRCD(NS2CYCLES(15, mck)) // 15ns
-	           | MPDDRC_TPR0_TWR(NS2CYCLES(15, mck))  // 15ns
-	           | MPDDRC_TPR0_TRC(NS2CYCLES(55, mck))  // 55ns
-	           | MPDDRC_TPR0_TRP(NS2CYCLES(15, mck))  // 15ns
-	           | MPDDRC_TPR0_TRRD(NS2CYCLES(13, mck)) // 12.5ns
-	           | MPDDRC_TPR0_TWTR(NS2CYCLES(10, mck)) // 10ns
-	           | MPDDRC_TPR0_TMRD(NS2CYCLES(8, mck)); // 8ns
-
-	desc->tpr1 = MPDDRC_TPR1_TRFC(NS2CYCLES(198, mck))  // 198ns
-	           | MPDDRC_TPR1_TXSNR(NS2CYCLES(208, mck)) // (tRFC)+10 = 208ns
-	           | MPDDRC_TPR1_TXSRD(200)                 // 200ck
-	           | MPDDRC_TPR1_TXP(2);                    // 2ck
-
-	desc->tpr2 = MPDDRC_TPR2_TXARD(8)                  // 8ck
-	           | MPDDRC_TPR2_TXARDS(2)                 // 2ck
-	           | MPDDRC_TPR2_TRPA(NS2CYCLES(15, mck))  // 15ns
-	           | MPDDRC_TPR2_TRTP(NS2CYCLES(8, mck))   // 8ns
-	           | MPDDRC_TPR2_TFAW(NS2CYCLES(45, mck)); // 45ns
+	memset(&desc->timings, 0, sizeof(desc->timings));
+	desc->timings.tras   = NS2CYCLES(45, mck);  // 45ns
+	desc->timings.trcd   = NS2CYCLES(15, mck);  // 15ns
+	desc->timings.twr    = NS2CYCLES(15, mck);  // 15ns
+	desc->timings.trc    = NS2CYCLES(55, mck);  // 55ns
+	desc->timings.trp    = NS2CYCLES(15, mck);  // 15ns
+	desc->timings.trrd   = NS2CYCLES(13, mck);  // 12.5ns
+	desc->timings.twtr   = NS2CYCLES(10, mck);  // 10ns
+	desc->timings.tmrd   = NS2CYCLES(8, mck);   // 8ns
+	desc->timings.trfc   = NS2CYCLES(198, mck); // 198ns
+	desc->timings.txsnr  = NS2CYCLES(208, mck); // tRFC+10ns
+	desc->timings.txsrd  = 200;                 // 200ck
+	desc->timings.txp    = 2;                   // 2ck
+	desc->timings.txard  = 8;                   // 8ck
+	desc->timings.txards = 2;                   // 2ck
+	desc->timings.trpa   = NS2CYCLES(15, mck);  // 15ns
+	desc->timings.trtp   = NS2CYCLES(8, mck);   // 8ns
+	desc->timings.tfaw   = NS2CYCLES(45, mck);  // 45ns
 
 	desc->refresh_window = 64;
 	desc->refresh_cycles = 8192;
@@ -329,25 +318,24 @@ static void _init_mt47h128m16(struct _mpddrc_desc* desc)
 
 	/* timings */
 
-	desc->tpr0 = MPDDRC_TPR0_TRAS(NS2CYCLES(45, mck)) // 45ns
-	           | MPDDRC_TPR0_TRCD(NS2CYCLES(15, mck)) // 15ns
-	           | MPDDRC_TPR0_TWR(NS2CYCLES(15, mck))  // 15ns
-	           | MPDDRC_TPR0_TRC(NS2CYCLES(55, mck))  // 55ns
-	           | MPDDRC_TPR0_TRP(NS2CYCLES(15, mck))  // 15ns
-	           | MPDDRC_TPR0_TRRD(NS2CYCLES(13, mck)) // 12.5ns
-	           | MPDDRC_TPR0_TWTR(NS2CYCLES(10, mck)) // 10ns
-	           | MPDDRC_TPR0_TMRD(NS2CYCLES(8, mck)); // 8ns
-
-	desc->tpr1 = MPDDRC_TPR1_TRFC(NS2CYCLES(186, mck))  // 186ns
-	           | MPDDRC_TPR1_TXSNR(NS2CYCLES(208, mck)) // (tRFC)+10 = 208ns
-	           | MPDDRC_TPR1_TXSRD(202)                 // 202ck
-	           | MPDDRC_TPR1_TXP(3);                    // 3ck
-
-	desc->tpr2 = MPDDRC_TPR2_TXARD(3)                   // 3ck
-	           | MPDDRC_TPR2_TXARDS(10)                 // 10ck
-	           | MPDDRC_TPR2_TRPA(NS2CYCLES(15, mck))   // 15ns
-	           | MPDDRC_TPR2_TRTP(NS2CYCLES(8, mck))    // 8ns
-	           | MPDDRC_TPR2_TFAW(NS2CYCLES(45, mck));  // 45ns
+	memset(&desc->timings, 0, sizeof(desc->timings));
+	desc->timings.tras   = NS2CYCLES(45, mck);  // 45ns
+	desc->timings.trcd   = NS2CYCLES(15, mck);  // 15ns
+	desc->timings.twr    = NS2CYCLES(15, mck);  // 15ns
+	desc->timings.trc    = NS2CYCLES(55, mck);  // 55ns
+	desc->timings.trp    = NS2CYCLES(15, mck);  // 15ns
+	desc->timings.trrd   = NS2CYCLES(13, mck);  // 12.5ns
+	desc->timings.twtr   = NS2CYCLES(10, mck);  // 10ns
+	desc->timings.tmrd   = NS2CYCLES(8, mck);   // 8ns
+	desc->timings.trfc   = NS2CYCLES(186, mck); // 186ns
+	desc->timings.txsnr  = NS2CYCLES(208, mck); // tRFC+10s
+	desc->timings.txsrd  = 202;                 // 202ck
+	desc->timings.txp    = 3;                   // 3ck
+	desc->timings.txard  = 3;                   // 3ck
+	desc->timings.txards = 10;                  // 10ck
+	desc->timings.trpa   = NS2CYCLES(15, mck);  // 15ns
+	desc->timings.trtp   = NS2CYCLES(8, mck);   // 8ns
+	desc->timings.tfaw   = NS2CYCLES(45, mck);  // 45ns
 
 	desc->refresh_window = 64;
 	desc->refresh_cycles = 8192;
@@ -384,25 +372,20 @@ static void _init_mt42l128m16(struct _mpddrc_desc* desc)
 
 	/* timings */
 
-	desc->tpr0 = MPDDRC_TPR0_TRAS(NS2CYCLES(40, mck)) // 40ns
-	           | MPDDRC_TPR0_TRCD(NS2CYCLES(15, mck)) // 15ns
-	           | MPDDRC_TPR0_TWR(NS2CYCLES(15, mck))  // 15ns
-	           | MPDDRC_TPR0_TRC(NS2CYCLES(60, mck))  // 60ns
-	           | MPDDRC_TPR0_TRP(NS2CYCLES(15, mck))  // 15ns
-	           | MPDDRC_TPR0_TRRD(NS2CYCLES(11, mck)) // 11ns
-	           | MPDDRC_TPR0_TWTR(NS2CYCLES(8, mck))  // 7.5ns
-	           | MPDDRC_TPR0_TMRD(2);                 // 2 clock cycles
-
-	desc->tpr1 = MPDDRC_TPR1_TRFC(NS2CYCLES(130, mck))  // 130ns
-	           | MPDDRC_TPR1_TXSNR(NS2CYCLES(140, mck)) // 140ns
-	           | MPDDRC_TPR1_TXSRD(0)                   // Only for DDR2/3
-	           | MPDDRC_TPR1_TXP(2);                    // 2ck
-
-	desc->tpr2 = MPDDRC_TPR2_TXARD(0)                  // Only for DDR2
-	           | MPDDRC_TPR2_TXARDS(0)                 // Only for DDR2
-	           | MPDDRC_TPR2_TRPA(0)                   // Only for DDR2
-	           | MPDDRC_TPR2_TRTP(NS2CYCLES(8, mck))   // 8ns
-	           | MPDDRC_TPR2_TFAW(NS2CYCLES(50, mck)); // 50ns
+	memset(&desc->timings, 0, sizeof(desc->timings));
+	desc->timings.tras   = NS2CYCLES(40, mck);  // 40ns
+	desc->timings.trcd   = NS2CYCLES(15, mck);  // 15ns
+	desc->timings.twr    = NS2CYCLES(15, mck);  // 15ns
+	desc->timings.trc    = NS2CYCLES(60, mck);  // 60ns
+	desc->timings.trp    = NS2CYCLES(15, mck);  // 15ns
+	desc->timings.trrd   = NS2CYCLES(11, mck);  // 11ns
+	desc->timings.twtr   = NS2CYCLES(8, mck);   // 7.5ns
+	desc->timings.tmrd   = 2;                   // 2ck
+	desc->timings.trfc   = NS2CYCLES(130, mck); // 130ns
+	desc->timings.txsnr  = NS2CYCLES(140, mck); // 140ns
+	desc->timings.txp    = 2;                   // 2ck
+	desc->timings.trtp   = NS2CYCLES(8, mck);   // 8ns
+	desc->timings.tfaw   = NS2CYCLES(50, mck);  // 50ns
 
 	desc->refresh_window = 32;
 	desc->refresh_cycles = 8192;

@@ -41,9 +41,23 @@
 
 static void _set_ddr_timings(struct _mpddrc_desc* desc)
 {
-	MPDDRC->MPDDRC_TPR0 = desc->tpr0;
-	MPDDRC->MPDDRC_TPR1 = desc->tpr1;
-	MPDDRC->MPDDRC_TPR2 = desc->tpr2;
+	MPDDRC->MPDDRC_TPR0 = MPDDRC_TPR0_TMRD(desc->timings.tmrd)
+	                    | MPDDRC_TPR0_TWTR(desc->timings.twtr)
+	                    | MPDDRC_TPR0_TRRD(desc->timings.trrd)
+	                    | MPDDRC_TPR0_TRP(desc->timings.trp)
+	                    | MPDDRC_TPR0_TRC(desc->timings.trc)
+	                    | MPDDRC_TPR0_TWR(desc->timings.twr)
+	                    | MPDDRC_TPR0_TRCD(desc->timings.trcd)
+	                    | MPDDRC_TPR0_TRAS(desc->timings.tras);
+	MPDDRC->MPDDRC_TPR1 = MPDDRC_TPR1_TXP(desc->timings.txp)
+	                    | MPDDRC_TPR1_TXSRD(desc->timings.txsrd)
+	                    | MPDDRC_TPR1_TXSNR(desc->timings.txsnr)
+	                    | MPDDRC_TPR1_TRFC(desc->timings.trfc);
+	MPDDRC->MPDDRC_TPR2 = MPDDRC_TPR2_TFAW(desc->timings.tfaw)
+	                    | MPDDRC_TPR2_TRTP(desc->timings.trtp)
+	                    | MPDDRC_TPR2_TRPA(desc->timings.trpa)
+	                    | MPDDRC_TPR2_TXARDS(desc->timings.txards)
+	                    | MPDDRC_TPR2_TXARD(desc->timings.txard);
 }
 
 /* Compute BA[] offset according to CR configuration */
