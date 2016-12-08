@@ -30,4 +30,3 @@ CFLAGS_INC += -I$(TOP)/lib/lwip/softpack/include
 CFLAGS_INC += -I$(TOP)/lib/lwip/softpack/include/arch
 
 lwip-y += lib/lwip/softpack/netif/ethif.o
-lwip-y += lib/lwip/softpack/sys_arch.o
