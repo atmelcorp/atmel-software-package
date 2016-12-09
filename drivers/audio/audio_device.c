@@ -59,11 +59,13 @@ static void _configure_classd(struct _audio_desc* desc)
 		desc->device.classd.desc.left_enable = true;
 		desc->device.classd.desc.right_enable = true;
 	}
+	desc->device.classd.desc.transfer_mode = CLASSD_MODE_DMA;
+	desc->device.classd.desc.addr = desc->device.classd.addr;
 	classd_configure(&desc->device.classd.desc);
-	classd_set_left_attenuation(30);
-	classd_set_right_attenuation(30);
-	classd_volume_unmute(true, true);
-	classd_enable_channels(true, true);
+	classd_set_left_attenuation(&desc->device.classd.desc, 30);
+	classd_set_right_attenuation(&desc->device.classd.desc, 30);
+	classd_volume_unmute(&desc->device.classd.desc, true, true);
+	classd_enable_channels(&desc->device.classd.desc, true, true);
 }
 #endif
 
@@ -230,9 +232,9 @@ void audio_enable(struct _audio_desc *desc, bool enable)
 		switch (desc->direction) {
 		case AUDIO_DEVICE_PLAY:
 			if (enable)
-				classd_enable_channels(true, true);
+				classd_enable_channels(&desc->device.classd.desc, true, true);
 			else
-				classd_disable_channels(true, true);
+				classd_disable_channels(&desc->device.classd.desc, true, true);
 			break;
 		case AUDIO_DEVICE_RECORD:
 			return;
@@ -282,7 +284,7 @@ void audio_play_mute(struct _audio_desc *desc, bool mute)
 		switch (desc->type) {
 #if defined(CONFIG_HAVE_CLASSD)
 		case AUDIO_DEVICE_CLASSD:
-			classd_volume_mute(true, true);
+			classd_volume_mute(&desc->device.classd.desc, true, true);
 			break;
 #endif
 #if defined(CONFIG_HAVE_SSC)
@@ -315,7 +317,7 @@ void audio_play_mute(struct _audio_desc *desc, bool mute)
 		switch (desc->type) {
 #if defined(CONFIG_HAVE_CLASSD)
 		case AUDIO_DEVICE_CLASSD:
-			classd_volume_unmute(true, true);
+			classd_volume_unmute(&desc->device.classd.desc, true, true);
 			break;
 #endif
 #if defined(CONFIG_HAVE_SSC)
@@ -361,8 +363,8 @@ void audio_play_set_volume(struct _audio_desc *desc, uint8_t vol)
 		case AUDIO_DEVICE_CLASSD:
 			/* classd attenuation range 0~-77db*/
 			val = (AUDIO_PLAY_MAX_VOLUME - vol) * 77 / AUDIO_PLAY_MAX_VOLUME;
-			classd_set_left_attenuation(val);
-			classd_set_right_attenuation(val);
+			classd_set_left_attenuation(&desc->device.classd.desc, val);
+			classd_set_right_attenuation(&desc->device.classd.desc, val);
 			break;
 #endif
 
@@ -409,8 +411,26 @@ void audio_play_set_volume(struct _audio_desc *desc, uint8_t vol)
  */
 void audio_dma_stop(struct _audio_desc *desc)
 {
-	if (desc->dma.channel)
-		dma_stop_transfer(desc->dma.channel);
+	switch (desc->type) {
+#if defined(CONFIG_HAVE_CLASSD)
+	case AUDIO_DEVICE_CLASSD:
+		classd_dma_stop(&desc->device.classd.desc);
+		break;
+#endif
+#if defined(CONFIG_HAVE_SSC)
+	case AUDIO_DEVICE_SSC:
+		break;
+#endif
+#if defined(CONFIG_HAVE_PDMIC)
+	case AUDIO_DEVICE_PDMIC:
+		break;
+#endif
+	default:
+		if (desc->dma.channel)
+			dma_stop_transfer(desc->dma.channel);
+		return;
+
+	}
 }
 
 void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size,
@@ -424,14 +444,15 @@ void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size,
 #if defined(CONFIG_HAVE_CLASSD)
 	case AUDIO_DEVICE_CLASSD:
 		switch (desc->direction) {
-		case AUDIO_DEVICE_PLAY:
-			src_addr = buffer;
-			dst_addr = (uint32_t*)&((desc->device.classd.addr)->CLASSD_THR);
-			desc->dma.cfg.upd_sa_per_data = 1;
-			desc->dma.cfg.upd_da_per_data = 0;
-			if(desc->num_channels > 1)
-				dma_data_width =  DMA_DATA_WIDTH_WORD;
-			break;
+		case AUDIO_DEVICE_PLAY: {
+			struct _buffer _tx = {
+				.data = (uint8_t*)buffer,
+				.size = size,
+				.attr = CLASSD_BUF_ATTR_WRITE,
+			};
+
+			classd_transfer(&desc->device.classd.desc, &_tx, (classd_callback_t)cb, NULL);			}
+		break;
 		case AUDIO_DEVICE_RECORD:
 			/* Do not supported */
 			return;
@@ -503,14 +524,45 @@ void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size,
 
 bool audio_dma_transfer_is_done(struct _audio_desc *desc)
 {
-	if (desc->dma.channel)
-		return dma_is_transfer_done(desc->dma.channel);
+	switch (desc->type) {
+#if defined(CONFIG_HAVE_CLASSD)
+	case AUDIO_DEVICE_CLASSD:
+		return classd_transfer_is_done(&desc->device.classd.desc);
+#endif
+#if defined(CONFIG_HAVE_SSC)
+	case AUDIO_DEVICE_SSC:
+		break;
+#endif
+#if defined(CONFIG_HAVE_PDMIC)
+	case AUDIO_DEVICE_PDMIC:
+		break;
+#endif
+	default:
+		if (desc->dma.channel)
+			return dma_is_transfer_done(desc->dma.channel);
+	}
 	return false;
 }
 
 void audio_set_dma_callback(struct _audio_desc *desc, audio_callback_t cb, void* arg)
 {
-	dma_set_callback(desc->dma.channel, cb, arg);
+	switch (desc->type) {
+#if defined(CONFIG_HAVE_CLASSD)
+	case AUDIO_DEVICE_CLASSD:
+		classd_dma_tx_set_callback(&desc->device.classd.desc, (classd_callback_t)cb, arg);
+		break;
+#endif
+#if defined(CONFIG_HAVE_SSC)
+	case AUDIO_DEVICE_SSC:
+		break;
+#endif
+#if defined(CONFIG_HAVE_PDMIC)
+	case AUDIO_DEVICE_PDMIC:
+		break;
+#endif
+	default:
+		dma_set_callback(desc->dma.channel, cb, arg);
+	}
 }
 
 void audio_sync_adjust(struct _audio_desc *desc, int32_t adjust)

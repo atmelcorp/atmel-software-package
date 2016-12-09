@@ -127,11 +127,10 @@ static const struct _pin classd_pins[] = BOARD_CLASSD_PINS;
  *        Local variables
  *----------------------------------------------------------------------------*/
 
-/** DMA channel for TX */
-static struct _xdmacd_channel*  dma_channel;
 
 /** ClassD Configuration */
 static struct _classd_desc classd_desc = {
+	.addr = CLASSD,
 	.sample_rate = 48000,
 	.mode = BOARD_CLASSD_MODE,
 	.non_ovr = CLASSD_NONOVR_10NS,
@@ -140,6 +139,7 @@ static struct _classd_desc classd_desc = {
 	.mono_mode = BOARD_CLASSD_MONO_MODE,
 	.left_enable = true,
 	.right_enable = true,
+	.transfer_mode = CLASSD_MODE_DMA,
 };
 
 /*----------------------------------------------------------------------------
@@ -154,8 +154,8 @@ static void _display_menu(void)
 	printf("\n\r");
 	printf("Select an option:\n\r");
 	printf("-----------------\n\r");
-	printf("1 -> Play the Demo Audio without DMA\n\r");
-	printf("2 -> Play the Demo Audio with DMA\n\r");
+	printf("1 -> Play the Demo Audio in polling mode\n\r");
+	printf("2 -> Play the Demo Audio in DMA mode\n\r");
 	printf("3 -> Output Audio PMC Clock to PCK1 IOS2\n\r");
 	printf("+ -> Increase the volume (attenuation reduced by 3dB)\n\r");
 	printf("- -> Decrease the volume (attenuation increased by 3dB)\n\r");
@@ -165,15 +165,15 @@ static void _display_menu(void)
 static void _set_attenuation(uint8_t attn)
 {
 	printf("Setting attenuation to -%udB\r\n", (unsigned)attn);
-	classd_set_left_attenuation(attn);
-	classd_set_right_attenuation(attn);
+	classd_set_left_attenuation(&classd_desc, attn);
+	classd_set_right_attenuation(&classd_desc, attn);
 }
 
 static volatile uint32_t start_tick;
 
 static void _playback_start(void)
 {
-	classd_volume_unmute(true, true);
+	classd_volume_unmute(&classd_desc, true, true);
 	printf("<Playback Start>\r\n");
 	start_tick = timer_get_tick();
 }
@@ -183,106 +183,59 @@ static void _playback_stop(void)
 	uint32_t elapsed = timer_get_interval(start_tick, timer_get_tick());
 	printf("<Playback Stop (%ums elapsed)>\r\n",
 			(unsigned)elapsed);
-	classd_volume_mute(true, true);
+	classd_volume_mute(&classd_desc, true, true);
 }
 
-/**
- * \brief DMA driver configuration
- */
-static void _initialize_dma(void)
+static void _dma_callback(struct dma_channel* channel, void* arg)
 {
-	/* Allocate DMA TX channels for CLASSD */
-	dma_channel = xdmacd_allocate_channel(XDMACD_PERIPH_MEMORY, ID_CLASSD);
-	if (dma_channel) {
-		printf("DMA channel allocated\n\r");
-	} else {
-		printf("DMA channel allocation error\n\r");
-	}
-}
-
-/**
- *  \brief Configure DMA transfer
- */
-static void _setup_dma_transfer(void* buffer, uint32_t size)
-{
-	struct _xdmacd_cfg cfg;
-
-	cfg.ubc = size;
-	cfg.bc = 0;
-	cfg.ds = 0;
-	cfg.sus = 0;
-	cfg.dus = 0;
-	cfg.sa = buffer;
-	cfg.da = (void*)&CLASSD->CLASSD_THR;
-	cfg.cfg = XDMAC_CC_TYPE_PER_TRAN
-		| XDMAC_CC_MBSIZE_SINGLE
-		| XDMAC_CC_DSYNC_MEM2PER
-		| XDMAC_CC_CSIZE_CHK_1
-		| XDMAC_CC_DWIDTH_WORD
-		| XDMAC_CC_SIF_AHB_IF0
-		| XDMAC_CC_DIF_AHB_IF1
-		| XDMAC_CC_SAM_INCREMENTED_AM
-		| XDMAC_CC_DAM_FIXED_AM;
-
-	xdmacd_configure_transfer(dma_channel, &cfg, 0, NULL);
-}
-
-/**
- *  \brief DMA callback
- */
-static void _dma_callback(struct _xdmacd_channel *channel, void* arg)
-{
-	bool *done = arg;
-	if (xdmacd_is_transfer_done(channel))
-		*done = true;
+	_playback_stop();
 }
 
 /**
  * \brief Play demonstration audio music with DMA.
  */
-static void _playback_with_dma(uint8_t attn)
+static void _playback_dma_mode(uint8_t attn)
 {
-	uint32_t* audio = (uint32_t*)music_data;
-	uint32_t  audio_length = ARRAY_SIZE(music_data) / sizeof(uint32_t);
-	volatile bool done = false;
-
 	_playback_start();
-	_setup_dma_transfer(audio, audio_length);
-	xdmacd_set_callback(dma_channel, _dma_callback, (void *)&done);
-	xdmacd_start_transfer(dma_channel);
-	while (!done);
-	_playback_stop();
+
+	struct _buffer tx = {
+		.data = (uint8_t*)music_data,
+		.size = ARRAY_SIZE(music_data) / sizeof(uint8_t),
+		.attr = CLASSD_BUF_ATTR_WRITE,
+	};
+
+	classd_desc.transfer_mode = CLASSD_MODE_DMA;
+	classd_transfer(&classd_desc, &tx, (classd_callback_t)_dma_callback, &classd_desc);
+	while (!classd_transfer_is_done(&classd_desc));
 }
 
 
 /**
  * \brief Play demonstration audio music without DMA.
  */
-static void _playback_without_dma(uint8_t attn)
+static void _playback_polling_mode(uint8_t attn)
 {
-	uint32_t* audio = (uint32_t*)music_data;
-	uint32_t  audio_length = ARRAY_SIZE(music_data) / sizeof(uint32_t);
-	uint32_t* audio_end = audio + audio_length;
 
 	_playback_start();
-	while (1) {
-		if (CLASSD->CLASSD_ISR & CLASSD_ISR_DATRDY) {
-			CLASSD->CLASSD_THR = *audio;
-			audio++;
-		}
-		if (audio > audio_end)
-			break;
-	}
-	_playback_stop();
 
+	struct _buffer _tx = {
+		.data = (uint8_t*)music_data,
+		.size = ARRAY_SIZE(music_data) / sizeof(uint8_t),
+		.attr = CLASSD_BUF_ATTR_WRITE,
+	};
+
+	classd_desc.transfer_mode = CLASSD_MODE_POLLING;
+	classd_transfer(&classd_desc, &_tx, NULL, NULL);
+	while (!classd_transfer_is_done(&classd_desc));
+	_playback_stop();
 }
 
 static void _configure_classd(void)
 {
 	printf("Configuring ClassD: Full H-Bridge at %uHz\n\r",
 			(unsigned)classd_desc.sample_rate);
-	if (classd_configure(&classd_desc)) {
-		classd_set_equalizer(CLASSD_EQCFG_FLAT);
+	if (classd_configure(&classd_desc) == 0) {
+		classd_set_equalizer(&classd_desc, CLASSD_EQCFG_FLAT);
 		printf("ClassD configured\r\n");
 	} else {
 		printf("ClassD configuration failed!\r\n");
@@ -316,9 +269,6 @@ extern int main(void)
 	/* configure PIO muxing for ClassD */
 	pio_configure(classd_pins, ARRAY_SIZE(classd_pins));
 
-	/* initialize ClassD DMA channel */
-	_initialize_dma();
-
 	/* configure ClassD */
 	_configure_classd();
 	_set_attenuation(attn);
@@ -328,9 +278,9 @@ extern int main(void)
 		key = console_get_char();
 		printf("%c\r\n", key);
 		if (key == '1') {
-			_playback_without_dma(attn);
+			_playback_polling_mode(attn);
 		} else if (key == '2') {
-			_playback_with_dma(attn);
+			_playback_dma_mode(attn);
 		} else if (key == '3') {
 			_output_audio_pmc_clock_to_pck1();
 		} else if (key == '+') {

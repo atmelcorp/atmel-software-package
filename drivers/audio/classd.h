@@ -39,6 +39,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "chip.h"
+#include "dma/dma.h"
+#include "io.h"
+#include "mutex.h"
+
 /*---------------------------------------------------------------------------
  *         Types
  *---------------------------------------------------------------------------*/
@@ -84,9 +89,27 @@ enum _classd_mono
 	CLASSD_MONO_RIGHT,
 };
 
+enum _classd_trans_mode
+{
+	CLASSD_MODE_POLLING,
+	CLASSD_MODE_DMA,
+	CLASSD_MODE_ASYNC,
+};
+
+enum _classd_buf_attr {
+	CLASSD_BUF_ATTR_WRITE = 0x01,
+	CLASSD_BUF_ATTR_READ  = 0x02,
+};
+
+struct _classd_desc;
+
+typedef void (*classd_callback_t)(struct _classd_desc* desc, void* args);
+
 struct _classd_desc
 {
+	Classd* addr;
 	uint32_t             sample_rate;
+	enum _classd_trans_mode transfer_mode;
 	enum _classd_mode    mode;
 	enum _classd_non_ovr non_ovr;
 	bool                 swap_channels;
@@ -94,35 +117,53 @@ struct _classd_desc
 	enum _classd_mono    mono_mode;
 	bool                 left_enable;
 	bool                 right_enable;
+	struct {
+		mutex_t mutex;
+
+		struct _buffer buffer;
+		uint16_t transferred;
+		classd_callback_t callback;
+		void* cb_args;
+	} tx;
+	struct {
+		struct {
+			struct dma_channel *channel;
+			struct dma_xfer_cfg cfg;
+		} tx;
+	} dma;
 };
 
 /*---------------------------------------------------------------------------
  *         Exported functions
  *---------------------------------------------------------------------------*/
 
-extern bool classd_configure(struct _classd_desc *desc);
+extern int classd_configure(struct _classd_desc *desc);
 
-extern void classd_disable(void);
+extern void classd_disable(struct _classd_desc *desc);
 
-extern void classd_swap_channels(bool swap);
+extern void classd_swap_channels(struct _classd_desc *desc, bool swap);
 
-extern void classd_enable_mono(enum _classd_mono mono_mode);
+extern void classd_set_equalizer(struct _classd_desc *desc, enum _classd_eqcfg eqcfg);
 
-extern void classd_disable_mono(void);
+extern void classd_enable_channels(struct _classd_desc *desc, bool left, bool right);
 
-extern void classd_set_equalizer(enum _classd_eqcfg eqcfg);
+extern void classd_disable_channels(struct _classd_desc *desc, bool left, bool right);
 
-extern void classd_enable_channels(bool left, bool right);
+extern void classd_set_left_attenuation(struct _classd_desc *desc, uint8_t attn);
 
-extern void classd_disable_channels(bool left, bool right);
+extern void classd_set_right_attenuation(struct _classd_desc *desc, uint8_t attn);
 
-extern void classd_set_left_attenuation(uint8_t attn);
+extern void classd_volume_mute(struct _classd_desc *desc, bool left, bool right);
 
-extern void classd_set_right_attenuation(uint8_t attn);
+extern void classd_volume_unmute(struct _classd_desc *desc, bool left, bool right);
 
-extern void classd_volume_mute(bool left, bool right);
+extern int classd_transfer(struct _classd_desc* desc, struct _buffer* buf, classd_callback_t cb, void* arg);
 
-extern void classd_volume_unmute(bool left, bool right);
+extern bool classd_transfer_is_done(struct _classd_desc* desc);
+
+extern void classd_dma_stop(struct _classd_desc* desc);
+
+extern void classd_dma_tx_set_callback(struct _classd_desc* desc, classd_callback_t cb, void* arg);
 
 #endif /* CONFIG_HAVE_CLASSD */
 

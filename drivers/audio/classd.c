@@ -31,14 +31,18 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
-#include "trace.h"
-
-#include "audio/classd.h"
-#include "peripherals/pmc.h"
-
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
+
+#include "audio/classd.h"
+#include "callback.h"
+#include "chip.h"
+#include "errno.h"
+#include "io.h"
+#include "mm/cache.h"
+#include "peripherals/pmc.h"
+#include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Local constants
@@ -49,7 +53,7 @@ static const struct {
 	uint32_t sample_rate;
 	uint32_t dsp_clk;
 } audio_info[] = {
-	{ 8000,  CLASSD_INTPMR_FRAME_FRAME_8K, CLASSD_INTPMR_DSPCLKFREQ_12M288 },
+	{ 8000,  CLASSD_INTPMR_FRAME_FRAME_8K,  CLASSD_INTPMR_DSPCLKFREQ_12M288 },
 	{ 16000, CLASSD_INTPMR_FRAME_FRAME_16K, CLASSD_INTPMR_DSPCLKFREQ_12M288 },
 	{ 32000, CLASSD_INTPMR_FRAME_FRAME_32K, CLASSD_INTPMR_DSPCLKFREQ_12M288 },
 	{ 48000, CLASSD_INTPMR_FRAME_FRAME_48K, CLASSD_INTPMR_DSPCLKFREQ_12M288 },
@@ -98,7 +102,7 @@ static bool _dspclk_configure(uint32_t dsp_clk)
 		uint32_t clk;
 		clk = pmc_get_audio_pmc_clock();
 		trace_debug("Configured Audio PLL PMC Clock: %u (= 8 * %u)\r\n",
-				(unsigned)clk, (unsigned)(clk >> 3));
+			    (unsigned)clk, (unsigned)(clk >> 3));
 	}
 #endif
 
@@ -152,7 +156,7 @@ static bool _set_eqcfg_bits(enum _classd_eqcfg eqcfg, volatile uint32_t *intpmr)
 		break;
 	default:
 		trace_warning("classd: invalid equalizer config %u\r\n",
-				(unsigned)eqcfg);
+			      (unsigned)eqcfg);
 		return false;
 	};
 
@@ -182,7 +186,7 @@ static bool _set_mono_bits(bool mono, enum _classd_mono mono_mode, volatile uint
 			break;
 		default:
 			trace_warning("classd: invalid mono mode %u\r\n",
-					(unsigned)mono_mode);
+				      (unsigned)mono_mode);
 			return false;
 		}
 	}
@@ -195,10 +199,14 @@ static bool _set_mono_bits(bool mono, enum _classd_mono mono_mode, volatile uint
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-bool classd_configure(struct _classd_desc *desc)
+int classd_configure(struct _classd_desc *desc)
 {
 	uint8_t i;
 	uint32_t mr, intpmr, dsp_clk_set, frame_set;
+	uint32_t id = get_classd_id_from_addr(desc->addr);
+
+	if (!desc->left_enable && !desc->right_enable)
+		return -EINVAL;
 
 	for (i = 0; i < ARRAY_SIZE(audio_info); i++) {
 		if (audio_info[i].rate == desc->sample_rate) {
@@ -207,26 +215,23 @@ bool classd_configure(struct _classd_desc *desc)
 			break;
 		}
 	}
-	if(i == ARRAY_SIZE(audio_info))
-		return false;
+	if (i == ARRAY_SIZE(audio_info))
+		return -EINVAL;
 
 	if (!_dspclk_configure(dsp_clk_set))
-		return false;
+		return -EINVAL;
 
-	/* enable peripheral clock, disable audio clock for now */	
-	pmc_configure_peripheral(ID_CLASSD, NULL, true);
-	
 	struct _pmc_periph_cfg cfg = {
 		.gck = {
 			.css = PMC_PCR_GCKCSS_AUDIO_CLK,
 			.div = 1,
 		},
 	};
-	pmc_configure_peripheral(ID_CLASSD, &cfg, false);
+	pmc_configure_peripheral(id, &cfg, true);
 
 	/* perform soft reset */
-	CLASSD->CLASSD_CR  = CLASSD_CR_SWRST;
-	CLASSD->CLASSD_IDR = CLASSD_IDR_DATRDY;
+	desc->addr->CLASSD_CR  = CLASSD_CR_SWRST;
+	desc->addr->CLASSD_IDR = CLASSD_IDR_DATRDY;
 
 	/* initial MR/INTPMR values */
 	mr = 0;
@@ -247,7 +252,7 @@ bool classd_configure(struct _classd_desc *desc)
 		break;
 	default:
 		trace_warning("classd: invalid mode %u\n", (unsigned)desc->mode);
-		return false;
+		return -EINVAL;
 	}
 
 	/* configure non-overlapping time */
@@ -267,8 +272,8 @@ bool classd_configure(struct _classd_desc *desc)
 			break;
 		default:
 			trace_warning("classd: invalid non overlap value %u\r\n",
-					(unsigned)desc->non_ovr);
-			return false;
+				      (unsigned)desc->non_ovr);
+			return -EINVAL;
 		}
 	}
 
@@ -276,7 +281,7 @@ bool classd_configure(struct _classd_desc *desc)
 	if (desc->swap_channels)
 		intpmr |= CLASSD_INTPMR_SWAP;
 	if (!_set_mono_bits(desc->mono, desc->mono_mode, &intpmr))
-		return false;
+		return -EINVAL;
 
 	/* configure left channel (muted, max attn) */
 	if (desc->left_enable)
@@ -291,101 +296,211 @@ bool classd_configure(struct _classd_desc *desc)
 	intpmr |= CLASSD_INTPMR_ATTR(CLASSD_INTPMR_ATTL_Msk);
 
 	/* write configuration */
-	CLASSD->CLASSD_MR = mr;
-	CLASSD->CLASSD_INTPMR = intpmr;
+	desc->addr->CLASSD_MR = mr;
+	desc->addr->CLASSD_INTPMR = intpmr;
 
-	/* enable audio clock */
-	pmc_enable_gck(ID_CLASSD);
+	desc->dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
+	assert(desc->dma.tx.channel != NULL);
 
-	return (CLASSD->CLASSD_INTSR & CLASSD_INTSR_CFGERR) == 0;
+	desc->tx.mutex = 0;
+
+	if ((desc->addr->CLASSD_INTSR & CLASSD_INTSR_CFGERR) != 0)
+		return -ENODEV;
+
+	return 0;
 }
 
-void classd_disable(void)
+void classd_disable(struct _classd_desc *desc)
 {
+	uint32_t id = get_classd_id_from_addr(desc->addr);
+
 	pmc_disable_audio();
-	pmc_disable_gck(ID_CLASSD);
-	pmc_disable_peripheral(ID_CLASSD);
+	pmc_disable_gck(id);
+	pmc_disable_peripheral(id);
 }
 
-void classd_swap_channels(bool swap)
+void classd_swap_channels(struct _classd_desc *desc, bool swap)
 {
 	if (swap) {
-		CLASSD->CLASSD_INTPMR |= CLASSD_INTPMR_SWAP;
+		desc->addr->CLASSD_INTPMR |= CLASSD_INTPMR_SWAP;
 	} else {
-		CLASSD->CLASSD_INTPMR &= ~CLASSD_INTPMR_SWAP;
+		desc->addr->CLASSD_INTPMR &= ~CLASSD_INTPMR_SWAP;
 	}
 }
 
-void classd_enable_mono(enum _classd_mono mono_mode)
+void classd_set_equalizer(struct _classd_desc *desc, enum _classd_eqcfg eqcfg)
 {
-	_set_mono_bits(true, mono_mode, &CLASSD->CLASSD_INTPMR);
+	_set_eqcfg_bits(eqcfg, &desc->addr->CLASSD_INTPMR);
 }
 
-void classd_disable_mono(void)
-{
-	_set_mono_bits(false, CLASSD_MONO_MIXED, &CLASSD->CLASSD_INTPMR);
-}
-
-void classd_set_equalizer(enum _classd_eqcfg eqcfg)
-{
-	_set_eqcfg_bits(eqcfg, &CLASSD->CLASSD_INTPMR);
-}
-
-void classd_enable_channels(bool left, bool right)
+void classd_enable_channels(struct _classd_desc *desc, bool left, bool right)
 {
 	uint32_t bits = 0;
 	if (left)
 		bits |= CLASSD_MR_LEN;
 	if (right)
 		bits |= CLASSD_MR_REN;
-	CLASSD->CLASSD_MR |= bits;
+	desc->addr->CLASSD_MR |= bits;
 }
 
-void classd_disable_channels(bool left, bool right)
+void classd_disable_channels(struct _classd_desc *desc, bool left, bool right)
 {
 	uint32_t bits = 0;
 	if (left)
 		bits |= CLASSD_MR_LEN;
 	if (right)
 		bits |= CLASSD_MR_REN;
-	CLASSD->CLASSD_MR &= ~bits;
+	desc->addr->CLASSD_MR &= ~bits;
 }
 
-void classd_set_left_attenuation(uint8_t attn)
+void classd_set_left_attenuation(struct _classd_desc *desc, uint8_t attn)
 {
 	if (attn < 1 || attn > 0x3f)
 		return;
 
-	uint32_t intpmr = CLASSD->CLASSD_INTPMR & ~CLASSD_INTPMR_ATTL_Msk;
-	CLASSD->CLASSD_INTPMR = intpmr | CLASSD_INTPMR_ATTL(attn);
+	uint32_t intpmr = desc->addr->CLASSD_INTPMR & ~CLASSD_INTPMR_ATTL_Msk;
+	desc->addr->CLASSD_INTPMR = intpmr | CLASSD_INTPMR_ATTL(attn);
 }
 
-void classd_set_right_attenuation(uint8_t attn)
+void classd_set_right_attenuation(struct _classd_desc *desc, uint8_t attn)
 {
 	if (attn < 1 || attn > 0x3f)
 		return;
 
-	uint32_t intpmr = CLASSD->CLASSD_INTPMR & ~CLASSD_INTPMR_ATTR_Msk;
-	CLASSD->CLASSD_INTPMR = intpmr | CLASSD_INTPMR_ATTR(attn);
+	uint32_t intpmr = desc->addr->CLASSD_INTPMR & ~CLASSD_INTPMR_ATTR_Msk;
+	desc->addr->CLASSD_INTPMR = intpmr | CLASSD_INTPMR_ATTR(attn);
 }
 
-void classd_volume_mute(bool left, bool right)
+void classd_volume_mute(struct _classd_desc *desc, bool left, bool right)
 {
 	uint32_t bits = 0;
 	if (left)
 		bits |= CLASSD_MR_LMUTE;
 	if (right)
 		bits |= CLASSD_MR_RMUTE;
-	CLASSD->CLASSD_MR |= bits;
+	desc->addr->CLASSD_MR |= bits;
 }
 
-void classd_volume_unmute(bool left, bool right)
+void classd_volume_unmute(struct _classd_desc *desc, bool left, bool right)
 {
 	uint32_t bits = 0;
 	if (left)
 		bits |= CLASSD_MR_LMUTE;
 	if (right)
 		bits |= CLASSD_MR_RMUTE;
-	CLASSD->CLASSD_MR &= ~bits;
+	desc->addr->CLASSD_MR &= ~bits;
 }
 
+
+static void _classd_dma_transfer_callback(struct dma_channel* channel, void* args)
+{
+	struct _classd_desc* desc = (struct _classd_desc *)args;
+
+	dma_reset_channel(channel);
+
+	if (desc->tx.callback)
+		desc->tx.callback(desc, desc->tx.cb_args);
+
+	mutex_unlock(&desc->tx.mutex);
+}
+
+
+static void _classd_dma_transfer(struct _classd_desc* desc, struct _buffer* buffer)
+{
+	uint32_t id = get_classd_id_from_addr(desc->addr);
+
+	assert(id < ID_PERIPH_COUNT);
+
+	memset(&desc->dma.tx.cfg, 0x0, sizeof(desc->dma.tx.cfg));
+
+	assert(desc->dma.tx.channel);
+
+	desc->dma.tx.cfg.sa = buffer->data;
+	desc->dma.tx.cfg.da = (void*)&desc->addr->CLASSD_THR;
+	desc->dma.tx.cfg.upd_sa_per_data = 1;
+	desc->dma.tx.cfg.upd_da_per_data = 0;
+	desc->dma.tx.cfg.blk_size = 0;
+	desc->dma.tx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
+
+	if (desc->left_enable && desc->right_enable) {
+		desc->dma.tx.cfg.data_width = DMA_DATA_WIDTH_WORD;
+		desc->dma.tx.cfg.len  = buffer->size / 4;
+	} else {
+		desc->dma.tx.cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
+		desc->dma.tx.cfg.len  = buffer->size / 2;
+	}
+	dma_configure_transfer(desc->dma.tx.channel, &desc->dma.tx.cfg);
+	dma_set_callback(desc->dma.tx.channel, _classd_dma_transfer_callback, (void*)desc);
+	cache_clean_region(desc->dma.tx.cfg.sa, desc->dma.tx.cfg.len);
+	dma_start_transfer(desc->dma.tx.channel);
+}
+
+static void _classd_polling_transfer(struct _classd_desc* desc, struct _buffer* buffer)
+{
+	uint16_t* start = (uint16_t*)buffer->data;
+	uint32_t  length = buffer->size / sizeof(uint16_t);
+	uint16_t* end = start + length;
+	uint16_t* current = start;
+
+	while (1) {
+		if (desc->addr->CLASSD_ISR & CLASSD_ISR_DATRDY) {
+			desc->addr->CLASSD_THR = *current;
+			current++;
+		}
+		if (current >= end)
+			break;
+	}
+	if (desc->tx.callback)
+		desc->tx.callback(desc, desc->tx.cb_args);
+
+	mutex_unlock(&desc->tx.mutex);
+}
+
+int classd_transfer(struct _classd_desc* desc, struct _buffer* buf, classd_callback_t cb, void* arg)
+{
+	uint8_t tmode;
+
+	tmode = desc->transfer_mode;
+
+	if ((buf == NULL) || (buf->size == 0))
+		return -EINVAL;
+
+	if (buf->attr & CLASSD_BUF_ATTR_WRITE) {
+		mutex_lock(&desc->tx.mutex);
+
+		desc->tx.transferred = 0;
+		desc->tx.buffer.data = buf->data;
+		desc->tx.buffer.size = buf->size;
+		desc->tx.buffer.attr = buf->attr;
+		if(cb) {
+			desc->tx.callback = cb;
+			desc->tx.cb_args = arg;
+		}
+		if (tmode == CLASSD_MODE_DMA)
+			_classd_dma_transfer(desc, buf);
+		else if (tmode == CLASSD_MODE_POLLING)
+			_classd_polling_transfer(desc, buf);
+	}
+	return 0;
+}
+
+bool classd_transfer_is_done(struct _classd_desc* desc)
+{
+	return (!mutex_is_locked(&desc->tx.mutex));
+}
+
+void classd_dma_stop(struct _classd_desc* desc)
+{
+	if (desc->transfer_mode == CLASSD_MODE_DMA) {
+		if (desc->dma.tx.channel){
+			dma_stop_transfer(desc->dma.tx.channel);
+			mutex_unlock(&desc->tx.mutex);
+		}
+	}
+}
+
+void classd_dma_tx_set_callback(struct _classd_desc* desc, classd_callback_t cb, void* arg)
+{
+	desc->tx.callback = cb;
+	desc->tx.cb_args = arg;
+}

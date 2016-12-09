@@ -260,15 +260,14 @@ static void _play_start(void)
 {
 	printf("<Play Start>\r\n");
 	_start_tick = timer_get_tick();
-	classd_volume_unmute(true, true);
-
+	classd_volume_unmute(&classd_desc, true, true);
 }
 
 static void _play_stop(void)
 {
 	uint32_t elapsed = timer_get_interval(_start_tick, timer_get_tick());
 	printf("<Play Stop (%ums elapsed)>\r\n", (unsigned)elapsed);
-	classd_volume_mute(true, true);
+	classd_volume_mute(&classd_desc, true, true);
 }
 
 /**
@@ -321,8 +320,7 @@ static void _record_sound_polling(void)
 static void _playback_using_classd(void)
 {
 	/* our Classd support 16 bit sound only*/
-	volatile uint16_t *audio = _sound_buffer;
-	volatile uint32_t current_sample = 0;
+	uint32_t  audio_length = SAMPLE_COUNT * 2;
 
 	if (!_sound_recorded) {
 	       printf("Please record the sound first\n\r");
@@ -330,23 +328,24 @@ static void _playback_using_classd(void)
 	}
 
 	classd_configure(&classd_desc);
-	classd_set_equalizer(CLASSD_EQCFG_FLAT);
+	classd_set_equalizer(&classd_desc, CLASSD_EQCFG_FLAT);
 
-	classd_set_left_attenuation(INITIAL_ATTENUATION);
-	classd_set_right_attenuation(INITIAL_ATTENUATION);
-	classd_volume_unmute(true, true);
+	classd_set_left_attenuation(&classd_desc, INITIAL_ATTENUATION);
+	classd_set_right_attenuation(&classd_desc, INITIAL_ATTENUATION);
+	classd_volume_unmute(&classd_desc, true, true);
 	_play_start();
 
-	while (current_sample < SAMPLE_COUNT) {
-		if (CLASSD->CLASSD_ISR & CLASSD_ISR_DATRDY) {
-			CLASSD->CLASSD_THR = *audio;
-			audio++;
-			current_sample++;
-		}
-	}
+	struct _buffer _tx = {
+		.data = (uint8_t*)_sound_buffer,
+		.size = audio_length,
+		.attr = CLASSD_BUF_ATTR_WRITE,
+	};
+
+	classd_desc.transfer_mode = CLASSD_MODE_POLLING;
+	classd_transfer(&classd_desc, &_tx, NULL, NULL);
 
 	_play_stop();
-	classd_volume_mute(true, true);
+	classd_volume_mute(&classd_desc, true, true);
 
 }
 
@@ -396,5 +395,4 @@ int main(void)
 				printf("Gain is already at min (-70dB)\r\n");
 		}
 	}
-
 }
