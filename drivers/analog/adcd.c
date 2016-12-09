@@ -65,10 +65,8 @@ static void _adcd_transfer_buffer_dma(struct _adcd_desc* desc)
 	struct dma_xfer_cfg cfg;
 
 	adc_start_conversion();
-	/* Allocate one DMA channel for writing message blocks to AES_IDATARx */
-	desc->xfer.dma.channel = dma_allocate_channel(ID_ADC, DMA_PERIPH_MEMORY);
-	assert(desc->xfer.dma.channel);
 
+	dma_reset_channel(desc->xfer.dma.channel);
 	memset(&cfg, 0, sizeof(cfg));
 	cfg.sa = (void*)&ADC->ADC_LCDR;
 	cfg.da = (void *)(desc->xfer.buf->data);
@@ -270,10 +268,14 @@ void adcd_initialize(struct _adcd_desc* desc)
 	adc_set_tag_enable(true);
 
 	irq_add_handler(ID_ADC, _adcd_handler, desc);
+
+	/* Allocate one DMA channel for receive data from ADC_LCDR */
+	desc->xfer.dma.channel = dma_allocate_channel(ID_ADC, DMA_PERIPH_MEMORY);
+	assert(desc->xfer.dma.channel);
 }
 
 uint32_t adcd_transfer(struct _adcd_desc* desc, struct _buffer* buffer,
-						adcd_callback_t cb, void* user_args)
+		       adcd_callback_t cb, void* user_args)
 {
 	if (!mutex_try_lock(&desc->mutex))
 		return ADCD_ERROR_LOCK;

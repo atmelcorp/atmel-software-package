@@ -107,13 +107,10 @@ static void _usartd_dma_read(uint8_t iface)
 {
 	assert(iface < USART_IFACE_COUNT);
 	struct _usart_desc* desc = _serial[iface];
-	uint32_t id = get_usart_id_from_addr(desc->addr);
 
 	memset(&desc->dma.rx.cfg, 0x0, sizeof(desc->dma.rx.cfg));
 
-	desc->dma.rx.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
-	assert(desc->dma.rx.channel);
-
+	dma_reset_channel(desc->dma.rx.channel);
 	desc->dma.rx.cfg.sa = (void *)&desc->addr->US_RHR;
 	desc->dma.rx.cfg.da = desc->rx.buffer.data;
 	desc->dma.rx.cfg.upd_sa_per_data = 0;
@@ -133,13 +130,10 @@ static void _usartd_dma_write(uint8_t iface)
 {
 	assert(iface < USART_IFACE_COUNT);
 	struct _usart_desc* desc = _serial[iface];
-	uint32_t id = get_usart_id_from_addr(desc->addr);
 
 	memset(&desc->dma.tx.cfg, 0x0, sizeof(desc->dma.tx.cfg));
 
-	desc->dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
-	assert(desc->dma.tx.channel);
-
+	dma_reset_channel(desc->dma.tx.channel);
 	desc->dma.tx.cfg.sa = desc->tx.buffer.data;
 	desc->dma.tx.cfg.da = (void *)&desc->addr->US_THR;
 	desc->dma.tx.cfg.upd_sa_per_data = 1;
@@ -268,6 +262,12 @@ void usartd_configure(uint8_t iface, struct _usart_desc* config)
 	if (config->use_fifo)
 		usart_fifo_enable(config->addr);
 #endif
+
+	config->dma.rx.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
+	assert(config->dma.rx.channel);
+
+	config->dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
+	assert(config->dma.tx.channel);
 }
 
 uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf, usartd_callback_t cb, void* user_args)

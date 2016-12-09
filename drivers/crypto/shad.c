@@ -79,13 +79,10 @@ static void _shad_transfer_buffer_dma(struct _shad_desc* desc)
 	uint32_t offset = 0;
 	uint32_t blk_size;
 
+	dma_reset_channel(desc->xfer.dma.tx.channel);
 	cache_clean_region((uint32_t*)desc->xfer.bufin->data,
 						desc->xfer.bufin->size);
 
-	/* Allocate one DMA channel for writing message blocks to SHA_IDATARx */
-	desc->xfer.dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, ID_SHA);
-	assert(desc->xfer.dma.tx.channel);
-	
 	/* For the first block of a message, the FIRST command must be set by
 	 * setting the corresponding bit of the Control Register (SHA_CR). For
 	 * the other blocks, there is nothing to write in this Control Register. */
@@ -233,13 +230,17 @@ void shad_wait_transfer(struct _shad_desc* desc)
 	}
 }
 
-void shad_init(void)
+void shad_init(struct _shad_desc* desc)
 {
 	/* Enable peripheral clock */
 	pmc_configure_peripheral(ID_SHA, NULL, true);
 	/* Enable peripheral interrupt */
 	irq_add_handler(ID_SHA, _shad_handler, NULL);
 	irq_enable(ID_SHA);
+
+	/* Allocate one DMA channel for writing message blocks to SHA_IDATARx */
+	desc->xfer.dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, ID_SHA);
+	assert(desc->xfer.dma.tx.channel);
 }
 
 /**

@@ -94,12 +94,9 @@ static void _tdesd_transfer_buffer_dma(struct _tdesd_desc* desc)
 	uint32_t width_in_byte;
 	uint32_t blk_size;
 
+	dma_reset_channel(desc->xfer.dma.tx.channel);
 	cache_clean_region((uint32_t*)desc->xfer.bufin->data,
 						desc->xfer.bufin->size);
-
-	/* Allocate one DMA channel for writing message blocks to AES_IDATARx */
-	desc->xfer.dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, ID_TDES);
-	assert(desc->xfer.dma.tx.channel);
 
 	remains = desc->xfer.bufin->size;
 	width_in_byte = DMA_DATA_WIDTH_IN_BYTE(_tdesd_get_dma_data_width(desc));
@@ -131,10 +128,7 @@ static void _tdesd_transfer_buffer_dma(struct _tdesd_desc* desc)
 	dma_configure_sg_transfer(desc->xfer.dma.tx.channel, &cfg, NULL);
 	dma_set_callback(desc->xfer.dma.tx.channel, _tdesd_dma_callback, (void*)desc);
 
-	/* Allocate one DMA channel for obtaining the result from AES_ODATARx.*/
-	desc->xfer.dma.rx.channel = dma_allocate_channel(ID_TDES, DMA_PERIPH_MEMORY);
-	assert(desc->xfer.dma.rx.channel);
-
+	dma_reset_channel(desc->xfer.dma.rx.channel);
 	remains = desc->xfer.bufout->size;
 	offset = 0;
 
@@ -281,13 +275,21 @@ void tdesd_wait_transfer(struct _tdesd_desc* desc)
 	}
 }
 
-void tdesd_init(void)
+void tdesd_init(struct _tdesd_desc* desc)
 {
 	/* Enable peripheral clock */
 	pmc_configure_peripheral(ID_TDES, NULL, true);
 	/* Enable peripheral interrupt */
 	irq_add_handler(ID_TDES, _tdesd_handler, NULL);
 	irq_enable(ID_TDES);
+
+	/* Allocate one DMA channel for writing message blocks to TDESx`_IDATAR */
+	desc->xfer.dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, ID_TDES);
+	assert(desc->xfer.dma.tx.channel);
+
+	/* Allocate one DMA channel for obtaining the result from TAESx_ODATARx.*/
+	desc->xfer.dma.rx.channel = dma_allocate_channel(ID_TDES, DMA_PERIPH_MEMORY);
+	assert(desc->xfer.dma.rx.channel);
 }
 
 void tdesd_configure_mode(struct _tdesd_desc* desc)

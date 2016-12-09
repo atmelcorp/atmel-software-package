@@ -119,7 +119,7 @@ struct _aesd_desc {
  *----------------------------------------------------------------------------*/
 extern void aesd_configure_mode(struct _aesd_desc* desc);
 
-extern void aesd_init(void);
+extern void aesd_init(struct _aesd_desc* desc);
 
 extern uint32_t aesd_transfer(struct _aesd_desc* desc, 
 		struct _buffer* buffer_in, struct _buffer* buffer_out, 

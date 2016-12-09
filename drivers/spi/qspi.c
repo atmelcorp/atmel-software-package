@@ -64,10 +64,7 @@ static void qspi_memcpy(uint8_t *dst, const uint8_t *src, int count, bool use_dm
 {
 	uint32_t rc;
 #ifdef CONFIG_HAVE_QSPI_DMA
-	if (use_dma) {
-		dma_ch = dma_allocate_channel(DMA_PERIPH_MEMORY, DMA_PERIPH_MEMORY);
-		if (!dma_ch)
-			trace_fatal("Couldn't allocate XDMA channel\n\r");
+	if(use_dma) {
 		dma_cfg.da = (void *)dst;
 		dma_cfg.sa = (void *)src;
 		dma_cfg.len = count;
@@ -77,9 +74,7 @@ static void qspi_memcpy(uint8_t *dst, const uint8_t *src, int count, bool use_dm
 			trace_fatal("Couldn't start xDMA transfer\n\r");
 		while (!dma_is_transfer_done(dma_ch))
 			dma_poll();
-		dma_stop_transfer(dma_ch);
-		dma_free_channel(dma_ch);
-		dma_ch = NULL;
+		dma_reset_channel(dma_ch);
 		dsb();
 	} else
 #endif
@@ -109,6 +104,12 @@ void qspi_initialize(Qspi *qspi)
 
 	/* Enable */
 	qspi->QSPI_CR = QSPI_CR_QSPIEN;
+
+#ifdef CONFIG_HAVE_QSPI_DMA
+	dma_ch = dma_allocate_channel(DMA_PERIPH_MEMORY, DMA_PERIPH_MEMORY);
+	if (!dma_ch)
+		trace_fatal("Couldn't allocate XDMA channel\n\r");
+#endif
 }
 
 uint32_t qspi_set_baudrate(Qspi *qspi, uint32_t baudrate)

@@ -383,7 +383,7 @@ int main(void)
 	/* Output example information */
 	console_example_info("SHA Example");
 
-	shad_init();
+	shad_init(&shad);
 
 	/* Display menu */
 	shad.cfg.mode = SHAD_MODE_SHA1;

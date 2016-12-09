@@ -130,12 +130,9 @@ static void _aesd_transfer_buffer_dma(struct _aesd_desc* desc)
 	uint32_t blk_size;
 	uint32_t offset = 0;
 
+	dma_reset_channel(desc->xfer.dma.tx.channel);
 	cache_clean_region((uint32_t*)desc->xfer.bufin->data,
 						desc->xfer.bufin->size);
-
-	/* Allocate one DMA channel for writing message blocks to AES_IDATARx */
-	desc->xfer.dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, ID_AES);
-	assert(desc->xfer.dma.tx.channel);
 
 	width_in_byte = 1 << _aesd_get_dma_data_width(desc);
 	remains = desc->xfer.bufin->size;
@@ -166,10 +163,7 @@ static void _aesd_transfer_buffer_dma(struct _aesd_desc* desc)
 	dma_configure_sg_transfer(desc->xfer.dma.tx.channel, &cfg, NULL);
 	dma_set_callback(desc->xfer.dma.tx.channel, _aesd_dma_callback, (void*)desc);
 
-	/* Allocate one DMA channel for obtaining the result from AES_ODATARx.*/
-	desc->xfer.dma.rx.channel = dma_allocate_channel(ID_AES, DMA_PERIPH_MEMORY);
-	assert(desc->xfer.dma.rx.channel);
-
+	dma_reset_channel(desc->xfer.dma.rx.channel);
 	remains = desc->xfer.bufout->size;
 	offset = 0;
 	for (;;) {
@@ -317,12 +311,20 @@ void aesd_configure_mode(struct _aesd_desc* desc)
 		aes_set_vector(&desc->cfg.vector[0]);
 }
 
-void aesd_init(void)
+void aesd_init(struct _aesd_desc* desc)
 {
 	/* Enable peripheral clock */
 	pmc_configure_peripheral(ID_AES, NULL, true);
 	/* Enable peripheral interrupt */
 	irq_add_handler(ID_AES, _aesd_handler, NULL);
 	irq_enable(ID_AES);
+
+	/* Allocate one DMA channel for writing message blocks to AES_IDATARx */
+	desc->xfer.dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, ID_AES);
+	assert(desc->xfer.dma.tx.channel);
+
+	/* Allocate one DMA channel for obtaining the result from AES_ODATARx.*/
+	desc->xfer.dma.rx.channel = dma_allocate_channel(ID_AES, DMA_PERIPH_MEMORY);
+	assert(desc->xfer.dma.rx.channel);
 }
 

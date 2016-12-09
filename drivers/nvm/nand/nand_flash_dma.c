@@ -103,6 +103,7 @@ uint8_t nand_dma_write(uint32_t src_address, uint32_t dest_address,
 {
 	struct dma_xfer_cfg cfg;
 
+	dma_reset_channel(nand_dma_tx_channel);
 	cache_clean_region((uint32_t *)src_address, size);
 
 	cfg.sa = (uint32_t *)src_address;
@@ -141,6 +142,7 @@ uint8_t nand_dma_read(uint32_t src_address, uint32_t dest_address,
 {
 	struct dma_xfer_cfg cfg;
 
+	dma_reset_channel(nand_dma_rx_channel);
 	cfg.sa = (uint32_t *)src_address;
 	cfg.da = (uint32_t *)dest_address;
 	cfg.upd_sa_per_data = 1;

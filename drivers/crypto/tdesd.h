@@ -119,7 +119,7 @@ struct _tdesd_desc {
  *        Functions
  *----------------------------------------------------------------------------*/
 
-extern void tdesd_init(void);
+extern void tdesd_init(struct _tdesd_desc* desc);
 
 extern uint32_t tdesd_transfer(struct _tdesd_desc* desc, 
 		struct _buffer* buffer_in, struct _buffer* buffer_out, 

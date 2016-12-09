@@ -206,14 +206,9 @@ static void _twid_dma_read_callback(struct dma_channel* channel, void* args)
 
 static void _twid_dma_read(struct _twi_desc* desc, struct _buffer* buffer)
 {
-	uint32_t id = get_twi_id_from_addr(desc->addr);
-
-	assert(id < ID_PERIPH_COUNT);
-
 	memset(&desc->dma.rx.cfg, 0, sizeof(desc->dma.rx.cfg));
 
-	desc->dma.rx.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
-	assert(desc->dma.rx.channel);
+	dma_reset_channel(desc->dma.rx.channel);
 
 	desc->dma.rx.cfg.sa = (void*)&desc->addr->TWI_RHR;
 	desc->dma.rx.cfg.da = buffer->data;
@@ -277,15 +272,9 @@ static void _twid_dma_write_callback(struct dma_channel* channel, void* args)
 
 static void _twid_dma_write(struct _twi_desc* desc, struct _buffer* buffer)
 {
-	uint32_t id = get_twi_id_from_addr(desc->addr);
-
-	assert(id < ID_PERIPH_COUNT);
-
 	memset(&desc->dma.tx.cfg, 0x0, sizeof(desc->dma.tx.cfg));
 
-	desc->dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
-	assert(desc->dma.tx.channel);
-
+	dma_reset_channel(desc->dma.tx.channel);
 	desc->dma.tx.cfg.sa = buffer->data;
 	desc->dma.tx.cfg.da = (void*)&desc->addr->TWI_THR;
 	desc->dma.tx.cfg.upd_sa_per_data = 1;
@@ -673,6 +662,12 @@ void twid_configure(struct _twi_desc* desc)
 	if (desc->use_fifo)
 		twi_fifo_enable(desc->addr, true);
 #endif
+
+	desc->dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
+	assert(desc->dma.tx.channel);
+
+	desc->dma.rx.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
+	assert(desc->dma.rx.channel);
 
 	desc->mutex = 0;
 }

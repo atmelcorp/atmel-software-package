@@ -337,7 +337,7 @@ int main(void)
 	/* Output example information */
 	console_example_info("AES Example");
 
-	aesd_init();
+	aesd_init(&aesd);
 
 	/* Display menu */
 	aesd.cfg.mode = AESD_MODE_ECB;

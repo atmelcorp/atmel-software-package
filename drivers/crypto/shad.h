@@ -97,7 +97,7 @@ struct _shad_desc {
  *        Functions
  *----------------------------------------------------------------------------*/
 
-extern void shad_init(void);
+extern void shad_init(struct _shad_desc* desc);
 
 extern uint32_t shad_transfer(struct _shad_desc* desc,
 		struct _buffer* buffer_in, struct _buffer* buffer_out,

@@ -89,17 +89,17 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
-#include "board.h"
-
-#include "mm/cache.h"
-#include "dma/dma.h"
-#include "serial/console.h"
-
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
+
+#include "board.h"
+#include "chip.h"
 #include "compiler.h"
+#include "dma/dma.h"
+#include "mm/cache.h"
+#include "mutex.h"
+#include "serial/console.h"
 #include "trace.h"
 
 /*----------------------------------------------------------------------------
@@ -146,7 +146,7 @@ static uint8_t dma_src_addr_mode = 0;
 static uint8_t dma_dest_addr_mode = 0;
 
 /** DMA transfer completion notifier */
-static volatile bool transfer_complete = false;
+static mutex_t tx_done;
 
 /*----------------------------------------------------------------------------
  *         Local functions
@@ -212,8 +212,9 @@ static void _display_menu(void)
  */
 static void _dma_callback(struct dma_channel *channel, void *arg)
 {
+	dma_reset_channel(channel);
+	mutex_unlock(&tx_done);
 	trace_info("DMA transfer complete\n\r");
-	transfer_complete = true;
 }
 
 /**
@@ -279,7 +280,7 @@ static uint8_t _start_dma_transfer(void)
 	_dump_buffer(src_buf);
 
 	/* Start transfer */
-	transfer_complete = false;
+	mutex_lock(&tx_done);
 
 	cache_clean_region(src_buf, BUFFER_LEN);
 	cache_clean_region(dest_buf, BUFFER_LEN);
@@ -287,7 +288,7 @@ static uint8_t _start_dma_transfer(void)
 
 	dma_start_transfer(dma_chan);
 	/* Wait for completion */
-	while (!transfer_complete) {
+	while (mutex_is_locked(&tx_done)) {
 		/* always call dma_poll, it will do nothing if polling mode
 		 * is disabled */
 		dma_poll();
@@ -312,6 +313,8 @@ extern int main(void)
 {
 	uint8_t key;
 	bool configured = false;
+
+	tx_done = 0;
 
 	/* Output example information */
 	console_example_info("DMA Example");

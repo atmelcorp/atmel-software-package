@@ -345,7 +345,7 @@ int main(void)
 	/* Output example information */
 	console_example_info("TDES Example");
 
-	tdesd_init();
+	tdesd_init(&tdesd);
 
 	/* Display menu */
 	tdesd.cfg.algo = TDESD_ALGO_SINGLE;

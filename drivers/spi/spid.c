@@ -120,9 +120,7 @@ static void _spid_dma_write(struct _spi_desc* desc, uint8_t *buf, uint32_t len)
 
 	memset(&desc->xfer.dma.tx.cfg, 0, sizeof(desc->xfer.dma.tx.cfg));
 
-	desc->xfer.dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
-	assert(desc->xfer.dma.tx.channel);
-
+	dma_reset_channel(desc->xfer.dma.tx.channel);
 	desc->xfer.dma.tx.cfg.da = (void*)&desc->addr->SPI_TDR;
 	desc->xfer.dma.tx.cfg.sa = buf;
 	desc->xfer.dma.tx.cfg.upd_sa_per_data = 1;
@@ -136,9 +134,7 @@ static void _spid_dma_write(struct _spi_desc* desc, uint8_t *buf, uint32_t len)
 
 	memset(&desc->xfer.dma.rx.cfg, 0, sizeof(desc->xfer.dma.rx.cfg));
 
-	desc->xfer.dma.rx.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
-	assert(desc->xfer.dma.rx.channel);
-
+	dma_reset_channel(desc->xfer.dma.rx.channel);
 	desc->xfer.dma.rx.cfg.sa = (void*)&desc->addr->SPI_RDR;
 	desc->xfer.dma.rx.cfg.da = &_garbage;
 	desc->xfer.dma.rx.cfg.upd_sa_per_data = 0;
@@ -160,9 +156,7 @@ static void _spid_dma_read(struct _spi_desc* desc, uint8_t *buf, uint32_t len)
 
 	memset(&desc->xfer.dma.tx.cfg, 0, sizeof(desc->xfer.dma.tx.cfg));
 
-	desc->xfer.dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
-	assert(desc->xfer.dma.tx.channel);
-
+	dma_reset_channel(desc->xfer.dma.tx.channel);
 	desc->xfer.dma.tx.cfg.da = (void*)&desc->addr->SPI_TDR;
 	desc->xfer.dma.tx.cfg.sa = &_garbage;
 	desc->xfer.dma.tx.cfg.upd_sa_per_data = 0;
@@ -176,9 +170,7 @@ static void _spid_dma_read(struct _spi_desc* desc, uint8_t *buf, uint32_t len)
 
 	memset(&desc->xfer.dma.rx.cfg, 0, sizeof(desc->xfer.dma.rx.cfg));
 
-	desc->xfer.dma.rx.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
-	assert(desc->xfer.dma.rx.channel);
-
+	dma_reset_channel(desc->xfer.dma.rx.channel);
 	desc->xfer.dma.rx.cfg.sa = (void*)&desc->addr->SPI_RDR;
 	desc->xfer.dma.rx.cfg.da = buf;
 	desc->xfer.dma.rx.cfg.upd_sa_per_data = 0;
@@ -423,6 +415,12 @@ void spid_configure(struct _spi_desc* desc)
 	spi_disable_it(desc->addr, ~0u);
 	irq_add_handler(id, _spid_handler, desc);
 	irq_enable(id);
+
+	desc->xfer.dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
+	assert(desc->xfer.dma.tx.channel);
+
+	desc->xfer.dma.rx.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
+	assert(desc->xfer.dma.rx.channel);
 
 	spi_enable(desc->addr);
 }
