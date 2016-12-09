@@ -31,74 +31,69 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
-#include "trace.h"
-
-#include "audio/pdmic.h"
-#include "peripherals/pmc.h"
-#include "dma/dma.h"
-
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 
-/*----------------------------------------------------------------------------
- *        Local variables
- *----------------------------------------------------------------------------*/
-
-static struct dma_channel *pdmic_dma_channel;
-
-static uint8_t pdmic_dsp_size = PDMIC_DSPR0_SIZE_16;
+#include "audio/pdmic.h"
+#include "chip.h"
+#include "dma/dma.h"
+#include "errno.h"
+#include "mm/cache.h"
+#include "peripherals/pmc.h"
+#include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-void pdmic_enable(void)
+void pdmic_enable(struct _pdmic_desc* desc)
 {
-	pmc_enable_gck(ID_PDMIC);
-	pmc_enable_peripheral(ID_PDMIC);
+	uint32_t id = get_pdmic_id_from_addr(desc->addr);
+
+	pmc_enable_gck(id);
+	pmc_enable_peripheral(id);
 	/* Enable the overrun error interrupt */
-	PDMIC->PDMIC_IER = PDMIC_IER_OVRE;
+	desc->addr->PDMIC_IER = PDMIC_IER_OVRE;
 }
 
-
-void pdmic_disable(void)
+void pdmic_disable(struct _pdmic_desc* desc)
 {
+	uint32_t id = get_pdmic_id_from_addr(desc->addr);
+
 	/* Disable the overrun error interrupt */
-	PDMIC->PDMIC_IDR = PDMIC_IDR_OVRE;
-	pmc_disable_gck(ID_PDMIC);
-	pmc_disable_peripheral(ID_PDMIC);
+	desc->addr->PDMIC_IDR = PDMIC_IDR_OVRE;
+	pmc_disable_gck(id);
+	pmc_disable_peripheral(id);
 }
 
-
-bool pdmic_configure(struct _pdmic_desc *desc)
+int pdmic_configure(struct _pdmic_desc *desc)
 {
 	uint32_t mr_val;
 	uint32_t dspr0_val, dspr1_val;
 	uint32_t pclk_rate, gclk_rate;
 	uint32_t pclk_prescal, gclk_prescal;
 	uint32_t f_pdmic;
+	uint32_t id = get_pdmic_id_from_addr(desc->addr);
 
-	PDMIC->PDMIC_CR = (PDMIC->PDMIC_CR & ~PDMIC_CR_ENPDM) | PDMIC_CR_SWRST;
+	desc->addr->PDMIC_CR = (desc->addr->PDMIC_CR & ~PDMIC_CR_ENPDM) | PDMIC_CR_SWRST;
 
 	if (desc->channels != 1) {
 		trace_error("only supports one channel\n");
-		return false;
+		return -EINVAL;
 	}
 
 	switch (desc->dsp_size) {
 	case PDMIC_CONVERTED_DATA_SIZE_16:
 		dspr0_val = PDMIC_DSPR0_SIZE_16;
-		pdmic_dsp_size = PDMIC_DSPR0_SIZE_16;
 		break;
 
 	case PDMIC_CONVERTED_DATA_SIZE_32:
 		dspr0_val = PDMIC_DSPR0_SIZE_32;
-		pdmic_dsp_size = PDMIC_DSPR0_SIZE_32;
 		break;
 
 	default:
-		return false;
+		return -EINVAL;
 	}
 
 	switch (desc->dsp_osr) {
@@ -111,7 +106,7 @@ bool pdmic_configure(struct _pdmic_desc *desc)
 		break;
 
 	default:
-		return false;
+		return -EINVAL;
 	}
 
 	switch (desc->dsp_hpfbyp) {
@@ -124,7 +119,7 @@ bool pdmic_configure(struct _pdmic_desc *desc)
 		break;
 
 	default:
-		return false;
+		return -EINVAL;
 	}
 
 	switch (desc->dsp_sinbyp) {
@@ -137,13 +132,13 @@ bool pdmic_configure(struct _pdmic_desc *desc)
 		break;
 
 	default:
-		return false;
+		return -EINVAL;
 	}
 
 	if (desc->dsp_shift < PDMIC_DSPR_SHIFT_MAX_VAL)
 		dspr0_val |= PDMIC_DSPR0_SHIFT(desc->dsp_shift);
 	else
-		return false;
+		return -EINVAL;
 
 	if (desc->dsp_scale < PDMIC_DSPR_SCALE_MAX_VAL)
 		dspr0_val |= PDMIC_DSPR0_SCALE(desc->dsp_scale);
@@ -155,15 +150,15 @@ bool pdmic_configure(struct _pdmic_desc *desc)
 	if (desc->dsp_dgain < PDMIC_DSPR_DGAIN_MAX_VAL)
 		dspr1_val |= PDMIC_DSPR1_DGAIN(desc->dsp_dgain);
 	else
-		return false;
+		return -EINVAL;
 
-	PDMIC->PDMIC_DSPR0 = dspr0_val;
-	PDMIC->PDMIC_DSPR1 = dspr1_val;
+	desc->addr->PDMIC_DSPR0 = dspr0_val;
+	desc->addr->PDMIC_DSPR1 = dspr1_val;
 
 	f_pdmic = (desc->sample_rate * desc->dsp_osr);
 
-	pclk_rate = pmc_get_peripheral_clock(ID_PDMIC);
-	gclk_rate = pmc_get_gck_clock(ID_PDMIC);
+	pclk_rate = pmc_get_peripheral_clock(id);
+	gclk_rate = pmc_get_gck_clock(id);
 
 	/* PRESCAL = SELCK/(2*f_pdmic) - 1*/
 	pclk_prescal = (uint32_t)(pclk_rate / (f_pdmic << 1)) - 1;
@@ -175,17 +170,19 @@ bool pdmic_configure(struct _pdmic_desc *desc)
 		mr_val = PDMIC_MR_PRESCAL(gclk_prescal) | PDMIC_MR_CLKS_GCLK;
 	} else {
 		trace_error("PDMIC Prescal configure error");
-		return false;
+		return -EINVAL;
 	}
 
-	/* write configuration */
-	PDMIC->PDMIC_MR = mr_val;
+	desc->dma.rx.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
+	assert(desc->dma.rx.channel);
 
-	return true;
+	/* write configuration */
+	desc->addr->PDMIC_MR = mr_val;
+
+	return 0;
 }
 
-
-bool pdmic_set_gain(uint16_t dgain, uint8_t scale)
+int pdmic_set_gain(struct _pdmic_desc* desc, uint16_t dgain, uint8_t scale)
 {
 	uint32_t dspr0_scale, dspr1_dgain;
 
@@ -194,45 +191,33 @@ bool pdmic_set_gain(uint16_t dgain, uint8_t scale)
 		dspr0_scale = PDMIC_DSPR0_SCALE(scale);
 		dspr1_dgain = PDMIC_DSPR1_DGAIN(dgain);
 
-		PDMIC->PDMIC_DSPR0 &= ~PDMIC_DSPR0_SCALE_Msk;
-		PDMIC->PDMIC_DSPR1 &= ~PDMIC_DSPR1_DGAIN_Msk;
+		desc->addr->PDMIC_DSPR0 &= ~PDMIC_DSPR0_SCALE_Msk;
+		desc->addr->PDMIC_DSPR1 &= ~PDMIC_DSPR1_DGAIN_Msk;
 
-		PDMIC->PDMIC_DSPR0 |= dspr0_scale;
-		PDMIC->PDMIC_DSPR1 |= dspr1_dgain;
+		desc->addr->PDMIC_DSPR0 |= dspr0_scale;
+		desc->addr->PDMIC_DSPR1 |= dspr1_dgain;
 
-		return true;
+		return 0;
 	}
 
-	return false;
+	return -EINVAL;
 }
 
-void pdmic_stream_convert(bool flag)
+void pdmic_stream_convert(struct _pdmic_desc* desc, bool flag)
 {
 	if (flag)
-		PDMIC->PDMIC_CR |= PDMIC_CR_ENPDM;
+		desc->addr->PDMIC_CR |= PDMIC_CR_ENPDM;
 	else
-		PDMIC->PDMIC_CR &= ~PDMIC_CR_ENPDM;
+		desc->addr->PDMIC_CR &= ~PDMIC_CR_ENPDM;
 }
 
-/**
- * \brief Pdmic DMA channel initialize
- */
-static void pdmic_dma_init(void)
+int pdmic_init(struct _pdmic_desc *desc)
 {
-	/* Allocate DMA TX channels for pdmic */
-	pdmic_dma_channel = dma_allocate_channel(ID_PDMIC, DMA_PERIPH_MEMORY);
+	uint32_t id = get_pdmic_id_from_addr(desc->addr);
 
-	if (!pdmic_dma_channel) {
-		trace_info("PDMIC DMA channel allocation error\n\r");
-	}
-}
-
-
-bool pdmic_init(struct _pdmic_desc *desc)
-{
 #if (TRACE_LEVEL >= TRACE_LEVEL_DEBUG)
 	uint32_t pclk, gclk;
-	pclk = pmc_get_peripheral_clock(ID_PDMIC);
+	pclk = pmc_get_peripheral_clock(id);
 	trace_debug("-- PDMIC PCLK: %uMHz --\n\r", (unsigned)(pclk / 1000000));
 #endif
 
@@ -245,46 +230,125 @@ bool pdmic_init(struct _pdmic_desc *desc)
 			.div = 18,
 		},
 	};
-	pmc_configure_peripheral(ID_PDMIC, &cfg, false);
+	pmc_configure_peripheral(id, &cfg, false);
 
 #if (TRACE_LEVEL >= TRACE_LEVEL_DEBUG)
-	gclk = pmc_get_gck_clock(ID_PDMIC);
+	gclk = pmc_get_gck_clock(id);
 	trace_debug("-- PDMIC GCLK: %uMHz --\n\r", (unsigned)(gclk / 1000000));
 #endif
-
-	pdmic_dma_init();
-	pdmic_enable();
+	pdmic_enable(desc);
 
 	return pdmic_configure(desc);
 }
 
-bool pdmic_data_ready(void)
+bool pdmic_data_ready(struct _pdmic_desc* desc)
 {
-	return (PDMIC->PDMIC_ISR & PDMIC_ISR_DRDY) == PDMIC_ISR_DRDY;
+	return (desc->addr->PDMIC_ISR & PDMIC_ISR_DRDY) == PDMIC_ISR_DRDY;
 }
 
-void pdmic_dma_transfer(void *buffer, uint32_t size,
-		dma_callback_t callback, void *user_arg)
+static void _pdmic_dma_read_callback(struct dma_channel* channel, void* args)
 {
-	struct dma_xfer_cfg cfg;
-	/* Configure PDMIC DMA transfer */
+  	struct _pdmic_desc* desc = (struct _pdmic_desc *)args;
 
-	cfg.sa = (void *)&PDMIC->PDMIC_CDR;
-	cfg.da = buffer;
-	cfg.upd_sa_per_data = 0;
-	cfg.upd_da_per_data = 1;
-	cfg.blk_size = 0;
-	cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	cache_invalidate_region(desc->dma.rx.cfg.da, desc->dma.rx.cfg.len);
 
-	if (pdmic_dsp_size == PDMIC_DSPR0_SIZE_32) {
-		cfg.len = size / 4;
-		cfg.data_width = DMA_DATA_WIDTH_WORD;
+	dma_free_channel(channel);
+
+	if (desc->rx.callback)
+		desc->rx.callback(desc, desc->rx.cb_args);
+
+	mutex_unlock(&desc->rx.mutex);
+}
+
+static void _pdmic_dma_transfer(struct _pdmic_desc* desc, struct _buffer* buffer)
+{
+	memset(&desc->dma.rx.cfg, 0, sizeof(desc->dma.rx.cfg));
+
+	desc->dma.rx.cfg.sa = (void*)&desc->addr->PDMIC_CDR;
+	desc->dma.rx.cfg.da = buffer->data;
+	desc->dma.rx.cfg.upd_sa_per_data = 0;
+	desc->dma.rx.cfg.upd_da_per_data = 1;
+	desc->dma.rx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
+
+	if (desc->dsp_size == PDMIC_CONVERTED_DATA_SIZE_32) {
+		desc->dma.rx.cfg.len = buffer->size / 4;
+		desc->dma.rx.cfg.data_width = DMA_DATA_WIDTH_WORD;
 	} else {
-		cfg.len = size / 2;
-		cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
+		desc->dma.rx.cfg.len = buffer->size / 2;
+		desc->dma.rx.cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
+	}
+	dma_configure_transfer(desc->dma.rx.channel, &desc->dma.rx.cfg);
+	dma_set_callback(desc->dma.rx.channel, _pdmic_dma_read_callback, (void*)desc);
+	dma_start_transfer(desc->dma.rx.channel);
+}
+
+static void _pdmic_polling_transfer(struct _pdmic_desc* desc, struct _buffer* buffer)
+{
+	uint16_t* data = (uint16_t*)buffer->data;
+	uint32_t  length = buffer->size / sizeof(uint16_t);
+	volatile uint32_t current = 0;
+
+
+	while (current < length) {
+		if (pdmic_data_ready(desc)) {
+			/* start copy data from PDMIC_CDR to memory */
+			*data = desc->addr->PDMIC_CDR;
+			data++;
+			current++;
+		}
 	}
 
-	dma_configure_transfer(pdmic_dma_channel, &cfg);
-	dma_set_callback(pdmic_dma_channel, callback, user_arg);
-	dma_start_transfer(pdmic_dma_channel);
+	if (desc->rx.callback)
+		desc->rx.callback(desc, desc->rx.cb_args);
+
+	mutex_unlock(&desc->rx.mutex);
+}
+
+int pdmic_transfer(struct _pdmic_desc* desc, struct _buffer* buf, pdmic_callback_t cb, void* user_args)
+{
+	uint8_t tmode;
+
+	tmode = desc->transfer_mode;
+
+	if ((buf == NULL) || (buf->size == 0))
+		return -EINVAL;
+
+	if (buf->attr & PDMIC_BUF_ATTR_READ) {
+		mutex_lock(&desc->rx.mutex);
+
+		desc->rx.transferred = 0;
+		desc->rx.buffer.data = buf->data;
+		desc->rx.buffer.size = buf->size;
+		desc->rx.buffer.attr = buf->attr;
+		desc->rx.callback = cb;
+		desc->rx.cb_args = user_args;
+
+		if(tmode == PDMIC_MODE_DMA)
+			_pdmic_dma_transfer(desc, buf);
+		else if (tmode == PDMIC_MODE_POLLING)
+			_pdmic_polling_transfer(desc, buf);
+	}
+
+	return 0;
+}
+
+bool pdmic_transfer_is_done(struct _pdmic_desc* desc)
+{
+	return (!mutex_is_locked(&desc->rx.mutex));
+}
+
+void pdmic_dma_set_callback(struct _pdmic_desc* desc, pdmic_callback_t cb, void* arg)
+{
+	desc->rx.callback = cb;
+	desc->rx.cb_args = arg;
+}
+
+void pdmic_dma_stop(struct _pdmic_desc* desc)
+{
+	if (desc->transfer_mode == PDMIC_MODE_DMA) {
+		if (desc->dma.rx.channel){
+			dma_stop_transfer(desc->dma.rx.channel);
+			mutex_unlock(&desc->rx.mutex);
+		}
+	}
 }

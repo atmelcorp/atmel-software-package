@@ -31,17 +31,19 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
-#include "trace.h"
-
-#include "dma/dma.h"
-#include "audio_device.h"
-
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
+#include "audio_device.h"
+#include "chip.h"
+#include "dma/dma.h"
 #include "mm/cache.h"
+#include "trace.h"
+
+/*----------------------------------------------------------------------------
+ *        Local functions
+ *----------------------------------------------------------------------------*/
 
 #if defined(CONFIG_HAVE_CLASSD)
 /**
@@ -118,7 +120,7 @@ static void _configure_ssc(struct _audio_desc *desc)
 	audio_enable(desc, false);
 }
 
-#endif
+#endif /* CONFIG_HAVE_SSC */
 
 #if defined(CONFIG_HAVE_PDMIC)
 static void _configure_pdmic(struct _audio_desc *desc)
@@ -186,7 +188,7 @@ static uint32_t _get_audio_id_from_addr(struct _audio_desc *desc)
 #endif
 #if defined(CONFIG_HAVE_PDMIC)
 	case AUDIO_DEVICE_PDMIC:
-		return ID_PDMIC;
+		return get_pdmic_id_from_addr(desc->device.pdmic.addr);
 #endif
 	default:
 		return ID_PERIPH_COUNT;
@@ -265,7 +267,7 @@ void audio_enable(struct _audio_desc *desc, bool enable)
 		case AUDIO_DEVICE_PLAY:
 			return;
 		case AUDIO_DEVICE_RECORD:
-			pdmic_stream_convert(enable);
+			pdmic_stream_convert(&desc->device.pdmic.desc, enable);
 			break;
 		}
 		break;
@@ -423,6 +425,7 @@ void audio_dma_stop(struct _audio_desc *desc)
 #endif
 #if defined(CONFIG_HAVE_PDMIC)
 	case AUDIO_DEVICE_PDMIC:
+		pdmic_dma_stop(&desc->device.pdmic.desc);
 		break;
 #endif
 	default:
@@ -451,8 +454,10 @@ void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size,
 				.attr = CLASSD_BUF_ATTR_WRITE,
 			};
 
-			classd_transfer(&desc->device.classd.desc, &_tx, (classd_callback_t)cb, NULL);			}
+			classd_transfer(&desc->device.classd.desc, &_tx, (classd_callback_t)cb, NULL);
+		}
 		break;
+
 		case AUDIO_DEVICE_RECORD:
 			/* Do not supported */
 			return;
@@ -485,9 +490,15 @@ void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size,
 			/* Do not supported */
 			return;
 
-		case AUDIO_DEVICE_RECORD:
-			pdmic_dma_transfer(buffer, size, cb, NULL);
-			return;
+		case AUDIO_DEVICE_RECORD: {
+			struct _buffer _rx = {
+				.data = (uint8_t*)buffer,
+				.size = size,
+				.attr = PDMIC_BUF_ATTR_READ,
+			};
+
+			pdmic_transfer(&desc->device.pdmic.desc, &_rx, (pdmic_callback_t)cb, NULL);
+		} break;
 		}
 		break;
 #endif
@@ -535,7 +546,7 @@ bool audio_dma_transfer_is_done(struct _audio_desc *desc)
 #endif
 #if defined(CONFIG_HAVE_PDMIC)
 	case AUDIO_DEVICE_PDMIC:
-		break;
+		return pdmic_transfer_is_done(&desc->device.pdmic.desc);
 #endif
 	default:
 		if (desc->dma.channel)
@@ -558,6 +569,7 @@ void audio_set_dma_callback(struct _audio_desc *desc, audio_callback_t cb, void*
 #endif
 #if defined(CONFIG_HAVE_PDMIC)
 	case AUDIO_DEVICE_PDMIC:
+		pdmic_dma_set_callback(&desc->device.pdmic.desc, (pdmic_callback_t)cb, arg);
 		break;
 #endif
 	default:

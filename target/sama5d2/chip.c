@@ -559,10 +559,20 @@ Sdmmc* get_sdmmc_addr_from_id(uint32_t id)
 
 uint32_t get_classd_id_from_addr(const Classd* addr)
 {
+#ifdef CLASSD
 	if (addr == CLASSD)
 		return ID_CLASSD;
-	else
-		return ID_PERIPH_COUNT;
+#endif
+	return ID_PERIPH_COUNT;
+}
+
+uint32_t get_pdmic_id_from_addr(const Pdmic* addr)
+{
+#ifdef PDMIC
+	if (addr == PDMIC)
+		return ID_PDMIC;
+#endif
+	return ID_PERIPH_COUNT;
 }
 
 uint32_t get_ssc_id_from_addr(const Ssc* addr)

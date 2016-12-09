@@ -31,13 +31,24 @@
 #define _PDMIC_H
 
 /*---------------------------------------------------------------------------
- *         Includes
+ *         Headers
  *---------------------------------------------------------------------------*/
 
 #include "dma/dma.h"
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "callback.h"
+#include "chip.h"
+#include "mutex.h"
+#include "io.h"
+#include "chip.h"
+#include <stdbool.h>
+#include <stdint.h>
+
+/*---------------------------------------------------------------------------
+ *         Constants
+ *---------------------------------------------------------------------------*/
 
 #define PDMIC_OVER_SAMPLING_RATIO_64        (64)
 #define PDMIC_OVER_SAMPLING_RATIO_128       (128)
@@ -56,12 +67,31 @@
 #define PDMIC_DSPR_SHIFT_MAX_VAL (16)
 #define PDMIC_DSPR_DGAIN_MAX_VAL (32768)
 
+#define PDMIC_SUCCESS           (0)
+#define PDMIC_INVALID_PARAMETER (1)
+#define PDMIC_ERROR_LOCK        (2)
 
 /*---------------------------------------------------------------------------
  *         Types
  *---------------------------------------------------------------------------*/
 
+enum _pdmic_trans_mode
+{
+	PDMIC_MODE_POLLING,
+	PDMIC_MODE_DMA,
+	PDMIC_MODE_ASYNC,
+};
+
+enum _pdmic_buf_attr {
+	PDMIC_BUF_ATTR_READ  = 0x02,
+};
+struct _pdmic_desc;
+
+typedef void (*pdmic_callback_t)(struct _pdmic_desc* desc, void* args);
+
 struct _pdmic_desc {
+	Pdmic *addr;
+	enum _pdmic_trans_mode transfer_mode;
 	uint32_t sample_rate;
 	uint8_t  channels;
 	uint8_t  dsp_osr;
@@ -72,28 +102,47 @@ struct _pdmic_desc {
 	uint8_t  dsp_shift;
 	uint16_t dsp_dgain;
 	uint16_t dsp_offset;
-};
+	struct {
+		mutex_t mutex;
 
+		struct _buffer buffer;
+		uint16_t transferred;
+		pdmic_callback_t callback;
+		void* cb_args;
+	} rx;
+	struct {
+		struct {
+			struct dma_channel *channel;
+			struct dma_xfer_cfg cfg;
+		} rx;
+	} dma;
+};
 
 /*---------------------------------------------------------------------------
  *         Exported functions
  *---------------------------------------------------------------------------*/
 
-extern bool pdmic_configure(struct _pdmic_desc *desc);
+extern int pdmic_configure(struct _pdmic_desc *desc);
 
-extern void pdmic_disable(void);
+extern void pdmic_disable(struct _pdmic_desc* desc);
 
-extern void pdmic_enable(void);
+extern void pdmic_enable(struct _pdmic_desc* desc);
 
-extern bool pdmic_set_gain(uint16_t dgain, uint8_t scale);
+extern int pdmic_set_gain(struct _pdmic_desc* desc, uint16_t dgain, uint8_t scale);
 
-extern void pdmic_stream_convert(bool flag);
+extern void pdmic_stream_convert(struct _pdmic_desc* desc, bool flag);
 
-extern bool pdmic_init(struct _pdmic_desc *desc);
+extern int pdmic_init(struct _pdmic_desc *desc);
 
-extern bool pdmic_data_ready(void);
+extern bool pdmic_data_ready(struct _pdmic_desc* desc);
 
-extern void pdmic_dma_transfer(void *buffer, uint32_t size,
-		dma_callback_t callback, void *user_arg);
+extern int pdmic_transfer(struct _pdmic_desc* desc, struct _buffer* buf,
+			  pdmic_callback_t cb, void* user_args);
+
+extern void pdmic_dma_stop(struct _pdmic_desc* desc);
+
+extern bool pdmic_transfer_is_done(struct _pdmic_desc* desc);
+
+extern void pdmic_dma_set_callback(struct _pdmic_desc* desc, pdmic_callback_t cb, void* arg);
 
 #endif /* _PDMIC_H */

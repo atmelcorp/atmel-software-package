@@ -479,11 +479,19 @@ extern uint32_t get_sdmmc_id_from_addr(const Sdmmc* addr);
  * \return SDMMC base address on success, 0 otherwise
  */
 extern Sdmmc* get_sdmmc_addr_from_id(uint32_t id);
+
 /**
  * \brief retrieve CLASSD ID from its base address
  * \return CLASSD ID on success, ID_PERIPH_COUNT otherwise
  */
 extern uint32_t get_classd_id_from_addr(const Classd* addr);
+
+/**
+ * \brief retrieve PDMIC ID from its base address
+ * \return PDMIC ID on success, ID_PERIPH_COUNT otherwise
+ */
+extern uint32_t get_pdmic_id_from_addr(const Pdmic* addr);
+
 
 /**
  * \brief retrieve SSC ID from its base address

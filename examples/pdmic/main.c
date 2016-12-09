@@ -94,25 +94,22 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
-#include "board.h"
-#include "compiler.h"
-#include "trace.h"
-#include "timer.h"
-#include "wav.h"
-
-#include "audio/pdmic.h"
-#include "audio/classd.h"
-#include "gpio/pio.h"
-#include "peripherals/pmc.h"
-#include "dma/dma.h"
-
-#include "serial/console.h"
-
-#include <string.h>
-#include <stdio.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
 
+#include "audio/classd.h"
+#include "audio/pdmic.h"
+#include "board.h"
+#include "chip.h"
+#include "compiler.h"
+#include "dma/dma.h"
+#include "mm/cache.h"
+#include "peripherals/pmc.h"
+#include "serial/console.h"
+#include "timer.h"
+#include "trace.h"
+#include "wav.h"
 
 /*----------------------------------------------------------------------------
  *         Local constants
@@ -155,13 +152,13 @@ static const struct {
 
 static uint32_t _start_tick;
 
-SECTION(".region_ddr")
-static uint16_t _sound_buffer[SAMPLE_COUNT];
+CACHE_ALIGNED_DDR static uint16_t _sound_buffer[SAMPLE_COUNT];
 
 static bool _sound_recorded = false;
 
 /** pdmic Configuration */
 static struct _pdmic_desc pdmic_desc = {
+	.addr = PDMIC,
 	.sample_rate = SAMPLE_RATE,
 	.channels = 1,
 	.dsp_size = PDMIC_CONVERTED_DATA_SIZE_16,
@@ -181,6 +178,7 @@ static struct _pdmic_desc pdmic_desc = {
 
 /** ClassD Configuration */
 static struct _classd_desc classd_desc = {
+	.addr = CLASSD,
 	.sample_rate = SAMPLE_RATE,
 	.mode = BOARD_CLASSD_MODE,
 	.non_ovr = CLASSD_NONOVR_10NS,
@@ -236,7 +234,7 @@ static void _set_gain(int8_t gain)
 		return;
 	}
 
-	pdmic_set_gain(pdmic_desc.dsp_dgain, pdmic_desc.dsp_scale);
+	pdmic_set_gain(&pdmic_desc, pdmic_desc.dsp_dgain, pdmic_desc.dsp_scale);
 }
 
 
@@ -244,7 +242,7 @@ static void _record_start(void)
 {
 	printf("<Record Start>\r\n");
 	_start_tick = timer_get_tick();
-	pdmic_stream_convert(true);
+	pdmic_stream_convert(&pdmic_desc, true);
 	_sound_recorded = false;
 }
 
@@ -252,7 +250,7 @@ static void _record_stop(void)
 {
 	uint32_t elapsed = timer_get_interval(_start_tick, timer_get_tick());
 	printf("<Record Stop (%ums elapsed)>\r\n", (unsigned)elapsed);
-	pdmic_stream_convert(false);
+	pdmic_stream_convert(&pdmic_desc, false);
 	_sound_recorded = true;
 }
 
@@ -275,8 +273,7 @@ static void _play_stop(void)
  */
 static void _pdmic_dma_callback(struct dma_channel *channel, void *arg)
 {
-	bool *done = arg;
-	*done = true;
+	_record_stop();
 }
 
 /**
@@ -288,9 +285,15 @@ static void _record_sound_with_dma(void)
 	volatile bool done = false;
 
 	_record_start();
-	pdmic_dma_transfer((void *)_sound_buffer, audio_length, _pdmic_dma_callback, (void*)&done);
-	while (!done);
-	_record_stop();
+
+	struct _buffer _rx = {
+		.data = (uint8_t*)_sound_buffer,
+		.size = audio_length,
+		.attr = PDMIC_BUF_ATTR_READ,
+	};
+
+	pdmic_transfer(&pdmic_desc, &_rx, (pdmic_callback_t)_pdmic_dma_callback, (void*)&done);
+	while (!pdmic_transfer_is_done(&pdmic_desc));
 }
 
 /**
@@ -298,19 +301,18 @@ static void _record_sound_with_dma(void)
  */
 static void _record_sound_polling(void)
 {
-	uint16_t *sound_data = _sound_buffer;
-	volatile uint32_t current_sample = 0;
+	uint32_t  audio_length = SAMPLE_COUNT * 2;
 
 	_record_start();
-	while (current_sample < SAMPLE_COUNT) {
-		if (pdmic_data_ready()) {
-			/* start copy data from PDMIC_CDR to memory */
-			*sound_data = PDMIC->PDMIC_CDR;
-			sound_data++;
-			current_sample++;
-		}
 
-	}
+	struct _buffer _rx = {
+		.data = (uint8_t*)_sound_buffer,
+		.size = audio_length,
+		.attr = PDMIC_BUF_ATTR_READ,
+	};
+
+	pdmic_transfer(&pdmic_desc, &_rx, NULL, NULL);
+
 	_record_stop();
 }
 
@@ -365,10 +367,10 @@ int main(void)
 	/* Output example information */
 	console_example_info("PDMIC Example");
 
-	if (pdmic_init(&pdmic_desc))
-		printf("PDMIC configured\r\n");
+	if (pdmic_init(&pdmic_desc) == 0)
+		trace_info("PDMIC configured\r\n");
 	else
-		printf("PDMIC configuration failed!\r\n");
+		trace_fatal("PDMIC configuration failed!\r\n");
 
 	while (1) {
 		_display_menu();
