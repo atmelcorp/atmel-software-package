@@ -246,6 +246,12 @@ extern uint32_t xdmacd_resume_transfer(struct _xdmacd_channel *channel);
 extern uint32_t xdmacd_get_remaining_data_len(struct _xdmacd_channel *channel);
 
 /**
+ * \brief Reset the specified DMA chanel.
+ * \param channel Channel pointer
+ */
+extern uint32_t xdmacd_reset_channel(struct _xdmacd_channel *channel);
+
+/**
  * \brief  Get next descriptor's address for the relevant channel of given XDMA.
  * \param channel Channel pointer
  */

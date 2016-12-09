@@ -311,7 +311,7 @@ static uint32_t dmacd_prepare_channel(struct _dmacd_channel *channel)
 	/* Clear status */
 	dmac_get_global_isr(dmac);
 
-	/* Enable clock of the DMA peripheral */	
+	/* Enable clock of the DMA peripheral */
 	pmc_configure_peripheral(get_dmac_id_from_addr(dmac), NULL, true);
 
 	/* Clear status */
@@ -334,7 +334,7 @@ static uint32_t dmacd_prepare_channel(struct _dmacd_channel *channel)
 
 bool dmacd_is_transfer_done(struct _dmacd_channel *channel)
 {
-	return ((channel->state != DMACD_STATE_STARTED) 
+	return ((channel->state != DMACD_STATE_STARTED)
 			&& (channel->state != DMACD_STATE_SUSPENDED));
 }
 
@@ -414,7 +414,7 @@ uint32_t dmacd_start_transfer(struct _dmacd_channel *channel)
 
 	/* Start DMA transfer */
 	if (!_dmacd.polling) {
-		dmac_enable_global_it(channel->dmac, ((DMAC_EBCIDR_CBTC0 | DMAC_EBCIER_BTC0 | DMAC_EBCIER_ERR0) << channel->id));
+		dmac_enable_global_it(channel->dmac, (DMAC_EBCIDR_CBTC0 | DMAC_EBCIER_BTC0 | DMAC_EBCIER_ERR0) << channel->id);
 	}
 	dmac_enable_channel(channel->dmac, channel->id);
 	return DMACD_OK;
@@ -429,6 +429,28 @@ uint32_t dmacd_stop_transfer(struct _dmacd_channel *channel)
 
 	/* Clear pending status */
 	dmac_get_global_isr(dmac);
+
+	/* Change state to 'allocated' */
+	channel->state = DMACD_STATE_ALLOCATED;
+
+	return DMACD_OK;
+}
+
+uint32_t dmacd_reset_channel(struct _dmacd_channel *channel)
+{
+	Dmac *dmac = channel->dmac;
+
+	if (channel->state == DMACD_STATE_ALLOCATED)
+		return DMACD_OK;
+
+	if (channel->state == DMACD_STATE_STARTED)
+		return DMACD_BUSY;
+
+	/* Disable channel */
+	dmac_disable_channel(dmac, channel->id);
+
+	/* Disable interrupts */
+	dmac_disable_global_it(dmac, (DMAC_EBCIDR_CBTC0 | DMAC_EBCIER_BTC0 | DMAC_EBCIER_ERR0) << channel->id);
 
 	/* Change state to 'allocated' */
 	channel->state = DMACD_STATE_ALLOCATED;

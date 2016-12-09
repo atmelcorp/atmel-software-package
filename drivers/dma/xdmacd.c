@@ -346,7 +346,7 @@ static uint32_t xdmacd_prepare_channel(struct _xdmacd_channel *channel)
 
 bool xdmacd_is_transfer_done(struct _xdmacd_channel *channel)
 {
-	return ((channel->state != XDMACD_STATE_STARTED) 
+	return ((channel->state != XDMACD_STATE_STARTED)
 			&& (channel->state != XDMACD_STATE_SUSPENDED));
 }
 
@@ -448,6 +448,28 @@ uint32_t xdmacd_stop_transfer(struct _xdmacd_channel *channel)
 	/* Clear pending status */
 	xdmac_get_channel_isr(xdmac, channel->id);
 	xdmac_get_global_channel_status(xdmac);
+
+	/* Change state to 'allocated' */
+	channel->state = XDMACD_STATE_ALLOCATED;
+
+	return XDMACD_OK;
+}
+
+uint32_t xdmacd_reset_channel(struct _xdmacd_channel *channel)
+{
+	Xdmac *xdmac = channel->xdmac;
+
+	if (channel->state == XDMACD_STATE_ALLOCATED)
+		return XDMACD_OK;
+
+	if (channel->state == XDMACD_STATE_STARTED)
+		return XDMACD_BUSY;
+
+	/* Disable channel */
+	xdmac_disable_channel(xdmac, channel->id);
+
+	/* Disable interrupts */
+	xdmac_disable_channel_it(xdmac, channel->id, -1);
 
 	/* Change state to 'allocated' */
 	channel->state = XDMACD_STATE_ALLOCATED;

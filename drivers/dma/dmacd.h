@@ -179,6 +179,12 @@ extern bool dmacd_is_transfer_done(struct _dmacd_channel *channel);
 extern uint32_t dmacd_stop_transfer(struct _dmacd_channel *channel);
 
 /**
+ * \brief Reset the specified  DMA channel.
+ * \param channel Channel pointer
+ */
+extern uint32_t dmacd_reset_channel(struct _dmacd_channel *channel);
+
+/**
  * \brief Suspend DMA transfer.
  * \param channel Channel pointer
  */

@@ -352,6 +352,12 @@ extern uint32_t dma_resume_transfer(struct dma_channel *channel);
 extern uint32_t dma_free_channel(struct dma_channel *channel);
 
 /**
+ * \brief Reset the specified DMA channel.
+ * \param channel Channel pointer
+ */
+extern uint32_t dma_reset_channel(struct dma_channel *channel);
+
+/**
  * \brief Check if DMA transfer is finished.
  * \param channel Channel pointer
  */

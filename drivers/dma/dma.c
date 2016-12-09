@@ -740,6 +740,15 @@ uint32_t dma_stop_transfer(struct dma_channel *channel)
 #endif
 }
 
+uint32_t dma_reset_channel(struct dma_channel *channel)
+{
+#if defined(CONFIG_HAVE_XDMAC)
+	return xdmacd_reset_channel((struct _xdmacd_channel *)channel);
+#elif defined(CONFIG_HAVE_DMAC)
+	return dmacd_reset_channel((struct _dmacd_channel *)channel);
+#endif
+}
+
 uint32_t dma_suspend_transfer(struct dma_channel *channel)
 {
 #if defined(CONFIG_HAVE_XDMAC)
