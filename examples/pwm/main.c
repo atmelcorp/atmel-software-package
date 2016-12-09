@@ -489,7 +489,7 @@ static void _pwm_demo_dma(uint8_t channel, uint32_t cprd)
 			flag = !flag;
 		duty_buffer[i] = flag ? (i % cprd) : (cprd - (i % cprd));
 	}
-	pwmc_set_dma_finished_callback(_pwmc_callback, 0);
+	pwmc_set_dma_finished_callback(PWM, _pwmc_callback, 0);
 	pwmc_dma_duty_cycle(PWM, duty_buffer, ARRAY_SIZE(duty_buffer));
 }
 
@@ -623,7 +623,7 @@ int main(void)
 				pwmc_configure_sync_channels(PWM, 0);
 #endif/* CONFIG_HAVE_PWMC_SYNC_MODE */
 #ifdef CONFIG_HAVE_PWMC_DMA
-				pwmc_set_dma_finished_callback(NULL, 0);
+				pwmc_set_dma_finished_callback(PWM, NULL, 0);
 #endif /* CONFIG_HAVE_PWMC_DMA */
 #ifdef CONFIG_HAVE_PWMC_STEPPER_MOTOR
 				pwmc_configure_stepper_motor_mode(PWM, 0);

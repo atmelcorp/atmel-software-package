@@ -80,24 +80,24 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
-#include "peripherals/pwmc.h"
-#ifdef CONFIG_HAVE_XDMAC
-#include "dma/xdmacd.h"
-#endif
-#include "mm/cache.h"
-#include "trace.h"
-
-#include <stdint.h>
 #include <assert.h>
+#include <stdint.h>
+#include <string.h>
+
+#include "chip.h"
+#include "dma/dma.h"
+#include "mm/cache.h"
+#include "peripherals/pwmc.h"
+#include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
 
 #ifdef CONFIG_HAVE_PWMC_DMA
+struct dma_channel* pwm_dma_channel = NULL;
 static pwmc_callback_t pwmc_cb = NULL;
-static void *pwmc_cb_user_args;
+static void* pwmc_cb_user_args;
 
 #endif /* CONFIG_HAVE_PWMC_DMA */
 
@@ -251,18 +251,18 @@ void pwmc_configure_sync_channels(Pwm *pwm, uint32_t mode)
 {
 #ifndef NDEBUG
 	uint32_t sync_bits = mode & (PWM_SCM_SYNC0 | PWM_SCM_SYNC1 \
-				| PWM_SCM_SYNC2 | PWM_SCM_SYNC3);
+				     | PWM_SCM_SYNC2 | PWM_SCM_SYNC3);
 #ifdef CONFIG_HAVE_PWMC_DMA
 	trace_debug("pwm: SYNC CHs bitmap 0x%x, Update Mode %u, " \
-			"DMA Request Mode %u, Request Comparison Selection %u\n\r",
-			(unsigned)sync_bits,
-			(unsigned)((mode & PWM_SCM_UPDM_Msk) >> PWM_SCM_UPDM_Pos), \
-			(unsigned)(0 != (mode & PWM_SCM_PTRM)), \
-			(unsigned)((mode & PWM_SCM_PTRCS_Msk) >> PWM_SCM_PTRCS_Pos));
+		    "DMA Request Mode %u, Request Comparison Selection %u\n\r",
+		    (unsigned)sync_bits,
+		    (unsigned)((mode & PWM_SCM_UPDM_Msk) >> PWM_SCM_UPDM_Pos), \
+		    (unsigned)(0 != (mode & PWM_SCM_PTRM)),		\
+		    (unsigned)((mode & PWM_SCM_PTRCS_Msk) >> PWM_SCM_PTRCS_Pos));
 #else
 	trace_debug("pwm: SYNC CHs bitmap 0x%x, Update Mode %u, " ,
-			(unsigned)sync_bits,
-			(unsigned)((mode & PWM_SCM_UPDM_Msk) >> PWM_SCM_UPDM_Pos));
+		    (unsigned)sync_bits,
+		    (unsigned)((mode & PWM_SCM_UPDM_Msk) >> PWM_SCM_UPDM_Pos));
 #endif
 
 	/* Defining a channel as a synchronous channel while it is an asynchronous
@@ -301,60 +301,48 @@ void pwmc_set_sync_channels_update_period_update(Pwm *pwm, uint8_t period)
 #endif /* CONFIG_HAVE_PWMC_SYNC_MODE */
 
 #ifdef CONFIG_HAVE_PWMC_DMA
-#ifndef CONFIG_HAVE_XDMAC
-#error PWM DMA is enabled without XDMAC, this configuration is unsupported.
-#endif
-
-static void _pwm_xdmacd_callback_wrapper(struct _xdmacd_channel *dma_channel,
-		void *arg)
+static void _pwm_dma_callback_wrapper(struct dma_channel* dma_channel, void* arg)
 {
 	(void)arg;
-	if (xdmacd_is_transfer_done(dma_channel)) {
-		xdmacd_free_channel(dma_channel);
+	if (dma_is_transfer_done(dma_channel)) {
+		dma_free_channel(dma_channel);
 		if (pwmc_cb)
 			pwmc_cb(pwmc_cb_user_args);
 	}
 }
 
-void pwmc_set_dma_finished_callback(pwmc_callback_t cb, void *user_args)
+void pwmc_set_dma_finished_callback(Pwm *pwm, pwmc_callback_t cb, void *user_args)
 {
+	uint32_t id = get_pwm_id_from_addr(pwm);
+
+	if (!pwm_dma_channel) {
+		pwm_dma_channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
+		assert(pwm_dma_channel);
+	}
 	pwmc_cb = cb;
 	pwmc_cb_user_args = user_args;
 }
 
 void pwmc_dma_duty_cycle(Pwm *pwm, uint16_t *duty, uint32_t size)
 {
-	struct _xdmacd_channel *dma_channel;
-	struct _xdmacd_cfg cfg;
-	uint32_t id = get_pwm_id_from_addr(pwm);
+	struct dma_xfer_cfg cfg;
 
-	dma_channel = xdmacd_allocate_channel(XDMACD_PERIPH_MEMORY, id);
-	assert(dma_channel);
-
-	cfg.cfg = XDMAC_CC_TYPE_PER_TRAN
-		| XDMAC_CC_MBSIZE_SINGLE
-		| XDMAC_CC_DSYNC_MEM2PER
-		| XDMAC_CC_MEMSET_NORMAL_MODE
-		| XDMAC_CC_CSIZE_CHK_1
-		| XDMAC_CC_DWIDTH_HALFWORD
-		| XDMAC_CC_DIF_AHB_IF1
-		| XDMAC_CC_SIF_AHB_IF0
-		| XDMAC_CC_DAM_FIXED_AM
-		| XDMAC_CC_SAM_INCREMENTED_AM;
-
-	cfg.ubc = size;
-	cfg.bc = 0;
-	cfg.ds = 0;
-	cfg.sus = 0;
-	cfg.dus = 0;
+	assert(pwm_dma_channel);
+	memset(&cfg, 0, sizeof(cfg));
 	cfg.sa = (void*)duty;
 	cfg.da = (void*)&pwm->PWM_DMAR;
-
-	xdmacd_configure_transfer(dma_channel, &cfg, 0, 0);
-	xdmacd_set_callback(dma_channel, _pwm_xdmacd_callback_wrapper, NULL);
+	cfg.upd_sa_per_data = 1;
+	cfg.upd_da_per_data = 0;
+	cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
+	cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	cfg.blk_size = 0;
+	cfg.len = size;
+	dma_reset_channel(pwm_dma_channel);
+	dma_configure_transfer(pwm_dma_channel, &cfg);
+	dma_set_callback(pwm_dma_channel, _pwm_dma_callback_wrapper, NULL);
 
 	cache_clean_region(duty, size);
-	xdmacd_start_transfer(dma_channel);
+	dma_start_transfer(pwm_dma_channel);
 }
 
 #endif /* CONFIG_HAVE_PWMC_DMA */
