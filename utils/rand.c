@@ -41,7 +41,7 @@
  *         Global Variables
  *------------------------------------------------------------------------------*/
 
-static uint32_t _dwRandNext = 1;
+static uint32_t _rand_next = 1;
 
 /*------------------------------------------------------------------------------
  *         Exported Functions
@@ -52,9 +52,9 @@ static uint32_t _dwRandNext = 1;
  *
  *  \param dwSeed rand initiation seed
  */
-void srand(uint32_t dwSeed)
+void srand(uint32_t seed)
 {
-	_dwRandNext = dwSeed;
+	_rand_next = seed;
 }
 
 /**
@@ -62,7 +62,7 @@ void srand(uint32_t dwSeed)
  */
 uint32_t rand(void)
 {
-	_dwRandNext = _dwRandNext * 1103515245 + 12345;
+	_rand_next = _rand_next * 1103515245 + 12345;
 
-	return (uint32_t) (_dwRandNext / 131072) % 65536;
+	return (uint32_t)(_rand_next / 131072) % 65536;
 }
