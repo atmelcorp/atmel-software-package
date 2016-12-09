@@ -30,8 +30,8 @@
 #ifndef __CONFIG_SAMA5D2_XPLAINED_H__
 #define __CONFIG_SAMA5D2_XPLAINED_H__
 
-#include "chip.h"
 #include "audio/audio_device.h"
+#include "chip.h"
 #include "spi/spid.h"
 #include "spi/spi-bus.h"
 
@@ -79,9 +79,6 @@ static struct _audio_desc audio_device = {
 			},
 			.codec = &ad1934_codec,
 		},
-	},
-	.dma = {
-		.configured = false,
 	},
 	.sample_rate = AUDDSpeakerDriver_SAMPLERATE,
 	/* walk around setting */

@@ -68,20 +68,114 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
+#include <assert.h>
+#include <string.h>
+
 #include "audio/ssc.h"
+#include "chip.h"
+#include "errno.h"
+#include "mm/cache.h"
 #include "peripherals/pmc.h"
+
+/*----------------------------------------------------------------------------
+ *       Local functions
+ *----------------------------------------------------------------------------*/
+
+static void _ssc_dma_rx_callback(struct dma_channel* channel, void* args)
+{
+  	struct _ssc_desc* desc = (struct _ssc_desc *)args;
+
+	cache_invalidate_region(desc->dma.rx.cfg.da, desc->dma.rx.cfg.len);
+
+	dma_reset_channel(channel);
+
+	if (desc->rx.callback)
+		desc->rx.callback(desc, desc->rx.cb_args);
+
+	mutex_unlock(&desc->rx.mutex);
+}
+
+static void _ssc_dma_rx_transfer(struct _ssc_desc* desc, struct _buffer* buffer)
+{
+	uint32_t id = get_ssc_id_from_addr(desc->addr);
+
+	assert(id < ID_PERIPH_COUNT);
+
+	memset(&desc->dma.rx.cfg, 0, sizeof(desc->dma.rx.cfg));
+
+	desc->dma.rx.cfg.sa = (void*)&desc->addr->SSC_RHR;
+	desc->dma.rx.cfg.da = buffer->data;
+	desc->dma.rx.cfg.upd_sa_per_data = 0;
+	desc->dma.rx.cfg.upd_da_per_data = 1;
+	desc->dma.rx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
+
+	if (desc->slot_length == 8) {
+		desc->dma.rx.cfg.data_width = DMA_DATA_WIDTH_BYTE;
+		desc->dma.rx.cfg.len  = buffer->size;
+	} else if (desc->slot_length == 16) {
+		desc->dma.rx.cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
+		desc->dma.rx.cfg.len  = buffer->size/2;
+	} else if (desc->slot_length == 32) {
+		desc->dma.rx.cfg.data_width = DMA_DATA_WIDTH_WORD;
+		desc->dma.rx.cfg.len  = buffer->size/4;
+	}
+	dma_configure_transfer(desc->dma.rx.channel, &desc->dma.rx.cfg);
+	dma_set_callback(desc->dma.rx.channel, _ssc_dma_rx_callback, (void*)desc);
+	dma_start_transfer(desc->dma.rx.channel);
+}
+
+static void _ssc_dma_tx_callback(struct dma_channel* channel, void* args)
+{
+	struct _ssc_desc* desc = (struct _ssc_desc *)args;
+
+	dma_reset_channel(channel);
+
+	if (desc->tx.callback)
+		desc->tx.callback(desc, desc->tx.cb_args);
+
+	mutex_unlock(&desc->tx.mutex);
+}
+
+static void _ssc_dma_tx_transfer(struct _ssc_desc* desc, struct _buffer* buffer)
+{
+  	uint32_t id = get_ssc_id_from_addr(desc->addr);
+
+	assert(id < ID_PERIPH_COUNT);
+
+	memset(&desc->dma.tx.cfg, 0x0, sizeof(desc->dma.tx.cfg));
+
+	if(!desc->dma.tx.channel)
+		desc->dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
+	assert(desc->dma.tx.channel);
+
+	desc->dma.tx.cfg.sa = buffer->data;
+	desc->dma.tx.cfg.da = (void*)&desc->addr->SSC_THR;
+	desc->dma.tx.cfg.upd_sa_per_data = 1;
+	desc->dma.tx.cfg.upd_da_per_data = 0;
+	desc->dma.tx.cfg.blk_size = 0;
+	desc->dma.tx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
+
+	if (desc->slot_length == 8) {
+		desc->dma.tx.cfg.data_width = DMA_DATA_WIDTH_BYTE;
+		desc->dma.tx.cfg.len  = buffer->size;
+	} else if (desc->slot_length == 16) {
+		desc->dma.tx.cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
+		desc->dma.tx.cfg.len  = buffer->size/2;
+	} else if (desc->slot_length == 32) {
+		desc->dma.tx.cfg.data_width = DMA_DATA_WIDTH_WORD;
+		desc->dma.tx.cfg.len  = buffer->size/4;
+	}
+
+	dma_configure_transfer(desc->dma.tx.channel, &desc->dma.tx.cfg);
+	dma_set_callback(desc->dma.tx.channel, _ssc_dma_tx_callback, (void*)desc);
+	cache_clean_region(desc->dma.tx.cfg.sa, desc->dma.tx.cfg.len);
+	dma_start_transfer(desc->dma.tx.channel);
+}
 
 /*----------------------------------------------------------------------------
  *       Exported functions
  *----------------------------------------------------------------------------*/
 
-/**
- * \brief Configures a SSC peripheral.If the divided clock is not used, the master
- * clock frequency can be set to 0.
- * \note The emitter and transmitter are disabled by this function.
- * \param desc  Pointer to an SSC instance.
- */
 void ssc_configure(struct _ssc_desc* desc)
 {
 	uint32_t id;
@@ -148,115 +242,140 @@ void ssc_configure(struct _ssc_desc* desc)
 
 	/* Enable SSC peripheral clock */
 	pmc_configure_peripheral(id, NULL, true);
+
+	desc->dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
+	assert(desc->dma.tx.channel);
+	desc->dma.rx.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
+	assert(desc->dma.rx.channel);
 }
 
-/**
- * \brief Configures the transmitter of a SSC peripheral.
- * \param desc  Pointer to an SSC instance.
- * \param tcmr Transmit Clock Mode Register value.
- * \param tfmr Transmit Frame Mode Register value.
- */
 void ssc_configure_transmitter(struct _ssc_desc* desc, uint32_t tcmr, uint32_t tfmr)
 {
 	desc->addr->SSC_TCMR = tcmr;
 	desc->addr->SSC_TFMR = tfmr;
 }
 
-/**
- * \brief Configures the receiver of a SSC peripheral.
- * \param desc  Pointer to an SSC instance.
- * \param rcmr Receive Clock Mode Register value.
- * \param rfmr Receive Frame Mode Register value.
- */
 void ssc_configure_receiver(struct _ssc_desc* desc, uint32_t rcmr, uint32_t rfmr)
 {
 	desc->addr->SSC_RCMR = rcmr;
 	desc->addr->SSC_RFMR = rfmr;
 }
 
-/**
- * \brief Enables the transmitter of a SSC peripheral.
- * \param desc  Pointer to an SSC instance.
- */
 void ssc_enable_transmitter(struct _ssc_desc* desc)
 {
 	desc->addr->SSC_CR = SSC_CR_TXEN;
 }
 
-/**
- * \brief Disables the transmitter of a SSC peripheral.
- * \param desc  Pointer to an SSC instance.
- */
 void ssc_disable_transmitter(struct _ssc_desc* desc)
 {
 	desc->addr->SSC_CR = SSC_CR_TXDIS;
 }
 
-/**
- * \brief Enables the receiver of a SSC peripheral.
- * \param desc  Pointer to an SSC instance.
- */
 void ssc_enable_receiver(struct _ssc_desc* desc)
 {
 	desc->addr->SSC_CR = SSC_CR_RXEN;
 }
 
-/**
- * \brief Disables the receiver of a SSC peripheral.
- * \param desc  Pointer to an SSC instance.
- */
 void ssc_disable_receiver(struct _ssc_desc* desc)
 {
 	desc->addr->SSC_CR = SSC_CR_RXDIS;
 }
 
-/**
- * \brief Enables one or more interrupt sources of a SSC peripheral.
- * \param desc  Pointer to an SSC instance.
- * \param sources Bitwise OR of selected interrupt sources.
- */
 void ssc_enable_interrupts(struct _ssc_desc* desc, uint32_t sources)
 {
 	desc->addr->SSC_IER = sources;
 }
 
-/**
- * \brief Disables one or more interrupt sources of a SSC peripheral.
- * \param desc  Pointer to an SSC instance.
- * \param sources Bitwise OR of selected interrupt sources.
- */
 void ssc_disable_interrupts(struct _ssc_desc* desc, uint32_t sources)
 {
 	desc->addr->SSC_IDR = sources;
 }
 
-/**
- * \brief Sends one data frame through a SSC peripheral. If another frame is currently
- * being sent, this function waits for the previous transfer to complete.
- * \param desc  Pointer to an SSC instance.
- * \param frame Data frame to send.
- */
 void ssc_write(struct _ssc_desc* desc, uint32_t frame)
 {
 	while ((desc->addr->SSC_SR & SSC_SR_TXRDY) == 0) ;
 	desc->addr->SSC_THR = frame;
 }
 
-/**
- * \brief Waits until one frame is received on a SSC peripheral, and returns it.
- * \param desc  Pointer to an SSC instance.
- */
 uint32_t ssc_read(struct _ssc_desc* desc)
 {
 	while ((desc->addr->SSC_SR & SSC_SR_RXRDY) == 0) ;
 	return desc->addr->SSC_RHR;
 }
 
-/**
- * \brief Return 1 if one frame is received, 0 otherwise.
- * \param desc  Pointer to an SSC instance.
- */
-uint8_t ssc_is_rx_ready(struct _ssc_desc* desc)
+bool ssc_is_rx_ready(struct _ssc_desc* desc)
 {
-	return ((desc->addr->SSC_SR & SSC_SR_RXRDY) > 0);
+	return ((desc->addr->SSC_SR & SSC_SR_RXRDY) == SSC_SR_RXRDY);
+}
+
+int ssc_transfer(struct _ssc_desc* desc, struct _buffer* buf, ssc_callback_t cb, void* user_args)
+{
+	if ((buf == NULL) || (buf->size == 0))
+		return -EINVAL;
+
+	if (buf->attr & SSC_BUF_ATTR_READ) {
+		mutex_lock(&desc->rx.mutex);
+
+		desc->rx.transferred = 0;
+		desc->rx.buffer.data = buf->data;
+		desc->rx.buffer.size = buf->size;
+		desc->rx.buffer.attr = buf->attr;
+		if(cb) {
+			desc->rx.callback = cb;
+			desc->rx.cb_args = user_args;
+		}
+		_ssc_dma_rx_transfer(desc, buf);
+	} else if (buf->attr & SSC_BUF_ATTR_WRITE) {
+		mutex_lock(&desc->tx.mutex);
+
+		desc->tx.transferred = 0;
+		desc->tx.buffer.data = buf->data;
+		desc->tx.buffer.size = buf->size;
+		desc->tx.buffer.attr = buf->attr;
+		if(cb) {
+			desc->tx.callback = cb;
+			desc->tx.cb_args = user_args;
+		}
+		_ssc_dma_tx_transfer(desc, buf);
+	}
+
+	return 0;
+}
+
+bool ssc_dma_tx_transfer_is_done(struct _ssc_desc* desc)
+{
+	return (!mutex_is_locked(&desc->tx.mutex));
+}
+
+bool ssc_dma_rx_transfer_is_done(struct _ssc_desc* desc)
+{
+	return (!mutex_is_locked(&desc->rx.mutex));
+}
+
+void ssc_dma_tx_stop(struct _ssc_desc* desc)
+{
+	if (desc->dma.tx.channel) {
+		dma_stop_transfer(desc->dma.tx.channel);
+		mutex_unlock(&desc->tx.mutex);
+	}
+}
+
+void ssc_dma_rx_stop(struct _ssc_desc* desc)
+{
+	if (desc->dma.rx.channel) {
+		dma_stop_transfer(desc->dma.rx.channel);
+		mutex_unlock(&desc->rx.mutex);
+	}
+}
+
+void ssc_dma_tx_set_callback(struct _ssc_desc* desc, ssc_callback_t cb, void* arg)
+{
+	desc->tx.callback = cb;
+	desc->tx.cb_args = arg;
+}
+
+void ssc_dma_rx_set_callback(struct _ssc_desc* desc, ssc_callback_t cb, void* arg)
+{
+	desc->rx.callback = cb;
+	desc->rx.cb_args = arg;
 }

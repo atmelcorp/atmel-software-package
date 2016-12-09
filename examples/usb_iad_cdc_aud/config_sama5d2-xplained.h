@@ -48,9 +48,6 @@ static struct _audio_desc audio_device = {
 			},
 		},
 	},
-	.dma = {
-		.configured = false,
-	},
 	.sample_rate = AUDDevice_SAMPLERATE,
 	.num_channels = AUDDevice_NUMCHANNELS,
 	.bits_per_sample = AUDDevice_BYTESPERSAMPLE * 8,

@@ -69,9 +69,6 @@ static struct _audio_desc audio_device = {
 			.codec = &wm8904_codec,
 		},
 	},
-	.dma = {
-		.configured = false,
-	},
 	.sample_rate = 48000,
 	.num_channels = 2,
 	.bits_per_sample = 16,

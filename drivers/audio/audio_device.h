@@ -139,11 +139,6 @@ struct _audio_desc {
 		} pdmic;
 #endif
 	} device;
-	struct {
-		struct dma_channel *channel;
-		struct dma_xfer_cfg cfg;
-		bool configured;
-	} dma;
 	/* Sample Frequency (fs) Ratio */
 	uint32_t sample_rate;
 	/* Mono = 1, Stereo = 2, etc. */

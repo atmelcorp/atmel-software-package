@@ -19,9 +19,6 @@ static struct _audio_desc audio_play_device = {
 			},
 		},
 	},
-	.dma = {
-		.configured = false,
-	},
 	.sample_rate = 48000,
 	.num_channels = 1,
 	.bits_per_sample = 16,
@@ -47,9 +44,6 @@ static struct _audio_desc audio_record_device = {
 				.dsp_scale = 0,
 			},
 		},
-	},
-	.dma = {
-		.configured = false,
 	},
 	.sample_rate = 48000,
 	.num_channels = 1,

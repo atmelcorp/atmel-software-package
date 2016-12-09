@@ -19,9 +19,6 @@ static struct _audio_desc audio_device = {
 			},
 		},
 	},
-	.dma = {
-			.configured = false,
-	},
 	.sample_rate = AUDDSpeakerDriver_SAMPLERATE,
 	.num_channels = AUDDSpeakerDriver_NUMCHANNELS,
 	.bits_per_sample = AUDDSpeakerDriver_BYTESPERSAMPLE * 8,

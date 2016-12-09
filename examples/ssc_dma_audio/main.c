@@ -87,35 +87,30 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
-#include "chip.h"
-#include "trace.h"
-#include "compiler.h"
-#include "timer.h"
-
-#include "serial/console.h"
-#include "led/led.h"
-
-#include "mm/cache.h"
-#include "gpio/pio.h"
-#include "peripherals/pit.h"
-#include "dma/dma.h"
-#include "audio/ssc.h"
-#include "peripherals/pmc.h"
-
-#if defined(CONFIG_HAVE_AUDIO_WM8904)
-#include "audio/wm8904.h"
-#elif defined(CONFIG_HAVE_AUDIO_WM8731)
-#include "audio/wm8731.h"
-#endif
-
-#include "trace.h"
-
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 #include <assert.h>
+
+#include "audio/ssc.h"
+#if defined(CONFIG_HAVE_AUDIO_WM8904)
+#include "audio/wm8904.h"
+#elif defined(CONFIG_HAVE_AUDIO_WM8731)
+#include "audio/wm8731.h"
+#endif
+#include "board.h"
+#include "chip.h"
+#include "compiler.h"
+#include "dma/dma.h"
+#include "gpio/pio.h"
+#include "led/led.h"
+#include "mm/cache.h"
+#include "peripherals/pit.h"
+#include "peripherals/pmc.h"
+#include "serial/console.h"
+#include "timer.h"
+#include "trace.h"
 
 #if defined(CONFIG_BOARD_SAMA5D3_EK)
 	#include "config_sama5d3-ek.h"
@@ -136,41 +131,37 @@
 #endif
 
 /*----------------------------------------------------------------------------
- *        Local macros
+ *         Definitions
  *----------------------------------------------------------------------------*/
 
-#define min(a, b) (((a) < (b)) ? (a) : (b))
+#define SAMPLE_COUNT ROUND_UP_MULT(192, L1_CACHE_BYTES)
+
+#define BUFFER_NUMBER (10)
 
 /*----------------------------------------------------------------------------
- *        Local definitions
+ *         Internal variables
  *----------------------------------------------------------------------------*/
 
-/** DMA Descriptor */
-#define TOTAL_BUFFERS            (10)
+/** Audio record buffer */
+CACHE_ALIGNED_DDR static uint16_t _sound_buffer[BUFFER_NUMBER][SAMPLE_COUNT];
 
-#define DMA_TRANSFER_LEN    (0xFFFE)
+/**  Record buffer write index */
+static volatile uint32_t record_buffer_index = 0;
 
-#define AUDIO_BUFFER_LEN    TOTAL_BUFFERS * DMA_TRANSFER_LEN * (BITS_BY_SLOT / 8)
+/**  Play buffer read index */
+static volatile uint32_t play_buffer_index = 0;
 
-/*----------------------------------------------------------------------------
- *        Local variables
- *----------------------------------------------------------------------------*/
+/**  Number of buffers that can play */
+static volatile uint32_t num_buffers_to_send = 0;
 
-/* Audio buffer */
-CACHE_ALIGNED_DDR static uint16_t audio_buffer[AUDIO_BUFFER_LEN];
+/** Record start flag */
+static volatile bool record_start = false;
 
-/* Global DMA driver for all transfer */
-
-/** DMA channel for RX */
-static struct dma_channel *ssc_dma_rx_channel;
-/** DMA channel for TX */
-static struct dma_channel *ssc_dma_tx_channel;
-
-CACHE_ALIGNED struct dma_xfer_item dma_write_link_list[TOTAL_BUFFERS];
-CACHE_ALIGNED struct dma_xfer_item dma_read_link_list[TOTAL_BUFFERS];
+/** audio playing volume */
+static uint8_t play_vol = 30;
 
 /*----------------------------------------------------------------------------
- *        Local functions
+ *         Local functions
  *----------------------------------------------------------------------------*/
 
 /**
@@ -179,94 +170,46 @@ CACHE_ALIGNED struct dma_xfer_item dma_read_link_list[TOTAL_BUFFERS];
 static void _display_menu(void)
 {
 	printf("\n\r");
-	printf("Insert Line-in cable with PC Headphone output\n\r");
-	printf("m -> Mute the play sound\n\r");
-	printf("u -> Unmute the play sound\n\r");
-	printf("+ -> Increase the volume (volume increased by 3dB)\n\r");
-	printf("- -> Decrease the volume (volume reduced by 3dB)\n\r");
-	printf("=>");
+	printf("-----------------\n\r");
+	printf("R -> Start to record the sound and play \n\r");
+	printf("S -> Stop recording sound \n\r");
+	printf("+ -> Increase the volume of playback sound \n\r");
+	printf("- -> Decrease the volume of playback sound \n\r");
+	printf("-----------------\n\r");
 }
 
 /**
- * \brief DMA driver configuration
+ *  \brief DMA RX callback
  */
-static void dma_configure(void)
+static void ssc_record_finish_callback(struct dma_channel *channel, void* p_arg)
 {
-	/* Driver initialize */
-	/* Allocate DMA channels for SSC */
-	ssc_dma_tx_channel = dma_allocate_channel(DMA_PERIPH_MEMORY, ID_SSC0);
-	ssc_dma_rx_channel = dma_allocate_channel(ID_SSC0, DMA_PERIPH_MEMORY);
+	record_buffer_index = (record_buffer_index + 1) % BUFFER_NUMBER;
 
-	if (!ssc_dma_tx_channel || !ssc_dma_rx_channel) {
-		printf("DMA channel allocation error\n\r");
-		while(1);
-	}
+	num_buffers_to_send++;
+
+	struct _buffer _tx = {
+			.data = (unsigned char*)&_sound_buffer[play_buffer_index],
+			.size = SAMPLE_COUNT,
+			.attr = SSC_BUF_ATTR_WRITE,
+	};
+
+	ssc_transfer(&ssc_dev_desc, &_tx, NULL, NULL);
+	//audio_enable(&ssc_dev_desc, true);
+	play_buffer_index = (play_buffer_index + 1) % BUFFER_NUMBER;
+	num_buffers_to_send --;
+
+	struct _buffer _rx = {
+			.data = (unsigned char*)&_sound_buffer[record_buffer_index],
+			.size = SAMPLE_COUNT,
+			.attr = SSC_BUF_ATTR_READ,
+	};
+
+	ssc_transfer(&ssc_dev_desc, &_rx, (ssc_callback_t)ssc_record_finish_callback, NULL);
 }
 
 /**
  * \brief Play recording.
  */
-static void play_recording(void)
-{
-	uint16_t* src;
-	uint8_t i;
-	struct dma_xfer_item_tmpl dma_cfg;
-
-	src = audio_buffer;
-
-	for (i = 0; i < TOTAL_BUFFERS; i++) {
-		dma_cfg.sa = (uint32_t *)&(ssc_dev_desc.addr->SSC_RHR);
-		dma_cfg.da = (uint32_t *)(src);
-		dma_cfg.upd_sa_per_data = 0;
-		dma_cfg.upd_da_per_data = 1;
-		dma_cfg.upd_sa_per_blk  = 0;
-		dma_cfg.upd_da_per_blk  = 1;
-		dma_cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
-		dma_cfg.chunk_size = DMA_CHUNK_SIZE_1;
-		dma_cfg.blk_size = DMA_TRANSFER_LEN;
-		dma_prepare_item(ssc_dma_rx_channel, &dma_cfg, &dma_read_link_list[i]);
-		if (i == (TOTAL_BUFFERS - 1))
-			dma_link_item(ssc_dma_rx_channel, &dma_read_link_list[i], &dma_read_link_list[0]);
-		else
-			dma_link_item(ssc_dma_rx_channel, &dma_read_link_list[i], &dma_read_link_list[i + 1]);
-		src += DMA_TRANSFER_LEN;
-	}
-	cache_clean_region(dma_read_link_list, sizeof(dma_read_link_list));
-	dma_configure_sg_transfer(ssc_dma_rx_channel, &dma_cfg, dma_read_link_list);
-
-	src = audio_buffer;
-	for (i = 0; i < TOTAL_BUFFERS; i++) {
-		dma_cfg.sa = (uint32_t *)(src);
-		dma_cfg.da = (uint32_t *)&(ssc_dev_desc.addr->SSC_THR);
-		dma_cfg.upd_sa_per_data = 1;
-		dma_cfg.upd_da_per_data = 0;
-		dma_cfg.upd_sa_per_blk  = 1;
-		dma_cfg.upd_da_per_blk  = 0;
-		dma_cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
-		dma_cfg.chunk_size = DMA_CHUNK_SIZE_1;
-		dma_cfg.blk_size = DMA_TRANSFER_LEN;
-
-		dma_prepare_item(ssc_dma_tx_channel, &dma_cfg, &dma_write_link_list[i]);
-		if (i == (TOTAL_BUFFERS - 1))
-			dma_link_item(ssc_dma_tx_channel, &dma_write_link_list[i], &dma_write_link_list[0]);
-		else
-			dma_link_item(ssc_dma_tx_channel, &dma_write_link_list[i], &dma_write_link_list[i + 1]);
-		src += DMA_TRANSFER_LEN;
-	}
-
-	cache_clean_region(dma_write_link_list, sizeof(dma_write_link_list));
-	dma_configure_sg_transfer(ssc_dma_tx_channel, &dma_cfg, dma_write_link_list);
-
-	dma_start_transfer(ssc_dma_rx_channel);
-	ssc_enable_receiver(&ssc_dev_desc);
-
-	msleep(300);
-
-	/* Enable playback(SSC TX) */
-	dma_start_transfer(ssc_dma_tx_channel);
-	ssc_enable_transmitter(&ssc_dev_desc);
-
-}
 
 static void _set_volume(uint8_t vol)
 {
@@ -281,6 +224,43 @@ static void _set_volume(uint8_t vol)
 #endif
 }
 
+static void console_handler(uint8_t key)
+{
+	switch (key) {
+	case '+':
+		if (play_vol < 63) {
+			play_vol += 3;
+			_set_volume(play_vol);
+		}
+		break;
+	case '-':
+		if (play_vol > 1) {
+			play_vol -= 3;
+			_set_volume(play_vol);
+		}
+		break;
+
+	case 'R':
+	case 'r':
+		record_start = true;
+		ssc_enable_transmitter(&ssc_dev_desc);
+		ssc_enable_receiver(&ssc_dev_desc);
+		printf("SSC start to record and play sound\r\n");
+		break;
+
+	case 'S':
+	case 's':
+		record_start = false;
+		ssc_disable_transmitter(&ssc_dev_desc);
+		ssc_disable_receiver(&ssc_dev_desc);
+		printf("SSC stop to record and play sound\r\n");
+		break;
+
+	default:
+		break;
+	}
+}
+
 /*----------------------------------------------------------------------------
  *         Global functions
  *----------------------------------------------------------------------------*/
@@ -292,21 +272,18 @@ static void _set_volume(uint8_t vol)
  */
 extern int main( void )
 {
-	uint8_t vol = 30;
-	uint8_t key;
 
 	/* Output example information */
 	console_example_info("SSC DMA Audio Example");
 
-	/* Configure all pins */
+	console_set_rx_handler(console_handler);
+	console_enable_rx_interrupt();
 
 	/* Configure SSC */
 	ssc_configure(&ssc_dev_desc);
+
 	ssc_disable_receiver(&ssc_dev_desc);
 	ssc_disable_transmitter(&ssc_dev_desc);
-
-	/* Configure DMA */
-	dma_configure();
 
 	/* Initialize the audio DAC */
 #if defined(CONFIG_HAVE_AUDIO_WM8904)
@@ -315,39 +292,24 @@ extern int main( void )
 	wm8731_configure(&wm8731);
 #endif
 
-	_set_volume(vol);
-	play_recording();
+	_set_volume(play_vol);
 
-	while(1) {
-		_display_menu();
-		key = console_get_char();
-		printf("%c\r\n", key);
-		if (key == '+') {
-			if (vol < 63) {
-				vol += 3;
-				_set_volume(vol);
-			} else {
-				printf("Volume is already at max (+6dB)\r\n");
-			}
-		} else if (key == '-') {
-			if (vol > 1) {
-				vol -= 3;
-				_set_volume(vol);
-			} else {
-				printf("Volume is already at min (-57dB)\r\n");
-			}
-		} else if (key == 'm') {
-#if defined(CONFIG_HAVE_AUDIO_WM8904)
-			wm8904_volume_mute(&wm8904, true, true);
-#elif defined(CONFIG_HAVE_AUDIO_WM8731)
-			wm8731_volume_mute(&wm8731, true);
-#endif
-		} else if (key == 'u') {
-#if defined(CONFIG_HAVE_AUDIO_WM8904)
-			wm8904_volume_mute(&wm8904, false, false);
-#elif defined(CONFIG_HAVE_AUDIO_WM8731)
-			wm8731_volume_mute(&wm8731, false);
-#endif
+	_display_menu();
+
+	/* Infinite loop */
+	while (1) {
+
+		if(record_start) {
+			record_start = false;
+
+			struct _buffer _rx = {
+				.data = (unsigned char*)&_sound_buffer[record_buffer_index],
+				.size = SAMPLE_COUNT,
+				.attr = SSC_BUF_ATTR_READ,
+			};
+
+			ssc_transfer(&ssc_dev_desc, &_rx, (ssc_callback_t)ssc_record_finish_callback, NULL);
 		}
-	};
+
+	}
 }
