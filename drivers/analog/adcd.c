@@ -28,25 +28,24 @@
  */
 
 
-#include "irq/aic.h"
-#include "peripherals/pmc.h"
-#include "analog/adcd.h"
-#include "analog/adc.h"
-#include "dma/dma.h"
-#include "mm/cache.h"
-
-#include "trace.h"
-
+#include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <assert.h>
 #include <string.h>
+
+#include "analog/adc.h"
+#include "analog/adcd.h"
+#include "dma/dma.h"
+#include "irq/irq.h"
+#include "mm/cache.h"
+#include "peripherals/pmc.h"
+#include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
+
 volatile static bool single_transfer_ready;
-static struct _adcd_desc* _adcd;
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -57,8 +56,7 @@ static void _adcd_dma_callback(struct dma_channel *channel, void *arg)
 	struct _adcd_desc* desc = (struct _adcd_desc*)arg;
 
 	/* For read, invalidate region */
-	cache_invalidate_region((uint32_t*)desc->xfer.buf->data,
-							desc->xfer.buf->size);
+	cache_invalidate_region((uint32_t*)desc->xfer.buf->data, desc->xfer.buf->size);
 	mutex_unlock(&desc->mutex);
 }
 
@@ -95,23 +93,24 @@ static void _adcd_transfer_buffer_dma(struct _adcd_desc* desc)
 /**
  * \brief Interrupt handler for the ADC.
  */
-static void _adcd_handler(void)
+static void _adcd_handler(uint32_t source, void* user_arg)
 {
 	uint32_t status;
 	uint8_t i;
 	uint32_t value;
+	struct _adcd_desc* desc = (struct _adcd_desc*)user_arg;
 
 	/* Get Interrupt Status (ISR) */
 	status = adc_get_status();
 
 	adc_disable_it(0xFFFFFFFF);
 	/* check at least one EOCn flag set */
-	if(status & 0x00000FFF ) {
+	if (status & 0x00000FFF) {
 		for (i = 0; i < adc_get_num_channels(); i++) {
 			value = adc_get_converted_data(i);
 			/* Check ISR "End of Conversion" corresponding bit */
 			if ((status & (1u << i))) {
-				*(uint16_t *)(_adcd->xfer.buf->data + i * sizeof (uint16_t))
+				*(uint16_t*)(desc->xfer.buf->data + i * sizeof (uint16_t))
 				= (i << ADC_LCDR_CHNB_Pos) | value;
 			}
 		}
@@ -131,7 +130,7 @@ static void _adcd_transfer_buffer_polling(struct _adcd_desc* desc)
 		ier_mask |= 0x1u << desc->cfg.chan_sequence[i];
 	}
 	adc_enable_it(ier_mask) ;
-	aic_enable(ID_ADC);
+	irq_enable(ID_ADC);
 	adc_start_conversion();
 
 	while(!single_transfer_ready);
@@ -149,7 +148,7 @@ static void adcd_configure(struct _adcd_desc* desc)
 	uint8_t i = 0;
 	uint8_t channels = desc->xfer.buf->size;
 
-	aic_disable(ID_ADC);
+	irq_disable(ID_ADC);
 
 	for (i = 0; i < channels; i++)
 		adc_disable_channel(desc->cfg.channel_used[i]);
@@ -168,11 +167,10 @@ static void adcd_configure(struct _adcd_desc* desc)
 	}
 
 	/* Set power save */
-	if (desc->cfg.power_save_enabled) {
+	if (desc->cfg.power_save_enabled)
 		adc_set_sleep_mode(true);
-	} else {
+	else
 		adc_set_sleep_mode(false);
-	}
 
 	/* Configure trigger mode and start convention */
 	switch (desc->cfg.trigger_mode) {
@@ -271,16 +269,14 @@ void adcd_initialize(struct _adcd_desc* desc)
 	/* Enable channel number tag */
 	adc_set_tag_enable(true);
 
-	aic_set_source_vector(ID_ADC, _adcd_handler);
-	_adcd = desc;
+	irq_add_handler(ID_ADC, _adcd_handler, desc);
 }
 
 uint32_t adcd_transfer(struct _adcd_desc* desc, struct _buffer* buffer,
 						adcd_callback_t cb, void* user_args)
 {
-	if (!mutex_try_lock(&desc->mutex)) {
+	if (!mutex_try_lock(&desc->mutex))
 		return ADCD_ERROR_LOCK;
-	}
 
 	desc->xfer.buf = buffer;
 	desc->xfer.callback = cb;
