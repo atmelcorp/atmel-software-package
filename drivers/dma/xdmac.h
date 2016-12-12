@@ -189,7 +189,7 @@ extern void xdmac_enable_channel(Xdmac *xdmac, uint8_t channel);
  * \param xdmac Pointer to the XDMAC instance.
  * \param channel_mask Channels bitmap.
  */
-extern void xdmac_enable_channels(Xdmac *xdmac, uint8_t channel_mask);
+extern void xdmac_enable_channels(Xdmac *xdmac, uint32_t channel_mask);
 
 /**
  * \brief Disables the relevant channel of given XDMAC.
@@ -213,7 +213,7 @@ extern void xdmac_suspend_channel(Xdmac *xdmac, uint8_t channel);
  * \param xdmac Pointer to the XDMAC instance.
  * \param channel_mask Channels bitmap.
  */
-extern void xdmac_disable_channels(Xdmac *xdmac, uint8_t channel_mask);
+extern void xdmac_disable_channels(Xdmac *xdmac, uint32_t channel_mask);
 
 /**
  * \brief Get Global channel status of given XDMAC.
