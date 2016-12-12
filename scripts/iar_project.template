@@ -761,7 +761,7 @@ __REPLACE_DEFINES__
         </option>
         <option>
           <name>IlinkOverrideProgramEntryLabel</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>IlinkProgramEntryLabelSelect</name>
@@ -769,7 +769,7 @@ __REPLACE_DEFINES__
         </option>
         <option>
           <name>IlinkProgramEntryLabel</name>
-          <state>__iar_program_start</state>
+          <state>__REPLACE_ENTRY__</state>
         </option>
         <option>
           <name>DoFill</name>

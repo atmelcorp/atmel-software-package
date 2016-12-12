@@ -163,6 +163,13 @@ tpl-set-linker-script() {
     sed -i -e "s%__REPLACE_LINK_SCRIPT__%\$PROJ_DIR\$\\\\$win_path%g" "$tpl"
 }
 
+tpl-set-program-entry() {
+    local tpl="$1"
+    local entry="$2"
+
+    sed -i -e "s%__REPLACE_ENTRY__%$entry%g" "$tpl"
+}
+
 tpl-set-binary-name() {
     local tpl="$1"
     local binary_name="$2"
@@ -270,6 +277,7 @@ generate-bodies-ewp() {
     tpl-set-defines       "$tpl"
     tpl-set-includes      "$tpl"
     tpl-set-linker-script "$tpl" "$iar_linker_script_y"
+    tpl-set-program-entry "$tpl" "$iar_program_entry_y"
     tpl-set-binary-name   "$tpl" "$file"
     tpl-set-configuration "$tpl" $TARGET $variant
 }

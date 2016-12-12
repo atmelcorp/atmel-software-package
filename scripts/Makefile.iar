@@ -29,6 +29,7 @@
 iar-project-template-y ?= $(TOP)/scripts/iar_project.template
 iar-workspace-template-y ?= $(TOP)/scripts/iar_workspace.template
 iar-debug-template-y ?= $(TOP)/scripts/iar_debug.template
+iar-program-entry-y ?= __iar_program_start
 
 iar:
 	+$(Q)bash $(TOP)/scripts/iar_project.sh "$(shell pwd)" "$(TOP)" "$(BINNAME)" "$(SELECTED_TARGET)" "$(ALL_VARIANTS)"
@@ -46,6 +47,7 @@ iar-env:
 	$(Q)echo iar_linker_script_y=\"$(iar-linker-script-y)\" >> .env-$(VARIANT).sh
 	$(Q)echo iar_debug_script_y=\"$(iar-debug-script-y)\" >> .env-$(VARIANT).sh
 	$(Q)echo iar_flashloader_script_y=\"$(iar-flashloader-script-y)\" >> .env-$(VARIANT).sh
+	$(Q)echo iar_program_entry_y=\"$(iar-program-entry-y)\" >> .env-$(VARIANT).sh
 	$(Q)echo target_y=\"$(target-y) $(iar-cstartup-y)\"   >> .env-$(VARIANT).sh
 	$(Q)echo utils_y=\"$(utils-y)\"                       >> .env-$(VARIANT).sh
 	$(Q)echo arch_y=\"$(arch-y)\"                         >> .env-$(VARIANT).sh
