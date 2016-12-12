@@ -114,8 +114,6 @@ static void _spid_dma_free_callback(struct dma_channel *channel, void *arg)
 
 static void _spid_dma_write(struct _spi_desc* desc, uint8_t *buf, uint32_t len)
 {
-	uint32_t id = get_spi_id_from_addr(desc->addr);
-
 	cache_clean_region(buf, len);
 
 	memset(&desc->xfer.dma.tx.cfg, 0, sizeof(desc->xfer.dma.tx.cfg));
@@ -152,8 +150,6 @@ static void _spid_dma_write(struct _spi_desc* desc, uint8_t *buf, uint32_t len)
 
 static void _spid_dma_read(struct _spi_desc* desc, uint8_t *buf, uint32_t len)
 {
-	uint32_t id = get_spi_id_from_addr(desc->addr);
-
 	memset(&desc->xfer.dma.tx.cfg, 0, sizeof(desc->xfer.dma.tx.cfg));
 
 	dma_reset_channel(desc->xfer.dma.tx.channel);
