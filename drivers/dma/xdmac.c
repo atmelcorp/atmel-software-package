@@ -97,7 +97,7 @@ void xdmac_enable_channel(Xdmac *xdmac, uint8_t channel)
 	xdmac->XDMAC_GE |= XDMAC_GE_EN0 << channel;
 }
 
-void xdmac_enable_channels(Xdmac *xdmac, uint8_t channel_mask)
+void xdmac_enable_channels(Xdmac *xdmac, uint32_t channel_mask)
 {
 	xdmac->XDMAC_GE = channel_mask;
 }
@@ -116,7 +116,7 @@ void xdmac_suspend_channel(Xdmac *xdmac, uint8_t channel)
 	xdmac->XDMAC_GRWS = XDMAC_GRWS_RWS0 << channel;
 }
 
-void xdmac_disable_channels(Xdmac *xdmac, uint8_t channel_mask)
+void xdmac_disable_channels(Xdmac *xdmac, uint32_t channel_mask)
 {
 	xdmac->XDMAC_GD = channel_mask;
 }
