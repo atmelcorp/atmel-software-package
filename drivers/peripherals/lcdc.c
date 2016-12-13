@@ -87,7 +87,6 @@ struct _layer_data {
 	struct _lcdc_dma_desc *dma_v_desc;
 	void                  *buffer;
 	uint8_t                bpp;
-	uint8_t                num_colors;
 };
 
 /*----------------------------------------------------------------------------
@@ -674,9 +673,8 @@ void lcdc_disable_color_keying(uint8_t layer_id)
  * \param layer_id   Layer ID (OVR1 or HEO).
  * \param pCLUT    Pointer to color lookup table.
  * \param bpp      Bits Per Pixel (1, 2, 4, 8).
- * \param nbColors Number of colors indexed in table.
  */
-void lcdc_set_color_lut(uint8_t layer_id, uint32_t *clut, uint8_t bpp, uint8_t num_colors)
+void lcdc_set_color_lut(uint8_t layer_id, uint32_t *clut, uint8_t bpp)
 {
 	const struct _layer_info *layer = &lcdc_layers[layer_id];
 	struct _layer_data *data = layer->data;
@@ -689,15 +687,11 @@ void lcdc_set_color_lut(uint8_t layer_id, uint32_t *clut, uint8_t bpp, uint8_t n
 	/* Customize CLUT */
 	if (clut) {
 		uint32_t i;
-		if (num_colors == 0)
-			num_colors = 1 << bpp;
-		data->num_colors = num_colors;
-		for (i = 0; i < num_colors; i++)
+		for (i = 0; i < (1 << bpp); i++)
 			layer->reg_clut[i] = clut[i];
 	}
 	/* Build CLUT */
 	else {
-		data->num_colors = 1 << bpp;
 		switch (bpp) {
 		case 1:
 			_build_color_lut1(layer->reg_clut);

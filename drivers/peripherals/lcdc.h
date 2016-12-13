@@ -172,8 +172,7 @@ extern void lcdc_set_color_keying(uint8_t layer, bool dest_keying,
 
 extern void lcdc_disable_color_keying(uint8_t layer);
 
-extern void lcdc_set_color_lut(uint8_t layer, uint32_t *clut, uint8_t bpp,
-		uint8_t num_colors);
+extern void lcdc_set_color_lut(uint8_t layer, uint32_t *clut, uint8_t bpp);
 
 extern void *lcdc_put_image_rotated(uint8_t layer, void *buffer, uint8_t bpp,
 		uint32_t x, uint32_t y, int32_t w, int32_t h,
