@@ -86,6 +86,11 @@ extern void board_cfg_timer(void);
 extern void board_cfg_console(uint32_t baudrate);
 
 /**
+ * \brief Setup MPU for the board
+ */
+extern void board_cfg_mpu(void);
+
+/**
  * \brief Configures the board.
  */
 extern void board_init(void);
