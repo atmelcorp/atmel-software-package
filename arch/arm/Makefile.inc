@@ -39,5 +39,6 @@ arch-$(CONFIG_ARCH_ARMV7A) += arch/arm/l1cache_cp15.o
 arch-$(CONFIG_ARCH_ARMV7A) += arch/arm/mmu_cp15.o
 
 arch-$(CONFIG_ARCH_ARMV7M) += arch/arm/l1cache_scb.o
+arch-$(CONFIG_ARCH_ARMV7M) += arch/arm/mpu_armv7m.o
 
 endif
