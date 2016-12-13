@@ -328,7 +328,7 @@ void hidd_transfer_driver_initialize(const USBDDriverDescriptors *descriptors)
 	memset(&feature_report.bData, 0, sizeof feature_report.bData);
 
 	/* Initialize USBD Driver instance */
-	usbd_driver_initialize(descriptors, 0);
+	usbd_driver_initialize(descriptors, NULL, 0);
 
 	/* Function instance initialize */
 	hidd_function_initialize(&p_drv->hidFunction, 0,

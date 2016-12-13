@@ -279,7 +279,7 @@ void audd_speaker_phone_driver_initialize(const USBDDriverDescriptors *pDescript
 	p_audd->speaker.b_unit_id = AUDDSpeakerPhoneDriverDescriptors_FEATUREUNIT;
 
 	/* Initialize the USB driver */
-	usbd_driver_initialize(pDescriptors, p_audd->interfaces);
+	usbd_driver_initialize(pDescriptors, p_audd->interfaces, sizeof(p_audd->interfaces));
 	usbd_init();
 
 }

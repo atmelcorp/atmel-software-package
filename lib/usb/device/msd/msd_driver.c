@@ -65,7 +65,7 @@
 void msd_driver_initialize(const USBDDriverDescriptors *descriptors,
 		MSDLun *luns, unsigned char num_luns)
 {
-	usbd_driver_initialize(descriptors, 0);
+	usbd_driver_initialize(descriptors, NULL, 0);
 	msd_function_initialize(0, luns, num_luns);
 	usbd_init();
 }

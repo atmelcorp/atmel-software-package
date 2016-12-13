@@ -473,7 +473,7 @@ static void usbd_set_address_callback(void *arg, uint8_t status, uint32_t transf
  * \param interfaces  Pointer to an array for storing the current alternate
  *                     setting of each interface (optional).
  */
-void usbd_driver_initialize(const USBDDriverDescriptors *descriptors, uint8_t *interfaces)
+void usbd_driver_initialize(const USBDDriverDescriptors *descriptors, uint8_t *interfaces, uint32_t size)
 {
 	driver.cfgnum = 0;
 	driver.isRemoteWakeUpEnabled = 0;
@@ -482,7 +482,7 @@ void usbd_driver_initialize(const USBDDriverDescriptors *descriptors, uint8_t *i
 
 	/* Initialize interfaces array if not null */
 	if (interfaces != NULL)
-		memset(interfaces, sizeof(interfaces), 0);
+		memset(interfaces, 0, size);
 }
 
 const USBDDriverDescriptors *usbd_driver_get_descriptors(void)

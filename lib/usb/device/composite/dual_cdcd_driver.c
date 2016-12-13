@@ -93,7 +93,7 @@ void dual_cdcd_driver_initialize(const USBDDriverDescriptors *p_descriptors)
 	cdcd_serial_port_initialize(p_cdcd, 0, 0, DUALCDCDDriverDescriptors_INTERFACENUM1, 2);
 
 	/*  Initialize the standard USB driver */
-	usbd_driver_initialize(p_descriptors, 0);
+	usbd_driver_initialize(p_descriptors, NULL, 0);
 
 	/*  Initialize the USB driver */
 	usbd_init();

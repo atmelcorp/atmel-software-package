@@ -176,7 +176,7 @@ void hidd_mouse_driver_initialize(const USBDDriverDescriptors *descriptors)
 	memset(&hidd_input_report.report, 0, sizeof hidd_input_report.report);
 
 	/* Initialize USBD Driver instance */
-	usbd_driver_initialize(descriptors, 0);
+	usbd_driver_initialize(descriptors, NULL, 0);
 
 	/* Function initialize */
 	hidd_function_initialize(p_hidd, 0, hidd_report_descriptor,

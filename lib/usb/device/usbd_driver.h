@@ -110,7 +110,7 @@ typedef struct _USBDDriverDescriptors {
  *         Exported functions
  *------------------------------------------------------------------------------*/
 
-extern void usbd_driver_initialize(const USBDDriverDescriptors *descriptors, uint8_t *interfaces);
+extern void usbd_driver_initialize(const USBDDriverDescriptors *descriptors, uint8_t *interfaces, uint32_t size);
 
 extern const USBDDriverDescriptors *usbd_driver_get_descriptors(void);
 

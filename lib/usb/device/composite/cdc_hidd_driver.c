@@ -66,7 +66,7 @@
 void cdc_hidd_driver_initialize(const USBDDriverDescriptors *descriptors)
 {
 	/* Initialize the standard USB driver */
-	usbd_driver_initialize(descriptors, 0);
+	usbd_driver_initialize(descriptors, NULL, 0);
 
 	/* CDC */
 	cdcd_serial_initialize(CDCHIDDDriverDescriptors_CDC_INTERFACE);

@@ -58,7 +58,7 @@
 void cdcd_serial_driver_initialize(const USBDDriverDescriptors *pDescriptors)
 {
 	/* Initialize the standard driver */
-	usbd_driver_initialize(pDescriptors, 0); /* Multiple settings for interfaces not supported */
+	usbd_driver_initialize(pDescriptors, NULL, 0); /* Multiple settings for interfaces not supported */
 	cdcd_serial_initialize(CDCDSerialDriver_CC_INTERFACE);
 
 	/* Initialize the USB driver */

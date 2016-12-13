@@ -69,7 +69,7 @@ void cdc_msd_driver_initialize(const USBDDriverDescriptors *descriptors,
 		MSDLun *luns, unsigned char num_luns)
 {
 	/* Initialize the standard USB driver */
-	usbd_driver_initialize(descriptors, 0);
+	usbd_driver_initialize(descriptors, NULL, 0);
 
 	/* CDC */
 	cdcd_serial_initialize(CDCMSDDriverDescriptors_CDC_INTERFACE);

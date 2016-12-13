@@ -70,7 +70,7 @@
  */
 void hidd_keyboard_driver_initialize(const USBDDriverDescriptors *descriptors)
 {
-	usbd_driver_initialize(descriptors, 0);
+	usbd_driver_initialize(descriptors, NULL, 0);
 	hidd_keyboard_initialize(0);
 	usbd_init();
 }

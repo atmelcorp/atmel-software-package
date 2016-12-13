@@ -72,7 +72,7 @@ void hid_msdd_driver_initialize(const USBDDriverDescriptors *descriptors,
 	MSDLun *luns, uint8_t num_luns)
 {
 	/* Initialize the standard USB driver */
-	usbd_driver_initialize(descriptors, 0);
+	usbd_driver_initialize(descriptors, NULL, 0);
 
 	/* HID */
 	hidd_keyboard_initialize(HIDMSDDriverDescriptors_HID_INTERFACE);

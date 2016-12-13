@@ -59,7 +59,7 @@ void uvc_driver_initialize(const USBDDriverDescriptors *descriptors, uint32_t bu
 	uvc_driver.multi_buffers = multi_buffers;
 
 	/* Initialize USBD Driver instance */
-	usbd_driver_initialize(descriptors, uvc_driver.alternate_interfaces);
+	usbd_driver_initialize(descriptors, uvc_driver.alternate_interfaces, sizeof(uvc_driver.alternate_interfaces));
 
 	/* Function instance initialize */
 	uvc_function_initialize(&uvc_driver);

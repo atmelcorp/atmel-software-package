@@ -69,7 +69,7 @@ static uint8_t b_alt_interfaces[CDCAUDDDriverDescriptors_MaxNumInterfaces];
 void cdc_audd_driver_initialize(const USBDDriverDescriptors *descriptors)
 {
 	/* Initialize the standard USB driver */
-	usbd_driver_initialize(descriptors, b_alt_interfaces);
+	usbd_driver_initialize(descriptors, b_alt_interfaces, sizeof(b_alt_interfaces));
 
 	/* CDC */
 	cdcd_serial_initialize(CDCAUDDDriverDescriptors_CDC_INTERFACE);

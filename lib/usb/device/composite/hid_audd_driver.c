@@ -69,7 +69,7 @@ static uint8_t b_alt_interfaces[HIDAUDDDriverDescriptors_NUMINTERFACE];
 void hid_audd_driver_initialize(const USBDDriverDescriptors *p_descriptors)
 {
 	/* Initialize the standard USB driver */
-	usbd_driver_initialize(p_descriptors, b_alt_interfaces);
+	usbd_driver_initialize(p_descriptors, b_alt_interfaces, sizeof(b_alt_interfaces));
 
 	/* HID */
 	hidd_keyboard_initialize(HIDAUDDDriverDescriptors_HID_INTERFACE);
