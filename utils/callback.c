@@ -31,9 +31,10 @@
  *         Headers
  *----------------------------------------------------------------------------*/
 
-#include "callback.h"
+#include <stdlib.h>
 
-#include <errno.h>
+#include "callback.h"
+#include "errno.h"
 
 /*----------------------------------------------------------------------------
  *         Public methods
@@ -51,6 +52,25 @@ void callback_set(struct _callback* cb, callback_method_t method, void* arg)
 	if (cb) {
 		cb->method = method;
 		cb->arg = arg;
+	}
+}
+
+/**
+ * \brief Copy a callback
+ *
+ * \param cb     Pointer to a callback object
+ * \param orig   Pointer to the callback to copy in \cb
+ */
+void callback_copy(struct _callback* cb, struct _callback* orig)
+{
+	if (cb) {
+		if (orig == NULL) {
+			cb->method = NULL;
+			cb->arg = NULL;
+		} else {
+			cb->method = orig->method;
+			cb->arg = orig->arg;
+		}
 	}
 }
 

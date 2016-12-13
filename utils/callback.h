@@ -61,6 +61,14 @@ struct _callback {
 extern void callback_set(struct _callback* cb, callback_method_t method, void* arg);
 
 /**
+ * \brief Copy a callback
+ *
+ * \param cb     Pointer to a callback object
+ * \param orig   Pointer to the callback to copy in \cb
+ */
+extern void callback_copy(struct _callback* cb, struct _callback* orig);
+
+/**
  * \brief Call a callback
  *
  * \param cb     Pointer to a callback object
