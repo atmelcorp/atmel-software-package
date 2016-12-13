@@ -34,17 +34,14 @@
  *         Headers
  *---------------------------------------------------------------------------*/
 
-#include "dma/dma.h"
 #include <stdbool.h>
 #include <stdint.h>
 
 #include "callback.h"
 #include "chip.h"
-#include "mutex.h"
+#include "dma/dma.h"
 #include "io.h"
-#include "chip.h"
-#include <stdbool.h>
-#include <stdint.h>
+#include "mutex.h"
 
 /*---------------------------------------------------------------------------
  *         Constants
@@ -85,9 +82,6 @@ enum _pdmic_trans_mode
 enum _pdmic_buf_attr {
 	PDMIC_BUF_ATTR_READ  = 0x02,
 };
-struct _pdmic_desc;
-
-typedef void (*pdmic_callback_t)(struct _pdmic_desc* desc, void* args);
 
 struct _pdmic_desc {
 	Pdmic *addr;
@@ -107,8 +101,7 @@ struct _pdmic_desc {
 
 		struct _buffer buffer;
 		uint16_t transferred;
-		pdmic_callback_t callback;
-		void* cb_args;
+		struct _callback callback;
 	} rx;
 	struct {
 		struct {
@@ -136,13 +129,10 @@ extern int pdmic_init(struct _pdmic_desc *desc);
 
 extern bool pdmic_data_ready(struct _pdmic_desc* desc);
 
-extern int pdmic_transfer(struct _pdmic_desc* desc, struct _buffer* buf,
-			  pdmic_callback_t cb, void* user_args);
+extern int pdmic_transfer(struct _pdmic_desc* desc, struct _buffer* buf, struct _callback* cb);
 
 extern void pdmic_dma_stop(struct _pdmic_desc* desc);
 
 extern bool pdmic_transfer_is_done(struct _pdmic_desc* desc);
-
-extern void pdmic_dma_set_callback(struct _pdmic_desc* desc, pdmic_callback_t cb, void* arg);
 
 #endif /* _PDMIC_H */

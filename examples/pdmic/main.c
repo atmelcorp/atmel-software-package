@@ -237,7 +237,6 @@ static void _set_gain(int8_t gain)
 	pdmic_set_gain(&pdmic_desc, pdmic_desc.dsp_dgain, pdmic_desc.dsp_scale);
 }
 
-
 static void _record_start(void)
 {
 	printf("<Record Start>\r\n");
@@ -271,9 +270,11 @@ static void _play_stop(void)
 /**
  *  \brief DMA callback
  */
-static void _pdmic_dma_callback(struct dma_channel *channel, void *arg)
+static int _pdmic_transfer_callback(void *arg)
 {
 	_record_stop();
+
+	return 0;
 }
 
 /**
@@ -282,7 +283,7 @@ static void _pdmic_dma_callback(struct dma_channel *channel, void *arg)
 static void _record_sound_with_dma(void)
 {
 	uint32_t  audio_length = SAMPLE_COUNT * 2;
-	volatile bool done = false;
+	struct _callback _cb;
 
 	_record_start();
 
@@ -292,7 +293,11 @@ static void _record_sound_with_dma(void)
 		.attr = PDMIC_BUF_ATTR_READ,
 	};
 
-	pdmic_transfer(&pdmic_desc, &_rx, (pdmic_callback_t)_pdmic_dma_callback, (void*)&done);
+	pdmic_desc.transfer_mode = PDMIC_MODE_DMA;
+
+	callback_set(&_cb, _pdmic_transfer_callback, NULL);
+	pdmic_transfer(&pdmic_desc, &_rx, &_cb);
+
 	while (!pdmic_transfer_is_done(&pdmic_desc));
 }
 
@@ -302,6 +307,7 @@ static void _record_sound_with_dma(void)
 static void _record_sound_polling(void)
 {
 	uint32_t  audio_length = SAMPLE_COUNT * 2;
+	struct _callback _cb;
 
 	_record_start();
 
@@ -311,9 +317,12 @@ static void _record_sound_polling(void)
 		.attr = PDMIC_BUF_ATTR_READ,
 	};
 
-	pdmic_transfer(&pdmic_desc, &_rx, NULL, NULL);
+	pdmic_desc.transfer_mode = PDMIC_MODE_POLLING;
 
-	_record_stop();
+	callback_set(&_cb, _pdmic_transfer_callback, NULL);
+	pdmic_transfer(&pdmic_desc, &_rx, &_cb);
+
+	while (!pdmic_transfer_is_done(&pdmic_desc));
 }
 
 /**
@@ -343,12 +352,13 @@ static void _playback_using_classd(void)
 		.attr = CLASSD_BUF_ATTR_WRITE,
 	};
 
-	classd_desc.transfer_mode = CLASSD_MODE_POLLING;
-	classd_transfer(&classd_desc, &_tx, NULL, NULL);
+	classd_desc.transfer_mode = CLASSD_MODE_DMA;
+	classd_transfer(&classd_desc, &_tx, NULL);
+
+	while (!classd_transfer_is_done(&classd_desc));
 
 	_play_stop();
 	classd_volume_mute(&classd_desc, true, true);
-
 }
 
 /*----------------------------------------------------------------------------

@@ -168,30 +168,51 @@ static volatile bool _sound_recorded = false;
 /** audio playing volume */
 static uint8_t play_vol = AUDIO_PLAY_MAX_VOLUME/2;
 
-static volatile bool record_done = false;
+struct {
+	mutex_t rx;
+	mutex_t tx;
+} mutex;
 
-static volatile bool playback_done = false;
 /*----------------------------------------------------------------------------
  *         Internal functions
  *----------------------------------------------------------------------------*/
+
+static void _record_stop(void)
+{
+	uint32_t elapsed = timer_get_interval(_start_tick, timer_get_tick());
+	printf("<Record Stop (%ums elapsed)>\r\n", (unsigned)elapsed);
+	_sound_recorded = true;
+	audio_enable(&audio_record_device, false);
+}
+
+static void _play_stop(void)
+{
+	uint32_t elapsed = timer_get_interval(_start_tick, timer_get_tick());
+	printf("<Play Stop (%ums elapsed)>\r\n", (unsigned)elapsed);
+	audio_enable(&audio_play_device, false);
+}
+
 /**
  *  \brief DMA TX callback
  */
-static void audio_play_finish_callback(struct dma_channel *channel, void* p_arg)
+static int _audio_play_finish_callback(void* arg)
 {
-	p_arg = p_arg; /* dummy */
+	mutex_unlock(&mutex.tx);
+	_play_stop();
+	audio_play_mute(&audio_play_device, true);
 
-	playback_done = true;
+	return 0;
 }
 
 /**
  *  \brief DMA RX callback
  */
-static void audio_record_finish_callback(struct dma_channel *channel, void* p_arg)
+static int _audio_record_finish_callback(void* arg)
 {
-	p_arg = p_arg; /* dummy */
+	mutex_unlock(&mutex.rx);
+	_record_stop();
 
-	record_done = true;
+	return 0;
 }
 
 /**
@@ -217,26 +238,11 @@ static void _record_start(void)
 	audio_enable(&audio_record_device, true);
 }
 
-static void _record_stop(void)
-{
-	uint32_t elapsed = timer_get_interval(_start_tick, timer_get_tick());
-	printf("<Record Stop (%ums elapsed)>\r\n", (unsigned)elapsed);
-	_sound_recorded = true;
-	audio_enable(&audio_record_device, false);
-}
-
 static void _play_start(void)
 {
 	printf("<Play Start>\r\n");
 	_start_tick = timer_get_tick();
 	audio_enable(&audio_play_device, true);
-}
-
-static void _play_stop(void)
-{
-	uint32_t elapsed = timer_get_interval(_start_tick, timer_get_tick());
-	printf("<Play Stop (%ums elapsed)>\r\n", (unsigned)elapsed);
-	audio_enable(&audio_play_device, false);
 }
 
 /**
@@ -245,15 +251,15 @@ static void _play_stop(void)
 static void _record_sound(void)
 {
 	uint32_t  audio_length = SAMPLE_COUNT * 2;
+	struct _callback _cb;
 
+	mutex_lock(&mutex.rx);
 	_record_start();
-	audio_dma_transfer(&audio_record_device, (void *)_sound_buffer, audio_length,
-					   audio_record_finish_callback);
-	while (!record_done);
-	_record_stop();
-	record_done = false;
-}
+	callback_set(&_cb, _audio_record_finish_callback, &audio_record_device);
+	audio_dma_transfer(&audio_record_device, (void *)_sound_buffer, audio_length, &_cb);
 
+	while (mutex_is_locked(&mutex.rx));
+}
 
 /**
  * \brief Playback recorded sound.
@@ -261,7 +267,8 @@ static void _record_sound(void)
 static void _playback_sound(void)
 {
 	/* our Classd support 16 bit sound only*/
-	uint32_t  audio_length = SAMPLE_COUNT * 2;	
+	uint32_t  audio_length = SAMPLE_COUNT * 2;
+	struct _callback _cb;
 
 	if (!_sound_recorded) {
 	       printf("Please record the sound first\n\r");
@@ -271,13 +278,10 @@ static void _playback_sound(void)
 	audio_play_mute(&audio_play_device, false);
 	_play_start();
 
-	audio_dma_transfer(&audio_play_device, (void *)_sound_buffer, audio_length,
-						audio_play_finish_callback);
+	callback_set(&_cb, _audio_play_finish_callback, &audio_play_device);
+	audio_dma_transfer(&audio_play_device, (void *)_sound_buffer, audio_length, &_cb);
 
-	while (!playback_done);
-	_play_stop();
-	playback_done = false;
-	audio_play_mute(&audio_play_device, true);
+	while (mutex_is_locked(&mutex.tx));
 }
 
 
@@ -294,9 +298,12 @@ extern int main(void)
 {
 	uint8_t key;
 
+	mutex.tx = 0;
+	mutex.rx = 0;
+
 	/* output example information */
 	console_example_info("Audio Recorder Example");
-	
+
 	/* Configure Audio play*/
 	audio_configure(&audio_play_device);
 
@@ -326,6 +333,6 @@ extern int main(void)
 				play_vol -= 10;
 				audio_play_set_volume(&audio_play_device, play_vol);
 			}
-		} 
+		}
 	}
 }

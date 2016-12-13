@@ -36,12 +36,72 @@
 #include <string.h>
 
 #include "audio/pdmic.h"
+#include "callback.h"
 #include "chip.h"
 #include "dma/dma.h"
 #include "errno.h"
 #include "mm/cache.h"
 #include "peripherals/pmc.h"
 #include "trace.h"
+
+/*----------------------------------------------------------------------------
+ *        Local functions
+ *----------------------------------------------------------------------------*/
+
+static void _pdmic_dma_callback(struct dma_channel* channel, void* args)
+{
+	struct _pdmic_desc* desc = (struct _pdmic_desc *)args;
+
+	cache_invalidate_region(desc->dma.rx.cfg.da, desc->dma.rx.cfg.len);
+
+	dma_free_channel(channel);
+
+	mutex_unlock(&desc->rx.mutex);
+
+	callback_call(&desc->rx.callback);
+}
+
+static void _pdmic_dma_transfer(struct _pdmic_desc* desc, struct _buffer* buffer)
+{
+	memset(&desc->dma.rx.cfg, 0, sizeof(desc->dma.rx.cfg));
+
+	desc->dma.rx.cfg.sa = (void*)&desc->addr->PDMIC_CDR;
+	desc->dma.rx.cfg.da = buffer->data;
+	desc->dma.rx.cfg.upd_sa_per_data = 0;
+	desc->dma.rx.cfg.upd_da_per_data = 1;
+	desc->dma.rx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
+
+	if (desc->dsp_size == PDMIC_CONVERTED_DATA_SIZE_32) {
+		desc->dma.rx.cfg.len = buffer->size / 4;
+		desc->dma.rx.cfg.data_width = DMA_DATA_WIDTH_WORD;
+	} else {
+		desc->dma.rx.cfg.len = buffer->size / 2;
+		desc->dma.rx.cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
+	}
+	dma_configure_transfer(desc->dma.rx.channel, &desc->dma.rx.cfg);
+	dma_set_callback(desc->dma.rx.channel, _pdmic_dma_callback, (void*)desc);
+	dma_start_transfer(desc->dma.rx.channel);
+}
+
+static void _pdmic_polling_transfer(struct _pdmic_desc* desc, struct _buffer* buffer)
+{
+	uint16_t* data = (uint16_t*)buffer->data;
+	uint32_t  length = buffer->size / sizeof(uint16_t);
+	volatile uint32_t current = 0;
+
+	while (current < length) {
+		if (pdmic_data_ready(desc)) {
+			/* start copy data from PDMIC_CDR to memory */
+			*data = desc->addr->PDMIC_CDR;
+			data++;
+			current++;
+		}
+	}
+
+	mutex_unlock(&desc->rx.mutex);
+
+	callback_call(&desc->rx.callback);
+}
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -246,65 +306,7 @@ bool pdmic_data_ready(struct _pdmic_desc* desc)
 	return (desc->addr->PDMIC_ISR & PDMIC_ISR_DRDY) == PDMIC_ISR_DRDY;
 }
 
-static void _pdmic_dma_read_callback(struct dma_channel* channel, void* args)
-{
-  	struct _pdmic_desc* desc = (struct _pdmic_desc *)args;
-
-	cache_invalidate_region(desc->dma.rx.cfg.da, desc->dma.rx.cfg.len);
-
-	dma_free_channel(channel);
-
-	if (desc->rx.callback)
-		desc->rx.callback(desc, desc->rx.cb_args);
-
-	mutex_unlock(&desc->rx.mutex);
-}
-
-static void _pdmic_dma_transfer(struct _pdmic_desc* desc, struct _buffer* buffer)
-{
-	memset(&desc->dma.rx.cfg, 0, sizeof(desc->dma.rx.cfg));
-
-	desc->dma.rx.cfg.sa = (void*)&desc->addr->PDMIC_CDR;
-	desc->dma.rx.cfg.da = buffer->data;
-	desc->dma.rx.cfg.upd_sa_per_data = 0;
-	desc->dma.rx.cfg.upd_da_per_data = 1;
-	desc->dma.rx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
-
-	if (desc->dsp_size == PDMIC_CONVERTED_DATA_SIZE_32) {
-		desc->dma.rx.cfg.len = buffer->size / 4;
-		desc->dma.rx.cfg.data_width = DMA_DATA_WIDTH_WORD;
-	} else {
-		desc->dma.rx.cfg.len = buffer->size / 2;
-		desc->dma.rx.cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
-	}
-	dma_configure_transfer(desc->dma.rx.channel, &desc->dma.rx.cfg);
-	dma_set_callback(desc->dma.rx.channel, _pdmic_dma_read_callback, (void*)desc);
-	dma_start_transfer(desc->dma.rx.channel);
-}
-
-static void _pdmic_polling_transfer(struct _pdmic_desc* desc, struct _buffer* buffer)
-{
-	uint16_t* data = (uint16_t*)buffer->data;
-	uint32_t  length = buffer->size / sizeof(uint16_t);
-	volatile uint32_t current = 0;
-
-
-	while (current < length) {
-		if (pdmic_data_ready(desc)) {
-			/* start copy data from PDMIC_CDR to memory */
-			*data = desc->addr->PDMIC_CDR;
-			data++;
-			current++;
-		}
-	}
-
-	if (desc->rx.callback)
-		desc->rx.callback(desc, desc->rx.cb_args);
-
-	mutex_unlock(&desc->rx.mutex);
-}
-
-int pdmic_transfer(struct _pdmic_desc* desc, struct _buffer* buf, pdmic_callback_t cb, void* user_args)
+int pdmic_transfer(struct _pdmic_desc* desc, struct _buffer* buf, struct _callback* cb)
 {
 	uint8_t tmode;
 
@@ -316,14 +318,14 @@ int pdmic_transfer(struct _pdmic_desc* desc, struct _buffer* buf, pdmic_callback
 	if (buf->attr & PDMIC_BUF_ATTR_READ) {
 		mutex_lock(&desc->rx.mutex);
 
+		callback_copy(&desc->rx.callback, cb);
+
 		desc->rx.transferred = 0;
 		desc->rx.buffer.data = buf->data;
 		desc->rx.buffer.size = buf->size;
 		desc->rx.buffer.attr = buf->attr;
-		desc->rx.callback = cb;
-		desc->rx.cb_args = user_args;
 
-		if(tmode == PDMIC_MODE_DMA)
+		if (tmode == PDMIC_MODE_DMA)
 			_pdmic_dma_transfer(desc, buf);
 		else if (tmode == PDMIC_MODE_POLLING)
 			_pdmic_polling_transfer(desc, buf);
@@ -335,12 +337,6 @@ int pdmic_transfer(struct _pdmic_desc* desc, struct _buffer* buf, pdmic_callback
 bool pdmic_transfer_is_done(struct _pdmic_desc* desc)
 {
 	return (!mutex_is_locked(&desc->rx.mutex));
-}
-
-void pdmic_dma_set_callback(struct _pdmic_desc* desc, pdmic_callback_t cb, void* arg)
-{
-	desc->rx.callback = cb;
-	desc->rx.cb_args = arg;
 }
 
 void pdmic_dma_stop(struct _pdmic_desc* desc)

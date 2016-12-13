@@ -39,6 +39,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "callback.h"
 #include "chip.h"
 #include "dma/dma.h"
 #include "io.h"
@@ -101,10 +102,6 @@ enum _classd_buf_attr {
 	CLASSD_BUF_ATTR_READ  = 0x02,
 };
 
-struct _classd_desc;
-
-typedef void (*classd_callback_t)(struct _classd_desc* desc, void* args);
-
 struct _classd_desc
 {
 	Classd* addr;
@@ -122,8 +119,7 @@ struct _classd_desc
 
 		struct _buffer buffer;
 		uint16_t transferred;
-		classd_callback_t callback;
-		void* cb_args;
+		struct _callback callback;
 	} tx;
 	struct {
 		struct {
@@ -157,13 +153,11 @@ extern void classd_volume_mute(struct _classd_desc *desc, bool left, bool right)
 
 extern void classd_volume_unmute(struct _classd_desc *desc, bool left, bool right);
 
-extern int classd_transfer(struct _classd_desc* desc, struct _buffer* buf, classd_callback_t cb, void* arg);
+extern int classd_transfer(struct _classd_desc* desc, struct _buffer* buf, struct _callback* cb);
 
 extern bool classd_transfer_is_done(struct _classd_desc* desc);
 
 extern void classd_dma_stop(struct _classd_desc* desc);
-
-extern void classd_dma_tx_set_callback(struct _classd_desc* desc, classd_callback_t cb, void* arg);
 
 #endif /* CONFIG_HAVE_CLASSD */
 

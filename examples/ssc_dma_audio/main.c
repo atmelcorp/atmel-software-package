@@ -179,32 +179,38 @@ static void _display_menu(void)
 }
 
 /**
- *  \brief DMA RX callback
+ *  \brief Audio RX callback
  */
-static void ssc_record_finish_callback(struct dma_channel *channel, void* p_arg)
+static int _ssc_record_transfer_callback(void* arg)
 {
+	struct _ssc_desc* desc = (struct _ssc_desc*)arg;
+	struct _callback _cb;
+
 	record_buffer_index = (record_buffer_index + 1) % BUFFER_NUMBER;
 
 	num_buffers_to_send++;
 
 	struct _buffer _tx = {
-			.data = (unsigned char*)&_sound_buffer[play_buffer_index],
-			.size = SAMPLE_COUNT,
-			.attr = SSC_BUF_ATTR_WRITE,
+		.data = (unsigned char*)&_sound_buffer[play_buffer_index],
+		.size = SAMPLE_COUNT,
+		.attr = SSC_BUF_ATTR_WRITE,
 	};
 
-	ssc_transfer(&ssc_dev_desc, &_tx, NULL, NULL);
+	ssc_transfer(desc, &_tx, NULL);
 	//audio_enable(&ssc_dev_desc, true);
 	play_buffer_index = (play_buffer_index + 1) % BUFFER_NUMBER;
-	num_buffers_to_send --;
+	num_buffers_to_send--;
 
 	struct _buffer _rx = {
-			.data = (unsigned char*)&_sound_buffer[record_buffer_index],
-			.size = SAMPLE_COUNT,
-			.attr = SSC_BUF_ATTR_READ,
+		.data = (unsigned char*)&_sound_buffer[record_buffer_index],
+		.size = SAMPLE_COUNT,
+		.attr = SSC_BUF_ATTR_READ,
 	};
 
-	ssc_transfer(&ssc_dev_desc, &_rx, (ssc_callback_t)ssc_record_finish_callback, NULL);
+	callback_set(&_cb, _ssc_record_transfer_callback, desc);
+	ssc_transfer(desc, &_rx, &_cb);
+
+	return 0;
 }
 
 /**
@@ -272,6 +278,7 @@ static void console_handler(uint8_t key)
  */
 extern int main( void )
 {
+	struct _callback _cb;
 
 	/* Output example information */
 	console_example_info("SSC DMA Audio Example");
@@ -296,6 +303,8 @@ extern int main( void )
 
 	_display_menu();
 
+	callback_set(&_cb, _ssc_record_transfer_callback, &ssc_dev_desc);
+
 	/* Infinite loop */
 	while (1) {
 
@@ -308,8 +317,7 @@ extern int main( void )
 				.attr = SSC_BUF_ATTR_READ,
 			};
 
-			ssc_transfer(&ssc_dev_desc, &_rx, (ssc_callback_t)ssc_record_finish_callback, NULL);
+			ssc_transfer(&ssc_dev_desc, &_rx, &_cb);
 		}
-
 	}
 }

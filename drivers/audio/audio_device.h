@@ -30,9 +30,6 @@
 #ifndef AUDIO_DEVICE_API_H
 #define AUDIO_DEVICE_API_H
 
-#include "dma/dma.h"
-#include "gpio/pio.h"
-
 #if defined(CONFIG_HAVE_CLASSD)
 #include "audio/classd.h"
 #endif
@@ -53,14 +50,15 @@
 #include "audio/ad1934.h"
 #endif
 #endif /* CONFIG_HAVE_SSC */
+#include "callback.h"
+#include "dma/dma.h"
+#include "gpio/pio.h"
 
 #define AUDIO_PLAY_MAX_VOLUME    (100)
 
 /*------------------------------------------------------------------------------
  *        Types
  *----------------------------------------------------------------------------*/
-
-typedef void (*audio_callback_t)(struct dma_channel *channel, void* args);
 
 enum audio_codec_type {
 	AUDIO_CODEC_NONE,
@@ -191,21 +189,13 @@ extern void audio_dma_stop(struct _audio_desc *desc);
  * \param size     Data buffer size
  * \param cb       Callback at end of DMA transfer
  */
-extern void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size, audio_callback_t cb);
+extern void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size, struct _callback* cb);
 
 /**
  * \brief Check the DMA transfer status
  * \param desc     Audio descriptor
  */
 extern bool audio_dma_transfer_is_done(struct _audio_desc *desc);
-
-/**
- * \brief Set the DMA transfer callback function
- * \param desc     Audio descriptor
- * \param cb       Callback at end of DMA transfer
- * \param arg      Callback function argu
- */
-extern void audio_set_dma_callback(struct _audio_desc *desc, audio_callback_t cb, void* arg);
 
 /**
  * \brief Increase or decrease CODEC clock

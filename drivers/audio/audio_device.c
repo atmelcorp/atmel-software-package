@@ -36,6 +36,7 @@
 #include <string.h>
 
 #include "audio_device.h"
+#include "callback.h"
 #include "chip.h"
 #include "dma/dma.h"
 #include "mm/cache.h"
@@ -401,23 +402,23 @@ void audio_dma_stop(struct _audio_desc *desc)
 	}
 }
 
-void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size,
-						audio_callback_t cb)
+void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size, struct _callback* cb)
 {
 	switch (desc->type) {
 #if defined(CONFIG_HAVE_CLASSD)
 	case AUDIO_DEVICE_CLASSD:
 		switch (desc->direction) {
-		case AUDIO_DEVICE_PLAY: {
-			struct _buffer _tx = {
-				.data = (uint8_t*)buffer,
-				.size = size,
-				.attr = CLASSD_BUF_ATTR_WRITE,
-			};
+		case AUDIO_DEVICE_PLAY:
+			{
+				struct _buffer _tx = {
+					.data = (uint8_t*)buffer,
+					.size = size,
+					.attr = CLASSD_BUF_ATTR_WRITE,
+				};
 
-			classd_transfer(&desc->device.classd.desc, &_tx, (classd_callback_t)cb, NULL);
-		}
-		break;
+				classd_transfer(&desc->device.classd.desc, &_tx, cb);
+			}
+			break;
 
 		case AUDIO_DEVICE_RECORD:
 			/* Do not supported */
@@ -428,25 +429,29 @@ void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size,
 #if defined(CONFIG_HAVE_SSC)
 	case AUDIO_DEVICE_SSC:
 		switch (desc->direction) {
-		case AUDIO_DEVICE_PLAY: {
-			struct _buffer tx = {
-				.data = (uint8_t*)buffer,
-				.size = size,
-				.attr = SSC_BUF_ATTR_WRITE,
-			};
+		case AUDIO_DEVICE_PLAY:
+			{
+				struct _buffer tx = {
+					.data = (uint8_t*)buffer,
+					.size = size,
+					.attr = SSC_BUF_ATTR_WRITE,
+				};
 
-			ssc_transfer(&desc->device.ssc.desc, &tx, (ssc_callback_t)cb, NULL);
-		} break;
+				ssc_transfer(&desc->device.ssc.desc, &tx, cb);
+			}
+			break;
 
-		case AUDIO_DEVICE_RECORD: {
-			struct _buffer rx = {
-				.data = (uint8_t*)buffer,
-				.size = size,
-				.attr = SSC_BUF_ATTR_READ,
-			};
+		case AUDIO_DEVICE_RECORD:
+			{
+				struct _buffer rx = {
+					.data = (uint8_t*)buffer,
+					.size = size,
+					.attr = SSC_BUF_ATTR_READ,
+				};
 
-			ssc_transfer(&desc->device.ssc.desc, &rx, (ssc_callback_t)cb, NULL);
-		} break;
+				ssc_transfer(&desc->device.ssc.desc, &rx, cb);
+			}
+			break;
 		}
 		break;
 #endif
@@ -457,15 +462,17 @@ void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size,
 			/* Do not supported */
 			return;
 
-		case AUDIO_DEVICE_RECORD: {
-			struct _buffer _rx = {
-				.data = (uint8_t*)buffer,
-				.size = size,
-				.attr = PDMIC_BUF_ATTR_READ,
-			};
+		case AUDIO_DEVICE_RECORD:
+			{
+				struct _buffer rx = {
+					.data = (uint8_t*)buffer,
+					.size = size,
+					.attr = PDMIC_BUF_ATTR_READ,
+				};
 
-			pdmic_transfer(&desc->device.pdmic.desc, &_rx, (pdmic_callback_t)cb, NULL);
-		} break;
+				pdmic_transfer(&desc->device.pdmic.desc, &rx, cb);
+			}
+			break;
 		}
 		break;
 #endif
@@ -501,37 +508,6 @@ bool audio_dma_transfer_is_done(struct _audio_desc *desc)
 #endif
 	default:
 		return true;
-	}
-}
-
-void audio_set_dma_callback(struct _audio_desc *desc, audio_callback_t cb, void* arg)
-{
-	switch (desc->type) {
-#if defined(CONFIG_HAVE_CLASSD)
-	case AUDIO_DEVICE_CLASSD:
-		classd_dma_tx_set_callback(&desc->device.classd.desc, (classd_callback_t)cb, arg);
-		break;
-#endif
-#if defined(CONFIG_HAVE_SSC)
-	case AUDIO_DEVICE_SSC:
-		switch (desc->direction) {
-		case AUDIO_DEVICE_PLAY:
-			ssc_dma_tx_set_callback(&desc->device.ssc.desc, (ssc_callback_t)cb, arg);
-			return;
-
-		case AUDIO_DEVICE_RECORD:
-			ssc_dma_rx_set_callback(&desc->device.ssc.desc, (ssc_callback_t)cb, arg);
-			break;
-		}
-		break;
-#endif
-#if defined(CONFIG_HAVE_PDMIC)
-	case AUDIO_DEVICE_PDMIC:
-		pdmic_dma_set_callback(&desc->device.pdmic.desc, (pdmic_callback_t)cb, arg);
-		break;
-#endif
-	default:
-		return;
 	}
 }
 

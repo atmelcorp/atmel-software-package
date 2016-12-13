@@ -83,16 +83,15 @@
 
 static void _ssc_dma_rx_callback(struct dma_channel* channel, void* args)
 {
-  	struct _ssc_desc* desc = (struct _ssc_desc *)args;
+	struct _ssc_desc* desc = (struct _ssc_desc *)args;
 
 	cache_invalidate_region(desc->dma.rx.cfg.da, desc->dma.rx.cfg.len);
 
 	dma_reset_channel(channel);
 
-	if (desc->rx.callback)
-		desc->rx.callback(desc, desc->rx.cb_args);
-
 	mutex_unlock(&desc->rx.mutex);
+
+	callback_call(&desc->rx.callback);
 }
 
 static void _ssc_dma_rx_transfer(struct _ssc_desc* desc, struct _buffer* buffer)
@@ -130,23 +129,18 @@ static void _ssc_dma_tx_callback(struct dma_channel* channel, void* args)
 
 	dma_reset_channel(channel);
 
-	if (desc->tx.callback)
-		desc->tx.callback(desc, desc->tx.cb_args);
-
 	mutex_unlock(&desc->tx.mutex);
+
+	callback_call(&desc->tx.callback);
 }
 
 static void _ssc_dma_tx_transfer(struct _ssc_desc* desc, struct _buffer* buffer)
 {
-  	uint32_t id = get_ssc_id_from_addr(desc->addr);
+	uint32_t id = get_ssc_id_from_addr(desc->addr);
 
 	assert(id < ID_PERIPH_COUNT);
 
 	memset(&desc->dma.tx.cfg, 0x0, sizeof(desc->dma.tx.cfg));
-
-	if(!desc->dma.tx.channel)
-		desc->dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
-	assert(desc->dma.tx.channel);
 
 	desc->dma.tx.cfg.sa = buffer->data;
 	desc->dma.tx.cfg.da = (void*)&desc->addr->SSC_THR;
@@ -189,11 +183,10 @@ void ssc_configure(struct _ssc_desc* desc)
 	desc->addr->SSC_CR = SSC_CR_RXDIS | SSC_CR_TXDIS | SSC_CR_SWRST;
 
 	/* Configure clock frequency */
-	if (desc->bit_rate != 0) {
+	if (desc->bit_rate != 0)
 		desc->addr->SSC_CMR = clock / (2 * desc->bit_rate);
-	} else {
+	else
 		desc->addr->SSC_CMR = 0;
-	}
 
 	if (desc->rx_cfg_cks_rk) {
 		rcmr = SSC_RCMR_CKS_RK |
@@ -308,7 +301,7 @@ bool ssc_is_rx_ready(struct _ssc_desc* desc)
 	return ((desc->addr->SSC_SR & SSC_SR_RXRDY) == SSC_SR_RXRDY);
 }
 
-int ssc_transfer(struct _ssc_desc* desc, struct _buffer* buf, ssc_callback_t cb, void* user_args)
+int ssc_transfer(struct _ssc_desc* desc, struct _buffer* buf, struct _callback* cb)
 {
 	if ((buf == NULL) || (buf->size == 0))
 		return -EINVAL;
@@ -316,26 +309,22 @@ int ssc_transfer(struct _ssc_desc* desc, struct _buffer* buf, ssc_callback_t cb,
 	if (buf->attr & SSC_BUF_ATTR_READ) {
 		mutex_lock(&desc->rx.mutex);
 
+		callback_copy(&desc->rx.callback, cb);
+
 		desc->rx.transferred = 0;
 		desc->rx.buffer.data = buf->data;
 		desc->rx.buffer.size = buf->size;
 		desc->rx.buffer.attr = buf->attr;
-		if(cb) {
-			desc->rx.callback = cb;
-			desc->rx.cb_args = user_args;
-		}
 		_ssc_dma_rx_transfer(desc, buf);
 	} else if (buf->attr & SSC_BUF_ATTR_WRITE) {
 		mutex_lock(&desc->tx.mutex);
+
+		callback_copy(&desc->tx.callback, cb);
 
 		desc->tx.transferred = 0;
 		desc->tx.buffer.data = buf->data;
 		desc->tx.buffer.size = buf->size;
 		desc->tx.buffer.attr = buf->attr;
-		if(cb) {
-			desc->tx.callback = cb;
-			desc->tx.cb_args = user_args;
-		}
 		_ssc_dma_tx_transfer(desc, buf);
 	}
 
@@ -366,16 +355,4 @@ void ssc_dma_rx_stop(struct _ssc_desc* desc)
 		dma_stop_transfer(desc->dma.rx.channel);
 		mutex_unlock(&desc->rx.mutex);
 	}
-}
-
-void ssc_dma_tx_set_callback(struct _ssc_desc* desc, ssc_callback_t cb, void* arg)
-{
-	desc->tx.callback = cb;
-	desc->tx.cb_args = arg;
-}
-
-void ssc_dma_rx_set_callback(struct _ssc_desc* desc, ssc_callback_t cb, void* arg)
-{
-	desc->rx.callback = cb;
-	desc->rx.cb_args = arg;
 }

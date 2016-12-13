@@ -137,33 +137,25 @@
  *         Headers
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
-#include "chip.h"
-#include "chip_pins.h"
-#include "trace.h"
-#include "compiler.h"
-
-#include "serial/console.h"
-#include "led/led.h"
-
-#include "mm/cache.h"
-#include "gpio/pio.h"
-#include "peripherals/pit.h"
-#include "peripherals/pmc.h"
-#include "dma/dma.h"
-
-#include "usb/device/audio/audd_function.h"
-#include "usb/device/composite/hid_audd_driver.h"
-#include "usb/device/hid/hidd_keyboard.h"
-
-#include "main_descriptors.h"
-#include "../usb_common/main_usb_common.h"
-#include "audio/audio_device.h"
-
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+
+#include "audio/audio_device.h"
+#include "board.h"
+#include "chip.h"
+#include "chip_pins.h"
+#include "gpio/pio.h"
+#include "led/led.h"
+#include "main_descriptors.h"
+#include "mm/cache.h"
+#include "serial/console.h"
+#include "trace.h"
+#include "../usb_common/main_usb_common.h"
+#include "usb/device/audio/audd_function.h"
+#include "usb/device/composite/hid_audd_driver.h"
+#include "usb/device/hid/hidd_keyboard.h"
 
 #if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
 	#include "config_sama5d2-xplained.h"
@@ -254,37 +246,34 @@ static volatile bool is_first_frame = true;
 /** audio playing flag */
 static volatile bool is_audio_playing = false;
 
-
 /*----------------------------------------------------------------------------
  *         Internal functions
  *----------------------------------------------------------------------------*/
 /**
- *  \brief DMA TX callback
+ *  \brief Audio TX callback
  */
-static void audio_play_finish_callback(struct dma_channel *channel, void* arg)
+static int _audio_transfer_callback(void* arg)
 {
 	uint32_t index;
-
-	/* unused */
-	(void)channel;
-	(void)arg;
+	struct _audio_desc* desc = (struct _audio_desc*)arg;
+	struct _callback _cb;
 
 	if (num_buffers_to_send == 0) {
 		/* End of transmission */
 		is_audio_playing = false;
 		is_first_frame = true;
-		audio_enable(&audio_device, false);
-		return;
+		audio_enable(desc, false);
+		return 0;
 	}
-
 
 	/* Load next buffer */
 	out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
 	num_buffers_to_send--;
 	index = out_buffer_index;
-	audio_dma_transfer(&audio_device, buffers[index],
-	                   buffer_sizes[index], audio_play_finish_callback);
+	callback_set(&_cb, _audio_transfer_callback, desc);
+	audio_dma_transfer(&audio_device, buffers[index], buffer_sizes[index], &_cb);
 
+	return 0;
 }
 
 /**
@@ -361,9 +350,9 @@ static void hidd_keyboard_process_keys(void)
 /**
  *  Invoked when a frame has been received.
  */
-static void frame_received(void *arg, uint8_t status,
-		uint32_t transferred, uint32_t remaining)
+static void frame_received(void* arg, uint8_t status, uint32_t transferred, uint32_t remaining)
 {
+	struct _audio_device* desc = (struct _audio_device*)arg;
 	uint32_t index;
 
 	if (status == USBD_STATUS_SUCCESS) {
@@ -373,17 +362,17 @@ static void frame_received(void *arg, uint8_t status,
 
 		/* Start DAC transmission if necessary */
 		if (is_first_frame && num_buffers_to_send > DAC_DELAY) {
+			struct _callback _cb;
+
 			is_first_frame = false;
 			audio_enable(&audio_device, true);
 			is_audio_playing = true;
 			out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
 			num_buffers_to_send--;
 			index = out_buffer_index;
-			audio_dma_transfer(&audio_device, buffers[index],
-			                   buffer_sizes[index], audio_play_finish_callback);
-
+			callback_set(&_cb, _audio_transfer_callback, desc);
+			audio_dma_transfer(&audio_device, buffers[index], buffer_sizes[index], &_cb);
 		}
-
 	}
 	else if (status == USBD_STATUS_ABORTED) {
 		/* Error , ABORT, add NULL buffer */
@@ -394,8 +383,8 @@ static void frame_received(void *arg, uint8_t status,
 
 	/* Receive next packet */
 	audd_function_read(buffers[in_buffer_index],
-			AUDDSpeakerDriver_BYTESPERFRAME,
-			frame_received, NULL);
+			   AUDDSpeakerDriver_BYTESPERFRAME,
+			   frame_received, desc);
 }
 
 /*----------------------------------------------------------------------------
@@ -495,12 +484,10 @@ void hidd_keyboard_callbacks_leds_changed(
 	caps_lock_status = caps_lock_status; /* dummy */
 	scroll_lock_status = scroll_lock_status; /* dummy */
 	/* Num. lock */
-	if (num_lock_status) {
+	if (num_lock_status)
 		led_set(LED_NUMLOCK);
-	}
-		else {
+	else
 		led_clear(LED_NUMLOCK);
-	}
 }
 
 /*----------------------------------------------------------------------------
@@ -553,7 +540,7 @@ int main(void)
 			/* Start Reading the incoming audio stream */
 			audd_function_read(buffers[in_buffer_index],
 					AUDDSpeakerDriver_BYTESPERFRAME,
-					frame_received, 0);
+					frame_received, &audio_device);
 
 			usb_conn = true;
 		}

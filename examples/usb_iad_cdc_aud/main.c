@@ -137,33 +137,24 @@
  *         Headers
  *----------------------------------------------------------------------------*/
 
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdint.h>
+
+#include "audio/audio_device.h"
 #include "board.h"
 #include "chip.h"
 #include "chip_pins.h"
-#include "trace.h"
-#include "compiler.h"
-
-#include "serial/console.h"
 #include "led/led.h"
-
+#include "main_descriptors.h"
 #include "mm/cache.h"
-#include "gpio/pio.h"
-#include "peripherals/pit.h"
-#include "peripherals/pmc.h"
-#include "dma/dma.h"
-
+#include "serial/console.h"
+#include "trace.h"
+#include "../usb_common/main_usb_common.h"
 #include "usb/device/audio/audd_function.h"
 #include "usb/device/cdc/cdcd_serial.h"
 #include "usb/device/composite/cdc_audd_driver.h"
 #include "usb/device/usbd_hal.h"
-
-#include "main_descriptors.h"
-#include "../usb_common/main_usb_common.h"
-#include "audio/audio_device.h"
-
-#include <stdio.h>
-#include <stdbool.h>
-#include <stdint.h>
 
 #if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
 	#include "config_sama5d2-xplained.h"
@@ -249,38 +240,36 @@ static volatile bool is_dac_active = false;
  *----------------------------------------------------------------------------*/
 
 /**
- *  \brief DMA TX callback
+ *  \brief Audio TX callback
  */
-static void audio_play_finish_callback(struct dma_channel *channel, void* arg)
+static int _audio_transfer_callback(void* arg)
 {
 	uint32_t index;
-
-	/* unused */
-	(void)channel;
-	(void)arg;
+	struct _audio_device* desc = (struct _audio_device*)arg;
+	struct _callback _cb;
 
 	if (num_buffers_to_send == 0) {
 		/* End of transmission */
 		is_dac_active = false;
-		return;
+		return 0;
 	}
-
 
 	/* Load next buffer */
 	out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
 	num_buffers_to_send--;
 	index = out_buffer_index;
-	audio_dma_transfer(&audio_device, buffers[index],
-	                   buffer_sizes[index], NULL);
+	callback_set(&_cb, _audio_transfer_callback, desc);
+	audio_dma_transfer(&audio_device, buffers[index], buffer_sizes[index], &_cb);
 
+	return 0;
 }
 
 /**
  *  Invoked when a frame has been received.
  */
-static void frame_received(void *arg, uint8_t status,
-		uint32_t transferred, uint32_t remaining)
+static void frame_received(void *arg, uint8_t status, uint32_t transferred, uint32_t remaining)
 {
+	struct _audio_device* desc = (struct _audio_device*)arg;
 	uint32_t index;
 
 	if (status == USBD_STATUS_SUCCESS) {
@@ -297,14 +286,15 @@ static void frame_received(void *arg, uint8_t status,
 			/* Wait until a few buffers have been received */
 			dac_delay--;
 		} else if (audio_dma_transfer_is_done(&audio_device)) {
+			struct _callback _cb;
+
 			/* Start DAC transmission if necessary */
 			index = out_buffer_index;
-			audio_dma_transfer(&audio_device, buffers[index],
-			                   buffer_sizes[index], NULL);
+			callback_set(&_cb, _audio_transfer_callback, desc);
+			audio_dma_transfer(&audio_device, buffers[index], buffer_sizes[index], &_cb);
 			audio_enable(&audio_device, true);
 			out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
 			num_buffers_to_send--;
-
 		}
 	} else if (status == USBD_STATUS_ABORTED) {
 		/* Error , ABORT, add NULL buffer */
@@ -314,8 +304,9 @@ static void frame_received(void *arg, uint8_t status,
 	}
 
 	/* Receive next packet */
-	audd_function_read(buffers[in_buffer_index], AUDDevice_BYTESPERFRAME,
-			frame_received, 0);
+	audd_function_read(buffers[in_buffer_index],
+			   AUDDevice_BYTESPERFRAME,
+			   frame_received, desc);
 }
 
 /**
@@ -461,8 +452,6 @@ int main(void)
 	/* Configure Audio */
 	audio_configure(&audio_device);
 
-	audio_set_dma_callback(&audio_device, audio_play_finish_callback, NULL);
-
 	/* USB audio driver initialization */
 	cdc_audd_driver_initialize(&cdc_audd_driver_descriptors);
 
@@ -503,8 +492,9 @@ int main(void)
 			trace_info("USB connected\r\n");
 
 			/* Try to Start Reading the incoming audio stream */
-			audd_function_read(buffers[in_buffer_index], AUDDevice_BYTESPERFRAME,
-					frame_received, 0);
+			audd_function_read(buffers[in_buffer_index],
+					   AUDDevice_BYTESPERFRAME,
+					   frame_received, &audio_device);
 			usb_conn = true;
 		}
 	}

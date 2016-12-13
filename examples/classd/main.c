@@ -95,23 +95,21 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
-#include "board.h"
-#include "compiler.h"
-#include "trace.h"
-#include "timer.h"
-
-#include "audio/classd.h"
-#include "gpio/pio.h"
-#include "peripherals/pmc.h"
-#include "dma/xdmacd.h"
-
-#include "mm/cache.h"
-#include "serial/console.h"
-
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
+
+#include "audio/classd.h"
+#include "board.h"
+#include "chip.h"
+#include "compiler.h"
+#include "dma/dma.h"
+#include "gpio/pio.h"
+#include "mm/cache.h"
+#include "peripherals/pmc.h"
+#include "serial/console.h"
+#include "timer.h"
+#include "trace.h"
 
 #include "music_data.h"
 
@@ -186,35 +184,19 @@ static void _playback_stop(void)
 	classd_volume_mute(&classd_desc, true, true);
 }
 
-static void _dma_callback(struct dma_channel* channel, void* arg)
+static int _classd_transfer_callback(void* arg)
 {
 	_playback_stop();
+
+	return 0;
 }
 
 /**
- * \brief Play demonstration audio music with DMA.
+ * \brief Play demonstration audio music with DMA/polling.
  */
-static void _playback_dma_mode(uint8_t attn)
+static void _playback(uint8_t attn, bool dma)
 {
-	_playback_start();
-
-	struct _buffer tx = {
-		.data = (uint8_t*)music_data,
-		.size = ARRAY_SIZE(music_data) / sizeof(uint8_t),
-		.attr = CLASSD_BUF_ATTR_WRITE,
-	};
-
-	classd_desc.transfer_mode = CLASSD_MODE_DMA;
-	classd_transfer(&classd_desc, &tx, (classd_callback_t)_dma_callback, &classd_desc);
-	while (!classd_transfer_is_done(&classd_desc));
-}
-
-
-/**
- * \brief Play demonstration audio music without DMA.
- */
-static void _playback_polling_mode(uint8_t attn)
-{
+	struct _callback _cb;
 
 	_playback_start();
 
@@ -224,10 +206,15 @@ static void _playback_polling_mode(uint8_t attn)
 		.attr = CLASSD_BUF_ATTR_WRITE,
 	};
 
-	classd_desc.transfer_mode = CLASSD_MODE_POLLING;
-	classd_transfer(&classd_desc, &_tx, NULL, NULL);
+	if (dma)
+		classd_desc.transfer_mode = CLASSD_MODE_DMA;
+	else
+		classd_desc.transfer_mode = CLASSD_MODE_POLLING;
+
+	callback_set(&_cb, _classd_transfer_callback, &classd_desc);
+	classd_transfer(&classd_desc, &_tx, &_cb);
+
 	while (!classd_transfer_is_done(&classd_desc));
-	_playback_stop();
 }
 
 static void _configure_classd(void)
@@ -278,9 +265,9 @@ extern int main(void)
 		key = console_get_char();
 		printf("%c\r\n", key);
 		if (key == '1') {
-			_playback_polling_mode(attn);
+			_playback(attn, false);
 		} else if (key == '2') {
-			_playback_dma_mode(attn);
+			_playback(attn, true);
 		} else if (key == '3') {
 			_output_audio_pmc_clock_to_pck1();
 		} else if (key == '+') {

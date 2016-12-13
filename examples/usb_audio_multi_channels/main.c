@@ -104,28 +104,25 @@
  *         Headers
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
-#include "chip.h"
-#include "trace.h"
-#include "compiler.h"
-
-#include "mm/cache.h"
-#include "serial/console.h"
-#include "led/led.h"
-
-#include "dma/dma.h"
-
-#include "usb/device/audio/audd_speaker_driver.h"
-
-#include "main_descriptors.h"
-#include "../usb_common/main_usb_common.h"
-#include "audio/audio_device.h"
-
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 #include <assert.h>
+
+#include "audio/audio_device.h"
+#include "board.h"
+#include "callback.h"
+#include "chip.h"
+#include "compiler.h"
+#include "dma/dma.h"
+#include "led/led.h"
+#include "main_descriptors.h"
+#include "mm/cache.h"
+#include "serial/console.h"
+#include "trace.h"
+#include "../usb_common/main_usb_common.h"
+#include "usb/device/audio/audd_speaker_driver.h"
 
 #if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
 	#include "config_sama5d2-xplained.h"
@@ -196,39 +193,35 @@ static uint8_t play_vol = AUDIO_PLAY_MAX_VOLUME/2;
 /**
  *  \brief DMA TX callback
  */
-static void audio_play_finish_callback(struct dma_channel *channel, void* p_arg)
+static int _audio_transfer_callback(void* arg)
 {
-	p_arg = p_arg; /* dummy */
+	struct _audio_desc* desc = (struct _audio_desc*)arg;
+        struct _callback _cb;
 
 	if (num_buffers_to_send == 0) {
 		/* End of transmission */
 		is_audio_playing = false;
 		is_first_frame = true;
-		audio_enable(&audio_device, false);
-		return;
+		audio_enable(desc, false);
+		return 0;
 	}
 
 	/* Load next buffer */
 	out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
 	num_buffers_to_send--;
 
-	audio_dma_transfer(&audio_device, buffers[out_buffer_index],
-			buffer_sizes[out_buffer_index], NULL);
+	callback_set(&_cb, _audio_transfer_callback, desc);
+	audio_dma_transfer(desc, buffers[out_buffer_index], buffer_sizes[out_buffer_index], &_cb);
 
+	return 0;
 }
-
-
-/*----------------------------------------------------------------------------
- *         Internal functions
- *----------------------------------------------------------------------------*/
 
 /**
  *  Invoked when a frame has been received.
  */
 static void frame_received(void* arg, uint8_t status, uint32_t transferred, uint32_t remaining)
 {
-	/* unused */
-	(void)arg;
+	struct _audio_desc* desc = (struct _audio_desc*)arg;
 	(void)remaining;
 
 	if (status == USBD_STATUS_SUCCESS) {
@@ -245,11 +238,14 @@ static void frame_received(void* arg, uint8_t status, uint32_t transferred, uint
 		} else if (dac_delay > 0) {
 			/* Wait until a few buffers have been received */
 			dac_delay--;
-		} else if (audio_dma_transfer_is_done(&audio_device)) {
+		} else if (audio_dma_transfer_is_done(desc)) {
+			struct _callback _cb;
+
+			callback_set(&_cb, _audio_transfer_callback, desc);
 			/* Start DAC transmission if necessary */
 			audio_dma_transfer(&audio_device, &buffers[out_buffer_index],
-					buffer_sizes[out_buffer_index], NULL);
-			audio_enable(&audio_device, true);
+					buffer_sizes[out_buffer_index], &_cb);
+			audio_enable(desc, true);
 			out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
 			num_buffers_to_send--;
 
@@ -264,7 +260,7 @@ static void frame_received(void* arg, uint8_t status, uint32_t transferred, uint
 	/* Receive next packet */
 	audd_speaker_driver_read(buffers[in_buffer_index],
 			AUDDSpeakerDriver_BYTESPERFRAME,
-			frame_received, 0);
+			frame_received, desc);
 }
 
 
@@ -400,8 +396,6 @@ int main(void)
 	/* Configure audio play volume */
 	audio_play_set_volume(&audio_device, play_vol);
 
-	audio_set_dma_callback(&audio_device, audio_play_finish_callback, NULL);
-
 	/* USB audio driver initialization */
 	audd_speaker_driver_initialize(&audd_speaker_driver_descriptors);
 
@@ -456,7 +450,7 @@ int main(void)
 			/* Start Reading the incoming audio stream */
 			audd_speaker_driver_read(buffers[in_buffer_index],
 					AUDDSpeakerDriver_BYTESPERFRAME,
-					frame_received, 0);
+					frame_received, &audio_device);
 
 			usb_conn = true;
 		}

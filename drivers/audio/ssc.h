@@ -43,6 +43,7 @@
 
 #include <stdint.h>
 
+#include "callback.h"
 #include "chip.h"
 #include "dma/dma.h"
 #include "io.h"
@@ -52,9 +53,6 @@
  *        Types
  *----------------------------------------------------------------------------*/
 
-struct _ssc_desc;
-
-typedef void (*ssc_callback_t)(struct _ssc_desc* desc, void* args);
 /**
  * Configuration setting structure.
  */
@@ -83,8 +81,7 @@ struct _ssc_desc {
 
 		struct _buffer buffer;
 		uint16_t transferred;
-		ssc_callback_t callback;
-		void*   cb_args;
+		struct _callback callback;
 	} rx, tx;
 
 	struct {
@@ -190,18 +187,14 @@ extern uint32_t ssc_read(struct _ssc_desc* desc);
  */
 extern bool ssc_is_rx_ready(struct _ssc_desc* desc);
 
-extern int ssc_transfer(struct _ssc_desc* desc, struct _buffer* buf, ssc_callback_t cb, void* user_args);
+extern int ssc_transfer(struct _ssc_desc* desc, struct _buffer* buf, struct _callback* cb);
 
 extern bool ssc_dma_tx_transfer_is_done(struct _ssc_desc* desc);
 
 extern void ssc_dma_tx_stop(struct _ssc_desc* desc);
 
-extern void ssc_dma_tx_set_callback(struct _ssc_desc* desc, ssc_callback_t cb, void* arg);
-
 extern bool ssc_dma_rx_transfer_is_done(struct _ssc_desc* desc);
 
 extern void ssc_dma_rx_stop(struct _ssc_desc* desc);
-
-extern void ssc_dma_rx_set_callback(struct _ssc_desc* desc, ssc_callback_t cb, void* arg);
 
 #endif /* #ifndef _SSC_H */

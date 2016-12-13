@@ -42,7 +42,7 @@
 #define AD1934_FREQ     10000 /* (value in KHz) */
 #define AD1934_DLYBS    0
 #define AD1934_DLYCT    0
-#define AD1934_SPI_MODE    SPID_MODE_0
+#define AD1934_SPI_MODE SPID_MODE_0
 
 static struct _spi_dev_desc ad1934_spi_desc = {
 

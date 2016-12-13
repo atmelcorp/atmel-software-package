@@ -195,6 +195,62 @@ static bool _set_mono_bits(bool mono, enum _classd_mono mono_mode, volatile uint
 	return true;
 }
 
+static void _classd_dma_transfer_callback(struct dma_channel* channel, void* args)
+{
+	struct _classd_desc* desc = (struct _classd_desc *)args;
+
+	dma_reset_channel(channel);
+
+	mutex_unlock(&desc->tx.mutex);
+
+	callback_call(&desc->tx.callback);
+}
+
+static void _classd_dma_transfer(struct _classd_desc* desc, struct _buffer* buffer)
+{
+	memset(&desc->dma.tx.cfg, 0x0, sizeof(desc->dma.tx.cfg));
+
+	desc->dma.tx.cfg.sa = buffer->data;
+	desc->dma.tx.cfg.da = (void*)&desc->addr->CLASSD_THR;
+	desc->dma.tx.cfg.upd_sa_per_data = 1;
+	desc->dma.tx.cfg.upd_da_per_data = 0;
+	desc->dma.tx.cfg.blk_size = 0;
+	desc->dma.tx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
+
+	if (desc->left_enable && desc->right_enable) {
+		desc->dma.tx.cfg.data_width = DMA_DATA_WIDTH_WORD;
+		desc->dma.tx.cfg.len = buffer->size / 4;
+	} else {
+		desc->dma.tx.cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
+		desc->dma.tx.cfg.len = buffer->size / 2;
+	}
+	dma_configure_transfer(desc->dma.tx.channel, &desc->dma.tx.cfg);
+	dma_set_callback(desc->dma.tx.channel, _classd_dma_transfer_callback, (void*)desc);
+	cache_clean_region(desc->dma.tx.cfg.sa, desc->dma.tx.cfg.len);
+	dma_start_transfer(desc->dma.tx.channel);
+}
+
+static void _classd_polling_transfer(struct _classd_desc* desc, struct _buffer* buffer)
+{
+	uint16_t* start = (uint16_t*)buffer->data;
+	uint32_t  length = buffer->size / sizeof(uint16_t);
+	uint16_t* end = start + length;
+	uint16_t* current = start;
+
+	while (1) {
+		if (desc->addr->CLASSD_ISR & CLASSD_ISR_DATRDY) {
+			desc->addr->CLASSD_THR = *current;
+			current++;
+		}
+		if (current >= end)
+			break;
+	}
+
+	mutex_unlock(&desc->tx.mutex);
+
+	callback_call(&desc->tx.callback);
+}
+
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
@@ -391,72 +447,7 @@ void classd_volume_unmute(struct _classd_desc *desc, bool left, bool right)
 	desc->addr->CLASSD_MR &= ~bits;
 }
 
-
-static void _classd_dma_transfer_callback(struct dma_channel* channel, void* args)
-{
-	struct _classd_desc* desc = (struct _classd_desc *)args;
-
-	dma_reset_channel(channel);
-
-	if (desc->tx.callback)
-		desc->tx.callback(desc, desc->tx.cb_args);
-
-	mutex_unlock(&desc->tx.mutex);
-}
-
-
-static void _classd_dma_transfer(struct _classd_desc* desc, struct _buffer* buffer)
-{
-	uint32_t id = get_classd_id_from_addr(desc->addr);
-
-	assert(id < ID_PERIPH_COUNT);
-
-	memset(&desc->dma.tx.cfg, 0x0, sizeof(desc->dma.tx.cfg));
-
-	assert(desc->dma.tx.channel);
-
-	desc->dma.tx.cfg.sa = buffer->data;
-	desc->dma.tx.cfg.da = (void*)&desc->addr->CLASSD_THR;
-	desc->dma.tx.cfg.upd_sa_per_data = 1;
-	desc->dma.tx.cfg.upd_da_per_data = 0;
-	desc->dma.tx.cfg.blk_size = 0;
-	desc->dma.tx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
-
-	if (desc->left_enable && desc->right_enable) {
-		desc->dma.tx.cfg.data_width = DMA_DATA_WIDTH_WORD;
-		desc->dma.tx.cfg.len  = buffer->size / 4;
-	} else {
-		desc->dma.tx.cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
-		desc->dma.tx.cfg.len  = buffer->size / 2;
-	}
-	dma_configure_transfer(desc->dma.tx.channel, &desc->dma.tx.cfg);
-	dma_set_callback(desc->dma.tx.channel, _classd_dma_transfer_callback, (void*)desc);
-	cache_clean_region(desc->dma.tx.cfg.sa, desc->dma.tx.cfg.len);
-	dma_start_transfer(desc->dma.tx.channel);
-}
-
-static void _classd_polling_transfer(struct _classd_desc* desc, struct _buffer* buffer)
-{
-	uint16_t* start = (uint16_t*)buffer->data;
-	uint32_t  length = buffer->size / sizeof(uint16_t);
-	uint16_t* end = start + length;
-	uint16_t* current = start;
-
-	while (1) {
-		if (desc->addr->CLASSD_ISR & CLASSD_ISR_DATRDY) {
-			desc->addr->CLASSD_THR = *current;
-			current++;
-		}
-		if (current >= end)
-			break;
-	}
-	if (desc->tx.callback)
-		desc->tx.callback(desc, desc->tx.cb_args);
-
-	mutex_unlock(&desc->tx.mutex);
-}
-
-int classd_transfer(struct _classd_desc* desc, struct _buffer* buf, classd_callback_t cb, void* arg)
+int classd_transfer(struct _classd_desc* desc, struct _buffer* buf, struct _callback* cb)
 {
 	uint8_t tmode;
 
@@ -472,10 +463,9 @@ int classd_transfer(struct _classd_desc* desc, struct _buffer* buf, classd_callb
 		desc->tx.buffer.data = buf->data;
 		desc->tx.buffer.size = buf->size;
 		desc->tx.buffer.attr = buf->attr;
-		if(cb) {
-			desc->tx.callback = cb;
-			desc->tx.cb_args = arg;
-		}
+
+		callback_copy(&desc->tx.callback, cb);
+
 		if (tmode == CLASSD_MODE_DMA)
 			_classd_dma_transfer(desc, buf);
 		else if (tmode == CLASSD_MODE_POLLING)
@@ -497,10 +487,4 @@ void classd_dma_stop(struct _classd_desc* desc)
 			mutex_unlock(&desc->tx.mutex);
 		}
 	}
-}
-
-void classd_dma_tx_set_callback(struct _classd_desc* desc, classd_callback_t cb, void* arg)
-{
-	desc->tx.callback = cb;
-	desc->tx.cb_args = arg;
 }
