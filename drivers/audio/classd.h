@@ -120,13 +120,11 @@ struct _classd_desc
 		struct _buffer buffer;
 		uint16_t transferred;
 		struct _callback callback;
-	} tx;
-	struct {
 		struct {
-			struct dma_channel *channel;
+			struct dma_channel* channel;
 			struct dma_xfer_cfg cfg;
-		} tx;
-	} dma;
+		} dma;
+	} tx;
 };
 
 /*---------------------------------------------------------------------------

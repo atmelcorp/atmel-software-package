@@ -82,18 +82,11 @@ struct _ssc_desc {
 		struct _buffer buffer;
 		uint16_t transferred;
 		struct _callback callback;
+		struct {
+			struct dma_channel *channel;
+			struct dma_xfer_cfg cfg;
+		} dma;
 	} rx, tx;
-
-	struct {
-		struct {
-			struct dma_channel *channel;
-			struct dma_xfer_cfg cfg;
-		} rx;
-		struct {
-			struct dma_channel *channel;
-			struct dma_xfer_cfg cfg;
-		} tx;
-	} dma;
 };
 
 enum _ssc_buf_attr {

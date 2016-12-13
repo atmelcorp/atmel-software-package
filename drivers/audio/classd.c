@@ -208,26 +208,26 @@ static void _classd_dma_transfer_callback(struct dma_channel* channel, void* arg
 
 static void _classd_dma_transfer(struct _classd_desc* desc, struct _buffer* buffer)
 {
-	memset(&desc->dma.tx.cfg, 0x0, sizeof(desc->dma.tx.cfg));
+	memset(&desc->tx.dma.cfg, 0x0, sizeof(desc->tx.dma.cfg));
 
-	desc->dma.tx.cfg.sa = buffer->data;
-	desc->dma.tx.cfg.da = (void*)&desc->addr->CLASSD_THR;
-	desc->dma.tx.cfg.upd_sa_per_data = 1;
-	desc->dma.tx.cfg.upd_da_per_data = 0;
-	desc->dma.tx.cfg.blk_size = 0;
-	desc->dma.tx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	desc->tx.dma.cfg.sa = buffer->data;
+	desc->tx.dma.cfg.da = (void*)&desc->addr->CLASSD_THR;
+	desc->tx.dma.cfg.upd_sa_per_data = 1;
+	desc->tx.dma.cfg.upd_da_per_data = 0;
+	desc->tx.dma.cfg.blk_size = 0;
+	desc->tx.dma.cfg.chunk_size = DMA_CHUNK_SIZE_1;
 
 	if (desc->left_enable && desc->right_enable) {
-		desc->dma.tx.cfg.data_width = DMA_DATA_WIDTH_WORD;
-		desc->dma.tx.cfg.len = buffer->size / 4;
+		desc->tx.dma.cfg.data_width = DMA_DATA_WIDTH_WORD;
+		desc->tx.dma.cfg.len = buffer->size / 4;
 	} else {
-		desc->dma.tx.cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
-		desc->dma.tx.cfg.len = buffer->size / 2;
+		desc->tx.dma.cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
+		desc->tx.dma.cfg.len = buffer->size / 2;
 	}
-	dma_configure_transfer(desc->dma.tx.channel, &desc->dma.tx.cfg);
-	dma_set_callback(desc->dma.tx.channel, _classd_dma_transfer_callback, (void*)desc);
-	cache_clean_region(desc->dma.tx.cfg.sa, desc->dma.tx.cfg.len);
-	dma_start_transfer(desc->dma.tx.channel);
+	dma_configure_transfer(desc->tx.dma.channel, &desc->tx.dma.cfg);
+	dma_set_callback(desc->tx.dma.channel, _classd_dma_transfer_callback, (void*)desc);
+	cache_clean_region(desc->tx.dma.cfg.sa, desc->tx.dma.cfg.len);
+	dma_start_transfer(desc->tx.dma.channel);
 }
 
 static void _classd_polling_transfer(struct _classd_desc* desc, struct _buffer* buffer)
@@ -355,8 +355,8 @@ int classd_configure(struct _classd_desc *desc)
 	desc->addr->CLASSD_MR = mr;
 	desc->addr->CLASSD_INTPMR = intpmr;
 
-	desc->dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
-	assert(desc->dma.tx.channel != NULL);
+	desc->tx.dma.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
+	assert(desc->tx.dma.channel != NULL);
 
 	desc->tx.mutex = 0;
 
@@ -482,8 +482,8 @@ bool classd_transfer_is_done(struct _classd_desc* desc)
 void classd_dma_stop(struct _classd_desc* desc)
 {
 	if (desc->transfer_mode == CLASSD_MODE_DMA) {
-		if (desc->dma.tx.channel){
-			dma_stop_transfer(desc->dma.tx.channel);
+		if (desc->tx.dma.channel){
+			dma_stop_transfer(desc->tx.dma.channel);
 			mutex_unlock(&desc->tx.mutex);
 		}
 	}

@@ -52,7 +52,7 @@ static void _pdmic_dma_callback(struct dma_channel* channel, void* args)
 {
 	struct _pdmic_desc* desc = (struct _pdmic_desc *)args;
 
-	cache_invalidate_region(desc->dma.rx.cfg.da, desc->dma.rx.cfg.len);
+	cache_invalidate_region(desc->rx.dma.cfg.da, desc->rx.dma.cfg.len);
 
 	dma_free_channel(channel);
 
@@ -63,24 +63,24 @@ static void _pdmic_dma_callback(struct dma_channel* channel, void* args)
 
 static void _pdmic_dma_transfer(struct _pdmic_desc* desc, struct _buffer* buffer)
 {
-	memset(&desc->dma.rx.cfg, 0, sizeof(desc->dma.rx.cfg));
+	memset(&desc->rx.dma.cfg, 0, sizeof(desc->rx.dma.cfg));
 
-	desc->dma.rx.cfg.sa = (void*)&desc->addr->PDMIC_CDR;
-	desc->dma.rx.cfg.da = buffer->data;
-	desc->dma.rx.cfg.upd_sa_per_data = 0;
-	desc->dma.rx.cfg.upd_da_per_data = 1;
-	desc->dma.rx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	desc->rx.dma.cfg.sa = (void*)&desc->addr->PDMIC_CDR;
+	desc->rx.dma.cfg.da = buffer->data;
+	desc->rx.dma.cfg.upd_sa_per_data = 0;
+	desc->rx.dma.cfg.upd_da_per_data = 1;
+	desc->rx.dma.cfg.chunk_size = DMA_CHUNK_SIZE_1;
 
 	if (desc->dsp_size == PDMIC_CONVERTED_DATA_SIZE_32) {
-		desc->dma.rx.cfg.len = buffer->size / 4;
-		desc->dma.rx.cfg.data_width = DMA_DATA_WIDTH_WORD;
+		desc->rx.dma.cfg.len = buffer->size / 4;
+		desc->rx.dma.cfg.data_width = DMA_DATA_WIDTH_WORD;
 	} else {
-		desc->dma.rx.cfg.len = buffer->size / 2;
-		desc->dma.rx.cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
+		desc->rx.dma.cfg.len = buffer->size / 2;
+		desc->rx.dma.cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
 	}
-	dma_configure_transfer(desc->dma.rx.channel, &desc->dma.rx.cfg);
-	dma_set_callback(desc->dma.rx.channel, _pdmic_dma_callback, (void*)desc);
-	dma_start_transfer(desc->dma.rx.channel);
+	dma_configure_transfer(desc->rx.dma.channel, &desc->rx.dma.cfg);
+	dma_set_callback(desc->rx.dma.channel, _pdmic_dma_callback, (void*)desc);
+	dma_start_transfer(desc->rx.dma.channel);
 }
 
 static void _pdmic_polling_transfer(struct _pdmic_desc* desc, struct _buffer* buffer)
@@ -233,8 +233,8 @@ int pdmic_configure(struct _pdmic_desc *desc)
 		return -EINVAL;
 	}
 
-	desc->dma.rx.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
-	assert(desc->dma.rx.channel);
+	desc->rx.dma.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
+	assert(desc->rx.dma.channel);
 
 	/* write configuration */
 	desc->addr->PDMIC_MR = mr_val;
@@ -342,8 +342,8 @@ bool pdmic_transfer_is_done(struct _pdmic_desc* desc)
 void pdmic_dma_stop(struct _pdmic_desc* desc)
 {
 	if (desc->transfer_mode == PDMIC_MODE_DMA) {
-		if (desc->dma.rx.channel){
-			dma_stop_transfer(desc->dma.rx.channel);
+		if (desc->rx.dma.channel){
+			dma_stop_transfer(desc->rx.dma.channel);
 			mutex_unlock(&desc->rx.mutex);
 		}
 	}

@@ -102,13 +102,11 @@ struct _pdmic_desc {
 		struct _buffer buffer;
 		uint16_t transferred;
 		struct _callback callback;
-	} rx;
-	struct {
 		struct {
 			struct dma_channel *channel;
 			struct dma_xfer_cfg cfg;
-		} rx;
-	} dma;
+		} dma;
+	} rx;
 };
 
 /*---------------------------------------------------------------------------
