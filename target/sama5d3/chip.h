@@ -331,6 +331,12 @@ extern uint32_t get_tc_id_from_addr(const Tc* addr);
 extern Tc* get_tc_addr_from_id(const uint32_t id);
 
 /**
+ * \brief retrieve the interrupt ID for a given TC/channel.
+ * \return IRQ ID
+ */
+extern uint32_t get_tc_interrupt(uint32_t tc_id, uint8_t channel);
+
+/**
  * \brief retrieve EBI memory start from its Chip Select (CS)
  * \return EBI memory start on success, 0 otherwise
  */

@@ -445,6 +445,12 @@ extern uint32_t get_tc_id_from_addr(const Tc* addr);
 extern Tc* get_tc_addr_from_id(uint32_t id);
 
 /**
+ * \brief retrieve the interrupt ID for a given TC/channel.
+ * \return IRQ ID
+ */
+extern uint32_t get_tc_interrupt(uint32_t tc_id, uint8_t channel);
+
+/**
  * \brief retrieve QSPI ID from its base address
  * \return QSPI ID on success, ID_PERIPH_COUNT otherwise
  */

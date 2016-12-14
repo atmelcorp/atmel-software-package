@@ -262,6 +262,7 @@ static void tc_handler(uint32_t source, void* user_arg)
 static void configure_tc(void)
 {
 	uint32_t tc_id = get_tc_id_from_addr(TC_ADDR);
+	uint32_t irq_id = get_tc_interrupt(tc_id, TC_CHAN);
 
 	/** Enable peripheral clock. */
 	pmc_configure_peripheral(tc_id, NULL, true);
@@ -270,8 +271,8 @@ static void configure_tc(void)
 	tc_trigger_on_freq(TC_ADDR, TC_CHAN, 4);
 
 	/* Configure and enable interrupt on RC compare */
-	irq_add_handler(tc_id, tc_handler, NULL);
-	irq_enable(tc_id);
+	irq_add_handler(irq_id, tc_handler, NULL);
+	irq_enable(irq_id);
 	tc_enable_it(TC_ADDR, TC_CHAN, TC_IER_CPCS);
 
 	/* Start the counter */

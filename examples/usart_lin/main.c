@@ -298,20 +298,21 @@ static void _tc_handler(uint32_t source, void* user_arg)
 /**
  *  Configure Timer Counter 0 to generate an interrupt every 250ms.
  */
-static void _configure_tc(void)
+static void _configure_tc(Tc* tc)
 {
-	/** Enable peripheral clock. */
-	pmc_configure_peripheral(ID_TC0, NULL, true);
+	uint32_t tc_id = get_tc_id_from_addr(tc);
+	uint32_t irq_id = get_tc_interrupt(tc_id, TC_CHANNEL);
 
-	/* Put the source vector */
-	irq_add_handler(ID_TC0, _tc_handler, NULL);
+	/** Enable peripheral clock. */
+	pmc_configure_peripheral(tc_id, NULL, true);
 
 	/** Configure TC for a 50Hz frequency and trigger on RC compare. */
-	tc_trigger_on_freq(TC0, TC_CHANNEL, TC_FREQ);
+	tc_trigger_on_freq(tc, TC_CHANNEL, TC_FREQ);
 
 	/* Configure and enable interrupt on RC compare */
-	tc_enable_it(TC0, TC_CHANNEL, TC_IER_CPCS);
-	irq_enable(ID_TC0);
+	irq_add_handler(irq_id, _tc_handler, NULL);
+	irq_enable(irq_id);
+	tc_enable_it(tc, TC_CHANNEL, TC_IER_CPCS);
 }
 
 /**
@@ -399,7 +400,7 @@ int main(void)
 	console_enable_rx_interrupt();
 
 	/* Configure Timer/Counter */
-	_configure_tc();
+	_configure_tc(TC0);
 
 	/* Configure com port */
 	_init_com_master();

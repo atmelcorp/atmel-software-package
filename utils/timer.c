@@ -101,8 +101,9 @@ void timer_configure(struct _timer* timer)
 #ifdef CONFIG_TIMER_POLLING
 	tc_disable_it(timer->tc, timer->channel, TC_IER_CPCS);
 #else
-	irq_add_handler(tc_id, timer_increment, &_sys_timer);
-	irq_enable(tc_id);
+	uint32_t irq_id = get_tc_interrupt(tc_id, timer->channel);
+	irq_add_handler(irq_id, timer_increment, &_sys_timer);
+	irq_enable(irq_id);
 	tc_enable_it(timer->tc, timer->channel, TC_IER_CPCS);
 #endif
 	tc_start(timer->tc, timer->channel);

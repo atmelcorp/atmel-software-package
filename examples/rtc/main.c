@@ -574,18 +574,18 @@ static void calibration_tc_handler(uint32_t source, void* user_arg)
  */
 static void configure_calibration_tc(void)
 {
+	uint32_t irq_id = get_tc_interrupt(ID_TC0, 0);
+
 	/** Enable peripheral clock. */
 	pmc_configure_peripheral(ID_TC0, NULL, true);
-
-	/* Put the source vector */
-	irq_add_handler(ID_TC0, calibration_tc_handler, NULL);
 
 	/** Configure TC for a 1Hz frequency and trigger on RC compare. */
 	tc_trigger_on_freq(TC0, 0, 1);
 
 	/* Configure and enable interrupt on RC compare */
+	irq_add_handler(irq_id, calibration_tc_handler, NULL);
+	irq_enable(irq_id);
 	tc_enable_it(TC0, 0, TC_IER_CPCS);
-	irq_enable(ID_TC0);
 
 	/* Start the counter */
 	tc_start(TC0, 0);

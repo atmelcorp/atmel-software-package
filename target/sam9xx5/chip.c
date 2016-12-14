@@ -296,6 +296,11 @@ Tc* get_tc_addr_from_id(uint32_t id)
 		return (void*)0;
 }
 
+uint32_t get_tc_interrupt(uint32_t tc_id, uint8_t channel)
+{
+	return tc_id;
+}
+
 uint32_t get_hsmci_id_from_addr(const Hsmci* addr)
 {
 #ifdef HSMCI0

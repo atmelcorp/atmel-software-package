@@ -341,7 +341,7 @@ static void _tc_waveform_initialize(struct _tc_desc *tcd)
 static void _tc_capture_initialize(struct _tc_desc *tcd)
 {
 	uint32_t tc_id = get_tc_id_from_addr(tcd->addr);
-
+	uint32_t irq_id = get_tc_interrupt(tc_id, tcd->channel);
 	uint32_t mode = capture_clock_sel
 		| TC_CMR_LDRA_RISING
 		| TC_CMR_LDRB_FALLING
@@ -351,8 +351,8 @@ static void _tc_capture_initialize(struct _tc_desc *tcd)
 	pmc_configure_peripheral(tc_id, NULL, true);
 	tc_configure(tcd->addr, tcd->channel, mode);
 
-	irq_add_handler(tc_id, _tc_capture_handler, NULL);
-	irq_enable(tc_id);
+	irq_add_handler(irq_id, _tc_capture_handler, NULL);
+	irq_enable(irq_id);
 }
 
 /*----------------------------------------------------------------------------

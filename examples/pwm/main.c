@@ -275,7 +275,7 @@ static void _tc_capture_handler(uint32_t source, void* user_arg)
 static void _tc_capture_initialize(void)
 {
 	uint32_t tc_id = get_tc_id_from_addr(tc_capture.addr);
-
+	uint32_t irq_id = get_tc_interrupt(tc_id, tc_capture.channel);
 	uint32_t mode = TC_CMR_TCCLKS(capture_clock_sel)
 	              | TC_CMR_LDRA_RISING
 	              | TC_CMR_LDRB_FALLING
@@ -290,8 +290,8 @@ static void _tc_capture_initialize(void)
 	tc_stop(tc_capture.addr, 2);
 
 	tc_configure(tc_capture.addr, tc_capture.channel, mode);
-	irq_add_handler(tc_id, _tc_capture_handler, NULL);
-	irq_enable(tc_id);
+	irq_add_handler(irq_id, _tc_capture_handler, NULL);
+	irq_enable(irq_id);
 }
 
 /**
@@ -362,12 +362,11 @@ static void _tc_fault_handler(uint32_t source, void* user_arg)
 static void _tc_fault_initialize(void)
 {
 	uint32_t tc_id = get_tc_id_from_addr(tc_fault.addr);
-
+	uint32_t irq_id = get_tc_interrupt(tc_id, tc_capture.channel);
 	uint32_t mode = TC_CMR_TCCLKS(4)
 	              | TC_CMR_CPCSTOP
 	              //| TC_CMR_WAVSEL_UP_RC
 	              | TC_CMR_WAVE;
-
 	uint32_t rc = 2 * pmc_get_slow_clock();
 
 	pmc_configure_peripheral(tc_id, NULL, true);
@@ -382,8 +381,8 @@ static void _tc_fault_initialize(void)
 	tc_set_ra_rb_rc(tc_fault.addr, tc_fault.channel, NULL, NULL, &rc);
 
 	tc_enable_it(tc_fault.addr, tc_fault.channel, TC_IER_CPCS);
-	irq_add_handler(tc_id, _tc_fault_handler, NULL);
-	irq_enable(tc_id);
+	irq_add_handler(irq_id, _tc_fault_handler, NULL);
+	irq_enable(irq_id);
 }
 
 /**
