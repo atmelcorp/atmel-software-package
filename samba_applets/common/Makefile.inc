@@ -28,6 +28,8 @@
 
 ifeq ($(CONFIG_SAMBA_APPLET),y)
 
+BINNAME := $(BINNAME)_$(TARGET)_$(VARIANT)
+
 CFLAGS_INC += -I$(TOP)/samba_applets/common
 
 CFLAGS += -mno-unaligned-access -DDMA_LL_POOL_SIZE=2

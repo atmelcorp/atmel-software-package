@@ -31,7 +31,7 @@ all::
 
 include $(TOP)/scripts/Makefile.vars
 
-BUILDDIR ?= ./build
+BUILDDIR ?= ./build/$(TARGET)/$(VARIANT)
 
 #-------------------------------------------------------------------------------
 #		Rules
@@ -57,14 +57,14 @@ LIBS := $(addprefix $(BUILDDIR)/,$(lib-y))
 
 all:: build
 
-build: $(BUILDDIR)/$(BINNAME)_$(TARGET)_$(VARIANT).elf \
-	$(BUILDDIR)/$(BINNAME)_$(TARGET)_$(VARIANT).symbols \
-	$(BUILDDIR)/$(BINNAME)_$(TARGET)_$(VARIANT).bin
+build: $(BUILDDIR)/$(BINNAME).elf \
+	$(BUILDDIR)/$(BINNAME).symbols \
+	$(BUILDDIR)/$(BINNAME).bin
 
 ifeq ($(VARIANT),ddram)
 CONFIG_BOOTSTRAP ?= y
 ifeq ($(CONFIG_BOOTSTRAP),y)
-$(BUILDDIR)/$(BINNAME)_$(TARGET)_$(VARIANT).elf: $(BUILDDIR)/target/bootstrap.elf
+$(BUILDDIR)/$(BINNAME).elf: $(BUILDDIR)/target/bootstrap.elf
 
 $(BUILDDIR)/target/bootstrap.elf: $(BOOTSTRAP_OBJS) $(LIBS)
 	@mkdir -p $(dir $@)
@@ -96,15 +96,15 @@ $(BUILDDIR)/%.o: %.S
 	$(ECHO) CC $<
 	$(Q)$(CC) $(CFLAGS_ASM) $(CFLAGS_CPU) $(CFLAGS_INC) $(CFLAGS_DEFS) -c $< -o $@
 
-$(BUILDDIR)/$(BINNAME)_$(TARGET)_$(VARIANT).elf: $(OBJS) $(LIBS) $(gnu-debug-lib-y) $(gnu-linker-script-y)
+$(BUILDDIR)/$(BINNAME).elf: $(OBJS) $(LIBS) $(gnu-debug-lib-y) $(gnu-linker-script-y)
 	@cp $(gnu-debug-lib-y) $(BUILDDIR)/target/
 	$(ECHO) LINK $@
-	$(Q)$(CC) $(LDFLAGS) $(CFLAGS_CPU) $(CFLAGS_DEFS) -T$(gnu-linker-script-y) -Wl,-Map,$(BUILDDIR)/$(BINNAME)_$(TARGET)_$(VARIANT).map -o $@ $(OBJS) -Wl,--start-group $(LIBS) -Wl,--end-group -Wl,--no-undefined
+	$(Q)$(CC) $(LDFLAGS) $(CFLAGS_CPU) $(CFLAGS_DEFS) -T$(gnu-linker-script-y) -Wl,-Map,$(BUILDDIR)/$(BINNAME).map -o $@ $(OBJS) -Wl,--start-group $(LIBS) -Wl,--end-group -Wl,--no-undefined
 
-$(BUILDDIR)/$(BINNAME)_$(TARGET)_$(VARIANT).symbols: $(BUILDDIR)/$(BINNAME)_$(TARGET)_$(VARIANT).elf
+$(BUILDDIR)/$(BINNAME).symbols: $(BUILDDIR)/$(BINNAME).elf
 	$(Q)$(NM) $< >$@
 
-$(BUILDDIR)/$(BINNAME)_$(TARGET)_$(VARIANT).bin: $(BUILDDIR)/$(BINNAME)_$(TARGET)_$(VARIANT).elf
+$(BUILDDIR)/$(BINNAME).bin: $(BUILDDIR)/$(BINNAME).elf
 	$(ECHO) OBJCOPY $@
 	$(Q)$(OBJCOPY) -O binary $< $@
 
@@ -112,10 +112,10 @@ clean:
 	@rm -rf $(BUILDDIR) settings
 	@rm -f $(BINNAME)_$(TARGET).eww $(BINNAME)_$(TARGET).ewp $(BINNAME)_$(TARGET).ewd $(BINNAME)_$(TARGET).ewt $(BINNAME)_$(TARGET).dep
 
-size: $(BUILDDIR)/$(BINNAME)_$(TARGET)_$(VARIANT).elf
-	@$(SIZE) $(OBJECTS) $(BUILDDIR)/$(BINNAME)_$(TARGET)_$(VARIANT).elf
+size: $(BUILDDIR)/$(BINNAME).elf
+	@$(SIZE) $(OBJECTS) $(BUILDDIR)/$(BINNAME).elf
 
-debug: $(BUILDDIR)/$(BINNAME)_$(TARGET)_$(VARIANT).elf
-	$(Q)$(GDB) -cd $(BUILDDIR) -x "$(realpath $(gnu-debug-script-y))" -ex "reset" -readnow -se $(realpath $(BUILDDIR)/$(BINNAME)_$(TARGET)_$(VARIANT).elf)
+debug: $(BUILDDIR)/$(BINNAME).elf
+	$(Q)$(GDB) -cd $(BUILDDIR) -x "$(realpath $(gnu-debug-script-y))" -ex "reset" -readnow -se $(realpath $(BUILDDIR)/$(BINNAME).elf)
 
 include $(TOP)/scripts/Makefile.iar
