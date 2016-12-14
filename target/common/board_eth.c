@@ -43,12 +43,11 @@
 #include "board_twi.h"
 #include "trace.h"
 
-#include "nvm/i2c/at24.h"
-
-#include "network/ethd.h"
 #include "gpio/pio.h"
-
+#include "mm/cache.h"
+#include "network/ethd.h"
 #include "network/phy.h"
+#include "nvm/i2c/at24.h"
 
 #include <string.h>
 
@@ -100,19 +99,19 @@ static struct _phy _phy[] = {
 };
 
 /** TX descriptors list */
-ALIGNED(8) SECTION(".region_ddr_nocache")
+ALIGNED(8) NOT_CACHED_DDR
 static struct _eth_desc eth_txd[ETH_IFACE_COUNT][ETH_TX_BUFFERS];
 
 /** RX descriptors list */
-ALIGNED(8) SECTION(".region_ddr_nocache")
+ALIGNED(8) NOT_CACHED_DDR
 static struct _eth_desc eth_rxd[ETH_IFACE_COUNT][ETH_RX_BUFFERS];
 
 /** TX Buffers */
-ALIGNED(32) SECTION(".region_ddr")
+CACHE_ALIGNED_DDR
 static uint8_t eth_tx_buffer[ETH_IFACE_COUNT][ETH_TX_BUFFERS * ETH_TX_UNITSIZE];
 
 /** RX Buffers */
-ALIGNED(32) SECTION(".region_ddr")
+CACHE_ALIGNED_DDR
 static uint8_t eth_rx_buffer[ETH_IFACE_COUNT][ETH_RX_BUFFERS * ETH_RX_UNITSIZE];
 
 /** TX callbacks list */

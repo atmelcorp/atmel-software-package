@@ -148,9 +148,9 @@ struct _mcan_quanta {
  * used to separate otherwise conflicting, active Buffer Elements, and then
  * benefit from memory caching.
  */
-SECTION(".region_ddr_nocache")
+NOT_CACHED_DDR
 static uint32_t mcan_msg_ram0[CAN_IFACE_COUNT][MSG_RAM_SIZE0];
-SECTION(".region_ddr_nocache")
+NOT_CACHED_DDR
 static uint32_t mcan_msg_ram1[CAN_IFACE_COUNT][MSG_RAM_SIZE1];
 
 static struct mcan_config mcan_cfg = {
