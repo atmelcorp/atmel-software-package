@@ -232,8 +232,8 @@ CACHE_ALIGNED_SRAM
 #endif
 static uint8_t data_buf[BLOCK_CNT_MAX * 512ul];
 
-NOT_CACHED_DDR static FATFS fs_header;
-NOT_CACHED_DDR static FIL f_header;
+NOT_CACHED static FATFS fs_header;
+NOT_CACHED static FIL f_header;
 
 #ifdef CONFIG_HAVE_SHA
 #if USE_EXT_RAM

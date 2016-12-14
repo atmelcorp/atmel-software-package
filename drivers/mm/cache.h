@@ -35,16 +35,15 @@
  * Several macros are provided to place variables in specific section depending
  * on their caching/alignment requirements.
  *
- * NOT_CACHED_DDR will place the variable in the ".region_ddr_nocache" section.
- * This section in located in DDRAM and its MMU attributes makr it as
- * non-cacheable.
+ * NOT_CACHED will place the variable in a specific region whose MMU/MPU
+ * attributes make it non-cacheable.  This section may be placed in external
+ * RAM and thus may be uninitialized at startup.
  *
- * CACHE_ALIGNED_DDR (resp. CACHE_ALIGNED_SRAM) will place the variable in the
- * ".region_ddr_cache_aligned" section (resp. ".region_ddr_cache_aligned"
- * section) and align the variable start address on a cache line.  Since these
- * sections will contain only cache aligned variables, we can be certain that
- * flushing/invalidating any variable in these regions will not
- * flush/invalidate more than expected.
+ * CACHE_ALIGNED_DDR (resp. CACHE_ALIGNED_SRAM) will place the variable in a
+ * specific region in external RAM (resp. SRAM) and align the variable start
+ * address on a cache line.  Since these sections will contain only cache
+ * aligned variables, we can be certain that flushing/invalidating any variable
+ * in these regions will not flush/invalidate more than expected.
  */
 
 #ifndef CACHE_H_
@@ -64,11 +63,11 @@
  *----------------------------------------------------------------------------*/
 
 /**
- * Place variable in DDRAM not-cached section
+ * Place variable in not-cached section
  * Note: this section is *not* initialized at all
  */
-#define NOT_CACHED_DDR \
-	SECTION(".region_ddr_nocache")
+#define NOT_CACHED \
+	SECTION(".region_nocache")
 
 /**
  * Place variable in default cache-aligned section

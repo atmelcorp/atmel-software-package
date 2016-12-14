@@ -99,11 +99,11 @@ static struct _phy _phy[] = {
 };
 
 /** TX descriptors list */
-ALIGNED(8) NOT_CACHED_DDR
+ALIGNED(8) NOT_CACHED
 static struct _eth_desc eth_txd[ETH_IFACE_COUNT][ETH_TX_BUFFERS];
 
 /** RX descriptors list */
-ALIGNED(8) NOT_CACHED_DDR
+ALIGNED(8) NOT_CACHED
 static struct _eth_desc eth_rxd[ETH_IFACE_COUNT][ETH_RX_BUFFERS];
 
 /** TX Buffers */

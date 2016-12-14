@@ -147,10 +147,10 @@ SECTIONS
 		*(.region_ddr)
 	} >ddr
 
-	.region_ddr_nocache (NOLOAD) :
+	.region_nocache (NOLOAD) :
 	{
 		. = ALIGN(4);
-		*(.region_ddr_nocache)
+		*(.region_nocache)
 	} >ddr_nocache
 
 	/* .bss section which is used for uninitialized data */

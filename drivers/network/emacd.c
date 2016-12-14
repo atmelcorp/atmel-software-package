@@ -86,11 +86,11 @@ static struct _emacd_irq_handler _emacd_irq_handlers[] = {
 #define DUMMY_UNITSIZE 128
 
 /** TX descriptors list */
-ALIGNED(8) NOT_CACHED_DDR
+ALIGNED(8) NOT_CACHED
 static struct _eth_desc dummy_tx_desc[DUMMY_BUFFERS];
 
 /** RX descriptors list */
-ALIGNED(8) NOT_CACHED_DDR
+ALIGNED(8) NOT_CACHED
 static struct _eth_desc dummy_rx_desc[DUMMY_BUFFERS];
 
 /** Send Buffer */

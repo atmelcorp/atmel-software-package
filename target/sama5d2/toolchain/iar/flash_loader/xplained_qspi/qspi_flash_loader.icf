@@ -47,7 +47,7 @@ do not initialize  { readonly section .noinit };
 /* Warning: ICC still considers the sections below as zero-initialized, by default. */
 do not initialize  { section .region_sram };
 do not initialize  { section .region_ddr };
-do not initialize  { section .region_ddr_nocache };
+do not initialize  { section .region_nocache };
 
 place at address mem:__ICFEDIT_intvec_start__ { section .intvec } ;
 
