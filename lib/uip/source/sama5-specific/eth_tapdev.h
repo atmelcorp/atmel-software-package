@@ -30,6 +30,8 @@
 #ifndef __GTAPDEV_H__
 #define __GTAPDEV_H__
 
+#include "uip-conf.h"
+
 /**
  * Read from ETH device.
  * \param iface Interface index
