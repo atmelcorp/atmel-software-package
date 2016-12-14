@@ -556,7 +556,7 @@ int main(void)
 			if (!can_bus_wait_transfer_done(&buf_rx, 10 * CAN_TO)) {
 				trace_warning("RX failed!\r\n");
 			} else {
-				trace_info("CAN1 RX, len %d:", buf_rx.size);
+				trace_info("CAN1 RX, len %u:", (unsigned)buf_rx.size);
 				print_buffer(buf_rx.size, buf_rx.data);
 			}
 			break;
@@ -571,7 +571,7 @@ int main(void)
 				trace_error("Failed to enable CAN/MCAN.\n\r");
 				break;
 			}
-			trace_info("CAN1 TX, ID 0x222, len %d:", buf_tx.size);
+			trace_info("CAN1 TX, ID 0x222, len %u:", (unsigned)buf_tx.size);
 			print_buffer(buf_tx.size, buf_tx.data);
 
 			can_bus_transfer(1, 0x222, 0, &buf_tx, NULL, NULL);
