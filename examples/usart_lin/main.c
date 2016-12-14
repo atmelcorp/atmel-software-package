@@ -285,8 +285,6 @@ static void _console_handler(uint8_t k)
  */
 static void _tc_handler(uint32_t source, void* user_arg)
 {
-	assert(source == ID_TC0);
-
 	/* Clear status bit to acknowledge interrupt */
 	tc_get_status(TC0, TC_CHANNEL);
 
