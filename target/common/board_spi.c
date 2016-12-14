@@ -31,16 +31,17 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "board_spi.h"
-#include "trace.h"
-
-#include "spi/spi-bus.h"
-
-#include "gpio/pio.h"
-
-#include "nvm/spi-nor/at25.h"
-
 #include <errno.h>
+
+#include "board_spi.h"
+#include "gpio/pio.h"
+#include "nvm/spi-nor/at25.h"
+#ifdef CONFIG_HAVE_QSPI
+#include "nvm/spi-nor/qspiflash.h"
+#include "spi/qspi.h"
+#endif
+#include "spi/spi-bus.h"
+#include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Local variables
@@ -59,6 +60,10 @@ static struct _at25 at25 = {
 		.spi_mode = BOARD_AT25_SPI_MODE,
 	},
 };
+#endif
+
+#ifdef CONFIG_HAVE_QSPI
+static struct _qspiflash qspiflash;
 #endif
 
 /*----------------------------------------------------------------------------
@@ -118,3 +123,23 @@ struct _at25* board_get_at25(void)
 	return &at25;
 }
 #endif /* CONFIG_HAVE_SPI_AT25 */
+
+#ifdef CONFIG_HAVE_QSPI
+void board_cfg_qspiflash(void)
+{
+	struct _pin pins_qspi[] = BOARD_QSPIFLASH_PINS;
+
+	pio_configure(pins_qspi, ARRAY_SIZE(pins_qspi));
+
+	qspi_initialize(BOARD_QSPIFLASH_ADDR);
+	qspi_set_baudrate(BOARD_QSPIFLASH_ADDR, BOARD_QSPIFLASH_BAUDRATE);
+
+	if (qspiflash_configure(&qspiflash, BOARD_QSPIFLASH_ADDR) < 0)
+		trace_fatal("qspi: not configured\r\n");
+}
+
+struct _qspiflash* board_get_qspiflash(void)
+{
+	return &qspiflash;
+}
+#endif /* CONFIG_HAVE_QSPI */

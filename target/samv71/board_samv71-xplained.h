@@ -131,9 +131,9 @@
 
 /* =================== QSPI serial flashdevice definition ======= */
 
-#define QSPIFLASH_PINS     PINS_QSPI0
-#define QSPIFLASH_ADDR     QSPI0
-#define QSPIFLASH_BAUDRATE 50000000 /* 50 MHz */
+#define BOARD_QSPIFLASH_PINS     PINS_QSPI0
+#define BOARD_QSPIFLASH_ADDR     QSPI0
+#define BOARD_QSPIFLASH_BAUDRATE 50000000 /* 50 MHz */
 
 /* =================== ETH definition =================== */
 

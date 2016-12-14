@@ -71,6 +71,11 @@ WEAK void board_init(void)
 	board_cfg_spi_bus();
 #endif
 
+#ifdef CONFIG_HAVE_QSPI
+	/* Configure QSPI flash memory */
+	board_cfg_qspiflash();
+#endif
+
 #ifdef CONFIG_HAVE_TWI
 	/* Configure TWI bus */
 	board_cfg_twi_bus();

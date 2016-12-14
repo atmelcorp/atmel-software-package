@@ -65,4 +65,16 @@ extern void board_cfg_at25(void);
 extern struct _at25* board_get_at25(void);
 #endif /* BOARD_AT25_BUS */
 
+#ifdef CONFIG_HAVE_QSPI
+/**
+ * \brief Configure the QSPI flash if available
+ */
+extern void board_cfg_qspiflash(void);
+
+/**
+ * \brief Get the qspi configuration for the board
+ */
+extern struct _qspiflash* board_get_qspiflash(void);
+#endif /* CONFIG_HAVE_QSPI */
+
 #endif /* BOARD_SPI_H */

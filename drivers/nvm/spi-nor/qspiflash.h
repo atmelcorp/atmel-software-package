@@ -36,6 +36,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+
+#include "chip.h"
 #include "nvm/spi-nor/spi-nor.h"
 
 /*----------------------------------------------------------------------------
