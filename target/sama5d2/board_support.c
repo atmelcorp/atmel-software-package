@@ -799,35 +799,3 @@ void board_cfg_lcd(void)
 #endif
 }
 #endif
-
-#ifdef CONFIG_HAVE_PDMIC
-void board_cfg_pdmic(void)
-{
-	const struct _pin pins_pdmic[] = PINS_PDMIC_IOS1;
-
-	pio_configure(pins_pdmic, ARRAY_SIZE(pins_pdmic));
-}
-#endif
-
-#ifdef CONFIG_HAVE_CLASSD
-void board_cfg_classd(void)
-{
-	const struct _pin pins_classd[] = BOARD_CLASSD_PINS;
-
-	pio_configure(pins_classd, ARRAY_SIZE(pins_classd));
-}
-#endif
-
-#ifdef CONFIG_HAVE_SSC
-void board_cfg_ssc(void)
-{
-#ifdef BOARD_SSC0_PINS
-	const struct _pin pins_ssc0[] = BOARD_SSC0_PINS;
-	pio_configure(pins_ssc0, ARRAY_SIZE(pins_ssc0));
-#endif
-#ifdef BOARD_SSC1_PINS
-	const struct _pin pins_ssc1[] = BOARD_SSC1_PINS;
-	pio_configure(pins_ssc1, ARRAY_SIZE(pins_ssc1));
-#endif
-}
-#endif /* CONFIG_HAVE_SSC */

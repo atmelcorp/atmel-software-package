@@ -33,6 +33,7 @@
 
 #include "chip.h"
 #include "board.h"
+#include "board_audio.h"
 #include "board_can.h"
 #include "board_eth.h"
 #include "board_isi.h"

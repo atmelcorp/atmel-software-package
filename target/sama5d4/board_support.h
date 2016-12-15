@@ -146,13 +146,6 @@ extern void board_cfg_lcd(void);
 extern bool board_cfg_sdmmc(uint32_t hsmci_id);
 
 /**
- * \brief Configures SSC for the board
- */
-#ifdef CONFIG_HAVE_SSC
-extern void board_cfg_ssc(void);
-#endif
-
-/**
  * \brief Configures the board
  */
 extern void board_init(void);

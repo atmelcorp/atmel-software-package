@@ -133,13 +133,6 @@ extern void board_cfg_pmic(void);
 extern void board_cfg_lcd(void);
 #endif
 
-/*
- * \brief Configures SSC for the board
- */
-#ifdef CONFIG_HAVE_SSC
-extern void board_cfg_ssc(void);
-#endif
-
 /**
  * \brief Configures the board.
  */

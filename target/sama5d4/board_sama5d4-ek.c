@@ -32,6 +32,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "board_audio.h"
 #include "board_eth.h"
 #include "board_isi.h"
 #include "board_led.h"

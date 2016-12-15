@@ -119,8 +119,6 @@
 
 #define INITIAL_ATTENUATION 30
 
-static const struct _pin classd_pins[] = BOARD_CLASSD_PINS;
-
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
@@ -252,9 +250,6 @@ extern int main(void)
 
 	/* output example information */
 	console_example_info("CLASSD Example");
-
-	/* configure PIO muxing for ClassD */
-	pio_configure(classd_pins, ARRAY_SIZE(classd_pins));
 
 	/* configure ClassD */
 	_configure_classd();

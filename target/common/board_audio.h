@@ -27,85 +27,32 @@
  * ----------------------------------------------------------------------------
  */
 
-/*----------------------------------------------------------------------------
- *        Headers
- *----------------------------------------------------------------------------*/
-
-#include "board.h"
-#include "board_audio.h"
-#include "board_eth.h"
-#include "board_led.h"
-#include "board_spi.h"
-#include "board_twi.h"
-#include "chip.h"
-#include "compiler.h"
-
-#include "dma/dma.h"
-
-#include "board_support.h"
+#ifndef BOARD_AUDIO_H
+#define BOARD_AUDIO_H
 
 /*----------------------------------------------------------------------------
- *        Exported functions
+ *        Functions
  *----------------------------------------------------------------------------*/
 
-WEAK void board_init(void)
-{
-#ifdef VARIANT_DDRAM
-	bool ddram = false;
-	bool clocks = false;
-#else
-	bool ddram = true;
-	bool clocks = true;
+/**
+ * \brief Configures CLASSD for the board.
+ */
+#ifdef CONFIG_HAVE_CLASSD
+void board_cfg_classd(void);
 #endif
 
-	/* Configure misc low-level stuff */
-	board_cfg_lowlevel(clocks, ddram, true);
-
-	/* Configure console */
-	board_cfg_console(0);
-
-	/* DMA Driver init */
-	dma_initialize(false);
-
-#ifdef CONFIG_HAVE_SPI
-	/* Configure SPI bus */
-	board_cfg_spi_bus();
+/**
+ * \brief Configures PDMIC for the board.
+ */
+#ifdef CONFIG_HAVE_PDMIC
+void board_cfg_pdmic(void);
 #endif
 
-#ifdef CONFIG_HAVE_QSPI
-	/* Configure QSPI flash memory */
-	board_cfg_qspiflash();
-#endif
-
-#ifdef CONFIG_HAVE_TWI
-	/* Configure TWI bus */
-	board_cfg_twi_bus();
-
-#ifdef CONFIG_HAVE_TWI_AT24
-	board_cfg_at24();
-#endif
-#endif
-
-#ifdef CONFIG_HAVE_LED
-	/* Configure LEDs */
-	board_cfg_led();
-#endif
-
-#ifdef CONFIG_HAVE_ETH
-        board_cfg_net(0);
-#endif
-
-#ifdef CONFIG_HAVE_LCDC
-	/* Configure LCD controller/display */
-	board_cfg_lcd();
-#endif
-
-#ifdef CONFIG_HAVE_ISI
-	/* Configure camera interface */
-	board_cfg_isi();
-#endif
-
+/*
+ * \brief Configures SSC for the board
+ */
 #ifdef CONFIG_HAVE_SSC
-	board_cfg_ssc();
+extern void board_cfg_ssc(void);
 #endif
-}
+
+#endif /* BOARD_AUDIO_H */

@@ -147,27 +147,6 @@ extern void board_cfg_lcd(void);
 #endif
 
 /**
- * \brief Configures CLASSD for the board.
- */
-#ifdef CONFIG_HAVE_CLASSD
-void board_cfg_classd(void);
-#endif
-
-/**
- * \brief Configures PDMIC for the board.
- */
-#ifdef CONFIG_HAVE_PDMIC
-void board_cfg_pdmic(void);
-#endif
-
-/*
- * \brief Configures SSC for the board
- */
-#ifdef CONFIG_HAVE_SSC
-extern void board_cfg_ssc(void);
-#endif
-
-/**
  * \brief Configures the board.
  */
 extern void board_init(void);
