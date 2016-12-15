@@ -135,7 +135,10 @@ static void _configure_pdmic(struct _audio_desc *desc)
 }
 #endif
 
-static void _configure_audio_device(struct _audio_desc *desc)
+/**
+ * Configure audio play/record
+ */
+void audio_configure(struct _audio_desc *desc)
 {
 	switch (desc->type) {
 #if defined(CONFIG_HAVE_CLASSD)
@@ -155,41 +158,7 @@ static void _configure_audio_device(struct _audio_desc *desc)
 #endif
 	default:
 		return;
-
 	}
-}
-
-static uint32_t _get_audio_id_from_addr(struct _audio_desc *desc)
-{
-	switch (desc->type) {
-#if defined(CONFIG_HAVE_CLASSD)
-	case AUDIO_DEVICE_CLASSD:
-		return get_classd_id_from_addr(desc->device.classd.addr);
-#endif
-#if defined(CONFIG_HAVE_SSC)
-	case AUDIO_DEVICE_SSC:
-		return get_ssc_id_from_addr(desc->device.ssc.addr);
-#endif
-#if defined(CONFIG_HAVE_PDMIC)
-	case AUDIO_DEVICE_PDMIC:
-		return get_pdmic_id_from_addr(desc->device.pdmic.addr);
-#endif
-	default:
-		return ID_PERIPH_COUNT;
-	}
-}
-
-/**
- * Configure audio play/record
- */
-void audio_configure(struct _audio_desc *desc)
-{
-	uint32_t audio_id = _get_audio_id_from_addr(desc);
-
-	if (!audio_id)
-		return;
-
-	_configure_audio_device(desc);
 }
 
 /**
