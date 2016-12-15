@@ -330,19 +330,18 @@ static uint8_t hsmci_release_dma(struct hsmci_set *set)
 
 	assert(set);
 
-	if (set->dma_channel == NULL)
+	if (set->dma_rx_channel == NULL || set->dma_tx_channel == NULL)
 		return SDMMC_ERROR_STATE;
-	rc = dma_stop_transfer(set->dma_channel);
+	rc = dma_stop_transfer(set->dma_rx_channel);
 	if (rc != 0) {
 		trace_error("Error halting DMA channel\n\r");
 		res = SDMMC_ERROR_STATE;
 	}
-	rc = dma_free_channel(set->dma_channel);
+	rc = dma_stop_transfer(set->dma_tx_channel);
 	if (rc != 0) {
-		trace_error("Couldn't free DMA channel\n\r");
+		trace_error("Error halting DMA channel\n\r");
 		res = SDMMC_ERROR_STATE;
 	}
-	set->dma_channel = NULL;
 	return res;
 }
 
@@ -355,14 +354,17 @@ static uint8_t hsmci_prepare_dma(struct hsmci_set *set, uint8_t bRd)
 	uint32_t rc;
 
 	assert(set);
-
-	set->dma_channel = dma_allocate_channel(
-		bRd ? set->id : DMA_PERIPH_MEMORY,
-		bRd ? DMA_PERIPH_MEMORY : set->id);
-	if (NULL == set->dma_channel)
-		return SDMMC_ERROR_BUSY;
-	rc = dma_set_callback(set->dma_channel, _hsmci_dma_callback_wrapper,
-		set);
+	if (!bRd) {
+		set->dma_tx_channel = dma_allocate_channel(DMA_PERIPH_MEMORY, set->id);
+		if (!set->dma_tx_channel)
+			return SDMMC_ERROR_BUSY;
+		rc = dma_set_callback(set->dma_tx_channel, _hsmci_dma_callback_wrapper, set);
+	} else {
+		set->dma_rx_channel = dma_allocate_channel(set->id, DMA_PERIPH_MEMORY);
+		if (!set->dma_rx_channel)
+			return SDMMC_ERROR_BUSY;
+		rc = dma_set_callback(set->dma_rx_channel, _hsmci_dma_callback_wrapper, set);
+	}
 	if (rc != 0) {
 		hsmci_release_dma(set);
 		return SDMMC_ERROR_STATE;
@@ -439,7 +441,10 @@ static uint8_t hsmci_configure_dma(struct hsmci_set *set, uint8_t bRd)
 	dma_cfg.sa = bRd ? (void*)&set->regs->HSMCI_RDR : cmd->pData;
 	dma_cfg.da = bRd ? cmd->pData : (void*)&set->regs->HSMCI_TDR;
 	/* Configure a single block per master transfer, i.e. no linked list */
-	rc = dma_configure_transfer(set->dma_channel, &dma_cfg);
+	if (bRd)
+		rc = dma_configure_transfer(set->dma_rx_channel, &dma_cfg);
+	else
+		rc = dma_configure_transfer(set->dma_tx_channel, &dma_cfg);
 	if (rc != 0)
 		return SDMMC_ERROR_BUSY;
 	if (bRd)
@@ -456,7 +461,10 @@ static uint8_t hsmci_configure_dma(struct hsmci_set *set, uint8_t bRd)
 	else
 		cache_clean_region(cmd->pData, cmd->wBlockSize
 			* (uint32_t)cmd->wNbBlocks);
-	rc = dma_start_transfer(set->dma_channel);
+	if (bRd)
+		rc = dma_start_transfer(set->dma_rx_channel);
+	else
+		rc = dma_start_transfer(set->dma_tx_channel);
 	return rc == 0 ? SDMMC_SUCCESS : SDMMC_ERROR_STATE;
 }
 
@@ -758,9 +766,11 @@ static uint32_t hsmci_send_command(void *_set, sSdmmcCommand *cmd)
 		is_read = (cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_TX) ? 0 : 1;
 		if (!mutex_try_lock(&set->dma_unlocks_mutex))
 			return SDMMC_ERROR_LOCKED;
-		rc = hsmci_prepare_dma(set, is_read);
-		if (rc == SDMMC_SUCCESS)
-			rc = hsmci_configure_dma(set, is_read);
+		if (is_read)
+			dma_reset_channel(set->dma_rx_channel);
+		else
+			dma_reset_channel(set->dma_tx_channel);
+		rc = hsmci_configure_dma(set, is_read);
 		if (rc != SDMMC_SUCCESS) {
 			hsmci_enable(regs);
 			hsmci_finish_cmd(set, rc);
@@ -863,9 +873,6 @@ bool hsmci_initialize(struct hsmci_set *set, uint32_t periph_id,
 	set->state = MCID_OFF;
 	set->dma_unlocks_mutex = 0;
 
-	/* Initialize DMA driver instance with interrupt mode */
-	dma_initialize(false);
-
 	/* Prepare our Timer/Counter */
 	pmc_configure_peripheral(get_tc_id_from_addr(tc_module), NULL, true);
 	tc_configure(tc_module, tc_ch, TC_CMR_WAVE | TC_CMR_WAVSEL_UP
@@ -899,6 +906,14 @@ bool hsmci_initialize(struct hsmci_set *set, uint32_t periph_id,
 			irq_add_handler(periph_id, hsmci_irq_handler, set);
 			irq_enable(periph_id);
 		}
+	}
+	if (hsmci_prepare_dma(set, 1) != SDMMC_SUCCESS) {
+		trace_error("allocate DMA channel error\n\r");
+		return false;
+	}
+	if (hsmci_prepare_dma(set, 0) != SDMMC_SUCCESS) {
+		trace_error("allocate DMA channel error\n\r");
+		return false;
 	}
 	return true;
 }
