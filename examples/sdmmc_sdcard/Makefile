@@ -41,6 +41,8 @@ BINNAME = sdcard
 CONFIG_SDMMC = y
 CONFIG_LIB_SDMMC = y
 CONFIG_LIB_FATFS = y
+CONFIG_CRYPTO = y
+CONFIG_CRYPTO_SHA = y
 
 CFLAGS_INC += -I$(TOP)/examples/sdmmc_sdcard
 
@@ -65,6 +67,5 @@ CFLAGS_INC += -I$(TOP)/examples/sdmmc_sdcard
 # CFLAGS_DEFS += -DSDMMC_DRV_TRACE_LEVEL=3
 
 obj-y += examples/sdmmc_sdcard/main.o
-obj-y += examples/sdmmc_sdcard/plugin_sha.o
 
 include $(TOP)/scripts/Makefile.rules

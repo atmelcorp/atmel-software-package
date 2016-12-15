@@ -99,7 +99,13 @@
 #include "board.h"
 #include "chip.h"
 #include "trace.h"
-#include "plugin_sha.h"
+#include "swab.h"
+
+#ifdef CONFIG_HAVE_SHA
+#include "crypto/shad.h"
+#include "intmath.h"
+#endif
+
 #include "mm/cache.h"
 #include "serial/console.h"
 #include "peripherals/pmc.h"
@@ -135,7 +141,7 @@
 #endif
 
 #if USE_EXT_RAM
-#  define BLOCK_CNT_MAX               65536ul
+#  define BLOCK_CNT_MAX               256
 #  define DMADL_CNT_MAX               512u
 #else
 #  define BLOCK_CNT_MAX               24u
@@ -236,30 +242,16 @@ NOT_CACHED static FATFS fs_header;
 NOT_CACHED static FIL f_header;
 
 #ifdef CONFIG_HAVE_SHA
-#if USE_EXT_RAM
-CACHE_ALIGNED_DDR
-#else
-CACHE_ALIGNED_SRAM
+static struct _shad_desc shad;
+static uint32_t hash[5] = { 0 };
+static struct _buffer sha_buf;
 #endif
-static uint8_t _sha_pending_data[128];
 
-#if USE_EXT_RAM
-CACHE_ALIGNED_DDR
-#else
-CACHE_ALIGNED_SRAM
-#endif
-static struct dma_xfer _sha_dma_dlist[2];
-
-static struct sha_set sha = {
-	.pending_data = _sha_pending_data,
-	.count = 0,
-	.dma_dlist = _sha_dma_dlist,
-	.dma_polling = false,
-	.dma_unlocks_mutex = 0,
-};
-#endif
 static uint8_t slot;
-static bool use_dma;
+
+#ifdef CONFIG_HAVE_SDMMC
+static bool use_dma = false;
+#endif
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -328,7 +320,9 @@ static void initialize(void)
 	SDD_InitializeSdmmcMode(&lib1, &drv1, 0);
 
 #ifdef CONFIG_HAVE_SHA
-	sha_plugin_initialize(&sha, use_dma);
+	shad.cfg.algo = ALGO_SHA_1;
+	shad.cfg.transfer_mode = SHAD_TRANS_DMA;
+	shad_init(&shad);
 #endif
 }
 
@@ -426,9 +420,6 @@ static bool read_file(uint8_t slot_ix, sSdCard *pSd, FATFS *fs)
 {
 	const TCHAR drive_path[] = { '0' + slot_ix, ':', '\0' };
 	const UINT buf_size = BLOCK_CNT_MAX * 512ul;
-#ifdef CONFIG_HAVE_SHA
-	uint32_t hash[5] = { 0 };
-#endif
 	TCHAR file_path[sizeof(drive_path) + sizeof(test_file_path)];
 	uint32_t file_size;
 	UINT len;
@@ -448,14 +439,20 @@ static bool read_file(uint8_t slot_ix, sSdCard *pSd, FATFS *fs)
 		printf("Failed to open \"%s\", error %d\n\r", file_path, res);
 		return false;
 	}
+#ifdef CONFIG_HAVE_SHA
+	shad_start(&shad);
+#endif
 	for (file_size = 0, len = buf_size; res == FR_OK && len == buf_size;
 	    file_size += len) {
 		res = f_read(&f_header, data_buf, buf_size, &len);
 		if (res == FR_OK) {
 			cache_clean_region(data_buf, len);
 #ifdef CONFIG_HAVE_SHA
-			sha_plugin_feed(&sha, file_size == 0, len != buf_size,
-			    data_buf, len);
+			sha_buf.attr = 0;
+			sha_buf.data = (uint8_t*)data_buf;
+			sha_buf.size = len;
+			shad_update(&shad, &sha_buf, NULL);
+			shad_wait_completion(&shad);
 #endif
 		}
 		else
@@ -464,10 +461,18 @@ static bool read_file(uint8_t slot_ix, sSdCard *pSd, FATFS *fs)
 	}
 #ifdef CONFIG_HAVE_SHA
 	if (res == FR_OK) {
-		sha_plugin_get_hash(&sha, hash);
+		sha_buf.attr = 0;
+		sha_buf.data = (uint8_t*)hash;
+		sha_buf.size = shad_get_output_size(shad.cfg.algo);
+		shad_finish(&shad, &sha_buf, NULL);
+		shad_wait_completion(&shad);
 		printf("Read %lu bytes. Their SHA-1 was %08lx%08lx%08lx%08lx"
-		    "%08lx.\n\r", file_size, hash[0], hash[1], hash[2], hash[3],
-		    hash[4]);
+		    "%08lx.\n\r", file_size,
+				swab32(hash[0]),
+				swab32(hash[1]),
+				swab32(hash[2]),
+				swab32(hash[3]),
+				swab32(hash[4]));
 	}
 #endif
 	res = f_close(&f_header);
@@ -612,6 +617,7 @@ int main(void)
 	if (!rc)
 		trace_error("Failed to cfg cells\n\r");
 
+#ifdef CONFIG_HAVE_SDMMC
 	if (IS_CACHE_ALIGNED(&data_buf)
 	    && IS_CACHE_ALIGNED(sizeof(data_buf))
 	    && IS_CACHE_ALIGNED(&lib0.EXT)
@@ -621,9 +627,10 @@ int main(void)
 		trace_error("WARNING: buffers are not aligned on data cache "
 		    "lines. Please fix this before enabling DMA.\n\r");
 		use_dma = false;
-	}
-	else
+	} else {
 		use_dma = true;
+	}
+#endif
 	initialize();
 
 	/* Display menu */
@@ -642,7 +649,7 @@ int main(void)
 			break;
 #ifdef CONFIG_HAVE_SDMMC
 		case 'd':
-			use_dma = use_dma ? false : true;
+			use_dma = !use_dma;
 			initialize();
 			display_menu();
 			break;

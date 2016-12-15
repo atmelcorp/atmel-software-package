@@ -73,38 +73,12 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "compiler.h"
+#include <string.h>
+#include <stdio.h>
+
 #include "chip.h"
 #include "crypto/sha.h"
 #include "dma/dma.h"
-
-#include <assert.h>
-
-#if defined(CONFIG_SOC_SAMA5D3)
-static uint8_t _sha_dma_chunk_size[] = {
-	DMA_CHUNK_SIZE_16,
-	DMA_CHUNK_SIZE_16,
-	DMA_CHUNK_SIZE_32,
-	DMA_CHUNK_SIZE_32,
-	DMA_CHUNK_SIZE_16
-};
-#elif defined(CONFIG_SOC_SAMA5D2) || defined(CONFIG_SOC_SAMA5D4)
-static uint8_t _sha_dma_chunk_size[] = {
-	DMA_CHUNK_SIZE_16,
-	DMA_CHUNK_SIZE_16,
-	DMA_CHUNK_SIZE_16,
-	DMA_CHUNK_SIZE_16,
-	DMA_CHUNK_SIZE_16
-};
-#endif
-
-static uint32_t _sha_output_words[] = {
-	SHA_1_DIGEST_SIZE,
-	SHA_256_DIGEST_SIZE,
-	SHA_384_DIGEST_SIZE,
-	SHA_512_DIGEST_SIZE,
-	SHA_224_DIGEST_SIZE,
-};
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -145,48 +119,27 @@ uint32_t sha_get_status(void)
 	return SHA->SHA_ISR;
 }
 
-void sha_set_input(const uint32_t * data, uint8_t len)
+void sha_set_input(const uint8_t* data, int len)
 {
-	uint8_t i;
-	uint8_t num;
-	num = len <= 16 ? len : 16;
-	for (i = 0; i < num; i++)
-		SHA->SHA_IDATAR[i] = (data[i]);
-	num = len > 16 ? len - 16 : 0;
-	for (i = 0; i < num; i++)
-		SHA->SHA_IODATAR[i] = (data[i + 16]);
+	int i;
+	int32_t value;
+
+	for (i = 0; i < (len / 4) && i < 32; i++) {
+		memcpy(&value, &data[i * 4], 4);
+		if (i < 16)
+			SHA->SHA_IDATAR[i] = value;
+		else
+			SHA->SHA_IODATAR[i - 16] = value;
+	}
 }
 
-void sha_get_output(uint32_t * data)
+void sha_get_output(uint8_t* data, int len)
 {
-	uint32_t algo;
-	const uint8_t hash_size[5] = { 160 / 32, 256 / 32, 384 / 32,
-	    512 / 32, 224 / 32 };
-	uint8_t i, words;
+	int i;
+	int32_t value;
 
-	algo = SHA->SHA_MR & SHA_MR_ALGO_Msk;
-#ifdef SHA_MR_ALGO_HMAC_SHA1
-	if (algo >= SHA_MR_ALGO_HMAC_SHA1)
-		algo = algo - SHA_MR_ALGO_HMAC_SHA1 + SHA_MR_ALGO_SHA1;
-#endif
-	algo >>= SHA_MR_ALGO_Pos;
-	assert(algo < ARRAY_SIZE(hash_size));
-	words = hash_size[algo];
-
-	for (i = 0; i < words; i++)
-		data[i] = SHA->SHA_IODATAR[i];
-}
-
-uint8_t sha_get_dma_chunk_size(uint8_t mode)
-{
-	if (mode >= SHA_MODE_COUNT)
-		return 0;
-	return _sha_dma_chunk_size[mode];
-}
-
-uint8_t sha_get_output_words(uint8_t mode)
-{
-	if (mode >= SHA_MODE_COUNT)
-		return 0;
-	return (_sha_output_words[mode] / 32);
+	for (i = 0; i < (len / 4) && i < 16; i++) {
+		value = SHA->SHA_IODATAR[i];
+		memcpy(&data[i * 4], &value, 4);
+	}
 }

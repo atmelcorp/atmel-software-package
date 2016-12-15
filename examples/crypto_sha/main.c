@@ -46,7 +46,6 @@
  * - SAMA5D4-XULT
  * - SAMA5D3-EK
  * - SAMA5D3-XULT
-
  * \section Description
  *
  * \section Usage
@@ -104,32 +103,37 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "callback.h"
 #include "board.h"
 #include "chip.h"
-#include "crypto/sha.h"
 #include "crypto/shad.h"
+#include "crypto/sha.h"
+#include "intmath.h"
 #include "mm/cache.h"
 #include "peripherals/pmc.h"
 #include "serial/console.h"
+#include "swab.h"
 #include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
-#define MSG_MAX_LEN         0x00100000
+/* Buffer size for each SHA transfer, size should be multiple of block size
+   (block size: 64 for SHA_1/SHA_256/SHA_224, 128 for SHA_384/SHA_512) */
+#define BUF_SIZE         LEN_MSG_LONG
 
 #define SHA_ONE_BLOCK    0
 #define SHA_MULTI_BLOCK  1
 #define SHA_LONG_MESSAGE 2
 
-#define MAX_DIGEST_SIZE_INWORD    (16)
+#define MAX_DIGEST_SIZE_INWORD  (16)
 
-#define LEN_MSG_0      3
-#define LEN_MSG_1      56
-#define LEN_MSG_2      112
-#define LEN_MSG_LONG   (1000000)
+#define LEN_MSG_0    3
+#define LEN_MSG_1    56
+#define LEN_MSG_2    112
+#define LEN_MSG_LONG 1000000
+
+#define SHA_UPDATE_LEN (128 * 1024) /* buffer length when spliting long message */
 
 /*----------------------------------------------------------------------------
  *        Local variables
@@ -256,7 +260,7 @@ static const uint32_t ref_digests_224[3][7] = {
 	  0x1948b2ee, 0x4ee7ad67 }
 };
 
-CACHE_ALIGNED_DDR static uint32_t message[MSG_MAX_LEN];
+CACHE_ALIGNED_DDR static uint8_t message[BUF_SIZE];
 
 static uint32_t digest[MAX_DIGEST_SIZE_INWORD];
 static uint32_t block_mode;
@@ -269,70 +273,91 @@ static struct _shad_desc shad;
  *----------------------------------------------------------------------------*/
 
 /**
- * \brief Byte swap unsigned int
- */
-static uint32_t swap_uint32(uint32_t val)
-{
-	val = ((val << 8) & 0xFF00FF00 ) | ((val >> 8) & 0xFF00FF );
-	return (val << 16) | (val >> 16);
-}
-
-/**
  * \brief Start SHA process.
  */
 static void start_sha(void)
 {
 	uint32_t rc = 0, i, val, ref = 0;
 	uint32_t len;
+	int output_size = shad_get_output_size(shad.cfg.algo);
+
+	if (output_size < 0) {
+		printf("-F- Unsupported SHA algorithm\r\n");
+		return;
+	}
+
+	memset(digest, 0, ARRAY_SIZE(digest));
 
 	if (block_mode == SHA_ONE_BLOCK) {
-		memcpy ((uint8_t*)message, msg0, LEN_MSG_0);
-		len = shad_pad_message((uint8_t*)message, LEN_MSG_0, shad.cfg.mode);
+		len = LEN_MSG_0;
+		memcpy ((uint8_t*)message, msg0, len);
 	} else if (block_mode == SHA_MULTI_BLOCK) {
-		if ((shad.cfg.mode == SHAD_MODE_SHA384)
-			|| (shad.cfg.mode == SHAD_MODE_SHA512)) {
-			memcpy ((uint8_t*)message, msg2, LEN_MSG_2);
-			len = shad_pad_message((uint8_t*)message, LEN_MSG_2, shad.cfg.mode);
+		if (shad.cfg.algo == ALGO_SHA_384 ||
+		    shad.cfg.algo == ALGO_SHA_512) {
+			len = LEN_MSG_2;
+			memcpy ((uint8_t*)message, msg2, len);
 		} else {
-			memcpy ((uint8_t*)message, msg1, LEN_MSG_1);
-			len = shad_pad_message((uint8_t*)message, LEN_MSG_1, shad.cfg.mode);
+			len = LEN_MSG_1;
+			memcpy ((uint8_t*)message, msg1, len);
 		}
 	} else {
-		memset ((uint8_t*)message, msg_long_pattern, LEN_MSG_LONG);
-		len = shad_pad_message((uint8_t*)message, LEN_MSG_LONG, shad.cfg.mode);
+		len = LEN_MSG_LONG;
+		memset((uint8_t*)message, msg_long_pattern, len);
 	}
 
 	struct _buffer buf_in = {
 		.data = (uint8_t*)message,
 		.size = len,
-		};
-		struct _buffer buf_out = {
+	};
+	struct _buffer buf_out = {
 		.data = (uint8_t*)digest,
-		.size = MAX_DIGEST_SIZE_INWORD,
-		};
-	shad_transfer(&shad, &buf_in, &buf_out, NULL);
+		.size = output_size,
+	};
+	shad_start(&shad);
+	while (len) {
+		buf_in.size = min_u32(len, SHA_UPDATE_LEN);
 
-	printf("-I- Dump and compare digest result...\n\r");
-	for (rc = 0, i = 0; i < sha_get_output_words((uint8_t)shad.cfg.mode); i++) {
-		val = swap_uint32(digest[i]);
-		switch (shad.cfg.mode) {
-		case SHAD_MODE_SHA1:   ref = ref_digests_one[block_mode][i]; break;
-		case SHAD_MODE_SHA256: ref = ref_digests_256[block_mode][i]; break;
-		case SHAD_MODE_SHA384: ref = ref_digests_384[block_mode][i]; break;
-		case SHAD_MODE_SHA512: ref = ref_digests_512[block_mode][i]; break;
-		case SHAD_MODE_SHA224: ref = ref_digests_224[block_mode][i]; break;
+		shad_update(&shad, &buf_in, NULL);
+		shad_wait_completion(&shad);
+
+		buf_in.data += buf_in.size;
+		len -= buf_in.size;
+	}
+	shad_finish(&shad, &buf_out, NULL);
+	shad_wait_completion(&shad);
+
+	printf("-I- Dump and compare digest result...\r\n");
+	for (rc = 0, i = 0; i < output_size / 4; i++) {
+		val = swab32(digest[i]);
+		switch (shad.cfg.algo) {
+		case ALGO_SHA_1:
+			ref = ref_digests_one[block_mode][i];
+			break;
+		case ALGO_SHA_224:
+			ref = ref_digests_224[block_mode][i];
+			break;
+		case ALGO_SHA_256:
+			ref = ref_digests_256[block_mode][i];
+			break;
+		case ALGO_SHA_384:
+			ref = ref_digests_384[block_mode][i];
+			break;
+		case ALGO_SHA_512:
+			ref = ref_digests_512[block_mode][i];
+			break;
 		}
 		if (val != ref) {
 			printf(" [X]");
 			rc++;
 		}
-		printf("   0x%08x  \n\r", (unsigned int)val);
+		printf("   0x%08x\r\n", (unsigned)val);
 	}
+
 	if (rc)
-		printf("-I- Failed to verify message digest (%du errors)\n\r",
-		       (unsigned int)rc);
+		printf("-I- Failed to verify message digest (%u errors)\r\n",
+			  (unsigned)rc);
 	else
-		printf("-I- Message digest result matched exactly with the result in FIPS example\n\r");
+		printf("-I- Message digest result matched with the result in FIPS example\r\n");
 }
 
 /**
@@ -342,28 +367,26 @@ static void display_menu(void)
 {
 	uint8_t chk_box[5];
 
-	printf("\n\rSHA Menu :\n\r");
-	printf("Press [0|1|2|3|4] to set SHA Algorithm \n\r");
+	printf("\r\nSHA Menu :\r\n");
+	printf("Press [0|1|2|3|4] to set SHA Algorithm \r\n");
 	memset(chk_box, ' ', sizeof(chk_box));
-	chk_box[shad.cfg.mode] = 'X';
-	printf("   0: SHA1[%c] 1: SHA256[%c] 2: SHA384[%c] 3: SHA512[%c] 4: SHA224[%c]\n\r",
+	chk_box[shad.cfg.algo] = 'X';
+	printf("   0: SHA1[%c] 1: SHA224[%c] 2: SHA256[%c] 3: SHA384[%c] 4: SHA512[%c]\r\n",
 	       chk_box[0], chk_box[1], chk_box[2], chk_box[3], chk_box[4]);
 
-	printf("Press [o|t|l] to set one/multi-block or long message \n\r");
+	printf("Press [o|t|l] to set one/multi-block or long message \r\n");
 	memset(chk_box, ' ', sizeof(chk_box));
 	chk_box[block_mode] = 'X';
-	printf("   o: one-block[%c] t: multi-block[%c] l: long-message[%c] \n\r",
+	printf("   o: one-block[%c] t: multi-block[%c] l: long-message[%c] \r\n",
 	       chk_box[0], chk_box[1], chk_box[2]);
 
-	printf("Press [m|a|d] to set Start Mode \n\r");
-	chk_box[0] = (shad.cfg.transfer_mode == SHAD_TRANS_POLLING_MANUAL) ? 'X' : ' ';
-	chk_box[1] = (shad.cfg.transfer_mode == SHAD_TRANS_POLLING_AUTO) ? 'X' : ' ';
-	chk_box[2] = (shad.cfg.transfer_mode == SHAD_TRANS_DMA) ? 'X' : ' ';
-	printf("   m: MANUAL_START[%c] a: AUTO_START[%c] d: DMA[%c]\n\r",
-			chk_box[0], chk_box[1], chk_box[2]);
-	printf("   p: Start hash algorithm process \n\r");
-	printf("   h: Display this menu\n\r");
-	printf("\n\r");
+	printf("Press [m|a|d] to set Start Mode \r\n");
+	chk_box[0] = (shad.cfg.transfer_mode == SHAD_TRANS_POLLING) ? 'X' : ' ';
+	chk_box[1] = (shad.cfg.transfer_mode == SHAD_TRANS_DMA) ? 'X' : ' ';
+	printf("   p: POLLING[%c] d: DMA[%c]\r\n", chk_box[0], chk_box[1]);
+	printf("   s: Start hash algorithm process \r\n");
+	printf("   h: Display this menu\r\n");
+	printf("\r\n");
 }
 
 /*----------------------------------------------------------------------------
@@ -385,8 +408,8 @@ int main(void)
 	shad_init(&shad);
 
 	/* Display menu */
-	shad.cfg.mode = SHAD_MODE_SHA1;
-	shad.cfg.transfer_mode = SHAD_TRANS_POLLING_MANUAL;
+	shad.cfg.algo = ALGO_SHA_1;
+	shad.cfg.transfer_mode = SHAD_TRANS_POLLING;
 	block_mode = SHA_ONE_BLOCK;
 
 	display_menu();
@@ -395,31 +418,38 @@ int main(void)
 	while (true) {
 		user_key = tolower(console_get_char());
 		switch (user_key) {
-			case '0': case '1': case '2': case '3': case '4':
-				shad.cfg.mode = (enum _shad_mode)(user_key - '0');
+			case '0':
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+				shad.cfg.algo = (enum _shad_algo)(user_key - '0');
 				display_menu();
 				break;
 			case 'o':
-			case 't':
-			case 'l':
-				block_mode = user_key == 't' ? SHA_MULTI_BLOCK :
-				            (user_key == 'l' ? SHA_LONG_MESSAGE :
-				                               SHA_ONE_BLOCK);
+				block_mode = SHA_ONE_BLOCK;
 				display_menu();
 				break;
-			case 'm':
-			case 'a':
+			case 't':
+				block_mode = SHA_MULTI_BLOCK;
+				display_menu();
+				break;
+			case 'l':
+				block_mode = SHA_LONG_MESSAGE;
+				display_menu();
+				break;
+			case 'p':
+				shad.cfg.transfer_mode = SHAD_TRANS_POLLING;
+				display_menu();
+				break;
 			case 'd':
-				shad.cfg.transfer_mode =
-					(enum _shad_trans_mode)(user_key == 'a' ? SHA_MR_SMOD_AUTO_START :
-					(user_key == 'd' ? SHA_MR_SMOD_IDATAR0_START :
-					SHA_MR_SMOD_MANUAL_START));
+				shad.cfg.transfer_mode = SHAD_TRANS_DMA;
 				display_menu();
 				break;
 			case 'h':
 				display_menu();
 				break;
-			case 'p':
+			case 's':
 				start_sha();
 				break;
 		}

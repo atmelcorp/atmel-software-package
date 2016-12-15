@@ -38,6 +38,7 @@
 #include <stdint.h>
 
 #include "callback.h"
+#include "crypto/sha.h"
 #include "dma/dma.h"
 #include "io.h"
 #include "mutex.h"
@@ -46,47 +47,38 @@
  *        Types
  *----------------------------------------------------------------------------*/
 
-#define SHAD_SUCCESS         (0)
-#define SHAD_ERROR_LOCK      (1)
-#define SHAD_ERROR_PARAM     (2)
-#define SHAD_ERROR_TRANSFER  (3)
+enum _shad_algo {
+	ALGO_SHA_1,
+	ALGO_SHA_224,
+	ALGO_SHA_256,
+	ALGO_SHA_384,
+	ALGO_SHA_512,
+};
 
-enum _shad_trans_mode
+enum _shad_transfer_mode
 {
-	SHAD_TRANS_POLLING_MANUAL = 0,
-	SHAD_TRANS_POLLING_AUTO,
+	SHAD_TRANS_POLLING,
 	SHAD_TRANS_DMA
 };
 
-enum _shad_mode {
-	SHAD_MODE_SHA1 = 0,
-	SHAD_MODE_SHA256,
-	SHAD_MODE_SHA384,
-	SHAD_MODE_SHA512,
-	SHAD_MODE_SHA224,
-};
-
 struct _shad_desc {
-	/* structure to define SHA parameter */
-
-	/* following fields are used internally */
-	mutex_t         mutex;
+	/* structure to define SHA configuration */
 	struct {
-		enum _shad_trans_mode transfer_mode;
-		enum _shad_mode mode;
+		enum _shad_transfer_mode transfer_mode;
+		enum _shad_algo algo;
 	} cfg;
 
-	/* structure to hold data about current transfer */
-	struct {
-		struct _buffer *bufin;         /*< buffer input */
-		struct _buffer *bufout;        /*< buffer output */
-		struct _callback callback;
+	/* --- following fields are used internally --- */
 
-		struct {
-			struct {
-				struct _dma_channel *channel;
-			} rx, tx;
-		} dma;
+	mutex_t mutex;
+	struct _dma_channel *dma_channel;
+
+	/* data about current transfer */
+	struct {
+		struct _callback callback;
+		uint32_t remaining; /* remaining data to be processed from previous shad_update call */
+		uint32_t processed; /* cumulated data processed, value is included in padding data */
+		struct _buffer* buffer;
 	} xfer;
 };
 
@@ -94,26 +86,58 @@ struct _shad_desc {
  *        Functions
  *----------------------------------------------------------------------------*/
 
+/**
+ * \brief Initialize the SHA peripheral
+ * \param desc a SHA driver descriptor
+ */
 extern void shad_init(struct _shad_desc* desc);
 
-extern uint32_t shad_transfer(struct _shad_desc* desc,
-			      struct _buffer* buffer_in, struct _buffer* buffer_out,
-			      struct _callback* cb);
-
-extern bool shad_is_busy(struct _shad_desc* desc);
-
-extern void shad_wait_transfer(struct _shad_desc* desc);
+/**
+ * \brief Get number of output bytes for a given digest algorithm.
+ * \param algo SHA algorithm: ALGO_SHA_1..ALGO_SHA_512
+ * \return number of output bytes
+ */
+extern int shad_get_output_size(enum _shad_algo algo);
 
 /**
- * \brief According to the standard, the message must be padded to an even
- * 512 bits.  The first padding bit must be a '1'.  The last 64 bits represent
- * the length of the original message.  All bits in between should be 0.
- * \param message The context to pad
- * \param l length of message in byte
- * \param mode SHA mode
- * \note: the size of massage is limit to 32 bytes.
- * return length of padded message.
-*/
-extern uint32_t shad_pad_message(uint8_t *message, uint32_t len, uint8_t mode);
+ * \brief Start a new SHA computation.
+ * \param desc a SHA driver descriptor
+ * \return 0 on success, <0 on error
+ */
+extern int shad_start(struct _shad_desc* desc);
+
+/**
+ * \brief Update the SHA computation with some data.
+ * \param desc a SHA driver descriptor
+ * \param buffer data buffer to process
+ * \param cb callback called when the data processing is done
+ * \return 0 on success, <0 on error
+ * \note When using DMA, the buffer data pointer must be aligned to a cache
+ * line.  Additionally, the buffer size must be a multiple of 4 bytes except
+ * for the last call to shad_update.
+ */
+extern int shad_update(struct _shad_desc* desc, struct _buffer* buffer, struct _callback* cb);
+
+/**
+ * \brief Finish the SHA computation and get resulting digest.
+ * \param desc a SHA driver descriptor
+ * \param buffer data buffer to store the resulting digest.
+ * \param cb callback called when the data processing is done
+ * \return 0 on success, <0 on error
+ */
+extern int shad_finish(struct _shad_desc* desc, struct _buffer* buffer, struct _callback* cb);
+
+/**
+ * \brief Checks if the SHA driver is busy processing data.
+ * \param desc a SHA driver descriptor
+ * \return true if the driver is busy.
+ */
+extern bool shad_is_busy(struct _shad_desc* desc);
+
+/**
+ * \brief Wait for the driver to finish processing data.
+ * \param desc a SHA driver descriptor
+ */
+extern void shad_wait_completion(struct _shad_desc* desc);
 
 #endif /* SHAD_H */

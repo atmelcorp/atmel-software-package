@@ -27,8 +27,8 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef _SHA_
-#define _SHA_
+#ifndef SHA_H_
+#define SHA_H_
 
 #ifdef CONFIG_HAVE_SHA
 
@@ -37,34 +37,6 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
-
-/*------------------------------------------------------------------------------
- *         Constants
- *----------------------------------------------------------------------------*/
-
-#define SHA_1    0
-#define SHA_256  1
-#define SHA_384  2
-#define SHA_512  3
-#define SHA_224  4
-
-#define SHA_MODE_COUNT 5
-
-/*
- * Algorithm | Block Size | Word Size | Message Digest Size (all in bits)
- * SHA-1     | 512        | 32        | 160
- * SHA-256   | 512        | 32        | 256
- * SHA-384   | 1024       | 64        | 384
- * SHA-512   | 1024       | 64        | 512
- * SHA-224   | 512        | 32        | 224
- */
-
-#define SHA_1_DIGEST_SIZE    160
-#define SHA_256_DIGEST_SIZE  256
-#define SHA_384_DIGEST_SIZE  384
-#define SHA_512_DIGEST_SIZE  512
-#define SHA_224_DIGEST_SIZE  224
-
 
 /*----------------------------------------------------------------------------*/
 /*         Exported functions                                                 */
@@ -114,31 +86,17 @@ extern uint32_t sha_get_status(void);
 /**
  * \brief Set the 32-bit Input Data registers allow to load the data block used for hash processing.
  * \param data Pointer data block.
- * \param len 512/1024-bits block size
+ * \param len block size in bytes, must be a multiple of 4
  */
-extern void sha_set_input(const uint32_t * data, uint8_t len);
+extern void sha_set_input(const uint8_t* data, int len);
 
 /**
- * \brief Read the resulting message digest and to write the second part of the message block when the
-* SHA algorithm is SHA-384 or SHA-512.
- * \param data pointer to the word that has been encrypted/decrypted..
+ * \brief Read the resulting message digest
+ * \param data pointer to the digest words
+ * \param len block size in bytes, must be a multiple of 4
  */
-extern void sha_get_output(uint32_t * data);
-
-/**
- * \brief Get the valid dma chunk size to be used during dma transfer
- * \param mode  SHA operating mode: SHA1..SHA512
- * \return  DMA chunk size to use
- */
-extern uint8_t sha_get_dma_chunk_size(uint8_t mode);
-
-/**
- * \brief Get number of output digest in word.
- * \param mode  SHA operating mode: SHA1..SHA512
- * \return  number of output words
- */
-extern uint8_t sha_get_output_words(uint8_t mode);
+extern void sha_get_output(uint8_t* data, int len);
 
 #endif /* CONFIG_HAVE_SHA */
 
-#endif				/* #ifndef _SHA_ */
+#endif /* SHA_H_ */
