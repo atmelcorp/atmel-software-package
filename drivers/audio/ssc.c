@@ -331,17 +331,17 @@ int ssc_transfer(struct _ssc_desc* desc, struct _buffer* buf, struct _callback* 
 	return 0;
 }
 
-bool ssc_dma_tx_transfer_is_done(struct _ssc_desc* desc)
+bool ssc_tx_transfer_is_done(struct _ssc_desc* desc)
 {
 	return (!mutex_is_locked(&desc->tx.mutex));
 }
 
-bool ssc_dma_rx_transfer_is_done(struct _ssc_desc* desc)
+bool ssc_rx_transfer_is_done(struct _ssc_desc* desc)
 {
 	return (!mutex_is_locked(&desc->rx.mutex));
 }
 
-void ssc_dma_tx_stop(struct _ssc_desc* desc)
+void ssc_tx_stop(struct _ssc_desc* desc)
 {
 	if (desc->tx.dma.channel) {
 		dma_stop_transfer(desc->tx.dma.channel);
@@ -349,7 +349,7 @@ void ssc_dma_tx_stop(struct _ssc_desc* desc)
 	}
 }
 
-void ssc_dma_rx_stop(struct _ssc_desc* desc)
+void ssc_rx_stop(struct _ssc_desc* desc)
 {
 	if (desc->rx.dma.channel) {
 		dma_stop_transfer(desc->rx.dma.channel);

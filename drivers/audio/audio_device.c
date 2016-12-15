@@ -218,7 +218,7 @@ void audio_enable(struct _audio_desc *desc, bool enable)
 /**
  * Mute/Unmute audio channels
  */
-void audio_play_mute(struct _audio_desc *desc, bool mute)
+void audio_mute(struct _audio_desc *desc, bool mute)
 {
 	if (mute) {
 		switch (desc->type) {
@@ -290,9 +290,9 @@ void audio_play_mute(struct _audio_desc *desc, bool mute)
 }
 
 /**
- * Set audio play volume
+ * Set audio volume
  */
-void audio_play_set_volume(struct _audio_desc *desc, uint8_t vol)
+void audio_set_volume(struct _audio_desc *desc, uint8_t vol)
 {
 	/* unify the volume value for different codec chip */
 	/* vol=0 means min volume, vol=100 means max volume */
@@ -349,21 +349,29 @@ void audio_play_set_volume(struct _audio_desc *desc, uint8_t vol)
 /**
  * Stop audio data transfer
  */
-void audio_dma_stop(struct _audio_desc *desc)
+void audio_stop(struct _audio_desc *desc)
 {
 	switch (desc->type) {
 #if defined(CONFIG_HAVE_CLASSD)
 	case AUDIO_DEVICE_CLASSD:
-		classd_dma_stop(&desc->device.classd.desc);
+		classd_tx_stop(&desc->device.classd.desc);
 		break;
 #endif
 #if defined(CONFIG_HAVE_SSC)
 	case AUDIO_DEVICE_SSC:
+		switch (desc->direction) {
+		case AUDIO_DEVICE_PLAY:
+			ssc_tx_stop(&desc->device.ssc.desc);
+			break;
+		case AUDIO_DEVICE_RECORD:
+			ssc_rx_stop(&desc->device.ssc.desc);
+			break;
+		}
 		break;
 #endif
 #if defined(CONFIG_HAVE_PDMIC)
 	case AUDIO_DEVICE_PDMIC:
-		pdmic_dma_stop(&desc->device.pdmic.desc);
+		pdmic_rx_stop(&desc->device.pdmic.desc);
 		break;
 #endif
 	default:
@@ -371,7 +379,7 @@ void audio_dma_stop(struct _audio_desc *desc)
 	}
 }
 
-void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size, struct _callback* cb)
+void audio_transfer(struct _audio_desc *desc, void *buffer, uint32_t size, struct _callback* cb)
 {
 	switch (desc->type) {
 #if defined(CONFIG_HAVE_CLASSD)
@@ -451,21 +459,21 @@ void audio_dma_transfer(struct _audio_desc *desc, void *buffer, uint32_t size, s
 	}
 }
 
-bool audio_dma_transfer_is_done(struct _audio_desc *desc)
+bool audio_transfer_is_done(struct _audio_desc *desc)
 {
 	switch (desc->type) {
 #if defined(CONFIG_HAVE_CLASSD)
 	case AUDIO_DEVICE_CLASSD:
-		return classd_transfer_is_done(&desc->device.classd.desc);
+		return classd_tx_transfer_is_done(&desc->device.classd.desc);
 #endif
 #if defined(CONFIG_HAVE_SSC)
 	case AUDIO_DEVICE_SSC:
 		switch (desc->direction) {
 		case AUDIO_DEVICE_PLAY:
-			return ssc_dma_tx_transfer_is_done(&desc->device.ssc.desc);
+			return ssc_tx_transfer_is_done(&desc->device.ssc.desc);
 
 		case AUDIO_DEVICE_RECORD:
-			return ssc_dma_rx_transfer_is_done(&desc->device.ssc.desc);
+			return ssc_rx_transfer_is_done(&desc->device.ssc.desc);
 		default:
 			return true;
 		}
@@ -473,7 +481,7 @@ bool audio_dma_transfer_is_done(struct _audio_desc *desc)
 #endif
 #if defined(CONFIG_HAVE_PDMIC)
 	case AUDIO_DEVICE_PDMIC:
-		return pdmic_transfer_is_done(&desc->device.pdmic.desc);
+		return pdmic_rx_transfer_is_done(&desc->device.pdmic.desc);
 #endif
 	default:
 		return true;

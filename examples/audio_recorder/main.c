@@ -199,7 +199,7 @@ static int _audio_play_finish_callback(void* arg)
 {
 	mutex_unlock(&mutex.tx);
 	_play_stop();
-	audio_play_mute(&audio_play_device, true);
+	audio_mute(&audio_play_device, true);
 
 	return 0;
 }
@@ -256,7 +256,7 @@ static void _record_sound(void)
 	mutex_lock(&mutex.rx);
 	_record_start();
 	callback_set(&_cb, _audio_record_finish_callback, &audio_record_device);
-	audio_dma_transfer(&audio_record_device, (void *)_sound_buffer, audio_length, &_cb);
+	audio_transfer(&audio_record_device, (void *)_sound_buffer, audio_length, &_cb);
 
 	while (mutex_is_locked(&mutex.rx));
 }
@@ -275,15 +275,14 @@ static void _playback_sound(void)
 	       return;
 	}
 
-	audio_play_mute(&audio_play_device, false);
+	audio_mute(&audio_play_device, false);
 	_play_start();
 
 	callback_set(&_cb, _audio_play_finish_callback, &audio_play_device);
-	audio_dma_transfer(&audio_play_device, (void *)_sound_buffer, audio_length, &_cb);
+	audio_transfer(&audio_play_device, (void *)_sound_buffer, audio_length, &_cb);
 
 	while (mutex_is_locked(&mutex.tx));
 }
-
 
 /*----------------------------------------------------------------------------
  *         Exported functions
@@ -311,7 +310,7 @@ extern int main(void)
 	audio_configure(&audio_record_device);
 
 	/* Configure audio play volume */
-	audio_play_set_volume(&audio_play_device, play_vol);
+	audio_set_volume(&audio_play_device, play_vol);
 
 	/* Infinite loop */
 	while (1) {
@@ -326,12 +325,12 @@ extern int main(void)
 		else if (key == '+') {
 			if (play_vol < AUDIO_PLAY_MAX_VOLUME) {
 				play_vol += 10;
-				audio_play_set_volume(&audio_play_device, play_vol);
+				audio_set_volume(&audio_play_device, play_vol);
 			}
 		} else if (key == '-') {
 			if (play_vol > 10) {
 				play_vol -= 10;
-				audio_play_set_volume(&audio_play_device, play_vol);
+				audio_set_volume(&audio_play_device, play_vol);
 			}
 		}
 	}

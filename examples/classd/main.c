@@ -212,7 +212,7 @@ static void _playback(uint8_t attn, bool dma)
 	callback_set(&_cb, _classd_transfer_callback, &classd_desc);
 	classd_transfer(&classd_desc, &_tx, &_cb);
 
-	while (!classd_transfer_is_done(&classd_desc));
+	while (!classd_tx_transfer_is_done(&classd_desc));
 }
 
 static void _configure_classd(void)

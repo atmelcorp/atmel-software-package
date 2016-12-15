@@ -191,7 +191,7 @@ static uint8_t play_vol = AUDIO_PLAY_MAX_VOLUME/2;
  *----------------------------------------------------------------------------*/
 
 /**
- *  \brief DMA TX callback
+ *  \brief Audio TX callback
  */
 static int _audio_transfer_callback(void* arg)
 {
@@ -211,7 +211,7 @@ static int _audio_transfer_callback(void* arg)
 	num_buffers_to_send--;
 
 	callback_set(&_cb, _audio_transfer_callback, desc);
-	audio_dma_transfer(desc, buffers[out_buffer_index], buffer_sizes[out_buffer_index], &_cb);
+	audio_transfer(desc, buffers[out_buffer_index], buffer_sizes[out_buffer_index], &_cb);
 
 	return 0;
 }
@@ -238,17 +238,16 @@ static void frame_received(void* arg, uint8_t status, uint32_t transferred, uint
 		} else if (dac_delay > 0) {
 			/* Wait until a few buffers have been received */
 			dac_delay--;
-		} else if (audio_dma_transfer_is_done(desc)) {
+		} else if (audio_transfer_is_done(desc)) {
 			struct _callback _cb;
 
 			callback_set(&_cb, _audio_transfer_callback, desc);
 			/* Start DAC transmission if necessary */
-			audio_dma_transfer(&audio_device, &buffers[out_buffer_index],
+			audio_transfer(&audio_device, &buffers[out_buffer_index],
 					buffer_sizes[out_buffer_index], &_cb);
 			audio_enable(desc, true);
 			out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
 			num_buffers_to_send--;
-
 		}
 	} else if (status == USBD_STATUS_ABORTED) {
 		/* Error , ABORT, add NULL buffer */
@@ -262,7 +261,6 @@ static void frame_received(void* arg, uint8_t status, uint32_t transferred, uint
 			AUDDSpeakerDriver_BYTESPERFRAME,
 			frame_received, desc);
 }
-
 
 /*----------------------------------------------------------------------------
  *         Callbacks re-implementation
@@ -309,11 +307,11 @@ void audd_speaker_driver_mute_changed(uint8_t channel, uint8_t muted)
 	/* Speaker Master channel */
 	if (channel == AUDDSpeakerDriver_MASTERCHANNEL){
 		if (muted) {
-			audio_play_mute(&audio_device, true);
+			audio_mute(&audio_device, true);
 			printf("MuteMaster ");
 		} else {
 			printf("UnmuteMaster ");
-			audio_play_mute(&audio_device, false);
+			audio_mute(&audio_device, false);
 		}
 	}
 }
@@ -326,11 +324,10 @@ void audd_speaker_driver_mute_changed(uint8_t channel, uint8_t muted)
 void audd_speaker_driver_stream_setting_changed(uint8_t new_setting)
 {
 	if (new_setting) {
-		audio_dma_stop(&audio_device);
+		audio_stop(&audio_device);
 		num_buffers_to_send = 0;
 	}
 }
-
 
 static void console_handler(uint8_t key)
 {
@@ -338,24 +335,24 @@ static void console_handler(uint8_t key)
 	case '+':
 		if (play_vol < AUDIO_PLAY_MAX_VOLUME) {
 			play_vol += 10;
-			audio_play_set_volume(&audio_device, play_vol);
+			audio_set_volume(&audio_device, play_vol);
 		}
 		break;
 	case '-':
 		if (play_vol > 10) {
 			play_vol -= 10;
-			audio_play_set_volume(&audio_device, play_vol);
+			audio_set_volume(&audio_device, play_vol);
 		}
 		break;
 
 	case 'u':
 	case 'U':
-		audio_play_mute(&audio_device, false);
+		audio_mute(&audio_device, false);
 		break;
 
 	case 'm':
 	case 'M':
-		audio_play_mute(&audio_device, true);
+		audio_mute(&audio_device, true);
 		break;
 
 	default:
@@ -394,7 +391,7 @@ int main(void)
 	audio_configure(&audio_device);
 
 	/* Configure audio play volume */
-	audio_play_set_volume(&audio_device, play_vol);
+	audio_set_volume(&audio_device, play_vol);
 
 	/* USB audio driver initialization */
 	audd_speaker_driver_initialize(&audd_speaker_driver_descriptors);
@@ -448,9 +445,9 @@ int main(void)
 		if (!usb_conn) {
 			trace_info("USB connected\r\n");
 			/* Start Reading the incoming audio stream */
-			audd_speaker_driver_read(buffers[in_buffer_index],
+			audd_speaker_driver_read(_buffer[_audio_ctx.circ.rx],
 					AUDDSpeakerDriver_BYTESPERFRAME,
-					frame_received, &audio_device);
+					_usb_frame_recv_callback, &audio_device);
 
 			usb_conn = true;
 		}

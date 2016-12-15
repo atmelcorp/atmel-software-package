@@ -153,9 +153,9 @@ extern void classd_volume_unmute(struct _classd_desc *desc, bool left, bool righ
 
 extern int classd_transfer(struct _classd_desc* desc, struct _buffer* buf, struct _callback* cb);
 
-extern bool classd_transfer_is_done(struct _classd_desc* desc);
+extern bool classd_tx_transfer_is_done(struct _classd_desc* desc);
 
-extern void classd_dma_stop(struct _classd_desc* desc);
+extern void classd_tx_stop(struct _classd_desc* desc);
 
 #endif /* CONFIG_HAVE_CLASSD */
 

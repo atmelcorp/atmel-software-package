@@ -217,7 +217,7 @@ static int _audio_transfer_callback(void* arg)
 	/* Load next buffer */
 	index = out_buffer_index;
 	callback_set(&_cb, _audio_transfer_callback, desc);
-	audio_dma_transfer(desc, buffers[index], buffer_sizes[index], &_cb);
+	audio_transfer(desc, buffers[index], buffer_sizes[index], &_cb);
 
 	return 0;
 }
@@ -251,13 +251,13 @@ static void frame_received(void* arg, uint8_t status, uint32_t transferred, uint
 		} else if (dac_delay > 0) {
 			/* Wait until a few buffers have been received */
 			dac_delay--;
-		} else if (audio_dma_transfer_is_done(&audio_device)) {
+		} else if (audio_transfer_is_done(&audio_device)) {
 			struct _callback _cb;
 
 			/* Start DAC transmission if necessary */
 			index = out_buffer_index;
 			callback_set(&_cb, _audio_transfer_callback, desc);
-			audio_dma_transfer(&audio_device, buffers[index], buffer_sizes[index], &_cb);
+			audio_transfer(&audio_device, buffers[index], buffer_sizes[index], &_cb);
 			audio_enable(&audio_device, true);
 			out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
 			num_buffers_to_send--;
@@ -275,31 +275,30 @@ static void frame_received(void* arg, uint8_t status, uint32_t transferred, uint
 			frame_received, desc);
 }
 
-
 static void console_handler(uint8_t key)
 {
 	switch (key) {
 	case '+':
 		if (play_vol < AUDIO_PLAY_MAX_VOLUME) {
 			play_vol += 10;
-			audio_play_set_volume(&audio_device, play_vol);
+			audio_set_volume(&audio_device, play_vol);
 		}
 		break;
 	case '-':
 		if (play_vol > 10) {
 			play_vol -= 10;
-			audio_play_set_volume(&audio_device, play_vol);
+			audio_set_volume(&audio_device, play_vol);
 		}
 		break;
 
 	case 'u':
 	case 'U':
-		audio_play_mute(&audio_device, false);
+		audio_mute(&audio_device, false);
 		break;
 
 	case 'm':
 	case 'M':
-		audio_play_mute(&audio_device, true);
+		audio_mute(&audio_device, true);
 		break;
 
 	default:
@@ -352,11 +351,11 @@ void audd_speaker_driver_mute_changed(uint8_t channel, uint8_t muted)
 	/* Speaker Master channel */
 	if (channel == AUDDSpeakerDriver_MASTERCHANNEL){
 		if (muted) {
-			audio_play_mute(&audio_device, true);
+			audio_mute(&audio_device, true);
 			printf("MuteMaster ");
 		} else {
 			printf("UnmuteMaster ");
-			audio_play_mute(&audio_device, false);
+			audio_mute(&audio_device, false);
 		}
 	}
 }
@@ -369,7 +368,7 @@ void audd_speaker_driver_mute_changed(uint8_t channel, uint8_t muted)
 void audd_speaker_driver_stream_setting_changed(uint8_t new_setting)
 {
 	if (new_setting) {
-		audio_dma_stop(&audio_device);
+		audio_stop(&audio_device);
 		num_buffers_to_send = 0;
 	}
 }
@@ -405,7 +404,7 @@ int main(void)
 	audio_configure(&audio_device);
 
 	/* Configure audio play volume */
-	audio_play_set_volume(&audio_device, play_vol);
+	audio_set_volume(&audio_device, play_vol);
 
 	/* USB audio driver initialization */
 	audd_speaker_driver_initialize(&audd_speaker_driver_descriptors);

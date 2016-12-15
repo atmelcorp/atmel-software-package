@@ -474,12 +474,12 @@ int classd_transfer(struct _classd_desc* desc, struct _buffer* buf, struct _call
 	return 0;
 }
 
-bool classd_transfer_is_done(struct _classd_desc* desc)
+bool classd_tx_transfer_is_done(struct _classd_desc* desc)
 {
 	return (!mutex_is_locked(&desc->tx.mutex));
 }
 
-void classd_dma_stop(struct _classd_desc* desc)
+void classd_tx_stop(struct _classd_desc* desc)
 {
 	if (desc->transfer_mode == CLASSD_MODE_DMA) {
 		if (desc->tx.dma.channel){

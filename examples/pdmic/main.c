@@ -298,7 +298,7 @@ static void _record_sound_with_dma(void)
 	callback_set(&_cb, _pdmic_transfer_callback, NULL);
 	pdmic_transfer(&pdmic_desc, &_rx, &_cb);
 
-	while (!pdmic_transfer_is_done(&pdmic_desc));
+	while (!pdmic_rx_transfer_is_done(&pdmic_desc));
 }
 
 /**
@@ -322,7 +322,7 @@ static void _record_sound_polling(void)
 	callback_set(&_cb, _pdmic_transfer_callback, NULL);
 	pdmic_transfer(&pdmic_desc, &_rx, &_cb);
 
-	while (!pdmic_transfer_is_done(&pdmic_desc));
+	while (!pdmic_rx_transfer_is_done(&pdmic_desc));
 }
 
 /**
@@ -355,7 +355,7 @@ static void _playback_using_classd(void)
 	classd_desc.transfer_mode = CLASSD_MODE_DMA;
 	classd_transfer(&classd_desc, &_tx, NULL);
 
-	while (!classd_transfer_is_done(&classd_desc));
+	while (!classd_tx_transfer_is_done(&classd_desc));
 
 	_play_stop();
 	classd_volume_mute(&classd_desc, true, true);

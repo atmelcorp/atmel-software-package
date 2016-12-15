@@ -197,7 +197,6 @@ static int _ssc_record_transfer_callback(void* arg)
 	};
 
 	ssc_transfer(desc, &_tx, NULL);
-	//audio_enable(&ssc_dev_desc, true);
 	play_buffer_index = (play_buffer_index + 1) % BUFFER_NUMBER;
 	num_buffers_to_send--;
 

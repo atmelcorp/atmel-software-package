@@ -259,7 +259,7 @@ static int _audio_transfer_callback(void* arg)
 	num_buffers_to_send--;
 	index = out_buffer_index;
 	callback_set(&_cb, _audio_transfer_callback, desc);
-	audio_dma_transfer(&audio_device, buffers[index], buffer_sizes[index], &_cb);
+	audio_transfer(&audio_device, buffers[index], buffer_sizes[index], &_cb);
 
 	return 0;
 }
@@ -291,7 +291,7 @@ static void frame_received(void *arg, uint8_t status, uint32_t transferred, uint
 			/* Start DAC transmission if necessary */
 			index = out_buffer_index;
 			callback_set(&_cb, _audio_transfer_callback, desc);
-			audio_dma_transfer(&audio_device, buffers[index], buffer_sizes[index], &_cb);
+			audio_transfer(&audio_device, buffers[index], buffer_sizes[index], &_cb);
 			audio_enable(&audio_device, true);
 			out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
 			num_buffers_to_send--;
@@ -395,11 +395,11 @@ void audd_function_mute_changed(uint8_t mic, uint8_t channel,
 	/* Speaker Master channel */
 	if (channel == AUDD_CH_Master) {
 		if (muted) {
-			audio_play_mute(&audio_device, true);
+			audio_mute(&audio_device, true);
 			trace_warning("MuteMaster ");
 		} else {
 			trace_info("UnmuteMaster ");
-			audio_play_mute(&audio_device, false);
+			audio_mute(&audio_device, false);
 		}
 	}
 }
@@ -417,7 +417,7 @@ void audd_function_stream_setting_changed(uint8_t mic, uint8_t new_setting)
 	if (!mic) {
 		if (new_setting) {
 			led_set(LED_BLUE);
-			audio_dma_stop(&audio_device);
+			audio_stop(&audio_device);
 			num_buffers_to_send = 0;
 		} else {
 			led_clear(LED_BLUE);
@@ -492,7 +492,7 @@ int main(void)
 			trace_info("USB connected\r\n");
 
 			/* Try to Start Reading the incoming audio stream */
-			audd_function_read(buffers[in_buffer_index],
+			audd_function_read(_buffer[_audio_ctx.circ.rx],
 					   AUDDevice_BYTESPERFRAME,
 					   frame_received, &audio_device);
 			usb_conn = true;

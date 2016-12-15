@@ -182,12 +182,12 @@ extern bool ssc_is_rx_ready(struct _ssc_desc* desc);
 
 extern int ssc_transfer(struct _ssc_desc* desc, struct _buffer* buf, struct _callback* cb);
 
-extern bool ssc_dma_tx_transfer_is_done(struct _ssc_desc* desc);
+extern bool ssc_tx_transfer_is_done(struct _ssc_desc* desc);
 
-extern void ssc_dma_tx_stop(struct _ssc_desc* desc);
+extern void ssc_tx_stop(struct _ssc_desc* desc);
 
-extern bool ssc_dma_rx_transfer_is_done(struct _ssc_desc* desc);
+extern bool ssc_rx_transfer_is_done(struct _ssc_desc* desc);
 
-extern void ssc_dma_rx_stop(struct _ssc_desc* desc);
+extern void ssc_rx_stop(struct _ssc_desc* desc);
 
 #endif /* #ifndef _SSC_H */

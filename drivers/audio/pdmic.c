@@ -334,12 +334,12 @@ int pdmic_transfer(struct _pdmic_desc* desc, struct _buffer* buf, struct _callba
 	return 0;
 }
 
-bool pdmic_transfer_is_done(struct _pdmic_desc* desc)
+bool pdmic_rx_transfer_is_done(struct _pdmic_desc* desc)
 {
 	return (!mutex_is_locked(&desc->rx.mutex));
 }
 
-void pdmic_dma_stop(struct _pdmic_desc* desc)
+void pdmic_rx_stop(struct _pdmic_desc* desc)
 {
 	if (desc->transfer_mode == PDMIC_MODE_DMA) {
 		if (desc->rx.dma.channel){

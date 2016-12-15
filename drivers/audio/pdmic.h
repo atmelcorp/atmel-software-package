@@ -129,8 +129,8 @@ extern bool pdmic_data_ready(struct _pdmic_desc* desc);
 
 extern int pdmic_transfer(struct _pdmic_desc* desc, struct _buffer* buf, struct _callback* cb);
 
-extern void pdmic_dma_stop(struct _pdmic_desc* desc);
+extern void pdmic_rx_stop(struct _pdmic_desc* desc);
 
-extern bool pdmic_transfer_is_done(struct _pdmic_desc* desc);
+extern bool pdmic_rx_transfer_is_done(struct _pdmic_desc* desc);
 
 #endif /* _PDMIC_H */
