@@ -290,7 +290,7 @@ int pdmic_init(struct _pdmic_desc *desc)
 			.div = 18,
 		},
 	};
-	pmc_configure_peripheral(id, &cfg, false);
+	pmc_configure_peripheral(id, &cfg, true);
 
 #if (TRACE_LEVEL >= TRACE_LEVEL_DEBUG)
 	gclk = pmc_get_gck_clock(id);
