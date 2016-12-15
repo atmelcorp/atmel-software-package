@@ -31,6 +31,7 @@ CFLAGS_INC += -I$(TOP)/target/common
 target-$(CONFIG_HAVE_AUDIO) += target/common/board_audio.o
 target-$(CONFIG_HAVE_CAN_BUS) += target/common/board_can.o
 target-$(CONFIG_HAVE_ETH) += target/common/board_eth.o
+target-$(CONFIG_HAVE_ISC) += target/common/board_isc.o
 target-$(CONFIG_HAVE_ISI) += target/common/board_isi.o
 target-$(CONFIG_HAVE_LED) += target/common/board_led.o
 target-$(CONFIG_HAVE_SPI_BUS) += target/common/board_spi.o

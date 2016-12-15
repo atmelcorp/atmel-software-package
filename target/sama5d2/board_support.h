@@ -133,13 +133,6 @@ extern bool board_cfg_sdmmc(uint32_t sdmmc_id);
 extern void board_cfg_pmic(void);
 
 /**
- * \brief Configures ISC for the board.
- */
-#ifdef CONFIG_HAVE_ISC
-extern void board_cfg_isc(void);
-#endif
-
-/**
  * \brief Configures LCD for the board.
  */
 #ifdef CONFIG_HAVE_LCDC

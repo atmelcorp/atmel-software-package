@@ -746,37 +746,6 @@ Fail:
 #endif
 }
 
-#ifdef CONFIG_HAVE_ISC
-void board_cfg_isc(void)
-{
-	const struct _pin pins_isc[]= BOARD_ISC_PINS;
-	const struct _pin pin_rst = BOARD_ISC_PIN_RST;
-	const struct _pin pin_pwd = BOARD_ISC_PIN_PWD;
-
-	/* Configure ISC pins */
-	pio_configure(pins_isc, ARRAY_SIZE(pins_isc));
-
-	/* Reset sensor */
-	pio_configure(&pin_rst,1);
-	pio_configure(&pin_pwd,1);
-	pio_clear(&pin_pwd);
-	pio_clear(&pin_rst);
-	pio_set(&pin_rst);
-	msleep(10);
-
-	pmc_configure_peripheral(ID_ISC, NULL, true);
-	pmc_enable_system_clock(PMC_SYSTEM_CLOCK_ISC);
-	isc_configure_master_clock(7 ,0);
-	while((ISC->ISC_CLKSR & ISC_CLKSR_SIP) == ISC_CLKSR_SIP);
-
-	isc_enable_master_clock();
-	isc_configure_isp_clock(2 ,0);
-	while((ISC->ISC_CLKSR & ISC_CLKSR_SIP) == ISC_CLKSR_SIP);
-
-	isc_enable_isp_clock();
-}
-#endif
-
 #ifdef CONFIG_HAVE_LCDC
 void board_cfg_lcd(void)
 {

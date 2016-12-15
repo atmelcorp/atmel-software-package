@@ -31,108 +31,46 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
+#include "timer.h"
 #include "board.h"
-#include "board_audio.h"
-#include "board_can.h"
-#include "board_eth.h"
 #include "board_isc.h"
-#include "board_led.h"
-#include "board_spi.h"
-#include "board_twi.h"
-#include "compiler.h"
 
-#include "dma/dma.h"
-#include "board_support.h"
+#include "gpio/pio.h"
+
+#include "peripherals/pmc.h"
+#include "video/isc.h"
 
 /*----------------------------------------------------------------------------
- *        Exported functions
+ *        Public Functions
  *----------------------------------------------------------------------------*/
 
-WEAK void board_init(void)
-{
-#ifdef VARIANT_DDRAM
-	bool ddram = false;
-#else
-	bool ddram = true;
-#endif
-
-#ifdef VARIANT_SRAM
-	bool clocks = true;
-#else
-	bool clocks = false;
-#endif
-
-	/* Configure misc low-level stuff */
-	board_cfg_lowlevel(clocks, ddram, true);
-
-	/* Configure console */
-	board_cfg_console(0);
-
-	/* DMA Driver init */
-	dma_initialize(false);
-
-#ifdef CONFIG_HAVE_SPI_BUS
-	/* Configure SPI bus */
-	board_cfg_spi_bus();
-
-#ifdef CONFIG_HAVE_SPI_AT25
-	board_cfg_at25();
-#endif
-#endif
-
-#ifdef CONFIG_HAVE_QSPI
-	/* Configure QSPI flash memory */
-	board_cfg_qspiflash();
-#endif
-
-#ifdef CONFIG_HAVE_TWI_BUS
-	/* Configure TWI bus */
-	board_cfg_twi_bus();
-
-	/* Configure PMIC */
-	board_cfg_pmic();
-
-#ifdef CONFIG_HAVE_TWI_AT24
-	board_cfg_at24();
-#endif
-#endif
-
-#ifdef CONFIG_HAVE_LED
-	/* Configure LEDs */
-	board_cfg_led();
-#endif
-
-#ifdef CONFIG_HAVE_ETH
-	board_cfg_net(0);
-#endif
-
-#ifdef CONFIG_HAVE_LCDC
-	/* Configure LCD controller/display */
-	board_cfg_lcd();
-#endif
-
 #ifdef CONFIG_HAVE_ISC
-	/* Configure camera interface */
-	board_cfg_isc();
-#endif
+void board_cfg_isc(void)
+{
+	const struct _pin pins_isc[]= BOARD_ISC_PINS;
+	const struct _pin pin_rst = BOARD_ISC_PIN_RST;
+	const struct _pin pin_pwd = BOARD_ISC_PIN_PWD;
 
-#ifdef CONFIG_HAVE_PDMIC
-	/* Configure PDMIC interface */
-	board_cfg_pdmic();
-#endif
+	/* Configure ISC pins */
+	pio_configure(pins_isc, ARRAY_SIZE(pins_isc));
 
-#ifdef CONFIG_HAVE_CLASSD
-	/* Configure PDMIC interface */
-	board_cfg_classd();
-#endif
+	/* Reset sensor */
+	pio_configure(&pin_rst,1);
+	pio_configure(&pin_pwd,1);
+	pio_clear(&pin_pwd);
+	pio_clear(&pin_rst);
+	pio_set(&pin_rst);
+	msleep(10);
 
-#ifdef CONFIG_HAVE_SSC
-	board_cfg_ssc();
-#endif
+	pmc_configure_peripheral(ID_ISC, NULL, true);
+	pmc_enable_system_clock(PMC_SYSTEM_CLOCK_ISC);
+	isc_configure_master_clock(7 ,0);
+	while((ISC->ISC_CLKSR & ISC_CLKSR_SIP) == ISC_CLKSR_SIP);
 
-#ifdef CONFIG_HAVE_CAN_BUS
-	/* Configure MCAN bus */
-	board_cfg_can_bus();
-#endif
+	isc_enable_master_clock();
+	isc_configure_isp_clock(2 ,0);
+	while((ISC->ISC_CLKSR & ISC_CLKSR_SIP) == ISC_CLKSR_SIP);
+
+	isc_enable_isp_clock();
 }
+#endif
