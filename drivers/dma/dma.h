@@ -86,8 +86,8 @@
 
 #endif
 
-#ifndef DMA_LL_POOL_SIZE
-#define DMA_LL_POOL_SIZE   64
+#ifndef DMA_SG_ITEM_POOL_SIZE
+#define DMA_SG_ITEM_POOL_SIZE   64
 #endif
 
 #define DMA_DATA_WIDTH_IN_BYTE(w)   (1 << w)
@@ -370,7 +370,7 @@ extern uint32_t dma_get_transferred_data_len(struct dma_channel *channel, uint8_
  * \brief Get next descriptor's address for the relevant channel
  * \param channel Channel pointer
  */
-extern struct dma_xfer_item * dma_get_desc_addr(struct dma_channel *channel);
+extern struct dma_xfer_item* dma_get_desc_addr(struct dma_channel *channel);
 
 /**
  * \brief Allocate a unused linked list emelment the relevant channel

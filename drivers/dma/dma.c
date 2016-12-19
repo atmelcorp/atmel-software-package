@@ -50,18 +50,18 @@
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
-struct _ll_item {
-	struct dma_xfer_item *ll;
-	struct _ll_item* next;
+struct _sg_item {
+	struct dma_xfer_item* item;
+	struct _sg_item* next;
 };
 
 /** DMA driver channel */
 struct dma_channel
 {
 #if defined(CONFIG_HAVE_XDMAC)
-	Xdmac *dmac;				/* XDMAC instance */
+	Xdmac* dmac;				/* XDMAC instance */
 #elif defined(CONFIG_HAVE_DMAC)
-	Dmac *dmac;					/* XDMAC instance */
+	Dmac* dmac;					/* XDMAC instance */
 #endif
 	uint32_t id;				/* Channel ID */
 
@@ -79,15 +79,15 @@ struct dma_channel
 	volatile uint32_t rep_count;/* repeat count in auto mode */
 #endif
 	volatile uint8_t state;		/* Channel State */
-	struct _ll_item* ll_head;	/* pointer to the head of linked list */
+	struct _sg_item* sg_list;	/* pointer to the head of linked list */
 };
 
 
-static struct _ll_item  _ll_item_pool[DMA_LL_POOL_SIZE];
-static struct _ll_item* _ll_next_free_item;
+static struct _sg_item  _sg_item_pool[DMA_SG_ITEM_POOL_SIZE];
+static struct _sg_item* _sg_item_next_free;
 
 /** DMA Linked List */
-CACHE_ALIGNED static struct dma_xfer_item _item_pool[DMA_LL_POOL_SIZE];
+CACHE_ALIGNED static struct dma_xfer_item _item_pool[DMA_SG_ITEM_POOL_SIZE];
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -107,55 +107,55 @@ static void _initialize_item_pool(void)
 {
 	uint32_t i;
 
-	for (i = 0; i < ARRAY_SIZE(_ll_item_pool); i++) {
+	for (i = 0; i < ARRAY_SIZE(_sg_item_pool); i++) {
 #if defined(CONFIG_HAVE_XDMAC)
 		_item_pool[i].mbr_nda = NULL;
 #elif defined(CONFIG_HAVE_DMAC)
 		_item_pool[i].dscr = NULL;
 #endif
-		_ll_item_pool[i].ll = &_item_pool[i];
-		_ll_item_pool[i].next = &_ll_item_pool[i + 1];
+		_sg_item_pool[i].item = &_item_pool[i];
+		_sg_item_pool[i].next = &_sg_item_pool[i + 1];
 	}
-	_ll_item_pool[i - 1].next = NULL;
-	_ll_next_free_item = &_ll_item_pool[0];
+	_sg_item_pool[i - 1].next = NULL;
+	_sg_item_next_free = &_sg_item_pool[0];
 }
 
-static struct _ll_item* _allocate_ll_item(void)
+static struct _sg_item* _allocate_sg_item(void)
 {
-	struct _ll_item* item;
+	struct _sg_item* item;
 
-	assert(_ll_next_free_item);
+	assert(_sg_item_next_free);
 
-	item = _ll_next_free_item;
+	item = _sg_item_next_free;
 #if defined(CONFIG_HAVE_XDMAC)
-		item->ll->mbr_nda = NULL;
+		item->item->mbr_nda = NULL;
 #elif defined(CONFIG_HAVE_DMAC)
-		item->ll->dscr = NULL;
+		item->item->dscr = NULL;
 #endif
-	_ll_next_free_item = _ll_next_free_item->next;
+	_sg_item_next_free = _sg_item_next_free->next;
 	item->next = NULL;
 	return item;
 }
 
-static struct dma_xfer_item* _get_last_ll_item(struct dma_channel *channel)
+static struct dma_xfer_item* _get_last_sg_item(struct dma_channel *channel)
 {
-	struct _ll_item* last = channel->ll_head;
+	struct _sg_item* last = channel->sg_list;
 
-	if (channel->ll_head == NULL) {
+	if (channel->sg_list == NULL) {
 		return NULL;
 	} else {
 		while (last->next) {
 #if defined(CONFIG_HAVE_XDMAC)
-			if (!last->ll->mbr_nda)
+			if (!last->item->mbr_nda)
 				break;
 #elif defined(CONFIG_HAVE_DMAC)
-			if (!last->ll->dscr)
+			if (!last->item->dscr)
 				break;
 #endif
 			last = last->next;
 		}
 	}
-	return last->ll;
+	return last->item;
 }
 
 /*----------------------------------------------------------------------------
@@ -180,7 +180,7 @@ struct dma_channel *dma_allocate_channel(uint8_t src, uint8_t dest)
 #elif defined(CONFIG_HAVE_DMAC)
 	chan = (struct dma_channel *)dmacd_allocate_channel(src, dest);
 #endif
-	chan->ll_head = NULL;
+	chan->sg_list = NULL;
 	return chan;
 }
 
@@ -438,18 +438,18 @@ int dma_prepare_item(struct dma_channel *channel,
 
 struct dma_xfer_item* dma_allocate_item(struct dma_channel *channel)
 {
-	struct _ll_item* item = _allocate_ll_item();
-	struct _ll_item* last = channel->ll_head;
+	struct _sg_item* item = _allocate_sg_item();
+	struct _sg_item* last = channel->sg_list;
 
 	if (item) {
-		if (channel->ll_head == NULL) {
-			channel->ll_head = item;
+		if (channel->sg_list == NULL) {
+			channel->sg_list = item;
 		} else {
 			while (last->next)
 				last = last->next;
 			last->next = item;
 		}
-		return item->ll;
+		return item->item;
 	}
 
 	return NULL;
@@ -457,13 +457,13 @@ struct dma_xfer_item* dma_allocate_item(struct dma_channel *channel)
 
 void dma_free_item(struct dma_channel *channel)
 {
-	struct _ll_item* item = channel->ll_head;
-	struct _ll_item* next = _ll_next_free_item;
+	struct _sg_item* item = channel->sg_list;
+	struct _sg_item* next = _sg_item_next_free;
 
 	while (next->next)
 		next = next->next;
 	next->next = item;
-	channel->ll_head = NULL;
+	channel->sg_list = NULL;
 }
 
 int dma_link_item(struct dma_channel *channel,
@@ -505,11 +505,11 @@ int dma_link_last_item(struct dma_channel *channel, struct dma_xfer_item *item)
 		/* DMA is being transmitted */
 		return -ECANCELED;
 	}
-	last = _get_last_ll_item(channel);
+	last = _get_last_sg_item(channel);
 	if (!last)
 		return -EINVAL;
 
-	if ((uint32_t)(channel->ll_head->ll) == (uint32_t)item)
+	if ((uint32_t)(channel->sg_list->item) == (uint32_t)item)
 		return 0;
 
 #if defined(CONFIG_HAVE_XDMAC)
@@ -639,10 +639,10 @@ int dma_configure_sg_transfer(struct dma_channel *channel,
 				struct dma_xfer_item *desc_list)
 {
 	if (!desc_list) {
-		if (channel->ll_head == NULL)
+		if (channel->sg_list == NULL)
 			return -EINVAL;
 		else
-			desc_list = channel->ll_head->ll;
+			desc_list = channel->sg_list->item;
 	}
 
 #if defined(CONFIG_HAVE_XDMAC)
@@ -682,7 +682,7 @@ int dma_configure_sg_transfer(struct dma_channel *channel,
 				| XDMAC_CNDC_NDE_DSCR_FETCH_EN
 				| XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED
 				| XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED;
-	if (channel->ll_head != NULL)
+	if (channel->sg_list != NULL)
 		cache_clean_region(_item_pool, sizeof(_item_pool));
 	return xdmacd_configure_transfer((struct _xdmacd_channel *)channel, &xdma_cfg, desc_cntrl, (void *)desc_list);
 #elif defined(CONFIG_HAVE_DMAC)
@@ -703,7 +703,7 @@ int dma_configure_sg_transfer(struct dma_channel *channel,
 	dma_cfg.d_pip = 0;
 	dma_cfg.cfg = src_is_periph ? DMAC_CFG_SRC_H2SEL_HW : 0;
 	dma_cfg.cfg |= dst_is_periph ? DMAC_CFG_DST_H2SEL_HW : 0;
-	if (channel->ll_head != NULL)
+	if (channel->sg_list != NULL)
 		cache_clean_region(_item_pool, sizeof(_item_pool));
 
 	return dmacd_configure_transfer((struct _dmacd_channel *)channel, &dma_cfg, (void *)desc_list);
