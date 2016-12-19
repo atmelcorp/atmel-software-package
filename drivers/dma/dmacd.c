@@ -54,15 +54,17 @@
   @{*/
 
 /*----------------------------------------------------------------------------
- *        Includes
+ *        Headers
  *----------------------------------------------------------------------------*/
 
+#include <assert.h>
+
+#include "compiler.h"
+#include "dma/dma.h"
+#include "dma/dmacd.h"
+#include "errno.h"
 #include "irq/irq.h"
 #include "peripherals/pmc.h"
-#include "dma/dmacd.h"
-#include "dma/dma.h"
-#include <assert.h>
-#include "compiler.h"
 
 /*----------------------------------------------------------------------------
  *        Local constants
@@ -133,7 +135,38 @@ static struct _dmacd _dmacd;
  * setup configuration register for transfer.
  * \param channel Channel pointer
  */
-static uint32_t dmacd_prepare_channel(struct _dmacd_channel *channel);
+static int dmacd_prepare_channel(struct _dmacd_channel* channel)
+{
+	Dmac *dmac = channel->dmac;
+
+	if (channel->state == DMACD_STATE_FREE)
+		return -EPERM;
+	else if (channel->state == DMACD_STATE_STARTED)
+		return -EBUSY;
+
+	/* Clear status */
+	dmac_get_global_isr(dmac);
+
+	/* Enable clock of the DMA peripheral */
+	pmc_configure_peripheral(get_dmac_id_from_addr(dmac), NULL, true);
+
+	/* Clear status */
+	dmac_get_channel_status(dmac);
+
+	/* Disables DMAC interrupt for the given channel */
+	dmac_disable_global_it(dmac, -1);
+
+	dmac_enable(dmac);
+	/* Disable the given dma channel */
+	dmac_disable_channel(dmac, channel->id);
+	dmac_set_src_addr(dmac, channel->id, 0);
+	dmac_set_dest_addr(dmac, channel->id, 0);
+
+	dmac_set_channel_config(dmac, channel->id, 0);
+	dmac_set_descriptor_addr(dmac, channel->id, 0, 0);
+
+	return 0;
+}
 
 static struct _dmacd_channel* _dmacd_channel(Dmac* dmac, uint32_t channel)
 {
@@ -162,7 +195,7 @@ static void dmacd_handler(uint32_t source, void* user_arg)
 		return;;
 
 	for (chan = 0; chan < DMAC_CHANNELS; chan++) {
-		struct _dmacd_channel *channel;
+		struct _dmacd_channel* channel;
 		bool exec = false;
 		if (!(gis & ((DMAC_EBCISR_BTC0 | DMAC_EBCISR_CBTC0 | DMAC_EBCISR_ERR0) << chan)))
 			continue;
@@ -203,7 +236,7 @@ void dmacd_initialize(bool polling)
 		Dmac* dmac = controllers[cont];
 		dmac_get_channel_status(dmac);
 		for (chan = 0; chan < DMAC_CHANNELS; chan++) {
-			struct _dmacd_channel *channel = _dmacd_channel(dmac, chan);
+			struct _dmacd_channel* channel = _dmacd_channel(dmac, chan);
 			channel->dmac = dmac;
 			channel->id = chan;
 			channel->callback = 0;
@@ -234,7 +267,7 @@ void dmacd_poll(void)
 	}
 }
 
-struct _dmacd_channel *dmacd_allocate_channel(uint8_t src, uint8_t dest)
+struct _dmacd_channel* dmacd_allocate_channel(uint8_t src, uint8_t dest)
 {
 	uint32_t i;
 
@@ -244,7 +277,7 @@ struct _dmacd_channel *dmacd_allocate_channel(uint8_t src, uint8_t dest)
 	}
 
 	for (i = 0; i < DMACD_CHANNELS; i++) {
-		struct _dmacd_channel *channel = &_dmacd.channels[i];
+		struct _dmacd_channel* channel = &_dmacd.channels[i];
 		Dmac *dmac = channel->dmac;
 
 		if (channel->state == DMACD_STATE_FREE) {
@@ -272,73 +305,40 @@ struct _dmacd_channel *dmacd_allocate_channel(uint8_t src, uint8_t dest)
 	return NULL;
 }
 
-uint32_t dmacd_free_channel(struct _dmacd_channel *channel)
+int dmacd_free_channel(struct _dmacd_channel* channel)
 {
 	switch (channel->state) {
 	case DMACD_STATE_STARTED:
-		return DMACD_BUSY;
+		return -EBUSY;
 	case DMACD_STATE_ALLOCATED:
 	case DMACD_STATE_DONE:
 		channel->state = DMACD_STATE_FREE;
 		break;
 	}
-	return DMACD_OK;
+	return 0;
 }
 
-uint32_t dmacd_set_callback(struct _dmacd_channel *channel,
+int dmacd_set_callback(struct _dmacd_channel* channel,
 		dmacd_callback_t callback, void *user_arg)
 {
 	if (channel->state == DMACD_STATE_FREE)
-		return DMACD_ERROR;
+		return -EPERM;
 	else if (channel->state == DMACD_STATE_STARTED)
-		return DMACD_BUSY;
+		return -EBUSY;
 
 	channel->callback = callback;
 	channel->user_arg = user_arg;
 
-	return DMACD_OK;
+	return 0;
 }
 
-static uint32_t dmacd_prepare_channel(struct _dmacd_channel *channel)
-{
-	Dmac *dmac = channel->dmac;
-
-	if (channel->state == DMACD_STATE_FREE)
-		return DMACD_ERROR;
-	else if (channel->state == DMACD_STATE_STARTED)
-		return DMACD_BUSY;
-
-	/* Clear status */
-	dmac_get_global_isr(dmac);
-
-	/* Enable clock of the DMA peripheral */
-	pmc_configure_peripheral(get_dmac_id_from_addr(dmac), NULL, true);
-
-	/* Clear status */
-	dmac_get_channel_status(dmac);
-
-	/* Disables DMAC interrupt for the given channel */
-	dmac_disable_global_it(dmac, -1);
-
-	dmac_enable(dmac);
-	/* Disable the given dma channel */
-	dmac_disable_channel(dmac, channel->id);
-	dmac_set_src_addr(dmac, channel->id, 0);
-	dmac_set_dest_addr(dmac, channel->id, 0);
-
-	dmac_set_channel_config(dmac, channel->id, 0);
-	dmac_set_descriptor_addr(dmac, channel->id, 0, 0);
-
-	return DMACD_OK;
-}
-
-bool dmacd_is_transfer_done(struct _dmacd_channel *channel)
+bool dmacd_is_transfer_done(struct _dmacd_channel* channel)
 {
 	return ((channel->state != DMACD_STATE_STARTED)
 			&& (channel->state != DMACD_STATE_SUSPENDED));
 }
 
-uint32_t dmacd_configure_transfer(struct _dmacd_channel *channel,
+int dmacd_configure_transfer(struct _dmacd_channel* channel,
 		struct _dmacd_cfg *cfg,
 		void *desc_addr)
 {
@@ -347,9 +347,9 @@ uint32_t dmacd_configure_transfer(struct _dmacd_channel *channel,
 	uint32_t ctrla;
 	uint32_t ctrlb;
 	if (channel->state == DMACD_STATE_FREE)
-		return DMACD_ERROR;
+		return -EPERM;
 	else if (channel->state == DMACD_STATE_STARTED)
-		return DMACD_BUSY;
+		return -EBUSY;
 	Dmac *dmac = channel->dmac;
 
 	sa = ((struct _dma_desc *)desc_addr)->sa;
@@ -399,15 +399,15 @@ uint32_t dmacd_configure_transfer(struct _dmacd_channel *channel,
 	dmac_set_control_a(dmac, channel->id, ctrla);
 	dmac_set_control_b(dmac, channel->id, ctrlb);
 	dmac_set_channel_config(dmac, channel->id, cfg->cfg);
-	return DMACD_OK;
+	return 0;
 }
 
-uint32_t dmacd_start_transfer(struct _dmacd_channel *channel)
+int dmacd_start_transfer(struct _dmacd_channel* channel)
 {
 	if (channel->state == DMACD_STATE_FREE)
-		return DMACD_ERROR;
+		return -EPERM;
 	else if (channel->state == DMACD_STATE_STARTED)
-		return DMACD_BUSY;
+		return -EBUSY;
 
 	/* Change state to 'started' */
 	channel->state = DMACD_STATE_STARTED;
@@ -417,10 +417,10 @@ uint32_t dmacd_start_transfer(struct _dmacd_channel *channel)
 		dmac_enable_global_it(channel->dmac, (DMAC_EBCIDR_CBTC0 | DMAC_EBCIER_BTC0 | DMAC_EBCIER_ERR0) << channel->id);
 	}
 	dmac_enable_channel(channel->dmac, channel->id);
-	return DMACD_OK;
+	return 0;
 }
 
-uint32_t dmacd_stop_transfer(struct _dmacd_channel *channel)
+int dmacd_stop_transfer(struct _dmacd_channel* channel)
 {
 	Dmac *dmac = channel->dmac;
 
@@ -433,18 +433,18 @@ uint32_t dmacd_stop_transfer(struct _dmacd_channel *channel)
 	/* Change state to 'allocated' */
 	channel->state = DMACD_STATE_ALLOCATED;
 
-	return DMACD_OK;
+	return 0;
 }
 
-uint32_t dmacd_reset_channel(struct _dmacd_channel *channel)
+int dmacd_reset_channel(struct _dmacd_channel* channel)
 {
 	Dmac *dmac = channel->dmac;
 
 	if (channel->state == DMACD_STATE_ALLOCATED)
-		return DMACD_OK;
+		return 0;
 
 	if (channel->state == DMACD_STATE_STARTED)
-		return DMACD_BUSY;
+		return -EBUSY;
 
 	/* Disable channel */
 	dmac_disable_channel(dmac, channel->id);
@@ -455,10 +455,10 @@ uint32_t dmacd_reset_channel(struct _dmacd_channel *channel)
 	/* Change state to 'allocated' */
 	channel->state = DMACD_STATE_ALLOCATED;
 
-	return DMACD_OK;
+	return 0;
 }
 
-uint32_t dmacd_suspend_transfer(struct _dmacd_channel *channel)
+int dmacd_suspend_transfer(struct _dmacd_channel* channel)
 {
 	Dmac *dmac = channel->dmac;
 
@@ -468,10 +468,10 @@ uint32_t dmacd_suspend_transfer(struct _dmacd_channel *channel)
 	/* Change state to 'suspended' */
 	channel->state = DMACD_STATE_SUSPENDED;
 
-	return DMACD_OK;
+	return 0;
 }
 
-uint32_t dmacd_resume_transfer(struct _dmacd_channel *channel)
+int dmacd_resume_transfer(struct _dmacd_channel* channel)
 {
 	Dmac *dmac = channel->dmac;
 
@@ -481,24 +481,24 @@ uint32_t dmacd_resume_transfer(struct _dmacd_channel *channel)
 	/* Change state to 'started */
 	channel->state = DMACD_STATE_STARTED;
 
-	return DMACD_OK;
+	return 0;
 }
 
-void dmacd_fifo_flush(struct _dmacd_channel *channel)
+void dmacd_fifo_flush(struct _dmacd_channel* channel)
 {
 	Dmac *dmac = channel->dmac;
 
 	dmac_fifo_flush(dmac, channel->id);
 }
 
-uint32_t dmacd_get_transferred_data_len(struct _dmacd_channel *channel)
+uint32_t dmacd_get_transferred_data_len(struct _dmacd_channel* channel)
 {
 	Dmac *dmac = channel->dmac;
 
 	return dmac_get_btsize(dmac, channel->id);
 }
 
-uint32_t dmacd_get_desc_addr(struct _dmacd_channel *channel)
+uint32_t dmacd_get_desc_addr(struct _dmacd_channel* channel)
 {
 	Dmac *dmac = channel->dmac;
 

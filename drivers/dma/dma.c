@@ -35,19 +35,21 @@
  */
 
 /*----------------------------------------------------------------------------
- *        Includes
+ *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "peripherals/pmc.h"
-#include "dma/dma.h"
-#include "mm/cache.h"
-
 #include <assert.h>
+
 #include "compiler.h"
+#include "dma/dma.h"
+#include "errno.h"
+#include "mm/cache.h"
+#include "peripherals/pmc.h"
 
 /*----------------------------------------------------------------------------
  *        Local definitions
  *----------------------------------------------------------------------------*/
+
 struct _ll_item {
 	struct dma_xfer_item *ll;
 	struct _ll_item* next;
@@ -90,6 +92,7 @@ CACHE_ALIGNED static struct dma_xfer_item _item_pool[DMA_LL_POOL_SIZE];
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
+
 static inline bool is_source_periph(struct dma_channel *channel)
 {
 	return ((channel->src_txif != 0xff) | (channel->src_rxif != 0xff));
@@ -181,7 +184,7 @@ struct dma_channel *dma_allocate_channel(uint8_t src, uint8_t dest)
 	return chan;
 }
 
-uint32_t dma_free_channel(struct dma_channel *channel)
+int dma_free_channel(struct dma_channel *channel)
 {
 	uint32_t status;
 
@@ -194,8 +197,7 @@ uint32_t dma_free_channel(struct dma_channel *channel)
 	return status;
 }
 
-uint32_t dma_set_callback(struct dma_channel *channel,
-		dma_callback_t callback, void *user_arg)
+int dma_set_callback(struct dma_channel *channel, dma_callback_t callback, void *user_arg)
 {
 #if defined(CONFIG_HAVE_XDMAC)
 	return xdmacd_set_callback((struct _xdmacd_channel *)channel,
@@ -206,8 +208,7 @@ uint32_t dma_set_callback(struct dma_channel *channel,
 #endif
 }
 
-uint32_t dma_configure_transfer(struct dma_channel *channel,
-								const struct dma_xfer_cfg *cfg)
+int dma_configure_transfer(struct dma_channel *channel, const struct dma_xfer_cfg *cfg)
 {
 	bool src_is_periph, dst_is_periph;
 	uint32_t divisor;
@@ -226,7 +227,7 @@ uint32_t dma_configure_transfer(struct dma_channel *channel,
 /* for DMAC */
 	if (cfg->blk_size > DMA_MAX_BT_SIZE) {
 		/* Block size (microblock length) is limited to 16,777,215 data elements */
-		return DMA_ERROR;
+		return -EOVERFLOW;
 	}
 	if (!cfg->blk_size) {
 		if (cfg->len <= DMA_MAX_BT_SIZE) {
@@ -248,14 +249,14 @@ uint32_t dma_configure_transfer(struct dma_channel *channel,
 				}
 			}
 			if (divisor == 1)
-				return DMA_ERROR;
+				return -EINVAL;
 		}
 	} else {
 		if (cfg->len <= XDMAC_MAX_BLOCK_LEN) {
 			xdma_cfg.ubc = cfg->blk_size;
 			xdma_cfg.bc = cfg->len - 1;
 		} else {
-			return DMA_ERROR;
+			return -EOVERFLOW;
 		}
 	}
 	xdma_cfg.sa = cfg->sa;
@@ -296,7 +297,7 @@ uint32_t dma_configure_transfer(struct dma_channel *channel,
 
 	if (cfg->blk_size > DMA_MAX_BT_SIZE) {
 		/* Block size (microblock length) is limited to 65535 data elements */
-		return DMA_ERROR;
+		return -EOVERFLOW;
 	}
 	if (!cfg->blk_size) {
 		if (cfg->len <= DMA_MAX_BT_SIZE) {
@@ -320,7 +321,7 @@ uint32_t dma_configure_transfer(struct dma_channel *channel,
 				}
 			}
 		if (divisor == 1)
-			return DMA_ERROR;
+			return -EINVAL;
 		}
 	} else {
 		dma_regs.ctrla = cfg->blk_size;
@@ -364,7 +365,7 @@ uint32_t dma_configure_transfer(struct dma_channel *channel,
 #endif
 }
 
-uint32_t dma_prepare_item(struct dma_channel *channel,
+int dma_prepare_item(struct dma_channel *channel,
 				const struct dma_xfer_item_tmpl *tmpl,
 				struct dma_xfer_item *item)
 {
@@ -373,7 +374,7 @@ uint32_t dma_prepare_item(struct dma_channel *channel,
 
 	if (tmpl->blk_size > DMA_MAX_BT_SIZE) {
 				/* Block size (microblock length) is limited to 65535 data elements */
-		return DMA_ERROR;
+		return -EOVERFLOW;
 	}
 	item->mbr_ubc = XDMA_UBC_NVIEW_NDV1
 					| (tmpl->upd_sa_per_blk ? XDMA_UBC_NSEN_UPDATED :
@@ -386,7 +387,7 @@ uint32_t dma_prepare_item(struct dma_channel *channel,
 	item->mbr_da = tmpl->da;
 	item->mbr_nda = 0;
 
-	return DMA_OK;
+	return 0;
 
 #elif defined(CONFIG_HAVE_DMAC)
 
@@ -398,7 +399,7 @@ uint32_t dma_prepare_item(struct dma_channel *channel,
 
 	if (tmpl->blk_size > DMA_MAX_BT_SIZE) {
 		/* Block size (microblock length) is limited to 65535 data elements */
-		return DMA_ERROR;
+		return -EOVERFLOW;
 	}
 	ctrla = (tmpl->data_width << DMAC_CTRLA_SRC_WIDTH_Pos)
 		  | (tmpl->data_width << DMAC_CTRLA_DST_WIDTH_Pos)
@@ -431,7 +432,7 @@ uint32_t dma_prepare_item(struct dma_channel *channel,
 	item->ctrla = ctrla;
 	item->ctrlb = ctrlb;
 
-	return DMA_OK;
+	return 0;
 #endif
 }
 
@@ -465,16 +466,16 @@ void dma_free_item(struct dma_channel *channel)
 	channel->ll_head = NULL;
 }
 
-uint32_t dma_link_item(struct dma_channel *channel,
+int dma_link_item(struct dma_channel *channel,
 		       struct dma_xfer_item *item,
 		       struct dma_xfer_item *next_item)
 {
 	if (item == NULL)
-		return DMA_ERROR;
+		return -EINVAL;
 
 	if (!dma_is_transfer_done(channel)) {
 		/* DMA is being transmitted */
-		return DMA_CANCELED;
+		return -ECANCELED;
 	}
 
 #if defined(CONFIG_HAVE_XDMAC)
@@ -490,27 +491,26 @@ uint32_t dma_link_item(struct dma_channel *channel,
 	else
 		item->dscr = next_item;
 #endif
-	return DMA_OK;
+	return 0;
 }
 
-uint32_t dma_link_last_item(struct dma_channel *channel,
-							struct dma_xfer_item *item)
+int dma_link_last_item(struct dma_channel *channel, struct dma_xfer_item *item)
 {
 	struct dma_xfer_item *last;
 
 	if (item == NULL)
-		return DMA_ERROR;
+		return -EINVAL;
 
 	if (!dma_is_transfer_done(channel)) {
 		/* DMA is being transmitted */
-		return DMA_CANCELED;
+		return -ECANCELED;
 	}
 	last = _get_last_ll_item(channel);
 	if (!last)
-		return DMA_ERROR;
-	
+		return -EINVAL;
+
 	if ((uint32_t)(channel->ll_head->ll) == (uint32_t)item)
-		return DMA_OK;
+		return 0;
 
 #if defined(CONFIG_HAVE_XDMAC)
 	if (item == NULL) {
@@ -525,26 +525,23 @@ uint32_t dma_link_last_item(struct dma_channel *channel,
 	else
 		last->dscr = item;
 #endif
-	return DMA_OK;
+	return 0;
 }
 
-uint32_t dma_insert_item(struct dma_channel *channel,
+int dma_insert_item(struct dma_channel *channel,
 			 struct dma_xfer_item *pre_item,
 			 struct dma_xfer_item *item)
 {
 	struct dma_xfer_item* next;
 
-	if (item == NULL || pre_item == NULL) {
-		return DMA_ERROR;
-	}
-	if (dma_is_transfer_done(channel)) {
+	if (item == NULL || pre_item == NULL)
+		return -EINVAL;
+	if (dma_is_transfer_done(channel))
 		/* DMA was done*/
-		return DMA_CANCELED;
-	}
-	if (!(dma_get_desc_addr(channel))) {
+		return -ECANCELED;
+	if (!(dma_get_desc_addr(channel)))
 		/* LL transfer was done or it is a single transfer */
-		return DMA_CANCELED;
-	}
+		return -ECANCELED;
 
 #if defined(CONFIG_HAVE_XDMAC)
 	next =(struct dma_xfer_item*) pre_item->mbr_nda;
@@ -562,25 +559,25 @@ uint32_t dma_insert_item(struct dma_channel *channel,
 	if (next == NULL)
 		item->dscr = 0;
 #endif
-	return DMA_OK;
+	return 0;
 }
 
-uint32_t dma_append_item(struct dma_channel *channel, struct dma_xfer_item *item)
+int dma_append_item(struct dma_channel *channel, struct dma_xfer_item *item)
 {
 	struct dma_xfer_item* last;
 	struct dma_xfer_item* descriptor_addr;
 
 	if (item == NULL)
-		return DMA_ERROR;
+		return -EINVAL;
 
 	if (dma_is_transfer_done(channel)) {
 		/* DMA was done*/
-		return DMA_CANCELED;
+		return -ECANCELED;
 	}
 	descriptor_addr = dma_get_desc_addr(channel);
 	if (descriptor_addr == NULL) {
 		/* LL transfer was done or it is a single transfer */
-		return DMA_CANCELED;
+		return -ECANCELED;
 	}
 	last = descriptor_addr;
 
@@ -598,28 +595,28 @@ uint32_t dma_append_item(struct dma_channel *channel, struct dma_xfer_item *item
 	last->dscr = item;
 	item->dscr = 0;
 #endif
-	return DMA_OK;
+	return 0;
 }
 
-uint32_t dma_remove_last_item(struct dma_channel *channel)
+int dma_remove_last_item(struct dma_channel *channel)
 {
 	struct dma_xfer_item* last;
 	struct dma_xfer_item* descriptor_addr;
 
 	if (dma_is_transfer_done(channel)) {
 		/* DMA was done*/
-		return DMA_CANCELED;
+		return -ECANCELED;
 	}
 	descriptor_addr = dma_get_desc_addr(channel);
 	if (descriptor_addr == NULL) {
 		/* LL transfer was done or it is a single transfer */
-		return DMA_CANCELED;
+		return -ECANCELED;
 	}
 	last = descriptor_addr;
 
 #if defined(CONFIG_HAVE_XDMAC)
 	if (last->mbr_nda == NULL)
-		return DMA_OK;
+		return 0;
 	while (((struct dma_xfer_item*)(last->mbr_nda))->mbr_nda) {
 		last =(struct dma_xfer_item*)last->mbr_nda;
 	}
@@ -628,23 +625,23 @@ uint32_t dma_remove_last_item(struct dma_channel *channel)
 
 #elif defined(CONFIG_HAVE_DMAC)
 	if (last->dscr == NULL)
-		return DMA_OK;
+		return 0;
 	while (((struct dma_xfer_item*)(last->dscr))->dscr) {
 		last =(struct dma_xfer_item*)last->dscr;
 	}
 	last->dscr = 0;
 #endif
-	return DMA_OK;
+	return 0;
 }
 
-uint32_t dma_configure_sg_transfer(struct dma_channel *channel,
+int dma_configure_sg_transfer(struct dma_channel *channel,
 				struct dma_xfer_item_tmpl *tmpl,
 				struct dma_xfer_item *desc_list)
 {
 	if (!desc_list) {
 		if (channel->ll_head == NULL)
-			return DMA_ERROR;
-		else 
+			return -EINVAL;
+		else
 			desc_list = channel->ll_head->ll;
 	}
 
@@ -655,7 +652,7 @@ uint32_t dma_configure_sg_transfer(struct dma_channel *channel,
 
 	if (tmpl->blk_size > DMA_MAX_BT_SIZE) {
 		/* Block size (microblock length) is limited to 65535 data elements */
-		return DMA_ERROR;
+		return -EOVERFLOW;
 	}
 
 	src_is_periph = is_source_periph(channel);
@@ -713,7 +710,7 @@ uint32_t dma_configure_sg_transfer(struct dma_channel *channel,
 #endif
 }
 
-uint32_t dma_start_transfer(struct dma_channel *channel)
+int dma_start_transfer(struct dma_channel *channel)
 {
 #if defined(CONFIG_HAVE_XDMAC)
 	return xdmacd_start_transfer((struct _xdmacd_channel *)channel);
@@ -731,7 +728,7 @@ bool dma_is_transfer_done(struct dma_channel *channel)
 #endif
 }
 
-uint32_t dma_stop_transfer(struct dma_channel *channel)
+int dma_stop_transfer(struct dma_channel *channel)
 {
 #if defined(CONFIG_HAVE_XDMAC)
 	return xdmacd_stop_transfer((struct _xdmacd_channel *)channel);
@@ -740,7 +737,7 @@ uint32_t dma_stop_transfer(struct dma_channel *channel)
 #endif
 }
 
-uint32_t dma_reset_channel(struct dma_channel *channel)
+int dma_reset_channel(struct dma_channel *channel)
 {
 #if defined(CONFIG_HAVE_XDMAC)
 	return xdmacd_reset_channel((struct _xdmacd_channel *)channel);
@@ -749,7 +746,7 @@ uint32_t dma_reset_channel(struct dma_channel *channel)
 #endif
 }
 
-uint32_t dma_suspend_transfer(struct dma_channel *channel)
+int dma_suspend_transfer(struct dma_channel *channel)
 {
 #if defined(CONFIG_HAVE_XDMAC)
 	return xdmacd_suspend_transfer((struct _xdmacd_channel *)channel);
@@ -758,7 +755,7 @@ uint32_t dma_suspend_transfer(struct dma_channel *channel)
 #endif
 }
 
-uint32_t dma_resume_transfer(struct dma_channel *channel)
+int dma_resume_transfer(struct dma_channel *channel)
 {
 #if defined(CONFIG_HAVE_XDMAC)
 	return xdmacd_resume_transfer((struct _xdmacd_channel *)channel);

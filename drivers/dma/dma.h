@@ -34,9 +34,9 @@
  *        Includes
  *----------------------------------------------------------------------------*/
 
+#include <stdbool.h>
+
 #include "chip.h"
-
-
 #if defined(CONFIG_HAVE_XDMAC)
 #include "dma/xdmacd.h"
 #elif defined(CONFIG_HAVE_DMAC)
@@ -44,8 +44,6 @@
 #else
 #  error "Requires a DMA controller to be enabled"
 #endif
-#include <stdbool.h>
-
 
 /*------------------------------------------------------------------------------
  *         Definitions
@@ -97,15 +95,6 @@
 /*----------------------------------------------------------------------------
  *        Types
  *----------------------------------------------------------------------------*/
-/** DMA status or return code */
-enum {
-	DMA_OK = 0,				/* Operation is sucessful */
-	DMA_PARTIAL_DONE,		/* Transfer partial finished */
-	DMA_DONE,				/* Transfer finished */
-	DMA_BUSY,				/* Channel occupied or transfer not finished */
-	DMA_ERROR,				/* Operation failed */
-	DMA_CANCELED			/* Operation canceled */
-};
 
 /** \addtogroup dma_structs DMA Driver Structs
 		@{*/
@@ -211,13 +200,13 @@ extern void dma_poll(void);
  * \return Channel pointer if allocation successful, or NULL if channel
  * allocation failed.
  */
-extern struct dma_channel *dma_allocate_channel(uint8_t src, uint8_t dest);
+extern struct dma_channel* dma_allocate_channel(uint8_t src, uint8_t dest);
 
 /**
  * \brief Start DMA transfer.
  * \param channel Channel pointer
  */
-extern uint32_t dma_start_transfer(struct dma_channel *channel);
+extern int dma_start_transfer(struct dma_channel *channel);
 
 /**
  * \brief Set the callback function for an DMA channel transfer.
@@ -225,17 +214,16 @@ extern uint32_t dma_start_transfer(struct dma_channel *channel);
  * \param callback Pointer to callback function.
  * \param user_arg Pointer to user argument for callback.
  */
-extern uint32_t dma_set_callback(struct dma_channel *channel,
+extern int dma_set_callback(struct dma_channel *channel,
 				dma_callback_t callback, void *user_arg);
 
 /**
  * \brief Configure DMA for a transfer of contiguous data.
  * \param channel Channel pointer
  * \param cfg DMA transfer configuration
- * \return result code
+ * \return error code
  */
-extern uint32_t dma_configure_transfer(struct dma_channel *channel,
-				const struct dma_xfer_cfg *cfg);
+extern int dma_configure_transfer(struct dma_channel *channel, const struct dma_xfer_cfg *cfg);
 
 /**
  * \brief Prepare the provided transfer descriptor, AKA linked list item.
@@ -244,7 +232,7 @@ extern uint32_t dma_configure_transfer(struct dma_channel *channel,
  * \param item Pointer to the uninitialized transfer descriptor
  * \return result code
  */
-extern uint32_t dma_prepare_item(struct dma_channel *channel,
+extern int dma_prepare_item(struct dma_channel *channel,
 				 const struct dma_xfer_item_tmpl *tmpl,
 				 struct dma_xfer_item *item);
 
@@ -258,7 +246,7 @@ extern uint32_t dma_prepare_item(struct dma_channel *channel,
  * been properly initialized, using dma_prepare_item.
  * \return result code
  */
-extern uint32_t dma_link_item(struct dma_channel *channel,
+extern int dma_link_item(struct dma_channel *channel,
 			      struct dma_xfer_item *item,
 			      struct dma_xfer_item *next_item);
 
@@ -270,7 +258,7 @@ extern uint32_t dma_link_item(struct dma_channel *channel,
  * been allocated from linked list pool.
  * \return result code
  */
-extern uint32_t dma_link_last_item(struct dma_channel *channel,
+extern int dma_link_last_item(struct dma_channel *channel,
 		       struct dma_xfer_item *item);
 
 /**
@@ -286,7 +274,7 @@ extern uint32_t dma_link_last_item(struct dma_channel *channel,
    using dma_resume_transfer to continue dma transfer.
  * \return result code
  */
-extern uint32_t dma_insert_item(struct dma_channel *channel,
+extern int dma_insert_item(struct dma_channel *channel,
 				struct dma_xfer_item *pre_item,
 				struct dma_xfer_item *item);
 
@@ -301,18 +289,18 @@ extern uint32_t dma_insert_item(struct dma_channel *channel,
    using dma_resume_transfer to continue dma transfer.
  * \return result code
  */
-extern uint32_t dma_append_item(struct dma_channel *channel,
+extern int dma_append_item(struct dma_channel *channel,
 				struct dma_xfer_item *item);
 
 /**
  * \brief Delete the last transfer descriptor of its linked list.
  * \param channel Channel pointer
  * \note To delect the last item of linked list, the dma channel shall be
-   suspended using dma_suspend_transfer, and using dma_resume_transfer to 
+   suspended using dma_suspend_transfer, and using dma_resume_transfer to
    continue dma transfer after the item was delected.
  * \return result code
  */
-extern uint32_t dma_remove_last_item(struct dma_channel *channel);
+extern int dma_remove_last_item(struct dma_channel *channel);
 
 /**
  * \brief Configure DMA for a transfer of scattered data, or a transfer of
@@ -324,7 +312,7 @@ extern uint32_t dma_remove_last_item(struct dma_channel *channel);
  * NULL if the list was allocated from linked list pool.
  * \return result code
  */
-extern uint32_t dma_configure_sg_transfer(struct dma_channel *channel,
+extern int dma_configure_sg_transfer(struct dma_channel *channel,
 					  struct dma_xfer_item_tmpl *tmpl,
 					  struct dma_xfer_item *desc_list);
 
@@ -332,31 +320,31 @@ extern uint32_t dma_configure_sg_transfer(struct dma_channel *channel,
  * \brief Stop DMA transfer.
  * \param channel Channel pointer
  */
-extern uint32_t dma_stop_transfer(struct dma_channel *channel);
+extern int dma_stop_transfer(struct dma_channel *channel);
 
 /**
  * \brief Suspend DMA transfer.
  * \param channel Channel pointer
  */
-extern uint32_t dma_suspend_transfer(struct dma_channel *channel);
+extern int dma_suspend_transfer(struct dma_channel *channel);
 
 /**
  * \brief Resume DMA transfer.
  * \param channel Channel pointer
  */
-extern uint32_t dma_resume_transfer(struct dma_channel *channel);
+extern int dma_resume_transfer(struct dma_channel *channel);
 
 /**
  * \brief Free the specified DMA channel.
  * \param channel Channel pointer
  */
-extern uint32_t dma_free_channel(struct dma_channel *channel);
+extern int dma_free_channel(struct dma_channel *channel);
 
 /**
  * \brief Reset the specified DMA channel.
  * \param channel Channel pointer
  */
-extern uint32_t dma_reset_channel(struct dma_channel *channel);
+extern int dma_reset_channel(struct dma_channel *channel);
 
 /**
  * \brief Check if DMA transfer is finished.
@@ -387,7 +375,7 @@ extern struct dma_xfer_item * dma_get_desc_addr(struct dma_channel *channel);
 /**
  * \brief Allocate a unused linked list emelment the relevant channel
  * \param channel Channel pointer
- * \return linked list pointer if allocation successful, or NULL if allocation 
+ * \return linked list pointer if allocation successful, or NULL if allocation
  * failed.
  */
 extern struct dma_xfer_item* dma_allocate_item(struct dma_channel *channel);

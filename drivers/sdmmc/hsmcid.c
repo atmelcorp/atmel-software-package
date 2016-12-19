@@ -333,12 +333,12 @@ static uint8_t hsmci_release_dma(struct hsmci_set *set)
 	if (set->dma_channel == NULL)
 		return SDMMC_ERROR_STATE;
 	rc = dma_stop_transfer(set->dma_channel);
-	if (rc != DMA_OK) {
+	if (rc != 0) {
 		trace_error("Error halting DMA channel\n\r");
 		res = SDMMC_ERROR_STATE;
 	}
 	rc = dma_free_channel(set->dma_channel);
-	if (rc != DMA_OK) {
+	if (rc != 0) {
 		trace_error("Couldn't free DMA channel\n\r");
 		res = SDMMC_ERROR_STATE;
 	}
@@ -363,7 +363,7 @@ static uint8_t hsmci_prepare_dma(struct hsmci_set *set, uint8_t bRd)
 		return SDMMC_ERROR_BUSY;
 	rc = dma_set_callback(set->dma_channel, _hsmci_dma_callback_wrapper,
 		set);
-	if (rc != DMA_OK) {
+	if (rc != 0) {
 		hsmci_release_dma(set);
 		return SDMMC_ERROR_STATE;
 	}
@@ -440,7 +440,7 @@ static uint8_t hsmci_configure_dma(struct hsmci_set *set, uint8_t bRd)
 	dma_cfg.da = bRd ? cmd->pData : (void*)&set->regs->HSMCI_TDR;
 	/* Configure a single block per master transfer, i.e. no linked list */
 	rc = dma_configure_transfer(set->dma_channel, &dma_cfg);
-	if (rc != DMA_OK)
+	if (rc != 0)
 		return SDMMC_ERROR_BUSY;
 	if (bRd)
 		/* Invalidate the corresponding data cache lines now, so this
@@ -457,7 +457,7 @@ static uint8_t hsmci_configure_dma(struct hsmci_set *set, uint8_t bRd)
 		cache_clean_region(cmd->pData, cmd->wBlockSize
 			* (uint32_t)cmd->wNbBlocks);
 	rc = dma_start_transfer(set->dma_channel);
-	return rc == DMA_OK ? SDMMC_SUCCESS : SDMMC_ERROR_STATE;
+	return rc == 0 ? SDMMC_SUCCESS : SDMMC_ERROR_STATE;
 }
 
 static void hsmci_finish_cmd(struct hsmci_set *set, uint8_t bStatus)

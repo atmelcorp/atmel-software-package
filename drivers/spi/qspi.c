@@ -70,7 +70,7 @@ static void qspi_memcpy(uint8_t *dst, const uint8_t *src, int count, bool use_dm
 		dma_cfg.len = count;
 		dma_configure_transfer(dma_ch, &dma_cfg);
 		rc = dma_start_transfer(dma_ch);
-		if (rc != DMA_OK)
+		if (rc != 0)
 			trace_fatal("Couldn't start xDMA transfer\n\r");
 		while (!dma_is_transfer_done(dma_ch))
 			dma_poll();

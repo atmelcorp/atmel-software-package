@@ -57,12 +57,14 @@
  *        Includes
  *----------------------------------------------------------------------------*/
 
+#include <assert.h>
+
+#include "compiler.h"
+#include "dma/dma.h"
+#include "dma/xdmacd.h"
+#include "errno.h"
 #include "irq/irq.h"
 #include "peripherals/pmc.h"
-#include "dma/xdmacd.h"
-#include "dma/dma.h"
-#include <assert.h>
-#include "compiler.h"
 
 /*----------------------------------------------------------------------------
  *        Local constants
@@ -130,7 +132,40 @@ static struct _xdmacd _xdmacd;
  * setup configuration register for transfer.
  * \param channel Channel pointer
  */
-static uint32_t xdmacd_prepare_channel(struct _xdmacd_channel *channel);
+static int xdmacd_prepare_channel(struct _xdmacd_channel* channel)
+{
+	Xdmac* xdmac = channel->xdmac;
+
+	if (channel->state == XDMACD_STATE_FREE)
+		return -EPERM;
+	else if (channel->state == XDMACD_STATE_STARTED)
+		return -EBUSY;
+
+	/* Clear status */
+	xdmac_get_global_channel_status(xdmac);
+	xdmac_get_global_isr(xdmac);
+
+	/* Enable clock of the DMA peripheral */
+	pmc_configure_peripheral(get_xdmac_id_from_addr(xdmac), NULL, true);
+
+	/* Clear status */
+	xdmac_get_channel_isr(xdmac, channel->id);
+
+	/* Disables XDMAC interrupt for the given channel */
+	xdmac_disable_global_it(xdmac, 1 << channel->id);
+	xdmac_disable_channel_it(xdmac, channel->id, -1);
+
+	/* Disable the given dma channel */
+	xdmac_disable_channel(xdmac, channel->id);
+	xdmac_set_src_addr(xdmac, channel->id, 0);
+	xdmac_set_dest_addr(xdmac, channel->id, 0);
+	xdmac_set_block_control(xdmac, channel->id, 0);
+	xdmac_set_channel_config(xdmac, channel->id, XDMAC_CC_PROT_UNSEC);
+	xdmac_set_descriptor_addr(xdmac, channel->id, 0, 0);
+	xdmac_set_descriptor_control(xdmac, channel->id, 0);
+
+	return 0;
+}
 
 static struct _xdmacd_channel* _xdmacd_channel(Xdmac* dmac, uint32_t channel)
 {
@@ -159,7 +194,7 @@ static void xdmacd_handler(uint32_t source, void* user_arg)
 
 	gcs = xdmac_get_global_channel_status(xdmac);
 	for (chan = 0; chan < XDMAC_CHANNELS; chan++) {
-		struct _xdmacd_channel *channel;
+		struct _xdmacd_channel* channel;
 		bool exec = false;
 
 		if (!(gis & (1 << chan)))
@@ -213,7 +248,7 @@ void xdmacd_initialize(bool polling)
 		Xdmac* xdmac = controllers[cont];
 		for (chan = 0; chan < XDMAC_CHANNELS; chan++) {
 			xdmac_get_channel_isr(xdmac, chan);
-			struct _xdmacd_channel *channel = _xdmacd_channel(xdmac, chan);
+			struct _xdmacd_channel* channel = _xdmacd_channel(xdmac, chan);
 			channel->xdmac = xdmac;
 			channel->id = chan;
 			channel->callback = 0;
@@ -243,7 +278,7 @@ void xdmacd_poll(void)
 	}
 }
 
-struct _xdmacd_channel *xdmacd_allocate_channel(uint8_t src, uint8_t dest)
+struct _xdmacd_channel* xdmacd_allocate_channel(uint8_t src, uint8_t dest)
 {
 	uint32_t i;
 
@@ -253,8 +288,8 @@ struct _xdmacd_channel *xdmacd_allocate_channel(uint8_t src, uint8_t dest)
 	}
 
 	for (i = 0; i < XDMACD_CHANNELS; i++) {
-		struct _xdmacd_channel *channel = &_xdmacd.channels[i];
-		Xdmac *xdmac = channel->xdmac;
+		struct _xdmacd_channel* channel = &_xdmacd.channels[i];
+		Xdmac* xdmac = channel->xdmac;
 
 		if (channel->state == XDMACD_STATE_FREE) {
 			/* Check if source peripheral matches this channel controller */
@@ -282,85 +317,50 @@ struct _xdmacd_channel *xdmacd_allocate_channel(uint8_t src, uint8_t dest)
 	return NULL;
 }
 
-uint32_t xdmacd_free_channel(struct _xdmacd_channel *channel)
+int xdmacd_free_channel(struct _xdmacd_channel* channel)
 {
 	switch (channel->state) {
 	case XDMACD_STATE_STARTED:
-		return XDMACD_BUSY;
+		return -EBUSY;
 	case XDMACD_STATE_ALLOCATED:
 	case XDMACD_STATE_DONE:
 		channel->state = XDMACD_STATE_FREE;
 		break;
 	}
-	return XDMACD_OK;
+	return 0;
 }
 
-uint32_t xdmacd_set_callback(struct _xdmacd_channel *channel,
+int xdmacd_set_callback(struct _xdmacd_channel* channel,
 		xdmacd_callback_t callback, void *user_arg)
 {
 	if (channel->state == XDMACD_STATE_FREE)
-		return XDMACD_ERROR;
+		return -EPERM;
 	else if (channel->state == XDMACD_STATE_STARTED)
-		return XDMACD_BUSY;
+		return -EBUSY;
 
 	channel->callback = callback;
 	channel->user_arg = user_arg;
 
-	return XDMACD_OK;
+	return 0;
 }
 
-static uint32_t xdmacd_prepare_channel(struct _xdmacd_channel *channel)
-{
-	Xdmac *xdmac = channel->xdmac;
-
-	if (channel->state == XDMACD_STATE_FREE)
-		return XDMACD_ERROR;
-	else if (channel->state == XDMACD_STATE_STARTED)
-		return XDMACD_BUSY;
-
-	/* Clear status */
-	xdmac_get_global_channel_status(xdmac);
-	xdmac_get_global_isr(xdmac);
-
-	/* Enable clock of the DMA peripheral */
-	pmc_configure_peripheral(get_xdmac_id_from_addr(xdmac), NULL, true);
-
-	/* Clear status */
-	xdmac_get_channel_isr(xdmac, channel->id);
-
-	/* Disables XDMAC interrupt for the given channel */
-	xdmac_disable_global_it(xdmac, 1 << channel->id);
-	xdmac_disable_channel_it(xdmac, channel->id, -1);
-
-	/* Disable the given dma channel */
-	xdmac_disable_channel(xdmac, channel->id);
-	xdmac_set_src_addr(xdmac, channel->id, 0);
-	xdmac_set_dest_addr(xdmac, channel->id, 0);
-	xdmac_set_block_control(xdmac, channel->id, 0);
-	xdmac_set_channel_config(xdmac, channel->id, XDMAC_CC_PROT_UNSEC);
-	xdmac_set_descriptor_addr(xdmac, channel->id, 0, 0);
-	xdmac_set_descriptor_control(xdmac, channel->id, 0);
-
-	return XDMACD_OK;
-}
-
-bool xdmacd_is_transfer_done(struct _xdmacd_channel *channel)
+bool xdmacd_is_transfer_done(struct _xdmacd_channel* channel)
 {
 	return ((channel->state != XDMACD_STATE_STARTED)
 			&& (channel->state != XDMACD_STATE_SUSPENDED));
 }
 
-uint32_t xdmacd_configure_transfer(struct _xdmacd_channel *channel,
+int xdmacd_configure_transfer(struct _xdmacd_channel* channel,
 				  struct _xdmacd_cfg *cfg,
 				  uint32_t desc_cntrl,
 				  void *desc_addr)
 {
 	if (channel->state == XDMACD_STATE_FREE)
-		return XDMACD_ERROR;
+		return -EPERM;
 	else if (channel->state == XDMACD_STATE_STARTED)
-		return XDMACD_BUSY;
+		return -EBUSY;
 
-	Xdmac *xdmac = channel->xdmac;
+	Xdmac* xdmac = channel->xdmac;
 	const uint32_t first_view = desc_cntrl & XDMAC_CNDC_NDVIEW_Msk;
 
 	cfg->cfg &= ~XDMAC_CC_PERID_Msk;
@@ -413,15 +413,15 @@ uint32_t xdmacd_configure_transfer(struct _xdmacd_channel *channel,
 					XDMAC_CIE_FIE | XDMAC_CIE_RBIE |
 					XDMAC_CIE_WBIE | XDMAC_CIE_ROIE);
 	}
-	return XDMACD_OK;
+	return 0;
 }
 
-uint32_t xdmacd_start_transfer(struct _xdmacd_channel *channel)
+int xdmacd_start_transfer(struct _xdmacd_channel* channel)
 {
 	if (channel->state == XDMACD_STATE_FREE)
-		return XDMACD_ERROR;
+		return -EPERM;
 	else if (channel->state == XDMACD_STATE_STARTED)
-		return XDMACD_BUSY;
+		return -EBUSY;
 
 	/* Change state to 'started' */
 	channel->state = XDMACD_STATE_STARTED;
@@ -432,12 +432,12 @@ uint32_t xdmacd_start_transfer(struct _xdmacd_channel *channel)
 		xdmac_enable_global_it(channel->xdmac, 1 << channel->id);
 	}
 
-	return XDMACD_OK;
+	return 0;
 }
 
-uint32_t xdmacd_stop_transfer(struct _xdmacd_channel *channel)
+int xdmacd_stop_transfer(struct _xdmacd_channel* channel)
 {
-	Xdmac *xdmac = channel->xdmac;
+	Xdmac* xdmac = channel->xdmac;
 
 	/* Disable channel */
 	xdmac_disable_channel(xdmac, channel->id);
@@ -452,18 +452,18 @@ uint32_t xdmacd_stop_transfer(struct _xdmacd_channel *channel)
 	/* Change state to 'allocated' */
 	channel->state = XDMACD_STATE_ALLOCATED;
 
-	return XDMACD_OK;
+	return 0;
 }
 
-uint32_t xdmacd_reset_channel(struct _xdmacd_channel *channel)
+int xdmacd_reset_channel(struct _xdmacd_channel* channel)
 {
-	Xdmac *xdmac = channel->xdmac;
+	Xdmac* xdmac = channel->xdmac;
 
 	if (channel->state == XDMACD_STATE_ALLOCATED)
-		return XDMACD_OK;
+		return 0;
 
 	if (channel->state == XDMACD_STATE_STARTED)
-		return XDMACD_BUSY;
+		return -EBUSY;
 
 	/* Disable channel */
 	xdmac_disable_channel(xdmac, channel->id);
@@ -474,12 +474,12 @@ uint32_t xdmacd_reset_channel(struct _xdmacd_channel *channel)
 	/* Change state to 'allocated' */
 	channel->state = XDMACD_STATE_ALLOCATED;
 
-	return XDMACD_OK;
+	return 0;
 }
 
-uint32_t xdmacd_suspend_transfer(struct _xdmacd_channel *channel)
+int xdmacd_suspend_transfer(struct _xdmacd_channel* channel)
 {
-	Xdmac *xdmac = channel->xdmac;
+	Xdmac* xdmac = channel->xdmac;
 
 	/* suspend channel */
 	xdmac_suspend_channel(xdmac, channel->id);
@@ -487,12 +487,12 @@ uint32_t xdmacd_suspend_transfer(struct _xdmacd_channel *channel)
 	/* Change state to 'suspended' */
 	channel->state = XDMACD_STATE_SUSPENDED;
 
-	return XDMACD_OK;
+	return 0;
 }
 
-uint32_t xdmacd_resume_transfer(struct _xdmacd_channel *channel)
+int xdmacd_resume_transfer(struct _xdmacd_channel* channel)
 {
-	Xdmac *xdmac = channel->xdmac;
+	Xdmac* xdmac = channel->xdmac;
 
 	/* resume dedicated channel */
 	xdmac_resume_read_write_channel(xdmac, channel->id);
@@ -500,26 +500,26 @@ uint32_t xdmacd_resume_transfer(struct _xdmacd_channel *channel)
 	/* Change state to 'started' */
 	channel->state = XDMACD_STATE_STARTED;
 
-	return XDMACD_OK;
+	return 0;
 }
 
-uint32_t xdmacd_get_remaining_data_len(struct _xdmacd_channel *channel)
+uint32_t xdmacd_get_remaining_data_len(struct _xdmacd_channel* channel)
 {
-	Xdmac *xdmac = channel->xdmac;
+	Xdmac* xdmac = channel->xdmac;
 
 	return xdmac_get_microblock_control(xdmac, channel->id);
 }
 
-uint32_t xdmacd_get_desc_addr(struct _xdmacd_channel *channel)
+uint32_t xdmacd_get_desc_addr(struct _xdmacd_channel* channel)
 {
-	Xdmac *xdmac = channel->xdmac;
+	Xdmac* xdmac = channel->xdmac;
 
 	return xdmac_get_descriptor_addr(xdmac, channel->id);
 }
 
-void xdmacd_fifo_flush(struct _xdmacd_channel *channel)
+void xdmacd_fifo_flush(struct _xdmacd_channel* channel)
 {
-	Xdmac *xdmac = channel->xdmac;
+	Xdmac* xdmac = channel->xdmac;
 
 	xdmac_fifo_flush(xdmac, channel->id);
 }

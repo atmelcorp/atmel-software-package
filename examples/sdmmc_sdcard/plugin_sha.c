@@ -158,7 +158,7 @@ static void run_dma_xfer(struct sha_set *set)
 	}
 
 	rc = dma_start_transfer(set->dma_ch);
-	if (rc == DMA_OK) {
+	if (rc == 0) {
 		while (mutex_is_locked(&set->dma_unlocks_mutex)) {
 		if (set->dma_polling)
 			dma_poll();
