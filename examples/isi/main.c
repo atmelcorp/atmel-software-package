@@ -129,6 +129,8 @@
 /** LCDC_HEO layer use for display captured image in YUV output */
 #define LCD_CAPTURE_LAYER LCDC_HEO
 
+#define SENSOR_TWI_BUS BOARD_ISI_TWI_BUS
+
 /*----------------------------------------------------------------------------
  *        Local variables/constants
  *----------------------------------------------------------------------------*/
@@ -214,8 +216,8 @@ extern int main( void )
 	console_example_info("ISI Example");
 
 	printf("Image sensor detection:\n\r");
-	if ((sensor = sensor_detect(true, 0))) {
-		if (sensor_setup(sensor, VGA, YUV_422) != SENSOR_OK){
+	if ((sensor = sensor_detect(SENSOR_TWI_BUS, true, 0))) {
+		if (sensor_setup(SENSOR_TWI_BUS, sensor, VGA, YUV_422) != SENSOR_OK){
 			printf("-E- Sensor setup failed.");
 			while (1);
 		}

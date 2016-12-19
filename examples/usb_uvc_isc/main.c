@@ -140,6 +140,8 @@
 
 #define NUM_FRAME_BUFFER     4
 
+#define SENSOR_TWI_BUS BOARD_ISC_TWI_BUS
+
 /*----------------------------------------------------------------------------
  *          External variables
  *----------------------------------------------------------------------------*/
@@ -208,7 +210,7 @@ static void start_preview(void)
 	uint8_t sensor_mode = YUV_422;
 
 	/* Re-configure sensor with giving resolution */
-	if (sensor_setup(sensor, image_resolution, sensor_mode) != SENSOR_OK) {
+	if (sensor_setup(SENSOR_TWI_BUS, sensor, image_resolution, sensor_mode) != SENSOR_OK) {
 		printf("-E- Sensor setup failed.");
 		while (1);
 	}
@@ -261,8 +263,8 @@ extern int main( void )
 	console_example_info("USB UVC ISC Example");
 
 	printf("Image sensor detection:\n\r");
-	if ((sensor = sensor_detect(true, 0))) {
-		if (sensor_setup(sensor, VGA, YUV_422) != SENSOR_OK){
+	if ((sensor = sensor_detect(SENSOR_TWI_BUS, true, 0))) {
+		if (sensor_setup(SENSOR_TWI_BUS, sensor, VGA, YUV_422) != SENSOR_OK){
 			printf("-E- Sensor setup failed.");
 			while (1);
 		}

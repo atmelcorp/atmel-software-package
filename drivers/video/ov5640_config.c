@@ -5259,7 +5259,6 @@ const struct sensor_profile ov5640_profile =
 	"OV5640",
 	SENSOR_COMS,                     /* Sensor type for CMOS sensor or CCD */
 	SENSOR_TWI_REG_2BYTE_DATA_BYTE,  /* TWI interface mode  */
-	SENSOR_TWI_BUS,                  /* TWI bus */
 	OV5640_SLAVE_ADDRESS,            /* TWI slave address */
 	OV5640_PIDH_ADDRESS,             /* Register address for product ID high byte */
 	OV5640_PIDL_ADDRESS,             /* Register address for product ID low byte*/

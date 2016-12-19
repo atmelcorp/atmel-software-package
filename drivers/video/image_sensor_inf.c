@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2013, Atmel Corporation
+ * Copyright (c) 2016, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -197,10 +197,11 @@ static uint32_t sensor_twi_write_reg(uint8_t twi_mode, uint8_t bus, uint8_t addr
 
 /**
  * \brief Read and check sensor product ID.
+ * \param twi_bus  TWI bus
  * \param sensor_profile Sensor profile
  * \return SENSOR_OK if no error; otherwise SENSOR_TWI_ERROR
  */
-static uint32_t sensor_check_pid(struct sensor_profile* sensor_profile)
+static uint32_t sensor_check_pid(uint8_t twi_bus, struct sensor_profile* sensor_profile)
 {
 	/* use uint32_t to force 4-byte alignment */
 	uint32_t pid_high = 0;
@@ -211,13 +212,13 @@ static uint32_t sensor_check_pid(struct sensor_profile* sensor_profile)
 	uint16_t ver_mask = sensor_profile->version_mask;
 
 	if (sensor_twi_read_reg(sensor_profile->twi_inf_mode,
-							sensor_profile->bus,
+							twi_bus,
 							sensor_profile->addr,
 							reg_h, (uint8_t*)&pid_high) != SENSOR_OK)
 		return SENSOR_TWI_ERROR;
 	pid_high &= 0xff;
 	if (sensor_twi_read_reg(sensor_profile->twi_inf_mode,
-							sensor_profile->bus,
+							twi_bus,
 							sensor_profile->addr,
 							reg_l, (uint8_t*)&pid_low) != SENSOR_OK)
 		return SENSOR_TWI_ERROR;
@@ -234,11 +235,13 @@ static uint32_t sensor_check_pid(struct sensor_profile* sensor_profile)
 /**
  * \brief  Initialize a list of registers.
  * The list of registers is terminated by the pair of values
+ * \param twi_bus  TWI bus
  * \param sensor_profile   Sensor private profile
  * \param reglist Register list to be written
  * \return SENSOR_OK if no error; otherwise SENSOR_TWI_ERROR
  */
-static uint32_t sensor_twi_write_regs(struct sensor_profile* sensor_profile,
+static uint32_t sensor_twi_write_regs(uint8_t twi_bus, 
+									  struct sensor_profile* sensor_profile,
 									  const struct sensor_reg* reglist)
 {
 	uint32_t status;
@@ -246,7 +249,7 @@ static uint32_t sensor_twi_write_regs(struct sensor_profile* sensor_profile,
 
 	while (!((next->reg == SENSOR_REG_TERM) && (next->val == SENSOR_VAL_TERM))) {
 		status = sensor_twi_write_reg(sensor_profile->twi_inf_mode,
-									  sensor_profile->bus,
+									  twi_bus,
 									  sensor_profile->addr,
 									  next->reg,
 									  (uint8_t *)(&next->val));
@@ -263,7 +266,7 @@ static uint32_t sensor_twi_write_regs(struct sensor_profile* sensor_profile,
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-uint32_t sensor_setup(struct sensor_profile* sensor_profile,
+uint32_t sensor_setup(uint8_t twi_bus, struct sensor_profile* sensor_profile,
 					  uint8_t resolution,
 					  uint8_t format)
 {
@@ -283,25 +286,25 @@ uint32_t sensor_setup(struct sensor_profile* sensor_profile,
 	if (found == 0)
 		return SENSOR_RESOLUTION_NOT_SUPPORTED;
 
-	return sensor_twi_write_regs(sensor_profile,
+	return sensor_twi_write_regs(twi_bus, sensor_profile,
 								 sensor_profile->output_conf[i]->output_setting);
 }
 
-struct sensor_profile* sensor_detect(bool detect_auto, uint8_t id)
+struct sensor_profile* sensor_detect(uint8_t twi_bus, bool detect_auto, uint8_t id)
 {
 	uint8_t i;
 	struct sensor_profile *sensor;
 
 	if (!detect_auto) {
 		sensor = (struct sensor_profile*)sensor_profiles[id];
-		if (sensor_check_pid(sensor) == SENSOR_OK)
+		if (sensor_check_pid(twi_bus, sensor) == SENSOR_OK)
 			return sensor;
 		else
 			return NULL;
 	} else {
 		for (i = 0; i < SENSOR_SUPPORTED_NUMBER; i++) {
 			sensor = (struct sensor_profile*) sensor_profiles[i];
-			if (sensor_check_pid(sensor) == SENSOR_OK)
+			if (sensor_check_pid(twi_bus, sensor) == SENSOR_OK)
 				break;
 			else
 				sensor = NULL;

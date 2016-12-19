@@ -125,6 +125,8 @@
 /** Maximum number of frame buffer */
 #define ISC_MAX_NUM_FRAME_BUFFER    1
 
+#define SENSOR_TWI_BUS BOARD_ISC_TWI_BUS
+
 /*----------------------------------------------------------------------------
  *        Local variables/constants
  *----------------------------------------------------------------------------*/
@@ -266,8 +268,8 @@ extern int main(void)
 	console_example_info("ISC Example");
 
 	printf("Image Sensor detection:\n\r");
-	if ((sensor = sensor_detect(true, 0))) {
-		if (sensor_setup(sensor, VGA, YUV_422) != SENSOR_OK) {
+	if ((sensor = sensor_detect(SENSOR_TWI_BUS, true, 0))) {
+		if (sensor_setup(SENSOR_TWI_BUS, sensor, VGA, YUV_422) != SENSOR_OK) {
 			printf("-E- Sensor setup failed.");
 			while (1);
 		}
@@ -296,7 +298,7 @@ restart_sensor:
 		}
 	}
 
-	if (sensor_setup(sensor, QVGA, sensor_mode) != SENSOR_OK)
+	if (sensor_setup(SENSOR_TWI_BUS, sensor, QVGA, sensor_mode) != SENSOR_OK)
 		trace_fatal("-E- Sensor setup failed.");
 
 	/* Retrieve sensor output format and size */

@@ -58,15 +58,6 @@
 /** terminating list entry for value in configuration file */
 #define SENSOR_VAL_TERM         0xFF
 
-/** TWI BUS definition */
-#if defined(BOARD_ISC_TWI_BUS)
-#define SENSOR_TWI_BUS BOARD_ISC_TWI_BUS
-#elif defined(BOARD_ISI_TWI_BUS)
-#define SENSOR_TWI_BUS BOARD_ISI_TWI_BUS
-#else
-#error Unknown bus!
-#endif
-
 /*----------------------------------------------------------------------------
  *        Types
  *----------------------------------------------------------------------------*/
@@ -141,7 +132,6 @@ struct sensor_profile {
 	const char* name;             /** Sensor name */
 	uint8_t cmos_ccd;             /** Sensor type for CMOS sensor or CCD */
 	uint8_t twi_inf_mode;         /** TWI interface mode  */
-	uint8_t bus;                  /** TWI bus */
 	uint8_t addr;                 /** TWI slave address */
 	uint16_t pid_high_reg;        /** Register address for product ID high byte */
 	uint16_t pid_low_reg;         /** Register address for product ID low byte*/
@@ -169,19 +159,22 @@ extern const struct sensor_profile ov9740_profile;
 /**
  * \brief Detect with given supported sensor index,
  *  or automatically detect the connected sensor.
+ * \param twi_bus TWI bus
  * \param detect_auto true for auto detect.
  * \param id  Supported sensor index
  * \return pointer to a profile if no error; otherwise return NULL.
  */
-extern struct sensor_profile* sensor_detect(bool detect_auto, uint8_t id);
+extern struct sensor_profile* sensor_detect(uint8_t twi_bus, bool detect_auto, uint8_t id);
 
  /**
  * \brief Load and configure sensor setting with giving profile.
+ * \param twi_bus TWI bus
  * \param sensor pointer to a sensor profile instance.
  * \param resolution resolution request
  * \return SENSOR_OK if no error; otherwise return SENSOR_XXX_ERROR
  */
-extern uint32_t sensor_setup(struct sensor_profile* sensor,
+extern uint32_t sensor_setup(uint8_t twi_bus,
+							 struct sensor_profile* sensor,
 							 uint8_t resolution,
 							 uint8_t format);
 
