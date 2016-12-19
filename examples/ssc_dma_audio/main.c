@@ -134,31 +134,40 @@
  *         Definitions
  *----------------------------------------------------------------------------*/
 
-#define SAMPLE_COUNT ROUND_UP_MULT(192, L1_CACHE_BYTES)
+#define BUFFERS (32)
 
-#define BUFFER_NUMBER (10)
+#define BUFFER_SIZE ROUND_UP_MULT(192, L1_CACHE_BYTES)
+
+#define BUFFER_THRESHOLD (8)
 
 /*----------------------------------------------------------------------------
  *         Internal variables
  *----------------------------------------------------------------------------*/
 
 /** Audio record buffer */
-CACHE_ALIGNED_DDR static uint16_t _sound_buffer[BUFFER_NUMBER][SAMPLE_COUNT];
+CACHE_ALIGNED_DDR static uint16_t _sound_buffer[BUFFERS][BUFFER_SIZE];
 
-/**  Record buffer write index */
-static volatile uint32_t record_buffer_index = 0;
-
-/**  Play buffer read index */
-static volatile uint32_t play_buffer_index = 0;
-
-/**  Number of buffers that can play */
-static volatile uint32_t num_buffers_to_send = 0;
-
-/** Record start flag */
-static volatile bool record_start = false;
-
-/** audio playing volume */
-static uint8_t play_vol = 30;
+static struct _audio_ctx {
+	uint32_t threshold;
+	struct {
+		uint16_t rx;
+		uint16_t tx;
+		uint32_t count;
+	} circ;
+	uint8_t volume;
+	bool playing;
+	bool recording;
+} _audio_ctx = {
+	.threshold = BUFFER_THRESHOLD,
+	.circ = {
+		.rx = 0,
+		.tx = 0,
+		.count = 0,
+	},
+	.volume = 30,
+	.recording = false,
+	.playing = false,
+};
 
 /*----------------------------------------------------------------------------
  *         Local functions
@@ -178,35 +187,62 @@ static void _display_menu(void)
 	printf("-----------------\n\r");
 }
 
+
 /**
  *  \brief Audio RX callback
  */
-static int _ssc_record_transfer_callback(void* arg)
+static int _ssc_tx_transfer_callback(void* arg)
 {
 	struct _ssc_desc* desc = (struct _ssc_desc*)arg;
 	struct _callback _cb;
 
-	record_buffer_index = (record_buffer_index + 1) % BUFFER_NUMBER;
+	if (_audio_ctx.playing && (_audio_ctx.circ.count > 0)){
+		struct _buffer _tx = {
+			.data = (unsigned char*)&_sound_buffer[_audio_ctx.circ.tx],
+			.size = BUFFER_SIZE,
+			.attr = SSC_BUF_ATTR_WRITE,
+		};
 
-	num_buffers_to_send++;
+		callback_set(&_cb, _ssc_tx_transfer_callback, desc);
+		ssc_transfer(desc, &_tx, &_cb);
+		_audio_ctx.circ.tx = (_audio_ctx.circ.tx + 1) % BUFFERS;
+		_audio_ctx.circ.count--;
 
-	struct _buffer _tx = {
-		.data = (unsigned char*)&_sound_buffer[play_buffer_index],
-		.size = SAMPLE_COUNT,
-		.attr = SSC_BUF_ATTR_WRITE,
-	};
+		if (_audio_ctx.circ.count == 0) {
+			ssc_disable_transmitter(&ssc_dev_desc);
 
-	ssc_transfer(desc, &_tx, NULL);
-	play_buffer_index = (play_buffer_index + 1) % BUFFER_NUMBER;
-	num_buffers_to_send--;
+			_audio_ctx.playing = false;
+		}
+	}
+
+	return 0;
+}
+
+/**
+ *  \brief Audio RX callback
+ */
+static int _ssc_rx_transfer_callback(void* arg)
+{
+	struct _ssc_desc* desc = (struct _ssc_desc*)arg;
+	struct _callback _cb;
+
+	/* New buffer received */
+	_audio_ctx.circ.rx = (_audio_ctx.circ.rx + 1) % BUFFERS;
+	_audio_ctx.circ.count++;
+
+	if (!_audio_ctx.playing && (_audio_ctx.circ.count > _audio_ctx.threshold)) {
+		_audio_ctx.playing = true;
+		ssc_enable_transmitter(&ssc_dev_desc);
+		_ssc_tx_transfer_callback(desc);
+	}
 
 	struct _buffer _rx = {
-		.data = (unsigned char*)&_sound_buffer[record_buffer_index],
-		.size = SAMPLE_COUNT,
+		.data = (unsigned char*)&_sound_buffer[_audio_ctx.circ.rx],
+		.size = BUFFER_SIZE,
 		.attr = SSC_BUF_ATTR_READ,
 	};
 
-	callback_set(&_cb, _ssc_record_transfer_callback, desc);
+	callback_set(&_cb, _ssc_rx_transfer_callback, desc);
 	ssc_transfer(desc, &_rx, &_cb);
 
 	return 0;
@@ -233,29 +269,41 @@ static void console_handler(uint8_t key)
 {
 	switch (key) {
 	case '+':
-		if (play_vol < 63) {
-			play_vol += 3;
-			_set_volume(play_vol);
+		if (_audio_ctx.volume < 63) {
+			_audio_ctx.volume += 3;
+			_set_volume(_audio_ctx.volume);
 		}
 		break;
 	case '-':
-		if (play_vol > 1) {
-			play_vol -= 3;
-			_set_volume(play_vol);
+		if (_audio_ctx.volume > 1) {
+			_audio_ctx.volume -= 3;
+			_set_volume(_audio_ctx.volume);
 		}
 		break;
 
 	case 'R':
 	case 'r':
-		record_start = true;
-		ssc_enable_transmitter(&ssc_dev_desc);
+		_audio_ctx.recording = true;
 		ssc_enable_receiver(&ssc_dev_desc);
+
+		{ /* Start recording */
+			struct _callback _cb;
+			callback_set(&_cb, _ssc_rx_transfer_callback, &ssc_dev_desc);
+			struct _buffer _rx = {
+				.data = (unsigned char*)&_sound_buffer[_audio_ctx.circ.rx],
+				.size = BUFFER_SIZE,
+				.attr = SSC_BUF_ATTR_READ,
+			};
+
+			ssc_transfer(&ssc_dev_desc, &_rx, &_cb);
+		}
+
 		printf("SSC start to record and play sound\r\n");
 		break;
 
 	case 'S':
 	case 's':
-		record_start = false;
+		_audio_ctx.recording = false;
 		ssc_disable_transmitter(&ssc_dev_desc);
 		ssc_disable_receiver(&ssc_dev_desc);
 		printf("SSC stop to record and play sound\r\n");
@@ -277,8 +325,6 @@ static void console_handler(uint8_t key)
  */
 extern int main( void )
 {
-	struct _callback _cb;
-
 	/* Output example information */
 	console_example_info("SSC DMA Audio Example");
 
@@ -298,25 +344,10 @@ extern int main( void )
 	wm8731_configure(&wm8731);
 #endif
 
-	_set_volume(play_vol);
+	_set_volume(_audio_ctx.volume);
 
 	_display_menu();
 
-	callback_set(&_cb, _ssc_record_transfer_callback, &ssc_dev_desc);
-
 	/* Infinite loop */
-	while (1) {
-
-		if(record_start) {
-			record_start = false;
-
-			struct _buffer _rx = {
-				.data = (unsigned char*)&_sound_buffer[record_buffer_index],
-				.size = SAMPLE_COUNT,
-				.attr = SSC_BUF_ATTR_READ,
-			};
-
-			ssc_transfer(&ssc_dev_desc, &_rx, &_cb);
-		}
-	}
+	while (1);
 }

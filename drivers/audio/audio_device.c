@@ -62,7 +62,6 @@ static void _configure_classd(struct _audio_desc* desc)
 		desc->device.classd.desc.left_enable = true;
 		desc->device.classd.desc.right_enable = true;
 	}
-	desc->device.classd.desc.transfer_mode = CLASSD_MODE_DMA;
 	desc->device.classd.desc.addr = desc->device.classd.addr;
 	classd_configure(&desc->device.classd.desc);
 	classd_set_left_attenuation(&desc->device.classd.desc, 30);

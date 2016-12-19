@@ -102,38 +102,31 @@
  *         Headers
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
-#include "chip.h"
-#include "trace.h"
-#include "compiler.h"
-
-#include "mm/cache.h"
-#include "serial/console.h"
-#include "led/led.h"
-
-#include "gpio/pio.h"
-#include "peripherals/pit.h"
-#include "peripherals/pmc.h"
-
-#include "usb/device/audio/audd_speaker_phone_driver.h"
-
-#include "main_descriptors.h"
-#include "../usb_common/main_usb_common.h"
-
-#include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
+
+#include "board.h"
+#include "chip.h"
+#include "gpio/pio.h"
+#include "led/led.h"
+#include "main_descriptors.h"
+#include "mm/cache.h"
+#include "serial/console.h"
+#include "trace.h"
+#include "../usb_common/main_usb_common.h"
+#include "usb/device/audio/audd_speaker_phone_driver.h"
 
 /*----------------------------------------------------------------------------
  *         Definitions
  *----------------------------------------------------------------------------*/
 
 /**  Number of available audio buffers. */
-#define BUFFER_NUMBER 8
+#define BUFFERS (8)
 
 /**  Size of one buffer in bytes. */
-#define BUFFER_SIZE  AUDDSpeakerPhoneDriver_BYTESPERFRAME
+#define BUFFER_SIZE ROUND_UP_MULT(AUDDSpeakerPhoneDriver_BYTESPERFRAME, L1_CACHE_BYTES)
 
 /*----------------------------------------------------------------------------
  *         External variables
@@ -147,7 +140,7 @@ extern const USBDDriverDescriptors audd_speaker_phone_driver_descriptors;
  *----------------------------------------------------------------------------*/
 
 /**  Data buffers for receiving audio frames from the USB host. */
-CACHE_ALIGNED static uint8_t buffers[BUFFER_NUMBER][BUFFER_SIZE];
+CACHE_ALIGNED static uint8_t buffers[BUFFERS][BUFFER_SIZE];
 
 /**  Next buffer in which USB data can be stored. */
 static volatile uint32_t in_buffer_index = 0;
@@ -166,8 +159,7 @@ static volatile bool is_rec_active = false;
 /**
  *  Invoked when a frame has been received.
  */
-static void frame_received(void *arg, uint8_t status,
-		uint32_t transferred, uint32_t remaining)
+static void _usb_frame_rcv_callback(void *arg, uint8_t status, uint32_t transferred, uint32_t remaining)
 {
 	if (status == USBD_STATUS_SUCCESS) {
 		/* Loopback! add this buffer to write list */
@@ -177,11 +169,11 @@ static void frame_received(void *arg, uint8_t status,
 		}
 
 		/* Update input status data */
-		in_buffer_index = (in_buffer_index + 1) % BUFFER_NUMBER;
+		in_buffer_index = (in_buffer_index + 1) % BUFFERS;
 
 	} else if (status == USBD_STATUS_ABORTED) {
 		/* Error , ABORT, add NULL buffer */
-		in_buffer_index = (in_buffer_index + 1) % BUFFER_NUMBER;
+		in_buffer_index = (in_buffer_index + 1) % BUFFERS;
 	} else {
 		/* Packet is discarded */
 	}
@@ -189,7 +181,7 @@ static void frame_received(void *arg, uint8_t status,
 	/* Receive next packet */
 	audd_speaker_phone_driver_read(buffers[in_buffer_index],
 			AUDDSpeakerPhoneDriver_BYTESPERFRAME,
-			frame_received, NULL); // No optional argument
+			_usb_frame_rcv_callback, NULL); // No optional argument
 }
 
 /*----------------------------------------------------------------------------
@@ -237,11 +229,10 @@ void audd_speaker_phone_driver_mute_changed(uint8_t mic,
 {
 	/* Speaker Master channel */
 	if (!mic && channel == AUDDSpeakerPhoneDriver_MASTERCHANNEL) {
-		if (muted) {
+		if (muted)
 			trace_info("MuteMaster ");
-		} else {
+		else
 			trace_info("UnmuteMaster ");
-		}
 	}
 }
 
@@ -256,11 +247,10 @@ void audd_speaker_phone_driver_stream_setting_changed(uint8_t mic,
 		uint8_t new_setting)
 {
 	/* Speaker stream */
-	if (!mic) {
+	if (!mic)
 		is_play_active = (new_setting > 0);
-	} else {
+	else
 		is_rec_active = (new_setting > 0);
-	}
 }
 
 /*----------------------------------------------------------------------------
@@ -290,9 +280,8 @@ int main(void)
 
 	/* Infinite loop */
 	while (1) {
-		if (usbd_get_state() < USBD_STATE_CONFIGURED) {
+		if (usbd_get_state() < USBD_STATE_CONFIGURED)
 			continue;
-		}
 
 		if (play_on) {
 			if (is_play_active == 0) {
@@ -304,7 +293,7 @@ int main(void)
 			/* Try to Start Reading the incoming audio stream */
 			audd_speaker_phone_driver_read(buffers[in_buffer_index],
 					AUDDSpeakerPhoneDriver_BYTESPERFRAME,
-					frame_received, NULL);
+					_usb_frame_rcv_callback, NULL);
 			printf("plyS ");
 			play_on = true;
 		}

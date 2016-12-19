@@ -11,6 +11,7 @@ static struct _audio_desc audio_play_device = {
 		.classd = {
 			.addr = CLASSD,
 			.desc = {
+				.transfer_mode = CLASSD_MODE_DMA,
 				.sample_rate = 48000,
 				.mode = BOARD_CLASSD_MODE,
 				.non_ovr = CLASSD_NONOVR_10NS,

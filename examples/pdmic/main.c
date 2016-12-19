@@ -179,6 +179,7 @@ static struct _pdmic_desc pdmic_desc = {
 /** ClassD Configuration */
 static struct _classd_desc classd_desc = {
 	.addr = CLASSD,
+	.transfer_mode = CLASSD_MODE_DMA,
 	.sample_rate = SAMPLE_RATE,
 	.mode = BOARD_CLASSD_MODE,
 	.non_ovr = CLASSD_NONOVR_10NS,

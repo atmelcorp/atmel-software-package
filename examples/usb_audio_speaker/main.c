@@ -149,14 +149,14 @@
  *----------------------------------------------------------------------------*/
 
 /**  Number of available audio buffers. */
-#define BUFFER_NUMBER (128)
+#define BUFFERS (32)
 
 /**  Size of one buffer in bytes. */
-#define BUFFER_SIZE   AUDDSpeakerDriver_BYTESPERFRAME
+#define BUFFER_SIZE ROUND_UP_MULT(AUDDSpeakerDriver_BYTESPERFRAME, L1_CACHE_BYTES)
 
 /**  Delay (in number of buffers) before starting the DAC transmission
      after data has been received. */
-#define DAC_DELAY     (2)
+#define BUFFER_THRESHOLD (8)
 
 /*----------------------------------------------------------------------------
  *         External variables
@@ -170,124 +170,124 @@ extern const USBDDriverDescriptors audd_speaker_driver_descriptors;
  *----------------------------------------------------------------------------*/
 
 /**  Data buffers for receiving audio frames from the USB host. */
-CACHE_ALIGNED static uint8_t buffers[BUFFER_NUMBER][BUFFER_SIZE];
+CACHE_ALIGNED static uint8_t _buffer[BUFFERS][BUFFER_SIZE];
 
 /**  Number of samples stored in each data buffer. */
-static uint32_t buffer_sizes[BUFFER_NUMBER];
+static uint32_t _samples[BUFFERS];
 
-/**  Next buffer in which USB data can be stored. */
-static volatile uint32_t in_buffer_index = 0;
-
-/**  Next buffer which should be sent to the DAC. */
-static volatile uint32_t out_buffer_index = 0;
-
-/**  Number of buffers that can be sent to the DAC. */
-static volatile uint32_t num_buffers_to_send = 0;
-
-/**  Number of buffers to wait for before the DAC starts to transmit data. */
-static volatile uint8_t  dac_delay;
-
-/**  Current state of the DAC transmission. */
-static volatile bool is_dac_active = false;
-
-/** audio playing volume */
-static uint8_t play_vol = AUDIO_PLAY_MAX_VOLUME/2;
+/**  Audio context */
+static struct _audio_ctx {
+	uint32_t* samples;
+	uint32_t threshold;
+	struct {
+		uint16_t rx;
+		uint16_t tx;
+		uint32_t count;
+	} circ;
+	uint8_t volume;
+	bool playing;
+} _audio_ctx = {
+	.samples = _samples,
+	.threshold = BUFFER_THRESHOLD,
+	.circ = {
+		.rx = 0,
+		.tx = 0,
+		.count = 0,
+	},
+	.volume =  AUDIO_PLAY_MAX_VOLUME / 2,
+	.playing = false,
+};
 
 /*----------------------------------------------------------------------------
  *         Internal functions
  *----------------------------------------------------------------------------*/
 
 /**
- *  \brief DMA TX callback
+ *  \brief Audio TX callback
  */
 static int _audio_transfer_callback(void* arg)
 {
-	uint32_t index;
 	struct _audio_desc* desc = (struct _audio_desc*)arg;
 	struct _callback _cb;
 
-	if (num_buffers_to_send == 0) {
-		/* End of transmission */
-		is_dac_active = false;
-		return 0;
+	if (_audio_ctx.circ.count > 0) {
+		_audio_ctx.circ.tx = (_audio_ctx.circ.tx + 1) % BUFFERS;
+		_audio_ctx.circ.count--;
+		/* Load next buffer */
+		callback_set(&_cb, _audio_transfer_callback, desc);
+		audio_transfer(desc,
+			       _buffer[_audio_ctx.circ.tx],
+			       _audio_ctx.samples[_audio_ctx.circ.tx],
+			       &_cb);
+	} else {
+		_audio_ctx.playing = false;
+		audio_enable(desc, false);
 	}
-
-	out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
-	num_buffers_to_send--;
-	/* Load next buffer */
-	index = out_buffer_index;
-	callback_set(&_cb, _audio_transfer_callback, desc);
-	audio_transfer(desc, buffers[index], buffer_sizes[index], &_cb);
 
 	return 0;
 }
 
-/*----------------------------------------------------------------------------
- *         Internal functions
- *----------------------------------------------------------------------------*/
-
 /**
  *  Invoked when a frame has been received.
  */
-static void frame_received(void* arg, uint8_t status, uint32_t transferred, uint32_t remaining)
+static void _usb_frame_recv_callback(void* arg, uint8_t status, uint32_t transferred, uint32_t remaining)
 {
-	uint32_t index;
 	struct _audio_desc* desc = (struct _audio_desc*)arg;
 
-	/* unused */
-	(void)remaining;
-
 	if (status == USBD_STATUS_SUCCESS) {
-		assert(transferred <= BUFFER_SIZE);
+		if (_audio_ctx.circ.count >= (BUFFERS - 1)) {
+			_audio_ctx.circ.tx = (_audio_ctx.circ.tx + 1) % BUFFERS;
+			_audio_ctx.circ.count--;
+		}
 
-		buffer_sizes[in_buffer_index] = transferred;
-		in_buffer_index = (in_buffer_index + 1) % BUFFER_NUMBER;
-		num_buffers_to_send++;
+		_audio_ctx.samples[_audio_ctx.circ.rx] = transferred;
+		_audio_ctx.circ.rx = (_audio_ctx.circ.rx + 1) % BUFFERS;
+		_audio_ctx.circ.count++;
 
-		/* Start DAc transmission if necessary */
-		if (!is_dac_active)  {
-			dac_delay = DAC_DELAY;
-			is_dac_active = true;
-		} else if (dac_delay > 0) {
-			/* Wait until a few buffers have been received */
-			dac_delay--;
-		} else if (audio_transfer_is_done(&audio_device)) {
-			struct _callback _cb;
+		if (_audio_ctx.circ.count >= _audio_ctx.threshold) {
+			if (!_audio_ctx.playing) {
+				audio_enable(desc, true);
+				_audio_ctx.playing = true;
+			}
+			if (audio_transfer_is_done(&audio_device)) {
+				struct _callback _cb;
 
-			/* Start DAC transmission if necessary */
-			index = out_buffer_index;
-			callback_set(&_cb, _audio_transfer_callback, desc);
-			audio_transfer(&audio_device, buffers[index], buffer_sizes[index], &_cb);
-			audio_enable(&audio_device, true);
-			out_buffer_index = (out_buffer_index + 1) % BUFFER_NUMBER;
-			num_buffers_to_send--;
+				/* Start DAC transmission if necessary */
+				callback_set(&_cb, _audio_transfer_callback, desc);
+				audio_transfer(desc,
+					       _buffer[_audio_ctx.circ.tx],
+					       _audio_ctx.samples[_audio_ctx.circ.tx],
+					       &_cb);
+				_audio_ctx.circ.tx = (_audio_ctx.circ.tx + 1) % BUFFERS;
+				_audio_ctx.circ.count--;
+			}
 		}
 	} else if (status == USBD_STATUS_ABORTED) {
 		/* Error , ABORT, add NULL buffer */
-		buffer_sizes[in_buffer_index] = 0;
+		_audio_ctx.samples[_audio_ctx.circ.rx] = 0;
 	} else {
 		/* Packet is discarded */
 	}
 
 	/* Receive next packet */
-	audd_speaker_driver_read(buffers[in_buffer_index],
-			AUDDSpeakerDriver_BYTESPERFRAME,
-			frame_received, desc);
+	audd_speaker_driver_read(_buffer[_audio_ctx.circ.rx],
+				 AUDDSpeakerDriver_BYTESPERFRAME,
+				 _usb_frame_recv_callback, desc);
 }
 
 static void console_handler(uint8_t key)
 {
 	switch (key) {
 	case '+':
-		if (play_vol < AUDIO_PLAY_MAX_VOLUME) {
-			play_vol += 10;
-			audio_set_volume(&audio_device, play_vol);
+		if (_audio_ctx.volume < AUDIO_PLAY_MAX_VOLUME) {
+			_audio_ctx.volume += 10;
+			audio_set_volume(&audio_device, _audio_ctx.volume);
 		}
 		break;
 	case '-':
-		if (play_vol > 10) {
-			play_vol -= 10;
-			audio_set_volume(&audio_device, play_vol);
+		if (_audio_ctx.volume > 10) {
+			_audio_ctx.volume -= 10;
+			audio_set_volume(&audio_device, _audio_ctx.volume);
 		}
 		break;
 
@@ -352,9 +352,9 @@ void audd_speaker_driver_mute_changed(uint8_t channel, uint8_t muted)
 	if (channel == AUDDSpeakerDriver_MASTERCHANNEL){
 		if (muted) {
 			audio_mute(&audio_device, true);
-			printf("MuteMaster ");
+			printf("MuteMaster\r\n");
 		} else {
-			printf("UnmuteMaster ");
+			printf("UnmuteMaster\r\n");
 			audio_mute(&audio_device, false);
 		}
 	}
@@ -369,7 +369,9 @@ void audd_speaker_driver_stream_setting_changed(uint8_t new_setting)
 {
 	if (new_setting) {
 		audio_stop(&audio_device);
-		num_buffers_to_send = 0;
+		_audio_ctx.circ.count = 0;
+		_audio_ctx.circ.tx = 0;
+		_audio_ctx.circ.rx = 0;
 	}
 }
 
@@ -385,11 +387,9 @@ void audd_speaker_driver_stream_setting_changed(uint8_t new_setting)
 int main(void)
 {
 	bool usb_conn = false;
-	bool audio_on = false;
 
-	uint32_t num = 0;
-	int32_t  num_diff = 0, prev_diff = 0;
-	int8_t   clock_adjust = 0;
+	int32_t jitter = 0, _jitter_curr;
+	int8_t clock_adjust = 0;
 
 	console_set_rx_handler(console_handler);
 	console_enable_rx_interrupt();
@@ -404,7 +404,7 @@ int main(void)
 	audio_configure(&audio_device);
 
 	/* Configure audio play volume */
-	audio_set_volume(&audio_device, play_vol);
+	audio_set_volume(&audio_device, _audio_ctx.volume);
 
 	/* USB audio driver initialization */
 	audd_speaker_driver_initialize(&audd_speaker_driver_descriptors);
@@ -424,48 +424,28 @@ int main(void)
 			continue;
 		}
 
-		if (audio_on) {
-			if (!is_dac_active) {
-				audio_enable(&audio_device, false);
-				//printf("End ");
-				audio_on = false;
-			}
-			else {
+		_jitter_curr = (_audio_ctx.circ.count - _audio_ctx.threshold);
 
-				if (num != num_buffers_to_send) {
-					num = num_buffers_to_send;
-                }
-				num_diff = num_buffers_to_send - DAC_DELAY;
-
-				if (prev_diff != num_diff) {
-					prev_diff = num_diff;
-					if (num_diff > 0 && clock_adjust != 1) {
-						/* USB too fast or SSC too slow: faster clock */
-						clock_adjust = 1;
-						audio_sync_adjust(&audio_device, clock_adjust);
-					}
-					if (num_diff < 0 && clock_adjust != -1) {
-						/* USB too slow or SSC too fast: slower clock */
-						clock_adjust = -1;
-						audio_sync_adjust(&audio_device, clock_adjust);
-					}
-					if (num_diff == 0 && clock_adjust != 0) {
-						clock_adjust = 0;
-						audio_sync_adjust(&audio_device, clock_adjust);
-					}
-				}
+		if (jitter != _jitter_curr) {
+			jitter = _jitter_curr;
+			if (jitter > 0 && clock_adjust != 1) {
+				/* USB too fast or SSC too slow: faster clock */
+				clock_adjust = 1;
+				audio_sync_adjust(&audio_device, clock_adjust);
 			}
-		} else if(is_dac_active) {
-			//printf("Start ");
-			audio_on = true;
+			if (jitter < 0 && clock_adjust != -1) {
+				/* USB too slow or SSC too fast: slower clock */
+				clock_adjust = -1;
+				audio_sync_adjust(&audio_device, clock_adjust);
+			}
 		}
 
 		if (!usb_conn) {
 			trace_info("USB connected\r\n");
 			/* Start Reading the incoming audio stream */
-			audd_speaker_driver_read(buffers[in_buffer_index],
+			audd_speaker_driver_read(_buffer[_audio_ctx.circ.rx],
 					AUDDSpeakerDriver_BYTESPERFRAME,
-					frame_received, &audio_device);
+					_usb_frame_recv_callback, &audio_device);
 
 			usb_conn = true;
 		}
