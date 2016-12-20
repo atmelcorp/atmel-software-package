@@ -103,7 +103,7 @@ static void _tdesd_transfer_buffer_dma(struct _tdesd_desc* desc)
 	offset = 0;
 
 	for (i = 0; ; i++) {
-		ll = dma_allocate_item(desc->xfer.dma.tx.channel);
+		ll = dma_sg_allocate_item(desc->xfer.dma.tx.channel);
 		blk_size = (remains / width_in_byte) <= DMA_MAX_BLOCK_LEN
 					? (remains / width_in_byte) : DMA_MAX_BLOCK_LEN;
 		cfg.sa = (void *)((desc->xfer.bufin->data) + offset);
@@ -119,13 +119,13 @@ static void _tdesd_transfer_buffer_dma(struct _tdesd_desc* desc)
 		cfg.blk_size = blk_size;
 		offset += blk_size * width_in_byte;
 		remains -= blk_size * width_in_byte;
-		dma_prepare_item(desc->xfer.dma.tx.channel, &cfg, ll);
-		dma_link_last_item(desc->xfer.dma.tx.channel, ll);
+		dma_sg_prepare_item(desc->xfer.dma.tx.channel, &cfg, ll);
+		dma_sg_link_last_item(desc->xfer.dma.tx.channel, ll);
 		if (!remains)
 			break;
 	}
-	dma_link_item(desc->xfer.dma.tx.channel, ll, NULL);
-	dma_configure_sg_transfer(desc->xfer.dma.tx.channel, &cfg, NULL);
+	dma_sg_link_item(desc->xfer.dma.tx.channel, ll, NULL);
+	dma_sg_configure_transfer(desc->xfer.dma.tx.channel, &cfg, NULL);
 	dma_set_callback(desc->xfer.dma.tx.channel, _tdesd_dma_callback, (void*)desc);
 
 	dma_reset_channel(desc->xfer.dma.rx.channel);
@@ -133,7 +133,7 @@ static void _tdesd_transfer_buffer_dma(struct _tdesd_desc* desc)
 	offset = 0;
 
 	for (i = 0; ; i++) {
-		ll = dma_allocate_item(desc->xfer.dma.rx.channel);
+		ll = dma_sg_allocate_item(desc->xfer.dma.rx.channel);
 		blk_size = (remains / width_in_byte) <= DMA_MAX_BLOCK_LEN
 					? (remains / width_in_byte) : DMA_MAX_BLOCK_LEN;
 		cfg.sa = (void*)TDES->TDES_ODATAR;
@@ -149,13 +149,13 @@ static void _tdesd_transfer_buffer_dma(struct _tdesd_desc* desc)
 		cfg.blk_size = blk_size;
 		offset += blk_size * width_in_byte;
 		remains -= blk_size * width_in_byte;
-		dma_prepare_item(desc->xfer.dma.rx.channel, &cfg, ll);
-		dma_link_last_item(desc->xfer.dma.rx.channel, ll);
+		dma_sg_prepare_item(desc->xfer.dma.rx.channel, &cfg, ll);
+		dma_sg_link_last_item(desc->xfer.dma.rx.channel, ll);
 		if (!remains)
 			break;
 	}
-	dma_link_item(desc->xfer.dma.rx.channel, ll, NULL);
-	dma_configure_sg_transfer(desc->xfer.dma.rx.channel, &cfg, NULL);
+	dma_sg_link_item(desc->xfer.dma.rx.channel, ll, NULL);
+	dma_sg_configure_transfer(desc->xfer.dma.rx.channel, &cfg, NULL);
 
 	dma_set_callback(desc->xfer.dma.rx.channel, _tdesd_dma_callback, (void*)desc);
 	dma_start_transfer(desc->xfer.dma.tx.channel);

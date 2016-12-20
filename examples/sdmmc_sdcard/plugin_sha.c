@@ -144,8 +144,8 @@ static void run_dma_xfer(struct sha_set *set)
 			dma_item_tmpl.blk_size = desc->blk_size;
 			if (desc == last_desc)
 				desc->blk_size = 0;
-			dma_prepare_item(set->dma_ch, &dma_item_tmpl, &desc[0].dma_item);
-			dma_link_item(set->dma_ch, &desc[0].dma_item,
+			dma_sg_prepare_item(set->dma_ch, &dma_item_tmpl, &desc[0].dma_item);
+			dma_sg_link_item(set->dma_ch, &desc[0].dma_item,
 					desc == last_desc ? NULL : &desc[1].dma_item);
 		}
 		/* Clean the underlying cache lines, to ensure the DMA gets our
@@ -154,7 +154,7 @@ static void run_dma_xfer(struct sha_set *set)
 		 * read-only, hence there is no need to invalidate. */
 		cache_clean_region(set->dma_dlist, sizeof(*last_desc)
 				* (uint32_t)set->dlist_len);
-		dma_configure_sg_transfer(set->dma_ch, &dma_item_tmpl, &set->dma_dlist[0].dma_item);
+		dma_sg_configure_transfer(set->dma_ch, &dma_item_tmpl, &set->dma_dlist[0].dma_item);
 	}
 
 	rc = dma_start_transfer(set->dma_ch);
@@ -364,4 +364,3 @@ void sha_plugin_get_hash(struct sha_set *set, uint32_t hash[5])
 }
 
 #endif /* CONFIG_HAVE_SHA */
-

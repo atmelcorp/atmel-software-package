@@ -172,7 +172,7 @@ void dma_initialize(bool polling)
 #endif
 }
 
-struct dma_channel *dma_allocate_channel(uint8_t src, uint8_t dest)
+struct dma_channel* dma_allocate_channel(uint8_t src, uint8_t dest)
 {
 	struct dma_channel *chan;
 #if defined(CONFIG_HAVE_XDMAC)
@@ -193,7 +193,7 @@ int dma_free_channel(struct dma_channel *channel)
 #elif defined(CONFIG_HAVE_DMAC)
 	status = dmacd_free_channel((struct _dmacd_channel *)channel);
 #endif
-	dma_free_item(channel);
+	dma_sg_free_item(channel);
 	return status;
 }
 
@@ -365,7 +365,7 @@ int dma_configure_transfer(struct dma_channel *channel, const struct dma_xfer_cf
 #endif
 }
 
-int dma_prepare_item(struct dma_channel *channel,
+int dma_sg_prepare_item(struct dma_channel *channel,
 				const struct dma_xfer_item_tmpl *tmpl,
 				struct dma_xfer_item *item)
 {
@@ -436,7 +436,7 @@ int dma_prepare_item(struct dma_channel *channel,
 #endif
 }
 
-struct dma_xfer_item* dma_allocate_item(struct dma_channel *channel)
+struct dma_xfer_item* dma_sg_allocate_item(struct dma_channel *channel)
 {
 	struct _sg_item* item = _allocate_sg_item();
 	struct _sg_item* last = channel->sg_list;
@@ -455,7 +455,7 @@ struct dma_xfer_item* dma_allocate_item(struct dma_channel *channel)
 	return NULL;
 }
 
-void dma_free_item(struct dma_channel *channel)
+void dma_sg_free_item(struct dma_channel *channel)
 {
 	struct _sg_item* item = channel->sg_list;
 	struct _sg_item* next = _sg_item_next_free;
@@ -466,7 +466,7 @@ void dma_free_item(struct dma_channel *channel)
 	channel->sg_list = NULL;
 }
 
-int dma_link_item(struct dma_channel *channel,
+int dma_sg_link_item(struct dma_channel *channel,
 		       struct dma_xfer_item *item,
 		       struct dma_xfer_item *next_item)
 {
@@ -494,7 +494,7 @@ int dma_link_item(struct dma_channel *channel,
 	return 0;
 }
 
-int dma_link_last_item(struct dma_channel *channel, struct dma_xfer_item *item)
+int dma_sg_link_last_item(struct dma_channel *channel, struct dma_xfer_item *item)
 {
 	struct dma_xfer_item *last;
 
@@ -528,7 +528,7 @@ int dma_link_last_item(struct dma_channel *channel, struct dma_xfer_item *item)
 	return 0;
 }
 
-int dma_insert_item(struct dma_channel *channel,
+int dma_sg_insert_item(struct dma_channel *channel,
 			 struct dma_xfer_item *pre_item,
 			 struct dma_xfer_item *item)
 {
@@ -562,7 +562,7 @@ int dma_insert_item(struct dma_channel *channel,
 	return 0;
 }
 
-int dma_append_item(struct dma_channel *channel, struct dma_xfer_item *item)
+int dma_sg_append_item(struct dma_channel *channel, struct dma_xfer_item *item)
 {
 	struct dma_xfer_item* last;
 	struct dma_xfer_item* descriptor_addr;
@@ -598,7 +598,7 @@ int dma_append_item(struct dma_channel *channel, struct dma_xfer_item *item)
 	return 0;
 }
 
-int dma_remove_last_item(struct dma_channel *channel)
+int dma_sg_remove_last_item(struct dma_channel *channel)
 {
 	struct dma_xfer_item* last;
 	struct dma_xfer_item* descriptor_addr;
@@ -634,7 +634,7 @@ int dma_remove_last_item(struct dma_channel *channel)
 	return 0;
 }
 
-int dma_configure_sg_transfer(struct dma_channel *channel,
+int dma_sg_configure_transfer(struct dma_channel *channel,
 				struct dma_xfer_item_tmpl *tmpl,
 				struct dma_xfer_item *desc_list)
 {

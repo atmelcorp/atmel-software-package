@@ -37,17 +37,18 @@
 #include <stdbool.h>
 
 #include "chip.h"
-#if defined(CONFIG_HAVE_XDMAC)
-#include "dma/xdmacd.h"
-#elif defined(CONFIG_HAVE_DMAC)
+#if defined(CONFIG_HAVE_DMAC)
 #include "dma/dmacd.h"
+#elif defined(CONFIG_HAVE_XDMAC)
+#include "dma/xdmacd.h"
 #else
-#  error "Requires a DMA controller to be enabled"
+#error "Requires a DMA controller to be enabled"
 #endif
 
 /*------------------------------------------------------------------------------
  *         Definitions
  *----------------------------------------------------------------------------*/
+
 #define DMA_PERIPH_MEMORY  0xFF
 
 #ifdef CONFIG_HAVE_XDMAC
@@ -108,16 +109,15 @@ typedef void (*dma_callback_t)(struct dma_channel *channel, void *arg);
 /* Set of parameters to specify a transfer of contiguous data.
    Structure members that are zeroed will get assigned their default value.*/
 struct dma_xfer_cfg {
-
-	uint8_t upd_sa_per_data : 1;/* increment source address when proceeding to the next data element (set by default if memory)
-									0: The source address remains unchanged
-									1: The source address is incremented */
+	uint8_t upd_sa_per_data : 1; /* increment source address when proceeding to the next data element (set by default if memory)
+					0: The source address remains unchanged
+					1: The source address is incremented */
 
 	uint8_t upd_da_per_data : 1;/* increment destination address when proceeding to the next data element (set by default if memory)
-									0: The destination address remains unchanged
-									1: The destination address is incremented */
-	void *sa; 					/* initial source address; alignment shall match data width */
-	void *da;					/* initial destination address; alignment shall match data width */
+				       0: The destination address remains unchanged
+				       1: The destination address is incremented */
+	void* sa; /* initial source address; alignment shall match data width */
+	void* da; /* initial destination address; alignment shall match data width */
 
 	uint8_t data_width;			/* data element width (AKA transfer width), expressed in bytes (1/2/4/8) */
 	uint8_t chunk_size;			/* chunk size (if transferring with a peripheral), expressed in data elements (1/(2)/4/8/16) */
@@ -232,7 +232,7 @@ extern int dma_configure_transfer(struct dma_channel *channel, const struct dma_
  * \param item Pointer to the uninitialized transfer descriptor
  * \return result code
  */
-extern int dma_prepare_item(struct dma_channel *channel,
+extern int dma_sg_prepare_item(struct dma_channel *channel,
 				 const struct dma_xfer_item_tmpl *tmpl,
 				 struct dma_xfer_item *item);
 
@@ -246,7 +246,7 @@ extern int dma_prepare_item(struct dma_channel *channel,
  * been properly initialized, using dma_prepare_item.
  * \return result code
  */
-extern int dma_link_item(struct dma_channel *channel,
+extern int dma_sg_link_item(struct dma_channel *channel,
 			      struct dma_xfer_item *item,
 			      struct dma_xfer_item *next_item);
 
@@ -258,7 +258,7 @@ extern int dma_link_item(struct dma_channel *channel,
  * been allocated from linked list pool.
  * \return result code
  */
-extern int dma_link_last_item(struct dma_channel *channel,
+extern int dma_sg_link_last_item(struct dma_channel *channel,
 		       struct dma_xfer_item *item);
 
 /**
@@ -274,7 +274,7 @@ extern int dma_link_last_item(struct dma_channel *channel,
    using dma_resume_transfer to continue dma transfer.
  * \return result code
  */
-extern int dma_insert_item(struct dma_channel *channel,
+extern int dma_sg_insert_item(struct dma_channel *channel,
 				struct dma_xfer_item *pre_item,
 				struct dma_xfer_item *item);
 
@@ -289,7 +289,7 @@ extern int dma_insert_item(struct dma_channel *channel,
    using dma_resume_transfer to continue dma transfer.
  * \return result code
  */
-extern int dma_append_item(struct dma_channel *channel,
+extern int dma_sg_append_item(struct dma_channel *channel,
 				struct dma_xfer_item *item);
 
 /**
@@ -300,7 +300,7 @@ extern int dma_append_item(struct dma_channel *channel,
    continue dma transfer after the item was delected.
  * \return result code
  */
-extern int dma_remove_last_item(struct dma_channel *channel);
+extern int dma_sg_remove_last_item(struct dma_channel *channel);
 
 /**
  * \brief Configure DMA for a transfer of scattered data, or a transfer of
@@ -312,9 +312,9 @@ extern int dma_remove_last_item(struct dma_channel *channel);
  * NULL if the list was allocated from linked list pool.
  * \return result code
  */
-extern int dma_configure_sg_transfer(struct dma_channel *channel,
-					  struct dma_xfer_item_tmpl *tmpl,
-					  struct dma_xfer_item *desc_list);
+extern int dma_sg_configure_transfer(struct dma_channel *channel,
+				     struct dma_xfer_item_tmpl *tmpl,
+				     struct dma_xfer_item *desc_list);
 
 /**
  * \brief Stop DMA transfer.
@@ -378,13 +378,13 @@ extern struct dma_xfer_item* dma_get_desc_addr(struct dma_channel *channel);
  * \return linked list pointer if allocation successful, or NULL if allocation
  * failed.
  */
-extern struct dma_xfer_item* dma_allocate_item(struct dma_channel *channel);
+extern struct dma_xfer_item* dma_sg_allocate_item(struct dma_channel *channel);
 
 /**
  * \brief Free all linked list elements for the relevant channel
  * \param channel Channel pointer
  */
-extern void dma_free_item(struct dma_channel *channel);
+extern void dma_sg_free_item(struct dma_channel *channel);
 /**     @}*/
 
 #endif /* _DMA_H_ */

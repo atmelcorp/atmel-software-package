@@ -250,12 +250,12 @@ static void _configure_transfer(void)
 			item_cfg.chunk_size = DMA_CHUNK_SIZE_1;
 			item_cfg.blk_size = MICROBLOCK_LEN;
 
-			dma_prepare_item(dma_chan, &item_cfg, &dma_link_list[i]);
-			dma_link_item(dma_chan, &dma_link_list[i], &dma_link_list[i + 1]);
+			dma_sg_prepare_item(dma_chan, &item_cfg, &dma_link_list[i]);
+			dma_sg_link_item(dma_chan, &dma_link_list[i], &dma_link_list[i + 1]);
 		}
-		dma_link_item(dma_chan, &dma_link_list[i - 1], NULL);
+		dma_sg_link_item(dma_chan, &dma_link_list[i - 1], NULL);
 		cache_clean_region(dma_link_list, sizeof(dma_link_list));
-		dma_configure_sg_transfer(dma_chan, &item_cfg, dma_link_list);
+		dma_sg_configure_transfer(dma_chan, &item_cfg, dma_link_list);
 	}
 	dma_set_callback(dma_chan, _dma_callback, NULL);
 

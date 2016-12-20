@@ -218,7 +218,7 @@ static void dmacd_handler(uint32_t source, void* user_arg)
 		/* Execute callback */
 		if (exec && channel->callback) {
 			channel->callback(channel, channel->user_arg);
-			dma_free_item((struct dma_channel *)channel);
+			dma_sg_free_item((struct dma_channel *)channel);
 		}
 	}
 }

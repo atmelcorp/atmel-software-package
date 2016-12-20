@@ -138,8 +138,8 @@ static void _aesd_transfer_buffer_dma(struct _aesd_desc* desc)
 	remains = desc->xfer.bufin->size;
 
 	for (;;) {
-		ll = dma_allocate_item(desc->xfer.dma.tx.channel);
-		blk_size = (remains / width_in_byte) <= DMA_MAX_BLOCK_LEN 
+		ll = dma_sg_allocate_item(desc->xfer.dma.tx.channel);
+		blk_size = (remains / width_in_byte) <= DMA_MAX_BLOCK_LEN
 					? (remains / width_in_byte) : DMA_MAX_BLOCK_LEN;
 		cfg.sa = (void *)((desc->xfer.bufin->data) + offset);
 		cfg.da = (void *)AES->AES_IDATAR;
@@ -147,28 +147,28 @@ static void _aesd_transfer_buffer_dma(struct _aesd_desc* desc)
 		cfg.upd_da_per_data = 0;
 		cfg.upd_sa_per_blk  = 1;
 		cfg.upd_da_per_blk  = 0;
-		/* The data size depends on the mode of operation, and is listed 
+		/* The data size depends on the mode of operation, and is listed
 		in Datasheet Table 49-3.*/
 		cfg.data_width = _aesd_get_dma_data_width(desc);
 		cfg.chunk_size = _aesd_get_dma_chunk_size(desc);
 		cfg.blk_size = blk_size;
 		offset += blk_size * width_in_byte;
 		remains -= blk_size * width_in_byte;
-		dma_prepare_item(desc->xfer.dma.tx.channel, &cfg, ll);
-		dma_link_last_item(desc->xfer.dma.tx.channel, ll);
+		dma_sg_prepare_item(desc->xfer.dma.tx.channel, &cfg, ll);
+		dma_sg_link_last_item(desc->xfer.dma.tx.channel, ll);
 		if (!remains)
 			break;
 	}
-	dma_link_item(desc->xfer.dma.tx.channel, ll, NULL);
-	dma_configure_sg_transfer(desc->xfer.dma.tx.channel, &cfg, NULL);
+	dma_sg_link_item(desc->xfer.dma.tx.channel, ll, NULL);
+	dma_sg_configure_transfer(desc->xfer.dma.tx.channel, &cfg, NULL);
 	dma_set_callback(desc->xfer.dma.tx.channel, _aesd_dma_callback, (void*)desc);
 
 	dma_reset_channel(desc->xfer.dma.rx.channel);
 	remains = desc->xfer.bufout->size;
 	offset = 0;
 	for (;;) {
-		ll = dma_allocate_item(desc->xfer.dma.rx.channel);
-		blk_size = (remains / width_in_byte) <= DMA_MAX_BLOCK_LEN 
+		ll = dma_sg_allocate_item(desc->xfer.dma.rx.channel);
+		blk_size = (remains / width_in_byte) <= DMA_MAX_BLOCK_LEN
 					? (remains / width_in_byte) : DMA_MAX_BLOCK_LEN;
 		cfg.sa = (void *)AES->AES_ODATAR;
 		cfg.da = (void *)((desc->xfer.bufout->data) + offset);
@@ -176,20 +176,20 @@ static void _aesd_transfer_buffer_dma(struct _aesd_desc* desc)
 		cfg.upd_da_per_data = 1;
 		cfg.upd_sa_per_blk  = 0;
 		cfg.upd_da_per_blk  = 1;
-		/* The data size depends on the mode of operation, and is listed in 
+		/* The data size depends on the mode of operation, and is listed in
 		Datasheet Table 49-3.*/
 		cfg.data_width = _aesd_get_dma_data_width(desc);
 		cfg.chunk_size = _aesd_get_dma_chunk_size(desc);
 		cfg.blk_size = blk_size;
 		offset += blk_size * width_in_byte;
 		remains -= blk_size * width_in_byte;
-		dma_prepare_item(desc->xfer.dma.rx.channel, &cfg, ll);
-		dma_link_last_item(desc->xfer.dma.rx.channel, ll);
+		dma_sg_prepare_item(desc->xfer.dma.rx.channel, &cfg, ll);
+		dma_sg_link_last_item(desc->xfer.dma.rx.channel, ll);
 		if (!remains)
 			break;
 	}
-	dma_link_item(desc->xfer.dma.rx.channel, ll, NULL);
-	dma_configure_sg_transfer(desc->xfer.dma.rx.channel, &cfg, NULL);
+	dma_sg_link_item(desc->xfer.dma.rx.channel, ll, NULL);
+	dma_sg_configure_transfer(desc->xfer.dma.rx.channel, &cfg, NULL);
 
 	dma_set_callback(desc->xfer.dma.rx.channel, _aesd_dma_callback, (void*)desc);
 	dma_start_transfer(desc->xfer.dma.tx.channel);
@@ -266,7 +266,7 @@ uint32_t aesd_transfer(struct _aesd_desc* desc, struct _buffer* buffer_in,
 
 	assert(!(desc->xfer.bufin->size % _aesd_get_size_per_trans(desc)));
 	assert(!(desc->xfer.bufout->size % _aesd_get_size_per_trans(desc)));
-	
+
 	if (!mutex_try_lock(&desc->mutex)) {
 		trace_error("AESD mutex already locked!\r\n");
 		return ADES_ERROR_LOCK;
@@ -327,4 +327,3 @@ void aesd_init(struct _aesd_desc* desc)
 	desc->xfer.dma.rx.channel = dma_allocate_channel(ID_AES, DMA_PERIPH_MEMORY);
 	assert(desc->xfer.dma.rx.channel);
 }
-
