@@ -239,8 +239,13 @@ static void _classd_polling_transfer(struct _classd_desc* desc, struct _buffer* 
 
 	while (1) {
 		if (desc->addr->CLASSD_ISR & CLASSD_ISR_DATRDY) {
-			desc->addr->CLASSD_THR = *current;
-			current++;
+			uint16_t left = 0, right = 0;
+			if (desc->left_enable)
+				left = *current++;
+			if (desc->right_enable)
+				right = *current++;
+			desc->addr->CLASSD_THR = CLASSD_THR_RDATA(right)
+			                       | CLASSD_THR_LDATA(left);
 		}
 		if (current >= end)
 			break;
