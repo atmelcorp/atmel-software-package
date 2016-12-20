@@ -94,9 +94,14 @@
 /*----------------------------------------------------------------------------
  *         Macro
  *----------------------------------------------------------------------------*/
+#ifdef CONFIG_HAVE_XDMAC_DATA_WIDTH_DWORD
 #define XDMA_GET_DATASIZE(size) ((size==0)? XDMAC_CC_DWIDTH_BYTE : \
                                 ((size==1)? XDMAC_CC_DWIDTH_HALFWORD : \
                                 ((size==2)? XDMAC_CC_DWIDTH_WORD : XDMAC_CC_DWIDTH_DWORD )))
+#else
+#define XDMA_GET_DATASIZE(size) ((size==0)? XDMAC_CC_DWIDTH_BYTE : \
+                                ((size==1)? XDMAC_CC_DWIDTH_HALFWORD : XDMAC_CC_DWIDTH_WORD ))
+#endif
 #define XDMA_GET_CC_SAM(s)      ((s==0)? XDMAC_CC_SAM_FIXED_AM : \
                                 ((s==1)? XDMAC_CC_SAM_INCREMENTED_AM : \
                                 ((s==2)? XDMAC_CC_SAM_UBS_AM : XDMAC_CC_SAM_UBS_DS_AM )))

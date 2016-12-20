@@ -64,7 +64,8 @@
 #define DMA_DATA_WIDTH_BYTE        0
 #define DMA_DATA_WIDTH_HALF_WORD   1
 #define DMA_DATA_WIDTH_WORD        2
-#if defined(CONFIG_HAVE_XDMAC) || defined(DMAC_CTRLA_DST_WIDTH_DWORD)
+#if defined(CONFIG_HAVE_XDMAC_DATA_WIDTH_DWORD) ||\
+    defined(CONFIG_HAVE_DMAC_DATA_WIDTH_DWORD)
 #define DMA_DATA_WIDTH_DWORD       3
 #endif
 

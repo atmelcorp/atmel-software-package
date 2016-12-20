@@ -179,7 +179,7 @@ static void _display_menu(void)
 	c[0] = (dma_data_width == 0) ? 'X' : ' ';
 	c[1] = (dma_data_width == 1) ? 'X' : ' ';
 	c[2] = (dma_data_width == 2) ? 'X' : ' ';
-#ifdef DMAC_CTRLA_DST_WIDTH_DWORD
+#ifdef CONFIG_HAVE_DMAC_DATA_WIDTH_DWORD
 	c[3] = (dma_data_width == 3) ? 'X' : ' ';
 	printf("|   a: BYTE[%c] b: HALFWORD[%c] c: WORD[%c] d: DWORD[%c]          |\r\n",
 	       c[0], c[1], c[2], c[3]);
@@ -340,7 +340,11 @@ extern int main(void)
 	_display_menu();
 	while (1) {
 		key = console_get_char();
+#ifdef CONFIG_HAVE_DMAC_DATA_WIDTH_DWORD
 		if (key >= 'a' && key <= 'd') {
+#else
+		if (key >= 'a' && key <= 'c') {
+#endif
 			dma_data_width = key - 'a';
 			_display_menu();
 		} else if (key >= '0' && key <= '1') {
