@@ -29,21 +29,21 @@
 
 #ifdef CONFIG_HAVE_SHA
 
-#include <stdint.h>
-
-#include "chip.h"
-#include "trace.h"
-#include "compiler.h"
-#include "intmath.h"
-#include "plugin_sha.h"
-#include "mm/cache.h"
-#include "irq/irq.h"
-#include "peripherals/pmc.h"
-#include "dma/dma.h"
-#include "crypto/sha.h"
-
 #include <assert.h>
+#include <stdint.h>
 #include <string.h>
+
+#include "callback.h"
+#include "chip.h"
+#include "compiler.h"
+#include "crypto/sha.h"
+#include "dma/dma.h"
+#include "intmath.h"
+#include "irq/irq.h"
+#include "mm/cache.h"
+#include "peripherals/pmc.h"
+#include "plugin_sha.h"
+#include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Local variables
@@ -58,12 +58,13 @@ static volatile bool busy = false;
 /**
  * \brief DMA callback for sha transfer.
  */
-static void sha_dma_callback(struct dma_channel *channel, void *arg)
+static int _sha_dma_callback(void *arg)
 {
-	struct sha_set *set = (struct sha_set*) arg;
-	(void) channel;
+	struct sha_set* set = (struct sha_set*)arg;
 	assert(set);
 	mutex_unlock(&set->dma_unlocks_mutex);
+
+	return 0;
 }
 
 /**
@@ -246,12 +247,14 @@ void sha_plugin_initialize(struct sha_set *set, bool use_dma)
 
 	memset(set->pending_data, 0, 128);
 	if (use_dma) {
+		struct _callback _cb;
 		/* Allocate a DMA channel, Write accesses into SHA_IDATARx */
 		set->dma_ch = dma_allocate_channel(DMA_PERIPH_MEMORY,
 		    ID_SHA);
 		if (!set->dma_ch)
 			trace_error("Couldn't allocate DMA channel\n\r");
-		dma_set_callback(set->dma_ch, sha_dma_callback, set);
+		callback_set(&_cb, _sha_dma_callback, set);
+		dma_set_callback(set->dma_ch, &_cb);
 	}
 	/* Enable peripheral clock */
 	pmc_configure_peripheral(ID_SHA, NULL, true);

@@ -195,19 +195,21 @@ static bool _set_mono_bits(bool mono, enum _classd_mono mono_mode, volatile uint
 	return true;
 }
 
-static void _classd_dma_transfer_callback(struct dma_channel* channel, void* args)
+static int _classd_dma_transfer_callback(void* arg)
 {
-	struct _classd_desc* desc = (struct _classd_desc *)args;
+	struct _classd_desc* desc = (struct _classd_desc*)arg;
 
-	dma_reset_channel(channel);
+	dma_reset_channel(desc->tx.dma.channel);
 
 	mutex_unlock(&desc->tx.mutex);
 
-	callback_call(&desc->tx.callback);
+	return callback_call(&desc->tx.callback);
 }
 
 static void _classd_dma_transfer(struct _classd_desc* desc, struct _buffer* buffer)
 {
+	struct _callback _cb;
+
 	memset(&desc->tx.dma.cfg, 0x0, sizeof(desc->tx.dma.cfg));
 
 	desc->tx.dma.cfg.sa = buffer->data;
@@ -225,7 +227,8 @@ static void _classd_dma_transfer(struct _classd_desc* desc, struct _buffer* buff
 		desc->tx.dma.cfg.len = buffer->size / 2;
 	}
 	dma_configure_transfer(desc->tx.dma.channel, &desc->tx.dma.cfg);
-	dma_set_callback(desc->tx.dma.channel, _classd_dma_transfer_callback, (void*)desc);
+	callback_set(&_cb, _classd_dma_transfer_callback, (void*)desc);
+	dma_set_callback(desc->tx.dma.channel, &_cb);
 	cache_clean_region(desc->tx.dma.cfg.sa, desc->tx.dma.cfg.len);
 	dma_start_transfer(desc->tx.dma.channel);
 }

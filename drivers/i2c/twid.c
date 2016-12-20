@@ -172,17 +172,17 @@ static int _twid_wait_twi_transfer(struct _twi_desc* desc)
 	return 0;
 }
 
-static void _twid_dma_read_callback(struct dma_channel* channel, void* args)
+static int _twid_dma_read_callback(void* arg)
 {
-	struct _twi_desc* desc = (struct _twi_desc *)args;
+	struct _twi_desc* desc = (struct _twi_desc *)arg;
 
 	cache_invalidate_region(desc->dma.rx.cfg.da, desc->dma.rx.cfg.len);
 
-	dma_free_channel(channel);
+	dma_free_channel(desc->dma.rx.channel);
 
 	if (_check_rx_timeout(desc)) {
 		mutex_unlock(&desc->mutex);
-		return;
+		return -ETIMEDOUT;
 	}
 
 	if (desc->flags & TWID_BUF_ATTR_STOP)
@@ -198,7 +198,7 @@ static void _twid_dma_read_callback(struct dma_channel* channel, void* args)
 
 		if (_check_rx_timeout(desc)) {
 			mutex_unlock(&desc->mutex);
-			return;
+			return -ETIMEDOUT;
 		}
 
 		((uint8_t*)desc->dma.rx.cfg.da)[desc->dma.rx.cfg.len + 1] = twi_read_byte(desc->addr);
@@ -207,10 +207,13 @@ static void _twid_dma_read_callback(struct dma_channel* channel, void* args)
 	mutex_unlock(&desc->mutex);
 
 	callback_call(&desc->callback);
+
+	return 0;
 }
 
 static void _twid_dma_read(struct _twi_desc* desc, struct _buffer* buffer)
 {
+	struct _callback _cb;
 	memset(&desc->dma.rx.cfg, 0, sizeof(desc->dma.rx.cfg));
 
 	dma_reset_channel(desc->dma.rx.channel);
@@ -243,22 +246,23 @@ static void _twid_dma_read(struct _twi_desc* desc, struct _buffer* buffer)
 #endif
 	desc->dma.rx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
 	dma_configure_transfer(desc->dma.rx.channel, &desc->dma.rx.cfg);
-	dma_set_callback(desc->dma.rx.channel, _twid_dma_read_callback, (void*)desc);
+	callback_set(&_cb, _twid_dma_read_callback, (void*)desc);
+	dma_set_callback(desc->dma.rx.channel, &_cb);
 	dma_start_transfer(desc->dma.rx.channel);
 
 	if (desc->flags & TWID_BUF_ATTR_START)
 		twi_send_start_condition(desc->addr);
 }
 
-static void _twid_dma_write_callback(struct dma_channel* channel, void* args)
+static int _twid_dma_write_callback(void* arg)
 {
-	struct _twi_desc* desc = (struct _twi_desc *)args;
+	struct _twi_desc* desc = (struct _twi_desc *)arg;
 
-	dma_free_channel(channel);
+	dma_free_channel(desc->dma.tx.channel);
 
 	if (_check_tx_timeout(desc)) {
 		mutex_unlock(&desc->mutex);
-		return;
+		return -ETIMEDOUT;
 	}
 
 	if (desc->flags & TWID_BUF_ATTR_STOP)
@@ -272,10 +276,14 @@ static void _twid_dma_write_callback(struct dma_channel* channel, void* args)
 	mutex_unlock(&desc->mutex);
 
 	callback_call(&desc->callback);
+
+	return 0;
 }
 
 static void _twid_dma_write(struct _twi_desc* desc, struct _buffer* buffer)
 {
+	struct _callback _cb;
+
 	memset(&desc->dma.tx.cfg, 0x0, sizeof(desc->dma.tx.cfg));
 
 	dma_reset_channel(desc->dma.tx.channel);
@@ -307,7 +315,8 @@ static void _twid_dma_write(struct _twi_desc* desc, struct _buffer* buffer)
 #endif
 	desc->dma.tx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
 	dma_configure_transfer(desc->dma.tx.channel, &desc->dma.tx.cfg);
-	dma_set_callback(desc->dma.tx.channel, _twid_dma_write_callback, (void*)desc);
+	callback_set(&_cb, _twid_dma_write_callback, (void*)desc);
+	dma_set_callback(desc->dma.tx.channel, &_cb);
 	cache_clean_region(desc->dma.tx.cfg.sa, desc->dma.tx.cfg.len);
 	dma_start_transfer(desc->dma.tx.channel);
 }

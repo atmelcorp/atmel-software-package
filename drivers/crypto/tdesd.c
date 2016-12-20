@@ -27,20 +27,23 @@
  * ----------------------------------------------------------------------------
  */
 
-
-#include "irq/irq.h"
-#include "peripherals/pmc.h"
-#include "crypto/tdes.h"
-#include "crypto/tdesd.h"
-#include "dma/dma.h"
-#include "mm/cache.h"
-
-#include "trace.h"
+/*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
 
 #include <stddef.h>
 #include <stdint.h>
 #include <assert.h>
 #include <string.h>
+
+#include "callback.h"
+#include "crypto/tdes.h"
+#include "crypto/tdesd.h"
+#include "dma/dma.h"
+#include "irq/irq.h"
+#include "mm/cache.h"
+#include "peripherals/pmc.h"
+#include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Local variables
@@ -52,15 +55,18 @@ volatile static bool single_transfer_ready;
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-static void _tdesd_dma_callback(struct dma_channel *channel, void *arg)
+static int _tdesd_dma_rx_callback(void* arg)
 {
 	struct _tdesd_desc* desc = (struct _tdesd_desc*)arg;
-	/* For read, invalidate region */
-	if (channel == desc->xfer.dma.rx.channel) {
-		cache_invalidate_region((uint32_t*)desc->xfer.bufout->data,
-								desc->xfer.bufout->size);
-		mutex_unlock(&desc->mutex);
-	}
+
+	/* To read, invalidate region */
+	dma_reset_channel(desc->xfer.dma.tx.channel);
+	dma_reset_channel(desc->xfer.dma.rx.channel);
+	cache_invalidate_region((uint32_t*)desc->xfer.bufout->data,
+				desc->xfer.bufout->size);
+	mutex_unlock(&desc->mutex);
+
+	return callback_call(&desc->xfer.callback);
 }
 
 /* Operation Mode Chunk Size Destination/Source Data Transfer Type
@@ -93,10 +99,9 @@ static void _tdesd_transfer_buffer_dma(struct _tdesd_desc* desc)
 	uint32_t remains, offset;
 	uint32_t width_in_byte;
 	uint32_t blk_size;
+	struct _callback _cb;
 
-	dma_reset_channel(desc->xfer.dma.tx.channel);
-	cache_clean_region((uint32_t*)desc->xfer.bufin->data,
-						desc->xfer.bufin->size);
+	cache_clean_region((uint32_t*)desc->xfer.bufin->data, desc->xfer.bufin->size);
 
 	remains = desc->xfer.bufin->size;
 	width_in_byte = DMA_DATA_WIDTH_IN_BYTE(_tdesd_get_dma_data_width(desc));
@@ -124,9 +129,8 @@ static void _tdesd_transfer_buffer_dma(struct _tdesd_desc* desc)
 	}
 	dma_sg_link_item(desc->xfer.dma.tx.channel, ll, NULL);
 	dma_sg_configure_transfer(desc->xfer.dma.tx.channel, &cfg, NULL);
-	dma_set_callback(desc->xfer.dma.tx.channel, _tdesd_dma_callback, (void*)desc);
+	dma_set_callback(desc->xfer.dma.tx.channel, NULL);
 
-	dma_reset_channel(desc->xfer.dma.rx.channel);
 	remains = desc->xfer.bufout->size;
 	offset = 0;
 
@@ -153,15 +157,12 @@ static void _tdesd_transfer_buffer_dma(struct _tdesd_desc* desc)
 	dma_sg_link_item(desc->xfer.dma.rx.channel, ll, NULL);
 	dma_sg_configure_transfer(desc->xfer.dma.rx.channel, &cfg, NULL);
 
-	dma_set_callback(desc->xfer.dma.rx.channel, _tdesd_dma_callback, (void*)desc);
+	callback_set(&_cb, _tdesd_dma_rx_callback, (void*)desc);
+	dma_set_callback(desc->xfer.dma.rx.channel, &_cb);
 	dma_start_transfer(desc->xfer.dma.tx.channel);
 	dma_start_transfer(desc->xfer.dma.rx.channel);
 
 	tdesd_wait_transfer(desc);
-	dma_free_channel(desc->xfer.dma.tx.channel);
-	dma_free_channel(desc->xfer.dma.rx.channel);
-	if (desc->xfer.callback)
-		desc->xfer.callback(desc->xfer.cb_args);
 }
 
 static void _tdesd_handler(uint32_t source, void* user_arg)
@@ -213,13 +214,29 @@ static void _tdesd_transfer_buffer_polling(struct _tdesd_desc* desc)
 		else
 			tdes_get_output((uint32_t *)((desc->xfer.bufout->data) + i), NULL);
 	}
-	if (desc->xfer.callback)
-			desc->xfer.callback(desc->xfer.cb_args);
 	mutex_unlock(&desc->mutex);
+	callback_call(&desc->xfer.callback);
 }
 
-static void _tdesd_transfer_buffer(struct _tdesd_desc* desc)
+/*----------------------------------------------------------------------------
+ *        Public functions
+ *----------------------------------------------------------------------------*/
+
+uint32_t tdesd_transfer(struct _tdesd_desc* desc, struct _buffer* buffer_in,
+			struct _buffer* buffer_out, struct _callback* cb)
 {
+	desc->xfer.bufin = buffer_in;
+	desc->xfer.bufout = buffer_out;
+	callback_copy(&desc->xfer.callback, cb);
+
+	assert(!(desc->xfer.bufin->size % (1 << _tdesd_get_dma_data_width(desc))));
+	assert(!(desc->xfer.bufout->size % (1 << _tdesd_get_dma_data_width(desc))));
+
+	if (!mutex_try_lock(&desc->mutex)) {
+		trace_error("AESD mutex already locked!\r\n");
+		return ADES_ERROR_LOCK;
+	}
+
 	switch (desc->cfg.transfer_mode) {
 	case TDESD_TRANS_POLLING_MANUAL:
 	case TDESD_TRANS_POLLING_AUTO:
@@ -231,29 +248,9 @@ static void _tdesd_transfer_buffer(struct _tdesd_desc* desc)
 		break;
 
 	default:
+		mutex_unlock(&desc->mutex);
 		trace_fatal("Unknown AES transfer mode\r\n");
 	}
-}
-
-/*----------------------------------------------------------------------------
- *        Public functions
- *----------------------------------------------------------------------------*/
-uint32_t tdesd_transfer(struct _tdesd_desc* desc, struct _buffer* buffer_in,
-	struct _buffer* buffer_out, tdesd_callback_t cb, void* user_args)
-{
-	desc->xfer.bufin = buffer_in;
-	desc->xfer.bufout = buffer_out;
-	desc->xfer.callback = cb;
-	desc->xfer.cb_args = user_args;
-
-	assert(!(desc->xfer.bufin->size % (1 << _tdesd_get_dma_data_width(desc))));
-	assert(!(desc->xfer.bufout->size % (1 << _tdesd_get_dma_data_width(desc))));
-
-	if (!mutex_try_lock(&desc->mutex)) {
-		trace_error("AESD mutex already locked!\r\n");
-		return ADES_ERROR_LOCK;
-	}
-	_tdesd_transfer_buffer(desc);
 
 	return TDESD_SUCCESS;
 }

@@ -231,10 +231,12 @@ static void _display_menu(void)
 /**
  * \brief Callback function called when DMA transfer is completed
  */
-static void _dma_callback(struct _xdmacd_channel *channel, void *arg)
+static int _dma_callback(void *arg)
 {
 	trace_info("DMA transfer complete\r\n");
 	transfer_complete = true;
+
+	return 0;
 }
 
 /**
@@ -355,6 +357,7 @@ static void _configure_transfer(void)
 	struct _xdmacd_cfg xdmacd_cfg;
 	void* xdmacd_desc = NULL;
 	uint32_t desc_size;
+	struct _callback _cb;
 
 	if (dma_mode != XDMA_LL) {
 		xdmacd_cfg.ubc = MICROBLOCK_LEN;
@@ -436,7 +439,8 @@ static void _configure_transfer(void)
 				xdmacd_desc);
 	}
 
-	xdmacd_set_callback(xdmacd_channel, _dma_callback, NULL);
+	callback_set(&_cb, _dma_callback, NULL);
+	xdmacd_set_callback(xdmacd_channel, &_cb);
 
 	printf("- Press 't' to perform xDMA transfer...\r\n");
 }

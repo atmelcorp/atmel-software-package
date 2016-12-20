@@ -210,10 +210,12 @@ static void _display_menu(void)
 /**
  * \brief Callback function called when DMA transfer is completed
  */
-static void _dma_callback(struct _dmacd_channel *channel, void *arg)
+static int _dma_callback(void *arg)
 {
 	trace_info("DMAC transfer complete\r\n");
 	transfer_complete = true;
+
+	return 0;
 }
 
 /**
@@ -223,6 +225,7 @@ static void _configure_transfer(void)
 {
 	uint8_t i;
 	struct _dmacd_cfg dma_cfg;
+	struct _callback _cb;
 	
 	if (dma_mode != DMA_LL) {
 		dma_cfg.s_decr_fetch = 1;
@@ -272,7 +275,8 @@ static void _configure_transfer(void)
 		cache_clean_region(dma_descs, sizeof(dma_descs));
 		dmacd_configure_transfer(dmacd_channel, &dma_cfg, &dma_descs[0]);
 	}
-	dmacd_set_callback(dmacd_channel, _dma_callback, NULL);
+	callback_set(&_cb, _dma_callback, NULL);
+	dmacd_set_callback(dmacd_channel, &_cb);
 
 	printf("- Press 't' to perform DMAC transfer...\r\n");
 }

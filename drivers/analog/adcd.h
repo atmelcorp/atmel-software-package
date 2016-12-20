@@ -36,10 +36,11 @@
  *----------------------------------------------------------------------------*/
 
 #include <stdint.h>
-#include "mutex.h"
-#include "io.h"
 
+#include "callback.h"
 #include "dma/dma.h"
+#include "io.h"
+#include "mutex.h"
 
 /*------------------------------------------------------------------------------
  *        Types
@@ -48,8 +49,6 @@
 #define ADCD_SUCCESS         (0)
 #define ADCD_ERROR_LOCK      (1)
 #define ADCD_ERROR_TRANSFER  (2)
-
-typedef void (*adcd_callback_t)(void* args);
 
 /** ADC trigger modes */
 enum _trg_mode
@@ -95,8 +94,7 @@ struct _adcd_desc {
 	/* structure to hold data about current transfer */
 	struct {
 		struct _buffer *buf;        /*< buffer output */
-		adcd_callback_t callback;
-		void* cb_args;
+		struct _callback callback;
 
 		struct {
 			struct dma_channel *channel;
@@ -108,14 +106,12 @@ struct _adcd_desc {
 /*------------------------------------------------------------------------------
  *        Functions
  *----------------------------------------------------------------------------*/
+
 extern void adcd_configure_mode(struct _adcd_desc* desc);
 
 extern void adcd_initialize(struct _adcd_desc* desc);
 
-extern uint32_t adcd_transfer(struct _adcd_desc* desc,
-							  struct _buffer* buffer,
-							  adcd_callback_t cb,
-							  void* user_args);
+extern uint32_t adcd_transfer(struct _adcd_desc* desc, struct _buffer* buffer, struct _callback* cb);
 
 extern bool adcd_is_busy(struct _adcd_desc* desc);
 

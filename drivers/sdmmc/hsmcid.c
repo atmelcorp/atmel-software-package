@@ -307,16 +307,16 @@ static uint8_t hsmci_cancel_command(struct hsmci_set *set)
 	return SDMMC_OK;
 }
 
-static void _hsmci_dma_callback_wrapper(struct dma_channel *channel,
-	void *arg)
+static int _hsmci_dma_callback_wrapper(void *arg)
 {
-	struct hsmci_set *set = (struct hsmci_set*) arg;
+	struct hsmci_set* set = (struct hsmci_set*) arg;
 
-	(void) channel;
 	assert(set);
 	assert(set->regs);
 	mutex_unlock(&set->dma_unlocks_mutex);
 	hsmci_enable_it(set->regs, HSMCI_IER_XFRDONE);
+
+	return 0;
 }
 
 /**
@@ -352,18 +352,21 @@ static uint8_t hsmci_release_dma(struct hsmci_set *set)
 static uint8_t hsmci_prepare_dma(struct hsmci_set *set, uint8_t bRd)
 {
 	uint32_t rc;
+	struct _callback _cb;
 
 	assert(set);
 	if (!bRd) {
 		set->dma_tx_channel = dma_allocate_channel(DMA_PERIPH_MEMORY, set->id);
 		if (!set->dma_tx_channel)
 			return SDMMC_ERROR_BUSY;
-		rc = dma_set_callback(set->dma_tx_channel, _hsmci_dma_callback_wrapper, set);
+		callback_set(&_cb, _hsmci_dma_callback_wrapper, set);
+		rc = dma_set_callback(set->dma_tx_channel, &_cb);
 	} else {
 		set->dma_rx_channel = dma_allocate_channel(set->id, DMA_PERIPH_MEMORY);
 		if (!set->dma_rx_channel)
 			return SDMMC_ERROR_BUSY;
-		rc = dma_set_callback(set->dma_rx_channel, _hsmci_dma_callback_wrapper, set);
+		callback_set(&_cb, _hsmci_dma_callback_wrapper, set);
+		rc = dma_set_callback(set->dma_rx_channel, &_cb);
 	}
 	if (rc != 0) {
 		hsmci_release_dma(set);

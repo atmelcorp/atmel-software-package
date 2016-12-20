@@ -459,9 +459,10 @@ static void _pwm_demo_asynchronous_channel(bool init, uint8_t channel, uint32_t 
 /**
  * \brief PWM call-back routine for DMA operations
  */
-static void _pwmc_callback(void* args)
+static int _pwmc_callback(void* arg)
 {
 	trace_debug("PWM DMA Transfer Finished\r\n");
+	return 0;
 }
 
 /**
@@ -471,6 +472,7 @@ static void _pwm_demo_dma(uint8_t channel, uint32_t cprd)
 {
 	int i;
 	bool flag = false;
+	struct _callback _cb;
 
 	pwmc_disable_channel(PWM_ADDR, channel);
 	pwmc_configure_sync_channels(PWM_ADDR,
@@ -487,7 +489,8 @@ static void _pwm_demo_dma(uint8_t channel, uint32_t cprd)
 			flag = !flag;
 		duty_buffer[i] = flag ? (i % cprd) : (cprd - (i % cprd));
 	}
-	pwmc_set_dma_finished_callback(PWM_ADDR, _pwmc_callback, 0);
+	callback_set(&_cb, _pwmc_callback, 0);
+	pwmc_set_dma_finished_callback(PWM_ADDR, &_cb);
 	pwmc_dma_duty_cycle(PWM_ADDR, duty_buffer, ARRAY_SIZE(duty_buffer));
 }
 
@@ -622,7 +625,7 @@ int main(void)
 				pwmc_configure_sync_channels(PWM_ADDR, 0);
 #endif/* CONFIG_HAVE_PWMC_SYNC_MODE */
 #ifdef CONFIG_HAVE_PWMC_DMA
-				pwmc_set_dma_finished_callback(PWM_ADDR, NULL, 0);
+				pwmc_set_dma_finished_callback(PWM_ADDR, NULL);
 #endif /* CONFIG_HAVE_PWMC_DMA */
 #ifdef CONFIG_HAVE_PWMC_STEPPER_MOTOR
 				pwmc_configure_stepper_motor_mode(PWM_ADDR, 0);

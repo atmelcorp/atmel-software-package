@@ -51,18 +51,24 @@ volatile static bool single_transfer_ready;
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-static void _adcd_dma_callback(struct dma_channel *channel, void *arg)
+static int _adcd_dma_callback(void *arg)
 {
 	struct _adcd_desc* desc = (struct _adcd_desc*)arg;
 
 	/* For read, invalidate region */
 	cache_invalidate_region((uint32_t*)desc->xfer.buf->data, desc->xfer.buf->size);
+
 	mutex_unlock(&desc->mutex);
+
+	callback_call(&desc->xfer.callback);
+
+	return 0;
 }
 
 static void _adcd_transfer_buffer_dma(struct _adcd_desc* desc)
 {
 	struct dma_xfer_cfg cfg;
+	struct _callback _cb;
 
 	adc_start_conversion();
 
@@ -78,14 +84,12 @@ static void _adcd_transfer_buffer_dma(struct _adcd_desc* desc)
 	cfg.len = desc->xfer.buf->size;
 
 	dma_configure_transfer(desc->xfer.dma.channel, &cfg);
-
-	dma_set_callback(desc->xfer.dma.channel, _adcd_dma_callback, (void*)desc);
+	callback_set(&_cb, _adcd_dma_callback, desc);
+	dma_set_callback(desc->xfer.dma.channel, &_cb);
 	dma_start_transfer(desc->xfer.dma.channel);
 
 	adcd_wait_transfer(desc);
 	dma_free_channel(desc->xfer.dma.channel);
-	if (desc->xfer.callback)
-		desc->xfer.callback(desc->xfer.cb_args);
 }
 
 /**
@@ -133,8 +137,7 @@ static void _adcd_transfer_buffer_polling(struct _adcd_desc* desc)
 
 	while(!single_transfer_ready);
 	mutex_unlock(&desc->mutex);
-	if (desc->xfer.callback)
-		desc->xfer.callback(desc->xfer.cb_args);
+	callback_call(&desc->xfer.callback);
 }
 
 /**
@@ -274,15 +277,13 @@ void adcd_initialize(struct _adcd_desc* desc)
 	assert(desc->xfer.dma.channel);
 }
 
-uint32_t adcd_transfer(struct _adcd_desc* desc, struct _buffer* buffer,
-		       adcd_callback_t cb, void* user_args)
+uint32_t adcd_transfer(struct _adcd_desc* desc, struct _buffer* buffer, struct _callback* cb)
 {
 	if (!mutex_try_lock(&desc->mutex))
 		return ADCD_ERROR_LOCK;
 
 	desc->xfer.buf = buffer;
-	desc->xfer.callback = cb;
-	desc->xfer.cb_args = user_args;
+	callback_copy(&desc->xfer.callback, cb);
 	adcd_configure(desc);
 
 	if(desc->cfg.dma_enabled)

@@ -107,8 +107,7 @@ struct _dmacd_channel
 {
 	Dmac             *dmac;      /**< DMAC instance */
 	uint32_t         id;         /**< Channel ID */
-	dmacd_callback_t  callback;  /**< Callback */
-	void             *user_arg;  /**< Callback argument */
+	struct _callback callback;   /**< Callback */
 	uint8_t          src_txif;   /**< Source TX Interface ID */
 	uint8_t          src_rxif;   /**< Source RX Interface ID */
 	uint8_t          dest_txif;  /**< Destination TX Interface ID */
@@ -216,8 +215,8 @@ static void dmacd_handler(uint32_t source, void* user_arg)
 			}
 		}
 		/* Execute callback */
-		if (exec && channel->callback) {
-			channel->callback(channel, channel->user_arg);
+		if (exec) {
+			callback_call(&channel->callback);
 			dma_sg_free_item((struct dma_channel *)channel);
 		}
 	}
@@ -239,8 +238,7 @@ void dmacd_initialize(bool polling)
 			struct _dmacd_channel* channel = _dmacd_channel(dmac, chan);
 			channel->dmac = dmac;
 			channel->id = chan;
-			channel->callback = 0;
-			channel->user_arg = 0;
+			callback_set(&channel->callback, NULL, NULL);
 			channel->src_txif = 0;
 			channel->src_rxif = 0;
 			channel->dest_txif = 0;
@@ -318,16 +316,14 @@ int dmacd_free_channel(struct _dmacd_channel* channel)
 	return 0;
 }
 
-int dmacd_set_callback(struct _dmacd_channel* channel,
-		dmacd_callback_t callback, void *user_arg)
+int dmacd_set_callback(struct _dmacd_channel* channel, struct _callback* cb)
 {
 	if (channel->state == DMACD_STATE_FREE)
 		return -EPERM;
 	else if (channel->state == DMACD_STATE_STARTED)
 		return -EBUSY;
 
-	channel->callback = callback;
-	channel->user_arg = user_arg;
+	callback_copy(&channel->callback, cb);
 
 	return 0;
 }

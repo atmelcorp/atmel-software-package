@@ -40,6 +40,7 @@
 
 #include <assert.h>
 
+#include "callback.h"
 #include "compiler.h"
 #include "dma/dma.h"
 #include "errno.h"
@@ -58,19 +59,15 @@ struct _sg_item {
 /** DMA driver channel */
 struct dma_channel
 {
-#if defined(CONFIG_HAVE_XDMAC)
-	Xdmac* dmac;				/* XDMAC instance */
-#elif defined(CONFIG_HAVE_DMAC)
-	Dmac* dmac;					/* XDMAC instance */
+#if defined(CONFIG_HAVE_DMAC)
+	Dmac* dmac;  /* DMAC instance */
+#elif defined(CONFIG_HAVE_XDMAC)
+	Xdmac* dmac; /* XDMAC instance */
 #endif
-	uint32_t id;				/* Channel ID */
+	uint32_t id; /* Channel ID */
 
-#if defined(CONFIG_HAVE_XDMAC)
-	xdmacd_callback_t callback;	/* Callback */
-#elif defined(CONFIG_HAVE_DMAC)
-	dmacd_callback_t callback;	/* Callback */
-#endif
-	void *user_arg;				/* Callback argument */
+	struct _callback callback;	/* Callback */
+
 	uint8_t src_txif;			/* Source TX Interface ID */
 	uint8_t src_rxif;			/* Source RX Interface ID */
 	uint8_t dest_txif;			/* Destination TX Interface ID */
@@ -174,7 +171,7 @@ void dma_initialize(bool polling)
 
 struct dma_channel* dma_allocate_channel(uint8_t src, uint8_t dest)
 {
-	struct dma_channel *chan;
+	struct dma_channel* chan;
 #if defined(CONFIG_HAVE_XDMAC)
 	chan =  (struct dma_channel *)xdmacd_allocate_channel(src, dest);
 #elif defined(CONFIG_HAVE_DMAC)
@@ -197,14 +194,12 @@ int dma_free_channel(struct dma_channel *channel)
 	return status;
 }
 
-int dma_set_callback(struct dma_channel *channel, dma_callback_t callback, void *user_arg)
+int dma_set_callback(struct dma_channel *channel, struct _callback* cb)
 {
 #if defined(CONFIG_HAVE_XDMAC)
-	return xdmacd_set_callback((struct _xdmacd_channel *)channel,
-	(xdmacd_callback_t)callback, user_arg);
+	return xdmacd_set_callback((struct _xdmacd_channel *)channel, cb);
 #elif defined(CONFIG_HAVE_DMAC)
-	return dmacd_set_callback((struct _dmacd_channel *)channel,
-	(dmacd_callback_t)callback, user_arg);
+	return dmacd_set_callback((struct _dmacd_channel *)channel, cb);
 #endif
 }
 

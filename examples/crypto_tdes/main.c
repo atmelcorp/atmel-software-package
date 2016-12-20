@@ -110,20 +110,19 @@
  *----------------------------------------------------------------------------*/
 
 #include <stdint.h>
-
-#include "board.h"
-#include "compiler.h"
-#include "chip.h"
-#include "crypto/tdes.h"
-#include "crypto/tdesd.h"
-
-#include "mm/cache.h"
-#include "serial/console.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+
+#include "board.h"
+#include "callback.h"
+#include "chip.h"
+#include "compiler.h"
+#include "crypto/tdes.h"
+#include "crypto/tdesd.h"
+#include "mm/cache.h"
+#include "serial/console.h"
 
 /*----------------------------------------------------------------------------
  *        Local definitions
@@ -165,7 +164,7 @@ char example_text[DATA_LEN_INBYTE] = "\
  * between these buffers and the variables placed on a same cache line.
  * Alternatively, we might consider allocating these buffers from a
  * non-cacheable memory region. */
- 
+
 CACHE_ALIGNED static uint32_t msg_in_clear[DATA_LEN_INWORD];
 CACHE_ALIGNED static uint32_t msg_encrypted[DATA_LEN_INWORD];
 CACHE_ALIGNED static uint32_t msg_decrypted[DATA_LEN_INWORD];
@@ -179,9 +178,10 @@ static struct _tdesd_desc tdesd;
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-static void tdes_callback(void* args)
+static int _tdes_callback(void* arg)
 {
 	printf("-I- transfer completed\r\n");
+	return 0;
 }
 
 /**
@@ -193,6 +193,7 @@ static void tdes_callback(void* args)
  */
 static void process_buffer(bool encrypt, uint32_t *in, uint32_t *out)
 {
+	struct _callback _cb;
 	struct _buffer buf_in = {
 		.data = (uint8_t*)in,
 		.size = DATA_LEN_INBYTE,
@@ -215,7 +216,8 @@ static void process_buffer(bool encrypt, uint32_t *in, uint32_t *out)
 
 	tdesd_configure_mode(&tdesd);
 
-	tdesd_transfer(&tdesd, &buf_in, &buf_out, tdes_callback, NULL);
+	callback_set(&_cb, _tdes_callback, NULL);
+	tdesd_transfer(&tdesd, &buf_in, &buf_out, &_cb);
 }
 
 /**

@@ -36,10 +36,11 @@
  *----------------------------------------------------------------------------*/
 
 #include <stdint.h>
-#include "mutex.h"
-#include "io.h"
 
+#include "callback.h"
 #include "dma/dma.h"
+#include "io.h"
+#include "mutex.h"
 
 /*------------------------------------------------------------------------------
  *        Types
@@ -48,8 +49,6 @@
 #define TDESD_SUCCESS         (0)
 #define ADES_ERROR_LOCK       (1)
 #define TDESD_ERROR_TRANSFER  (2)
-
-typedef void (*tdesd_callback_t)(void* args);
 
 enum _tdesd_trans_mode
 {
@@ -98,13 +97,12 @@ struct _tdesd_desc {
 		uint32_t key[6];
 		uint32_t vector[2];
 	} cfg;
-	
+
 	/* structure to hold data about current transfer */
 	struct {
 		struct _buffer *bufin;         /*< buffer input */
 		struct _buffer *bufout;        /*< buffer output */
-		tdesd_callback_t callback;
-		void*           cb_args;
+		struct _callback callback;
 
 		struct {
 			struct {
@@ -121,9 +119,9 @@ struct _tdesd_desc {
 
 extern void tdesd_init(struct _tdesd_desc* desc);
 
-extern uint32_t tdesd_transfer(struct _tdesd_desc* desc, 
-		struct _buffer* buffer_in, struct _buffer* buffer_out, 
-		tdesd_callback_t cb, void* user_args);
+extern uint32_t tdesd_transfer(struct _tdesd_desc* desc,
+		struct _buffer* buffer_in, struct _buffer* buffer_out,
+			       struct _callback* cb);
 
 extern bool tdesd_is_busy(struct _tdesd_desc* desc);
 

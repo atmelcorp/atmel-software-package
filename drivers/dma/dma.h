@@ -36,6 +36,7 @@
 
 #include <stdbool.h>
 
+#include "callback.h"
 #include "chip.h"
 #if defined(CONFIG_HAVE_DMAC)
 #include "dma/dmacd.h"
@@ -99,12 +100,6 @@
 
 /** \addtogroup dma_structs DMA Driver Structs
 		@{*/
-
-/** DMA channel */
-struct dma_channel;
-
-/** DMA transfer completion callback */
-typedef void (*dma_callback_t)(struct dma_channel *channel, void *arg);
 
 /* Set of parameters to specify a transfer of contiguous data.
    Structure members that are zeroed will get assigned their default value.*/
@@ -212,8 +207,7 @@ extern int dma_start_transfer(struct dma_channel *channel);
  * \param callback Pointer to callback function.
  * \param user_arg Pointer to user argument for callback.
  */
-extern int dma_set_callback(struct dma_channel *channel,
-				dma_callback_t callback, void *user_arg);
+extern int dma_set_callback(struct dma_channel *channel, struct _callback* callback);
 
 /**
  * \brief Configure DMA for a transfer of contiguous data.

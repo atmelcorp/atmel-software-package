@@ -31,10 +31,12 @@
 #define _DMACD_H_
 
 #ifdef CONFIG_HAVE_DMAC
+
 /*----------------------------------------------------------------------------
  *        Includes
  *----------------------------------------------------------------------------*/
 
+#include "callback.h"
 #include "chip.h"
 #include "dma/dmac.h"
 
@@ -65,13 +67,6 @@ enum {
 	DMACD_AUTO_EN,			 /**< Auto mode is enabled */
 	DMACD_AUTO_CLEARED		 /**< Auto mode is cleared */
 };
-
-/** DMA channel */
-struct _dmacd_channel;
-
-/** DMA transfer callback */
-typedef void (*dmacd_callback_t)(struct _dmacd_channel* channel, void *arg);
-
 
 struct _dmacd_cfg {
 	uint8_t s_decr_fetch : 1;	/* Buffer Descriptor Fetch operation is disabled for the source (0 by default) */
@@ -137,8 +132,7 @@ extern int dmacd_free_channel(struct _dmacd_channel* channel);
  * \param callback Pointer to callback function.
  * \param user_arg Pointer to user argument for callback.
  */
-extern int dmacd_set_callback(struct _dmacd_channel* channel,
-				   dmacd_callback_t callback, void *user_arg);
+extern int dmacd_set_callback(struct _dmacd_channel* channel, struct _callback* cb);
 
 /**
  * \brief Configure DMA for a single transfer.

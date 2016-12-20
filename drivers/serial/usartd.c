@@ -63,23 +63,26 @@ static struct _usart_desc *_serial[USART_IFACE_COUNT];
  *        Internal functions
  *----------------------------------------------------------------------------*/
 
-static void _usartd_dma_write_callback(struct dma_channel* channel, void* args)
+static int _usartd_dma_write_callback(void* arg)
 {
-	uint8_t iface = (uint32_t)args;
+	uint8_t iface = (uint32_t)arg;
 	assert(iface < USART_IFACE_COUNT);
 
-	dma_free_channel(channel);
+	dma_free_channel(_serial[iface]->dma.tx.channel);
 
 	mutex_unlock(&_serial[iface]->tx.mutex);
 
 	callback_call(&_serial[iface]->tx.callback);
+
+	return 0;
 }
 
-static void _usartd_dma_read_callback(struct dma_channel* channel, void* args)
+static int _usartd_dma_read_callback(void* arg)
 {
-	uint8_t iface = (uint32_t)args;
+	uint8_t iface = (uint32_t)arg;
 	assert(iface < USART_IFACE_COUNT);
 	struct _usart_desc *desc = _serial[iface];
+	struct dma_channel* channel = desc->dma.rx.channel;
 
 	if (desc->timeout > 0) {
 		desc->addr->US_CR = US_CR_STTTO;
@@ -97,14 +100,17 @@ static void _usartd_dma_read_callback(struct dma_channel* channel, void* args)
 		cache_invalidate_region(desc->dma.rx.cfg.da, desc->rx.transferred);
 
 	desc->rx.buffer.size = 0;
+
 	mutex_unlock(&desc->rx.mutex);
 
-	if (desc->rx.transferred > 0)
-		callback_call(&desc->rx.callback);
+	callback_call(&desc->rx.callback);
+
+	return 0;
 }
 
 static void _usartd_dma_read(uint8_t iface)
 {
+	struct _callback _cb;
 	assert(iface < USART_IFACE_COUNT);
 	struct _usart_desc* desc = _serial[iface];
 
@@ -120,7 +126,8 @@ static void _usartd_dma_read(uint8_t iface)
 	desc->dma.rx.cfg.len = desc->rx.buffer.size;
 	dma_configure_transfer(desc->dma.rx.channel, &desc->dma.rx.cfg);
 
-	dma_set_callback(desc->dma.rx.channel, _usartd_dma_read_callback, (void *)(uint32_t)iface);
+	callback_set(&_cb, _usartd_dma_read_callback, (void*)(uint32_t)iface);
+	dma_set_callback(desc->dma.rx.channel, &_cb);
 	usart_enable_it(desc->addr, US_IER_TIMEOUT);
 	usart_restart_rx_timeout(desc->addr);
 	dma_start_transfer(desc->dma.rx.channel);
@@ -128,6 +135,7 @@ static void _usartd_dma_read(uint8_t iface)
 
 static void _usartd_dma_write(uint8_t iface)
 {
+	struct _callback _cb;
 	assert(iface < USART_IFACE_COUNT);
 	struct _usart_desc* desc = _serial[iface];
 
@@ -143,7 +151,8 @@ static void _usartd_dma_write(uint8_t iface)
 	desc->dma.tx.cfg.len = desc->tx.buffer.size;
 	dma_configure_transfer(desc->dma.tx.channel, &desc->dma.tx.cfg);
 
-	dma_set_callback(desc->dma.tx.channel, _usartd_dma_write_callback, (void*)(uint32_t)iface);
+	callback_set(&_cb, _usartd_dma_write_callback, (void*)(uint32_t)iface);
+	dma_set_callback(desc->dma.tx.channel, &_cb);
 	cache_clean_region(desc->dma.tx.cfg.sa, desc->dma.tx.cfg.len);
 	dma_start_transfer(desc->dma.tx.channel);
 }
@@ -205,7 +214,7 @@ static void _usartd_handler(uint32_t source, void* user_arg)
 			usart_disable_it(addr, US_IDR_TIMEOUT);
 			break;
 		case USARTD_MODE_DMA:
-			_usartd_dma_read_callback(desc->dma.rx.channel, (void *)iface);
+			_usartd_dma_read_callback((void *)iface);
 			break;
 		}
 

@@ -33,14 +33,14 @@
  *        Headers
  *------------------------------------------------------------------------*/
 
-#include "dma/dma.h"
-
-#include "nand_flash_common.h"
-#include "nand_flash_dma.h"
-#include "mm/cache.h"
-
 #include <assert.h>
 #include <stdlib.h>
+
+#include "callback.h"
+#include "dma/dma.h"
+#include "mm/cache.h"
+#include "nand_flash_common.h"
+#include "nand_flash_dma.h"
 
 /*--------------------------------------------------------------------------
  *        Local Variables
@@ -60,9 +60,11 @@ static volatile bool transfer_complete = false;
 /**
  * \brief Callback function called when DMA transfer is completed
  */
-static void _nand_dma_callback(struct dma_channel *channel, void *arg)
+static int _nand_dma_callback(void* arg)
 {
 	transfer_complete = true;
+
+	return 0;
 }
 
 /*--------------------------------------------------------------------------
@@ -76,17 +78,21 @@ static void _nand_dma_callback(struct dma_channel *channel, void *arg)
  */
 uint8_t nand_dma_configure(void)
 {
+	struct _callback _cb;
+
+	callback_set(&_cb, _nand_dma_callback, NULL);
 	/* Allocate a DMA channel for NAND RX. */
 	nand_dma_rx_channel = dma_allocate_channel(
 			DMA_PERIPH_MEMORY, DMA_PERIPH_MEMORY);
 	assert(nand_dma_rx_channel);
-	dma_set_callback(nand_dma_rx_channel, _nand_dma_callback, NULL);
+	dma_set_callback(nand_dma_rx_channel, &_cb);
 
 	/* Allocate a DMA channel for NAND TX. */
 	nand_dma_tx_channel = dma_allocate_channel(
 			DMA_PERIPH_MEMORY, DMA_PERIPH_MEMORY);
 	assert(nand_dma_tx_channel);
-	dma_set_callback(nand_dma_tx_channel, _nand_dma_callback, NULL);
+	dma_set_callback(nand_dma_tx_channel, &_cb);
+
 	return 0;
 }
 

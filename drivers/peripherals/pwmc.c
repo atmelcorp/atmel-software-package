@@ -84,6 +84,7 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "callback.h"
 #include "chip.h"
 #include "dma/dma.h"
 #include "mm/cache.h"
@@ -96,9 +97,7 @@
 
 #ifdef CONFIG_HAVE_PWMC_DMA
 struct dma_channel* pwm_dma_channel = NULL;
-static pwmc_callback_t pwmc_cb = NULL;
-static void* pwmc_cb_user_args;
-
+static struct _callback pwmc_cb;
 #endif /* CONFIG_HAVE_PWMC_DMA */
 
 /*----------------------------------------------------------------------------
@@ -301,17 +300,19 @@ void pwmc_set_sync_channels_update_period_update(Pwm *pwm, uint8_t period)
 #endif /* CONFIG_HAVE_PWMC_SYNC_MODE */
 
 #ifdef CONFIG_HAVE_PWMC_DMA
-static void _pwm_dma_callback_wrapper(struct dma_channel* dma_channel, void* arg)
+static int _pwm_dma_callback_wrapper(void* arg)
 {
-	(void)arg;
+	struct dma_channel* dma_channel = (struct dma_channel*)arg;
+
 	if (dma_is_transfer_done(dma_channel)) {
 		dma_free_channel(dma_channel);
-		if (pwmc_cb)
-			pwmc_cb(pwmc_cb_user_args);
+		callback_call(&pwmc_cb);
 	}
+
+	return 0;
 }
 
-void pwmc_set_dma_finished_callback(Pwm *pwm, pwmc_callback_t cb, void *user_args)
+void pwmc_set_dma_finished_callback(Pwm *pwm, struct _callback* cb)
 {
 	uint32_t id = get_pwm_id_from_addr(pwm);
 
@@ -319,12 +320,12 @@ void pwmc_set_dma_finished_callback(Pwm *pwm, pwmc_callback_t cb, void *user_arg
 		pwm_dma_channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
 		assert(pwm_dma_channel);
 	}
-	pwmc_cb = cb;
-	pwmc_cb_user_args = user_args;
+	callback_copy(&pwmc_cb, cb);
 }
 
-void pwmc_dma_duty_cycle(Pwm *pwm, uint16_t *duty, uint32_t size)
+void pwmc_dma_duty_cycle(Pwm* pwm, uint16_t *duty, uint32_t size)
 {
+	struct _callback _cb;
 	struct dma_xfer_cfg cfg;
 
 	assert(pwm_dma_channel);
@@ -339,7 +340,8 @@ void pwmc_dma_duty_cycle(Pwm *pwm, uint16_t *duty, uint32_t size)
 	cfg.len = size;
 	dma_reset_channel(pwm_dma_channel);
 	dma_configure_transfer(pwm_dma_channel, &cfg);
-	dma_set_callback(pwm_dma_channel, _pwm_dma_callback_wrapper, NULL);
+	callback_set(&_cb, _pwm_dma_callback_wrapper, pwm_dma_channel);
+	dma_set_callback(pwm_dma_channel, &_cb);
 
 	cache_clean_region(duty, size);
 	dma_start_transfer(pwm_dma_channel);

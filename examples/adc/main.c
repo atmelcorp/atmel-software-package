@@ -108,27 +108,24 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
-#include "chip.h"
-#include "timer.h"
-
-#include "peripherals/pmc.h"
-#include "gpio/pio.h"
-#include "peripherals/pit.h"
+#include <stdio.h>
+#include <string.h>
 
 #include "analog/adc.h"
 #include "analog/adcd.h"
-#include "mm/cache.h"
-#include "peripherals/tc.h"
+#include "board.h"
+#include "callback.h"
+#include "chip.h"
 #include "component/component_tc.h"
 #include "dma/dma.h"
-
+#include "gpio/pio.h"
 #include "led/led.h"
+#include "mm/cache.h"
+#include "peripherals/pit.h"
+#include "peripherals/pmc.h"
+#include "peripherals/tc.h"
 #include "serial/console.h"
-
-
-#include <stdio.h>
-#include <string.h>
+#include "timer.h"
 
 /*----------------------------------------------------------------------------
  *        Local definitions
@@ -342,8 +339,7 @@ static void _configure_tc_trigger(void)
 
 #endif /* ADC_TRIG_TIOA0 */
 
-
-static void _adc_callback(void* args)
+static int _adc_callback(void* args)
 {
 	int i, j, chan, value;
 
@@ -359,6 +355,8 @@ static void _adc_callback(void* args)
 		}
 	}
 	adc_converted = true;
+
+	return 0;
 }
 
 /**
@@ -367,7 +365,7 @@ static void _adc_callback(void* args)
  */
 static void _adc_start_transfer(void)
 {
-	while (adcd_is_busy(&adcd));
+	struct _callback _cb;
 
 	if (adcd.cfg.trigger_mode == TRIGGER_MODE_SOFTWARE)
 		adcd.cfg.trigger_edge = TRIGGER_NO;
@@ -390,7 +388,11 @@ static void _adc_start_transfer(void)
 		.data = (uint8_t*)adc_buffer,
 		.size = NUM_CHANNELS,
 	};
-	adcd_transfer(&adcd, &buf, _adc_callback, NULL);
+	callback_set(&_cb, _adc_callback, &adcd);
+	adcd_transfer(&adcd, &buf, &_cb);
+
+	while (adcd_is_busy(&adcd));
+
 }
 
 /*----------------------------------------------------------------------------

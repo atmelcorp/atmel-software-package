@@ -81,22 +81,23 @@
  *       Local functions
  *----------------------------------------------------------------------------*/
 
-static void _ssc_dma_rx_callback(struct dma_channel* channel, void* args)
+static int _ssc_dma_rx_callback(void* arg)
 {
-	struct _ssc_desc* desc = (struct _ssc_desc *)args;
+	struct _ssc_desc* desc = (struct _ssc_desc*)arg;
 
 	cache_invalidate_region(desc->rx.dma.cfg.da, desc->rx.dma.cfg.len);
 
-	dma_reset_channel(channel);
+	dma_reset_channel(desc->rx.dma.channel);
 
 	mutex_unlock(&desc->rx.mutex);
 
-	callback_call(&desc->rx.callback);
+	return callback_call(&desc->rx.callback);
 }
 
 static void _ssc_dma_rx_transfer(struct _ssc_desc* desc, struct _buffer* buffer)
 {
 	uint32_t id = get_ssc_id_from_addr(desc->addr);
+	struct _callback _cb;
 
 	assert(id < ID_PERIPH_COUNT);
 
@@ -119,24 +120,26 @@ static void _ssc_dma_rx_transfer(struct _ssc_desc* desc, struct _buffer* buffer)
 		desc->rx.dma.cfg.len  = buffer->size/4;
 	}
 	dma_configure_transfer(desc->rx.dma.channel, &desc->rx.dma.cfg);
-	dma_set_callback(desc->rx.dma.channel, _ssc_dma_rx_callback, (void*)desc);
+	callback_set(&_cb, _ssc_dma_rx_callback, (void*)desc);
+	dma_set_callback(desc->rx.dma.channel, &_cb);
 	dma_start_transfer(desc->rx.dma.channel);
 }
 
-static void _ssc_dma_tx_callback(struct dma_channel* channel, void* args)
+static int _ssc_dma_tx_callback(void* arg)
 {
-	struct _ssc_desc* desc = (struct _ssc_desc *)args;
+	struct _ssc_desc* desc = (struct _ssc_desc*)arg;
 
-	dma_reset_channel(channel);
+	dma_reset_channel(desc->tx.dma.channel);
 
 	mutex_unlock(&desc->tx.mutex);
 
-	callback_call(&desc->tx.callback);
+	return callback_call(&desc->tx.callback);
 }
 
 static void _ssc_dma_tx_transfer(struct _ssc_desc* desc, struct _buffer* buffer)
 {
 	uint32_t id = get_ssc_id_from_addr(desc->addr);
+	struct _callback _cb;
 
 	assert(id < ID_PERIPH_COUNT);
 
@@ -161,7 +164,8 @@ static void _ssc_dma_tx_transfer(struct _ssc_desc* desc, struct _buffer* buffer)
 	}
 
 	dma_configure_transfer(desc->tx.dma.channel, &desc->tx.dma.cfg);
-	dma_set_callback(desc->tx.dma.channel, _ssc_dma_tx_callback, (void*)desc);
+	callback_set(&_cb, _ssc_dma_tx_callback, (void*)desc);
+	dma_set_callback(desc->tx.dma.channel, &_cb);
 	cache_clean_region(desc->tx.dma.cfg.sa, desc->tx.dma.cfg.len);
 	dma_start_transfer(desc->tx.dma.channel);
 }

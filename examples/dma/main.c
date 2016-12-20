@@ -94,6 +94,7 @@
 #include <stdbool.h>
 
 #include "board.h"
+#include "callback.h"
 #include "chip.h"
 #include "compiler.h"
 #include "dma/dma.h"
@@ -130,7 +131,7 @@
 CACHE_ALIGNED static struct dma_xfer_item dma_link_list[MAX_LL_SIZE];
 
 /** DMA channel */
-static struct dma_channel *dma_chan;
+static struct dma_channel* dma_chan;
 
 /** Source buffer */
 CACHE_ALIGNED static uint8_t src_buf[BUFFER_LEN];
@@ -210,11 +211,14 @@ static void _display_menu(void)
 /**
  * \brief Callback function called when DMA transfer is completed
  */
-static void _dma_callback(struct dma_channel *channel, void *arg)
+static int _dma_callback(void* arg)
 {
+	struct dma_channel* channel = (struct dma_channel*)arg;
 	dma_reset_channel(channel);
 	mutex_unlock(&tx_done);
 	trace_info("DMA transfer complete\n\r");
+
+	return 0;
 }
 
 /**
@@ -225,6 +229,7 @@ static void _configure_transfer(void)
 	uint32_t i;
 	struct dma_xfer_cfg cfg;
 	struct dma_xfer_item_tmpl item_cfg;
+	struct _callback _cb;
 
 	if (dma_mode != DMA_LL) {
 		cfg.sa = (uint32_t *)src_buf;
@@ -255,7 +260,8 @@ static void _configure_transfer(void)
 		cache_clean_region(dma_link_list, sizeof(dma_link_list));
 		dma_sg_configure_transfer(dma_chan, &item_cfg, dma_link_list);
 	}
-	dma_set_callback(dma_chan, _dma_callback, NULL);
+	callback_set(&_cb, _dma_callback, dma_chan);
+	dma_set_callback(dma_chan, &_cb);
 
 	printf("- Press 't' to perform DMA transfer...\n\r");
 }

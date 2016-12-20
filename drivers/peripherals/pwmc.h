@@ -53,9 +53,10 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
-
 #include <stdint.h>
+
+#include "callback.h"
+#include "chip.h"
 
 /*----------------------------------------------------------------------------
  *        Macros
@@ -70,13 +71,6 @@ enum _pwm_fault_inputs{
 	PWM_FAULT_INPUT_TIMER0 = 4,
 	PWM_FAULT_INPUT_TIMER1 = 5,
 };
-
-/*------------------------------------------------------------------------------
- *        Types
- *----------------------------------------------------------------------------*/
-
-/** definitions for PWM callback function */
-typedef void (*pwmc_callback_t)(void* args);
 
 #ifdef __cplusplus
 extern "C" {
@@ -255,9 +249,8 @@ extern void pwmc_set_sync_channels_update_period_update(Pwm *pwm, uint8_t period
  *
  * \param pwm Pointer to a Pwm instance.
  * \param cb Point to PWM call back routine.
- * \param user_args parameter for call back routine.
  */
-extern void pwmc_set_dma_finished_callback(Pwm *pwm, pwmc_callback_t cb, void *user_args);
+extern void pwmc_set_dma_finished_callback(Pwm *pwm, struct _callback* cb);
 
 /**
  * \brief Sets the update period of the synchronous channels.

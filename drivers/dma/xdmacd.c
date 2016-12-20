@@ -59,6 +59,7 @@
 
 #include <assert.h>
 
+#include "callback.h"
 #include "compiler.h"
 #include "dma/dma.h"
 #include "dma/xdmacd.h"
@@ -105,8 +106,7 @@ struct _xdmacd_channel
 {
 	Xdmac           *xdmac;     /**< XDMAC instance */
 	uint32_t         id;        /**< Channel ID */
-	xdmacd_callback_t callback; /**< Callback */
-	void            *user_arg;  /**< Callback argument */
+	struct _callback callback;  /**< Callback */
 	uint8_t          src_txif;  /**< Source TX Interface ID */
 	uint8_t          src_rxif;  /**< Source RX Interface ID */
 	uint8_t          dest_txif; /**< Destination TX Interface ID */
@@ -226,9 +226,9 @@ static void xdmacd_handler(uint32_t source, void* user_arg)
 		}
 
 		/* Execute callback */
-		if (exec && channel->callback) {
-			channel->callback(channel, channel->user_arg);
-			dma_sg_free_item((struct dma_channel *)channel);
+		if (exec) {
+			callback_call(&channel->callback);
+			dma_sg_free_item((struct dma_channel*)channel);
 		}
 	}
 }
@@ -251,8 +251,7 @@ void xdmacd_initialize(bool polling)
 			struct _xdmacd_channel* channel = _xdmacd_channel(xdmac, chan);
 			channel->xdmac = xdmac;
 			channel->id = chan;
-			channel->callback = 0;
-			channel->user_arg = 0;
+			callback_set(&channel->callback, NULL, NULL);
 			channel->src_txif = 0;
 			channel->src_rxif = 0;
 			channel->dest_txif = 0;
@@ -330,16 +329,14 @@ int xdmacd_free_channel(struct _xdmacd_channel* channel)
 	return 0;
 }
 
-int xdmacd_set_callback(struct _xdmacd_channel* channel,
-		xdmacd_callback_t callback, void *user_arg)
+int xdmacd_set_callback(struct _xdmacd_channel* channel, struct _callback* cb)
 {
 	if (channel->state == XDMACD_STATE_FREE)
 		return -EPERM;
 	else if (channel->state == XDMACD_STATE_STARTED)
 		return -EBUSY;
 
-	channel->callback = callback;
-	channel->user_arg = user_arg;
+	callback_copy(&channel->callback, cb);
 
 	return 0;
 }

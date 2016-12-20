@@ -35,6 +35,7 @@
  *        Includes
  *----------------------------------------------------------------------------*/
 
+#include "callback.h"
 #include "chip.h"
 #include "dma/xdmac.h"
 
@@ -84,12 +85,6 @@
 
 /** \addtogroup dmad_structs DMA Driver Structs
         @{*/
-
-/** DMA channel */
-struct _xdmacd_channel;
-
-/** DMA transfer callback */
-typedef void (*xdmacd_callback_t)(struct _xdmacd_channel* channel, void *arg);
 
 struct _xdmacd_cfg {
 	uint32_t  ubc;      /**< Microblock Size */
@@ -186,8 +181,7 @@ extern int xdmacd_free_channel(struct _xdmacd_channel* channel);
  * \param callback Pointer to callback function.
  * \param user_arg Pointer to user argument for callback.
  */
-extern int xdmacd_set_callback(struct _xdmacd_channel* channel,
-			       xdmacd_callback_t callback, void *user_arg);
+extern int xdmacd_set_callback(struct _xdmacd_channel* channel, struct _callback* cb);
 
 /**
  * \brief Configure DMA for a single transfer.

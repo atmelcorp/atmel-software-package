@@ -48,21 +48,23 @@
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-static void _pdmic_dma_callback(struct dma_channel* channel, void* args)
+static int _pdmic_dma_transfer_callback(void* arg)
 {
-	struct _pdmic_desc* desc = (struct _pdmic_desc *)args;
+	struct _pdmic_desc* desc = (struct _pdmic_desc*)arg;
 
 	cache_invalidate_region(desc->rx.dma.cfg.da, desc->rx.dma.cfg.len);
 
-	dma_free_channel(channel);
+	dma_free_channel(desc->rx.dma.channel);
 
 	mutex_unlock(&desc->rx.mutex);
 
-	callback_call(&desc->rx.callback);
+	return callback_call(&desc->rx.callback);
 }
 
 static void _pdmic_dma_transfer(struct _pdmic_desc* desc, struct _buffer* buffer)
 {
+	struct _callback _cb;
+
 	memset(&desc->rx.dma.cfg, 0, sizeof(desc->rx.dma.cfg));
 
 	desc->rx.dma.cfg.sa = (void*)&desc->addr->PDMIC_CDR;
@@ -79,7 +81,8 @@ static void _pdmic_dma_transfer(struct _pdmic_desc* desc, struct _buffer* buffer
 		desc->rx.dma.cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
 	}
 	dma_configure_transfer(desc->rx.dma.channel, &desc->rx.dma.cfg);
-	dma_set_callback(desc->rx.dma.channel, _pdmic_dma_callback, (void*)desc);
+	callback_set(&_cb, _pdmic_dma_transfer_callback, (void*)desc);
+	dma_set_callback(desc->rx.dma.channel, &_cb);
 	dma_start_transfer(desc->rx.dma.channel);
 }
 

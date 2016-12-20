@@ -27,39 +27,42 @@
  * ----------------------------------------------------------------------------
  */
 
+/*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
 
-#include "irq/irq.h"
-#include "peripherals/pmc.h"
-#include "crypto/aesd.h"
-#include "crypto/aes.h"
-#include "dma/dma.h"
-#include "mm/cache.h"
-
-#include "trace.h"
-
+#include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <assert.h>
 #include <string.h>
+
+#include "callback.h"
+#include "crypto/aes.h"
+#include "crypto/aesd.h"
+#include "dma/dma.h"
+#include "irq/irq.h"
+#include "mm/cache.h"
+#include "peripherals/pmc.h"
+#include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
+
 volatile static bool single_transfer_ready;
 
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-static void _aesd_dma_callback(struct dma_channel *channel, void *arg)
+static int _aesd_dma_read_callback(void* arg)
 {
 	struct _aesd_desc* desc = (struct _aesd_desc*)arg;
-	/* For read, invalidate region */
-	if (channel == desc->xfer.dma.rx.channel) {
-		cache_invalidate_region((uint32_t*)desc->xfer.bufout->data,
-								desc->xfer.bufout->size);
-		mutex_unlock(&desc->mutex);
-	}
+
+	cache_invalidate_region((uint32_t*)desc->xfer.bufout->data, desc->xfer.bufout->size);
+	mutex_unlock(&desc->mutex);
+
+	return callback_call(&desc->xfer.callback);
 }
 
 /* Operation Mode Chunk Size Data Transfer Type
@@ -129,10 +132,10 @@ static void _aesd_transfer_buffer_dma(struct _aesd_desc* desc)
 	uint32_t width_in_byte;
 	uint32_t blk_size;
 	uint32_t offset = 0;
+	struct _callback _cb;
 
 	dma_reset_channel(desc->xfer.dma.tx.channel);
-	cache_clean_region((uint32_t*)desc->xfer.bufin->data,
-						desc->xfer.bufin->size);
+	cache_clean_region((uint32_t*)desc->xfer.bufin->data, desc->xfer.bufin->size);
 
 	width_in_byte = 1 << _aesd_get_dma_data_width(desc);
 	remains = desc->xfer.bufin->size;
@@ -159,7 +162,7 @@ static void _aesd_transfer_buffer_dma(struct _aesd_desc* desc)
 	}
 	dma_sg_link_item(desc->xfer.dma.tx.channel, ll, NULL);
 	dma_sg_configure_transfer(desc->xfer.dma.tx.channel, &cfg, NULL);
-	dma_set_callback(desc->xfer.dma.tx.channel, _aesd_dma_callback, (void*)desc);
+	dma_set_callback(desc->xfer.dma.tx.channel, NULL);
 
 	dma_reset_channel(desc->xfer.dma.rx.channel);
 	remains = desc->xfer.bufout->size;
@@ -186,16 +189,14 @@ static void _aesd_transfer_buffer_dma(struct _aesd_desc* desc)
 	}
 	dma_sg_link_item(desc->xfer.dma.rx.channel, ll, NULL);
 	dma_sg_configure_transfer(desc->xfer.dma.rx.channel, &cfg, NULL);
-
-	dma_set_callback(desc->xfer.dma.rx.channel, _aesd_dma_callback, (void*)desc);
+	callback_set(&_cb, _aesd_dma_read_callback, (void*)desc);
+	dma_set_callback(desc->xfer.dma.rx.channel, &_cb);
 	dma_start_transfer(desc->xfer.dma.tx.channel);
 	dma_start_transfer(desc->xfer.dma.rx.channel);
 
 	aesd_wait_transfer(desc);
 	dma_free_channel(desc->xfer.dma.tx.channel);
 	dma_free_channel(desc->xfer.dma.rx.channel);
-	if (desc->xfer.callback)
-			desc->xfer.callback(desc->xfer.cb_args);
 }
 
 static void _aesd_handler(uint32_t source, void* user_arg)
@@ -224,13 +225,32 @@ static void _aesd_transfer_buffer_polling(struct _aesd_desc* desc)
 		while(!single_transfer_ready);
 		aes_get_output((uint32_t *)((desc->xfer.bufout->data) + i));
 	}
-	if (desc->xfer.callback)
-			desc->xfer.callback(desc->xfer.cb_args);
 	mutex_unlock(&desc->mutex);
+
+	callback_call(&desc->xfer.callback);
 }
 
-static void _aesd_transfer_buffer(struct _aesd_desc* desc)
+/*----------------------------------------------------------------------------
+ *        Public functions
+
+ *----------------------------------------------------------------------------*/
+uint32_t aesd_transfer(struct _aesd_desc* desc, struct _buffer* buffer_in,
+	struct _buffer* buffer_out, struct _callback* cb)
 {
+	aes_encrypt_enable(desc->cfg.encrypt);
+	aes_set_start_mode(desc->cfg.transfer_mode);
+	desc->xfer.bufin = buffer_in;
+	desc->xfer.bufout = buffer_out;
+	callback_copy(&desc->xfer.callback, cb);
+
+	assert(!(desc->xfer.bufin->size % _aesd_get_size_per_trans(desc)));
+	assert(!(desc->xfer.bufout->size % _aesd_get_size_per_trans(desc)));
+
+	if (!mutex_try_lock(&desc->mutex)) {
+		trace_error("AESD mutex already locked!\r\n");
+		return ADES_ERROR_LOCK;
+	}
+
 	switch (desc->cfg.transfer_mode) {
 	case AESD_TRANS_POLLING_MANUAL:
 	case AESD_TRANS_POLLING_AUTO:
@@ -242,32 +262,9 @@ static void _aesd_transfer_buffer(struct _aesd_desc* desc)
 		break;
 
 	default:
+		mutex_unlock(&desc->mutex);
 		trace_fatal("Unknown AES transfer mode\r\n");
 	}
-}
-
-/*----------------------------------------------------------------------------
- *        Public functions
-
- *----------------------------------------------------------------------------*/
-uint32_t aesd_transfer(struct _aesd_desc* desc, struct _buffer* buffer_in,
-	struct _buffer* buffer_out, aesd_callback_t cb, void* user_args)
-{
-	aes_encrypt_enable(desc->cfg.encrypt);
-	aes_set_start_mode(desc->cfg.transfer_mode);
-	desc->xfer.bufin = buffer_in;
-	desc->xfer.bufout = buffer_out;
-	desc->xfer.callback = cb;
-	desc->xfer.cb_args = user_args;
-
-	assert(!(desc->xfer.bufin->size % _aesd_get_size_per_trans(desc)));
-	assert(!(desc->xfer.bufout->size % _aesd_get_size_per_trans(desc)));
-
-	if (!mutex_try_lock(&desc->mutex)) {
-		trace_error("AESD mutex already locked!\r\n");
-		return ADES_ERROR_LOCK;
-	}
-	_aesd_transfer_buffer(desc);
 
 	return AESD_SUCCESS;
 }

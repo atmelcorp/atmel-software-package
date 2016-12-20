@@ -36,10 +36,11 @@
  *----------------------------------------------------------------------------*/
 
 #include <stdint.h>
-#include "mutex.h"
-#include "io.h"
 
+#include "callback.h"
 #include "dma/dma.h"
+#include "io.h"
+#include "mutex.h"
 
 /*------------------------------------------------------------------------------
  *        Types
@@ -48,10 +49,6 @@
 #define AESD_SUCCESS         (0)
 #define ADES_ERROR_LOCK      (1)
 #define AESD_ERROR_TRANSFER  (2)
-
-//struct _spi_desc;
-
-typedef void (*aesd_callback_t)(void* args);
 
 enum _aesd_trans_mode
 {
@@ -97,13 +94,12 @@ struct _aesd_desc {
 		uint32_t key[8];
 		uint32_t vector[4];
 	} cfg;
-	
+
 	/* structure to hold data about current transfer */
 	struct {
 		struct _buffer *bufin;         /*< buffer input */
 		struct _buffer *bufout;        /*< buffer output */
-		aesd_callback_t callback;
-		void*           cb_args;
+		struct _callback callback;
 
 		struct {
 			struct {
@@ -121,9 +117,9 @@ extern void aesd_configure_mode(struct _aesd_desc* desc);
 
 extern void aesd_init(struct _aesd_desc* desc);
 
-extern uint32_t aesd_transfer(struct _aesd_desc* desc, 
-		struct _buffer* buffer_in, struct _buffer* buffer_out, 
-		aesd_callback_t cb, void* user_args);
+extern uint32_t aesd_transfer(struct _aesd_desc* desc,
+			      struct _buffer* buffer_in, struct _buffer* buffer_out,
+			      struct _callback* callback);
 
 extern bool aesd_is_busy(struct _aesd_desc* desc);
 

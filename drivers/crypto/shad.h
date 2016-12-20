@@ -36,10 +36,11 @@
  *----------------------------------------------------------------------------*/
 
 #include <stdint.h>
-#include "mutex.h"
-#include "io.h"
 
+#include "callback.h"
 #include "dma/dma.h"
+#include "io.h"
+#include "mutex.h"
 
 /*------------------------------------------------------------------------------
  *        Types
@@ -49,8 +50,6 @@
 #define SHAD_ERROR_LOCK      (1)
 #define SHAD_ERROR_PARAM     (2)
 #define SHAD_ERROR_TRANSFER  (3)
-
-typedef void (*shad_callback_t)(void* args);
 
 enum _shad_trans_mode
 {
@@ -81,8 +80,7 @@ struct _shad_desc {
 	struct {
 		struct _buffer *bufin;         /*< buffer input */
 		struct _buffer *bufout;        /*< buffer output */
-		shad_callback_t callback;
-		void*           cb_args;
+		struct _callback callback;
 
 		struct {
 			struct {
@@ -100,8 +98,8 @@ struct _shad_desc {
 extern void shad_init(struct _shad_desc* desc);
 
 extern uint32_t shad_transfer(struct _shad_desc* desc,
-		struct _buffer* buffer_in, struct _buffer* buffer_out,
-		shad_callback_t cb, void* user_args);
+			      struct _buffer* buffer_in, struct _buffer* buffer_out,
+			      struct _callback* cb);
 
 extern bool shad_is_busy(struct _shad_desc* desc);
 

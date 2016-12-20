@@ -27,19 +27,19 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "irq/irq.h"
-#include "peripherals/pmc.h"
-#include "crypto/shad.h"
-#include "crypto/sha.h"
-#include "dma/dma.h"
-#include "mm/cache.h"
-
-#include "trace.h"
-
 #include <stddef.h>
 #include <stdint.h>
 #include <assert.h>
 #include <string.h>
+
+#include "callback.h"
+#include "crypto/sha.h"
+#include "crypto/shad.h"
+#include "dma/dma.h"
+#include "irq/irq.h"
+#include "mm/cache.h"
+#include "peripherals/pmc.h"
+#include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Local variables
@@ -51,11 +51,13 @@ volatile static bool single_transfer_ready;
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-static void _shad_dma_callback(struct dma_channel *channel, void *arg)
+static int _shad_dma_callback(void* arg)
 {
 	struct _shad_desc* desc = (struct _shad_desc*)arg;
 
 	mutex_unlock(&desc->mutex);
+
+	return callback_call(&desc->xfer.callback);
 }
 
 /**
@@ -78,6 +80,7 @@ static void _shad_transfer_buffer_dma(struct _shad_desc* desc)
 	uint32_t remains;
 	uint32_t offset = 0;
 	uint32_t blk_size;
+	struct _callback _cb;
 
 	dma_reset_channel(desc->xfer.dma.tx.channel);
 	cache_clean_region((uint32_t*)desc->xfer.bufin->data,
@@ -110,15 +113,14 @@ static void _shad_transfer_buffer_dma(struct _shad_desc* desc)
 
 	dma_sg_link_item(desc->xfer.dma.tx.channel, ll, NULL);
 	dma_sg_configure_transfer(desc->xfer.dma.tx.channel, &cfg, NULL);
-	dma_set_callback(desc->xfer.dma.tx.channel, _shad_dma_callback, (void*)desc);
+	callback_set(&_cb, _shad_dma_callback, (void*)desc);
+	dma_set_callback(desc->xfer.dma.tx.channel, &_cb);
 
 	dma_start_transfer(desc->xfer.dma.tx.channel);
 	shad_wait_transfer(desc);
 	dma_free_channel(desc->xfer.dma.tx.channel);
 
 	sha_get_output((uint32_t*)desc->xfer.bufout->data);
-	if (desc->xfer.callback)
-		desc->xfer.callback(desc->xfer.cb_args);
 }
 
 static void _shad_transfer_buffer_polling(struct _shad_desc* desc)
@@ -166,13 +168,31 @@ static void _shad_transfer_buffer_polling(struct _shad_desc* desc)
 
 	sha_get_output((uint32_t*)desc->xfer.bufout->data);
 
-	if (desc->xfer.callback)
-		desc->xfer.callback(desc->xfer.cb_args);
 	mutex_unlock(&desc->mutex);
+	callback_call(&desc->xfer.callback);
 }
 
-static void _shad_transfer_buffer(struct _shad_desc* desc)
+/*----------------------------------------------------------------------------
+ *        Public functions
+ *----------------------------------------------------------------------------*/
+
+uint32_t shad_transfer(struct _shad_desc* desc, struct _buffer* buffer_in,
+	struct _buffer* buffer_out, struct _callback* cb)
 {
+	sha_soft_reset();
+	sha_configure(desc->cfg.mode << SHA_MR_ALGO_Pos
+		      | desc->cfg.transfer_mode << SHA_MR_SMOD_Pos
+		      | SHA_MR_PROCDLY_LONGEST);
+
+	desc->xfer.bufin = buffer_in;
+	desc->xfer.bufout = buffer_out;
+	callback_copy(&desc->xfer.callback, cb);
+
+	if (!mutex_try_lock(&desc->mutex)) {
+		trace_error("SHAD mutex already locked!\r\n");
+		return SHAD_ERROR_LOCK;
+	}
+
 	switch (desc->cfg.transfer_mode) {
 	case SHAD_TRANS_POLLING_MANUAL:
 	case SHAD_TRANS_POLLING_AUTO:
@@ -184,33 +204,9 @@ static void _shad_transfer_buffer(struct _shad_desc* desc)
 		break;
 
 	default:
+		mutex_unlock(&desc->mutex);
 		trace_fatal("Unknown SHA transfer mode\r\n");
 	}
-}
-
-/*----------------------------------------------------------------------------
- *        Public functions
-
- *----------------------------------------------------------------------------*/
-uint32_t shad_transfer(struct _shad_desc* desc, struct _buffer* buffer_in,
-	struct _buffer* buffer_out, shad_callback_t cb, void* user_args)
-{
-
-	sha_soft_reset();
-	sha_configure(desc->cfg.mode << SHA_MR_ALGO_Pos
-		      | desc->cfg.transfer_mode << SHA_MR_SMOD_Pos
-		      | SHA_MR_PROCDLY_LONGEST);
-
-	desc->xfer.bufin = buffer_in;
-	desc->xfer.bufout = buffer_out;
-	desc->xfer.callback = cb;
-	desc->xfer.cb_args = user_args;
-
-	if (!mutex_try_lock(&desc->mutex)) {
-		trace_error("SHAD mutex already locked!\r\n");
-		return SHAD_ERROR_LOCK;
-	}
-	_shad_transfer_buffer(desc);
 
 	return SHAD_SUCCESS;
 }

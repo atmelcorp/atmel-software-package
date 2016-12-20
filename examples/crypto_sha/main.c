@@ -46,7 +46,7 @@
  * - SAMA5D4-XULT
  * - SAMA5D3-EK
  * - SAMA5D3-XULT
- 
+
  * \section Description
  *
  * \section Usage
@@ -98,22 +98,21 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include <ctype.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
+#include "callback.h"
 #include "board.h"
 #include "chip.h"
 #include "crypto/sha.h"
 #include "crypto/shad.h"
-#include "peripherals/pmc.h"
-
 #include "mm/cache.h"
+#include "peripherals/pmc.h"
 #include "serial/console.h"
 #include "trace.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <string.h>
 
 /*----------------------------------------------------------------------------
  *        Local definitions
@@ -290,7 +289,7 @@ static void start_sha(void)
 		memcpy ((uint8_t*)message, msg0, LEN_MSG_0);
 		len = shad_pad_message((uint8_t*)message, LEN_MSG_0, shad.cfg.mode);
 	} else if (block_mode == SHA_MULTI_BLOCK) {
-		if ((shad.cfg.mode == SHAD_MODE_SHA384) 
+		if ((shad.cfg.mode == SHAD_MODE_SHA384)
 			|| (shad.cfg.mode == SHAD_MODE_SHA512)) {
 			memcpy ((uint8_t*)message, msg2, LEN_MSG_2);
 			len = shad_pad_message((uint8_t*)message, LEN_MSG_2, shad.cfg.mode);
@@ -311,7 +310,7 @@ static void start_sha(void)
 		.data = (uint8_t*)digest,
 		.size = MAX_DIGEST_SIZE_INWORD,
 		};
-	shad_transfer(&shad, &buf_in, &buf_out, NULL, NULL);
+	shad_transfer(&shad, &buf_in, &buf_out, NULL);
 
 	printf("-I- Dump and compare digest result...\n\r");
 	for (rc = 0, i = 0; i < sha_get_output_words((uint8_t)shad.cfg.mode); i++) {
@@ -411,7 +410,7 @@ int main(void)
 			case 'm':
 			case 'a':
 			case 'd':
-				shad.cfg.transfer_mode = 
+				shad.cfg.transfer_mode =
 					(enum _shad_trans_mode)(user_key == 'a' ? SHA_MR_SMOD_AUTO_START :
 					(user_key == 'd' ? SHA_MR_SMOD_IDATAR0_START :
 					SHA_MR_SMOD_MANUAL_START));

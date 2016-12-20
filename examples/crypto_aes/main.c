@@ -83,7 +83,7 @@
  * \section References
  * - aes/main.c
  * - aes.c
- * - aes.h 
+ * - aes.h
  * - aesd.c
  * - aesd.h */
 
@@ -96,25 +96,22 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include <ctype.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "board.h"
+#include "callback.h"
 #include "chip.h"
 #include "crypto/aes.h"
 #include "crypto/aesd.h"
-#include "peripherals/pmc.h"
 #include "dma/dma.h"
-
 #include "mm/cache.h"
+#include "peripherals/pmc.h"
 #include "serial/console.h"
 #include "trace.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <string.h>
-
-static struct _aesd_desc aesd;
 
 /*----------------------------------------------------------------------------
  *        Local definitions
@@ -140,6 +137,9 @@ static struct _aesd_desc aesd;
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
+
+static struct _aesd_desc aesd;
+
 const char example_text[DATA_LEN_INBYTE] = "\
   The Advanced Encryption Standard (AES) is compliant with the A\
 merican FIPS (Federal Information Processing Standard) Publicati\
@@ -169,9 +169,10 @@ static volatile bool dma_rd_complete = false;
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
-static void aes_callback(void* args)
+static int _aes_callback(void* args)
 {
 	printf("-I- transfer completed\r\n");
+	return 0;
 }
 
 /**
@@ -183,6 +184,7 @@ static void aes_callback(void* args)
  */
 static void process_buffer(bool encrypt, uint32_t *in, uint32_t *out)
 {
+	struct _callback _cb;
 	struct _buffer buf_in = {
 		.data = (uint8_t*)in,
 		.size = DATA_LEN_INBYTE,
@@ -202,15 +204,15 @@ static void process_buffer(bool encrypt, uint32_t *in, uint32_t *out)
 	aesd.cfg.key[5] = AES_KEY_5;
 	aesd.cfg.key[6] = AES_KEY_6;
 	aesd.cfg.key[7] = AES_KEY_7;
-	
+
 	aesd.cfg.vector[0] = AES_VECTOR_0;
 	aesd.cfg.vector[1] = AES_VECTOR_1;
 	aesd.cfg.vector[2] = AES_VECTOR_2;
 	aesd.cfg.vector[3] = AES_VECTOR_3;
 
 	aesd_configure_mode(&aesd);
-
-	aesd_transfer(&aesd, &buf_in, &buf_out, aes_callback, NULL);
+	callback_set(&_cb, _aes_callback, NULL);
+	aesd_transfer(&aesd, &buf_in, &buf_out, &_cb);
 }
 
 /**
