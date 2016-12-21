@@ -110,8 +110,6 @@ static void _tdesd_transfer_buffer_dma(struct _tdesd_desc* desc)
 		cfg.da = (void*)TDES->TDES_IDATAR;
 		cfg.upd_sa_per_data = 1;
 		cfg.upd_da_per_data = 0;
-		cfg.upd_sa_per_blk  = 1;
-		cfg.upd_da_per_blk  = 0;
 		/* The data size depends on the mode of operation, and is listed
 		in Datasheet Table 50-4.*/
 		cfg.data_width = _tdesd_get_dma_data_width(desc);
@@ -140,8 +138,6 @@ static void _tdesd_transfer_buffer_dma(struct _tdesd_desc* desc)
 		cfg.da = (void *)((desc->xfer.bufout->data) + offset);
 		cfg.upd_sa_per_data = 0;
 		cfg.upd_da_per_data = 1;
-		cfg.upd_sa_per_blk  = 0;
-		cfg.upd_da_per_blk  = 1;
 		/* The data size depends on the mode of operation, and is listed in
 		Datasheet Table 50-4.*/
 		cfg.data_width = _tdesd_get_dma_data_width(desc);

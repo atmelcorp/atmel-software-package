@@ -115,8 +115,6 @@ static void run_dma_xfer(struct sha_set *set)
 		.chunk_size = DMA_CHUNK_SIZE_16,
 		.upd_sa_per_data = 1,
 		.upd_da_per_data = 0,
-		.upd_sa_per_blk	= 1,
-		.upd_da_per_blk	= 0,
 	};
 	struct dma_xfer *desc = NULL, *last_desc = NULL;
 	uint32_t rc;

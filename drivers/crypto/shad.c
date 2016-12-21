@@ -97,8 +97,6 @@ static void _shad_transfer_buffer_dma(struct _shad_desc* desc)
 		cfg.da = (void*)&SHA->SHA_IDATAR[0];
 		cfg.upd_sa_per_data = 1;
 		cfg.upd_da_per_data = 0;
-		cfg.upd_sa_per_blk  = 1;
-		cfg.upd_da_per_blk  = 0;
 		cfg.data_width = DMA_DATA_WIDTH_WORD;
 		cfg.chunk_size = sha_get_dma_chunk_size((uint8_t)desc->cfg.mode);
 		cfg.blk_size = blk_size;

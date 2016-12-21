@@ -139,8 +139,6 @@ struct dma_xfer_item_tmpl {
 	uint8_t upd_da_per_data : 1;/* increment destination address when proceeding to the next data element (set by default if memory)
 									0: The destination address remains unchanged
 									1: The destination address is incremented */
-	uint8_t upd_sa_per_blk : 1;	/* update source address when proceeding to the next block when the descriptor is fetched from the memory.*/
-	uint8_t upd_da_per_blk : 1;	/* update destination address when proceeding to the next block when the descriptor is fetched from the memory.*/
 	const void *sa;				/* initial source address; alignment shall match data width */
 	void* da;					/* initial destination address; alignment shall match data width */
 

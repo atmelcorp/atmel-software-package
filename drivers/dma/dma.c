@@ -369,43 +369,35 @@ int dma_sg_prepare_item(struct dma_channel *channel,
 				const struct dma_xfer_item_tmpl *tmpl,
 				struct dma_xfer_item *item)
 {
-
-#if defined(CONFIG_HAVE_XDMAC)
-
 	if (tmpl->blk_size > DMA_MAX_BT_SIZE) {
 				/* Block size (microblock length) is limited to 65535 data elements */
 		return -EOVERFLOW;
 	}
+
+#if defined(CONFIG_HAVE_XDMAC)
+
 	item->mbr_ubc = XDMA_UBC_NVIEW_NDV1
-					| (tmpl->upd_sa_per_blk ? XDMA_UBC_NSEN_UPDATED :
-						XDMA_UBC_NSEN_UNCHANGED)
-					| (tmpl->upd_da_per_blk ? XDMA_UBC_NDEN_UPDATED :
-						XDMA_UBC_NDEN_UNCHANGED)
-					| XDMA_UBC_NDE_FETCH_EN
-					| tmpl->blk_size;
+	              | XDMA_UBC_NSEN_UPDATED
+	              | XDMA_UBC_NDEN_UPDATED
+	              | XDMA_UBC_NDE_FETCH_EN
+	              | tmpl->blk_size;
 	item->mbr_sa = tmpl->sa;
 	item->mbr_da = tmpl->da;
 	item->mbr_nda = 0;
 
-	return 0;
-
 #elif defined(CONFIG_HAVE_DMAC)
 
 	bool src_is_periph, dst_is_periph;
-	uint32_t ctrla,ctrlb;
+	uint32_t ctrla, ctrlb;
 
 	src_is_periph = is_source_periph(channel);
 	dst_is_periph = is_dest_periph(channel);
 
-	if (tmpl->blk_size > DMA_MAX_BT_SIZE) {
-		/* Block size (microblock length) is limited to 65535 data elements */
-		return -EOVERFLOW;
-	}
 	ctrla = (tmpl->data_width << DMAC_CTRLA_SRC_WIDTH_Pos)
-		  | (tmpl->data_width << DMAC_CTRLA_DST_WIDTH_Pos)
-		  | (tmpl->chunk_size << DMAC_CTRLA_SCSIZE_Pos)
-		  | (tmpl->chunk_size << DMAC_CTRLA_DCSIZE_Pos)
-		  | tmpl->blk_size ;
+	      | (tmpl->data_width << DMAC_CTRLA_DST_WIDTH_Pos)
+	      | (tmpl->chunk_size << DMAC_CTRLA_SCSIZE_Pos)
+	      | (tmpl->chunk_size << DMAC_CTRLA_DCSIZE_Pos)
+	      | tmpl->blk_size;
 
 #if defined(CONFIG_SOC_SAMA5D3)
 	ctrlb = src_is_periph ? DMAC_CTRLB_SIF_AHB_IF2 : DMAC_CTRLB_SIF_AHB_IF0;
@@ -416,24 +408,21 @@ int dma_sg_prepare_item(struct dma_channel *channel,
 #else
 #error Unknown SoC!
 #endif
-	ctrlb |= ((src_is_periph) ? DMAC_CTRLB_FC_PER2MEM_DMA_FC :
-		    ((dst_is_periph) ? DMAC_CTRLB_FC_MEM2PER_DMA_FC :  DMAC_CTRLB_FC_MEM2MEM_DMA_FC));
-	ctrlb |= (tmpl->upd_sa_per_data ? DMAC_CTRLB_SRC_INCR_INCREMENTING:
-			  DMAC_CTRLB_SRC_INCR_FIXED)
-		   | (tmpl->upd_da_per_data ? DMAC_CTRLB_DST_INCR_INCREMENTING:
-			 DMAC_CTRLB_DST_INCR_FIXED);
 
-	ctrlb |= tmpl->upd_sa_per_blk ? DMAC_CTRLB_SRC_DSCR_FETCH_FROM_MEM :
-				DMAC_CTRLB_SRC_DSCR_FETCH_DISABLE
-		   | tmpl->upd_da_per_blk ? DMAC_CTRLB_DST_DSCR_FETCH_FROM_MEM :
-				DMAC_CTRLB_DST_DSCR_FETCH_DISABLE ;
+	ctrlb |= (src_is_periph ? DMAC_CTRLB_FC_PER2MEM_DMA_FC :
+	                 (dst_is_periph ? DMAC_CTRLB_FC_MEM2PER_DMA_FC : DMAC_CTRLB_FC_MEM2MEM_DMA_FC))
+	       | (tmpl->upd_sa_per_data ? DMAC_CTRLB_SRC_INCR_INCREMENTING : DMAC_CTRLB_SRC_INCR_FIXED)
+	       | (tmpl->upd_da_per_data ? DMAC_CTRLB_DST_INCR_INCREMENTING : DMAC_CTRLB_DST_INCR_FIXED)
+	       | DMAC_CTRLB_SRC_DSCR_FETCH_FROM_MEM
+	       | DMAC_CTRLB_DST_DSCR_FETCH_FROM_MEM;
 	item->saddr = tmpl->sa;
 	item->daddr = tmpl->da;
 	item->ctrla = ctrla;
 	item->ctrlb = ctrlb;
 
-	return 0;
 #endif
+
+	return 0;
 }
 
 struct dma_xfer_item* dma_sg_allocate_item(struct dma_channel *channel)
@@ -638,6 +627,8 @@ int dma_sg_configure_transfer(struct dma_channel *channel,
 				struct dma_xfer_item_tmpl *tmpl,
 				struct dma_xfer_item *desc_list)
 {
+	bool src_is_periph, dst_is_periph;
+
 	if (!desc_list) {
 		if (channel->sg_list == NULL)
 			return -EINVAL;
@@ -646,8 +637,8 @@ int dma_sg_configure_transfer(struct dma_channel *channel,
 	}
 
 #if defined(CONFIG_HAVE_XDMAC)
+
 	struct _xdmacd_cfg xdma_cfg;
-	bool src_is_periph, dst_is_periph;
 	uint32_t desc_cntrl;
 
 	if (tmpl->blk_size > DMA_MAX_BT_SIZE) {
@@ -657,44 +648,38 @@ int dma_sg_configure_transfer(struct dma_channel *channel,
 
 	src_is_periph = is_source_periph(channel);
 	dst_is_periph = is_dest_periph(channel);
-	xdma_cfg.cfg = (src_is_periph | dst_is_periph) ?
-					XDMAC_CC_TYPE_PER_TRAN : XDMAC_CC_TYPE_MEM_TRAN;
-	xdma_cfg.cfg |= src_is_periph ? XDMAC_CC_DSYNC_PER2MEM:
-					 XDMAC_CC_DSYNC_MEM2PER;
-	xdma_cfg.cfg |= (src_is_periph ? XDMAC_CC_CSIZE(tmpl->chunk_size) : 0)
-				 | (dst_is_periph ? XDMAC_CC_CSIZE(tmpl->chunk_size) : 0);
+	xdma_cfg.cfg = (src_is_periph | dst_is_periph) ?  XDMAC_CC_TYPE_PER_TRAN : XDMAC_CC_TYPE_MEM_TRAN;
+	xdma_cfg.cfg |= src_is_periph ? XDMAC_CC_DSYNC_PER2MEM: XDMAC_CC_DSYNC_MEM2PER;
+	xdma_cfg.cfg |= (src_is_periph ? XDMAC_CC_CSIZE(tmpl->chunk_size) : 0) | (dst_is_periph ? XDMAC_CC_CSIZE(tmpl->chunk_size) : 0);
 	xdma_cfg.cfg |= XDMAC_CC_DWIDTH(tmpl->data_width);
-	xdma_cfg.cfg |= src_is_periph ? XDMAC_CC_SIF_AHB_IF1:
-					XDMAC_CC_SIF_AHB_IF0;
-	xdma_cfg.cfg |= dst_is_periph ? XDMAC_CC_DIF_AHB_IF1:
-					XDMAC_CC_DIF_AHB_IF0;
-	xdma_cfg.cfg |= tmpl->upd_sa_per_data ? XDMAC_CC_SAM_INCREMENTED_AM :
-					XDMAC_CC_SAM_FIXED_AM;
-	xdma_cfg.cfg |= tmpl->upd_da_per_data ? XDMAC_CC_DAM_INCREMENTED_AM :
-					XDMAC_CC_DAM_FIXED_AM;
-	xdma_cfg.cfg |= (src_is_periph | dst_is_periph) ? 0: XDMAC_CC_SWREQ_SWR_CONNECTED;
+	xdma_cfg.cfg |= src_is_periph ? XDMAC_CC_SIF_AHB_IF1: XDMAC_CC_SIF_AHB_IF0;
+	xdma_cfg.cfg |= dst_is_periph ? XDMAC_CC_DIF_AHB_IF1: XDMAC_CC_DIF_AHB_IF0;
+	xdma_cfg.cfg |= tmpl->upd_sa_per_data ? XDMAC_CC_SAM_INCREMENTED_AM : XDMAC_CC_SAM_FIXED_AM;
+	xdma_cfg.cfg |= tmpl->upd_da_per_data ? XDMAC_CC_DAM_INCREMENTED_AM : XDMAC_CC_DAM_FIXED_AM;
+	xdma_cfg.cfg |= (src_is_periph | dst_is_periph) ? 0 : XDMAC_CC_SWREQ_SWR_CONNECTED;
 	xdma_cfg.bc = 0;
 	xdma_cfg.ds = 0;
 	xdma_cfg.sus = 0;
 	xdma_cfg.dus = 0;
 
 	desc_cntrl = XDMAC_CNDC_NDVIEW_NDV1
-				| XDMAC_CNDC_NDE_DSCR_FETCH_EN
-				| XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED
-				| XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED;
+	           | XDMAC_CNDC_NDE_DSCR_FETCH_EN
+	           | XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED
+	           | XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED;
+
 	if (channel->sg_list != NULL)
 		cache_clean_region(_item_pool, sizeof(_item_pool));
+
 	return xdmacd_configure_transfer((struct _xdmacd_channel *)channel, &xdma_cfg, desc_cntrl, (void *)desc_list);
 #elif defined(CONFIG_HAVE_DMAC)
 
-	bool src_is_periph, dst_is_periph;
 	struct _dmacd_cfg dma_cfg;
 
 	src_is_periph = is_source_periph(channel);
 	dst_is_periph = is_dest_periph(channel);
 
-	dma_cfg.s_decr_fetch = tmpl->upd_sa_per_blk ? 0 : 1;
-	dma_cfg.d_decr_fetch = tmpl->upd_da_per_blk ? 0 : 1;
+	dma_cfg.s_decr_fetch = 0;
+	dma_cfg.d_decr_fetch = 0;
 	dma_cfg.sa_rep = 0;
 	dma_cfg.da_rep = 0;
 	dma_cfg.trans_auto = 0;
@@ -703,6 +688,7 @@ int dma_sg_configure_transfer(struct dma_channel *channel,
 	dma_cfg.d_pip = 0;
 	dma_cfg.cfg = src_is_periph ? DMAC_CFG_SRC_H2SEL_HW : 0;
 	dma_cfg.cfg |= dst_is_periph ? DMAC_CFG_DST_H2SEL_HW : 0;
+
 	if (channel->sg_list != NULL)
 		cache_clean_region(_item_pool, sizeof(_item_pool));
 

@@ -244,8 +244,6 @@ static void _configure_transfer(void)
 			item_cfg.da = (uint32_t *)(dest_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i);
 			item_cfg.upd_sa_per_data = dma_src_addr_mode ? 1 : 0;
 			item_cfg.upd_da_per_data = dma_dest_addr_mode ? 1 : 0;
-			item_cfg.upd_sa_per_blk  = dma_src_addr_mode ? 1 : 0;
-			item_cfg.upd_da_per_blk  = dma_dest_addr_mode ? 1 : 0;
 			item_cfg.data_width = dma_data_width;
 			item_cfg.chunk_size = DMA_CHUNK_SIZE_1;
 			item_cfg.blk_size = MICROBLOCK_LEN;

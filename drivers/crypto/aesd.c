@@ -145,8 +145,6 @@ static void _aesd_transfer_buffer_dma(struct _aesd_desc* desc)
 		cfg.da = (void *)AES->AES_IDATAR;
 		cfg.upd_sa_per_data = 1;
 		cfg.upd_da_per_data = 0;
-		cfg.upd_sa_per_blk  = 1;
-		cfg.upd_da_per_blk  = 0;
 		/* The data size depends on the mode of operation, and is listed
 		in Datasheet Table 49-3.*/
 		cfg.data_width = _aesd_get_dma_data_width(desc);
@@ -174,8 +172,6 @@ static void _aesd_transfer_buffer_dma(struct _aesd_desc* desc)
 		cfg.da = (void *)((desc->xfer.bufout->data) + offset);
 		cfg.upd_sa_per_data = 0;
 		cfg.upd_da_per_data = 1;
-		cfg.upd_sa_per_blk  = 0;
-		cfg.upd_da_per_blk  = 1;
 		/* The data size depends on the mode of operation, and is listed in
 		Datasheet Table 49-3.*/
 		cfg.data_width = _aesd_get_dma_data_width(desc);
