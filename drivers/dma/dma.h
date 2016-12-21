@@ -101,6 +101,24 @@
 /** \addtogroup dma_structs DMA Driver Structs
 		@{*/
 
+struct _dma_channel;
+
+struct _dma_sg_list {
+	const void* saddr;
+	void* daddr;
+	uint32_t len;
+
+	struct _dma_sg_list* next;
+};
+
+struct _dma_sg_cfg {
+	uint32_t data_width;
+	uint32_t chunk_size;
+	bool incr_saddr;
+	bool incr_daddr;
+	bool loop;
+};
+
 /* Set of parameters to specify a transfer of contiguous data.
    Structure members that are zeroed will get assigned their default value.*/
 struct dma_xfer_cfg {
@@ -118,41 +136,6 @@ struct dma_xfer_cfg {
 	uint8_t chunk_size;			/* chunk size (if transferring with a peripheral), expressed in data elements (1/(2)/4/8/16) */
 	uint32_t blk_size;			/* block size (optional), expressed in data elements */
 	uint32_t len;				/* transfer length, expressed in data elements; if blk_size is non-zero, then len shall be a multiple of blk_size */
-};
-
-/** Types for specifying a transfer of scattered data, or a transfer of
- * contiguous data that may be reconfigured on a block-by-block basis. */
-
- /** Template structure used to gather the values required to fill a given
- * linked list item.
- * Structure members that are zeroed will get assigned their default value. */
-struct dma_xfer_item_tmpl {
-
-	uint8_t upd_sa_per_data : 1;/* increment source address when proceeding to the next data element (set by default if memory)
-									0: The source address remains unchanged
-									1: The source address is incremented */
-	uint8_t upd_da_per_data : 1;/* increment destination address when proceeding to the next data element (set by default if memory)
-									0: The destination address remains unchanged
-									1: The destination address is incremented */
-	const void *sa;				/* initial source address; alignment shall match data width */
-	void* da;					/* initial destination address; alignment shall match data width */
-
-	uint8_t data_width;			/* data element width (AKA transfer width), expressed in bytes (1/2/4/8) */
-	uint8_t chunk_size;			/* chunk size (if transferring with a peripheral), expressed in data elements (1/(2)/4/8/16) */
-	uint32_t blk_size;			/* block size, expressed in data elements */
-};
-
-/** Elementary transfer descriptor, AKA linked list item.
- * Allocate the items, but do not access their members. Please use the dedicated
- * functions defined below. */
-struct dma_xfer_item {
-#ifdef CONFIG_HAVE_XDMAC
-	struct _xdmac_desc_view1 desc;
-#elif defined(CONFIG_HAVE_DMAC)
-	struct _dmac_desc desc;
-#else
-#error "Requires a DMA controller to be enabled"
-#endif
 };
 
 /**     @}*/
@@ -184,13 +167,13 @@ extern void dma_poll(void);
  * \return Channel pointer if allocation successful, or NULL if channel
  * allocation failed.
  */
-extern struct dma_channel* dma_allocate_channel(uint8_t src, uint8_t dest);
+extern struct _dma_channel* dma_allocate_channel(uint8_t src, uint8_t dest);
 
 /**
  * \brief Start DMA transfer.
  * \param channel Channel pointer
  */
-extern int dma_start_transfer(struct dma_channel *channel);
+extern int dma_start_transfer(struct _dma_channel* channel);
 
 /**
  * \brief Set the callback function for an DMA channel transfer.
@@ -198,7 +181,7 @@ extern int dma_start_transfer(struct dma_channel *channel);
  * \param callback Pointer to callback function.
  * \param user_arg Pointer to user argument for callback.
  */
-extern int dma_set_callback(struct dma_channel *channel, struct _callback* callback);
+extern int dma_set_callback(struct _dma_channel* channel, struct _callback* callback);
 
 /**
  * \brief Configure DMA for a transfer of contiguous data.
@@ -206,140 +189,62 @@ extern int dma_set_callback(struct dma_channel *channel, struct _callback* callb
  * \param cfg DMA transfer configuration
  * \return error code
  */
-extern int dma_configure_transfer(struct dma_channel *channel, const struct dma_xfer_cfg *cfg);
-
-/**
- * \brief Prepare the provided transfer descriptor, AKA linked list item.
- * \param channel Channel pointer
- * \param tmpl The transfer parameters to be used
- * \param item Pointer to the uninitialized transfer descriptor
- * \return result code
- */
-extern int dma_sg_prepare_item(struct dma_channel *channel,
-				 const struct dma_xfer_item_tmpl *tmpl,
-				 struct dma_xfer_item *item);
-
-/**
- * \brief Link the specified transfer descriptor to its successor in the list.
- * \param channel Channel pointer
- * \param item Pointer to the transfer descriptor to be amended.
- * \param next_item Pointer to the next transfer descriptor in the list. NULL if
- * item will end the list.
- * \note The transfers descriptors pointed by item and next_item shall have
- * been properly initialized, using dma_prepare_item.
- * \return result code
- */
-extern int dma_sg_link_item(struct dma_channel *channel,
-			      struct dma_xfer_item *item,
-			      struct dma_xfer_item *next_item);
-
-/**
- * \brief Link the specified transfer descriptor at the end of current list.
- * \param channel Channel pointer
- * \param item Pointer to the transfer descriptor to be amended.
- * \note The transfers descriptors pointed by item shall have
- * been allocated from linked list pool.
- * \return result code
- */
-extern int dma_sg_link_last_item(struct dma_channel *channel,
-		       struct dma_xfer_item *item);
-
-/**
- * \brief insert the specified transfer descriptor to its successor in the list.
- * \param channel Channel pointer
- * \param pre_item Pointer to the previous transfer descriptor which to be linked
- * with new transfer descriptor. NULL if item will end the list.
- * \param item Pointer to the transfer descriptor to be inserted.
- * \param desc_list Linked list of transfer descriptors. Shall be word-aligned.
- * \note To insert a item at the end of linked list, the dma channel shall be
-   suspended using dma_suspend_transfer. Then the transfers descriptors pointed by
-   item shall have been properly initialized, using dma_prepare_item. Finally,
-   using dma_resume_transfer to continue dma transfer.
- * \return result code
- */
-extern int dma_sg_insert_item(struct dma_channel *channel,
-				struct dma_xfer_item *pre_item,
-				struct dma_xfer_item *item);
-
-/**
- * \brief insert the specified transfer descriptor at the end of its linked list.
- * \param channel Channel pointer
- * \param item Pointer to the transfer descriptor to be inserted.
- * \param desc_list Linked list of transfer descriptors. Shall be word-aligned.
- * \note To insert a item at the end of linked list, the dma channel shall be
-   suspended using dma_suspend_transfer. Then the transfers descriptors pointed by
-   item shall have been properly initialized, using dma_prepare_item. Finally,
-   using dma_resume_transfer to continue dma transfer.
- * \return result code
- */
-extern int dma_sg_append_item(struct dma_channel *channel,
-				struct dma_xfer_item *item);
-
-/**
- * \brief Delete the last transfer descriptor of its linked list.
- * \param channel Channel pointer
- * \note To delect the last item of linked list, the dma channel shall be
-   suspended using dma_suspend_transfer, and using dma_resume_transfer to
-   continue dma transfer after the item was delected.
- * \return result code
- */
-extern int dma_sg_remove_last_item(struct dma_channel *channel);
+extern int dma_configure_transfer(struct _dma_channel* channel, const struct dma_xfer_cfg *cfg);
 
 /**
  * \brief Configure DMA for a transfer of scattered data, or a transfer of
  * contiguous data that may be reconfigured on a block-by-block basis.
  * \param channel Channel pointer
- * \param tmpl The parameters that were used to prepare the first transfer
- * descriptor in the list.
- * \param desc_list Linked list of transfer descriptors. Shall be word-aligned.
+ * \param cfg Transfer configuration
+ * \param list_head Linked list of transfer descriptors.
  * NULL if the list was allocated from linked list pool.
  * \return result code
  */
-extern int dma_sg_configure_transfer(struct dma_channel *channel,
-				     struct dma_xfer_item_tmpl *tmpl,
-				     struct dma_xfer_item *desc_list);
+extern int dma_sg_configure_transfer(struct _dma_channel* channel,
+				     struct _dma_sg_cfg* cfg,
+				     struct _dma_sg_list* list_head, uint8_t list_size);
 
 /**
  * \brief Stop DMA transfer.
  * \param channel Channel pointer
  */
-extern int dma_stop_transfer(struct dma_channel *channel);
+extern int dma_stop_transfer(struct _dma_channel* channel);
 
 /**
  * \brief Suspend DMA transfer.
  * \param channel Channel pointer
  */
-extern int dma_suspend_transfer(struct dma_channel *channel);
+extern int dma_suspend_transfer(struct _dma_channel* channel);
 
 /**
  * \brief Resume DMA transfer.
  * \param channel Channel pointer
  */
-extern int dma_resume_transfer(struct dma_channel *channel);
+extern int dma_resume_transfer(struct _dma_channel* channel);
 
 /**
  * \brief Free the specified DMA channel.
  * \param channel Channel pointer
  */
-extern int dma_free_channel(struct dma_channel *channel);
+extern int dma_free_channel(struct _dma_channel* channel);
 
 /**
  * \brief Reset the specified DMA channel.
  * \param channel Channel pointer
  */
-extern int dma_reset_channel(struct dma_channel *channel);
+extern int dma_reset_channel(struct _dma_channel* channel);
 
 /**
  * \brief Check if DMA transfer is finished.
  * \param channel Channel pointer
  */
-extern bool dma_is_transfer_done(struct dma_channel *channel);
+extern bool dma_is_transfer_done(struct _dma_channel* channel);
 
 /**
  * \brief Flush FIFO of DMA.
  * \param channel Channel pointer
  */
-extern void dma_fifo_flush(struct dma_channel *channel);
+extern void dma_fifo_flush(struct _dma_channel* channel);
 
 /**
  * \brief Transferred data by DMA
@@ -347,27 +252,8 @@ extern void dma_fifo_flush(struct dma_channel *channel);
  * \param chunk_size Size of a data chunk
  * \param len Length of data to transfer
  */
-extern uint32_t dma_get_transferred_data_len(struct dma_channel *channel, uint8_t chunk_size, uint32_t len);
+extern uint32_t dma_get_transferred_data_len(struct _dma_channel* channel, uint8_t chunk_size, uint32_t len);
 
-/**
- * \brief Get next descriptor's address for the relevant channel
- * \param channel Channel pointer
- */
-extern struct dma_xfer_item* dma_get_desc_addr(struct dma_channel *channel);
-
-/**
- * \brief Allocate a unused linked list emelment the relevant channel
- * \param channel Channel pointer
- * \return linked list pointer if allocation successful, or NULL if allocation
- * failed.
- */
-extern struct dma_xfer_item* dma_sg_allocate_item(struct dma_channel *channel);
-
-/**
- * \brief Free all linked list elements for the relevant channel
- * \param channel Channel pointer
- */
-extern void dma_sg_free_item(struct dma_channel *channel);
 /**     @}*/
 
 #endif /* _DMA_H_ */

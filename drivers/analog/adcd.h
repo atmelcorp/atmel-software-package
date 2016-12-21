@@ -97,7 +97,7 @@ struct _adcd_desc {
 		struct _callback callback;
 
 		struct {
-			struct dma_channel *channel;
+			struct _dma_channel *channel;
 			struct dma_xfer_cfg cfg;
 		} dma;
 	} xfer;

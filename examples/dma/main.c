@@ -109,10 +109,10 @@
 
 #define DMA_SINGLE 1
 #define DMA_MULTI  2
-#define DMA_LL     3
+#define DMA_SG     3
 
 /** Maximum size of Linked List in this example */
-#define MAX_LL_SIZE 2
+#define MAX_SG_SIZE 2
 
 /** Microblock length for single transfer */
 #define MICROBLOCK_LEN  8
@@ -127,11 +127,8 @@
  *        Local variables
  *----------------------------------------------------------------------------*/
 
-/** DMA Linked List */
-CACHE_ALIGNED static struct dma_xfer_item dma_link_list[MAX_LL_SIZE];
-
 /** DMA channel */
-static struct dma_channel* dma_chan;
+static struct _dma_channel* dma_chan;
 
 /** Source buffer */
 CACHE_ALIGNED static uint8_t src_buf[BUFFER_LEN];
@@ -213,7 +210,7 @@ static void _display_menu(void)
  */
 static int _dma_callback(void* arg)
 {
-	struct dma_channel* channel = (struct dma_channel*)arg;
+	struct _dma_channel* channel = (struct _dma_channel*)arg;
 	dma_reset_channel(channel);
 	mutex_unlock(&tx_done);
 	trace_info("DMA transfer complete\n\r");
@@ -228,10 +225,9 @@ static void _configure_transfer(void)
 {
 	uint32_t i;
 	struct dma_xfer_cfg cfg;
-	struct dma_xfer_item_tmpl item_cfg;
 	struct _callback _cb;
 
-	if (dma_mode != DMA_LL) {
+	if (dma_mode != DMA_SG) {
 		cfg.sa = (uint32_t *)src_buf;
 		cfg.da = (uint32_t *)dest_buf;
 		cfg.upd_sa_per_data = dma_src_addr_mode ? 1 : 0;
@@ -244,21 +240,26 @@ static void _configure_transfer(void)
 		dma_configure_transfer(dma_chan, &cfg);
 
 	} else {
-		for (i = 0; i < MAX_LL_SIZE; i++) {
-			item_cfg.sa = (uint32_t *)(src_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i);
-			item_cfg.da = (uint32_t *)(dest_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i);
-			item_cfg.upd_sa_per_data = dma_src_addr_mode ? 1 : 0;
-			item_cfg.upd_da_per_data = dma_dest_addr_mode ? 1 : 0;
-			item_cfg.data_width = dma_data_width;
-			item_cfg.chunk_size = DMA_CHUNK_SIZE_1;
-			item_cfg.blk_size = MICROBLOCK_LEN;
+		struct _dma_sg_cfg sg_cfg;
+		struct _dma_sg_list dma_sg_list[MAX_SG_SIZE];
 
-			dma_sg_prepare_item(dma_chan, &item_cfg, &dma_link_list[i]);
-			dma_sg_link_item(dma_chan, &dma_link_list[i], &dma_link_list[i + 1]);
+
+		for (i = 0; i < ARRAY_SIZE(dma_sg_list); i++) {
+			dma_sg_list[i].saddr = (uint32_t *)(src_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i);
+			dma_sg_list[i].daddr = (uint32_t *)(dest_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i);
+			dma_sg_list[i].len = MICROBLOCK_LEN;
+
+			dma_sg_list[i].next = &dma_sg_list[i + 1];
 		}
-		dma_sg_link_item(dma_chan, &dma_link_list[i - 1], NULL);
-		cache_clean_region(dma_link_list, sizeof(dma_link_list));
-		dma_sg_configure_transfer(dma_chan, &item_cfg, dma_link_list);
+		dma_sg_list[i - 1].next = NULL;
+
+		sg_cfg.incr_saddr = dma_src_addr_mode ? 1 : 0;
+		sg_cfg.incr_daddr = dma_dest_addr_mode ? 1 : 0;
+		sg_cfg.data_width = dma_data_width;
+		sg_cfg.chunk_size = DMA_CHUNK_SIZE_1;
+		sg_cfg.loop = false;
+
+		dma_sg_configure_transfer(dma_chan, &sg_cfg, dma_sg_list, ARRAY_SIZE(dma_sg_list));
 	}
 	callback_set(&_cb, _dma_callback, dma_chan);
 	dma_set_callback(dma_chan, &_cb);

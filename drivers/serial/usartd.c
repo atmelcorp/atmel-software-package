@@ -82,7 +82,7 @@ static int _usartd_dma_read_callback(void* arg)
 	uint8_t iface = (uint32_t)arg;
 	assert(iface < USART_IFACE_COUNT);
 	struct _usart_desc *desc = _serial[iface];
-	struct dma_channel* channel = desc->dma.rx.channel;
+	struct _dma_channel* channel = desc->dma.rx.channel;
 
 	if (desc->timeout > 0) {
 		desc->addr->US_CR = US_CR_STTTO;

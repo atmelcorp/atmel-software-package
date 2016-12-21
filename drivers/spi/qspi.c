@@ -46,7 +46,7 @@
 #include <string.h>
 
 #ifdef CONFIG_HAVE_QSPI_DMA
-static struct dma_channel *dma_ch = NULL;
+static struct _dma_channel *dma_ch = NULL;
 static struct dma_xfer_cfg dma_cfg = {
 	.upd_sa_per_data = 1,
 	.upd_da_per_data = 1,

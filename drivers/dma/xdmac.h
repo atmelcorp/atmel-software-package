@@ -88,6 +88,31 @@
 /** Max DMA length of the block  */
 #define XDMAC_MAX_BLOCK_LEN 0xFFF
 
+/* XDMA_MBR_UBC */
+
+#define XDMA_UBC_UBLEN_Pos 0
+#define    XDMA_UBC_UBLEN_Msk (0xffffffu << XDMA_UBC_UBLEN_Pos)
+#define    XDMA_UBC_UBLEN(value) ((XDMA_UBC_UBLEN_Msk \
+               & ((value) << XDMA_UBC_UBLEN_Pos)))
+
+#define XDMA_UBC_NDE (0x1u << 24)
+#define   XDMA_UBC_NDE_FETCH_DIS (0x0u << 24)
+#define   XDMA_UBC_NDE_FETCH_EN  (0x1u << 24)
+
+#define XDMA_UBC_NSEN (0x1u << 25)
+#define   XDMA_UBC_NSEN_UNCHANGED (0x0u << 25)
+#define   XDMA_UBC_NSEN_UPDATED (0x1u << 25)
+
+#define XDMA_UBC_NDEN (0x1u << 26)
+#define   XDMA_UBC_NDEN_UNCHANGED (0x0u << 26)
+#define   XDMA_UBC_NDEN_UPDATED (0x1u << 26)
+
+#define XDMA_UBC_NVIEW_Pos 27
+#define    XDMA_UBC_NVIEW_Msk (0x3u << XDMA_UBC_NVIEW_Pos)
+#define    XDMA_UBC_NVIEW_NDV0 (0x0u << XDMA_UBC_NVIEW_Pos)
+#define    XDMA_UBC_NVIEW_NDV1 (0x1u << XDMA_UBC_NVIEW_Pos)
+#define    XDMA_UBC_NVIEW_NDV2 (0x2u << XDMA_UBC_NVIEW_Pos)
+#define    XDMA_UBC_NVIEW_NDV3 (0x3u << XDMA_UBC_NVIEW_Pos)
 
 /**     @}*/
 

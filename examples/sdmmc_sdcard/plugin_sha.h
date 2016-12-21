@@ -61,7 +61,7 @@ struct sha_set
 	uint8_t *pending_data;    /* Excess data not processed yet */
 	uint32_t count;           /* Number of bytes processed */
 	uint8_t pending;          /* Number of excess bytes */
-	struct dma_channel *dma_ch;
+	struct _dma_channel *dma_ch;
 				      /* xDMA instance, or NULL when DMA is not
 				       * used */
 	struct dma_xfer *dma_dlist;

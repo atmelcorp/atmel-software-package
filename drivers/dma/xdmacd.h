@@ -51,32 +51,6 @@
 /** Pseudo Peripheral ID for memory transfers */
 #define XDMACD_PERIPH_MEMORY 0xFF
 
-/* XDMA_MBR_UBC */
-
-#define XDMA_UBC_UBLEN_Pos 0
-#define    XDMA_UBC_UBLEN_Msk (0xffffffu << XDMA_UBC_UBLEN_Pos)
-#define    XDMA_UBC_UBLEN(value) ((XDMA_UBC_UBLEN_Msk \
-               & ((value) << XDMA_UBC_UBLEN_Pos)))
-
-#define XDMA_UBC_NDE (0x1u << 24)
-#define   XDMA_UBC_NDE_FETCH_DIS (0x0u << 24)
-#define   XDMA_UBC_NDE_FETCH_EN  (0x1u << 24)
-
-#define XDMA_UBC_NSEN (0x1u << 25)
-#define   XDMA_UBC_NSEN_UNCHANGED (0x0u << 25)
-#define   XDMA_UBC_NSEN_UPDATED (0x1u << 25)
-
-#define XDMA_UBC_NDEN (0x1u << 26)
-#define   XDMA_UBC_NDEN_UNCHANGED (0x0u << 26)
-#define   XDMA_UBC_NDEN_UPDATED (0x1u << 26)
-
-#define XDMA_UBC_NVIEW_Pos 27
-#define    XDMA_UBC_NVIEW_Msk (0x3u << XDMA_UBC_NVIEW_Pos)
-#define    XDMA_UBC_NVIEW_NDV0 (0x0u << XDMA_UBC_NVIEW_Pos)
-#define    XDMA_UBC_NVIEW_NDV1 (0x1u << XDMA_UBC_NVIEW_Pos)
-#define    XDMA_UBC_NVIEW_NDV2 (0x2u << XDMA_UBC_NVIEW_Pos)
-#define    XDMA_UBC_NVIEW_NDV3 (0x3u << XDMA_UBC_NVIEW_Pos)
-
 /**     @}*/
 
 /*----------------------------------------------------------------------------
@@ -85,6 +59,8 @@
 
 /** \addtogroup dmad_structs DMA Driver Structs
         @{*/
+
+struct _xdmacd_channel;
 
 struct _xdmacd_cfg {
 	uint32_t  ubc;      /**< Microblock Size */
@@ -146,11 +122,11 @@ extern int xdmacd_set_callback(struct _xdmacd_channel* channel, struct _callback
  * \brief Configure DMA for a single transfer.
  * \param channel Channel pointer
  * \param cfg DMA transfer configuration
- * \param desc_cntrl optional descriptor control
+ * \param desc_ctrl optional descriptor control
  * \param desc_addr optional descriptor address
  */
 extern int xdmacd_configure_transfer(struct _xdmacd_channel* channel,
-				     struct _xdmacd_cfg *cfg, uint32_t desc_cntrl, void *desc_addr);
+				     struct _xdmacd_cfg *cfg, uint32_t desc_ctrl, void *desc_addr);
 
 /**
  * \brief Start DMA transfer.

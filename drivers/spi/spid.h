@@ -92,7 +92,7 @@ struct _spi_desc {
 
 		struct {
 			struct {
-				struct dma_channel *channel;
+				struct _dma_channel *channel;
 				struct dma_xfer_cfg cfg;
 			} rx, tx;
 		} dma;

@@ -64,9 +64,9 @@ struct _ssc_desc {
 	/* Sample Frequency (fs) Ratio */
 	uint32_t sample_rate;
 	/* Number of bits of the slot */
- 	uint8_t  slot_length;
+	uint8_t slot_length;
 	/* Number of slot per frame */
- 	uint8_t  slot_num;
+	uint8_t slot_num;
 	/* Transmit Clock Selection */
 	bool tx_cfg_cks_tk;
 	/* Receive Clock Selection */
@@ -83,7 +83,7 @@ struct _ssc_desc {
 		uint16_t transferred;
 		struct _callback callback;
 		struct {
-			struct dma_channel *channel;
+			struct _dma_channel *channel;
 			struct dma_xfer_cfg cfg;
 		} dma;
 	} rx, tx;

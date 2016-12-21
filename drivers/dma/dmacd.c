@@ -114,7 +114,7 @@ struct _dmacd_channel
 	uint8_t          dest_rxif;  /**< Destination RX Interface ID */
 	volatile uint32_t rep_count; /**< repeat count in auto mode */
 	volatile uint8_t state;      /**< Channel State */
-	char             dummy[4];   /** Aligned with dma_channel */
+	char             dummy[4];   /** to be aligned with _dma_channel */
 };
 
 /** DMA driver instance */
@@ -217,7 +217,7 @@ static void dmacd_handler(uint32_t source, void* user_arg)
 		/* Execute callback */
 		if (exec) {
 			callback_call(&channel->callback);
-			dma_sg_free_item((struct dma_channel *)channel);
+			dma_sg_free_item((struct _dma_channel *)channel);
 		}
 	}
 }

@@ -47,8 +47,8 @@
  *------------------------------------------------------------------------*/
 
 /* DMA driver instance */
-static struct dma_channel *nand_dma_rx_channel;
-static struct dma_channel *nand_dma_tx_channel;
+static struct _dma_channel *nand_dma_rx_channel;
+static struct _dma_channel *nand_dma_tx_channel;
 
 /** DMA transfer completion notifier */
 static volatile bool transfer_complete = false;

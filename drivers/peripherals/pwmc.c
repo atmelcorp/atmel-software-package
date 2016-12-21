@@ -96,7 +96,7 @@
  *----------------------------------------------------------------------------*/
 
 #ifdef CONFIG_HAVE_PWMC_DMA
-struct dma_channel* pwm_dma_channel = NULL;
+static struct _dma_channel* pwm_dma_channel = NULL;
 static struct _callback pwmc_cb;
 #endif /* CONFIG_HAVE_PWMC_DMA */
 
@@ -302,7 +302,7 @@ void pwmc_set_sync_channels_update_period_update(Pwm *pwm, uint8_t period)
 #ifdef CONFIG_HAVE_PWMC_DMA
 static int _pwm_dma_callback_wrapper(void* arg)
 {
-	struct dma_channel* dma_channel = (struct dma_channel*)arg;
+	struct _dma_channel* dma_channel = (struct _dma_channel*)arg;
 
 	if (dma_is_transfer_done(dma_channel)) {
 		dma_free_channel(dma_channel);

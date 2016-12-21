@@ -39,26 +39,34 @@
  *----------------------------------------------------------------------------*/
 
 #include <assert.h>
+#include <stdio.h>
 
 #include "callback.h"
 #include "compiler.h"
 #include "dma/dma.h"
 #include "errno.h"
 #include "mm/cache.h"
+#include "mutex.h"
 #include "peripherals/pmc.h"
+
+/*----------------------------------------------------------------------------
+ *        Macros
+ *----------------------------------------------------------------------------*/
+
+#if defined(CONFIG_HAVE_XDMAC)
+#define DMA_SG_DESC_GET_NEXT(d) ((struct _dma_sg_desc*)(d)->desc.mbr_nda)
+#define DMA_SG_DESC_SET_NEXT(d, next) (d)->desc.mbr_nda = (void*)(next)
+#elif defined(CONFIG_HAVE_XDMAC)
+#define DMA_SG_DESC_GET_NEXT(d) ((struct _dma_sg_desc*)(d)->desc->dscr)
+#define DMA_SG_DESC_SET_NEXT(d, next) (d)->desc.dscr = (void*)(next)
+#endif
 
 /*----------------------------------------------------------------------------
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
-struct _sg_item {
-	struct dma_xfer_item* item;
-	struct _sg_item* next;
-};
-
 /** DMA driver channel */
-struct dma_channel
-{
+struct _dma_channel {
 #if defined(CONFIG_HAVE_DMAC)
 	Dmac* dmac;  /* DMAC instance */
 #elif defined(CONFIG_HAVE_XDMAC)
@@ -76,83 +84,135 @@ struct dma_channel
 	volatile uint32_t rep_count;/* repeat count in auto mode */
 #endif
 	volatile uint8_t state;		/* Channel State */
-	struct _sg_item* sg_list;	/* pointer to the head of linked list */
+
+	struct _dma_sg_desc* sg_list;
 };
 
+/** Types for specifying a transfer of scattered data, or a transfer of
+ * contiguous data that may be reconfigured on a block-by-block basis. */
 
-static struct _sg_item  _sg_item_pool[DMA_SG_ITEM_POOL_SIZE];
-static struct _sg_item* _sg_item_next_free;
+/** Elementary transfer descriptor, AKA linked list item.
+ * Allocate the items, but do not access their members. Please use the dedicated
+ * functions defined below. */
+struct _dma_sg_desc {
+#ifdef CONFIG_HAVE_XDMAC
+	struct _xdmac_desc_view1 desc;
+#elif defined(CONFIG_HAVE_DMAC)
+	struct _dmac_desc desc;
+#endif
+};
 
-/** DMA Linked List */
-CACHE_ALIGNED static struct dma_xfer_item _item_pool[DMA_SG_ITEM_POOL_SIZE];
+struct _dma_sg_pool {
+	struct _dma_sg_desc desc[DMA_SG_ITEM_POOL_SIZE];
+	struct _dma_sg_desc* head;
+	struct _dma_sg_desc* tail;
+
+	uint16_t count; /* Count elements in list  */
+	mutex_t mutex;
+};
+
+CACHE_ALIGNED static struct _dma_sg_pool _dma_sg_pool;
 
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-static inline bool is_source_periph(struct dma_channel *channel)
+static inline bool is_source_periph(struct _dma_channel* channel)
 {
 	return ((channel->src_txif != 0xff) | (channel->src_rxif != 0xff));
 }
 
-static inline bool is_dest_periph(struct dma_channel *channel)
+static inline bool is_dest_periph(struct _dma_channel* channel)
 {
 	return ((channel->dest_txif != 0xff) | (channel->dest_rxif != 0xff));
 }
 
-static void _initialize_item_pool(void)
+/**
+ * \brief Preinitialize all descriptors and pool and link them together
+ */
+static void _dma_sg_init(void)
 {
 	uint32_t i;
 
-	for (i = 0; i < ARRAY_SIZE(_sg_item_pool); i++) {
-#if defined(CONFIG_HAVE_XDMAC)
-		_item_pool[i].desc.mbr_nda = NULL;
-#elif defined(CONFIG_HAVE_DMAC)
-		_item_pool[i].desc.dscr = NULL;
-#endif
-		_sg_item_pool[i].item = &_item_pool[i];
-		_sg_item_pool[i].next = &_sg_item_pool[i + 1];
-	}
-	_sg_item_pool[i - 1].next = NULL;
-	_sg_item_next_free = &_sg_item_pool[0];
+	_dma_sg_pool.mutex = 0;
+
+	mutex_lock(&_dma_sg_pool.mutex);
+
+	for (i = 0; i < ARRAY_SIZE(_dma_sg_pool.desc); i++)
+		DMA_SG_DESC_SET_NEXT(&_dma_sg_pool.desc[i], &_dma_sg_pool.desc[i + 1]);
+	DMA_SG_DESC_SET_NEXT(&_dma_sg_pool.desc[i - 1], 0);
+
+	_dma_sg_pool.head = _dma_sg_pool.desc;
+	_dma_sg_pool.tail = &_dma_sg_pool.desc[i - 1];
+	_dma_sg_pool.count = ARRAY_SIZE(_dma_sg_pool.desc);
+
+	mutex_unlock(&_dma_sg_pool.mutex);
 }
 
-static struct _sg_item* _allocate_sg_item(void)
+static struct _dma_sg_desc* _dma_sg_desc_alloc(uint8_t count)
 {
-	struct _sg_item* item;
+	struct _dma_sg_desc* list_head;
+	struct _dma_sg_desc* curr;
+	struct _dma_sg_desc* next;
+	uint8_t i;
 
-	assert(_sg_item_next_free);
-
-	item = _sg_item_next_free;
-#if defined(CONFIG_HAVE_XDMAC)
-		item->item->desc.mbr_nda = NULL;
-#elif defined(CONFIG_HAVE_DMAC)
-		item->item->desc.dscr = NULL;
-#endif
-	_sg_item_next_free = _sg_item_next_free->next;
-	item->next = NULL;
-	return item;
-}
-
-static struct dma_xfer_item* _get_last_sg_item(struct dma_channel *channel)
-{
-	struct _sg_item* last = channel->sg_list;
-
-	if (channel->sg_list == NULL) {
+	if (count == 0)
 		return NULL;
-	} else {
-		while (last->next) {
-#if defined(CONFIG_HAVE_XDMAC)
-			if (!last->item->desc.mbr_nda)
-				break;
-#elif defined(CONFIG_HAVE_DMAC)
-			if (!last->item->desc.dscr)
-				break;
-#endif
-			last = last->next;
-		}
+	if (count > _dma_sg_pool.count)
+		return NULL;
+
+	mutex_lock(&_dma_sg_pool.mutex);
+
+	list_head = _dma_sg_pool.head;
+	i = 0;
+	curr = list_head;
+	next = DMA_SG_DESC_GET_NEXT(curr);
+	while (i < count) {
+		curr = DMA_SG_DESC_GET_NEXT(curr);
+		next = DMA_SG_DESC_GET_NEXT(curr);
+		if (i == (count - 1))
+			DMA_SG_DESC_SET_NEXT(curr, 0);
+		i++;
 	}
-	return last->item;
+
+	_dma_sg_pool.count -= count;
+	_dma_sg_pool.head = next;
+
+	if (_dma_sg_pool.count == 0) {
+		_dma_sg_pool.head = NULL;
+		_dma_sg_pool.tail = NULL;
+	}
+
+	mutex_unlock(&_dma_sg_pool.mutex);
+
+	return list_head;
+}
+
+static void _dma_sg_desc_free(struct _dma_sg_desc* list_head)
+{
+	struct _dma_sg_desc* curr = list_head;
+	struct _dma_sg_desc* tail;
+
+	if (list_head == NULL)
+		return;
+
+	do {
+		tail = curr;
+		curr = DMA_SG_DESC_GET_NEXT(curr);
+	} while ((curr != NULL) && (curr != list_head));
+	curr = list_head;
+
+	mutex_lock(&_dma_sg_pool.mutex);
+
+	if (_dma_sg_pool.head == NULL)
+		_dma_sg_pool.head = list_head;
+
+	if (_dma_sg_pool.tail != NULL)
+		DMA_SG_DESC_SET_NEXT(_dma_sg_pool.tail, list_head);
+	_dma_sg_pool.tail = tail;
+	DMA_SG_DESC_SET_NEXT(_dma_sg_pool.tail, 0);
+
+	mutex_unlock(&_dma_sg_pool.mutex);
 }
 
 /*----------------------------------------------------------------------------
@@ -161,7 +221,8 @@ static struct dma_xfer_item* _get_last_sg_item(struct dma_channel *channel)
 
 void dma_initialize(bool polling)
 {
-	_initialize_item_pool();
+	_dma_sg_init();
+
 #if defined(CONFIG_HAVE_XDMAC)
 	xdmacd_initialize(polling);
 #elif defined(CONFIG_HAVE_DMAC)
@@ -169,19 +230,19 @@ void dma_initialize(bool polling)
 #endif
 }
 
-struct dma_channel* dma_allocate_channel(uint8_t src, uint8_t dest)
+struct _dma_channel* dma_allocate_channel(uint8_t src, uint8_t dest)
 {
-	struct dma_channel* chan;
+	struct _dma_channel* chan;
 #if defined(CONFIG_HAVE_XDMAC)
-	chan =  (struct dma_channel *)xdmacd_allocate_channel(src, dest);
+	chan =  (struct _dma_channel *)xdmacd_allocate_channel(src, dest);
 #elif defined(CONFIG_HAVE_DMAC)
-	chan = (struct dma_channel *)dmacd_allocate_channel(src, dest);
+	chan = (struct _dma_channel *)dmacd_allocate_channel(src, dest);
 #endif
 	chan->sg_list = NULL;
 	return chan;
 }
 
-int dma_free_channel(struct dma_channel *channel)
+int dma_free_channel(struct _dma_channel* channel)
 {
 	uint32_t status;
 
@@ -190,11 +251,11 @@ int dma_free_channel(struct dma_channel *channel)
 #elif defined(CONFIG_HAVE_DMAC)
 	status = dmacd_free_channel((struct _dmacd_channel *)channel);
 #endif
-	dma_sg_free_item(channel);
+	_dma_sg_desc_free(channel->sg_list);
 	return status;
 }
 
-int dma_set_callback(struct dma_channel *channel, struct _callback* cb)
+int dma_set_callback(struct _dma_channel* channel, struct _callback* cb)
 {
 #if defined(CONFIG_HAVE_XDMAC)
 	return xdmacd_set_callback((struct _xdmacd_channel *)channel, cb);
@@ -203,7 +264,7 @@ int dma_set_callback(struct dma_channel *channel, struct _callback* cb)
 #endif
 }
 
-int dma_configure_transfer(struct dma_channel *channel, const struct dma_xfer_cfg *cfg)
+int dma_configure_transfer(struct _dma_channel* channel, const struct dma_xfer_cfg *cfg)
 {
 	bool src_is_periph, dst_is_periph;
 	uint32_t divisor;
@@ -360,338 +421,130 @@ int dma_configure_transfer(struct dma_channel *channel, const struct dma_xfer_cf
 #endif
 }
 
-int dma_sg_prepare_item(struct dma_channel *channel,
-				const struct dma_xfer_item_tmpl *tmpl,
-				struct dma_xfer_item *item)
+int dma_sg_configure_transfer(struct _dma_channel* channel,
+			      struct _dma_sg_cfg* cfg,
+			      struct _dma_sg_list* list_head, uint8_t list_size)
 {
-	if (tmpl->blk_size > DMA_MAX_BT_SIZE) {
-				/* Block size (microblock length) is limited to 65535 data elements */
-		return -EOVERFLOW;
-	}
+	struct _dma_sg_desc* _sg_head;
+	struct _dma_sg_desc* curr;
+	struct _dma_sg_list* data = list_head;
+	bool src_is_periph, dst_is_periph;
 
+	if ((list_head == NULL) || (list_size == 0))
+		return -EINVAL;
+
+	_sg_head = _dma_sg_desc_alloc(list_size);
+	if (_sg_head == NULL)
+		return -ENOMEM;
+	curr = _sg_head;
+
+	/* Update linked list */
+	while (data != NULL) {
 #if defined(CONFIG_HAVE_XDMAC)
 
-	item->desc.mbr_ubc = XDMA_UBC_NVIEW_NDV1
-	                   | XDMA_UBC_NSEN_UPDATED
-	                   | XDMA_UBC_NDEN_UPDATED
-	                   | XDMA_UBC_NDE_FETCH_EN
-	                   | tmpl->blk_size;
-	item->desc.mbr_sa = tmpl->sa;
-	item->desc.mbr_da = tmpl->da;
-	item->desc.mbr_nda = 0;
+		curr->desc.mbr_sa = data->saddr;
+		curr->desc.mbr_da = data->daddr;
+		curr->desc.mbr_ubc = XDMA_UBC_NVIEW_NDV1
+			| XDMA_UBC_NSEN_UPDATED
+			| XDMA_UBC_NDEN_UPDATED
+			| XDMA_UBC_NDE_FETCH_EN
+			| XDMA_UBC_UBLEN(data->len);
+
+		if (!cfg->loop) {
+			if (DMA_SG_DESC_GET_NEXT(curr) == 0)
+				curr->desc.mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
+		}
 
 #elif defined(CONFIG_HAVE_DMAC)
+		uint32_t ctrla, ctrlb;
 
-	bool src_is_periph, dst_is_periph;
-	uint32_t ctrla, ctrlb;
-
-	src_is_periph = is_source_periph(channel);
-	dst_is_periph = is_dest_periph(channel);
-
-	ctrla = (tmpl->data_width << DMAC_CTRLA_SRC_WIDTH_Pos)
-	      | (tmpl->data_width << DMAC_CTRLA_DST_WIDTH_Pos)
-	      | (tmpl->chunk_size << DMAC_CTRLA_SCSIZE_Pos)
-	      | (tmpl->chunk_size << DMAC_CTRLA_DCSIZE_Pos)
-	      | tmpl->blk_size;
+		ctrla = (cfg->data_width << DMAC_CTRLA_SRC_WIDTH_Pos)
+			| (cfg->data_width << DMAC_CTRLA_DST_WIDTH_Pos)
+			| (cfg->chunk_size << DMAC_CTRLA_SCSIZE_Pos)
+			| (cfg->chunk_size << DMAC_CTRLA_DCSIZE_Pos)
+			| DMAC_CTRLA_BTSIZE(data->len);
 
 #if defined(CONFIG_SOC_SAMA5D3)
-	ctrlb = src_is_periph ? DMAC_CTRLB_SIF_AHB_IF2 : DMAC_CTRLB_SIF_AHB_IF0;
-	ctrlb |= dst_is_periph ? DMAC_CTRLB_DIF_AHB_IF2 : DMAC_CTRLB_DIF_AHB_IF0;
+		ctrlb = src_is_periph ? DMAC_CTRLB_SIF_AHB_IF2 : DMAC_CTRLB_SIF_AHB_IF0;
+		ctrlb |= dst_is_periph ? DMAC_CTRLB_DIF_AHB_IF2 : DMAC_CTRLB_DIF_AHB_IF0;
 #elif defined(CONFIG_SOC_SAM9XX5)
-	ctrlb = src_is_periph ? DMAC_CTRLB_SIF_AHB_IF1 : DMAC_CTRLB_SIF_AHB_IF0;
-	ctrlb |= dst_is_periph ? DMAC_CTRLB_DIF_AHB_IF1 : DMAC_CTRLB_DIF_AHB_IF0;
-#else
-#error Unknown SoC!
+		ctrlb = src_is_periph ? DMAC_CTRLB_SIF_AHB_IF1 : DMAC_CTRLB_SIF_AHB_IF0;
+		ctrlb |= dst_is_periph ? DMAC_CTRLB_DIF_AHB_IF1 : DMAC_CTRLB_DIF_AHB_IF0;
 #endif
-
-	ctrlb |= (src_is_periph ? DMAC_CTRLB_FC_PER2MEM_DMA_FC :
-	                 (dst_is_periph ? DMAC_CTRLB_FC_MEM2PER_DMA_FC : DMAC_CTRLB_FC_MEM2MEM_DMA_FC))
-	       | (tmpl->upd_sa_per_data ? DMAC_CTRLB_SRC_INCR_INCREMENTING : DMAC_CTRLB_SRC_INCR_FIXED)
-	       | (tmpl->upd_da_per_data ? DMAC_CTRLB_DST_INCR_INCREMENTING : DMAC_CTRLB_DST_INCR_FIXED)
-	       | DMAC_CTRLB_SRC_DSCR_FETCH_FROM_MEM
-	       | DMAC_CTRLB_DST_DSCR_FETCH_FROM_MEM;
-	item->desc.saddr = tmpl->sa;
-	item->desc.daddr = tmpl->da;
-	item->desc.ctrla = ctrla;
-	item->desc.ctrlb = ctrlb;
-
-#endif
-
-	return 0;
-}
-
-struct dma_xfer_item* dma_sg_allocate_item(struct dma_channel *channel)
-{
-	struct _sg_item* item = _allocate_sg_item();
-	struct _sg_item* last = channel->sg_list;
-
-	if (item) {
-		if (channel->sg_list == NULL) {
-			channel->sg_list = item;
-		} else {
-			while (last->next)
-				last = last->next;
-			last->next = item;
-		}
-		return item->item;
-	}
-
-	return NULL;
-}
-
-void dma_sg_free_item(struct dma_channel *channel)
-{
-	struct _sg_item* item = channel->sg_list;
-	struct _sg_item* next = _sg_item_next_free;
-
-	while (next->next)
-		next = next->next;
-	next->next = item;
-	channel->sg_list = NULL;
-}
-
-int dma_sg_link_item(struct dma_channel *channel,
-		       struct dma_xfer_item *item,
-		       struct dma_xfer_item *next_item)
-{
-	if (item == NULL)
-		return -EINVAL;
-
-	if (!dma_is_transfer_done(channel)) {
-		/* DMA is being transmitted */
-		return -ECANCELED;
-	}
-
-#if defined(CONFIG_HAVE_XDMAC)
-	if (next_item == NULL) {
-		item->desc.mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
-		item->desc.mbr_nda = 0;
-	} else {
-		item->desc.mbr_nda = next_item;
-	}
-#elif defined(CONFIG_HAVE_DMAC)
-	if (next_item == NULL)
-		item->desc.dscr = 0;
-	else
-		item->desc.dscr = next_item;
-#endif
-	return 0;
-}
-
-int dma_sg_link_last_item(struct dma_channel *channel, struct dma_xfer_item *item)
-{
-	struct dma_xfer_item *last;
-
-	if (item == NULL)
-		return -EINVAL;
-
-	if (!dma_is_transfer_done(channel)) {
-		/* DMA is being transmitted */
-		return -ECANCELED;
-	}
-	last = _get_last_sg_item(channel);
-	if (!last)
-		return -EINVAL;
-
-	if ((uint32_t)(channel->sg_list->item) == (uint32_t)item)
-		return 0;
-
-#if defined(CONFIG_HAVE_XDMAC)
-	if (item == NULL) {
-		last->desc.mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
-		last->desc.mbr_nda = 0;
-	} else {
-		last->desc.mbr_nda = item;
-	}
-#elif defined(CONFIG_HAVE_DMAC)
-	if (item == NULL)
-		last->desc.dscr = 0;
-	else
-		last->desc.dscr = item;
-#endif
-	return 0;
-}
-
-int dma_sg_insert_item(struct dma_channel *channel,
-			 struct dma_xfer_item *pre_item,
-			 struct dma_xfer_item *item)
-{
-	struct dma_xfer_item* next;
-
-	if (item == NULL || pre_item == NULL)
-		return -EINVAL;
-	if (dma_is_transfer_done(channel))
-		/* DMA was done*/
-		return -ECANCELED;
-	if (!(dma_get_desc_addr(channel)))
-		/* LL transfer was done or it is a single transfer */
-		return -ECANCELED;
-
-#if defined(CONFIG_HAVE_XDMAC)
-	next = (struct dma_xfer_item*)pre_item->desc.mbr_nda;
-	pre_item->desc.mbr_nda = item;
-	item->desc.mbr_nda = next;
-	if (next == NULL) {
-		pre_item->desc.mbr_ubc |= XDMA_UBC_NDE_FETCH_EN;
-		item->desc.mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
-		item->desc.mbr_nda = 0;
-	}
-#elif defined(CONFIG_HAVE_DMAC)
-	next = (struct dma_xfer_item*)pre_item->desc.dscr;
-	pre_item->desc.dscr = item;
-	item->desc.dscr = next;
-	if (next == NULL)
-		item->desc.dscr = 0;
-#endif
-	return 0;
-}
-
-int dma_sg_append_item(struct dma_channel *channel, struct dma_xfer_item *item)
-{
-	struct dma_xfer_item* last;
-	struct dma_xfer_item* descriptor_addr;
-
-	if (item == NULL)
-		return -EINVAL;
-
-	if (dma_is_transfer_done(channel)) {
-		/* DMA was done*/
-		return -ECANCELED;
-	}
-	descriptor_addr = dma_get_desc_addr(channel);
-	if (descriptor_addr == NULL) {
-		/* LL transfer was done or it is a single transfer */
-		return -ECANCELED;
-	}
-	last = descriptor_addr;
-
-#if defined(CONFIG_HAVE_XDMAC)
-	while (last->desc.mbr_nda)
-		last = (struct dma_xfer_item *)last->desc.mbr_nda;
-	last->desc.mbr_nda = item;
-	last->desc.mbr_ubc |= XDMA_UBC_NDE_FETCH_EN;
-	item->desc.mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
-	item->desc.mbr_nda = 0;
-
-#elif defined(CONFIG_HAVE_DMAC)
-	while (last->desc.dscr)
-		last =(struct dma_xfer_item*)last->desc.dscr;
-	last->desc.dscr = item;
-	item->desc.dscr = 0;
-#endif
-	return 0;
-}
-
-int dma_sg_remove_last_item(struct dma_channel *channel)
-{
-	struct dma_xfer_item* last;
-	struct dma_xfer_item* descriptor_addr;
-
-	if (dma_is_transfer_done(channel)) {
-		/* DMA was done*/
-		return -ECANCELED;
-	}
-	descriptor_addr = dma_get_desc_addr(channel);
-	if (descriptor_addr == NULL) {
-		/* LL transfer was done or it is a single transfer */
-		return -ECANCELED;
-	}
-	last = descriptor_addr;
-
-#if defined(CONFIG_HAVE_XDMAC)
-	if (last->desc.mbr_nda == NULL)
-		return 0;
-	while (((struct dma_xfer_item*)(last->desc.mbr_nda))->desc.mbr_nda) {
-		last = (struct dma_xfer_item*)last->desc.mbr_nda;
-	}
-	last->desc.mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
-	last->desc.mbr_nda = 0;
-
-#elif defined(CONFIG_HAVE_DMAC)
-	if (last->desc.dscr == NULL)
-		return 0;
-	while (((struct dma_xfer_item*)(last->desc.dscr))->desc.dscr) {
-		last = (struct dma_xfer_item*)last->desc.dscr;
-	}
-	last->desc.dscr = 0;
-#endif
-	return 0;
-}
-
-int dma_sg_configure_transfer(struct dma_channel *channel,
-				struct dma_xfer_item_tmpl *tmpl,
-				struct dma_xfer_item *desc_list)
-{
-	bool src_is_periph, dst_is_periph;
-
-	if (!desc_list) {
-		if (channel->sg_list == NULL)
-			return -EINVAL;
+		if (src_is_periph)
+			ctrlb |= DMAC_CTRLB_FC_PER2MEM_DMA_FC;
+		else if (dst_is_periph)
+			ctrlb |= DMAC_CTRLB_FC_MEM2PER_DMA_FC;
 		else
-			desc_list = channel->sg_list->item;
+			ctrlb |= DMAC_CTRLB_FC_MEM2MEM_DMA_FC;
+
+		ctrlb |= cfg->incr_saddr ? DMAC_CTRLB_SRC_INCR_INCREMENTING : DMAC_CTRLB_SRC_INCR_FIXED;
+		ctrlb |= cfg->incr_daddr ? DMAC_CTRLB_DST_INCR_INCREMENTING : DMAC_CTRLB_DST_INCR_FIXED;
+
+		ctrlb |= DMAC_CTRLB_SRC_DSCR_FETCH_FROM_MEM | DMAC_CTRLB_DST_DSCR_FETCH_FROM_MEM;
+
+#endif
+		if (DMA_SG_DESC_GET_NEXT(curr) == 0)
+			if (cfg->loop)
+				DMA_SG_DESC_SET_NEXT(curr, _sg_head);
+		curr = DMA_SG_DESC_GET_NEXT(curr);
+		data = data->next;
 	}
-
-#if defined(CONFIG_HAVE_XDMAC)
-
-	struct _xdmacd_cfg xdma_cfg;
-	uint32_t desc_cntrl;
-
-	if (tmpl->blk_size > DMA_MAX_BT_SIZE) {
-		/* Block size (microblock length) is limited to 65535 data elements */
-		return -EOVERFLOW;
-	}
+	channel->sg_list = _sg_head;
 
 	src_is_periph = is_source_periph(channel);
 	dst_is_periph = is_dest_periph(channel);
-	xdma_cfg.cfg = (src_is_periph | dst_is_periph) ?  XDMAC_CC_TYPE_PER_TRAN : XDMAC_CC_TYPE_MEM_TRAN;
-	xdma_cfg.cfg |= src_is_periph ? XDMAC_CC_DSYNC_PER2MEM: XDMAC_CC_DSYNC_MEM2PER;
-	xdma_cfg.cfg |= (src_is_periph ? XDMAC_CC_CSIZE(tmpl->chunk_size) : 0) | (dst_is_periph ? XDMAC_CC_CSIZE(tmpl->chunk_size) : 0);
-	xdma_cfg.cfg |= XDMAC_CC_DWIDTH(tmpl->data_width);
-	xdma_cfg.cfg |= src_is_periph ? XDMAC_CC_SIF_AHB_IF1: XDMAC_CC_SIF_AHB_IF0;
-	xdma_cfg.cfg |= dst_is_periph ? XDMAC_CC_DIF_AHB_IF1: XDMAC_CC_DIF_AHB_IF0;
-	xdma_cfg.cfg |= tmpl->upd_sa_per_data ? XDMAC_CC_SAM_INCREMENTED_AM : XDMAC_CC_SAM_FIXED_AM;
-	xdma_cfg.cfg |= tmpl->upd_da_per_data ? XDMAC_CC_DAM_INCREMENTED_AM : XDMAC_CC_DAM_FIXED_AM;
-	xdma_cfg.cfg |= (src_is_periph | dst_is_periph) ? 0 : XDMAC_CC_SWREQ_SWR_CONNECTED;
-	xdma_cfg.bc = 0;
-	xdma_cfg.ds = 0;
-	xdma_cfg.sus = 0;
-	xdma_cfg.dus = 0;
 
-	desc_cntrl = XDMAC_CNDC_NDVIEW_NDV1
+	/* Update configuration */
+#if defined(CONFIG_HAVE_XDMAC)
+
+	struct _xdmacd_cfg xdmacd_cfg;
+	uint32_t desc_ctrl;
+
+	xdmacd_cfg.cfg = (src_is_periph | dst_is_periph) ? XDMAC_CC_TYPE_PER_TRAN : XDMAC_CC_TYPE_MEM_TRAN;
+	xdmacd_cfg.cfg |= src_is_periph ? XDMAC_CC_DSYNC_PER2MEM : XDMAC_CC_DSYNC_MEM2PER;
+	xdmacd_cfg.cfg |= XDMAC_CC_CSIZE(cfg->chunk_size);
+	xdmacd_cfg.cfg |= XDMAC_CC_DWIDTH(cfg->data_width);
+	xdmacd_cfg.cfg |= src_is_periph ? XDMAC_CC_SIF_AHB_IF1 : XDMAC_CC_SIF_AHB_IF0;
+	xdmacd_cfg.cfg |= dst_is_periph ? XDMAC_CC_DIF_AHB_IF1 : XDMAC_CC_DIF_AHB_IF0;
+	xdmacd_cfg.cfg |= cfg->incr_saddr ? XDMAC_CC_SAM_INCREMENTED_AM : XDMAC_CC_SAM_FIXED_AM;
+	xdmacd_cfg.cfg |= cfg->incr_daddr ? XDMAC_CC_DAM_INCREMENTED_AM : XDMAC_CC_DAM_FIXED_AM;
+	xdmacd_cfg.cfg |= (src_is_periph | dst_is_periph) ? 0 : XDMAC_CC_SWREQ_SWR_CONNECTED;
+	xdmacd_cfg.bc = 0;
+	xdmacd_cfg.ds = 0;
+	xdmacd_cfg.sus = 0;
+	xdmacd_cfg.dus = 0;
+
+	desc_ctrl = XDMAC_CNDC_NDVIEW_NDV1
 	           | XDMAC_CNDC_NDE_DSCR_FETCH_EN
 	           | XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED
 	           | XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED;
 
-	if (channel->sg_list != NULL)
-		cache_clean_region(_item_pool, sizeof(_item_pool));
+	cache_clean_region(_dma_sg_pool.desc, sizeof(_dma_sg_pool.desc));
 
-	return xdmacd_configure_transfer((struct _xdmacd_channel *)channel, &xdma_cfg, desc_cntrl, (void *)desc_list);
+	return xdmacd_configure_transfer((struct _xdmacd_channel*)channel, &xdmacd_cfg, desc_ctrl, (void *)_sg_head);
 #elif defined(CONFIG_HAVE_DMAC)
 
-	struct _dmacd_cfg dma_cfg;
+	struct _dmacd_cfg dmacd_cfg;
 
-	src_is_periph = is_source_periph(channel);
-	dst_is_periph = is_dest_periph(channel);
+	dmacd_cfg.s_decr_fetch = 0;
+	dmacd_cfg.d_decr_fetch = 0;
+	dmacd_cfg.sa_rep = 0;
+	dmacd_cfg.da_rep = 0;
+	dmacd_cfg.trans_auto = 0;
+	dmacd_cfg.blocks = 0;
+	dmacd_cfg.s_pip = 0;
+	dmacd_cfg.d_pip = 0;
+	dmacd_cfg.cfg = src_is_periph ? DMAC_CFG_SRC_H2SEL_HW : 0;
+	dmacd_cfg.cfg |= dst_is_periph ? DMAC_CFG_DST_H2SEL_HW : 0;
 
-	dma_cfg.s_decr_fetch = 0;
-	dma_cfg.d_decr_fetch = 0;
-	dma_cfg.sa_rep = 0;
-	dma_cfg.da_rep = 0;
-	dma_cfg.trans_auto = 0;
-	dma_cfg.blocks = 0;
-	dma_cfg.s_pip = 0;
-	dma_cfg.d_pip = 0;
-	dma_cfg.cfg = src_is_periph ? DMAC_CFG_SRC_H2SEL_HW : 0;
-	dma_cfg.cfg |= dst_is_periph ? DMAC_CFG_DST_H2SEL_HW : 0;
+	cache_clean_region(_dma_sg_pool.desc, sizeof(_dma_sg_pool.desc));
 
-	if (channel->sg_list != NULL)
-		cache_clean_region(_item_pool, sizeof(_item_pool));
-
-	return dmacd_configure_transfer((struct _dmacd_channel *)channel, &dma_cfg, (void *)desc_list);
+	return dmacd_configure_transfer((struct _dmacd_channel*)channel, &dmacd_cfg, (void *)_sg_head);
 #endif
 }
 
-int dma_start_transfer(struct dma_channel *channel)
+int dma_start_transfer(struct _dma_channel* channel)
 {
 #if defined(CONFIG_HAVE_XDMAC)
 	return xdmacd_start_transfer((struct _xdmacd_channel *)channel);
@@ -700,7 +553,7 @@ int dma_start_transfer(struct dma_channel *channel)
 #endif
 }
 
-bool dma_is_transfer_done(struct dma_channel *channel)
+bool dma_is_transfer_done(struct _dma_channel* channel)
 {
 #if defined(CONFIG_HAVE_XDMAC)
 	return xdmacd_is_transfer_done((struct _xdmacd_channel *)channel);
@@ -709,7 +562,7 @@ bool dma_is_transfer_done(struct dma_channel *channel)
 #endif
 }
 
-int dma_stop_transfer(struct dma_channel *channel)
+int dma_stop_transfer(struct _dma_channel* channel)
 {
 #if defined(CONFIG_HAVE_XDMAC)
 	return xdmacd_stop_transfer((struct _xdmacd_channel *)channel);
@@ -718,7 +571,7 @@ int dma_stop_transfer(struct dma_channel *channel)
 #endif
 }
 
-int dma_reset_channel(struct dma_channel *channel)
+int dma_reset_channel(struct _dma_channel* channel)
 {
 #if defined(CONFIG_HAVE_XDMAC)
 	return xdmacd_reset_channel((struct _xdmacd_channel *)channel);
@@ -727,7 +580,7 @@ int dma_reset_channel(struct dma_channel *channel)
 #endif
 }
 
-int dma_suspend_transfer(struct dma_channel *channel)
+int dma_suspend_transfer(struct _dma_channel* channel)
 {
 #if defined(CONFIG_HAVE_XDMAC)
 	return xdmacd_suspend_transfer((struct _xdmacd_channel *)channel);
@@ -736,7 +589,7 @@ int dma_suspend_transfer(struct dma_channel *channel)
 #endif
 }
 
-int dma_resume_transfer(struct dma_channel *channel)
+int dma_resume_transfer(struct _dma_channel* channel)
 {
 #if defined(CONFIG_HAVE_XDMAC)
 	return xdmacd_resume_transfer((struct _xdmacd_channel *)channel);
@@ -754,7 +607,7 @@ void dma_poll(void)
 #endif
 }
 
-uint32_t dma_get_transferred_data_len(struct dma_channel *channel, uint8_t chunk_size, uint32_t len)
+uint32_t dma_get_transferred_data_len(struct _dma_channel* channel, uint8_t chunk_size, uint32_t len)
 {
 #if defined(CONFIG_HAVE_XDMAC)
 	return len - xdmacd_get_remaining_data_len((struct _xdmacd_channel *)channel) * (1 << chunk_size);
@@ -763,20 +616,7 @@ uint32_t dma_get_transferred_data_len(struct dma_channel *channel, uint8_t chunk
 #endif
 }
 
-struct dma_xfer_item* dma_get_desc_addr(struct dma_channel *channel)
-{
-	uint32_t _xfer_item = 0;
-
-#if defined(CONFIG_HAVE_XDMAC)
-	_xfer_item = xdmacd_get_desc_addr((struct _xdmacd_channel *)channel);
-#elif defined(CONFIG_HAVE_DMAC)
-	_xfer_item = dmacd_get_desc_addr((struct _dmacd_channel *)channel);
-#endif
-
-	return ((struct dma_xfer_item*)_xfer_item);
-}
-
-void dma_fifo_flush(struct dma_channel *channel)
+void dma_fifo_flush(struct _dma_channel* channel)
 {
 #if defined(CONFIG_HAVE_XDMAC)
 	xdmacd_fifo_flush((struct _xdmacd_channel *)channel);

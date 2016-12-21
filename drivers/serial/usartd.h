@@ -93,11 +93,11 @@ struct _usart_desc
 
 	struct {
 		struct {
-			struct dma_channel *channel;
+			struct _dma_channel *channel;
 			struct dma_xfer_cfg cfg;
 		} rx;
 		struct {
-			struct dma_channel *channel;
+			struct _dma_channel *channel;
 			struct dma_xfer_cfg cfg;
 		} tx;
 	} dma;
