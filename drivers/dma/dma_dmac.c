@@ -27,32 +27,6 @@
  * ----------------------------------------------------------------------------
  */
 
-/** \addtogroup xmad_module
- *
- * \section dma Dma Configuration Usage
- *
- * To configure a DMA channel, the user has to follow these few steps :
- * <ul>
- * <li> Initialize a DMA driver instance by dmacd_initialize().</li>
- * <li> choose an available (disabled) channel using dmacd_allocate_channel().</li>
- * <li> After the DMAC selected channel has been programmed, dmacd_prepare_channel() is to enable
- * clock and dma peripheral of the DMA, and set Configuration register to set up the transfer type
- * (memory or non-memory peripheral for source and destination) and flow control device.</li>
- * <li> Invoke dmacd_start_transfer() to start DMA transfer  or dmacd_stop_transfer() to force stop DMA transfer.</li>
-  * <li> Once the buffer of data is transferred, dmacd_is_transfer_done() checks if DMA transfer is finished.</li>
- * <li> dmacd_handler() handles DMA interrupt, and invoking dmacd_set_callback() if provided.</li>
- * </ul>
- *
- * Related files:\n
- * \ref dmacd.h\n
- * \ref dmacd.c\n
- */
-
-/** \file */
-
-/** \addtogroup dmacd_functions
-  @{*/
-
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
@@ -61,7 +35,7 @@
 
 #include "compiler.h"
 #include "dma/dma.h"
-#include "dma/dmacd.h"
+#include "dma/dma_dmac.h"
 #include "errno.h"
 #include "irq/irq.h"
 #include "peripherals/pmc.h"
@@ -93,15 +67,6 @@ static Dmac* controllers[] = {
 #define DMAC_CONTROLLERS ARRAY_SIZE(controllers)
 #define DMACD_CHANNELS (DMAC_CONTROLLERS * DMAC_CHANNELS)
 
-/** DMA state for channel */
-enum {
-	DMACD_STATE_FREE = 0,  /**< Free channel */
-	DMACD_STATE_ALLOCATED, /**< Allocated to some peripheral */
-	DMACD_STATE_STARTED,   /**< DMA started */
-	DMACD_STATE_DONE,      /**< DMA transfer done */
-	DMACD_STATE_SUSPENDED, /**< DMA suspended */
-};
-
 /** DMA driver instance */
 struct _dmacd {
 	struct _dma_channel channels[DMACD_CHANNELS];
@@ -119,13 +84,13 @@ static struct _dmacd _dmacd;
  * setup configuration register for transfer.
  * \param channel Channel pointer
  */
-static int dmacd_prepare_channel(struct _dma_channel* channel)
+static int _dmacd_prepare_channel(struct _dma_channel* channel)
 {
 	Dmac *dmac = channel->dmac;
 
-	if (channel->state == DMACD_STATE_FREE)
+	if (channel->state == DMA_STATE_FREE)
 		return -EPERM;
-	else if (channel->state == DMACD_STATE_STARTED)
+	else if (channel->state == DMA_STATE_STARTED)
 		return -EBUSY;
 
 	/* Clear status */
@@ -168,7 +133,7 @@ static struct _dma_channel* _dmacd_channel(Dmac* dmac, uint32_t channel)
  * \brief DMA interrupt handler
  * \param source Peripheral ID of DMA controller
  */
-static void dmacd_handler(uint32_t source, void* user_arg)
+static void _dmacd_handler(uint32_t source, void* user_arg)
 {
 	uint32_t chan, gis;
 	Dmac* dmac = (Dmac*)user_arg;
@@ -184,7 +149,7 @@ static void dmacd_handler(uint32_t source, void* user_arg)
 		if (!(gis & ((DMAC_EBCISR_BTC0 | DMAC_EBCISR_CBTC0 | DMAC_EBCISR_ERR0) << chan)))
 			continue;
 		channel = _dmacd_channel(dmac, chan);
-		if (channel->state == DMACD_STATE_FREE)
+		if (channel->state == DMA_STATE_FREE)
 			continue;
 		if (gis & (DMAC_EBCISR_CBTC0 << chan)) {
 			if (channel->rep_count) {
@@ -195,15 +160,13 @@ static void dmacd_handler(uint32_t source, void* user_arg)
 				channel->rep_count--;
 
 			} else {
-				channel->state = DMACD_STATE_DONE;
+				channel->state = DMA_STATE_DONE;
 				exec = 1;
 			}
 		}
 		/* Execute callback */
-		if (exec) {
+		if (exec)
 			callback_call(&channel->callback);
-			dma_sg_free_item((struct _dma_channel *)channel);
-		}
 	}
 }
 
@@ -229,28 +192,28 @@ void dmacd_initialize(bool polling)
 			channel->dest_txif = 0;
 			channel->dest_rxif = 0;
 			channel->rep_count = 0;
-			channel->state = DMACD_STATE_FREE;
+			channel->state = DMA_STATE_FREE;
 		}
 
 		if (!polling) {
 			uint32_t pid = get_dmac_id_from_addr(dmac);
 			/* enable interrupts */
-			irq_add_handler(pid, dmacd_handler, dmac);
+			irq_add_handler(pid, _dmacd_handler, dmac);
 			irq_enable(pid);
 		}
 	}
 }
 
-void dmacd_poll(void)
+void dma_poll(void)
 {
 	if (_dmacd.polling) {
 		int i;
 		for (i = 0; i < DMAC_CONTROLLERS; i++)
-			dmacd_handler(get_dmac_id_from_addr(controllers[i]), controllers[i]);
+			_dmacd_handler(get_dmac_id_from_addr(controllers[i]), controllers[i]);
 	}
 }
 
-struct _dma_channel* dmacd_allocate_channel(uint8_t src, uint8_t dest)
+struct _dma_channel* dma_allocate_channel(uint8_t src, uint8_t dest)
 {
 	uint32_t i;
 
@@ -263,7 +226,7 @@ struct _dma_channel* dmacd_allocate_channel(uint8_t src, uint8_t dest)
 		struct _dma_channel* channel = &_dmacd.channels[i];
 		Dmac *dmac = channel->dmac;
 
-		if (channel->state == DMACD_STATE_FREE) {
+		if (channel->state == DMA_STATE_FREE) {
 			/* Check if source peripheral matches this channel controller */
 			if (src != DMACD_PERIPH_MEMORY)
 				if (!is_peripheral_on_dma_controller(src, dmac))
@@ -275,48 +238,17 @@ struct _dma_channel* dmacd_allocate_channel(uint8_t src, uint8_t dest)
 					continue;
 
 			/* Allocate the channel */
-			channel->state = DMACD_STATE_ALLOCATED;
+			channel->state = DMA_STATE_ALLOCATED;
 			channel->src_txif = get_peripheral_dma_channel(src, dmac, true);
 			channel->src_rxif = get_peripheral_dma_channel(src, dmac, false);
 			channel->dest_txif = get_peripheral_dma_channel(dest, dmac, true);
 			channel->dest_rxif = get_peripheral_dma_channel(dest, dmac, false);
-			dmacd_prepare_channel(channel);
+			_dmacd_prepare_channel(channel);
 
 			return channel;
 		}
 	}
 	return NULL;
-}
-
-int dmacd_free_channel(struct _dma_channel* channel)
-{
-	switch (channel->state) {
-	case DMACD_STATE_STARTED:
-		return -EBUSY;
-	case DMACD_STATE_ALLOCATED:
-	case DMACD_STATE_DONE:
-		channel->state = DMACD_STATE_FREE;
-		break;
-	}
-	return 0;
-}
-
-int dmacd_set_callback(struct _dma_channel* channel, struct _callback* cb)
-{
-	if (channel->state == DMACD_STATE_FREE)
-		return -EPERM;
-	else if (channel->state == DMACD_STATE_STARTED)
-		return -EBUSY;
-
-	callback_copy(&channel->callback, cb);
-
-	return 0;
-}
-
-bool dmacd_is_transfer_done(struct _dma_channel* channel)
-{
-	return ((channel->state != DMACD_STATE_STARTED)
-			&& (channel->state != DMACD_STATE_SUSPENDED));
 }
 
 int dmacd_configure_transfer(struct _dma_channel* channel,
@@ -326,9 +258,9 @@ int dmacd_configure_transfer(struct _dma_channel* channel,
 	Dmac *dmac = channel->dmac;
 	uint32_t ctrlb;
 
-	if (channel->state == DMACD_STATE_FREE)
+	if (channel->state == DMA_STATE_FREE)
 		return -EPERM;
-	else if (channel->state == DMACD_STATE_STARTED)
+	else if (channel->state == DMA_STATE_STARTED)
 		return -EBUSY;
 
 	ctrlb = desc->ctrlb;
@@ -384,15 +316,15 @@ int dmacd_configure_transfer(struct _dma_channel* channel,
 	return 0;
 }
 
-int dmacd_start_transfer(struct _dma_channel* channel)
+int dma_start_transfer(struct _dma_channel* channel)
 {
-	if (channel->state == DMACD_STATE_FREE)
+	if (channel->state == DMA_STATE_FREE)
 		return -EPERM;
-	else if (channel->state == DMACD_STATE_STARTED)
+	else if (channel->state == DMA_STATE_STARTED)
 		return -EBUSY;
 
 	/* Change state to 'started' */
-	channel->state = DMACD_STATE_STARTED;
+	channel->state = DMA_STATE_STARTED;
 
 	/* Start DMA transfer */
 	if (!_dmacd.polling) {
@@ -402,7 +334,7 @@ int dmacd_start_transfer(struct _dma_channel* channel)
 	return 0;
 }
 
-int dmacd_stop_transfer(struct _dma_channel* channel)
+int dma_stop_transfer(struct _dma_channel* channel)
 {
 	Dmac *dmac = channel->dmac;
 
@@ -413,19 +345,19 @@ int dmacd_stop_transfer(struct _dma_channel* channel)
 	dmac_get_global_isr(dmac);
 
 	/* Change state to 'allocated' */
-	channel->state = DMACD_STATE_ALLOCATED;
+	channel->state = DMA_STATE_ALLOCATED;
 
 	return 0;
 }
 
-int dmacd_reset_channel(struct _dma_channel* channel)
+int dma_reset_channel(struct _dma_channel* channel)
 {
 	Dmac *dmac = channel->dmac;
 
-	if (channel->state == DMACD_STATE_ALLOCATED)
+	if (channel->state == DMA_STATE_ALLOCATED)
 		return 0;
 
-	if (channel->state == DMACD_STATE_STARTED)
+	if (channel->state == DMA_STATE_STARTED)
 		return -EBUSY;
 
 	/* Disable channel */
@@ -435,12 +367,12 @@ int dmacd_reset_channel(struct _dma_channel* channel)
 	dmac_disable_global_it(dmac, (DMAC_EBCIDR_CBTC0 | DMAC_EBCIER_BTC0 | DMAC_EBCIER_ERR0) << channel->id);
 
 	/* Change state to 'allocated' */
-	channel->state = DMACD_STATE_ALLOCATED;
+	channel->state = DMA_STATE_ALLOCATED;
 
 	return 0;
 }
 
-int dmacd_suspend_transfer(struct _dma_channel* channel)
+int dma_suspend_transfer(struct _dma_channel* channel)
 {
 	Dmac *dmac = channel->dmac;
 
@@ -448,12 +380,12 @@ int dmacd_suspend_transfer(struct _dma_channel* channel)
 	dmac_suspend_channel(dmac, channel->id);
 
 	/* Change state to 'suspended' */
-	channel->state = DMACD_STATE_SUSPENDED;
+	channel->state = DMA_STATE_SUSPENDED;
 
 	return 0;
 }
 
-int dmacd_resume_transfer(struct _dma_channel* channel)
+int dma_resume_transfer(struct _dma_channel* channel)
 {
 	Dmac *dmac = channel->dmac;
 
@@ -461,12 +393,12 @@ int dmacd_resume_transfer(struct _dma_channel* channel)
 	dmac_resume_channel(dmac, channel->id);
 
 	/* Change state to 'started */
-	channel->state = DMACD_STATE_STARTED;
+	channel->state = DMA_STATE_STARTED;
 
 	return 0;
 }
 
-void dmacd_fifo_flush(struct _dma_channel* channel)
+void dma_fifo_flush(struct _dma_channel* channel)
 {
 	Dmac *dmac = channel->dmac;
 
@@ -479,12 +411,3 @@ uint32_t dmacd_get_transferred_data_len(struct _dma_channel* channel)
 
 	return dmac_get_btsize(dmac, channel->id);
 }
-
-uint32_t dmacd_get_desc_addr(struct _dma_channel* channel)
-{
-	Dmac *dmac = channel->dmac;
-
-	return dmac_get_descriptor_addr(dmac, channel->id);
-}
-
-/**@}*/

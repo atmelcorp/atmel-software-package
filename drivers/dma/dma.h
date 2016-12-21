@@ -39,9 +39,9 @@
 #include "callback.h"
 #include "chip.h"
 #if defined(CONFIG_HAVE_DMAC)
-#include "dma/dmacd.h"
+#include "dma/dma_dmac.h"
 #elif defined(CONFIG_HAVE_XDMAC)
-#include "dma/xdmacd.h"
+#include "dma/dma_xdmac.h"
 #else
 #error "Requires a DMA controller to be enabled"
 #endif
@@ -49,6 +49,15 @@
 /*------------------------------------------------------------------------------
  *         Definitions
  *----------------------------------------------------------------------------*/
+
+/** DMA state for channel */
+enum {
+	DMA_STATE_FREE = 0,  /**< Free channel */
+	DMA_STATE_ALLOCATED, /**< Allocated to some peripheral */
+	DMA_STATE_STARTED,   /**< DMA started */
+	DMA_STATE_DONE,      /**< DMA transfer done */
+	DMA_STATE_SUSPENDED, /**< DMA suspended */
+};
 
 #define DMA_PERIPH_MEMORY  0xFF
 

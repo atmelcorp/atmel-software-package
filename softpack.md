@@ -45,8 +45,6 @@ This release contains the following examples:
 * crypto_trng: Example using hardware RNG (interrupt mode)
 * ddram: Example of DDRAM usage
 * dma: Example of DMA usage with generic API
-* dma_dmac: Example of DMAC usage
-* dma_xdmac: Example of XDMAC usage
 * getting_started: LED blink (uses PIT, TC and PIO)
 * eth: GMAC/EMAC example using a simple IP stack
 * eth_lwip: GMAC/EMAC example using LWIP stack
@@ -114,9 +112,7 @@ crypto_sha             | OK               | OK               | OK         | OK  
 crypto_tdes            | OK               | OK               | OK         | OK               | OK         | x          | x               | x
 crypto_trng            | OK               | OK               | OK         | OK               | OK         | x          | OK              | OK
 ddram                  | OK               | OK               | OK         | OK               | OK         | OK         | OK              | OK
-dma                    | OK               | OK               | OK         | OK               | OK         | OK         | x               | x
-dma_dmac               | x                | OK               | OK         | x                | x          | OK         | OK              | OK
-dma_xdmac              | OK               | x                | x          | OK               | OK         | x          | OK              | OK
+dma                    | OK               | OK               | OK         | OK               | OK         | OK         | TODO            | TODO
 getting_started        | OK               | OK               | OK         | OK               | OK         | OK         | OK              | OK
 eth                    | OK               | OK               | OK         | OK               | OK         | OK         | TODO            | TODO
 eth_lwip               | OK               | OK               | OK         | OK               | OK         | OK         | TODO            | TODO

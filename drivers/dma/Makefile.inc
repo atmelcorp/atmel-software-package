@@ -27,7 +27,8 @@
 # ----------------------------------------------------------------------------
 
 drivers-y += drivers/dma/dma.o
+drivers-$(CONFIG_HAVE_DMAC) += drivers/dma/dma_dmac.o
+drivers-$(CONFIG_HAVE_XDMAC) += drivers/dma/dma_xdmac.o
+
 drivers-$(CONFIG_HAVE_DMAC) += drivers/dma/dmac.o
-drivers-$(CONFIG_HAVE_DMAC) += drivers/dma/dmacd.o
 drivers-$(CONFIG_HAVE_XDMAC) += drivers/dma/xdmac.o
-drivers-$(CONFIG_HAVE_XDMAC) += drivers/dma/xdmacd.o

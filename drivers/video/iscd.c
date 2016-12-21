@@ -47,7 +47,7 @@ CACHE_ALIGNED static union {
 	struct _isc_dma_view2 view2[ISCD_MAX_DMA_DESC];
 } _isc_dma_view_pool;
 
-struct _iscd_awb awb;
+static struct _iscd_awb awb;
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -55,13 +55,17 @@ struct _iscd_awb awb;
 /**
  * \brief Callback entry for histogram DMA transfer done.
  */
-static void _dma_histo_callback(struct _xdmacd_channel *channel, void *arg)
+static int _dma_histo_callback(void *arg)
 {
 	struct _iscd_desc* iscd = (struct _iscd_desc*)arg;
+
+	dma_reset_channel(awb.dma.dma_histo_channel);
 
 	cache_invalidate_region((uint32_t*)iscd->pipe.histo_buf,
 			HIST_ENTRIES * sizeof(uint32_t));
 	awb.dma.dma_histo_done = true;
+
+	return 0;
 }
 
 /**
@@ -69,25 +73,19 @@ static void _dma_histo_callback(struct _xdmacd_channel *channel, void *arg)
  */
 static void _iscd_dma_read_histogram(uint32_t buf)
 {
-	struct _xdmacd_cfg xdmacd_cfg;
+	struct dma_xfer_cfg cfg;
 
-	xdmacd_cfg.ubc = HIST_ENTRIES;
-	xdmacd_cfg.sa = (uint32_t*)&ISC->ISC_HIS_ENTRY[0];
-	xdmacd_cfg.da =  (uint32_t*)buf;
-	xdmacd_cfg.cfg = XDMAC_CC_MBSIZE_SINGLE
-	               | XDMAC_CC_TYPE_MEM_TRAN
-	               | XDMAC_CC_CSIZE_CHK_1
-	               | XDMAC_CC_DWIDTH_WORD
-	               | XDMAC_CC_SIF_AHB_IF0
-	               | XDMAC_CC_DIF_AHB_IF0
-	               | XDMAC_CC_SAM_INCREMENTED_AM
-	               | XDMAC_CC_DAM_INCREMENTED_AM;
-	xdmacd_cfg.bc = 0;
-	xdmacd_cfg.ds = 0;
-	xdmacd_cfg.sus = 0;
-	xdmacd_cfg.dus = 0;
-	xdmacd_configure_transfer(awb.dma.dma_histo_channel, &xdmacd_cfg, 0, 0);
-	xdmacd_start_transfer(awb.dma.dma_histo_channel);
+	cfg.upd_sa_per_data = 1;
+	cfg.upd_da_per_data = 1;
+	cfg.sa = (uint32_t*)&ISC->ISC_HIS_ENTRY[0];
+	cfg.da = (uint32_t*)buf;
+	cfg.data_width = 4;
+	cfg.chunk_size = 1;
+	cfg.blk_size = 0;
+	cfg.len = HIST_ENTRIES;
+
+	dma_configure_transfer(awb.dma.dma_histo_channel, &cfg);
+	dma_start_transfer(awb.dma.dma_histo_channel);
 }
 
 /**
@@ -278,6 +276,7 @@ uint8_t iscd_pipe_start(struct _iscd_desc* desc)
 	uint32_t* gg;
 	uint32_t* rg;
 	uint32_t* bg;
+	struct _callback _cb;
 
 	irq_disable(ID_ISC);
 	isc_software_reset();
@@ -296,9 +295,9 @@ uint8_t iscd_pipe_start(struct _iscd_desc* desc)
 		if (!awb.dma.dma_histo_channel) {
 			/* Allocate a XDMA channel for histogram read. */
 			awb.dma.dma_histo_channel =
-				xdmacd_allocate_channel(XDMACD_PERIPH_MEMORY, XDMACD_PERIPH_MEMORY);
-			xdmacd_set_callback(awb.dma.dma_histo_channel,
-			                    _dma_histo_callback, (void*)desc);
+				dma_allocate_channel(XDMACD_PERIPH_MEMORY, XDMACD_PERIPH_MEMORY);
+			callback_set(&_cb, _dma_histo_callback, (void*)desc);
+			dma_set_callback(awb.dma.dma_histo_channel, &_cb);
 			if (!awb.dma.dma_histo_channel) {
 				trace_error("Can't allocate DMA channel \n\r");
 				return ISCD_ERROR_CONFIG;

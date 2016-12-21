@@ -27,32 +27,6 @@
  * ----------------------------------------------------------------------------
  */
 
-/** \addtogroup xdmacd_module
- *
- * \section Xdma xDma Configuration Usage
- *
- * To configure a XDMA channel, the user has to follow these few steps :
- * <ul>
- * <li> Initialize a XDMA driver instance by XDMACD_Initialize().</li>
- * <li> choose an available (disabled) channel using XDMACD_AllocateChannel().</li>
- * <li> After the XDMAC selected channel has been programmed, XDMACD_PrepareChannel() is to enable
- * clock and dma peripheral of the DMA, and set Configuration register to set up the transfer type
- * (memory or non-memory peripheral for source and destination) and flow control device.</li>
- * <li> Invoke XDMACD_StartTransfer() to start DMA transfer  or XDMACD_StopTransfer() to force stop DMA transfer.</li>
-  * <li> Once the buffer of data is transferred, XDMACD_IsTransferDone() checks if DMA transfer is finished.</li>
- * <li> XDMACD_Handler() handles XDMA interrupt, and invoking XDMACD_SetCallback() if provided.</li>
- * </ul>
- *
- * Related files:\n
- * \ref xdmacd.h\n
- * \ref xdmacd.c\n
- */
-
-/** \file */
-
-/** \addtogroup dmad_functions
-  @{*/
-
 /*----------------------------------------------------------------------------
  *        Includes
  *----------------------------------------------------------------------------*/
@@ -62,7 +36,7 @@
 #include "callback.h"
 #include "compiler.h"
 #include "dma/dma.h"
-#include "dma/xdmacd.h"
+#include "dma/dma_xdmac.h"
 #include "errno.h"
 #include "irq/irq.h"
 #include "peripherals/pmc.h"
@@ -92,15 +66,6 @@ static Xdmac* controllers[] = {
 #define XDMAC_CONTROLLERS ARRAY_SIZE(controllers)
 #define XDMACD_CHANNELS (XDMAC_CONTROLLERS * XDMAC_CHANNELS)
 
-/** DMA state for channel */
-enum {
-	XDMACD_STATE_FREE = 0,  /**< Free channel */
-	XDMACD_STATE_ALLOCATED, /**< Allocated to some peripheral */
-	XDMACD_STATE_STARTED,   /**< DMA started */
-	XDMACD_STATE_DONE,      /**< DMA transfer done */
-	XDMACD_STATE_SUSPENDED, /**< DMA suspended */
-};
-
 /** DMA driver instance */
 struct _xdmacd {
 	struct _dma_channel channels[XDMACD_CHANNELS];
@@ -113,18 +78,19 @@ static struct _xdmacd _xdmacd;
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
+
 /**
  * \brief Enable clock of the DMA peripheral, Enable the peripheral,
  * setup configuration register for transfer.
  * \param channel Channel pointer
  */
-static int xdmacd_prepare_channel(struct _dma_channel* channel)
+static int _xdmacd_prepare_channel(struct _dma_channel* channel)
 {
 	Xdmac* xdmac = channel->xdmac;
 
-	if (channel->state == XDMACD_STATE_FREE)
+	if (channel->state == DMA_STATE_FREE)
 		return -EPERM;
-	else if (channel->state == XDMACD_STATE_STARTED)
+	else if (channel->state == DMA_STATE_STARTED)
 		return -EBUSY;
 
 	/* Clear status */
@@ -169,7 +135,7 @@ static struct _dma_channel* _xdmacd_channel(Xdmac* dmac, uint32_t channel)
  * \brief xDMA interrupt handler
  * \param source Peripheral ID of DMA controller
  */
-static void xdmacd_handler(uint32_t source, void* user_arg)
+static void _xdmacd_handler(uint32_t source, void* user_arg)
 {
 	uint32_t chan, gis, gcs;
 	Xdmac* xdmac = (Xdmac*)user_arg;
@@ -187,7 +153,7 @@ static void xdmacd_handler(uint32_t source, void* user_arg)
 			continue;
 
 		channel = _xdmacd_channel(xdmac, chan);
-		if (channel->state == XDMACD_STATE_FREE)
+		if (channel->state == DMA_STATE_FREE)
 			continue;
 
 		if (!(gcs & (1 << chan))) {
@@ -195,18 +161,18 @@ static void xdmacd_handler(uint32_t source, void* user_arg)
 
 			if (cis & XDMAC_CIS_BIS) {
 				if (!(xdmac_get_channel_it_mask(xdmac, chan) & XDMAC_CIM_LIM)) {
-					channel->state = XDMACD_STATE_DONE;
+					channel->state = DMA_STATE_DONE;
 					exec = 1;
 				}
 			}
 
 			if (cis & XDMAC_CIS_LIS) {
-				channel->state = XDMACD_STATE_DONE;
+				channel->state = DMA_STATE_DONE;
 				exec = 1;
 			}
 
 			if (cis & XDMAC_CIS_DIS) {
-				channel->state = XDMACD_STATE_DONE;
+				channel->state = DMA_STATE_DONE;
 				exec = 1;
 			}
 		}
@@ -241,28 +207,28 @@ void xdmacd_initialize(bool polling)
 			channel->src_rxif = 0;
 			channel->dest_txif = 0;
 			channel->dest_rxif = 0;
-			channel->state = XDMACD_STATE_FREE;
+			channel->state = DMA_STATE_FREE;
 		}
 
 		if (!polling) {
 			uint32_t pid = get_xdmac_id_from_addr(xdmac);
 			/* enable interrupts */
-			irq_add_handler(pid, xdmacd_handler, xdmac);
+			irq_add_handler(pid, _xdmacd_handler, xdmac);
 			irq_enable(pid);
 		}
 	}
 }
 
-void xdmacd_poll(void)
+void dma_poll(void)
 {
 	if (_xdmacd.polling) {
 		int i;
 		for (i = 0; i < XDMAC_CONTROLLERS; i++)
-			xdmacd_handler(get_xdmac_id_from_addr(controllers[i]), controllers[i]);
+			_xdmacd_handler(get_xdmac_id_from_addr(controllers[i]), controllers[i]);
 	}
 }
 
-struct _dma_channel* xdmacd_allocate_channel(uint8_t src, uint8_t dest)
+struct _dma_channel* dma_allocate_channel(uint8_t src, uint8_t dest)
 {
 	uint32_t i;
 
@@ -275,7 +241,7 @@ struct _dma_channel* xdmacd_allocate_channel(uint8_t src, uint8_t dest)
 		struct _dma_channel* channel = &_xdmacd.channels[i];
 		Xdmac* xdmac = channel->xdmac;
 
-		if (channel->state == XDMACD_STATE_FREE) {
+		if (channel->state == DMA_STATE_FREE) {
 			/* Check if source peripheral matches this channel controller */
 			if (src != XDMACD_PERIPH_MEMORY)
 				if (!is_peripheral_on_xdma_controller(src, xdmac))
@@ -287,13 +253,15 @@ struct _dma_channel* xdmacd_allocate_channel(uint8_t src, uint8_t dest)
 					continue;
 
 			/* Allocate the channel */
-			channel->state = XDMACD_STATE_ALLOCATED;
+			channel->state = DMA_STATE_ALLOCATED;
 			channel->src_txif = get_peripheral_xdma_channel(src, xdmac, true);
 			channel->src_rxif = get_peripheral_xdma_channel(src, xdmac, false);
 			channel->dest_txif = get_peripheral_xdma_channel(dest, xdmac, true);
 			channel->dest_rxif = get_peripheral_xdma_channel(dest, xdmac, false);
 
-			xdmacd_prepare_channel(channel);
+			_xdmacd_prepare_channel(channel);
+
+			channel->sg_list = NULL;
 
 			return channel;
 		}
@@ -301,45 +269,14 @@ struct _dma_channel* xdmacd_allocate_channel(uint8_t src, uint8_t dest)
 	return NULL;
 }
 
-int xdmacd_free_channel(struct _dma_channel* channel)
-{
-	switch (channel->state) {
-	case XDMACD_STATE_STARTED:
-		return -EBUSY;
-	case XDMACD_STATE_ALLOCATED:
-	case XDMACD_STATE_DONE:
-		channel->state = XDMACD_STATE_FREE;
-		break;
-	}
-	return 0;
-}
-
-int xdmacd_set_callback(struct _dma_channel* channel, struct _callback* cb)
-{
-	if (channel->state == XDMACD_STATE_FREE)
-		return -EPERM;
-	else if (channel->state == XDMACD_STATE_STARTED)
-		return -EBUSY;
-
-	callback_copy(&channel->callback, cb);
-
-	return 0;
-}
-
-bool xdmacd_is_transfer_done(struct _dma_channel* channel)
-{
-	return ((channel->state != XDMACD_STATE_STARTED)
-			&& (channel->state != XDMACD_STATE_SUSPENDED));
-}
-
 int xdmacd_configure_transfer(struct _dma_channel* channel,
 				  struct _xdmacd_cfg *cfg,
 				  uint32_t desc_cntrl,
 				  void *desc_addr)
 {
-	if (channel->state == XDMACD_STATE_FREE)
+	if (channel->state == DMA_STATE_FREE)
 		return -EPERM;
-	else if (channel->state == XDMACD_STATE_STARTED)
+	else if (channel->state == DMA_STATE_STARTED)
 		return -EBUSY;
 
 	Xdmac* xdmac = channel->xdmac;
@@ -398,15 +335,15 @@ int xdmacd_configure_transfer(struct _dma_channel* channel,
 	return 0;
 }
 
-int xdmacd_start_transfer(struct _dma_channel* channel)
+int dma_start_transfer(struct _dma_channel* channel)
 {
-	if (channel->state == XDMACD_STATE_FREE)
+	if (channel->state == DMA_STATE_FREE)
 		return -EPERM;
-	else if (channel->state == XDMACD_STATE_STARTED)
+	else if (channel->state == DMA_STATE_STARTED)
 		return -EBUSY;
 
 	/* Change state to 'started' */
-	channel->state = XDMACD_STATE_STARTED;
+	channel->state = DMA_STATE_STARTED;
 
 	/* Start DMA transfer */
 	xdmac_enable_channel(channel->xdmac, channel->id);
@@ -417,7 +354,7 @@ int xdmacd_start_transfer(struct _dma_channel* channel)
 	return 0;
 }
 
-int xdmacd_stop_transfer(struct _dma_channel* channel)
+int dma_stop_transfer(struct _dma_channel* channel)
 {
 	Xdmac* xdmac = channel->xdmac;
 
@@ -432,19 +369,19 @@ int xdmacd_stop_transfer(struct _dma_channel* channel)
 	xdmac_get_global_channel_status(xdmac);
 
 	/* Change state to 'allocated' */
-	channel->state = XDMACD_STATE_ALLOCATED;
+	channel->state = DMA_STATE_ALLOCATED;
 
 	return 0;
 }
 
-int xdmacd_reset_channel(struct _dma_channel* channel)
+int dma_reset_channel(struct _dma_channel* channel)
 {
 	Xdmac* xdmac = channel->xdmac;
 
-	if (channel->state == XDMACD_STATE_ALLOCATED)
+	if (channel->state == DMA_STATE_ALLOCATED)
 		return 0;
 
-	if (channel->state == XDMACD_STATE_STARTED)
+	if (channel->state == DMA_STATE_STARTED)
 		return -EBUSY;
 
 	/* Disable channel */
@@ -454,12 +391,12 @@ int xdmacd_reset_channel(struct _dma_channel* channel)
 	xdmac_disable_channel_it(xdmac, channel->id, -1);
 
 	/* Change state to 'allocated' */
-	channel->state = XDMACD_STATE_ALLOCATED;
+	channel->state = DMA_STATE_ALLOCATED;
 
 	return 0;
 }
 
-int xdmacd_suspend_transfer(struct _dma_channel* channel)
+int dma_suspend_transfer(struct _dma_channel* channel)
 {
 	Xdmac* xdmac = channel->xdmac;
 
@@ -467,12 +404,12 @@ int xdmacd_suspend_transfer(struct _dma_channel* channel)
 	xdmac_suspend_channel(xdmac, channel->id);
 
 	/* Change state to 'suspended' */
-	channel->state = XDMACD_STATE_SUSPENDED;
+	channel->state = DMA_STATE_SUSPENDED;
 
 	return 0;
 }
 
-int xdmacd_resume_transfer(struct _dma_channel* channel)
+int dma_resume_transfer(struct _dma_channel* channel)
 {
 	Xdmac* xdmac = channel->xdmac;
 
@@ -480,7 +417,7 @@ int xdmacd_resume_transfer(struct _dma_channel* channel)
 	xdmac_resume_read_write_channel(xdmac, channel->id);
 
 	/* Change state to 'started' */
-	channel->state = XDMACD_STATE_STARTED;
+	channel->state = DMA_STATE_STARTED;
 
 	return 0;
 }
@@ -492,18 +429,9 @@ uint32_t xdmacd_get_remaining_data_len(struct _dma_channel* channel)
 	return xdmac_get_microblock_control(xdmac, channel->id);
 }
 
-uint32_t xdmacd_get_desc_addr(struct _dma_channel* channel)
-{
-	Xdmac* xdmac = channel->xdmac;
-
-	return xdmac_get_descriptor_addr(xdmac, channel->id);
-}
-
-void xdmacd_fifo_flush(struct _dma_channel* channel)
+void dma_fifo_flush(struct _dma_channel* channel)
 {
 	Xdmac* xdmac = channel->xdmac;
 
 	xdmac_fifo_flush(xdmac, channel->id);
 }
-
-/**@}*/

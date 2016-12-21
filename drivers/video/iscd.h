@@ -35,11 +35,10 @@
  *        Header
  *----------------------------------------------------------------------------*/
 
-#include "callback.h"
-
-#include "dma/xdmacd.h"
-
 #include <stdint.h>
+
+#include "callback.h"
+#include "dma/dma.h"
 
 /*------------------------------------------------------------------------------
  *        Definition
@@ -152,7 +151,7 @@ struct _iscd_desc {
 
 struct _iscd_awb {
 	struct {
-		struct _xdmacd_channel* dma_histo_channel;
+		struct _dma_channel* dma_histo_channel;
 		bool dma_histo_ready;
 		bool dma_histo_done;
 	} dma;
