@@ -57,6 +57,144 @@ extern "C" {
  *         Definitions
  *----------------------------------------------------------------------------*/
 
+/* -------- MCAN Message RAM : Standard Message ID Filter Element (S0) -------- */
+#define MCAN_RAM_S0_SFID2_Pos 0
+#define MCAN_RAM_S0_SFID2_Msk (0x7ffu << MCAN_RAM_S0_SFID2_Pos) /**< \brief (S0) Standard Filter ID 2 */
+#define MCAN_RAM_S0_SFID2(value) ((MCAN_RAM_S0_SFID2_Msk & ((value) << MCAN_RAM_S0_SFID2_Pos)))
+#define   MCAN_RAM_S0_SFID2_BUF_IDX_Pos 0
+#define   MCAN_RAM_S0_SFID2_BUF_IDX_Msk (0x3fu << MCAN_RAM_S0_SFID2_BUF_IDX_Pos) /**< \brief (S0) Index of Rx Buffer for storage of a matching message. */
+#define   MCAN_RAM_S0_SFID2_BUF_IDX(value) ((MCAN_RAM_S0_SFID2_BUF_IDX_Msk & ((value) << MCAN_RAM_S0_SFID2_BUF_IDX_Pos)))
+#define   MCAN_RAM_S0_SFID2_FE0 (0x1u << 6) /**< \brief (S0) Generate a pulse at m_can_fe0 filter event pin in case the filter matches. */
+#define   MCAN_RAM_S0_SFID2_FE1 (0x1u << 7) /**< \brief (S0) Generate a pulse at m_can_fe1 filter event pin in case the filter matches. */
+#define   MCAN_RAM_S0_SFID2_FE2 (0x1u << 8) /**< \brief (S0) Generate a pulse at m_can_fe2 filter event pin in case the filter matches. */
+#define   MCAN_RAM_S0_SFID2_BUF (0x0u << 9) /**< \brief (S0) Store message in a Rx buffer. */
+#define   MCAN_RAM_S0_SFID2_DBG_A (0x1u << 9) /**< \brief (S0) Debug Message A. */
+#define   MCAN_RAM_S0_SFID2_DBG_B (0x2u << 9) /**< \brief (S0) Debug Message B. */
+#define   MCAN_RAM_S0_SFID2_DBG_C (0x3u << 9) /**< \brief (S0) Debug Message C. */
+#define MCAN_RAM_S0_SFID1_Pos 16
+#define MCAN_RAM_S0_SFID1_Msk (0x7ffu << MCAN_RAM_S0_SFID1_Pos) /**< \brief (S0) Standard Filter ID 1 */
+#define MCAN_RAM_S0_SFID1(value) ((MCAN_RAM_S0_SFID1_Msk & ((value) << MCAN_RAM_S0_SFID1_Pos)))
+#define MCAN_RAM_S0_SFEC_Pos 27
+#define MCAN_RAM_S0_SFEC_Msk (0x7u << MCAN_RAM_S0_SFEC_Pos) /**< \brief (S0) Standard Filter Element Configuration */
+#define MCAN_RAM_S0_SFEC(value) ((MCAN_RAM_S0_SFEC_Msk & ((value) << MCAN_RAM_S0_SFEC_Pos)))
+#define   MCAN_RAM_S0_SFEC_DIS (0x0u << 27) /**< \brief (S0) Disable filter element. */
+#define   MCAN_RAM_S0_SFEC_FIFO0 (0x1u << 27) /**< \brief (S0) Store in Rx FIFO 0 if filter matches. */
+#define   MCAN_RAM_S0_SFEC_FIFO1 (0x2u << 27) /**< \brief (S0) Store in Rx FIFO 1 if filter matches. */
+#define   MCAN_RAM_S0_SFEC_INV (0x3u << 27) /**< \brief (S0) Reject ID if filter matches. */
+#define   MCAN_RAM_S0_SFEC_PTY (0x4u << 27) /**< \brief (S0) Set priority if filter matches. */
+#define   MCAN_RAM_S0_SFEC_PTY_FIFO0 (0x5u << 27) /**< \brief (S0) Set priority and store in FIFO 0 if filter matches. */
+#define   MCAN_RAM_S0_SFEC_PTY_FIFO1 (0x6u << 27) /**< \brief (S0) Set priority and store in FIFO 1 if filter matches. */
+#define   MCAN_RAM_S0_SFEC_BUF (0x7u << 27) /**< \brief (S0) Store into Rx Buffer or as debug message. */
+#define MCAN_RAM_S0_SFT_Pos 30
+#define MCAN_RAM_S0_SFT_Msk (0x3u << MCAN_RAM_S0_SFT_Pos) /**< \brief (S0) Standard Filter Type */
+#define MCAN_RAM_S0_SFT(value) ((MCAN_RAM_S0_SFT_Msk & ((value) << MCAN_RAM_S0_SFT_Pos)))
+#define   MCAN_RAM_S0_SFT_RANGE (0x0u << 30) /**< \brief (S0) Range filter from SF1ID to SF2ID. */
+#define   MCAN_RAM_S0_SFT_DUAL_ID (0x1u << 30) /**< \brief (S0) Dual ID filter for SF1ID or SF2ID. */
+#define   MCAN_RAM_S0_SFT_CLASSIC (0x2u << 30) /**< \brief (S0) Classic filter: SF1ID = filter, SF2ID = mask. */
+/* -------- MCAN Message RAM : Extended Message ID Filter Element (F0) -------- */
+#define MCAN_RAM_F0_EFID1_Pos 0
+#define MCAN_RAM_F0_EFID1_Msk (0x1fffffffu << MCAN_RAM_F0_EFID1_Pos) /**< \brief (F0) Standard Filter ID 1 */
+#define MCAN_RAM_F0_EFID1(value) ((MCAN_RAM_F0_EFID1_Msk & ((value) << MCAN_RAM_F0_EFID1_Pos)))
+#define MCAN_RAM_F0_EFEC_Pos 29
+#define MCAN_RAM_F0_EFEC_Msk (0x7u << MCAN_RAM_F0_EFEC_Pos) /**< \brief (F0) Extended Filter Element Configuration */
+#define MCAN_RAM_F0_EFEC(value) ((MCAN_RAM_F0_EFEC_Msk & ((value) << MCAN_RAM_F0_EFEC_Pos)))
+#define   MCAN_RAM_F0_EFEC_DIS (0x0u << 29) /**< \brief (F0) Disable filter element. */
+#define   MCAN_RAM_F0_EFEC_FIFO0 (0x1u << 29) /**< \brief (F0) Store in Rx FIFO 0 if filter matches. */
+#define   MCAN_RAM_F0_EFEC_FIFO1 (0x2u << 29) /**< \brief (F0) Store in Rx FIFO 1 if filter matches. */
+#define   MCAN_RAM_F0_EFEC_INV (0x3u << 29) /**< \brief (F0) Reject ID if filter matches. */
+#define   MCAN_RAM_F0_EFEC_PTY (0x4u << 29) /**< \brief (F0) Set priority if filter matches. */
+#define   MCAN_RAM_F0_EFEC_PTY_FIFO0 (0x5u << 29) /**< \brief (F0) Set priority and store in FIFO 0 if filter matches. */
+#define   MCAN_RAM_F0_EFEC_PTY_FIFO1 (0x6u << 29) /**< \brief (F0) Set priority and store in FIFO 1 if filter matches. */
+#define   MCAN_RAM_F0_EFEC_BUF (0x7u << 29) /**< \brief (F0) Store into Rx Buffer or as debug message. */
+/* -------- MCAN Message RAM : Extended Message ID Filter Element (F1) -------- */
+#define MCAN_RAM_F1_EFID2_Pos 0
+#define MCAN_RAM_F1_EFID2_Msk (0x1fffffffu << MCAN_RAM_F1_EFID2_Pos) /**< \brief (F1) Standard Filter ID 2 */
+#define MCAN_RAM_F1_EFID2(value) ((MCAN_RAM_F1_EFID2_Msk & ((value) << MCAN_RAM_F1_EFID2_Pos)))
+#define   MCAN_RAM_F1_EFID2_BUF_IDX_Pos 0
+#define   MCAN_RAM_F1_EFID2_BUF_IDX_Msk (0x3fu << MCAN_RAM_F1_EFID2_BUF_IDX_Pos) /**< \brief (F1) Index of Rx Buffer for storage of a matching message. */
+#define   MCAN_RAM_F1_EFID2_BUF_IDX(value) ((MCAN_RAM_F1_EFID2_BUF_IDX_Msk & ((value) << MCAN_RAM_F1_EFID2_BUF_IDX_Pos)))
+#define   MCAN_RAM_F1_EFID2_FE0 (0x1u << 6) /**< \brief (F1) Generate a pulse at m_can_fe0 filter event pin in case the filter matches. */
+#define   MCAN_RAM_F1_EFID2_FE1 (0x1u << 7) /**< \brief (F1) Generate a pulse at m_can_fe1 filter event pin in case the filter matches. */
+#define   MCAN_RAM_F1_EFID2_FE2 (0x1u << 8) /**< \brief (F1) Generate a pulse at m_can_fe2 filter event pin in case the filter matches. */
+#define   MCAN_RAM_F1_EFID2_BUF (0x0u << 9) /**< \brief (F1) Store message in a Rx buffer. */
+#define   MCAN_RAM_F1_EFID2_DBG_A (0x1u << 9) /**< \brief (F1) Debug Message A. */
+#define   MCAN_RAM_F1_EFID2_DBG_B (0x2u << 9) /**< \brief (F1) Debug Message B. */
+#define   MCAN_RAM_F1_EFID2_DBG_C (0x3u << 9) /**< \brief (F1) Debug Message C. */
+#define MCAN_RAM_F1_EFT_Pos 30
+#define MCAN_RAM_F1_EFT_Msk (0x3u << MCAN_RAM_F1_EFT_Pos) /**< \brief (F1) Extended Filter Type */
+#define MCAN_RAM_F1_EFT(value) ((MCAN_RAM_F1_EFT_Msk & ((value) << MCAN_RAM_F1_EFT_Pos)))
+#define   MCAN_RAM_F1_EFT_RANGE_EIDM (0x0u << 30) /**< \brief (F1) Range filter from EF1ID to EF2ID (Extended ID Mask applied). */
+#define   MCAN_RAM_F1_EFT_DUAL_ID (0x1u << 30) /**< \brief (F1) Dual ID filter for EF1ID or EF2ID. */
+#define   MCAN_RAM_F1_EFT_CLASSIC (0x2u << 30) /**< \brief (F1) Classic filter: EF1ID = filter, EF2ID = mask. */
+#define   MCAN_RAM_F1_EFT_RANGE (0x3u << 30) /**< \brief (F1) Range filter from EF1ID to EF2ID, Extended ID Mask not applied. */
+/* -------- MCAN Message RAM : Rx Buffer Element (R0) -------- */
+#define MCAN_RAM_R0_XTDID_Pos 0
+#define MCAN_RAM_R0_XTDID_Msk (0x1fffffffu << MCAN_RAM_R0_XTDID_Pos) /**< \brief (R0) Extended (29-bit) Message identifier */
+#define MCAN_RAM_R0_XTDID(value) ((MCAN_RAM_R0_XTDID_Msk & ((value) << MCAN_RAM_R0_XTDID_Pos)))
+#define MCAN_RAM_R0_STDID_Pos 18
+#define MCAN_RAM_R0_STDID_Msk (0x7ffu << MCAN_RAM_R0_STDID_Pos) /**< \brief (R0) Standard (11-bit) Message identifier */
+#define MCAN_RAM_R0_STDID(value) ((MCAN_RAM_R0_STDID_Msk & ((value) << MCAN_RAM_R0_STDID_Pos)))
+#define MCAN_RAM_R0_RTR (0x1u << 29) /**< \brief (R0) Remote Transmission Request */
+#define MCAN_RAM_R0_XTD (0x1u << 30) /**< \brief (R0) Flag that signals an extended Message identifier */
+#define MCAN_RAM_R0_ESI (0x1u << 31) /**< \brief (R0) Error State Indicator */
+/* -------- MCAN Message RAM : Rx Buffer Element (R1) -------- */
+#define MCAN_RAM_R1_RXTS_Pos 0
+#define MCAN_RAM_R1_RXTS_Msk (0xffffu << MCAN_RAM_R1_RXTS_Pos) /**< \brief (R1) Rx Timestamp */
+#define MCAN_RAM_R1_DLC_Pos 16
+#define MCAN_RAM_R1_DLC_Msk (0xfu << MCAN_RAM_R1_DLC_Pos) /**< \brief (R1) Data Length Code */
+#define MCAN_RAM_R1_DLC(value) ((MCAN_RAM_R1_DLC_Msk & ((value) << MCAN_RAM_R1_DLC_Pos)))
+#define MCAN_RAM_R1_BRS (0x1u << 20) /**< \brief (R1) Flag that signals a frame transmitted with bit rate switching */
+#define MCAN_RAM_R1_FDF (0x1u << 21) /**< \brief (R1) Flag that signals a frame in CAN FD format */
+#define MCAN_RAM_R1_FIDX_Pos 24
+#define MCAN_RAM_R1_FIDX_Msk (0x7fu << MCAN_RAM_R1_FIDX_Pos) /**< \brief (R1) Filter Index */
+#define MCAN_RAM_R1_ANMF (0x1u << 31) /**< \brief (R1) Flag that signals a received frame accepted without matching any Rx Filter Element */
+/* -------- MCAN Message RAM : Rx Buffer Element (T0) -------- */
+#define MCAN_RAM_T0_XTDID_Pos 0
+#define MCAN_RAM_T0_XTDID_Msk (0x1fffffffu << MCAN_RAM_T0_XTDID_Pos) /**< \brief (T0) Extended (29-bit) Message identifier */
+#define MCAN_RAM_T0_XTDID(value) ((MCAN_RAM_T0_XTDID_Msk & ((value) << MCAN_RAM_T0_XTDID_Pos)))
+#define MCAN_RAM_T0_STDID_Pos 18
+#define MCAN_RAM_T0_STDID_Msk (0x7ffu << MCAN_RAM_T0_STDID_Pos) /**< \brief (T0) Standard (11-bit) Message identifier */
+#define MCAN_RAM_T0_STDID(value) ((MCAN_RAM_T0_STDID_Msk & ((value) << MCAN_RAM_T0_STDID_Pos)))
+#define MCAN_RAM_T0_RTR (0x1u << 29) /**< \brief (T0) Remote Transmission Request */
+#define MCAN_RAM_T0_XTD (0x1u << 30) /**< \brief (T0) Flag that signals an extended Message identifier */
+#define MCAN_RAM_T0_ESI (0x1u << 31) /**< \brief (T0) Error State Indicator */
+/* -------- MCAN Message RAM : Rx Buffer Element (T1) -------- */
+#define MCAN_RAM_T1_DLC_Pos 16
+#define MCAN_RAM_T1_DLC_Msk (0xfu << MCAN_RAM_T1_DLC_Pos) /**< \brief (T1) Data Length Code */
+#define MCAN_RAM_T1_DLC(value) ((MCAN_RAM_T1_DLC_Msk & ((value) << MCAN_RAM_T1_DLC_Pos)))
+#define MCAN_RAM_T1_BRS (0x1u << 20) /**< \brief (T1) Flag that signals a frame transmitted with bit rate switching */
+#define MCAN_RAM_T1_FDF (0x1u << 21) /**< \brief (T1) Flag that signals a frame in CAN FD format */
+#define MCAN_RAM_T1_EFC (0x1u << 23) /**< \brief (T1) Event FIFO Control */
+#define MCAN_RAM_T1_MM_Pos 24
+#define MCAN_RAM_T1_MM_Msk (0xffu << MCAN_RAM_T1_MM_Pos) /**< \brief (T1) Message Marker */
+#define MCAN_RAM_T1_MM(value) ((MCAN_RAM_T1_MM_Msk & ((value) << MCAN_RAM_T1_MM_Pos)))
+/* -------- MCAN Message RAM : Tx Event FIFO Element (E0) -------- */
+#define MCAN_RAM_E0_XTDID_Pos 0
+#define MCAN_RAM_E0_XTDID_Msk (0x1fffffffu << MCAN_RAM_E0_XTDID_Pos) /**< \brief (E0) Extended (29-bit) Message identifier */
+#define MCAN_RAM_E0_XTDID(value) ((MCAN_RAM_E0_XTDID_Msk & ((value) << MCAN_RAM_E0_XTDID_Pos)))
+#define MCAN_RAM_E0_STDID_Pos 18
+#define MCAN_RAM_E0_STDID_Msk (0x7ffu << MCAN_RAM_E0_STDID_Pos) /**< \brief (E0) Standard (11-bit) Message identifier */
+#define MCAN_RAM_E0_STDID(value) ((MCAN_RAM_E0_STDID_Msk & ((value) << MCAN_RAM_E0_STDID_Pos)))
+#define MCAN_RAM_E0_RTR (0x1u << 29) /**< \brief (E0) Remote Transmission Request */
+#define MCAN_RAM_E0_XTD (0x1u << 30) /**< \brief (E0) Flag that signals an extended Message identifier */
+#define MCAN_RAM_E0_ESI (0x1u << 31) /**< \brief (E0) Error State Indicator */
+/* -------- MCAN Message RAM : Tx Event FIFO Element (E1) -------- */
+#define MCAN_RAM_E1_TXTS_Pos 0
+#define MCAN_RAM_E1_TXTS_Msk (0xffffu << MCAN_RAM_E1_RXTS_Pos) /**< \brief (E1) Tx Timestamp */
+#define MCAN_RAM_E1_DLC_Pos 16
+#define MCAN_RAM_E1_DLC_Msk (0xfu << MCAN_RAM_E1_DLC_Pos) /**< \brief (E1) Data Length Code */
+#define MCAN_RAM_E1_DLC(value) ((MCAN_RAM_E1_DLC_Msk & ((value) << MCAN_RAM_E1_DLC_Pos)))
+#define MCAN_RAM_E1_BRS (0x1u << 20) /**< \brief (E1) Flag that signals a frame transmitted with bit rate switching */
+#define MCAN_RAM_E1_FDF (0x1u << 21) /**< \brief (E1) Flag that signals a frame in CAN FD format */
+#define MCAN_RAM_E1_ET_Pos 22
+#define MCAN_RAM_E1_ET_Msk (0x3u << MCAN_RAM_E1_ET_Pos) /**< \brief (E1) Event Type */
+#define MCAN_RAM_E1_ET(value) ((MCAN_RAM_E1_ET_Msk & ((value) << MCAN_RAM_E1_ET_Pos)))
+#define   MCAN_RAM_E1_ET_TX_EVENT (0x1u << 22) /**< \brief (E1) Tx event */
+#define   MCAN_RAM_E1_ET_TX_CANCELLED (0x2u << 22) /**< \brief (E1) Transmission in spite of cancellation */
+#define MCAN_RAM_E1_MM_Pos 24
+#define MCAN_RAM_E1_MM_Msk (0xffu << MCAN_RAM_E1_MM_Pos) /**< \brief (E1) Message Marker */
+#define MCAN_RAM_E1_MM(value) ((MCAN_RAM_E1_MM_Msk & ((value) << MCAN_RAM_E1_MM_Pos)))
+
 enum mcan_dlc
 {
 	CAN_DLC_0 = 0,
@@ -76,11 +214,6 @@ enum mcan_dlc
 	CAN_DLC_48 = 14,
 	CAN_DLC_64 = 15
 };
-
-/* Flag signalling a standard (11-bit) message identifiers */
-#define CAN_STD_MSG_ID (0x0u << 30)
-/* Flag to be bitwise or'ed to extended (29-bit) message identifiers */
-#define CAN_EXT_MSG_ID (0x1u << 30)
 
 struct mcan_msg_info
 {
@@ -161,16 +294,6 @@ static inline void mcan_rx_fifo1_ack(Mcan *mcan, uint32_t index)
 static inline bool mcan_is_enabled(Mcan *mcan)
 {
 	return ((mcan->MCAN_CCCR & MCAN_CCCR_INIT) == MCAN_CCCR_INIT_DISABLED);
-}
-
-static inline bool mcan_is_extended_id(uint32_t msg_id)
-{
-	return msg_id & CAN_EXT_MSG_ID ? true : false;
-}
-
-static inline uint32_t mcan_get_id(uint32_t msg_id)
-{
-	return msg_id & CAN_EXT_MSG_ID ? msg_id & 0x1fffffff : msg_id & 0x7ff;
 }
 
 static inline bool mcan_is_tx_complete(Mcan *mcan)

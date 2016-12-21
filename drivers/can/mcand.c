@@ -102,6 +102,18 @@ struct _mcan_quanta {
  *        Local variables
  *----------------------------------------------------------------------------*/
 
+/* size of Rx/Tx Buffer Element: 2 bytes (R0+R1 or T0+T1)*/
+#define MCAN_RAM_BUF_HDR_SIZE 2
+
+/* size of Standard Message ID Filter: 1 byte (S0) */
+#define MCAN_RAM_FILT_STD_SIZE 1
+
+/* size of Extended Message ID Filter: 2 bytes (F0+F1) */
+#define MCAN_RAM_FILT_EXT_SIZE 2
+
+/* size of Tx Event FIFO Element: 2 bytes (E0+E1) */
+#define MCAN_RAM_TX_EVT_SIZE 2
+
 /* size of our custom Rx and Tx Buffer Elements, in words */
 #define RAM_BUF_SIZE                  (MCAN_RAM_BUF_HDR_SIZE + 64u / 4)
 
@@ -430,10 +442,10 @@ static void mcand_release_ram(struct _mcan_desc *desc,
 
 	if (item == MCAN_RAM_STD_FILTER) {
 		filter = desc->set.ram_filt_std + index * MCAN_RAM_FILT_STD_SIZE;
-		*filter = MCAN_RAM_FILT_SFEC_DIS;
+		*filter = MCAN_RAM_S0_SFEC_DIS;
 	} else if (item == MCAN_RAM_EXT_FILTER) {
 		filter = desc->set.ram_filt_ext + index * MCAN_RAM_FILT_EXT_SIZE;
-		*filter = MCAN_RAM_FILT_EFEC_DIS;
+		*filter = MCAN_RAM_F0_EFEC_DIS;
 	} else if (item == MCAN_RAM_RX_FIFO0) {
 		mcan_rx_fifo0_ack(desc->addr, index);
 	} else if (item == MCAN_RAM_RX_FIFO1) {
@@ -461,10 +473,10 @@ static void _mcand_tx_buffer_handler(struct _mcan_desc *desc)
 				buf_idx *
 				(MCAN_RAM_BUF_HDR_SIZE + desc->set.cfg.buf_size_tx / sizeof(uint32_t));
 
-			if (tx_buf[0] & MCAN_RAM_BUF_ESI) {
+			if (tx_buf[0] & MCAN_RAM_T0_ESI) {
 				// Error State Indicator
 			}
-			if (tx_buf[0] & MCAN_RAM_BUF_RTR) {
+			if (tx_buf[0] & MCAN_RAM_T0_RTR) {
 				// Remote Transmission Request
 			}
 
@@ -514,19 +526,19 @@ static void _mcand_tx_fifo_handler(struct _mcan_desc *desc)
 			fifo_idx *
 			(MCAN_RAM_BUF_HDR_SIZE + desc->set.cfg.buf_size_tx / sizeof(uint32_t));
 
-		if (tx_fifo[0] & MCAN_RAM_BUF_ESI) {
+		if (tx_fifo[0] & MCAN_RAM_T0_ESI) {
 			// Error State Indicator
 		}
-		if (tx_fifo[0] & MCAN_RAM_BUF_RTR) {
+		if (tx_fifo[0] & MCAN_RAM_T0_RTR) {
 			// Remote Transmission Request
 		}
-		if (tx_fifo[0] & MCAN_RAM_BUF_XTD)
-			id = (tx_fifo[0] & MCAN_RAM_BUF_ID_XTD_Msk) >> MCAN_RAM_BUF_ID_XTD_Pos;
+		if (tx_fifo[0] & MCAN_RAM_T0_XTD)
+			id = (tx_fifo[0] & MCAN_RAM_T0_XTDID_Msk) >> MCAN_RAM_T0_XTDID_Pos;
 		else
-			id = (tx_fifo[0] & MCAN_RAM_BUF_ID_STD_Msk) >> MCAN_RAM_BUF_ID_STD_Pos;
+			id = (tx_fifo[0] & MCAN_RAM_T0_STDID_Msk) >> MCAN_RAM_T0_STDID_Pos;
 
 		len = get_data_length((enum mcan_dlc)
-				((tx_fifo[1] & MCAN_RAM_BUF_DLC_Msk) >> MCAN_RAM_BUF_DLC_Pos));
+				((tx_fifo[1] & MCAN_RAM_T1_DLC_Msk) >> MCAN_RAM_T1_DLC_Pos));
 		printf("tx_fifo idx=%u, id=0x%x, len=%u, data=%08x %08x\n\r",
 			(unsigned)fifo_idx, (unsigned)id, (unsigned)len,
 			(unsigned)tx_fifo[2], (unsigned)tx_fifo[3]);
@@ -569,13 +581,13 @@ static void _mcand_rx_proc(struct _mcan_desc *desc, enum _mcan_ram ram, uint32_t
 
 	rx_buf += buf_idx * (MCAN_RAM_BUF_HDR_SIZE + ram_size / sizeof(uint32_t));
 
-	if (rx_buf[0] & MCAN_RAM_BUF_ESI) {
+	if (rx_buf[0] & MCAN_RAM_R0_ESI) {
 		// Error State Indicator
 	}
-	if (rx_buf[0] & MCAN_RAM_BUF_RTR) {
+	if (rx_buf[0] & MCAN_RAM_R0_RTR) {
 		// Remote Transmission Request
 	}
-	if (rx_buf[0] & MCAN_RAM_BUF_XTD) {
+	if (rx_buf[0] & MCAN_RAM_R0_XTD) {
 		filter = MCAN_RAM_EXT_FILTER;
 		filter_cnt = desc->set.cfg.item_count[MCAN_RAM_EXT_FILTER];
 	} else {
@@ -583,9 +595,9 @@ static void _mcand_rx_proc(struct _mcan_desc *desc, enum _mcan_ram ram, uint32_t
 		filter_cnt = desc->set.cfg.item_count[MCAN_RAM_STD_FILTER];
 	}
 
-	filter_idx = (rx_buf[1] & MCAN_RAM_BUF_FIDX_Msk) >> MCAN_RAM_BUF_FIDX_Pos;
+	filter_idx = (rx_buf[1] & MCAN_RAM_R1_FIDX_Msk) >> MCAN_RAM_R1_FIDX_Pos;
 	len = get_data_length((enum mcan_dlc)
-			((rx_buf[1] & MCAN_RAM_BUF_DLC_Msk) >> MCAN_RAM_BUF_DLC_Pos));
+			((rx_buf[1] & MCAN_RAM_R1_DLC_Msk) >> MCAN_RAM_R1_DLC_Pos));
 
 	if (ram_item->buf) {
 		/* copy data from the Rx FIFO/Buffer to the application-owned buffer */
@@ -600,7 +612,7 @@ static void _mcand_rx_proc(struct _mcan_desc *desc, enum _mcan_ram ram, uint32_t
 		trace_error("rx_buf null, idx=%u\n\r", (unsigned)buf_idx);
 	}
 
-	if (0 == (rx_buf[1] & MCAN_RAM_BUF_ANMF)) {
+	if (0 == (rx_buf[1] & MCAN_RAM_R1_ANMF)) {
 		if (filter_idx >= filter_cnt)
 			trace_warning("Total %d filters, item %d is invalid!\n\r",
 				filter_cnt, filter_idx);
@@ -880,15 +892,15 @@ static uint8_t * mcan_prepare_tx_buffer(struct _mcan_desc *desc, uint8_t buf_idx
 		dlc = CAN_DLC_0;
 	pThisTxBuf = set->ram_array_tx + buf_idx
 		* (MCAN_RAM_BUF_HDR_SIZE + set->cfg.buf_size_tx / 4);
-	if (mcan_is_extended_id(id))
-		*pThisTxBuf++ = MCAN_RAM_BUF_XTD | MCAN_RAM_BUF_ID_XTD(id);
+	if (id & MCAN_RAM_T0_XTD)
+		*pThisTxBuf++ = MCAN_RAM_T0_XTD | MCAN_RAM_T0_XTDID(id);
 	else
-		*pThisTxBuf++ = MCAN_RAM_BUF_ID_STD(id);
-	val = MCAN_RAM_BUF_MM(0) | MCAN_RAM_BUF_DLC((uint32_t)dlc);
+		*pThisTxBuf++ = MCAN_RAM_T0_STDID(id);
+	val = MCAN_RAM_T1_MM(0) | MCAN_RAM_T1_DLC((uint32_t)dlc);
 	if (mode == CAN_MODE_CAN_FD_CONST_RATE)
-		val |= MCAN_RAM_BUF_FDF;
+		val |= MCAN_RAM_T1_FDF;
 	else if (mode == CAN_MODE_CAN_FD_DUAL_RATE)
-		val |= MCAN_RAM_BUF_FDF | MCAN_RAM_BUF_BRS;
+		val |= MCAN_RAM_T1_FDF | MCAN_RAM_T1_BRS;
 	*pThisTxBuf++ = val;
 	/* enable transmit from buffer to set TC interrupt bit in IR,
 	 * but interrupt will not happen unless TC interrupt is enabled */
@@ -912,15 +924,15 @@ static void mcan_enqueue_outgoing_msg(struct _mcan_desc *desc,
 		dlc = CAN_DLC_0;
 	pThisTxBuf = set->ram_array_tx + (uint32_t)
 		putIdx * (MCAN_RAM_BUF_HDR_SIZE + set->cfg.buf_size_tx / 4);
-	if (mcan_is_extended_id(id))
-		*pThisTxBuf++ = MCAN_RAM_BUF_XTD | MCAN_RAM_BUF_ID_XTD(id);
+	if (id & MCAN_RAM_T0_XTD)
+		*pThisTxBuf++ = MCAN_RAM_T0_XTD | MCAN_RAM_T0_XTDID(id);
 	else
-		*pThisTxBuf++ = MCAN_RAM_BUF_ID_STD(id);
-	val = MCAN_RAM_BUF_MM(0) | MCAN_RAM_BUF_DLC((uint32_t)dlc);
+		*pThisTxBuf++ = MCAN_RAM_T0_STDID(id);
+	val = MCAN_RAM_T1_MM(0) | MCAN_RAM_T1_DLC((uint32_t)dlc);
 	if (mode == CAN_MODE_CAN_FD_CONST_RATE)
-		val |= MCAN_RAM_BUF_FDF;
+		val |= MCAN_RAM_T1_FDF;
 	else if (mode == CAN_MODE_CAN_FD_DUAL_RATE)
-		val |= MCAN_RAM_BUF_FDF | MCAN_RAM_BUF_BRS;
+		val |= MCAN_RAM_T1_FDF | MCAN_RAM_T1_BRS;
 	*pThisTxBuf++ = val;
 	memcpy(pThisTxBuf, data, len);
 	dsb();
@@ -938,8 +950,8 @@ static uint32_t mcand_tx(struct _mcan_desc *desc, struct _buffer *buf,
 	struct _cand_ram_item * ram_item;
 	uint8_t buf_idx;
 	uint32_t id = (buf->attr & CAND_BUF_ATTR_EXTENDED) ?
-			CAN_EXT_MSG_ID | desc->identifier :
-			CAN_STD_MSG_ID | desc->identifier;
+			MCAN_RAM_T0_XTD | MCAN_RAM_T0_XTDID(desc->identifier) :
+			MCAN_RAM_T0_STDID(desc->identifier);
 	if (buf->attr & CAND_BUF_ATTR_USING_FIFO) {
 		if (!mcand_get_ram(desc, MCAN_RAM_TX_FIFO, &buf_idx))
 			return CAND_ERROR;
@@ -1037,31 +1049,31 @@ static uint32_t mcand_rx(struct _mcan_desc *desc, struct _buffer *buf,
 			filter = set->ram_filt_ext + filt_idx * MCAN_RAM_FILT_EXT_SIZE;
 			*filter++ =
 				((ram == MCAN_RAM_RX_FIFO1) ?
-					MCAN_RAM_FILT_EFEC_FIFO1 : MCAN_RAM_FILT_EFEC_FIFO0)
-				| MCAN_RAM_FILT_EFID1(desc->identifier);
-			*filter = MCAN_RAM_FILT_EFID2(desc->identifier);
+					MCAN_RAM_F0_EFEC_FIFO1 : MCAN_RAM_F0_EFEC_FIFO0)
+				| MCAN_RAM_F0_EFID1(desc->identifier);
+			*filter = MCAN_RAM_F1_EFID2(desc->identifier);
 		} else {
 			filter = set->ram_filt_std + filt_idx * MCAN_RAM_FILT_STD_SIZE;
 			*filter =
 				((ram == MCAN_RAM_RX_FIFO1) ?
-					MCAN_RAM_FILT_SFEC_FIFO1 : MCAN_RAM_FILT_SFEC_FIFO0)
-				| MCAN_RAM_FILT_SFID1(desc->identifier)
-				| MCAN_RAM_FILT_SFID2(desc->identifier);
+					MCAN_RAM_S0_SFEC_FIFO1 : MCAN_RAM_S0_SFEC_FIFO0)
+				| MCAN_RAM_S0_SFID1(desc->identifier)
+				| MCAN_RAM_S0_SFID2(desc->identifier);
 		}
 		ram_item = &desc->ram_item[set->cfg.ram_index[ram] + buf_idx];
 	} else {
 		if (buf->attr & CAND_BUF_ATTR_EXTENDED) {
 			filter = set->ram_filt_ext + filt_idx * MCAN_RAM_FILT_EXT_SIZE;
-			*filter++ = MCAN_RAM_FILT_EFEC_BUF
-				| MCAN_RAM_FILT_EFID1(desc->identifier);
-			*filter = MCAN_RAM_FILT_EFID2_BUF
-				| MCAN_RAM_FILT_EFID2_BUF_IDX(buf_idx);
+			*filter++ = MCAN_RAM_F0_EFEC_BUF
+				| MCAN_RAM_F0_EFID1(desc->identifier);
+			*filter = MCAN_RAM_F1_EFID2_BUF
+				| MCAN_RAM_F1_EFID2_BUF_IDX(buf_idx);
 		} else {
 			filter = set->ram_filt_std + filt_idx * MCAN_RAM_FILT_STD_SIZE;
-			*filter = MCAN_RAM_FILT_SFEC_BUF
-				| MCAN_RAM_FILT_SFID1(desc->identifier)
-				| MCAN_RAM_FILT_SFID2_BUF
-				| MCAN_RAM_FILT_SFID2_BUF_IDX(buf_idx);
+			*filter = MCAN_RAM_S0_SFEC_BUF
+				| MCAN_RAM_S0_SFID1(desc->identifier)
+				| MCAN_RAM_S0_SFID2_BUF
+				| MCAN_RAM_S0_SFID2_BUF_IDX(buf_idx);
 		}
 		ram_item = &desc->ram_item[set->cfg.ram_index[MCAN_RAM_RX_BUFFER] + buf_idx];
 	}
