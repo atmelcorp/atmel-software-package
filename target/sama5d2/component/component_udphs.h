@@ -82,8 +82,8 @@ typedef struct {
 #define UDPHS_CTRL_FADDR_EN (0x1u << 7) /**< \brief (UDPHS_CTRL) Function Address Enable */
 #define UDPHS_CTRL_EN_UDPHS (0x1u << 8) /**< \brief (UDPHS_CTRL) UDPHS Enable */
 #define UDPHS_CTRL_DETACH (0x1u << 9) /**< \brief (UDPHS_CTRL) Detach Command */
-#define UDPHS_CTRL_REWAKEUP (0x1u << 10) /**< \brief (UDPHS_CTRL) Send Remote Wake Up */
-#define UDPHS_CTRL_PULLD_DIS (0x1u << 11) /**< \brief (UDPHS_CTRL) Pull-Down Disable */
+#define UDPHS_CTRL_REWAKEUP (0x1u << 10) /**< \brief (UDPHS_CTRL) Send Remote Wakeup */
+#define UDPHS_CTRL_PULLD_DIS (0x1u << 11) /**< \brief (UDPHS_CTRL) Pulldown Disable */
 /* -------- UDPHS_FNUM : (UDPHS Offset: 0x04) UDPHS Frame Number Register -------- */
 #define UDPHS_FNUM_MICRO_FRAME_NUM_Pos 0
 #define UDPHS_FNUM_MICRO_FRAME_NUM_Msk (0x7u << UDPHS_FNUM_MICRO_FRAME_NUM_Pos) /**< \brief (UDPHS_FNUM) Microframe Number */
@@ -201,7 +201,7 @@ typedef struct {
 #define UDPHS_TST_SPEED_CFG_Pos 0
 #define UDPHS_TST_SPEED_CFG_Msk (0x3u << UDPHS_TST_SPEED_CFG_Pos) /**< \brief (UDPHS_TST) Speed Configuration */
 #define UDPHS_TST_SPEED_CFG(value) ((UDPHS_TST_SPEED_CFG_Msk & ((value) << UDPHS_TST_SPEED_CFG_Pos)))
-#define   UDPHS_TST_SPEED_CFG_NORMAL (0x0u << 0) /**< \brief (UDPHS_TST) Normal Mode: The macro is in Full Speed mode, ready to make a High Speed identification, if the host supports it and then to automatically switch to High Speed mode */
+#define   UDPHS_TST_SPEED_CFG_NORMAL (0x0u << 0) /**< \brief (UDPHS_TST) Normal mode: The macro is in Full Speed mode, ready to make a High Speed identification, if the host supports it and then to automatically switch to High Speed mode */
 #define   UDPHS_TST_SPEED_CFG_HIGH_SPEED (0x2u << 0) /**< \brief (UDPHS_TST) Force High Speed: Set this value to force the hardware to work in High Speed mode. Only for debug or test purpose. */
 #define   UDPHS_TST_SPEED_CFG_FULL_SPEED (0x3u << 0) /**< \brief (UDPHS_TST) Force Full Speed: Set this value to force the hardware to work only in Full Speed mode. In this configuration, the macro will not respond to a High Speed reset handshake. */
 #define UDPHS_TST_TST_J (0x1u << 2) /**< \brief (UDPHS_TST) Test J Mode */
@@ -325,8 +325,8 @@ typedef struct {
 #define UDPHS_EPTSTA_TOGGLESQ_STA_Msk (0x3u << UDPHS_EPTSTA_TOGGLESQ_STA_Pos) /**< \brief (UDPHS_EPTSTA) Toggle Sequencing */
 #define   UDPHS_EPTSTA_TOGGLESQ_STA_DATA0 (0x0u << 6) /**< \brief (UDPHS_EPTSTA) DATA0 */
 #define   UDPHS_EPTSTA_TOGGLESQ_STA_DATA1 (0x1u << 6) /**< \brief (UDPHS_EPTSTA) DATA1 */
-#define   UDPHS_EPTSTA_TOGGLESQ_STA_DATA2 (0x2u << 6) /**< \brief (UDPHS_EPTSTA) DATA1 (only for High Bandwidth Isochronous Endpoint */
-#define   UDPHS_EPTSTA_TOGGLESQ_STA_MDATA (0x3u << 6) /**< \brief (UDPHS_EPTSTA) MDATA (only for High Bandwidth Isochronous Endpoint */
+#define   UDPHS_EPTSTA_TOGGLESQ_STA_DATA2 (0x2u << 6) /**< \brief (UDPHS_EPTSTA) Reserved for High Bandwidth Isochronous Endpoint */
+#define   UDPHS_EPTSTA_TOGGLESQ_STA_MDATA (0x3u << 6) /**< \brief (UDPHS_EPTSTA) Reserved for High Bandwidth Isochronous Endpoint */
 #define UDPHS_EPTSTA_ERR_OVFLW (0x1u << 8) /**< \brief (UDPHS_EPTSTA) Overflow Error */
 #define UDPHS_EPTSTA_RXRDY_TXKL (0x1u << 9) /**< \brief (UDPHS_EPTSTA) Received OUT Data/KILL Bank */
 #define UDPHS_EPTSTA_TX_COMPLT (0x1u << 10) /**< \brief (UDPHS_EPTSTA) Transmitted IN Data Complete */

@@ -54,7 +54,7 @@ typedef struct {
 	__O  uint32_t S_PIO_SIONR;  /**< \brief (PioIo Offset: 0x30) Secure PIO Set I/O Non-Secure Register */
 	__O  uint32_t S_PIO_SIOSR;  /**< \brief (PioIo Offset: 0x34) Secure PIO Set I/O Secure Register */
 	__I  uint32_t S_PIO_IOSSR;  /**< \brief (PioIo Offset: 0x38) Secure PIO I/O Security Status Register */
-	__O  uint32_t PIO_IOFR;     /**< \brief (PioIo Offset: 0x3C) PIO I/O Freeze Register */
+	__O  uint32_t PIO_IOFR;     /**< \brief (PioIo Offset: 0x3C) PIO I/O Freeze Configuration Register */
 } PioIo;
 /** \brief Pio hardware registers */
 typedef struct {
@@ -217,10 +217,10 @@ typedef struct {
 #define   PIO_CFGR_EVTSEL_HIGH (0x4u << 24) /**< \brief (PIO_CFGR) Event detection on high level input */
 #define PIO_CFGR_PCFS (0x1u << 29) /**< \brief (PIO_CFGR) Physical Configuration Freeze Status */
 #define   PIO_CFGR_PCFS_NOT_FROZEN (0x0u << 29) /**< \brief (PIO_CFGR) The fields are not frozen and can be written for this I/O line. */
-#define   PIO_CFGR_PCFS_FROZEN (0x1u << 29) /**< \brief (PIO_CFGR) The fields are frozen and can not be written for this I/O line. Only a hardware reset can release these fields. */
+#define   PIO_CFGR_PCFS_FROZEN (0x1u << 29) /**< \brief (PIO_CFGR) The fields are frozen and cannot be written for this I/O line. Only a hardware reset can release these fields. */
 #define PIO_CFGR_ICFS (0x1u << 30) /**< \brief (PIO_CFGR) Interrupt Configuration Freeze Status */
 #define   PIO_CFGR_ICFS_NOT_FROZEN (0x0u << 30) /**< \brief (PIO_CFGR) The fields are not frozen and can be written for this I/O line. */
-#define   PIO_CFGR_ICFS_FROZEN (0x1u << 30) /**< \brief (PIO_CFGR) The fields are frozen and can not be written for this I/O line. Only a hardware reset can release these fields. */
+#define   PIO_CFGR_ICFS_FROZEN (0x1u << 30) /**< \brief (PIO_CFGR) The fields are frozen and cannot be written for this I/O line. Only a hardware reset can release these fields. */
 /* -------- PIO_PDSR : (PIO Offset: N/A) PIO Pin Data Status Register -------- */
 #define PIO_PDSR_P0 (0x1u << 0) /**< \brief (PIO_PDSR) Input Data Status */
 #define PIO_PDSR_P1 (0x1u << 1) /**< \brief (PIO_PDSR) Input Data Status */
@@ -518,7 +518,7 @@ typedef struct {
 #define PIO_ISR_P29 (0x1u << 29) /**< \brief (PIO_ISR) Input Change Interrupt Status */
 #define PIO_ISR_P30 (0x1u << 30) /**< \brief (PIO_ISR) Input Change Interrupt Status */
 #define PIO_ISR_P31 (0x1u << 31) /**< \brief (PIO_ISR) Input Change Interrupt Status */
-/* -------- PIO_IOFR : (PIO Offset: N/A) PIO I/O Freeze Register -------- */
+/* -------- PIO_IOFR : (PIO Offset: N/A) PIO I/O Freeze Configuration Register -------- */
 #define PIO_IOFR_FPHY (0x1u << 0) /**< \brief (PIO_IOFR) Freeze Physical Configuration */
 #define PIO_IOFR_FINT (0x1u << 1) /**< \brief (PIO_IOFR) Freeze Interrupt Configuration */
 #define PIO_IOFR_FRZKEY_Pos 8
@@ -714,6 +714,5 @@ typedef struct {
 #define S_PIO_WPSR_WPVSRC_Msk (0xffffu << S_PIO_WPSR_WPVSRC_Pos) /**< \brief (S_PIO_WPSR) Write Protection Violation Source */
 
 /*@}*/
-
 
 #endif /* _SAMA5D2_PIO_COMPONENT_ */

@@ -185,8 +185,8 @@ typedef struct {
 #define   QSPI_IFR_TFRTYP_TRSFR_WRITE (0x2u << 12) /**< \brief (QSPI_IFR) Write transfer into the serial memory.Scrambling is not performed. */
 #define   QSPI_IFR_TFRTYP_TRSFR_WRITE_MEMORY (0x3u << 12) /**< \brief (QSPI_IFR) Write data transfer into the serial memory.If enabled, scrambling is performed. */
 #define QSPI_IFR_CRM (0x1u << 14) /**< \brief (QSPI_IFR) Continuous Read Mode */
-#define   QSPI_IFR_CRM_DISABLED (0x0u << 14) /**< \brief (QSPI_IFR) The Continuous Read mode is disabled. */
-#define   QSPI_IFR_CRM_ENABLED (0x1u << 14) /**< \brief (QSPI_IFR) The Continuous Read mode is enabled. */
+#define   QSPI_IFR_CRM_DISABLED (0x0u << 14) /**< \brief (QSPI_IFR) Continuous Read mode is disabled. */
+#define   QSPI_IFR_CRM_ENABLED (0x1u << 14) /**< \brief (QSPI_IFR) Continuous Read mode is enabled. */
 #define QSPI_IFR_NBDUM_Pos 16
 #define QSPI_IFR_NBDUM_Msk (0x1fu << QSPI_IFR_NBDUM_Pos) /**< \brief (QSPI_IFR) Number Of Dummy Cycles */
 #define QSPI_IFR_NBDUM(value) ((QSPI_IFR_NBDUM_Msk & ((value) << QSPI_IFR_NBDUM_Pos)))
@@ -197,7 +197,7 @@ typedef struct {
 #define QSPI_SMR_RVDIS (0x1u << 1) /**< \brief (QSPI_SMR) Scrambling/Unscrambling Random Value Disable */
 /* -------- QSPI_SKR : (QSPI Offset: 0x44) Scrambling Key Register -------- */
 #define QSPI_SKR_USRK_Pos 0
-#define QSPI_SKR_USRK_Msk (0xffffffffu << QSPI_SKR_USRK_Pos) /**< \brief (QSPI_SKR) Scrambling User Key */
+#define QSPI_SKR_USRK_Msk (0xffffffffu << QSPI_SKR_USRK_Pos) /**< \brief (QSPI_SKR) User Scrambling Key */
 #define QSPI_SKR_USRK(value) ((QSPI_SKR_USRK_Msk & ((value) << QSPI_SKR_USRK_Pos)))
 /* -------- QSPI_WPMR : (QSPI Offset: 0xE4) Write Protection Mode Register -------- */
 #define QSPI_WPMR_WPEN (0x1u << 0) /**< \brief (QSPI_WPMR) Write Protection Enable */

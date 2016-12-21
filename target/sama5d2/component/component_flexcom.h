@@ -37,7 +37,6 @@
 /*@{*/
 
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-
 /** \brief Flexcom hardware registers */
 typedef struct {
 	__IO uint32_t FLEX_MR;          /**< \brief (Flexcom Offset: 0x000) FLEXCOM Mode Register */
@@ -46,17 +45,15 @@ typedef struct {
 	__I  uint32_t Reserved2[3];
 	__IO uint32_t FLEX_THR;         /**< \brief (Flexcom Offset: 0x020) FLEXCOM Transmit Holding Register */
 } Flexcom;
-
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-
 /* -------- FLEX_MR : (FLEXCOM Offset: 0x000) FLEXCOM Mode Register -------- */
 #define FLEX_MR_OPMODE_Pos 0
 #define FLEX_MR_OPMODE_Msk (0x3u << FLEX_MR_OPMODE_Pos) /**< \brief (FLEX_MR) FLEXCOM Operating Mode */
 #define FLEX_MR_OPMODE(value) ((FLEX_MR_OPMODE_Msk & ((value) << FLEX_MR_OPMODE_Pos)))
 #define   FLEX_MR_OPMODE_NO_COM (0x0u << 0) /**< \brief (FLEX_MR) No communication */
-#define   FLEX_MR_OPMODE_USART (0x1u << 0) /**< \brief (FLEX_MR) All related UART related protocols are selected (RS232, RS485, IrDA, ISO7816, LIN,)All SPI/TWI related registers are not accessible and have no impact on IOs. */
-#define   FLEX_MR_OPMODE_SPI (0x2u << 0) /**< \brief (FLEX_MR) SPI operating mode is selected.All USART/TWI related registers are not accessible and have no impact on IOs. */
-#define   FLEX_MR_OPMODE_TWI (0x3u << 0) /**< \brief (FLEX_MR) All related TWI protocols are selected (TWI, SMBus). All USART/SPI related registers are not accessible and have no impact on IOs. */
+#define   FLEX_MR_OPMODE_USART (0x1u << 0) /**< \brief (FLEX_MR) USART related protocols are selected. All SPI/TWI related registers are not accessible and have no impact on IOs. */
+#define   FLEX_MR_OPMODE_SPI (0x2u << 0) /**< \brief (FLEX_MR) SPI operating mode is selected. USART/TWI related registers are not accessible and have no impact on IOs. */
+#define   FLEX_MR_OPMODE_TWI (0x3u << 0) /**< \brief (FLEX_MR) TWI related protocols are selected. All USART/SPI related registers are not accessible and have no impact on IOs. */
 /* -------- FLEX_RHR : (FLEXCOM Offset: 0x010) FLEXCOM Receive Holding Register -------- */
 #define FLEX_RHR_RXDATA_Pos 0
 #define FLEX_RHR_RXDATA_Msk (0xffffu << FLEX_RHR_RXDATA_Pos) /**< \brief (FLEX_RHR) Receive Data */

@@ -90,10 +90,6 @@ typedef struct {
 #define SPI_SR_TDRE (0x1u << 1) /**< \brief (SPI_SR) Transmit Data Register Empty */
 #define SPI_SR_MODF (0x1u << 2) /**< \brief (SPI_SR) Mode Fault Error */
 #define SPI_SR_OVRES (0x1u << 3) /**< \brief (SPI_SR) Overrun Error Status */
-#define SPI_SR_ENDRX (0x1u << 4) /**< \brief (SPI_SR)  */
-#define SPI_SR_ENDTX (0x1u << 5) /**< \brief (SPI_SR)  */
-#define SPI_SR_RXBUFF (0x1u << 6) /**< \brief (SPI_SR)  */
-#define SPI_SR_TXBUFE (0x1u << 7) /**< \brief (SPI_SR)  */
 #define SPI_SR_NSSR (0x1u << 8) /**< \brief (SPI_SR) NSS Rising */
 #define SPI_SR_TXEMPTY (0x1u << 9) /**< \brief (SPI_SR) Transmission Registers Empty */
 #define SPI_SR_UNDES (0x1u << 10) /**< \brief (SPI_SR) Underrun Error Status (Slave Mode Only) */
@@ -103,10 +99,6 @@ typedef struct {
 #define SPI_IER_TDRE (0x1u << 1) /**< \brief (SPI_IER) SPI Transmit Data Register Empty Interrupt Enable */
 #define SPI_IER_MODF (0x1u << 2) /**< \brief (SPI_IER) Mode Fault Error Interrupt Enable */
 #define SPI_IER_OVRES (0x1u << 3) /**< \brief (SPI_IER) Overrun Error Interrupt Enable */
-#define SPI_IER_ENDRX (0x1u << 4) /**< \brief (SPI_IER)  */
-#define SPI_IER_ENDTX (0x1u << 5) /**< \brief (SPI_IER)  */
-#define SPI_IER_RXBUFF (0x1u << 6) /**< \brief (SPI_IER)  */
-#define SPI_IER_TXBUFE (0x1u << 7) /**< \brief (SPI_IER)  */
 #define SPI_IER_NSSR (0x1u << 8) /**< \brief (SPI_IER) NSS Rising Interrupt Enable */
 #define SPI_IER_TXEMPTY (0x1u << 9) /**< \brief (SPI_IER) Transmission Registers Empty Enable */
 #define SPI_IER_UNDES (0x1u << 10) /**< \brief (SPI_IER) Underrun Error Interrupt Enable */
@@ -115,10 +107,6 @@ typedef struct {
 #define SPI_IDR_TDRE (0x1u << 1) /**< \brief (SPI_IDR) SPI Transmit Data Register Empty Interrupt Disable */
 #define SPI_IDR_MODF (0x1u << 2) /**< \brief (SPI_IDR) Mode Fault Error Interrupt Disable */
 #define SPI_IDR_OVRES (0x1u << 3) /**< \brief (SPI_IDR) Overrun Error Interrupt Disable */
-#define SPI_IDR_ENDRX (0x1u << 4) /**< \brief (SPI_IDR)  */
-#define SPI_IDR_ENDTX (0x1u << 5) /**< \brief (SPI_IDR)  */
-#define SPI_IDR_RXBUFF (0x1u << 6) /**< \brief (SPI_IDR)  */
-#define SPI_IDR_TXBUFE (0x1u << 7) /**< \brief (SPI_IDR)  */
 #define SPI_IDR_NSSR (0x1u << 8) /**< \brief (SPI_IDR) NSS Rising Interrupt Disable */
 #define SPI_IDR_TXEMPTY (0x1u << 9) /**< \brief (SPI_IDR) Transmission Registers Empty Disable */
 #define SPI_IDR_UNDES (0x1u << 10) /**< \brief (SPI_IDR) Underrun Error Interrupt Disable */
@@ -127,10 +115,6 @@ typedef struct {
 #define SPI_IMR_TDRE (0x1u << 1) /**< \brief (SPI_IMR) SPI Transmit Data Register Empty Interrupt Mask */
 #define SPI_IMR_MODF (0x1u << 2) /**< \brief (SPI_IMR) Mode Fault Error Interrupt Mask */
 #define SPI_IMR_OVRES (0x1u << 3) /**< \brief (SPI_IMR) Overrun Error Interrupt Mask */
-#define SPI_IMR_ENDRX (0x1u << 4) /**< \brief (SPI_IMR)  */
-#define SPI_IMR_ENDTX (0x1u << 5) /**< \brief (SPI_IMR)  */
-#define SPI_IMR_RXBUFF (0x1u << 6) /**< \brief (SPI_IMR)  */
-#define SPI_IMR_TXBUFE (0x1u << 7) /**< \brief (SPI_IMR)  */
 #define SPI_IMR_NSSR (0x1u << 8) /**< \brief (SPI_IMR) NSS Rising Interrupt Mask */
 #define SPI_IMR_TXEMPTY (0x1u << 9) /**< \brief (SPI_IMR) Transmission Registers Empty Mask */
 #define SPI_IMR_UNDES (0x1u << 10) /**< \brief (SPI_IMR) Underrun Error Interrupt Mask */

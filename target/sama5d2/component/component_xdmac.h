@@ -39,26 +39,26 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief XdmacCh hardware registers */
 typedef struct {
-	__O  uint32_t XDMAC_CIE;     /**< \brief (XdmacChid Offset: 0x0) Channel Interrupt Enable Register */
-	__O  uint32_t XDMAC_CID;     /**< \brief (XdmacChid Offset: 0x4) Channel Interrupt Disable Register */
-	__O  uint32_t XDMAC_CIM;     /**< \brief (XdmacChid Offset: 0x8) Channel Interrupt Mask Register */
-	__I  uint32_t XDMAC_CIS;     /**< \brief (XdmacChid Offset: 0xC) Channel Interrupt Status Register */
-	__IO uint32_t XDMAC_CSA;     /**< \brief (XdmacChid Offset: 0x10) Channel Source Address Register */
-	__IO uint32_t XDMAC_CDA;     /**< \brief (XdmacChid Offset: 0x14) Channel Destination Address Register */
-	__IO uint32_t XDMAC_CNDA;    /**< \brief (XdmacChid Offset: 0x18) Channel Next Descriptor Address Register */
-	__IO uint32_t XDMAC_CNDC;    /**< \brief (XdmacChid Offset: 0x1C) Channel Next Descriptor Control Register */
-	__IO uint32_t XDMAC_CUBC;    /**< \brief (XdmacChid Offset: 0x20) Channel Microblock Control Register */
-	__IO uint32_t XDMAC_CBC;     /**< \brief (XdmacChid Offset: 0x24) Channel Block Control Register */
-	__IO uint32_t XDMAC_CC;      /**< \brief (XdmacChid Offset: 0x28) Channel Configuration Register */
-	__IO uint32_t XDMAC_CDS_MSP; /**< \brief (XdmacChid Offset: 0x2C) Channel Data Stride Memory Set Pattern */
-	__IO uint32_t XDMAC_CSUS;    /**< \brief (XdmacChid Offset: 0x30) Channel Source Microblock Stride */
-	__IO uint32_t XDMAC_CDUS;    /**< \brief (XdmacChid Offset: 0x34) Channel Destination Microblock Stride */
+	__O  uint32_t XDMAC_CIE;     /**< \brief (XdmacCh Offset: 0x0) Channel Interrupt Enable Register */
+	__O  uint32_t XDMAC_CID;     /**< \brief (XdmacCh Offset: 0x4) Channel Interrupt Disable Register */
+	__I  uint32_t XDMAC_CIM;     /**< \brief (XdmacCh Offset: 0x8) Channel Interrupt Mask Register */
+	__I  uint32_t XDMAC_CIS;     /**< \brief (XdmacCh Offset: 0xC) Channel Interrupt Status Register */
+	__IO uint32_t XDMAC_CSA;     /**< \brief (XdmacCh Offset: 0x10) Channel Source Address Register */
+	__IO uint32_t XDMAC_CDA;     /**< \brief (XdmacCh Offset: 0x14) Channel Destination Address Register */
+	__IO uint32_t XDMAC_CNDA;    /**< \brief (XdmacCh Offset: 0x18) Channel Next Descriptor Address Register */
+	__IO uint32_t XDMAC_CNDC;    /**< \brief (XdmacCh Offset: 0x1C) Channel Next Descriptor Control Register */
+	__IO uint32_t XDMAC_CUBC;    /**< \brief (XdmacCh Offset: 0x20) Channel Microblock Control Register */
+	__IO uint32_t XDMAC_CBC;     /**< \brief (XdmacCh Offset: 0x24) Channel Block Control Register */
+	__IO uint32_t XDMAC_CC;      /**< \brief (XdmacCh Offset: 0x28) Channel Configuration Register */
+	__IO uint32_t XDMAC_CDS_MSP; /**< \brief (XdmacCh Offset: 0x2C) Channel Data Stride Memory Set Pattern */
+	__IO uint32_t XDMAC_CSUS;    /**< \brief (XdmacCh Offset: 0x30) Channel Source Microblock Stride */
+	__IO uint32_t XDMAC_CDUS;    /**< \brief (XdmacCh Offset: 0x34) Channel Destination Microblock Stride */
 	__I  uint32_t Reserved1[2];
 } XdmacCh;
 /** \brief Xdmac hardware registers */
 typedef struct {
-	__IO uint32_t XDMAC_GTYPE;   /**< \brief (Xdmac Offset: 0x00) Global Type Register */
-	__I  uint32_t XDMAC_GCFG;    /**< \brief (Xdmac Offset: 0x04) Global Configuration Register */
+	__I  uint32_t XDMAC_GTYPE;   /**< \brief (Xdmac Offset: 0x00) Global Type Register */
+	__IO uint32_t XDMAC_GCFG;    /**< \brief (Xdmac Offset: 0x04) Global Configuration Register */
 	__IO uint32_t XDMAC_GWAC;    /**< \brief (Xdmac Offset: 0x08) Global Weighted Arbiter Configuration Register */
 	__O  uint32_t XDMAC_GIE;     /**< \brief (Xdmac Offset: 0x0C) Global Interrupt Enable Register */
 	__O  uint32_t XDMAC_GID;     /**< \brief (Xdmac Offset: 0x10) Global Interrupt Disable Register */
@@ -417,8 +417,8 @@ typedef struct {
 #define XDMAC_CBC_BLEN(value) ((XDMAC_CBC_BLEN_Msk & ((value) << XDMAC_CBC_BLEN_Pos)))
 /* -------- XDMAC_CC : (XDMAC Offset: N/A) Channel Configuration Register -------- */
 #define XDMAC_CC_TYPE (0x1u << 0) /**< \brief (XDMAC_CC) Channel x Transfer Type */
-#define   XDMAC_CC_TYPE_MEM_TRAN (0x0u << 0) /**< \brief (XDMAC_CC) Self triggered mode (Memory to Memory Transfer). */
-#define   XDMAC_CC_TYPE_PER_TRAN (0x1u << 0) /**< \brief (XDMAC_CC) Synchronized mode (Peripheral to Memory or Memory to Peripheral Transfer). */
+#define   XDMAC_CC_TYPE_MEM_TRAN (0x0u << 0) /**< \brief (XDMAC_CC) Self-triggered mode (memory-to-memory transfer). */
+#define   XDMAC_CC_TYPE_PER_TRAN (0x1u << 0) /**< \brief (XDMAC_CC) Synchronized mode (peripheral-to-memory or memory-to-peripheral transfer). */
 #define XDMAC_CC_MBSIZE_Pos 1
 #define XDMAC_CC_MBSIZE_Msk (0x3u << XDMAC_CC_MBSIZE_Pos) /**< \brief (XDMAC_CC) Channel x Memory Burst Size */
 #define XDMAC_CC_MBSIZE(value) ((XDMAC_CC_MBSIZE_Msk & ((value) << XDMAC_CC_MBSIZE_Pos)))
@@ -427,17 +427,17 @@ typedef struct {
 #define   XDMAC_CC_MBSIZE_EIGHT (0x2u << 1) /**< \brief (XDMAC_CC) The memory burst size is set to eight. */
 #define   XDMAC_CC_MBSIZE_SIXTEEN (0x3u << 1) /**< \brief (XDMAC_CC) The memory burst size is set to sixteen. */
 #define XDMAC_CC_DSYNC (0x1u << 4) /**< \brief (XDMAC_CC) Channel x Synchronization */
-#define   XDMAC_CC_DSYNC_PER2MEM (0x0u << 4) /**< \brief (XDMAC_CC) Peripheral to Memory transfer */
-#define   XDMAC_CC_DSYNC_MEM2PER (0x1u << 4) /**< \brief (XDMAC_CC) Memory to Peripheral transfer */
+#define   XDMAC_CC_DSYNC_PER2MEM (0x0u << 4) /**< \brief (XDMAC_CC) Peripheral-to-memory transfer. */
+#define   XDMAC_CC_DSYNC_MEM2PER (0x1u << 4) /**< \brief (XDMAC_CC) Memory-to-peripheral transfer. */
 #define XDMAC_CC_PROT (0x1u << 5) /**< \brief (XDMAC_CC) Channel x Protection */
 #define   XDMAC_CC_PROT_SEC (0x0u << 5) /**< \brief (XDMAC_CC) Channel is secured */
 #define   XDMAC_CC_PROT_UNSEC (0x1u << 5) /**< \brief (XDMAC_CC) Channel is unsecured */
 #define XDMAC_CC_SWREQ (0x1u << 6) /**< \brief (XDMAC_CC) Channel x Software Request Trigger */
 #define   XDMAC_CC_SWREQ_HWR_CONNECTED (0x0u << 6) /**< \brief (XDMAC_CC) Hardware request line is connected to the peripheral request line. */
 #define   XDMAC_CC_SWREQ_SWR_CONNECTED (0x1u << 6) /**< \brief (XDMAC_CC) Software request is connected to the peripheral request line. */
-#define XDMAC_CC_MEMSET (0x1u << 7) /**< \brief (XDMAC_CC) Channel x Fill Block of memory */
-#define   XDMAC_CC_MEMSET_NORMAL_MODE (0x0u << 7) /**< \brief (XDMAC_CC) Memset is not activated */
-#define   XDMAC_CC_MEMSET_HW_MODE (0x1u << 7) /**< \brief (XDMAC_CC) Sets the block of memory pointed by DA field to the specified value. This operation is performed on 8, 16 or 32 bits basis. */
+#define XDMAC_CC_MEMSET (0x1u << 7) /**< \brief (XDMAC_CC) Channel x Fill Block of Memory */
+#define   XDMAC_CC_MEMSET_NORMAL_MODE (0x0u << 7) /**< \brief (XDMAC_CC) Memset is not activated. */
+#define   XDMAC_CC_MEMSET_HW_MODE (0x1u << 7) /**< \brief (XDMAC_CC) Sets the block of memory pointed by DA field to the specified value. This operation is performed on 8-, 16- or 32-bit basis. */
 #define XDMAC_CC_CSIZE_Pos 8
 #define XDMAC_CC_CSIZE_Msk (0x7u << XDMAC_CC_CSIZE_Pos) /**< \brief (XDMAC_CC) Channel x Chunk Size */
 #define XDMAC_CC_CSIZE(value) ((XDMAC_CC_CSIZE_Msk & ((value) << XDMAC_CC_CSIZE_Pos)))
@@ -474,16 +474,16 @@ typedef struct {
 #define   XDMAC_CC_DAM_UBS_AM (0x2u << 18) /**< \brief (XDMAC_CC) The microblock stride is added at the microblock boundary. */
 #define   XDMAC_CC_DAM_UBS_DS_AM (0x3u << 18) /**< \brief (XDMAC_CC) The microblock stride is added at the microblock boundary, the data stride is added at the data boundary. */
 #define XDMAC_CC_INITD (0x1u << 21) /**< \brief (XDMAC_CC) Channel Initialization Terminated (this bit is read-only) */
-#define   XDMAC_CC_INITD_TERMINATED (0x0u << 21) /**< \brief (XDMAC_CC) Channel initialization is in progress. */
-#define   XDMAC_CC_INITD_IN_PROGRESS (0x1u << 21) /**< \brief (XDMAC_CC) Channel initialization is completed. */
+#define   XDMAC_CC_INITD_IN_PROGRESS (0x0u << 21) /**< \brief (XDMAC_CC) Channel initialization is in progress. */
+#define   XDMAC_CC_INITD_TERMINATED (0x1u << 21) /**< \brief (XDMAC_CC) Channel initialization is completed. */
 #define XDMAC_CC_RDIP (0x1u << 22) /**< \brief (XDMAC_CC) Read in Progress (this bit is read-only) */
-#define   XDMAC_CC_RDIP_DONE (0x0u << 22) /**< \brief (XDMAC_CC) No Active read transaction on the bus. */
+#define   XDMAC_CC_RDIP_DONE (0x0u << 22) /**< \brief (XDMAC_CC) No active read transaction on the bus. */
 #define   XDMAC_CC_RDIP_IN_PROGRESS (0x1u << 22) /**< \brief (XDMAC_CC) A read transaction is in progress. */
 #define XDMAC_CC_WRIP (0x1u << 23) /**< \brief (XDMAC_CC) Write in Progress (this bit is read-only) */
-#define   XDMAC_CC_WRIP_DONE (0x0u << 23) /**< \brief (XDMAC_CC) No Active write transaction on the bus. */
-#define   XDMAC_CC_WRIP_IN_PROGRESS (0x1u << 23) /**< \brief (XDMAC_CC) A Write transaction is in progress. */
+#define   XDMAC_CC_WRIP_DONE (0x0u << 23) /**< \brief (XDMAC_CC) No active write transaction on the bus. */
+#define   XDMAC_CC_WRIP_IN_PROGRESS (0x1u << 23) /**< \brief (XDMAC_CC) A write transaction is in progress. */
 #define XDMAC_CC_PERID_Pos 24
-#define XDMAC_CC_PERID_Msk (0x7fu << XDMAC_CC_PERID_Pos) /**< \brief (XDMAC_CC) Channel x Peripheral Identifier */
+#define XDMAC_CC_PERID_Msk (0x7fu << XDMAC_CC_PERID_Pos) /**< \brief (XDMAC_CC) Channel x Peripheral Hardware Request Line Identifier */
 #define XDMAC_CC_PERID(value) ((XDMAC_CC_PERID_Msk & ((value) << XDMAC_CC_PERID_Pos)))
 /* -------- XDMAC_CDS_MSP : (XDMAC Offset: N/A) Channel Data Stride Memory Set Pattern -------- */
 #define XDMAC_CDS_MSP_SDS_MSP_Pos 0

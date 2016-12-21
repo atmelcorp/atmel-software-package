@@ -73,7 +73,7 @@ typedef struct {
 #define SPI_MR_PCSDEC (0x1u << 2) /**< \brief (SPI_MR) Chip Select Decode */
 #define SPI_MR_BRSRCCLK (0x1u << 3) /**< \brief (SPI_MR) Bit Rate Source Clock */
 #define   SPI_MR_BRSRCCLK_PERIPH_CLK (0x0u << 3) /**< \brief (SPI_MR) The peripheral clock is the source clock for the bit rate generation. */
-#define   SPI_MR_BRSRCCLK_PMC_PCK (0x1u << 3) /**< \brief (SPI_MR) PMC PCKx is the source clock for the bit rate generation, thus the bit rate can be independent of the core/peripheral clock. */
+#define   SPI_MR_BRSRCCLK_GCLK (0x1u << 3) /**< \brief (SPI_MR) GCLK is the source clock for the bit rate generation, thus the bit rate can be independent of the core/peripheral clock. */
 #define SPI_MR_MODFDIS (0x1u << 4) /**< \brief (SPI_MR) Mode Fault Detection */
 #define SPI_MR_WDRBT (0x1u << 5) /**< \brief (SPI_MR) Wait Data Read Before Transfer */
 #define SPI_MR_LLB (0x1u << 7) /**< \brief (SPI_MR) Local Loopback Enable */
@@ -214,13 +214,13 @@ typedef struct {
 #define SPI_CSR_DLYBCT(value) ((SPI_CSR_DLYBCT_Msk & ((value) << SPI_CSR_DLYBCT_Pos)))
 /* -------- SPI_FMR : (SPI Offset: 0x40) FIFO Mode Register -------- */
 #define SPI_FMR_TXRDYM_Pos 0
-#define SPI_FMR_TXRDYM_Msk (0x3u << SPI_FMR_TXRDYM_Pos) /**< \brief (SPI_FMR) Transmitter Data Register Empty Mode */
+#define SPI_FMR_TXRDYM_Msk (0x3u << SPI_FMR_TXRDYM_Pos) /**< \brief (SPI_FMR) Transmit Data Register Empty Mode */
 #define SPI_FMR_TXRDYM(value) ((SPI_FMR_TXRDYM_Msk & ((value) << SPI_FMR_TXRDYM_Pos)))
 #define   SPI_FMR_TXRDYM_ONE_DATA (0x0u << 0) /**< \brief (SPI_FMR) TDRE will be at level '1' when at least one data can be written in the Transmit FIFO. */
 #define   SPI_FMR_TXRDYM_TWO_DATA (0x1u << 0) /**< \brief (SPI_FMR) TDRE will be at level '1' when at least two data can be written in the Transmit FIFO. */
 #define   SPI_FMR_TXRDYM_FOUR_DATA (0x2u << 0) /**< \brief (SPI_FMR) TDRE will be at level '1' when at least four data can be written in the Transmit FIFO. */
 #define SPI_FMR_RXRDYM_Pos 4
-#define SPI_FMR_RXRDYM_Msk (0x3u << SPI_FMR_RXRDYM_Pos) /**< \brief (SPI_FMR) Receiver Data Register Full Mode */
+#define SPI_FMR_RXRDYM_Msk (0x3u << SPI_FMR_RXRDYM_Pos) /**< \brief (SPI_FMR) Receive Data Register Full Mode */
 #define SPI_FMR_RXRDYM(value) ((SPI_FMR_RXRDYM_Msk & ((value) << SPI_FMR_RXRDYM_Pos)))
 #define   SPI_FMR_RXRDYM_ONE_DATA (0x0u << 4) /**< \brief (SPI_FMR) RDRF will be at level '1' when at least one unread data is in the Receive FIFO. */
 #define   SPI_FMR_RXRDYM_TWO_DATA (0x1u << 4) /**< \brief (SPI_FMR) RDRF will be at level '1' when at least two unread data are in the Receive FIFO. */

@@ -301,51 +301,51 @@ typedef struct {
 #define LCDC_LCDSR_PWMSTS (0x1u << 3) /**< \brief (LCDC_LCDSR) LCD Controller PWM Signal Status */
 #define LCDC_LCDSR_SIPSTS (0x1u << 4) /**< \brief (LCDC_LCDSR) Synchronization In Progress */
 /* -------- LCDC_LCDIER : (LCDC Offset: 0x0000002C) LCD Controller Interrupt Enable Register -------- */
-#define LCDC_LCDIER_SOFIE (0x1u << 0) /**< \brief (LCDC_LCDIER) Start of Frame Interrupt Enable Register */
-#define LCDC_LCDIER_DISIE (0x1u << 1) /**< \brief (LCDC_LCDIER) LCD Disable Interrupt Enable Register */
-#define LCDC_LCDIER_DISPIE (0x1u << 2) /**< \brief (LCDC_LCDIER) Power UP/Down Sequence Terminated Interrupt Enable Register */
-#define LCDC_LCDIER_FIFOERRIE (0x1u << 4) /**< \brief (LCDC_LCDIER) Output FIFO Error Interrupt Enable Register */
-#define LCDC_LCDIER_BASEIE (0x1u << 8) /**< \brief (LCDC_LCDIER) Base Layer Interrupt Enable Register */
-#define LCDC_LCDIER_OVR1IE (0x1u << 9) /**< \brief (LCDC_LCDIER) Overlay 1 Interrupt Enable Register */
-#define LCDC_LCDIER_OVR2IE (0x1u << 10) /**< \brief (LCDC_LCDIER) Overlay 2 Interrupt Enable Register */
-#define LCDC_LCDIER_HEOIE (0x1u << 11) /**< \brief (LCDC_LCDIER) High End Overlay Interrupt Enable Register */
-#define LCDC_LCDIER_PPIE (0x1u << 13) /**< \brief (LCDC_LCDIER) Post Processing Interrupt Enable Register */
+#define LCDC_LCDIER_SOFIE (0x1u << 0) /**< \brief (LCDC_LCDIER) Start of Frame Interrupt Enable */
+#define LCDC_LCDIER_DISIE (0x1u << 1) /**< \brief (LCDC_LCDIER) LCD Disable Interrupt Enable */
+#define LCDC_LCDIER_DISPIE (0x1u << 2) /**< \brief (LCDC_LCDIER) Powerup/Powerdown Sequence Terminated Interrupt Enable */
+#define LCDC_LCDIER_FIFOERRIE (0x1u << 4) /**< \brief (LCDC_LCDIER) Output FIFO Error Interrupt Enable */
+#define LCDC_LCDIER_BASEIE (0x1u << 8) /**< \brief (LCDC_LCDIER) Base Layer Interrupt Enable */
+#define LCDC_LCDIER_OVR1IE (0x1u << 9) /**< \brief (LCDC_LCDIER) Overlay 1 Interrupt Enable */
+#define LCDC_LCDIER_OVR2IE (0x1u << 10) /**< \brief (LCDC_LCDIER) Overlay 2 Interrupt Enable */
+#define LCDC_LCDIER_HEOIE (0x1u << 11) /**< \brief (LCDC_LCDIER) High End Overlay Interrupt Enable */
+#define LCDC_LCDIER_PPIE (0x1u << 13) /**< \brief (LCDC_LCDIER) Post Processing Interrupt Enable */
 /* -------- LCDC_LCDIDR : (LCDC Offset: 0x00000030) LCD Controller Interrupt Disable Register -------- */
-#define LCDC_LCDIDR_SOFID (0x1u << 0) /**< \brief (LCDC_LCDIDR) Start of Frame Interrupt Disable Register */
-#define LCDC_LCDIDR_DISID (0x1u << 1) /**< \brief (LCDC_LCDIDR) LCD Disable Interrupt Disable Register */
-#define LCDC_LCDIDR_DISPID (0x1u << 2) /**< \brief (LCDC_LCDIDR) Power UP/Down Sequence Terminated Interrupt Disable Register */
-#define LCDC_LCDIDR_FIFOERRID (0x1u << 4) /**< \brief (LCDC_LCDIDR) Output FIFO Error Interrupt Disable Register */
-#define LCDC_LCDIDR_BASEID (0x1u << 8) /**< \brief (LCDC_LCDIDR) Base Layer Interrupt Disable Register */
-#define LCDC_LCDIDR_OVR1ID (0x1u << 9) /**< \brief (LCDC_LCDIDR) Overlay 1 Interrupt Disable Register */
-#define LCDC_LCDIDR_OVR2ID (0x1u << 10) /**< \brief (LCDC_LCDIDR) Overlay 2 Interrupt Disable Register */
-#define LCDC_LCDIDR_HEOID (0x1u << 11) /**< \brief (LCDC_LCDIDR) High End Overlay Interrupt Disable Register */
-#define LCDC_LCDIDR_PPID (0x1u << 13) /**< \brief (LCDC_LCDIDR) Post Processing Interrupt Disable Register */
+#define LCDC_LCDIDR_SOFID (0x1u << 0) /**< \brief (LCDC_LCDIDR) Start of Frame Interrupt Disable */
+#define LCDC_LCDIDR_DISID (0x1u << 1) /**< \brief (LCDC_LCDIDR) LCD Disable Interrupt Disable */
+#define LCDC_LCDIDR_DISPID (0x1u << 2) /**< \brief (LCDC_LCDIDR) Powerup/Powerdown Sequence Terminated Interrupt Disable */
+#define LCDC_LCDIDR_FIFOERRID (0x1u << 4) /**< \brief (LCDC_LCDIDR) Output FIFO Error Interrupt Disable */
+#define LCDC_LCDIDR_BASEID (0x1u << 8) /**< \brief (LCDC_LCDIDR) Base Layer Interrupt Disable */
+#define LCDC_LCDIDR_OVR1ID (0x1u << 9) /**< \brief (LCDC_LCDIDR) Overlay 1 Interrupt Disable */
+#define LCDC_LCDIDR_OVR2ID (0x1u << 10) /**< \brief (LCDC_LCDIDR) Overlay 2 Interrupt Disable */
+#define LCDC_LCDIDR_HEOID (0x1u << 11) /**< \brief (LCDC_LCDIDR) High End Overlay Interrupt Disable */
+#define LCDC_LCDIDR_PPID (0x1u << 13) /**< \brief (LCDC_LCDIDR) Post Processing Interrupt Disable */
 /* -------- LCDC_LCDIMR : (LCDC Offset: 0x00000034) LCD Controller Interrupt Mask Register -------- */
-#define LCDC_LCDIMR_SOFIM (0x1u << 0) /**< \brief (LCDC_LCDIMR) Start of Frame Interrupt Mask Register */
-#define LCDC_LCDIMR_DISIM (0x1u << 1) /**< \brief (LCDC_LCDIMR) LCD Disable Interrupt Mask Register */
-#define LCDC_LCDIMR_DISPIM (0x1u << 2) /**< \brief (LCDC_LCDIMR) Power UP/Down Sequence Terminated Interrupt Mask Register */
-#define LCDC_LCDIMR_FIFOERRIM (0x1u << 4) /**< \brief (LCDC_LCDIMR) Output FIFO Error Interrupt Mask Register */
-#define LCDC_LCDIMR_BASEIM (0x1u << 8) /**< \brief (LCDC_LCDIMR) Base Layer Interrupt Mask Register */
-#define LCDC_LCDIMR_OVR1IM (0x1u << 9) /**< \brief (LCDC_LCDIMR) Overlay 1 Interrupt Mask Register */
-#define LCDC_LCDIMR_OVR2IM (0x1u << 10) /**< \brief (LCDC_LCDIMR) Overlay 2 Interrupt Mask Register */
-#define LCDC_LCDIMR_HEOIM (0x1u << 11) /**< \brief (LCDC_LCDIMR) High End Overlay Interrupt Mask Register */
-#define LCDC_LCDIMR_PPIM (0x1u << 13) /**< \brief (LCDC_LCDIMR) Post Processing Interrupt Mask Register */
+#define LCDC_LCDIMR_SOFIM (0x1u << 0) /**< \brief (LCDC_LCDIMR) Start of Frame Interrupt Mask */
+#define LCDC_LCDIMR_DISIM (0x1u << 1) /**< \brief (LCDC_LCDIMR) LCD Disable Interrupt Mask */
+#define LCDC_LCDIMR_DISPIM (0x1u << 2) /**< \brief (LCDC_LCDIMR) Powerup/Powerdown Sequence Terminated Interrupt Mask */
+#define LCDC_LCDIMR_FIFOERRIM (0x1u << 4) /**< \brief (LCDC_LCDIMR) Output FIFO Error Interrupt Mask */
+#define LCDC_LCDIMR_BASEIM (0x1u << 8) /**< \brief (LCDC_LCDIMR) Base Layer Interrupt Mask */
+#define LCDC_LCDIMR_OVR1IM (0x1u << 9) /**< \brief (LCDC_LCDIMR) Overlay 1 Interrupt Mask */
+#define LCDC_LCDIMR_OVR2IM (0x1u << 10) /**< \brief (LCDC_LCDIMR) Overlay 2 Interrupt Mask */
+#define LCDC_LCDIMR_HEOIM (0x1u << 11) /**< \brief (LCDC_LCDIMR) High End Overlay Interrupt Mask */
+#define LCDC_LCDIMR_PPIM (0x1u << 13) /**< \brief (LCDC_LCDIMR) Post Processing Interrupt Mask */
 /* -------- LCDC_LCDISR : (LCDC Offset: 0x00000038) LCD Controller Interrupt Status Register -------- */
-#define LCDC_LCDISR_SOF (0x1u << 0) /**< \brief (LCDC_LCDISR) Start of Frame Interrupt Status Register */
-#define LCDC_LCDISR_DIS (0x1u << 1) /**< \brief (LCDC_LCDISR) LCD Disable Interrupt Status Register */
-#define LCDC_LCDISR_DISP (0x1u << 2) /**< \brief (LCDC_LCDISR) Power-up/Power-down Sequence Terminated Interrupt Status Register */
+#define LCDC_LCDISR_SOF (0x1u << 0) /**< \brief (LCDC_LCDISR) Start of Frame Interrupt Status */
+#define LCDC_LCDISR_DIS (0x1u << 1) /**< \brief (LCDC_LCDISR) LCD Disable Interrupt Status */
+#define LCDC_LCDISR_DISP (0x1u << 2) /**< \brief (LCDC_LCDISR) Powerup/Powerdown Sequence Terminated Interrupt Status */
 #define LCDC_LCDISR_FIFOERR (0x1u << 4) /**< \brief (LCDC_LCDISR) Output FIFO Error */
-#define LCDC_LCDISR_BASE (0x1u << 8) /**< \brief (LCDC_LCDISR) Base Layer Raw Interrupt Status Register */
-#define LCDC_LCDISR_OVR1 (0x1u << 9) /**< \brief (LCDC_LCDISR) Overlay 1 Raw Interrupt Status Register */
-#define LCDC_LCDISR_OVR2 (0x1u << 10) /**< \brief (LCDC_LCDISR) Overlay 2 Raw Interrupt Status Register */
-#define LCDC_LCDISR_HEO (0x1u << 11) /**< \brief (LCDC_LCDISR) High End Overlay Raw Interrupt Status Register */
-#define LCDC_LCDISR_PP (0x1u << 13) /**< \brief (LCDC_LCDISR) Post Processing Raw Interrupt Status Register */
+#define LCDC_LCDISR_BASE (0x1u << 8) /**< \brief (LCDC_LCDISR) Base Layer Raw Interrupt Status */
+#define LCDC_LCDISR_OVR1 (0x1u << 9) /**< \brief (LCDC_LCDISR) Overlay 1 Raw Interrupt Status */
+#define LCDC_LCDISR_OVR2 (0x1u << 10) /**< \brief (LCDC_LCDISR) Overlay 2 Raw Interrupt Status */
+#define LCDC_LCDISR_HEO (0x1u << 11) /**< \brief (LCDC_LCDISR) High End Overlay Raw Interrupt Status */
+#define LCDC_LCDISR_PP (0x1u << 13) /**< \brief (LCDC_LCDISR) Post Processing Raw Interrupt Status */
 /* -------- LCDC_ATTR : (LCDC Offset: 0x0000003C) LCD Controller Attribute Register -------- */
-#define LCDC_ATTR_BASE (0x1u << 0) /**< \brief (LCDC_ATTR) Base Layer Update Attribute Register */
-#define LCDC_ATTR_OVR1 (0x1u << 1) /**< \brief (LCDC_ATTR) Overlay 1 Update Attribute Register */
-#define LCDC_ATTR_OVR2 (0x1u << 2) /**< \brief (LCDC_ATTR) Overlay 2 Update Attribute Register */
-#define LCDC_ATTR_HEO (0x1u << 3) /**< \brief (LCDC_ATTR) High End Overlay Update Attribute Register */
-#define LCDC_ATTR_PP (0x1u << 5) /**< \brief (LCDC_ATTR) Post-Processing Update Attribute Register */
+#define LCDC_ATTR_BASE (0x1u << 0) /**< \brief (LCDC_ATTR) Base Layer Update Attribute */
+#define LCDC_ATTR_OVR1 (0x1u << 1) /**< \brief (LCDC_ATTR) Overlay 1 Update Attribute */
+#define LCDC_ATTR_OVR2 (0x1u << 2) /**< \brief (LCDC_ATTR) Overlay 2 Update Attribute */
+#define LCDC_ATTR_HEO (0x1u << 3) /**< \brief (LCDC_ATTR) High End Overlay Update Attribute */
+#define LCDC_ATTR_PP (0x1u << 5) /**< \brief (LCDC_ATTR) Post-Processing Update Attribute */
 #define LCDC_ATTR_BASEA2Q (0x1u << 8) /**< \brief (LCDC_ATTR) Base Layer Update Add To Queue */
 #define LCDC_ATTR_OVR1A2Q (0x1u << 9) /**< \brief (LCDC_ATTR) Overlay 1 Update Add To Queue */
 #define LCDC_ATTR_OVR2A2Q (0x1u << 10) /**< \brief (LCDC_ATTR) Overlay 2 Update Add to Queue */
@@ -791,64 +791,64 @@ typedef struct {
 #define LCDC_OVR2CFG9_GA_Msk (0xffu << LCDC_OVR2CFG9_GA_Pos) /**< \brief (LCDC_OVR2CFG9) Blender Global Alpha */
 #define LCDC_OVR2CFG9_GA(value) ((LCDC_OVR2CFG9_GA_Msk & ((value) << LCDC_OVR2CFG9_GA_Pos)))
 /* -------- LCDC_HEOCHER : (LCDC Offset: 0x00000340) High End Overlay Channel Enable Register -------- */
-#define LCDC_HEOCHER_CHEN (0x1u << 0) /**< \brief (LCDC_HEOCHER) Channel Enable Register */
-#define LCDC_HEOCHER_UPDATEEN (0x1u << 1) /**< \brief (LCDC_HEOCHER) Update Overlay Attributes Enable Register */
-#define LCDC_HEOCHER_A2QEN (0x1u << 2) /**< \brief (LCDC_HEOCHER) Add To Queue Enable Register */
+#define LCDC_HEOCHER_CHEN (0x1u << 0) /**< \brief (LCDC_HEOCHER) Channel Enable */
+#define LCDC_HEOCHER_UPDATEEN (0x1u << 1) /**< \brief (LCDC_HEOCHER) Update Overlay Attributes Enable */
+#define LCDC_HEOCHER_A2QEN (0x1u << 2) /**< \brief (LCDC_HEOCHER) Add To Queue Enable */
 /* -------- LCDC_HEOCHDR : (LCDC Offset: 0x00000344) High End Overlay Channel Disable Register -------- */
-#define LCDC_HEOCHDR_CHDIS (0x1u << 0) /**< \brief (LCDC_HEOCHDR) Channel Disable Register */
-#define LCDC_HEOCHDR_CHRST (0x1u << 8) /**< \brief (LCDC_HEOCHDR) Channel Reset Register */
+#define LCDC_HEOCHDR_CHDIS (0x1u << 0) /**< \brief (LCDC_HEOCHDR) Channel Disable */
+#define LCDC_HEOCHDR_CHRST (0x1u << 8) /**< \brief (LCDC_HEOCHDR) Channel Reset */
 /* -------- LCDC_HEOCHSR : (LCDC Offset: 0x00000348) High End Overlay Channel Status Register -------- */
-#define LCDC_HEOCHSR_CHSR (0x1u << 0) /**< \brief (LCDC_HEOCHSR) Channel Status Register */
-#define LCDC_HEOCHSR_UPDATESR (0x1u << 1) /**< \brief (LCDC_HEOCHSR) Update Overlay Attributes In Progress Status Register */
-#define LCDC_HEOCHSR_A2QSR (0x1u << 2) /**< \brief (LCDC_HEOCHSR) Add To Queue Status Register */
+#define LCDC_HEOCHSR_CHSR (0x1u << 0) /**< \brief (LCDC_HEOCHSR) Channel Status */
+#define LCDC_HEOCHSR_UPDATESR (0x1u << 1) /**< \brief (LCDC_HEOCHSR) Update Overlay Attributes In Progress Status */
+#define LCDC_HEOCHSR_A2QSR (0x1u << 2) /**< \brief (LCDC_HEOCHSR) Add To Queue Status */
 /* -------- LCDC_HEOIER : (LCDC Offset: 0x0000034C) High End Overlay Interrupt Enable Register -------- */
-#define LCDC_HEOIER_DMA (0x1u << 2) /**< \brief (LCDC_HEOIER) End of DMA Transfer Interrupt Enable Register */
-#define LCDC_HEOIER_DSCR (0x1u << 3) /**< \brief (LCDC_HEOIER) Descriptor Loaded Interrupt Enable Register */
-#define LCDC_HEOIER_ADD (0x1u << 4) /**< \brief (LCDC_HEOIER) Head Descriptor Loaded Interrupt Enable Register */
-#define LCDC_HEOIER_DONE (0x1u << 5) /**< \brief (LCDC_HEOIER) End of List Interrupt Enable Register */
-#define LCDC_HEOIER_OVR (0x1u << 6) /**< \brief (LCDC_HEOIER) Overflow Interrupt Enable Register */
-#define LCDC_HEOIER_UDMA (0x1u << 10) /**< \brief (LCDC_HEOIER) End of DMA Transfer for U or UV Chrominance Interrupt Enable Register */
-#define LCDC_HEOIER_UDSCR (0x1u << 11) /**< \brief (LCDC_HEOIER) Descriptor Loaded for U or UV Chrominance Interrupt Enable Register */
-#define LCDC_HEOIER_UADD (0x1u << 12) /**< \brief (LCDC_HEOIER) Head Descriptor Loaded for U or UV Chrominance Interrupt Enable Register */
-#define LCDC_HEOIER_UDONE (0x1u << 13) /**< \brief (LCDC_HEOIER) End of List for U or UV Chrominance Interrupt Enable Register */
-#define LCDC_HEOIER_UOVR (0x1u << 14) /**< \brief (LCDC_HEOIER) Overflow for U or UV Chrominance Interrupt Enable Register */
-#define LCDC_HEOIER_VDMA (0x1u << 18) /**< \brief (LCDC_HEOIER) End of DMA for V Chrominance Transfer Interrupt Enable Register */
-#define LCDC_HEOIER_VDSCR (0x1u << 19) /**< \brief (LCDC_HEOIER) Descriptor Loaded for V Chrominance Interrupt Enable Register */
-#define LCDC_HEOIER_VADD (0x1u << 20) /**< \brief (LCDC_HEOIER) Head Descriptor Loaded for V Chrominance Interrupt Enable Register */
-#define LCDC_HEOIER_VDONE (0x1u << 21) /**< \brief (LCDC_HEOIER) End of List for V Chrominance Interrupt Enable Register */
-#define LCDC_HEOIER_VOVR (0x1u << 22) /**< \brief (LCDC_HEOIER) Overflow for V Chrominance Interrupt Enable Register */
+#define LCDC_HEOIER_DMA (0x1u << 2) /**< \brief (LCDC_HEOIER) End of DMA Transfer Interrupt Enable */
+#define LCDC_HEOIER_DSCR (0x1u << 3) /**< \brief (LCDC_HEOIER) Descriptor Loaded Interrupt Enable */
+#define LCDC_HEOIER_ADD (0x1u << 4) /**< \brief (LCDC_HEOIER) Head Descriptor Loaded Interrupt Enable */
+#define LCDC_HEOIER_DONE (0x1u << 5) /**< \brief (LCDC_HEOIER) End of List Interrupt Enable */
+#define LCDC_HEOIER_OVR (0x1u << 6) /**< \brief (LCDC_HEOIER) Overflow Interrupt Enable */
+#define LCDC_HEOIER_UDMA (0x1u << 10) /**< \brief (LCDC_HEOIER) End of DMA Transfer for U or UV Chrominance Interrupt Enable */
+#define LCDC_HEOIER_UDSCR (0x1u << 11) /**< \brief (LCDC_HEOIER) Descriptor Loaded for U or UV Chrominance Interrupt Enable */
+#define LCDC_HEOIER_UADD (0x1u << 12) /**< \brief (LCDC_HEOIER) Head Descriptor Loaded for U or UV Chrominance Interrupt Enable */
+#define LCDC_HEOIER_UDONE (0x1u << 13) /**< \brief (LCDC_HEOIER) End of List for U or UV Chrominance Interrupt Enable */
+#define LCDC_HEOIER_UOVR (0x1u << 14) /**< \brief (LCDC_HEOIER) Overflow for U or UV Chrominance Interrupt Enable */
+#define LCDC_HEOIER_VDMA (0x1u << 18) /**< \brief (LCDC_HEOIER) End of DMA for V Chrominance Transfer Interrupt Enable */
+#define LCDC_HEOIER_VDSCR (0x1u << 19) /**< \brief (LCDC_HEOIER) Descriptor Loaded for V Chrominance Interrupt Enable */
+#define LCDC_HEOIER_VADD (0x1u << 20) /**< \brief (LCDC_HEOIER) Head Descriptor Loaded for V Chrominance Interrupt Enable */
+#define LCDC_HEOIER_VDONE (0x1u << 21) /**< \brief (LCDC_HEOIER) End of List for V Chrominance Interrupt Enable */
+#define LCDC_HEOIER_VOVR (0x1u << 22) /**< \brief (LCDC_HEOIER) Overflow for V Chrominance Interrupt Enable */
 /* -------- LCDC_HEOIDR : (LCDC Offset: 0x00000350) High End Overlay Interrupt Disable Register -------- */
-#define LCDC_HEOIDR_DMA (0x1u << 2) /**< \brief (LCDC_HEOIDR) End of DMA Transfer Interrupt Disable Register */
-#define LCDC_HEOIDR_DSCR (0x1u << 3) /**< \brief (LCDC_HEOIDR) Descriptor Loaded Interrupt Disable Register */
-#define LCDC_HEOIDR_ADD (0x1u << 4) /**< \brief (LCDC_HEOIDR) Head Descriptor Loaded Interrupt Disable Register */
-#define LCDC_HEOIDR_DONE (0x1u << 5) /**< \brief (LCDC_HEOIDR) End of List Interrupt Disable Register */
-#define LCDC_HEOIDR_OVR (0x1u << 6) /**< \brief (LCDC_HEOIDR) Overflow Interrupt Disable Register */
-#define LCDC_HEOIDR_UDMA (0x1u << 10) /**< \brief (LCDC_HEOIDR) End of DMA Transfer for U or UV Chrominance Component Interrupt Disable Register */
-#define LCDC_HEOIDR_UDSCR (0x1u << 11) /**< \brief (LCDC_HEOIDR) Descriptor Loaded for U or UV Chrominance Component Interrupt Disable Register */
-#define LCDC_HEOIDR_UADD (0x1u << 12) /**< \brief (LCDC_HEOIDR) Head Descriptor Loaded for U or UV Chrominance Component Interrupt Disable Register */
-#define LCDC_HEOIDR_UDONE (0x1u << 13) /**< \brief (LCDC_HEOIDR) End of List Interrupt for U or UV Chrominance Component Disable Register */
-#define LCDC_HEOIDR_UOVR (0x1u << 14) /**< \brief (LCDC_HEOIDR) Overflow Interrupt for U or UV Chrominance Component Disable Register */
-#define LCDC_HEOIDR_VDMA (0x1u << 18) /**< \brief (LCDC_HEOIDR) End of DMA Transfer for V Chrominance Component Interrupt Disable Register */
-#define LCDC_HEOIDR_VDSCR (0x1u << 19) /**< \brief (LCDC_HEOIDR) Descriptor Loaded for V Chrominance Component Interrupt Disable Register */
-#define LCDC_HEOIDR_VADD (0x1u << 20) /**< \brief (LCDC_HEOIDR) Head Descriptor Loaded for V Chrominance Component Interrupt Disable Register */
-#define LCDC_HEOIDR_VDONE (0x1u << 21) /**< \brief (LCDC_HEOIDR) End of List for V Chrominance Component Interrupt Disable Register */
-#define LCDC_HEOIDR_VOVR (0x1u << 22) /**< \brief (LCDC_HEOIDR) Overflow for V Chrominance Component Interrupt Disable Register */
+#define LCDC_HEOIDR_DMA (0x1u << 2) /**< \brief (LCDC_HEOIDR) End of DMA Transfer Interrupt Disable */
+#define LCDC_HEOIDR_DSCR (0x1u << 3) /**< \brief (LCDC_HEOIDR) Descriptor Loaded Interrupt Disable */
+#define LCDC_HEOIDR_ADD (0x1u << 4) /**< \brief (LCDC_HEOIDR) Head Descriptor Loaded Interrupt Disable */
+#define LCDC_HEOIDR_DONE (0x1u << 5) /**< \brief (LCDC_HEOIDR) End of List Interrupt Disable */
+#define LCDC_HEOIDR_OVR (0x1u << 6) /**< \brief (LCDC_HEOIDR) Overflow Interrupt Disable */
+#define LCDC_HEOIDR_UDMA (0x1u << 10) /**< \brief (LCDC_HEOIDR) End of DMA Transfer for U or UV Chrominance Component Interrupt Disable */
+#define LCDC_HEOIDR_UDSCR (0x1u << 11) /**< \brief (LCDC_HEOIDR) Descriptor Loaded for U or UV Chrominance Component Interrupt Disable */
+#define LCDC_HEOIDR_UADD (0x1u << 12) /**< \brief (LCDC_HEOIDR) Head Descriptor Loaded for U or UV Chrominance Component Interrupt Disable */
+#define LCDC_HEOIDR_UDONE (0x1u << 13) /**< \brief (LCDC_HEOIDR) End of List Interrupt for U or UV Chrominance Component Disable */
+#define LCDC_HEOIDR_UOVR (0x1u << 14) /**< \brief (LCDC_HEOIDR) Overflow Interrupt for U or UV Chrominance Component Disable */
+#define LCDC_HEOIDR_VDMA (0x1u << 18) /**< \brief (LCDC_HEOIDR) End of DMA Transfer for V Chrominance Component Interrupt Disable */
+#define LCDC_HEOIDR_VDSCR (0x1u << 19) /**< \brief (LCDC_HEOIDR) Descriptor Loaded for V Chrominance Component Interrupt Disable */
+#define LCDC_HEOIDR_VADD (0x1u << 20) /**< \brief (LCDC_HEOIDR) Head Descriptor Loaded for V Chrominance Component Interrupt Disable */
+#define LCDC_HEOIDR_VDONE (0x1u << 21) /**< \brief (LCDC_HEOIDR) End of List for V Chrominance Component Interrupt Disable */
+#define LCDC_HEOIDR_VOVR (0x1u << 22) /**< \brief (LCDC_HEOIDR) Overflow for V Chrominance Component Interrupt Disable */
 /* -------- LCDC_HEOIMR : (LCDC Offset: 0x00000354) High End Overlay Interrupt Mask Register -------- */
-#define LCDC_HEOIMR_DMA (0x1u << 2) /**< \brief (LCDC_HEOIMR) End of DMA Transfer Interrupt Mask Register */
-#define LCDC_HEOIMR_DSCR (0x1u << 3) /**< \brief (LCDC_HEOIMR) Descriptor Loaded Interrupt Mask Register */
-#define LCDC_HEOIMR_ADD (0x1u << 4) /**< \brief (LCDC_HEOIMR) Head Descriptor Loaded Interrupt Mask Register */
-#define LCDC_HEOIMR_DONE (0x1u << 5) /**< \brief (LCDC_HEOIMR) End of List Interrupt Mask Register */
-#define LCDC_HEOIMR_OVR (0x1u << 6) /**< \brief (LCDC_HEOIMR) Overflow Interrupt Mask Register */
-#define LCDC_HEOIMR_UDMA (0x1u << 10) /**< \brief (LCDC_HEOIMR) End of DMA Transfer for U or UV Chrominance Component Interrupt Mask Register */
-#define LCDC_HEOIMR_UDSCR (0x1u << 11) /**< \brief (LCDC_HEOIMR) Descriptor Loaded for U or UV Chrominance Component Interrupt Mask Register */
-#define LCDC_HEOIMR_UADD (0x1u << 12) /**< \brief (LCDC_HEOIMR) Head Descriptor Loaded for U or UV Chrominance Component Mask Register */
-#define LCDC_HEOIMR_UDONE (0x1u << 13) /**< \brief (LCDC_HEOIMR) End of List for U or UV Chrominance Component Mask Register */
-#define LCDC_HEOIMR_UOVR (0x1u << 14) /**< \brief (LCDC_HEOIMR) Overflow for U Chrominance Interrupt Mask Register */
-#define LCDC_HEOIMR_VDMA (0x1u << 18) /**< \brief (LCDC_HEOIMR) End of DMA Transfer for V Chrominance Component Interrupt Mask Register */
-#define LCDC_HEOIMR_VDSCR (0x1u << 19) /**< \brief (LCDC_HEOIMR) Descriptor Loaded for V Chrominance Component Interrupt Mask Register */
-#define LCDC_HEOIMR_VADD (0x1u << 20) /**< \brief (LCDC_HEOIMR) Head Descriptor Loaded for V Chrominance Component Mask Register */
-#define LCDC_HEOIMR_VDONE (0x1u << 21) /**< \brief (LCDC_HEOIMR) End of List for V Chrominance Component Mask Register */
-#define LCDC_HEOIMR_VOVR (0x1u << 22) /**< \brief (LCDC_HEOIMR) Overflow for V Chrominance Interrupt Mask Register */
+#define LCDC_HEOIMR_DMA (0x1u << 2) /**< \brief (LCDC_HEOIMR) End of DMA Transfer Interrupt Mask */
+#define LCDC_HEOIMR_DSCR (0x1u << 3) /**< \brief (LCDC_HEOIMR) Descriptor Loaded Interrupt Mask */
+#define LCDC_HEOIMR_ADD (0x1u << 4) /**< \brief (LCDC_HEOIMR) Head Descriptor Loaded Interrupt Mask */
+#define LCDC_HEOIMR_DONE (0x1u << 5) /**< \brief (LCDC_HEOIMR) End of List Interrupt Mask */
+#define LCDC_HEOIMR_OVR (0x1u << 6) /**< \brief (LCDC_HEOIMR) Overflow Interrupt Mask */
+#define LCDC_HEOIMR_UDMA (0x1u << 10) /**< \brief (LCDC_HEOIMR) End of DMA Transfer for U or UV Chrominance Component Interrupt Mask */
+#define LCDC_HEOIMR_UDSCR (0x1u << 11) /**< \brief (LCDC_HEOIMR) Descriptor Loaded for U or UV Chrominance Component Interrupt Mask */
+#define LCDC_HEOIMR_UADD (0x1u << 12) /**< \brief (LCDC_HEOIMR) Head Descriptor Loaded for U or UV Chrominance Component Mask */
+#define LCDC_HEOIMR_UDONE (0x1u << 13) /**< \brief (LCDC_HEOIMR) End of List for U or UV Chrominance Component Mask */
+#define LCDC_HEOIMR_UOVR (0x1u << 14) /**< \brief (LCDC_HEOIMR) Overflow for U Chrominance Interrupt Mask */
+#define LCDC_HEOIMR_VDMA (0x1u << 18) /**< \brief (LCDC_HEOIMR) End of DMA Transfer for V Chrominance Component Interrupt Mask */
+#define LCDC_HEOIMR_VDSCR (0x1u << 19) /**< \brief (LCDC_HEOIMR) Descriptor Loaded for V Chrominance Component Interrupt Mask */
+#define LCDC_HEOIMR_VADD (0x1u << 20) /**< \brief (LCDC_HEOIMR) Head Descriptor Loaded for V Chrominance Component Mask */
+#define LCDC_HEOIMR_VDONE (0x1u << 21) /**< \brief (LCDC_HEOIMR) End of List for V Chrominance Component Mask */
+#define LCDC_HEOIMR_VOVR (0x1u << 22) /**< \brief (LCDC_HEOIMR) Overflow for V Chrominance Interrupt Mask */
 /* -------- LCDC_HEOISR : (LCDC Offset: 0x00000358) High End Overlay Interrupt Status Register -------- */
 #define LCDC_HEOISR_DMA (0x1u << 2) /**< \brief (LCDC_HEOISR) End of DMA Transfer */
 #define LCDC_HEOISR_DSCR (0x1u << 3) /**< \brief (LCDC_HEOISR) DMA Descriptor Loaded */
@@ -936,7 +936,7 @@ typedef struct {
 #define   LCDC_HEOCFG0_BLENUV_AHB_INCR4 (0x1u << 6) /**< \brief (LCDC_HEOCFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 4 data. An AHB INCR4 Burst is used. SINGLE, INCR and INCR4 bursts are used. INCR is used for a burst of 2 and 3 beats. */
 #define   LCDC_HEOCFG0_BLENUV_AHB_INCR8 (0x2u << 6) /**< \brief (LCDC_HEOCFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 8 data. An AHB INCR8 Burst is used. SINGLE, INCR, INCR4 and INCR8 bursts are used. INCR is used for a burst of 2 and 3 beats. */
 #define   LCDC_HEOCFG0_BLENUV_AHB_INCR16 (0x3u << 6) /**< \brief (LCDC_HEOCFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 16 data. An AHB INCR16 Burst is used. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define LCDC_HEOCFG0_DLBO (0x1u << 8) /**< \brief (LCDC_HEOCFG0) Defined Length Burst Only For Channel Bus Transaction. */
+#define LCDC_HEOCFG0_DLBO (0x1u << 8) /**< \brief (LCDC_HEOCFG0) Defined Length Burst Only For Channel Bus Transaction */
 #define LCDC_HEOCFG0_ROTDIS (0x1u << 12) /**< \brief (LCDC_HEOCFG0) Hardware Rotation Optimization Disable */
 #define LCDC_HEOCFG0_LOCKDIS (0x1u << 13) /**< \brief (LCDC_HEOCFG0) Hardware Rotation Lock Disable */
 /* -------- LCDC_HEOCFG1 : (LCDC Offset: 0x00000390) High End Overlay Configuration Register 1 -------- */

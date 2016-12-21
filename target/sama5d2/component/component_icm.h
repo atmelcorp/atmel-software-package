@@ -41,7 +41,7 @@
 typedef struct {
 	__IO uint32_t ICM_CFG;        /**< \brief (Icm Offset: 0x00) Configuration Register */
 	__O  uint32_t ICM_CTRL;       /**< \brief (Icm Offset: 0x04) Control Register */
-	__O  uint32_t ICM_SR;         /**< \brief (Icm Offset: 0x08) Status Register */
+	__I  uint32_t ICM_SR;         /**< \brief (Icm Offset: 0x08) Status Register */
 	__I  uint32_t Reserved1[1];
 	__O  uint32_t ICM_IER;        /**< \brief (Icm Offset: 0x10) Interrupt Enable Register */
 	__O  uint32_t ICM_IDR;        /**< \brief (Icm Offset: 0x14) Interrupt Disable Register */
@@ -69,15 +69,7 @@ typedef struct {
 #define ICM_CFG_UALGO(value) ((ICM_CFG_UALGO_Msk & ((value) << ICM_CFG_UALGO_Pos)))
 #define   ICM_CFG_UALGO_SHA1 (0x0u << 13) /**< \brief (ICM_CFG) SHA1 algorithm processed */
 #define   ICM_CFG_UALGO_SHA256 (0x1u << 13) /**< \brief (ICM_CFG) SHA256 algorithm processed */
-#define   ICM_CFG_UALGO_SHA384 (0x2u << 13) /**< \brief (ICM_CFG) SHA384 algorithm processed */
-#define   ICM_CFG_UALGO_SHA512 (0x3u << 13) /**< \brief (ICM_CFG) SHA512 algorithm processed */
 #define   ICM_CFG_UALGO_SHA224 (0x4u << 13) /**< \brief (ICM_CFG) SHA224 algorithm processed */
-#define ICM_CFG_HAPROT_Pos 16
-#define ICM_CFG_HAPROT_Msk (0x3fu << ICM_CFG_HAPROT_Pos) /**< \brief (ICM_CFG) Region Hash Area Protection */
-#define ICM_CFG_HAPROT(value) ((ICM_CFG_HAPROT_Msk & ((value) << ICM_CFG_HAPROT_Pos)))
-#define ICM_CFG_DAPROT_Pos 24
-#define ICM_CFG_DAPROT_Msk (0x3fu << ICM_CFG_DAPROT_Pos) /**< \brief (ICM_CFG) Region Descriptor Area Protection */
-#define ICM_CFG_DAPROT(value) ((ICM_CFG_DAPROT_Msk & ((value) << ICM_CFG_DAPROT_Pos)))
 /* -------- ICM_CTRL : (ICM Offset: 0x04) Control Register -------- */
 #define ICM_CTRL_ENABLE (0x1u << 0) /**< \brief (ICM_CTRL) ICM Enable */
 #define ICM_CTRL_DISABLE (0x1u << 1) /**< \brief (ICM_CTRL) ICM Disable Register */
@@ -92,7 +84,7 @@ typedef struct {
 #define ICM_CTRL_RMEN_Msk (0xfu << ICM_CTRL_RMEN_Pos) /**< \brief (ICM_CTRL) Region Monitoring Enable */
 #define ICM_CTRL_RMEN(value) ((ICM_CTRL_RMEN_Msk & ((value) << ICM_CTRL_RMEN_Pos)))
 /* -------- ICM_SR : (ICM Offset: 0x08) Status Register -------- */
-#define ICM_SR_ENABLE (0x1u << 0) /**< \brief (ICM_SR) ICM Controller Enable Register */
+#define ICM_SR_ENABLE (0x1u << 0) /**< \brief (ICM_SR) ICM Enable Register */
 #define ICM_SR_RAWRMDIS_Pos 8
 #define ICM_SR_RAWRMDIS_Msk (0xfu << ICM_SR_RAWRMDIS_Pos) /**< \brief (ICM_SR) Region Monitoring Disabled Raw Status */
 #define ICM_SR_RAWRMDIS(value) ((ICM_SR_RAWRMDIS_Msk & ((value) << ICM_SR_RAWRMDIS_Pos)))
@@ -163,7 +155,7 @@ typedef struct {
 #define ICM_ISR_RWC_Pos 12
 #define ICM_ISR_RWC_Msk (0xfu << ICM_ISR_RWC_Pos) /**< \brief (ICM_ISR) Region Wrap Condition Detected */
 #define ICM_ISR_REC_Pos 16
-#define ICM_ISR_REC_Msk (0xfu << ICM_ISR_REC_Pos) /**< \brief (ICM_ISR) Region End bit Condition Detected */
+#define ICM_ISR_REC_Msk (0xfu << ICM_ISR_REC_Pos) /**< \brief (ICM_ISR) Region End Bit Condition Detected */
 #define ICM_ISR_RSU_Pos 20
 #define ICM_ISR_RSU_Msk (0xfu << ICM_ISR_RSU_Pos) /**< \brief (ICM_ISR) Region Status Updated Detected */
 #define ICM_ISR_URAD (0x1u << 24) /**< \brief (ICM_ISR) Undefined Register Access Detection Status */

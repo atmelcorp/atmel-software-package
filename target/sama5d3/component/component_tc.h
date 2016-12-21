@@ -97,23 +97,23 @@ typedef struct {
 #define   TC_CMR_ETRGEDG_RISING (0x1u << 8) /**< \brief (TC_CMR) Rising edge */
 #define   TC_CMR_ETRGEDG_FALLING (0x2u << 8) /**< \brief (TC_CMR) Falling edge */
 #define   TC_CMR_ETRGEDG_EDGE (0x3u << 8) /**< \brief (TC_CMR) Each edge */
-#define TC_CMR_ABETRG (0x1u << 10) /**< \brief (TC_CMR) TIOA or TIOB External Trigger Selection */
+#define TC_CMR_ABETRG (0x1u << 10) /**< \brief (TC_CMR) TIOAx or TIOBx External Trigger Selection */
 #define TC_CMR_CPCTRG (0x1u << 14) /**< \brief (TC_CMR) RC Compare Trigger Enable */
 #define TC_CMR_WAVE (0x1u << 15) /**< \brief (TC_CMR) Waveform Mode */
 #define TC_CMR_LDRA_Pos 16
 #define TC_CMR_LDRA_Msk (0x3u << TC_CMR_LDRA_Pos) /**< \brief (TC_CMR) RA Loading Edge Selection */
 #define TC_CMR_LDRA(value) ((TC_CMR_LDRA_Msk & ((value) << TC_CMR_LDRA_Pos)))
 #define   TC_CMR_LDRA_NONE (0x0u << 16) /**< \brief (TC_CMR) None */
-#define   TC_CMR_LDRA_RISING (0x1u << 16) /**< \brief (TC_CMR) Rising edge of TIOA */
-#define   TC_CMR_LDRA_FALLING (0x2u << 16) /**< \brief (TC_CMR) Falling edge of TIOA */
-#define   TC_CMR_LDRA_EDGE (0x3u << 16) /**< \brief (TC_CMR) Each edge of TIOA */
+#define   TC_CMR_LDRA_RISING (0x1u << 16) /**< \brief (TC_CMR) Rising edge of TIOAx */
+#define   TC_CMR_LDRA_FALLING (0x2u << 16) /**< \brief (TC_CMR) Falling edge of TIOAx */
+#define   TC_CMR_LDRA_EDGE (0x3u << 16) /**< \brief (TC_CMR) Each edge of TIOAx */
 #define TC_CMR_LDRB_Pos 18
 #define TC_CMR_LDRB_Msk (0x3u << TC_CMR_LDRB_Pos) /**< \brief (TC_CMR) RB Loading Edge Selection */
 #define TC_CMR_LDRB(value) ((TC_CMR_LDRB_Msk & ((value) << TC_CMR_LDRB_Pos)))
 #define   TC_CMR_LDRB_NONE (0x0u << 18) /**< \brief (TC_CMR) None */
-#define   TC_CMR_LDRB_RISING (0x1u << 18) /**< \brief (TC_CMR) Rising edge of TIOA */
-#define   TC_CMR_LDRB_FALLING (0x2u << 18) /**< \brief (TC_CMR) Falling edge of TIOA */
-#define   TC_CMR_LDRB_EDGE (0x3u << 18) /**< \brief (TC_CMR) Each edge of TIOA */
+#define   TC_CMR_LDRB_RISING (0x1u << 18) /**< \brief (TC_CMR) Rising edge of TIOAx */
+#define   TC_CMR_LDRB_FALLING (0x2u << 18) /**< \brief (TC_CMR) Falling edge of TIOAx */
+#define   TC_CMR_LDRB_EDGE (0x3u << 18) /**< \brief (TC_CMR) Each edge of TIOAx */
 #define TC_CMR_CPCSTOP (0x1u << 6) /**< \brief (TC_CMR) Counter Clock Stopped with RC Compare */
 #define TC_CMR_CPCDIS (0x1u << 7) /**< \brief (TC_CMR) Counter Clock Disable with RC Compare */
 #define TC_CMR_EEVTEDG_Pos 8
@@ -139,56 +139,56 @@ typedef struct {
 #define   TC_CMR_WAVSEL_UP_RC (0x2u << 13) /**< \brief (TC_CMR) UP mode with automatic trigger on RC Compare */
 #define   TC_CMR_WAVSEL_UPDOWN_RC (0x3u << 13) /**< \brief (TC_CMR) UPDOWN mode with automatic trigger on RC Compare */
 #define TC_CMR_ACPA_Pos 16
-#define TC_CMR_ACPA_Msk (0x3u << TC_CMR_ACPA_Pos) /**< \brief (TC_CMR) RA Compare Effect on TIOA */
+#define TC_CMR_ACPA_Msk (0x3u << TC_CMR_ACPA_Pos) /**< \brief (TC_CMR) RA Compare Effect on TIOAx */
 #define TC_CMR_ACPA(value) ((TC_CMR_ACPA_Msk & ((value) << TC_CMR_ACPA_Pos)))
 #define   TC_CMR_ACPA_NONE (0x0u << 16) /**< \brief (TC_CMR) None */
 #define   TC_CMR_ACPA_SET (0x1u << 16) /**< \brief (TC_CMR) Set */
 #define   TC_CMR_ACPA_CLEAR (0x2u << 16) /**< \brief (TC_CMR) Clear */
 #define   TC_CMR_ACPA_TOGGLE (0x3u << 16) /**< \brief (TC_CMR) Toggle */
 #define TC_CMR_ACPC_Pos 18
-#define TC_CMR_ACPC_Msk (0x3u << TC_CMR_ACPC_Pos) /**< \brief (TC_CMR) RC Compare Effect on TIOA */
+#define TC_CMR_ACPC_Msk (0x3u << TC_CMR_ACPC_Pos) /**< \brief (TC_CMR) RC Compare Effect on TIOAx */
 #define TC_CMR_ACPC(value) ((TC_CMR_ACPC_Msk & ((value) << TC_CMR_ACPC_Pos)))
 #define   TC_CMR_ACPC_NONE (0x0u << 18) /**< \brief (TC_CMR) None */
 #define   TC_CMR_ACPC_SET (0x1u << 18) /**< \brief (TC_CMR) Set */
 #define   TC_CMR_ACPC_CLEAR (0x2u << 18) /**< \brief (TC_CMR) Clear */
 #define   TC_CMR_ACPC_TOGGLE (0x3u << 18) /**< \brief (TC_CMR) Toggle */
 #define TC_CMR_AEEVT_Pos 20
-#define TC_CMR_AEEVT_Msk (0x3u << TC_CMR_AEEVT_Pos) /**< \brief (TC_CMR) External Event Effect on TIOA */
+#define TC_CMR_AEEVT_Msk (0x3u << TC_CMR_AEEVT_Pos) /**< \brief (TC_CMR) External Event Effect on TIOAx */
 #define TC_CMR_AEEVT(value) ((TC_CMR_AEEVT_Msk & ((value) << TC_CMR_AEEVT_Pos)))
 #define   TC_CMR_AEEVT_NONE (0x0u << 20) /**< \brief (TC_CMR) None */
 #define   TC_CMR_AEEVT_SET (0x1u << 20) /**< \brief (TC_CMR) Set */
 #define   TC_CMR_AEEVT_CLEAR (0x2u << 20) /**< \brief (TC_CMR) Clear */
 #define   TC_CMR_AEEVT_TOGGLE (0x3u << 20) /**< \brief (TC_CMR) Toggle */
 #define TC_CMR_ASWTRG_Pos 22
-#define TC_CMR_ASWTRG_Msk (0x3u << TC_CMR_ASWTRG_Pos) /**< \brief (TC_CMR) Software Trigger Effect on TIOA */
+#define TC_CMR_ASWTRG_Msk (0x3u << TC_CMR_ASWTRG_Pos) /**< \brief (TC_CMR) Software Trigger Effect on TIOAx */
 #define TC_CMR_ASWTRG(value) ((TC_CMR_ASWTRG_Msk & ((value) << TC_CMR_ASWTRG_Pos)))
 #define   TC_CMR_ASWTRG_NONE (0x0u << 22) /**< \brief (TC_CMR) None */
 #define   TC_CMR_ASWTRG_SET (0x1u << 22) /**< \brief (TC_CMR) Set */
 #define   TC_CMR_ASWTRG_CLEAR (0x2u << 22) /**< \brief (TC_CMR) Clear */
 #define   TC_CMR_ASWTRG_TOGGLE (0x3u << 22) /**< \brief (TC_CMR) Toggle */
 #define TC_CMR_BCPB_Pos 24
-#define TC_CMR_BCPB_Msk (0x3u << TC_CMR_BCPB_Pos) /**< \brief (TC_CMR) RB Compare Effect on TIOB */
+#define TC_CMR_BCPB_Msk (0x3u << TC_CMR_BCPB_Pos) /**< \brief (TC_CMR) RB Compare Effect on TIOBx */
 #define TC_CMR_BCPB(value) ((TC_CMR_BCPB_Msk & ((value) << TC_CMR_BCPB_Pos)))
 #define   TC_CMR_BCPB_NONE (0x0u << 24) /**< \brief (TC_CMR) None */
 #define   TC_CMR_BCPB_SET (0x1u << 24) /**< \brief (TC_CMR) Set */
 #define   TC_CMR_BCPB_CLEAR (0x2u << 24) /**< \brief (TC_CMR) Clear */
 #define   TC_CMR_BCPB_TOGGLE (0x3u << 24) /**< \brief (TC_CMR) Toggle */
 #define TC_CMR_BCPC_Pos 26
-#define TC_CMR_BCPC_Msk (0x3u << TC_CMR_BCPC_Pos) /**< \brief (TC_CMR) RC Compare Effect on TIOB */
+#define TC_CMR_BCPC_Msk (0x3u << TC_CMR_BCPC_Pos) /**< \brief (TC_CMR) RC Compare Effect on TIOBx */
 #define TC_CMR_BCPC(value) ((TC_CMR_BCPC_Msk & ((value) << TC_CMR_BCPC_Pos)))
 #define   TC_CMR_BCPC_NONE (0x0u << 26) /**< \brief (TC_CMR) None */
 #define   TC_CMR_BCPC_SET (0x1u << 26) /**< \brief (TC_CMR) Set */
 #define   TC_CMR_BCPC_CLEAR (0x2u << 26) /**< \brief (TC_CMR) Clear */
 #define   TC_CMR_BCPC_TOGGLE (0x3u << 26) /**< \brief (TC_CMR) Toggle */
 #define TC_CMR_BEEVT_Pos 28
-#define TC_CMR_BEEVT_Msk (0x3u << TC_CMR_BEEVT_Pos) /**< \brief (TC_CMR) External Event Effect on TIOB */
+#define TC_CMR_BEEVT_Msk (0x3u << TC_CMR_BEEVT_Pos) /**< \brief (TC_CMR) External Event Effect on TIOBx */
 #define TC_CMR_BEEVT(value) ((TC_CMR_BEEVT_Msk & ((value) << TC_CMR_BEEVT_Pos)))
 #define   TC_CMR_BEEVT_NONE (0x0u << 28) /**< \brief (TC_CMR) None */
 #define   TC_CMR_BEEVT_SET (0x1u << 28) /**< \brief (TC_CMR) Set */
 #define   TC_CMR_BEEVT_CLEAR (0x2u << 28) /**< \brief (TC_CMR) Clear */
 #define   TC_CMR_BEEVT_TOGGLE (0x3u << 28) /**< \brief (TC_CMR) Toggle */
 #define TC_CMR_BSWTRG_Pos 30
-#define TC_CMR_BSWTRG_Msk (0x3u << TC_CMR_BSWTRG_Pos) /**< \brief (TC_CMR) Software Trigger Effect on TIOB */
+#define TC_CMR_BSWTRG_Msk (0x3u << TC_CMR_BSWTRG_Pos) /**< \brief (TC_CMR) Software Trigger Effect on TIOBx */
 #define TC_CMR_BSWTRG(value) ((TC_CMR_BSWTRG_Msk & ((value) << TC_CMR_BSWTRG_Pos)))
 #define   TC_CMR_BSWTRG_NONE (0x0u << 30) /**< \brief (TC_CMR) None */
 #define   TC_CMR_BSWTRG_SET (0x1u << 30) /**< \brief (TC_CMR) Set */
@@ -222,8 +222,8 @@ typedef struct {
 #define TC_SR_LDRBS (0x1u << 6) /**< \brief (TC_SR) RB Loading Status */
 #define TC_SR_ETRGS (0x1u << 7) /**< \brief (TC_SR) External Trigger Status */
 #define TC_SR_CLKSTA (0x1u << 16) /**< \brief (TC_SR) Clock Enabling Status */
-#define TC_SR_MTIOA (0x1u << 17) /**< \brief (TC_SR) TIOA Mirror */
-#define TC_SR_MTIOB (0x1u << 18) /**< \brief (TC_SR) TIOB Mirror */
+#define TC_SR_MTIOA (0x1u << 17) /**< \brief (TC_SR) TIOAx Mirror */
+#define TC_SR_MTIOB (0x1u << 18) /**< \brief (TC_SR) TIOBx Mirror */
 /* -------- TC_IER : (TC Offset: N/A) Interrupt Enable Register -------- */
 #define TC_IER_COVFS (0x1u << 0) /**< \brief (TC_IER) Counter Overflow */
 #define TC_IER_LOVRS (0x1u << 1) /**< \brief (TC_IER) Load Overrun */

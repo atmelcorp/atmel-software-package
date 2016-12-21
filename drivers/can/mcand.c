@@ -865,7 +865,7 @@ static uint8_t mcand_set_baudrate(Mcan *mcan, uint32_t freq, uint32_t freq_fd)
 	if (val < 1 || val > 32)
 		return 0;
 	/* Apply bit timing configuration */
-	mcan->MCAN_DBTP = MCAN_DBTP_FBRP(val - 1)
+	mcan->MCAN_DBTP = MCAN_DBTP_DBRP(val - 1)
 		| MCAN_DBTP_DTSEG1(quanta_fd.before_sp - 1 - 1)
 		| MCAN_DBTP_DTSEG2(quanta_fd.after_sp - 1)
 		| MCAN_DBTP_DSJW(quanta_fd.sync_jump - 1);

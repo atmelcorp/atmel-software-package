@@ -87,10 +87,10 @@ typedef struct {
 #define PDMIC_DSPR0_SIZE_16 (0x0u << 3) /**< \brief (PDMIC_DSPR0) Data Size 16bit */
 #define PDMIC_DSPR0_SIZE_32 (0x1u << 3) /**< \brief (PDMIC_DSPR0) Data Size 32bit */
 #define PDMIC_DSPR0_OSR_Pos 4
-#define PDMIC_DSPR0_OSR_Msk (0x7u << PDMIC_DSPR0_OSR_Pos) /**< \brief (PDMIC_DSPR0) Oversampling Ratio */
+#define PDMIC_DSPR0_OSR_Msk (0x7u << PDMIC_DSPR0_OSR_Pos) /**< \brief (PDMIC_DSPR0) Global Oversampling Ratio */
 #define PDMIC_DSPR0_OSR(value) ((PDMIC_DSPR0_OSR_Msk & ((value) << PDMIC_DSPR0_OSR_Pos)))
-#define   PDMIC_DSPR0_OSR_128 (0x0u << 4) /**< \brief (PDMIC_DSPR0) Oversampling ratio is 128 */
-#define   PDMIC_DSPR0_OSR_64 (0x1u << 4) /**< \brief (PDMIC_DSPR0) Oversampling ratio is 64 */
+#define   PDMIC_DSPR0_OSR_128 (0x0u << 4) /**< \brief (PDMIC_DSPR0) Global Oversampling ratio is 128 (SINC filter oversampling ratio is 64) */
+#define   PDMIC_DSPR0_OSR_64 (0x1u << 4) /**< \brief (PDMIC_DSPR0) Global Oversampling ratio is 64 (SINC filter oversampling ratio is 32) */
 #define PDMIC_DSPR0_SCALE_Pos 8
 #define PDMIC_DSPR0_SCALE_Msk (0xfu << PDMIC_DSPR0_SCALE_Pos) /**< \brief (PDMIC_DSPR0) Data Scale */
 #define PDMIC_DSPR0_SCALE(value) ((PDMIC_DSPR0_SCALE_Msk & ((value) << PDMIC_DSPR0_SCALE_Pos)))

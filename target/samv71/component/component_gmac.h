@@ -691,25 +691,25 @@ typedef struct {
 /* -------- GMAC_PEFRN : (GMAC Offset: 0x1FC) PTP Peer Event Frame Received Nanoseconds Register -------- */
 #define GMAC_PEFRN_RUD_Pos 0
 #define GMAC_PEFRN_RUD_Msk (0x3fffffffu << GMAC_PEFRN_RUD_Pos) /**< \brief (GMAC_PEFRN) Register Update */
-/* -------- GMAC_ISRPQ[2] : (GMAC Offset: 0x400) Interrupt Status Register Priority Queue -------- */
-#define GMAC_ISRPQ_RCOMP (0x1u << 1) /**< \brief (GMAC_ISRPQ[2]) Receive Complete */
-#define GMAC_ISRPQ_RXUBR (0x1u << 2) /**< \brief (GMAC_ISRPQ[2]) RX Used Bit Read */
-#define GMAC_ISRPQ_RLEX (0x1u << 5) /**< \brief (GMAC_ISRPQ[2]) Retry Limit Exceeded or Late Collision */
-#define GMAC_ISRPQ_TFC (0x1u << 6) /**< \brief (GMAC_ISRPQ[2]) Transmit Frame Corruption Due to AHB Error */
-#define GMAC_ISRPQ_TCOMP (0x1u << 7) /**< \brief (GMAC_ISRPQ[2]) Transmit Complete */
-#define GMAC_ISRPQ_ROVR (0x1u << 10) /**< \brief (GMAC_ISRPQ[2]) Receive Overrun */
-#define GMAC_ISRPQ_HRESP (0x1u << 11) /**< \brief (GMAC_ISRPQ[2]) HRESP Not OK */
-/* -------- GMAC_TBQBAPQ[2] : (GMAC Offset: 0x440) Transmit Buffer Queue Base Address Priority Queue -------- */
+/* -------- GMAC_ISRPQ[5] : (GMAC Offset: 0x400) Interrupt Status Register Priority Queue -------- */
+#define GMAC_ISRPQ_RCOMP (0x1u << 1) /**< \brief (GMAC_ISRPQ[5]) Receive Complete */
+#define GMAC_ISRPQ_RXUBR (0x1u << 2) /**< \brief (GMAC_ISRPQ[5]) RX Used Bit Read */
+#define GMAC_ISRPQ_RLEX (0x1u << 5) /**< \brief (GMAC_ISRPQ[5]) Retry Limit Exceeded or Late Collision */
+#define GMAC_ISRPQ_TFC (0x1u << 6) /**< \brief (GMAC_ISRPQ[5]) Transmit Frame Corruption Due to AHB Error */
+#define GMAC_ISRPQ_TCOMP (0x1u << 7) /**< \brief (GMAC_ISRPQ[5]) Transmit Complete */
+#define GMAC_ISRPQ_ROVR (0x1u << 10) /**< \brief (GMAC_ISRPQ[5]) Receive Overrun */
+#define GMAC_ISRPQ_HRESP (0x1u << 11) /**< \brief (GMAC_ISRPQ[5]) HRESP Not OK */
+/* -------- GMAC_TBQBAPQ[5] : (GMAC Offset: 0x440) Transmit Buffer Queue Base Address Priority Queue -------- */
 #define GMAC_TBQBAPQ_TXBQBA_Pos 2
-#define GMAC_TBQBAPQ_TXBQBA_Msk (0x3fffffffu << GMAC_TBQBAPQ_TXBQBA_Pos) /**< \brief (GMAC_TBQBAPQ[2]) Transmit Buffer Queue Base Address */
+#define GMAC_TBQBAPQ_TXBQBA_Msk (0x3fffffffu << GMAC_TBQBAPQ_TXBQBA_Pos) /**< \brief (GMAC_TBQBAPQ[5]) Transmit Buffer Queue Base Address */
 #define GMAC_TBQBAPQ_TXBQBA(value) ((GMAC_TBQBAPQ_TXBQBA_Msk & ((value) << GMAC_TBQBAPQ_TXBQBA_Pos)))
-/* -------- GMAC_RBQBAPQ[2] : (GMAC Offset: 0x480) Receive Buffer Queue Base Address Priority Queue -------- */
+/* -------- GMAC_RBQBAPQ[5] : (GMAC Offset: 0x480) Receive Buffer Queue Base Address Priority Queue -------- */
 #define GMAC_RBQBAPQ_RXBQBA_Pos 2
-#define GMAC_RBQBAPQ_RXBQBA_Msk (0x3fffffffu << GMAC_RBQBAPQ_RXBQBA_Pos) /**< \brief (GMAC_RBQBAPQ[2]) Receive Buffer Queue Base Address */
+#define GMAC_RBQBAPQ_RXBQBA_Msk (0x3fffffffu << GMAC_RBQBAPQ_RXBQBA_Pos) /**< \brief (GMAC_RBQBAPQ[5]) Receive Buffer Queue Base Address */
 #define GMAC_RBQBAPQ_RXBQBA(value) ((GMAC_RBQBAPQ_RXBQBA_Msk & ((value) << GMAC_RBQBAPQ_RXBQBA_Pos)))
-/* -------- GMAC_RBSRPQ[2] : (GMAC Offset: 0x4A0) Receive Buffer Size Register Priority Queue -------- */
+/* -------- GMAC_RBSRPQ[5] : (GMAC Offset: 0x4A0) Receive Buffer Size Register Priority Queue -------- */
 #define GMAC_RBSRPQ_RBS_Pos 0
-#define GMAC_RBSRPQ_RBS_Msk (0xffffu << GMAC_RBSRPQ_RBS_Pos) /**< \brief (GMAC_RBSRPQ[2]) Receive Buffer Size */
+#define GMAC_RBSRPQ_RBS_Msk (0xffffu << GMAC_RBSRPQ_RBS_Pos) /**< \brief (GMAC_RBSRPQ[5]) Receive Buffer Size */
 #define GMAC_RBSRPQ_RBS(value) ((GMAC_RBSRPQ_RBS_Msk & ((value) << GMAC_RBSRPQ_RBS_Pos)))
 /* -------- GMAC_CBSCR : (GMAC Offset: 0x4BC) Credit-Based Shaping Control Register -------- */
 #define GMAC_CBSCR_QBE (0x1u << 0) /**< \brief (GMAC_CBSCR) Queue B CBS Enable */
@@ -724,7 +724,7 @@ typedef struct {
 #define GMAC_CBSISQB_IS(value) ((GMAC_CBSISQB_IS_Msk & ((value) << GMAC_CBSISQB_IS_Pos)))
 /* -------- GMAC_ST1RPQ[4] : (GMAC Offset: 0x500) Screening Type 1 Register Priority Queue -------- */
 #define GMAC_ST1RPQ_QNB_Pos 0
-#define GMAC_ST1RPQ_QNB_Msk (0x7u << GMAC_ST1RPQ_QNB_Pos) /**< \brief (GMAC_ST1RPQ[4]) Queue Number (0-2) */
+#define GMAC_ST1RPQ_QNB_Msk (0x7u << GMAC_ST1RPQ_QNB_Pos) /**< \brief (GMAC_ST1RPQ[4]) Queue Number (0-5) */
 #define GMAC_ST1RPQ_QNB(value) ((GMAC_ST1RPQ_QNB_Msk & ((value) << GMAC_ST1RPQ_QNB_Pos)))
 #define GMAC_ST1RPQ_DSTCM_Pos 4
 #define GMAC_ST1RPQ_DSTCM_Msk (0xffu << GMAC_ST1RPQ_DSTCM_Pos) /**< \brief (GMAC_ST1RPQ[4]) Differentiated Services or Traffic Class Match */
@@ -736,7 +736,7 @@ typedef struct {
 #define GMAC_ST1RPQ_UDPE (0x1u << 29) /**< \brief (GMAC_ST1RPQ[4]) UDP Port Match Enable */
 /* -------- GMAC_ST2RPQ[8] : (GMAC Offset: 0x540) Screening Type 2 Register Priority Queue -------- */
 #define GMAC_ST2RPQ_QNB_Pos 0
-#define GMAC_ST2RPQ_QNB_Msk (0x7u << GMAC_ST2RPQ_QNB_Pos) /**< \brief (GMAC_ST2RPQ[8]) Queue Number (0-2) */
+#define GMAC_ST2RPQ_QNB_Msk (0x7u << GMAC_ST2RPQ_QNB_Pos) /**< \brief (GMAC_ST2RPQ[8]) Queue Number (0-5) */
 #define GMAC_ST2RPQ_QNB(value) ((GMAC_ST2RPQ_QNB_Msk & ((value) << GMAC_ST2RPQ_QNB_Pos)))
 #define GMAC_ST2RPQ_VLANP_Pos 4
 #define GMAC_ST2RPQ_VLANP_Msk (0x7u << GMAC_ST2RPQ_VLANP_Pos) /**< \brief (GMAC_ST2RPQ[8]) VLAN Priority */
@@ -758,30 +758,30 @@ typedef struct {
 #define GMAC_ST2RPQ_COMPC_Msk (0x1fu << GMAC_ST2RPQ_COMPC_Pos) /**< \brief (GMAC_ST2RPQ[8]) Index of Screening Type 2 Compare Word 0/Word 1 register x */
 #define GMAC_ST2RPQ_COMPC(value) ((GMAC_ST2RPQ_COMPC_Msk & ((value) << GMAC_ST2RPQ_COMPC_Pos)))
 #define GMAC_ST2RPQ_COMPCE (0x1u << 30) /**< \brief (GMAC_ST2RPQ[8]) Compare C Enable */
-/* -------- GMAC_IERPQ[2] : (GMAC Offset: 0x600) Interrupt Enable Register Priority Queue -------- */
-#define GMAC_IERPQ_RCOMP (0x1u << 1) /**< \brief (GMAC_IERPQ[2]) Receive Complete */
-#define GMAC_IERPQ_RXUBR (0x1u << 2) /**< \brief (GMAC_IERPQ[2]) RX Used Bit Read */
-#define GMAC_IERPQ_RLEX (0x1u << 5) /**< \brief (GMAC_IERPQ[2]) Retry Limit Exceeded or Late Collision */
-#define GMAC_IERPQ_TFC (0x1u << 6) /**< \brief (GMAC_IERPQ[2]) Transmit Frame Corruption Due to AHB Error */
-#define GMAC_IERPQ_TCOMP (0x1u << 7) /**< \brief (GMAC_IERPQ[2]) Transmit Complete */
-#define GMAC_IERPQ_ROVR (0x1u << 10) /**< \brief (GMAC_IERPQ[2]) Receive Overrun */
-#define GMAC_IERPQ_HRESP (0x1u << 11) /**< \brief (GMAC_IERPQ[2]) HRESP Not OK */
-/* -------- GMAC_IDRPQ[2] : (GMAC Offset: 0x620) Interrupt Disable Register Priority Queue -------- */
-#define GMAC_IDRPQ_RCOMP (0x1u << 1) /**< \brief (GMAC_IDRPQ[2]) Receive Complete */
-#define GMAC_IDRPQ_RXUBR (0x1u << 2) /**< \brief (GMAC_IDRPQ[2]) RX Used Bit Read */
-#define GMAC_IDRPQ_RLEX (0x1u << 5) /**< \brief (GMAC_IDRPQ[2]) Retry Limit Exceeded or Late Collision */
-#define GMAC_IDRPQ_TFC (0x1u << 6) /**< \brief (GMAC_IDRPQ[2]) Transmit Frame Corruption Due to AHB Error */
-#define GMAC_IDRPQ_TCOMP (0x1u << 7) /**< \brief (GMAC_IDRPQ[2]) Transmit Complete */
-#define GMAC_IDRPQ_ROVR (0x1u << 10) /**< \brief (GMAC_IDRPQ[2]) Receive Overrun */
-#define GMAC_IDRPQ_HRESP (0x1u << 11) /**< \brief (GMAC_IDRPQ[2]) HRESP Not OK */
-/* -------- GMAC_IMRPQ[2] : (GMAC Offset: 0x640) Interrupt Mask Register Priority Queue -------- */
-#define GMAC_IMRPQ_RCOMP (0x1u << 1) /**< \brief (GMAC_IMRPQ[2]) Receive Complete */
-#define GMAC_IMRPQ_RXUBR (0x1u << 2) /**< \brief (GMAC_IMRPQ[2]) RX Used Bit Read */
-#define GMAC_IMRPQ_RLEX (0x1u << 5) /**< \brief (GMAC_IMRPQ[2]) Retry Limit Exceeded or Late Collision */
-#define GMAC_IMRPQ_AHB (0x1u << 6) /**< \brief (GMAC_IMRPQ[2]) AHB Error */
-#define GMAC_IMRPQ_TCOMP (0x1u << 7) /**< \brief (GMAC_IMRPQ[2]) Transmit Complete */
-#define GMAC_IMRPQ_ROVR (0x1u << 10) /**< \brief (GMAC_IMRPQ[2]) Receive Overrun */
-#define GMAC_IMRPQ_HRESP (0x1u << 11) /**< \brief (GMAC_IMRPQ[2]) HRESP Not OK */
+/* -------- GMAC_IERPQ[5] : (GMAC Offset: 0x600) Interrupt Enable Register Priority Queue -------- */
+#define GMAC_IERPQ_RCOMP (0x1u << 1) /**< \brief (GMAC_IERPQ[5]) Receive Complete */
+#define GMAC_IERPQ_RXUBR (0x1u << 2) /**< \brief (GMAC_IERPQ[5]) RX Used Bit Read */
+#define GMAC_IERPQ_RLEX (0x1u << 5) /**< \brief (GMAC_IERPQ[5]) Retry Limit Exceeded or Late Collision */
+#define GMAC_IERPQ_TFC (0x1u << 6) /**< \brief (GMAC_IERPQ[5]) Transmit Frame Corruption Due to AHB Error */
+#define GMAC_IERPQ_TCOMP (0x1u << 7) /**< \brief (GMAC_IERPQ[5]) Transmit Complete */
+#define GMAC_IERPQ_ROVR (0x1u << 10) /**< \brief (GMAC_IERPQ[5]) Receive Overrun */
+#define GMAC_IERPQ_HRESP (0x1u << 11) /**< \brief (GMAC_IERPQ[5]) HRESP Not OK */
+/* -------- GMAC_IDRPQ[5] : (GMAC Offset: 0x620) Interrupt Disable Register Priority Queue -------- */
+#define GMAC_IDRPQ_RCOMP (0x1u << 1) /**< \brief (GMAC_IDRPQ[5]) Receive Complete */
+#define GMAC_IDRPQ_RXUBR (0x1u << 2) /**< \brief (GMAC_IDRPQ[5]) RX Used Bit Read */
+#define GMAC_IDRPQ_RLEX (0x1u << 5) /**< \brief (GMAC_IDRPQ[5]) Retry Limit Exceeded or Late Collision */
+#define GMAC_IDRPQ_TFC (0x1u << 6) /**< \brief (GMAC_IDRPQ[5]) Transmit Frame Corruption Due to AHB Error */
+#define GMAC_IDRPQ_TCOMP (0x1u << 7) /**< \brief (GMAC_IDRPQ[5]) Transmit Complete */
+#define GMAC_IDRPQ_ROVR (0x1u << 10) /**< \brief (GMAC_IDRPQ[5]) Receive Overrun */
+#define GMAC_IDRPQ_HRESP (0x1u << 11) /**< \brief (GMAC_IDRPQ[5]) HRESP Not OK */
+/* -------- GMAC_IMRPQ[5] : (GMAC Offset: 0x640) Interrupt Mask Register Priority Queue -------- */
+#define GMAC_IMRPQ_RCOMP (0x1u << 1) /**< \brief (GMAC_IMRPQ[5]) Receive Complete */
+#define GMAC_IMRPQ_RXUBR (0x1u << 2) /**< \brief (GMAC_IMRPQ[5]) RX Used Bit Read */
+#define GMAC_IMRPQ_RLEX (0x1u << 5) /**< \brief (GMAC_IMRPQ[5]) Retry Limit Exceeded or Late Collision */
+#define GMAC_IMRPQ_AHB (0x1u << 6) /**< \brief (GMAC_IMRPQ[5]) AHB Error */
+#define GMAC_IMRPQ_TCOMP (0x1u << 7) /**< \brief (GMAC_IMRPQ[5]) Transmit Complete */
+#define GMAC_IMRPQ_ROVR (0x1u << 10) /**< \brief (GMAC_IMRPQ[5]) Receive Overrun */
+#define GMAC_IMRPQ_HRESP (0x1u << 11) /**< \brief (GMAC_IMRPQ[5]) HRESP Not OK */
 /* -------- GMAC_ST2ER[4] : (GMAC Offset: 0x6E0) Screening Type 2 Ethertype Register  (index = 0) -------- */
 #define GMAC_ST2ER_COMPVAL_Pos 0
 #define GMAC_ST2ER_COMPVAL_Msk (0xffffu << GMAC_ST2ER_COMPVAL_Pos) /**< \brief (GMAC_ST2ER[4]) Ethertype Compare Value */

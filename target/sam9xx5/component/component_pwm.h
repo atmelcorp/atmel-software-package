@@ -136,19 +136,19 @@ typedef struct {
 #define PWM_ISR1_CHID3 (0x1u << 3) /**< \brief (PWM_ISR1) Counter Event on Channel 3 */
 /* -------- PWM_CMR : (PWM Offset: N/A) PWM Channel Mode Register -------- */
 #define PWM_CMR_CPRE_Pos 0
-#define PWM_CMR_CPRE_Msk (0xfu << PWM_CMR_CPRE_Pos) /**< \brief (PWM_CMR) Channel Pre-scaler */
+#define PWM_CMR_CPRE_Msk (0xfu << PWM_CMR_CPRE_Pos) /**< \brief (PWM_CMR) Channel Prescaler */
 #define PWM_CMR_CPRE(value) ((PWM_CMR_CPRE_Msk & ((value) << PWM_CMR_CPRE_Pos)))
-#define   PWM_CMR_CPRE_MCK (0x0u << 0) /**< \brief (PWM_CMR) Master Clock */
-#define   PWM_CMR_CPRE_MCKDIV2 (0x1u << 0) /**< \brief (PWM_CMR) Master Clock divided by 2 */
-#define   PWM_CMR_CPRE_MCKDIV4 (0x2u << 0) /**< \brief (PWM_CMR) Master Clock divided by 4 */
-#define   PWM_CMR_CPRE_MCKDIV8 (0x3u << 0) /**< \brief (PWM_CMR) Master Clock divided by 8 */
-#define   PWM_CMR_CPRE_MCKDIV16 (0x4u << 0) /**< \brief (PWM_CMR) Master Clock divided by 16 */
-#define   PWM_CMR_CPRE_MCKDIV32 (0x5u << 0) /**< \brief (PWM_CMR) Master Clock divided by 32 */
-#define   PWM_CMR_CPRE_MCKDIV64 (0x6u << 0) /**< \brief (PWM_CMR) Master Clock divided by 64 */
-#define   PWM_CMR_CPRE_MCKDIV128 (0x7u << 0) /**< \brief (PWM_CMR) Master Clock divided by 128 */
-#define   PWM_CMR_CPRE_MCKDIV256 (0x8u << 0) /**< \brief (PWM_CMR) Master Clock divided by 256 */
-#define   PWM_CMR_CPRE_MCKDIV512 (0x9u << 0) /**< \brief (PWM_CMR) Master Clock divided by 512 */
-#define   PWM_CMR_CPRE_MCKDIV1024 (0xAu << 0) /**< \brief (PWM_CMR) Master Clock divided by 1024 */
+#define   PWM_CMR_CPRE_MCK (0x0u << 0) /**< \brief (PWM_CMR) Peripheral clock */
+#define   PWM_CMR_CPRE_MCK_DIV2 (0x1u << 0) /**< \brief (PWM_CMR) Peripheral clock divided by 2 */
+#define   PWM_CMR_CPRE_MCK_DIV4 (0x2u << 0) /**< \brief (PWM_CMR) Peripheral clock divided by 4 */
+#define   PWM_CMR_CPRE_MCK_DIV8 (0x3u << 0) /**< \brief (PWM_CMR) Peripheral clock divided by 8 */
+#define   PWM_CMR_CPRE_MCK_DIV16 (0x4u << 0) /**< \brief (PWM_CMR) Peripheral clock divided by 16 */
+#define   PWM_CMR_CPRE_MCK_DIV32 (0x5u << 0) /**< \brief (PWM_CMR) Peripheral clock divided by 32 */
+#define   PWM_CMR_CPRE_MCK_DIV64 (0x6u << 0) /**< \brief (PWM_CMR) Peripheral clock divided by 64 */
+#define   PWM_CMR_CPRE_MCK_DIV128 (0x7u << 0) /**< \brief (PWM_CMR) Peripheral clock divided by 128 */
+#define   PWM_CMR_CPRE_MCK_DIV256 (0x8u << 0) /**< \brief (PWM_CMR) Peripheral clock divided by 256 */
+#define   PWM_CMR_CPRE_MCK_DIV512 (0x9u << 0) /**< \brief (PWM_CMR) Peripheral clock divided by 512 */
+#define   PWM_CMR_CPRE_MCK_DIV1024 (0xAu << 0) /**< \brief (PWM_CMR) Peripheral clock divided by 1024 */
 #define   PWM_CMR_CPRE_CLKA (0xBu << 0) /**< \brief (PWM_CMR) Clock A */
 #define   PWM_CMR_CPRE_CLKB (0xCu << 0) /**< \brief (PWM_CMR) Clock B */
 #define PWM_CMR_CALG (0x1u << 8) /**< \brief (PWM_CMR) Channel Alignment */

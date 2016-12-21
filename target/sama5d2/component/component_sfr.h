@@ -75,15 +75,15 @@ typedef struct {
 #define SFR_OHCIICR_SUSPEND_A (0x1u << 8) /**< \brief (SFR_OHCIICR) USB PORT A */
 #define SFR_OHCIICR_SUSPEND_B (0x1u << 9) /**< \brief (SFR_OHCIICR) USB PORT B */
 #define SFR_OHCIICR_SUSPEND_C (0x1u << 10) /**< \brief (SFR_OHCIICR) USB PORT C */
-#define SFR_OHCIICR_UDPPUDIS (0x1u << 23) /**< \brief (SFR_OHCIICR) USB DEVICE PULL-UP DISABLE */
+#define SFR_OHCIICR_UDPPUDIS (0x1u << 23) /**< \brief (SFR_OHCIICR) USB DEVICE PULLUP DISABLE */
 #define SFR_OHCIICR_HSIC_SEL (0x1u << 27) /**< \brief (SFR_OHCIICR) Reserved */
 /* -------- SFR_OHCIISR : (SFR Offset: 0x14) OHCI Interrupt Status Register -------- */
 #define SFR_OHCIISR_RIS0 (0x1u << 0) /**< \brief (SFR_OHCIISR) OHCI Resume Interrupt Status Port 0 */
 #define SFR_OHCIISR_RIS1 (0x1u << 1) /**< \brief (SFR_OHCIISR) OHCI Resume Interrupt Status Port 1 */
 #define SFR_OHCIISR_RIS2 (0x1u << 2) /**< \brief (SFR_OHCIISR) OHCI Resume Interrupt Status Port 2 */
 /* -------- SFR_SECURE : (SFR Offset: 0x28) Security Configuration Register -------- */
-#define SFR_SECURE_ROM (0x1u << 0) /**< \brief (SFR_SECURE) Disable Access to ROM Code */
-#define SFR_SECURE_FUSE (0x1u << 8) /**< \brief (SFR_SECURE) Disable Access to Fuse Controller */
+#define SFR_SECURE_ROM_DISABLE (0x1u << 0) /**< \brief (SFR_SECURE) Disable Access to ROM Code */
+#define SFR_SECURE_FUSE_DISABLE (0x1u << 8) /**< \brief (SFR_SECURE) Disable Access to Fuse Controller */
 /* -------- SFR_UTMICKTRIM : (SFR Offset: 0x30) UTMI Clock Trimming Register -------- */
 #define SFR_UTMICKTRIM_FREQ_Pos 0
 #define SFR_UTMICKTRIM_FREQ_Msk (0x3u << SFR_UTMICKTRIM_FREQ_Pos) /**< \brief (SFR_UTMICKTRIM) UTMI Reference Clock Frequency */

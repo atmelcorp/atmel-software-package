@@ -234,7 +234,7 @@ static void _check_ddr_ready(void)
 		sfrbu_disable_ddr_backup();
 	}
 #else
-	mpddrc_issue_low_power_command(MPDDRC_LPR_LPCB_NOLOWPOWER);
+	mpddrc_issue_low_power_command(MPDDRC_LPR_LPCB_DISABLED);
 #endif
 }
 

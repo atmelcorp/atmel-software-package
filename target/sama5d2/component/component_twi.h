@@ -137,9 +137,9 @@ typedef struct {
 #define TWI_CWGR_CKDIV_Pos 16
 #define TWI_CWGR_CKDIV_Msk (0x7u << TWI_CWGR_CKDIV_Pos) /**< \brief (TWI_CWGR) Clock Divider */
 #define TWI_CWGR_CKDIV(value) ((TWI_CWGR_CKDIV_Msk & ((value) << TWI_CWGR_CKDIV_Pos)))
-#define TWI_CWGR_CKSRC (0x1u << 20) /**< \brief (TWI_CWGR) Transfer Rate Clock Source */
-#define   TWI_CWGR_CKSRC_PERIPH_CK (0x0u << 20) /**< \brief (TWI_CWGR) Peripheral clock is used to generate the TWI baud rate. */
-#define   TWI_CWGR_CKSRC_PMC_PCK (0x1u << 20) /**< \brief (TWI_CWGR) PMC PCKx is used to generate the TWI baud rate. */
+#define TWI_CWGR_BRSRCCLK (0x1u << 20) /**< \brief (TWI_CWGR) Bit Rate Source Clock */
+#define   TWI_CWGR_BRSRCCLK_PERIPH_CLK (0x0u << 20) /**< \brief (TWI_CWGR) The peripheral clock is the source clock for the bit rate generation. */
+#define   TWI_CWGR_BRSRCCLK_GCLK (0x1u << 20) /**< \brief (TWI_CWGR) GCLK is the source clock for the bit rate generation, thus the bit rate can be independent of the core/peripheral clock. */
 #define TWI_CWGR_HOLD_Pos 24
 #define TWI_CWGR_HOLD_Msk (0x1fu << TWI_CWGR_HOLD_Pos) /**< \brief (TWI_CWGR) TWD Hold Time Versus TWCK Falling */
 #define TWI_CWGR_HOLD(value) ((TWI_CWGR_HOLD_Msk & ((value) << TWI_CWGR_HOLD_Pos)))

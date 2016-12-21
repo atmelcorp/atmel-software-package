@@ -392,10 +392,10 @@ typedef struct {
 #define PWM_ELMR_CSEL6 (0x1u << 6) /**< \brief (PWM_ELMR[2]) Comparison 6 Selection */
 #define PWM_ELMR_CSEL7 (0x1u << 7) /**< \brief (PWM_ELMR[2]) Comparison 7 Selection */
 /* -------- PWM_SMMR : (PWM Offset: 0xB0) PWM Stepper Motor Mode Register -------- */
-#define PWM_SMMR_GCEN0 (0x1u << 0) /**< \brief (PWM_SMMR) Gray Count ENable */
-#define PWM_SMMR_GCEN1 (0x1u << 1) /**< \brief (PWM_SMMR) Gray Count ENable */
-#define PWM_SMMR_DOWN0 (0x1u << 16) /**< \brief (PWM_SMMR) DOWN Count */
-#define PWM_SMMR_DOWN1 (0x1u << 17) /**< \brief (PWM_SMMR) DOWN Count */
+#define PWM_SMMR_GCEN0 (0x1u << 0) /**< \brief (PWM_SMMR) Gray Count Enable */
+#define PWM_SMMR_GCEN1 (0x1u << 1) /**< \brief (PWM_SMMR) Gray Count Enable */
+#define PWM_SMMR_DOWN0 (0x1u << 16) /**< \brief (PWM_SMMR) Down Count */
+#define PWM_SMMR_DOWN1 (0x1u << 17) /**< \brief (PWM_SMMR) Down Count */
 /* -------- PWM_WPCR : (PWM Offset: 0xE4) PWM Write Protection Control Register -------- */
 #define PWM_WPCR_WPCMD_Pos 0
 #define PWM_WPCR_WPCMD_Msk (0x3u << PWM_WPCR_WPCMD_Pos) /**< \brief (PWM_WPCR) Write Protection Command */
@@ -469,19 +469,19 @@ typedef struct {
 #define PWM_CMPMUPD_CUPRUPD(value) ((PWM_CMPMUPD_CUPRUPD_Msk & ((value) << PWM_CMPMUPD_CUPRUPD_Pos)))
 /* -------- PWM_CMR : (PWM Offset: N/A) PWM Channel Mode Register -------- */
 #define PWM_CMR_CPRE_Pos 0
-#define PWM_CMR_CPRE_Msk (0xfu << PWM_CMR_CPRE_Pos) /**< \brief (PWM_CMR) Channel Pre-scaler */
+#define PWM_CMR_CPRE_Msk (0xfu << PWM_CMR_CPRE_Pos) /**< \brief (PWM_CMR) Channel Prescaler */
 #define PWM_CMR_CPRE(value) ((PWM_CMR_CPRE_Msk & ((value) << PWM_CMR_CPRE_Pos)))
-#define   PWM_CMR_CPRE_MCK (0x0u << 0) /**< \brief (PWM_CMR) Master Clock */
-#define   PWM_CMR_CPRE_MCKDIV2 (0x1u << 0) /**< \brief (PWM_CMR) Master Clock divided by 2 */
-#define   PWM_CMR_CPRE_MCKDIV4 (0x2u << 0) /**< \brief (PWM_CMR) Master Clock divided by 4 */
-#define   PWM_CMR_CPRE_MCKDIV8 (0x3u << 0) /**< \brief (PWM_CMR) Master Clock divided by 8 */
-#define   PWM_CMR_CPRE_MCKDIV16 (0x4u << 0) /**< \brief (PWM_CMR) Master Clock divided by 16 */
-#define   PWM_CMR_CPRE_MCKDIV32 (0x5u << 0) /**< \brief (PWM_CMR) Master Clock divided by 32 */
-#define   PWM_CMR_CPRE_MCKDIV64 (0x6u << 0) /**< \brief (PWM_CMR) Master Clock divided by 64 */
-#define   PWM_CMR_CPRE_MCKDIV128 (0x7u << 0) /**< \brief (PWM_CMR) Master Clock divided by 128 */
-#define   PWM_CMR_CPRE_MCKDIV256 (0x8u << 0) /**< \brief (PWM_CMR) Master Clock divided by 256 */
-#define   PWM_CMR_CPRE_MCKDIV512 (0x9u << 0) /**< \brief (PWM_CMR) Master Clock divided by 512 */
-#define   PWM_CMR_CPRE_MCKDIV1024 (0xAu << 0) /**< \brief (PWM_CMR) Master Clock divided by 1024 */
+#define   PWM_CMR_CPRE_MCK (0x0u << 0) /**< \brief (PWM_CMR) Peripheral clock */
+#define   PWM_CMR_CPRE_MCK_DIV2 (0x1u << 0) /**< \brief (PWM_CMR) Peripheral clock divided by 2 */
+#define   PWM_CMR_CPRE_MCK_DIV4 (0x2u << 0) /**< \brief (PWM_CMR) Peripheral clock divided by 4 */
+#define   PWM_CMR_CPRE_MCK_DIV8 (0x3u << 0) /**< \brief (PWM_CMR) Peripheral clock divided by 8 */
+#define   PWM_CMR_CPRE_MCK_DIV16 (0x4u << 0) /**< \brief (PWM_CMR) Peripheral clock divided by 16 */
+#define   PWM_CMR_CPRE_MCK_DIV32 (0x5u << 0) /**< \brief (PWM_CMR) Peripheral clock divided by 32 */
+#define   PWM_CMR_CPRE_MCK_DIV64 (0x6u << 0) /**< \brief (PWM_CMR) Peripheral clock divided by 64 */
+#define   PWM_CMR_CPRE_MCK_DIV128 (0x7u << 0) /**< \brief (PWM_CMR) Peripheral clock divided by 128 */
+#define   PWM_CMR_CPRE_MCK_DIV256 (0x8u << 0) /**< \brief (PWM_CMR) Peripheral clock divided by 256 */
+#define   PWM_CMR_CPRE_MCK_DIV512 (0x9u << 0) /**< \brief (PWM_CMR) Peripheral clock divided by 512 */
+#define   PWM_CMR_CPRE_MCK_DIV1024 (0xAu << 0) /**< \brief (PWM_CMR) Peripheral clock divided by 1024 */
 #define   PWM_CMR_CPRE_CLKA (0xBu << 0) /**< \brief (PWM_CMR) Clock A */
 #define   PWM_CMR_CPRE_CLKB (0xCu << 0) /**< \brief (PWM_CMR) Clock B */
 #define PWM_CMR_CALG (0x1u << 8) /**< \brief (PWM_CMR) Channel Alignment */

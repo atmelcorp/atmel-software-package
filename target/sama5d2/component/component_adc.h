@@ -546,7 +546,7 @@ typedef struct {
 #define ADC_TRGR_TRGPER(value) ((ADC_TRGR_TRGPER_Msk & ((value) << ADC_TRGR_TRGPER_Pos)))
 /* -------- ADC_COSR : (ADC Offset: 0xD0) Correction Select Register -------- */
 #define ADC_COSR_CSEL_Pos 0
-#define ADC_COSR_CSEL_Msk (0x1fu << ADC_COSR_CSEL_Pos) /**< \brief (ADC_COSR) CORRECTION_TYPE Correction Select */
+#define ADC_COSR_CSEL_Msk (0x1fu << ADC_COSR_CSEL_Pos) /**< \brief (ADC_COSR) Channel Correction Select */
 #define ADC_COSR_CSEL(value) ((ADC_COSR_CSEL_Msk & ((value) << ADC_COSR_CSEL_Pos)))
 /* -------- ADC_CVR : (ADC Offset: 0xD4) Correction Values Register -------- */
 #define ADC_CVR_OFFSETCORR_Pos 0

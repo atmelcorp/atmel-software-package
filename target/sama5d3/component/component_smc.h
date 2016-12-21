@@ -49,9 +49,9 @@ typedef struct {
 typedef struct {
 	     SmcCs    SMC_CS[4]; /**< \brief (Smc Offset: 0x00) CS = 0 .. 3 */
 	__I  uint32_t Reserved1[20];
-	__IO uint32_t SMC_OCMS;  /**< \brief (Smc Offset: 0xA0) SMC Off Chip Memory Scrambling Mode Register */
-	__O  uint32_t SMC_KEY1;  /**< \brief (Smc Offset: 0xA4) SMC Off Chip Memory Scrambling Key1 Register */
-	__O  uint32_t SMC_KEY2;  /**< \brief (Smc Offset: 0xA8) SMC Off Chip Memory Scrambling Key2 Register */
+	__IO uint32_t SMC_OCMS;  /**< \brief (Smc Offset: 0xA0) SMC Off-Chip Memory Scrambling Mode Register */
+	__O  uint32_t SMC_KEY1;  /**< \brief (Smc Offset: 0xA4) SMC Off-Chip Memory Scrambling Key1 Register */
+	__O  uint32_t SMC_KEY2;  /**< \brief (Smc Offset: 0xA8) SMC Off-Chip Memory Scrambling Key2 Register */
 	__I  uint32_t Reserved2[14];
 	__IO uint32_t SMC_WPMR;  /**< \brief (Smc Offset: 0xE4) SMC Write Protection Mode Register */
 	__I  uint32_t SMC_WPSR;  /**< \brief (Smc Offset: 0xE8) SMC Write Protection Status Register */
@@ -136,16 +136,16 @@ typedef struct {
 #define SMC_MODE_TDF_CYCLES_Msk (0xfu << SMC_MODE_TDF_CYCLES_Pos) /**< \brief (SMC_MODE) Data Float Time */
 #define SMC_MODE_TDF_CYCLES(value) ((SMC_MODE_TDF_CYCLES_Msk & ((value) << SMC_MODE_TDF_CYCLES_Pos)))
 #define SMC_MODE_TDF_MODE (0x1u << 20) /**< \brief (SMC_MODE) TDF Optimization */
-/* -------- SMC_OCMS : (SMC Offset: 0xA0) SMC Off Chip Memory Scrambling Mode Register -------- */
+/* -------- SMC_OCMS : (SMC Offset: 0xA0) SMC Off-Chip Memory Scrambling Mode Register -------- */
 #define SMC_OCMS_SMSE (0x1u << 0) /**< \brief (SMC_OCMS) Static Memory Controller Scrambling Enable */
 #define SMC_OCMS_SRSE (0x1u << 1) /**< \brief (SMC_OCMS) NFC Internal SRAM Scrambling Enable */
-/* -------- SMC_KEY1 : (SMC Offset: 0xA4) SMC Off Chip Memory Scrambling Key1 Register -------- */
+/* -------- SMC_KEY1 : (SMC Offset: 0xA4) SMC Off-Chip Memory Scrambling Key1 Register -------- */
 #define SMC_KEY1_KEY1_Pos 0
-#define SMC_KEY1_KEY1_Msk (0xffffffffu << SMC_KEY1_KEY1_Pos) /**< \brief (SMC_KEY1) Off Chip Memory Scrambling (OCMS) Key Part 1 */
+#define SMC_KEY1_KEY1_Msk (0xffffffffu << SMC_KEY1_KEY1_Pos) /**< \brief (SMC_KEY1) Off-Chip Memory Scrambling (OCMS) Key Part 1 */
 #define SMC_KEY1_KEY1(value) ((SMC_KEY1_KEY1_Msk & ((value) << SMC_KEY1_KEY1_Pos)))
-/* -------- SMC_KEY2 : (SMC Offset: 0xA8) SMC Off Chip Memory Scrambling Key2 Register -------- */
+/* -------- SMC_KEY2 : (SMC Offset: 0xA8) SMC Off-Chip Memory Scrambling Key2 Register -------- */
 #define SMC_KEY2_KEY2_Pos 0
-#define SMC_KEY2_KEY2_Msk (0xffffffffu << SMC_KEY2_KEY2_Pos) /**< \brief (SMC_KEY2) Off Chip Memory Scrambling (OCMS) Key Part 2 */
+#define SMC_KEY2_KEY2_Msk (0xffffffffu << SMC_KEY2_KEY2_Pos) /**< \brief (SMC_KEY2) Off-Chip Memory Scrambling (OCMS) Key Part 2 */
 #define SMC_KEY2_KEY2(value) ((SMC_KEY2_KEY2_Msk & ((value) << SMC_KEY2_KEY2_Pos)))
 /* -------- SMC_WPMR : (SMC Offset: 0xE4) SMC Write Protection Mode Register -------- */
 #define SMC_WPMR_WPEN (0x1u << 0) /**< \brief (SMC_WPMR) Write Protection Enable */
