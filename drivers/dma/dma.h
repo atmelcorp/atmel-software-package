@@ -101,7 +101,28 @@
 /** \addtogroup dma_structs DMA Driver Structs
 		@{*/
 
-struct _dma_channel;
+/** DMA driver channel */
+struct _dma_channel {
+#if defined(CONFIG_HAVE_DMAC)
+	Dmac* dmac;  /* DMAC instance */
+#elif defined(CONFIG_HAVE_XDMAC)
+	Xdmac* xdmac; /* XDMAC instance */
+#endif
+	uint32_t id; /* Channel ID */
+
+	struct _callback callback;	/* Callback */
+
+	uint8_t src_txif;			/* Source TX Interface ID */
+	uint8_t src_rxif;			/* Source RX Interface ID */
+	uint8_t dest_txif;			/* Destination TX Interface ID */
+	uint8_t dest_rxif;			/* Destination RX Interface ID */
+#ifdef CONFIG_HAVE_DMAC
+	volatile uint32_t rep_count;/* repeat count in auto mode */
+#endif
+	volatile uint8_t state;		/* Channel State */
+
+	struct _dma_sg_desc* sg_list;
+};
 
 struct _dma_sg_list {
 	const void* saddr;

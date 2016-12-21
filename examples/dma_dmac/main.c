@@ -131,7 +131,7 @@
 CACHE_ALIGNED static struct _dmac_desc dma_descs[MAX_LL_SIZE];
 
 /** DMA channel */
-static struct _dmacd_channel *dmacd_channel;
+static struct _dma_channel *dmacd_channel;
 
 /** Source buffer */
 CACHE_ALIGNED static uint8_t src_buf[BUFFER_LEN];
@@ -226,14 +226,14 @@ static void _configure_transfer(void)
 	uint8_t i;
 	struct _dmacd_cfg dma_cfg;
 	struct _callback _cb;
-	
+
 	if (dma_mode != DMA_LL) {
 		dma_cfg.s_decr_fetch = 1;
 		dma_cfg.d_decr_fetch = 1;
 
 		dma_cfg.trans_auto = (dma_mode == DMA_MULTI ? 1 : 0);
 		dma_cfg.blocks = (dma_mode == DMA_MULTI ? 1 : 0);
-		
+
 		dma_descs[0].saddr = src_buf;
 		dma_descs[0].daddr = dest_buf;
 		dma_descs[0].ctrla = dma_data_width << DMAC_CTRLA_SRC_WIDTH_Pos
@@ -244,7 +244,7 @@ static void _configure_transfer(void)
 						     : DMAC_CTRLB_SRC_INCR_FIXED)
 						   | (dma_dest_addr_mode ? DMAC_CTRLB_DST_INCR_INCREMENTING\
 						     : DMAC_CTRLB_DST_INCR_FIXED)
-						   | DMAC_CTRLB_SRC_DSCR_FETCH_DISABLE 
+						   | DMAC_CTRLB_SRC_DSCR_FETCH_DISABLE
 						   | DMAC_CTRLB_DST_DSCR_FETCH_DISABLE
 						   | DMAC_CTRLB_SIF_AHB_IF0
 						   | DMAC_CTRLB_DIF_AHB_IF0;

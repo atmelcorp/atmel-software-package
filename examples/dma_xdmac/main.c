@@ -134,7 +134,7 @@ CACHE_ALIGNED static struct _xdmac_desc_view2 xdmacd_desc_view2[MAX_LL_SIZE];
 CACHE_ALIGNED static struct _xdmac_desc_view3 xdmacd_desc_view3[MAX_LL_SIZE];
 
 /** DMA channel */
-static struct _xdmacd_channel *xdmacd_channel;
+static struct _dma_channel *xdmacd_channel;
 
 /** Source buffer */
 CACHE_ALIGNED static uint8_t src_buf[BUFFER_LEN];
@@ -347,7 +347,7 @@ static uint32_t _configure_view(void **xdmacd_view, uint32_t *desc_cntrl,
 	}
 
 	return desc_size;
-	
+
 }
 /**
  * \brief Programming DMAC for Multiple Buffer Transfers.

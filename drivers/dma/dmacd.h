@@ -109,13 +109,13 @@ extern void dmacd_poll(void);
  * \return Channel pointer if allocation successful, or NULL if channel
  * allocation failed.
  */
-extern struct _dmacd_channel *dmacd_allocate_channel(uint8_t src, uint8_t dest);
+extern struct _dma_channel *dmacd_allocate_channel(uint8_t src, uint8_t dest);
 
 /**
  * \brief Free the specified DMA channel.
  * \param channel Channel pointer
  */
-extern int dmacd_free_channel(struct _dmacd_channel* channel);
+extern int dmacd_free_channel(struct _dma_channel* channel);
 
 /**
  * \brief Set the callback function for an DMA channel transfer.
@@ -123,7 +123,7 @@ extern int dmacd_free_channel(struct _dmacd_channel* channel);
  * \param callback Pointer to callback function.
  * \param user_arg Pointer to user argument for callback.
  */
-extern int dmacd_set_callback(struct _dmacd_channel* channel, struct _callback* cb);
+extern int dmacd_set_callback(struct _dma_channel* channel, struct _callback* cb);
 
 /**
  * \brief Configure DMA for a single transfer.
@@ -131,7 +131,7 @@ extern int dmacd_set_callback(struct _dmacd_channel* channel, struct _callback* 
  * \param cfg DMA transfer configuration
  * \param desc optional descriptor
  */
-extern int dmacd_configure_transfer(struct _dmacd_channel* channel,
+extern int dmacd_configure_transfer(struct _dma_channel* channel,
                                     struct _dmacd_cfg* cfg,
                                     struct _dmac_desc* desc);
 
@@ -139,56 +139,56 @@ extern int dmacd_configure_transfer(struct _dmacd_channel* channel,
  * \brief Start DMA transfer.
  * \param channel Channel pointer
  */
-extern int dmacd_start_transfer(struct _dmacd_channel* channel);
+extern int dmacd_start_transfer(struct _dma_channel* channel);
 
 /**
  * \brief Check if DMA transfer is finished.
  * \param channel Channel pointer
  */
-extern bool dmacd_is_transfer_done(struct _dmacd_channel* channel);
+extern bool dmacd_is_transfer_done(struct _dma_channel* channel);
 
 /**
  * \brief Stop DMA transfer.
  * \param channel Channel pointer
  */
-extern int dmacd_stop_transfer(struct _dmacd_channel* channel);
+extern int dmacd_stop_transfer(struct _dma_channel* channel);
 
 /**
  * \brief Reset the specified  DMA channel.
  * \param channel Channel pointer
  */
-extern int dmacd_reset_channel(struct _dmacd_channel* channel);
+extern int dmacd_reset_channel(struct _dma_channel* channel);
 
 /**
  * \brief Suspend DMA transfer.
  * \param channel Channel pointer
  */
-extern int dmacd_suspend_transfer(struct _dmacd_channel* channel);
+extern int dmacd_suspend_transfer(struct _dma_channel* channel);
 
 /**
  * \brief Resume DMA transfer.
  * \param channel Channel pointer
  */
-extern int dmacd_resume_transfer(struct _dmacd_channel* channel);
+extern int dmacd_resume_transfer(struct _dma_channel* channel);
 
 /**
  * \brief Flush the relevant channel's FIFO of given DMAC.
  *
  * \param channel Channel pointer
  */
-extern void dmacd_fifo_flush(struct _dmacd_channel* channel);
+extern void dmacd_fifo_flush(struct _dma_channel* channel);
 
 /**
  * \brief Get size of already trasnferred data by DMA.
  * \param channel Channel pointer
  */
-extern uint32_t dmacd_get_transferred_data_len(struct _dmacd_channel* channel);
+extern uint32_t dmacd_get_transferred_data_len(struct _dma_channel* channel);
 
 /**
  * \brief Get next descriptor's address for the relevant channel of given DMAC.
  * \param channel Channel pointer
  */
-extern uint32_t dmacd_get_desc_addr(struct _dmacd_channel* channel);
+extern uint32_t dmacd_get_desc_addr(struct _dma_channel* channel);
 
 /**     @}*/
 

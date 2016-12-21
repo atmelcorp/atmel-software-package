@@ -60,8 +60,6 @@
 /** \addtogroup dmad_structs DMA Driver Structs
         @{*/
 
-struct _xdmacd_channel;
-
 struct _xdmacd_cfg {
 	uint32_t  ubc;      /**< Microblock Size */
 	uint32_t  bc;       /**< Block Control */
@@ -102,13 +100,13 @@ extern void xdmacd_poll(void);
  * \return Channel pointer if allocation successful, or NULL if channel
  * allocation failed.
  */
-extern struct _xdmacd_channel *xdmacd_allocate_channel(uint8_t src, uint8_t dest);
+extern struct _dma_channel *xdmacd_allocate_channel(uint8_t src, uint8_t dest);
 
 /**
  * \brief Free the specified DMA channel.
  * \param channel Channel pointer
  */
-extern int xdmacd_free_channel(struct _xdmacd_channel* channel);
+extern int xdmacd_free_channel(struct _dma_channel* channel);
 
 /**
  * \brief Set the callback function for an DMA channel transfer.
@@ -116,7 +114,7 @@ extern int xdmacd_free_channel(struct _xdmacd_channel* channel);
  * \param callback Pointer to callback function.
  * \param user_arg Pointer to user argument for callback.
  */
-extern int xdmacd_set_callback(struct _xdmacd_channel* channel, struct _callback* cb);
+extern int xdmacd_set_callback(struct _dma_channel* channel, struct _callback* cb);
 
 /**
  * \brief Configure DMA for a single transfer.
@@ -125,63 +123,63 @@ extern int xdmacd_set_callback(struct _xdmacd_channel* channel, struct _callback
  * \param desc_ctrl optional descriptor control
  * \param desc_addr optional descriptor address
  */
-extern int xdmacd_configure_transfer(struct _xdmacd_channel* channel,
+extern int xdmacd_configure_transfer(struct _dma_channel* channel,
 				     struct _xdmacd_cfg *cfg, uint32_t desc_ctrl, void *desc_addr);
 
 /**
  * \brief Start DMA transfer.
  * \param channel Channel pointer
  */
-extern int xdmacd_start_transfer(struct _xdmacd_channel* channel);
+extern int xdmacd_start_transfer(struct _dma_channel* channel);
 
 /**
  * \brief Check if DMA transfer is finished.
  * \param channel Channel pointer
  */
-extern bool xdmacd_is_transfer_done(struct _xdmacd_channel* channel);
+extern bool xdmacd_is_transfer_done(struct _dma_channel* channel);
 
 /**
  * \brief Stop DMA transfer.
  * \param channel Channel pointer
  */
-extern int xdmacd_stop_transfer(struct _xdmacd_channel* channel);
+extern int xdmacd_stop_transfer(struct _dma_channel* channel);
 
 /**
  * \brief Suspend DMA transfer.
  * \param channel Channel pointer
  */
-extern int xdmacd_suspend_transfer(struct _xdmacd_channel* channel);
+extern int xdmacd_suspend_transfer(struct _dma_channel* channel);
 
 /**
  * \brief Resume DMA transfer.
  * \param channel Channel pointer
  */
-extern int xdmacd_resume_transfer(struct _xdmacd_channel* channel);
+extern int xdmacd_resume_transfer(struct _dma_channel* channel);
 
 /**
  * \brief Get size of remaining data to be transferred by DMA transfer.
  * \param channel Channel pointer
  */
-extern uint32_t xdmacd_get_remaining_data_len(struct _xdmacd_channel* channel);
+extern uint32_t xdmacd_get_remaining_data_len(struct _dma_channel* channel);
 
 /**
  * \brief Reset the specified DMA chanel.
  * \param channel Channel pointer
  */
-extern int xdmacd_reset_channel(struct _xdmacd_channel* channel);
+extern int xdmacd_reset_channel(struct _dma_channel* channel);
 
 /**
  * \brief  Get next descriptor's address for the relevant channel of given XDMA.
  * \param channel Channel pointer
  */
-extern uint32_t xdmacd_get_desc_addr(struct _xdmacd_channel* channel);
+extern uint32_t xdmacd_get_desc_addr(struct _dma_channel* channel);
 
 /**
  * \brief Flush the relevant channel's FIFO of given XDMAC.
  *
  * \param channel Channel pointer
  */
-extern void xdmacd_fifo_flush(struct _xdmacd_channel* channel);
+extern void xdmacd_fifo_flush(struct _dma_channel* channel);
 
 /**     @}*/
 

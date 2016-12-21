@@ -102,26 +102,11 @@ enum {
 	DMACD_STATE_SUSPENDED, /**< DMA suspended */
 };
 
-/** DMA driver channel */
-struct _dmacd_channel
-{
-	Dmac             *dmac;      /**< DMAC instance */
-	uint32_t         id;         /**< Channel ID */
-	struct _callback callback;   /**< Callback */
-	uint8_t          src_txif;   /**< Source TX Interface ID */
-	uint8_t          src_rxif;   /**< Source RX Interface ID */
-	uint8_t          dest_txif;  /**< Destination TX Interface ID */
-	uint8_t          dest_rxif;  /**< Destination RX Interface ID */
-	volatile uint32_t rep_count; /**< repeat count in auto mode */
-	volatile uint8_t state;      /**< Channel State */
-	char             dummy[4];   /** to be aligned with _dma_channel */
-};
-
 /** DMA driver instance */
 struct _dmacd {
-	struct _dmacd_channel channels[DMACD_CHANNELS];
-	bool                  polling;
-	uint8_t               polling_timeout;
+	struct _dma_channel channels[DMACD_CHANNELS];
+	bool                polling;
+	uint8_t             polling_timeout;
 };
 
 static struct _dmacd _dmacd;
@@ -134,7 +119,7 @@ static struct _dmacd _dmacd;
  * setup configuration register for transfer.
  * \param channel Channel pointer
  */
-static int dmacd_prepare_channel(struct _dmacd_channel* channel)
+static int dmacd_prepare_channel(struct _dma_channel* channel)
 {
 	Dmac *dmac = channel->dmac;
 
@@ -167,10 +152,10 @@ static int dmacd_prepare_channel(struct _dmacd_channel* channel)
 	return 0;
 }
 
-static struct _dmacd_channel* _dmacd_channel(Dmac* dmac, uint32_t channel)
+static struct _dma_channel* _dmacd_channel(Dmac* dmac, uint32_t channel)
 {
 	int i;
-	struct _dmacd_channel* ch = NULL;
+	struct _dma_channel* ch = NULL;
 	for (i = 0; i < ARRAY_SIZE(controllers); i++) {
 		if (controllers[i] == dmac)
 			ch = &_dmacd.channels[i * DMAC_CHANNELS + channel];
@@ -194,7 +179,7 @@ static void dmacd_handler(uint32_t source, void* user_arg)
 		return;;
 
 	for (chan = 0; chan < DMAC_CHANNELS; chan++) {
-		struct _dmacd_channel* channel;
+		struct _dma_channel* channel;
 		bool exec = false;
 		if (!(gis & ((DMAC_EBCISR_BTC0 | DMAC_EBCISR_CBTC0 | DMAC_EBCISR_ERR0) << chan)))
 			continue;
@@ -235,7 +220,7 @@ void dmacd_initialize(bool polling)
 		Dmac* dmac = controllers[cont];
 		dmac_get_channel_status(dmac);
 		for (chan = 0; chan < DMAC_CHANNELS; chan++) {
-			struct _dmacd_channel* channel = _dmacd_channel(dmac, chan);
+			struct _dma_channel* channel = _dmacd_channel(dmac, chan);
 			channel->dmac = dmac;
 			channel->id = chan;
 			callback_set(&channel->callback, NULL, NULL);
@@ -265,7 +250,7 @@ void dmacd_poll(void)
 	}
 }
 
-struct _dmacd_channel* dmacd_allocate_channel(uint8_t src, uint8_t dest)
+struct _dma_channel* dmacd_allocate_channel(uint8_t src, uint8_t dest)
 {
 	uint32_t i;
 
@@ -275,7 +260,7 @@ struct _dmacd_channel* dmacd_allocate_channel(uint8_t src, uint8_t dest)
 	}
 
 	for (i = 0; i < DMACD_CHANNELS; i++) {
-		struct _dmacd_channel* channel = &_dmacd.channels[i];
+		struct _dma_channel* channel = &_dmacd.channels[i];
 		Dmac *dmac = channel->dmac;
 
 		if (channel->state == DMACD_STATE_FREE) {
@@ -303,7 +288,7 @@ struct _dmacd_channel* dmacd_allocate_channel(uint8_t src, uint8_t dest)
 	return NULL;
 }
 
-int dmacd_free_channel(struct _dmacd_channel* channel)
+int dmacd_free_channel(struct _dma_channel* channel)
 {
 	switch (channel->state) {
 	case DMACD_STATE_STARTED:
@@ -316,7 +301,7 @@ int dmacd_free_channel(struct _dmacd_channel* channel)
 	return 0;
 }
 
-int dmacd_set_callback(struct _dmacd_channel* channel, struct _callback* cb)
+int dmacd_set_callback(struct _dma_channel* channel, struct _callback* cb)
 {
 	if (channel->state == DMACD_STATE_FREE)
 		return -EPERM;
@@ -328,13 +313,13 @@ int dmacd_set_callback(struct _dmacd_channel* channel, struct _callback* cb)
 	return 0;
 }
 
-bool dmacd_is_transfer_done(struct _dmacd_channel* channel)
+bool dmacd_is_transfer_done(struct _dma_channel* channel)
 {
 	return ((channel->state != DMACD_STATE_STARTED)
 			&& (channel->state != DMACD_STATE_SUSPENDED));
 }
 
-int dmacd_configure_transfer(struct _dmacd_channel* channel,
+int dmacd_configure_transfer(struct _dma_channel* channel,
 		struct _dmacd_cfg* cfg,
 		struct _dmac_desc* desc)
 {
@@ -399,7 +384,7 @@ int dmacd_configure_transfer(struct _dmacd_channel* channel,
 	return 0;
 }
 
-int dmacd_start_transfer(struct _dmacd_channel* channel)
+int dmacd_start_transfer(struct _dma_channel* channel)
 {
 	if (channel->state == DMACD_STATE_FREE)
 		return -EPERM;
@@ -417,7 +402,7 @@ int dmacd_start_transfer(struct _dmacd_channel* channel)
 	return 0;
 }
 
-int dmacd_stop_transfer(struct _dmacd_channel* channel)
+int dmacd_stop_transfer(struct _dma_channel* channel)
 {
 	Dmac *dmac = channel->dmac;
 
@@ -433,7 +418,7 @@ int dmacd_stop_transfer(struct _dmacd_channel* channel)
 	return 0;
 }
 
-int dmacd_reset_channel(struct _dmacd_channel* channel)
+int dmacd_reset_channel(struct _dma_channel* channel)
 {
 	Dmac *dmac = channel->dmac;
 
@@ -455,7 +440,7 @@ int dmacd_reset_channel(struct _dmacd_channel* channel)
 	return 0;
 }
 
-int dmacd_suspend_transfer(struct _dmacd_channel* channel)
+int dmacd_suspend_transfer(struct _dma_channel* channel)
 {
 	Dmac *dmac = channel->dmac;
 
@@ -468,7 +453,7 @@ int dmacd_suspend_transfer(struct _dmacd_channel* channel)
 	return 0;
 }
 
-int dmacd_resume_transfer(struct _dmacd_channel* channel)
+int dmacd_resume_transfer(struct _dma_channel* channel)
 {
 	Dmac *dmac = channel->dmac;
 
@@ -481,21 +466,21 @@ int dmacd_resume_transfer(struct _dmacd_channel* channel)
 	return 0;
 }
 
-void dmacd_fifo_flush(struct _dmacd_channel* channel)
+void dmacd_fifo_flush(struct _dma_channel* channel)
 {
 	Dmac *dmac = channel->dmac;
 
 	dmac_fifo_flush(dmac, channel->id);
 }
 
-uint32_t dmacd_get_transferred_data_len(struct _dmacd_channel* channel)
+uint32_t dmacd_get_transferred_data_len(struct _dma_channel* channel)
 {
 	Dmac *dmac = channel->dmac;
 
 	return dmac_get_btsize(dmac, channel->id);
 }
 
-uint32_t dmacd_get_desc_addr(struct _dmacd_channel* channel)
+uint32_t dmacd_get_desc_addr(struct _dma_channel* channel)
 {
 	Dmac *dmac = channel->dmac;
 
