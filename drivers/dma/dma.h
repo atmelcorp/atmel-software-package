@@ -145,24 +145,15 @@ struct dma_xfer_item_tmpl {
 /** Elementary transfer descriptor, AKA linked list item.
  * Allocate the items, but do not access their members. Please use the dedicated
  * functions defined below. */
+struct dma_xfer_item {
 #ifdef CONFIG_HAVE_XDMAC
-struct dma_xfer_item {
-	const void *mbr_nda;	/* Next Descriptor Address */
-	uint32_t    mbr_ubc;	/* Microblock Control */
-	const void *mbr_sa;		/* Source Address */
-	void       *mbr_da;		/* Destination Address */
-};
+	struct _xdmac_desc_view1 desc;
 #elif defined(CONFIG_HAVE_DMAC)
-struct dma_xfer_item {
-	const void *saddr;		/* Source Address */
-	void       *daddr;		/* Destination Address */
-	uint32_t    ctrla;		/* Buffer Control A */
-	uint32_t    ctrlb;		/* Buffer Control B */
-	const void *dscr;		/* Next Descriptor Address */
-};
+	struct _dmac_desc desc;
 #else
-#  error "Requires a DMA controller to be enabled"
+#error "Requires a DMA controller to be enabled"
 #endif
+};
 
 /**     @}*/
 

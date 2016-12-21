@@ -128,7 +128,7 @@
  *----------------------------------------------------------------------------*/
 
 /** DMA Linked List */
-CACHE_ALIGNED static struct _dma_desc dma_descs[MAX_LL_SIZE];
+CACHE_ALIGNED static struct _dmac_desc dma_descs[MAX_LL_SIZE];
 
 /** DMA channel */
 static struct _dmacd_channel *dmacd_channel;
@@ -234,8 +234,8 @@ static void _configure_transfer(void)
 		dma_cfg.trans_auto = (dma_mode == DMA_MULTI ? 1 : 0);
 		dma_cfg.blocks = (dma_mode == DMA_MULTI ? 1 : 0);
 		
-		dma_descs[0].sa = src_buf;
-		dma_descs[0].da = dest_buf;
+		dma_descs[0].saddr = src_buf;
+		dma_descs[0].daddr = dest_buf;
 		dma_descs[0].ctrla = dma_data_width << DMAC_CTRLA_SRC_WIDTH_Pos
 						   | dma_data_width << DMAC_CTRLA_DST_WIDTH_Pos
 						   | MICROBLOCK_LEN;
@@ -253,8 +253,8 @@ static void _configure_transfer(void)
 		dma_cfg.s_decr_fetch = 0;
 		dma_cfg.d_decr_fetch = 0;
 		for (i = 0; i < MAX_LL_SIZE; i++) {
-			dma_descs[i].sa = src_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i;
-			dma_descs[i].da = dest_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i;
+			dma_descs[i].saddr = src_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i;
+			dma_descs[i].daddr = dest_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i;
 			dma_descs[i].ctrla = dma_data_width << DMAC_CTRLA_SRC_WIDTH_Pos
 							   | dma_data_width << DMAC_CTRLA_DST_WIDTH_Pos
 							   | MICROBLOCK_LEN;
@@ -267,11 +267,11 @@ static void _configure_transfer(void)
 							   | DMAC_CTRLB_DST_DSCR_FETCH_FROM_MEM
 							   | DMAC_CTRLB_SIF_AHB_IF0
 							   | DMAC_CTRLB_DIF_AHB_IF0;
-			dma_descs[i].desc = &dma_descs[i + 1];
+			dma_descs[i].dscr = &dma_descs[i + 1];
 		}
 		dma_descs[MAX_LL_SIZE - 1].ctrlb |= DMAC_CTRLB_SRC_DSCR_FETCH_DISABLE |
 										DMAC_CTRLB_DST_DSCR_FETCH_DISABLE;
-		dma_descs[MAX_LL_SIZE - 1].desc = 0;
+		dma_descs[MAX_LL_SIZE - 1].dscr = 0;
 		cache_clean_region(dma_descs, sizeof(dma_descs));
 		dmacd_configure_transfer(dmacd_channel, &dma_cfg, &dma_descs[0]);
 	}

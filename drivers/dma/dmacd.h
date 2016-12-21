@@ -63,30 +63,21 @@
 
 /** DMA status or return code */
 enum {
-	DMACD_AUTO_DIS = 0,		 /**< Auto mode is disabled */
-	DMACD_AUTO_EN,			 /**< Auto mode is enabled */
-	DMACD_AUTO_CLEARED		 /**< Auto mode is cleared */
+	DMACD_AUTO_DIS = 0, /**< Auto mode is disabled */
+	DMACD_AUTO_EN,      /**< Auto mode is enabled */
+	DMACD_AUTO_CLEARED  /**< Auto mode is cleared */
 };
 
 struct _dmacd_cfg {
-	uint8_t s_decr_fetch : 1;	/* Buffer Descriptor Fetch operation is disabled for the source (0 by default) */
-	uint8_t d_decr_fetch : 1;	/* Buffer Descriptor Fetch operation is disabled for the destination (0 by default)*/
-	uint8_t sa_rep : 1;			/* Source Reloaded from Previous (0 by default)*/
-	uint8_t da_rep : 1;			/* Destination Reloaded from Previous (0 by default)*/
-	uint8_t trans_auto : 1;		/* Destination Reloaded from Previous (0 by default)*/
+	uint8_t  s_decr_fetch:1; /* Buffer Descriptor Fetch operation is disabled for the source */
+	uint8_t  d_decr_fetch:1; /* Buffer Descriptor Fetch operation is disabled for the destination */
+	uint8_t  sa_rep:1;       /* Source Reloaded from Previous */
+	uint8_t  da_rep:1;       /* Destination Reloaded from Previous */
+	uint8_t  trans_auto:1;
 	uint32_t blocks;
-	uint32_t s_pip;      /* source pip config */
-	uint32_t d_pip;      /* destination pip config */
-	uint32_t cfg;        /* Configuration Register */
-};
-
-/** DMA Transfer Descriptor as well as Linked List Item */
-struct _dma_desc {
-    void * sa;           /* Source buffer address */
-    void * da;           /* Destination buffer address */
-    uint32_t ctrla;      /* Control A register settings */
-    uint32_t ctrlb;      /* Control B register settings */
-    void * desc;         /* Next descriptor address */
+	uint32_t s_pip;          /* source pip config */
+	uint32_t d_pip;          /* destination pip config */
+	uint32_t cfg;            /* Configuration Register */
 };
 
 /**     @}*/
@@ -138,11 +129,11 @@ extern int dmacd_set_callback(struct _dmacd_channel* channel, struct _callback* 
  * \brief Configure DMA for a single transfer.
  * \param channel Channel pointer
  * \param cfg DMA transfer configuration
- * \param desc_cntrl optional descriptor control
- * \param desc_addr optional descriptor address
+ * \param desc optional descriptor
  */
 extern int dmacd_configure_transfer(struct _dmacd_channel* channel,
-				    struct _dmacd_cfg* cfg,  void* desc_addr);
+                                    struct _dmacd_cfg* cfg,
+                                    struct _dmac_desc* desc);
 
 /**
  * \brief Start DMA transfer.
@@ -198,6 +189,7 @@ extern uint32_t dmacd_get_transferred_data_len(struct _dmacd_channel* channel);
  * \param channel Channel pointer
  */
 extern uint32_t dmacd_get_desc_addr(struct _dmacd_channel* channel);
+
 /**     @}*/
 
 /**@}*/

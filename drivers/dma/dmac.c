@@ -174,7 +174,7 @@ void dmac_software_chunk_transfer_request(Dmac *dmac, uint8_t channel)
 	dmac->DMAC_CREQ |= ((DMAC_CREQ_SCREQ0 | DMAC_CREQ_DCREQ0) << (channel << 1));
 }
 
-void dmac_set_src_addr(Dmac *dmac, uint8_t channel, void *addr)
+void dmac_set_src_addr(Dmac *dmac, uint8_t channel, const void *addr)
 {
 	assert(dmac == DMAC0 || dmac == DMAC1);
 	assert(channel < DMAC_CHANNELS);

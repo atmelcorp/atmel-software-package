@@ -90,8 +90,17 @@
 /**     @}*/
 
 /*----------------------------------------------------------------------------
- *         Macro
+ *         Type Definitions
  *----------------------------------------------------------------------------*/
+
+/** DMA Descriptor */
+struct _dmac_desc {
+	const void* saddr; /* Source buffer address */
+	void*       daddr; /* Destination buffer address */
+	uint32_t    ctrla; /* Control A register settings */
+	uint32_t    ctrlb; /* Control B register settings */
+	void*       dscr;  /* Next descriptor address */
+};
 
 /*------------------------------------------------------------------------------
  *         Global functions
@@ -264,7 +273,7 @@ extern void dmac_software_chunk_transfer_request(Dmac *dmac, uint8_t channel);
  * \param channel Particular channel number.
  * \param addr Source address.
  */
-extern void dmac_set_src_addr(Dmac *dmac, uint8_t channel, void *addr);
+extern void dmac_set_src_addr(Dmac *dmac, uint8_t channel, const void *addr);
 
 /**
  * \brief Set destination address for the relevant channel of given DMA.

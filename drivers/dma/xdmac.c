@@ -210,7 +210,7 @@ uint32_t xdmac_get_masked_channel_isr(Xdmac *xdmac, uint8_t channel)
 	return xdmac->XDMAC_CH[channel].XDMAC_CIS & mask;
 }
 
-void xdmac_set_src_addr(Xdmac *xdmac, uint8_t channel, void *addr)
+void xdmac_set_src_addr(Xdmac *xdmac, uint8_t channel, const void *addr)
 {
 	assert(channel < XDMAC_CHANNELS);
 

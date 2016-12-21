@@ -97,47 +97,6 @@ struct _xdmacd_cfg {
 	uint32_t  cfg;      /**< Configuration Register */
 };
 
-/** Structure for storing parameters for DMA view0 that can be performed by the
- * DMA Master transfer.*/
-struct _xdmacd_desc_view0 {
-	void    *mbr_nda;     /**< Next Descriptor Address */
-	uint32_t mbr_ubc;     /**< Microblock Control */
-	void    *mbr_ta;      /**< Transfer Address */
-};
-
-/** Structure for storing parameters for DMA view1 that can be performed by the
- * DMA Master transfer.*/
-struct _xdmacd_desc_view1 {
-	void    *mbr_nda;   /**< Next Descriptor Address */
-	uint32_t mbr_ubc;   /**< Microblock Control */
-	void    *mbr_sa;    /**< Source Address */
-	void    *mbr_da;    /**< Destination Address */
-};
-
-/** Structure for storing parameters for DMA view2 that can be performed by the
- * DMA Master transfer.*/
-struct _xdmacd_desc_view2 {
-	void    *mbr_nda;   /**< Next Descriptor Address */
-	uint32_t mbr_ubc;   /**< Microblock Control */
-	void    *mbr_sa;    /**< Source Address */
-	void    *mbr_da;    /**< Destination Address */
-    uint32_t mbr_cfg;   /**< Configuration Register */
-};
-
-/** Structure for storing parameters for DMA view3 that can be performed by the
- * DMA Master transfer.*/
-struct _xdmacd_desc_view3 {
-	void    *mbr_nda;  /**< Next Descriptor Address */
-	uint32_t mbr_ubc;  /**< Microblock Control */
-	void    *mbr_sa;   /**< Source Address */
-	void    *mbr_da;   /**< Destination Address */
-	uint32_t mbr_cfg;
-	uint32_t mbr_bc;   /**< Block Control */
-	uint32_t mbr_ds;   /**< Data Stride */
-	uint32_t mbr_sus;  /**< Source Microblock Stride */
-	uint32_t mbr_dus;  /**< Destination Microblock Stride */
-};
-
 /**     @}*/
 
 /*----------------------------------------------------------------------------

@@ -335,30 +335,27 @@ bool dmacd_is_transfer_done(struct _dmacd_channel* channel)
 }
 
 int dmacd_configure_transfer(struct _dmacd_channel* channel,
-		struct _dmacd_cfg *cfg,
-		void *desc_addr)
+		struct _dmacd_cfg* cfg,
+		struct _dmac_desc* desc)
 {
-	void * sa;
-	void * da;
-	uint32_t ctrla;
+	Dmac *dmac = channel->dmac;
 	uint32_t ctrlb;
+
 	if (channel->state == DMACD_STATE_FREE)
 		return -EPERM;
 	else if (channel->state == DMACD_STATE_STARTED)
 		return -EBUSY;
-	Dmac *dmac = channel->dmac;
 
-	sa = ((struct _dma_desc *)desc_addr)->sa;
-	da = ((struct _dma_desc *)desc_addr)->da;
-	ctrla = ((struct _dma_desc *)desc_addr)->ctrla;
-	ctrlb = ((struct _dma_desc *)desc_addr)->ctrlb;
+	ctrlb = desc->ctrlb;
 
-	cfg->cfg &= ~(DMAC_CFG_SRC_PER_Msk | DMAC_CFG_SRC_PER_MSB_Msk
-				| DMAC_CFG_DST_PER_Msk | DMAC_CFG_DST_PER_MSB_Msk) ;
+	cfg->cfg &= ~(DMAC_CFG_SRC_PER_Msk | DMAC_CFG_SRC_PER_MSB_Msk |
+	              DMAC_CFG_DST_PER_Msk | DMAC_CFG_DST_PER_MSB_Msk);
+
 	if ((ctrlb & DMAC_CTRLB_FC_Msk) == DMAC_CTRLB_FC_PER2MEM_DMA_FC) {
 		cfg->cfg |= DMAC_CFG_SRC_PER(channel->src_rxif);
 		cfg->cfg |= DMAC_CFG_SRC_PER_MSB(channel->src_rxif >> 4);
 	}
+
 	if ((ctrlb & DMAC_CTRLB_FC_Msk) == DMAC_CTRLB_FC_MEM2PER_DMA_FC) {
 		cfg->cfg |= DMAC_CFG_DST_PER(channel->dest_txif);
 		cfg->cfg |= DMAC_CFG_DST_PER_MSB(channel->dest_txif >> 4);
@@ -378,23 +375,27 @@ int dmacd_configure_transfer(struct _dmacd_channel* channel,
 			channel->rep_count = cfg->blocks;
 		}
 	}
+
 	dmac_set_descriptor_addr(dmac, channel->id, 0, 0);
+
 	if (cfg->s_decr_fetch)
 		/* *Buffer Descriptor fetch operation is disabled for the source */
-		dmac_set_src_addr(dmac, channel->id, sa);
+		dmac_set_src_addr(dmac, channel->id, desc->saddr);
 	else
 		/* Source address is updated when the descriptor is fetched from the memory */
-		dmac_set_descriptor_addr(dmac, channel->id, desc_addr, 0);
+		dmac_set_descriptor_addr(dmac, channel->id, desc, 0);
 
 	if (cfg->d_decr_fetch)
 		/* *Buffer Descriptor fetch operation is disabled for the destination */
-		dmac_set_dest_addr(dmac, channel->id, da);
+		dmac_set_dest_addr(dmac, channel->id, desc->daddr);
 	else
 		/* destination address is updated when the descriptor is fetched from the memory */
-		dmac_set_descriptor_addr(dmac, channel->id, desc_addr, 0);
-	dmac_set_control_a(dmac, channel->id, ctrla);
+		dmac_set_descriptor_addr(dmac, channel->id, desc, 0);
+
+	dmac_set_control_a(dmac, channel->id, desc->ctrla);
 	dmac_set_control_b(dmac, channel->id, ctrlb);
 	dmac_set_channel_config(dmac, channel->id, cfg->cfg);
+
 	return 0;
 }
 
@@ -500,4 +501,5 @@ uint32_t dmacd_get_desc_addr(struct _dmacd_channel* channel)
 
 	return dmac_get_descriptor_addr(dmac, channel->id);
 }
+
 /**@}*/

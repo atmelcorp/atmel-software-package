@@ -94,6 +94,7 @@
 /*----------------------------------------------------------------------------
  *         Macro
  *----------------------------------------------------------------------------*/
+
 #ifdef CONFIG_HAVE_XDMAC_DATA_WIDTH_DWORD
 #define XDMA_GET_DATASIZE(size) ((size==0)? XDMAC_CC_DWIDTH_BYTE : \
                                 ((size==1)? XDMAC_CC_DWIDTH_HALFWORD : \
@@ -109,6 +110,47 @@
                                 ((d==1)? XDMAC_CC_DAM_INCREMENTED_AM : \
                                 ((d==2)? XDMAC_CC_DAM_UBS_AM : XDMAC_CC_DAM_UBS_DS_AM )))
 #define XDMA_GET_CC_MEMSET(m)   ((m==0)? XDMAC_CC_MEMSET_NORMAL_MODE : XDMAC_CC_MEMSET_HW_MODE)
+
+/*------------------------------------------------------------------------------
+ *         Type Definitions
+ *------------------------------------------------------------------------------*/
+
+/** DMA descriptor (view 0) */
+struct _xdmac_desc_view0 {
+	void    *mbr_nda; /**< Next Descriptor Address */
+	uint32_t mbr_ubc; /**< Microblock Control */
+	void    *mbr_ta;  /**< Transfer Address */
+};
+
+/** DMA descriptor (view 1) */
+struct _xdmac_desc_view1 {
+	void*       mbr_nda; /**< Next Descriptor Address */
+	uint32_t    mbr_ubc; /**< Microblock Control */
+	const void* mbr_sa;  /**< Source Address */
+	void*       mbr_da;  /**< Destination Address */
+};
+
+/** DMA descriptor (view 2) */
+struct _xdmac_desc_view2 {
+	void*       mbr_nda; /**< Next Descriptor Address */
+	uint32_t    mbr_ubc; /**< Microblock Control */
+	const void* mbr_sa;  /**< Source Address */
+	void*       mbr_da;  /**< Destination Address */
+	uint32_t    mbr_cfg; /**< Configuration Register */
+};
+
+/** DMA descriptor (view 3) */
+struct _xdmac_desc_view3 {
+	void*       mbr_nda; /**< Next Descriptor Address */
+	uint32_t    mbr_ubc; /**< Microblock Control */
+	const void* mbr_sa;  /**< Source Address */
+	void*       mbr_da;  /**< Destination Address */
+	uint32_t    mbr_cfg; /**< Configuration Register */
+	uint32_t    mbr_bc;  /**< Block Control */
+	uint32_t    mbr_ds;  /**< Data Stride */
+	uint32_t    mbr_sus; /**< Source Microblock Stride */
+	uint32_t    mbr_dus; /**< Destination Microblock Stride */
+};
 
 /*------------------------------------------------------------------------------
  *         Global functions
@@ -332,7 +374,7 @@ extern uint32_t xdmac_get_masked_channel_isr(Xdmac *xdmac, uint8_t channel);
  * \param channel Particular channel number.
  * \param addr Source address.
  */
-extern void xdmac_set_src_addr(Xdmac *xdmac, uint8_t channel, void *addr);
+extern void xdmac_set_src_addr(Xdmac *xdmac, uint8_t channel, const void *addr);
 
 /**
  * \brief Set destination address for the relevant channel of given XDMA.

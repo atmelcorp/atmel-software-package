@@ -128,10 +128,10 @@
  *----------------------------------------------------------------------------*/
 
 /** DMA Linked List */
-CACHE_ALIGNED static struct _xdmacd_desc_view0 xdmacd_desc_view0[MAX_LL_SIZE];
-CACHE_ALIGNED static struct _xdmacd_desc_view1 xdmacd_desc_view1[MAX_LL_SIZE];
-CACHE_ALIGNED static struct _xdmacd_desc_view2 xdmacd_desc_view2[MAX_LL_SIZE];
-CACHE_ALIGNED static struct _xdmacd_desc_view3 xdmacd_desc_view3[MAX_LL_SIZE];
+CACHE_ALIGNED static struct _xdmac_desc_view0 xdmacd_desc_view0[MAX_LL_SIZE];
+CACHE_ALIGNED static struct _xdmac_desc_view1 xdmacd_desc_view1[MAX_LL_SIZE];
+CACHE_ALIGNED static struct _xdmac_desc_view2 xdmacd_desc_view2[MAX_LL_SIZE];
+CACHE_ALIGNED static struct _xdmac_desc_view3 xdmacd_desc_view3[MAX_LL_SIZE];
 
 /** DMA channel */
 static struct _xdmacd_channel *xdmacd_channel;

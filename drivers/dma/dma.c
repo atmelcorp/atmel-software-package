@@ -106,9 +106,9 @@ static void _initialize_item_pool(void)
 
 	for (i = 0; i < ARRAY_SIZE(_sg_item_pool); i++) {
 #if defined(CONFIG_HAVE_XDMAC)
-		_item_pool[i].mbr_nda = NULL;
+		_item_pool[i].desc.mbr_nda = NULL;
 #elif defined(CONFIG_HAVE_DMAC)
-		_item_pool[i].dscr = NULL;
+		_item_pool[i].desc.dscr = NULL;
 #endif
 		_sg_item_pool[i].item = &_item_pool[i];
 		_sg_item_pool[i].next = &_sg_item_pool[i + 1];
@@ -125,9 +125,9 @@ static struct _sg_item* _allocate_sg_item(void)
 
 	item = _sg_item_next_free;
 #if defined(CONFIG_HAVE_XDMAC)
-		item->item->mbr_nda = NULL;
+		item->item->desc.mbr_nda = NULL;
 #elif defined(CONFIG_HAVE_DMAC)
-		item->item->dscr = NULL;
+		item->item->desc.dscr = NULL;
 #endif
 	_sg_item_next_free = _sg_item_next_free->next;
 	item->next = NULL;
@@ -143,10 +143,10 @@ static struct dma_xfer_item* _get_last_sg_item(struct dma_channel *channel)
 	} else {
 		while (last->next) {
 #if defined(CONFIG_HAVE_XDMAC)
-			if (!last->item->mbr_nda)
+			if (!last->item->desc.mbr_nda)
 				break;
 #elif defined(CONFIG_HAVE_DMAC)
-			if (!last->item->dscr)
+			if (!last->item->desc.dscr)
 				break;
 #endif
 			last = last->next;
@@ -212,7 +212,7 @@ int dma_configure_transfer(struct dma_channel *channel, const struct dma_xfer_cf
 	struct _xdmacd_cfg xdma_cfg;
 #elif defined(CONFIG_HAVE_DMAC)
 	struct _dmacd_cfg dma_cfg;
-	struct _dma_desc dma_regs;
+	struct _dmac_desc dma_regs;
 #endif
 
 	src_is_periph = is_source_periph(channel);
@@ -330,8 +330,8 @@ int dma_configure_transfer(struct dma_channel *channel, const struct dma_xfer_cf
 	dma_cfg.cfg = src_is_periph ? DMAC_CFG_SRC_H2SEL_HW : 0;
 	dma_cfg.cfg |= dst_is_periph ? DMAC_CFG_DST_H2SEL_HW : 0;
 
-	dma_regs.sa = cfg->sa;
-	dma_regs.da = cfg->da;
+	dma_regs.saddr = cfg->sa;
+	dma_regs.daddr = cfg->da;
 
 	dma_regs.ctrla |= (cfg->data_width << DMAC_CTRLA_SRC_WIDTH_Pos)
 				   | (cfg->data_width << DMAC_CTRLA_DST_WIDTH_Pos)
@@ -371,14 +371,14 @@ int dma_sg_prepare_item(struct dma_channel *channel,
 
 #if defined(CONFIG_HAVE_XDMAC)
 
-	item->mbr_ubc = XDMA_UBC_NVIEW_NDV1
-	              | XDMA_UBC_NSEN_UPDATED
-	              | XDMA_UBC_NDEN_UPDATED
-	              | XDMA_UBC_NDE_FETCH_EN
-	              | tmpl->blk_size;
-	item->mbr_sa = tmpl->sa;
-	item->mbr_da = tmpl->da;
-	item->mbr_nda = 0;
+	item->desc.mbr_ubc = XDMA_UBC_NVIEW_NDV1
+	                   | XDMA_UBC_NSEN_UPDATED
+	                   | XDMA_UBC_NDEN_UPDATED
+	                   | XDMA_UBC_NDE_FETCH_EN
+	                   | tmpl->blk_size;
+	item->desc.mbr_sa = tmpl->sa;
+	item->desc.mbr_da = tmpl->da;
+	item->desc.mbr_nda = 0;
 
 #elif defined(CONFIG_HAVE_DMAC)
 
@@ -410,10 +410,10 @@ int dma_sg_prepare_item(struct dma_channel *channel,
 	       | (tmpl->upd_da_per_data ? DMAC_CTRLB_DST_INCR_INCREMENTING : DMAC_CTRLB_DST_INCR_FIXED)
 	       | DMAC_CTRLB_SRC_DSCR_FETCH_FROM_MEM
 	       | DMAC_CTRLB_DST_DSCR_FETCH_FROM_MEM;
-	item->saddr = tmpl->sa;
-	item->daddr = tmpl->da;
-	item->ctrla = ctrla;
-	item->ctrlb = ctrlb;
+	item->desc.saddr = tmpl->sa;
+	item->desc.daddr = tmpl->da;
+	item->desc.ctrla = ctrla;
+	item->desc.ctrlb = ctrlb;
 
 #endif
 
@@ -464,16 +464,16 @@ int dma_sg_link_item(struct dma_channel *channel,
 
 #if defined(CONFIG_HAVE_XDMAC)
 	if (next_item == NULL) {
-		item->mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
-		item->mbr_nda = 0;
+		item->desc.mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
+		item->desc.mbr_nda = 0;
 	} else {
-		item->mbr_nda = next_item;
+		item->desc.mbr_nda = next_item;
 	}
 #elif defined(CONFIG_HAVE_DMAC)
 	if (next_item == NULL)
-		item->dscr = 0;
+		item->desc.dscr = 0;
 	else
-		item->dscr = next_item;
+		item->desc.dscr = next_item;
 #endif
 	return 0;
 }
@@ -498,16 +498,16 @@ int dma_sg_link_last_item(struct dma_channel *channel, struct dma_xfer_item *ite
 
 #if defined(CONFIG_HAVE_XDMAC)
 	if (item == NULL) {
-		last->mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
-		last->mbr_nda = 0;
+		last->desc.mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
+		last->desc.mbr_nda = 0;
 	} else {
-		last->mbr_nda = item;
+		last->desc.mbr_nda = item;
 	}
 #elif defined(CONFIG_HAVE_DMAC)
 	if (item == NULL)
-		last->dscr = 0;
+		last->desc.dscr = 0;
 	else
-		last->dscr = item;
+		last->desc.dscr = item;
 #endif
 	return 0;
 }
@@ -528,20 +528,20 @@ int dma_sg_insert_item(struct dma_channel *channel,
 		return -ECANCELED;
 
 #if defined(CONFIG_HAVE_XDMAC)
-	next =(struct dma_xfer_item*) pre_item->mbr_nda;
-	pre_item->mbr_nda = item;
-	item->mbr_nda = next;
+	next = (struct dma_xfer_item*)pre_item->desc.mbr_nda;
+	pre_item->desc.mbr_nda = item;
+	item->desc.mbr_nda = next;
 	if (next == NULL) {
-		pre_item->mbr_ubc |= XDMA_UBC_NDE_FETCH_EN;
-		item->mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
-		item->mbr_nda = 0;
+		pre_item->desc.mbr_ubc |= XDMA_UBC_NDE_FETCH_EN;
+		item->desc.mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
+		item->desc.mbr_nda = 0;
 	}
 #elif defined(CONFIG_HAVE_DMAC)
-	next = (struct dma_xfer_item*)pre_item->dscr;
-	pre_item->dscr = item;
-	item->dscr = next;
+	next = (struct dma_xfer_item*)pre_item->desc.dscr;
+	pre_item->desc.dscr = item;
+	item->desc.dscr = next;
 	if (next == NULL)
-		item->dscr = 0;
+		item->desc.dscr = 0;
 #endif
 	return 0;
 }
@@ -566,18 +566,18 @@ int dma_sg_append_item(struct dma_channel *channel, struct dma_xfer_item *item)
 	last = descriptor_addr;
 
 #if defined(CONFIG_HAVE_XDMAC)
-	while (last->mbr_nda)
-		last = (struct dma_xfer_item *)last->mbr_nda;
-	last->mbr_nda = item;
-	last->mbr_ubc |= XDMA_UBC_NDE_FETCH_EN;
-	item->mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
-	item->mbr_nda = 0;
+	while (last->desc.mbr_nda)
+		last = (struct dma_xfer_item *)last->desc.mbr_nda;
+	last->desc.mbr_nda = item;
+	last->desc.mbr_ubc |= XDMA_UBC_NDE_FETCH_EN;
+	item->desc.mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
+	item->desc.mbr_nda = 0;
 
 #elif defined(CONFIG_HAVE_DMAC)
-	while (last->dscr)
-		last =(struct dma_xfer_item*)last->dscr;
-	last->dscr = item;
-	item->dscr = 0;
+	while (last->desc.dscr)
+		last =(struct dma_xfer_item*)last->desc.dscr;
+	last->desc.dscr = item;
+	item->desc.dscr = 0;
 #endif
 	return 0;
 }
@@ -599,21 +599,21 @@ int dma_sg_remove_last_item(struct dma_channel *channel)
 	last = descriptor_addr;
 
 #if defined(CONFIG_HAVE_XDMAC)
-	if (last->mbr_nda == NULL)
+	if (last->desc.mbr_nda == NULL)
 		return 0;
-	while (((struct dma_xfer_item*)(last->mbr_nda))->mbr_nda) {
-		last =(struct dma_xfer_item*)last->mbr_nda;
+	while (((struct dma_xfer_item*)(last->desc.mbr_nda))->desc.mbr_nda) {
+		last = (struct dma_xfer_item*)last->desc.mbr_nda;
 	}
-	last->mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
-	last->mbr_nda = 0;
+	last->desc.mbr_ubc &= ~XDMA_UBC_NDE_FETCH_EN;
+	last->desc.mbr_nda = 0;
 
 #elif defined(CONFIG_HAVE_DMAC)
-	if (last->dscr == NULL)
+	if (last->desc.dscr == NULL)
 		return 0;
-	while (((struct dma_xfer_item*)(last->dscr))->dscr) {
-		last =(struct dma_xfer_item*)last->dscr;
+	while (((struct dma_xfer_item*)(last->desc.dscr))->desc.dscr) {
+		last = (struct dma_xfer_item*)last->desc.dscr;
 	}
-	last->dscr = 0;
+	last->desc.dscr = 0;
 #endif
 	return 0;
 }
