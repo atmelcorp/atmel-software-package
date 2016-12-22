@@ -2,6 +2,9 @@
 #define __CONFIG_SAMA5D2_XPLAINED_H__
 
 /* =================== definition for example "pwm" =================== */
+
+#define PWM_ADDR PWM0
+
 /** define PWM channel to output PWM signal */
 #define CHANNEL_PWM PWM_LED_CH_0
 

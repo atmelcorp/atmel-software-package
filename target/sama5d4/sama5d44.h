@@ -118,7 +118,7 @@ extern "C" {
 #define HSMCI0   ((Hsmci    *)0xF8000000U) /**< \brief (HSMCI0  ) Base Address */
 #define UART0    ((Uart     *)0xF8004000U) /**< \brief (UART0   ) Base Address */
 #define SSC0     ((Ssc      *)0xF8008000U) /**< \brief (SSC0    ) Base Address */
-#define PWM      ((Pwm      *)0xF800C000U) /**< \brief (PWM     ) Base Address */
+#define PWM0     ((Pwm      *)0xF800C000U) /**< \brief (PWM0    ) Base Address */
 #define SPI0     ((Spi      *)0xF8010000U) /**< \brief (SPI0    ) Base Address */
 #define TWI0     ((Twi      *)0xF8014000U) /**< \brief (TWI0    ) Base Address */
 #define TWI1     ((Twi      *)0xF8018000U) /**< \brief (TWI1    ) Base Address */

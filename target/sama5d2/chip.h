@@ -122,7 +122,7 @@
 #define ID_SPI1         (34) /**< \brief Serial Peripheral Interface 1 (SPI1) */
 #define ID_TC0          (35) /**< \brief Timer Counter 0 (ch. 0, 1, 2) (TC0) */
 #define ID_TC1          (36) /**< \brief Timer Counter 1 (ch. 3, 4, 5) (TC1) */
-#define ID_PWM          (38) /**< \brief Pulse Width Modulation Controller0 (ch. 0, 1, 2, 3) (PWM) */
+#define ID_PWM0         (38) /**< \brief Pulse Width Modulation Controller0 (ch. 0, 1, 2, 3) (PWM0) */
 #define ID_ADC          (40) /**< \brief Touch Screen ADC Controller (ADC) */
 #define ID_UHPHS        (41) /**< \brief USB Host High Speed (UHPHS) */
 #define ID_UDPHS        (42) /**< \brief USB Device High Speed (UDPHS) */

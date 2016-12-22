@@ -253,16 +253,16 @@ Spi* get_spi_addr_from_id(uint32_t id)
 
 uint32_t get_pwm_id_from_addr(const Pwm* addr)
 {
-	if (addr == PWM)
-		return ID_PWM;
+	if (addr == PWM0)
+		return ID_PWM0;
 	else
 		return ID_PERIPH_COUNT;
 }
 
 Pwm* get_pwm_addr_from_id(uint32_t id)
 {
-	if (id == ID_PWM)
-		return PWM;
+	if (id == ID_PWM0)
+		return PWM0;
 	else
 		return (void*)0;
 }

@@ -142,7 +142,7 @@
 #define UART1    ((Uart     *)0xF8020000U) /**< \brief (UART1   ) Base Address */
 #define UART2    ((Uart     *)0xF8024000U) /**< \brief (UART2   ) Base Address */
 #define TWIHS0   ((Twi      *)0xF8028000U) /**< \brief (TWIHS0  ) Base Address */
-#define PWM      ((Pwm      *)0xF802C000U) /**< \brief (PWM     ) Base Address */
+#define PWM0     ((Pwm      *)0xF802C000U) /**< \brief (PWM0    ) Base Address */
 #define SFR      ((Sfr      *)0xF8030000U) /**< \brief (SFR     ) Base Address */
 #define FLEXCOM0 ((Flexcom  *)0xF8034000U) /**< \brief (FLEXCOM0) Base Address */
 #define USART0   ((Usart    *)0xF8034200U) /**< \brief (FLEXCOM0_USART) Base Address */

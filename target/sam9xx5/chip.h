@@ -90,7 +90,7 @@
 #define ID_UART1  (16) /**< \brief UART 1 (UART1) */
 #define ID_TC0    (17) /**< \brief Timer Counter 0 (TC0) */
 #define ID_TC1    (17) /**< \brief 1 (TC1) */
-#define ID_PWM    (18) /**< \brief Pulse Width Modulation Controller (PWM) */
+#define ID_PWM0   (18) /**< \brief Pulse Width Modulation Controller (PWM0) */
 #define ID_ADC    (19) /**< \brief ADC Controller (ADC) */
 #define ID_DMAC0  (20) /**< \brief DMA Controller 0 (DMAC0) */
 #define ID_DMAC1  (21) /**< \brief DMA Controller 1 (DMAC1) */

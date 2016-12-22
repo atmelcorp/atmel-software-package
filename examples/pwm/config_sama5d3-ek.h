@@ -3,12 +3,14 @@
 
 /* =================== definition for example "pwm" =================== */
 
+#define PWM_ADDR PWM0
+
 /** define PWM channel to output PWM signal */
 #define CHANNEL_PWM 1
 
 /** define PWM pin to output PWM signal */
 #define PIN_PWM \
-	{ PIO_GROUP_A, PIO_PA22B_PWMH1, PIO_PERIPH_B, PIO_DEFAULT}
+	{ PIO_GROUP_A, PIO_PA22B_PWM0_H1, PIO_PERIPH_B, PIO_DEFAULT}
 
 /** define TC channel to output the waveform */
 #define CHANNEL_TC_CAPTURE_IN 1

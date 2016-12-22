@@ -88,7 +88,7 @@ static const struct peripheral_dma _dmac1_peripherals[] = {
 /* must be sorted by peripheral ID */
 static const uint32_t _div_peripherals[] = {
 	ID_PIOA, ID_PIOC, ID_USART0, ID_USART1, ID_USART2, ID_TWI0, ID_TWI1,
-	ID_TWI2, ID_SPI0, ID_SPI1, ID_UART0, ID_UART1, ID_TC0, ID_TC1, ID_PWM,
+	ID_TWI2, ID_SPI0, ID_SPI1, ID_UART0, ID_UART1, ID_TC0, ID_TC1, ID_PWM0,
 	ID_ADC, ID_SSC0,
 #ifdef CONFIG_HAVE_CAN
 	ID_CAN0, ID_CAN1
@@ -210,16 +210,16 @@ Spi* get_spi_addr_from_id(uint32_t id)
 
 uint32_t get_pwm_id_from_addr(const Pwm* addr)
 {
-	if (addr == PWM)
-		return ID_PWM;
+	if (addr == PWM0)
+		return ID_PWM0;
 	else
 		return ID_PERIPH_COUNT;
 }
 
 Pwm* get_pwm_addr_from_id(uint32_t id)
 {
-	if (id == ID_PWM)
-		return PWM;
+	if (id == ID_PWM0)
+		return PWM0;
 	else
 		return (void*)0;
 }

@@ -534,19 +534,19 @@
 #define PIO_PA21B_PCK2         (1u << 21) /**< \brief Pmc signal: PCK2 */
 #define PIO_PC28C_PCK2         (1u << 28) /**< \brief Pmc signal: PCK2 */
 #define PIO_PD11B_PCK2         (1u << 11) /**< \brief Pmc signal: PCK2 */
-/* ========== Pio definition for PWM peripheral ========== */
-#define PIO_PB3D_PWMEXTRG0     (1u << 3)  /**< \brief Pwm signal: PWMEXTRG0 */
-#define PIO_PB10C_PWMEXTRG1    (1u << 10) /**< \brief Pwm signal: PWMEXTRG1 */
-#define PIO_PB2D_PWMFI0        (1u << 2)  /**< \brief Pwm signal: PWMFI0 */
-#define PIO_PB9C_PWMFI1        (1u << 9)  /**< \brief Pwm signal: PWMFI1 */
-#define PIO_PA30D_PWMH0        (1u << 30) /**< \brief Pwm signal: PWMH0 */
-#define PIO_PB0D_PWMH1         (1u << 0)  /**< \brief Pwm signal: PWMH1 */
-#define PIO_PB5C_PWMH2         (1u << 5)  /**< \brief Pwm signal: PWMH2 */
-#define PIO_PB7C_PWMH3         (1u << 7)  /**< \brief Pwm signal: PWMH3 */
-#define PIO_PA31D_PWML0        (1u << 31) /**< \brief Pwm signal: PWML0 */
-#define PIO_PB1D_PWML1         (1u << 1)  /**< \brief Pwm signal: PWML1 */
-#define PIO_PB6C_PWML2         (1u << 6)  /**< \brief Pwm signal: PWML2 */
-#define PIO_PB8C_PWML3         (1u << 8)  /**< \brief Pwm signal: PWML3 */
+/* ========== Pio definition for PWM0 peripheral ========== */
+#define PIO_PB3D_PWM0_EXTRG0   (1u << 3)  /**< \brief Pwm signal: PWM0_EXTRG0 */
+#define PIO_PB10C_PWM0_EXTRG1  (1u << 10) /**< \brief Pwm signal: PWM0_EXTRG1 */
+#define PIO_PB2D_PWM0_FI0      (1u << 2)  /**< \brief Pwm signal: PWM0_FI0 */
+#define PIO_PB9C_PWM0_FI1      (1u << 9)  /**< \brief Pwm signal: PWM0_FI1 */
+#define PIO_PA30D_PWM0_H0      (1u << 30) /**< \brief Pwm signal: PWM0_H0 */
+#define PIO_PB0D_PWM0_H1       (1u << 0)  /**< \brief Pwm signal: PWM0_H1 */
+#define PIO_PB5C_PWM0_H2       (1u << 5)  /**< \brief Pwm signal: PWM0_H2 */
+#define PIO_PB7C_PWM0_H3       (1u << 7)  /**< \brief Pwm signal: PWM0_H3 */
+#define PIO_PA31D_PWM0_L0      (1u << 31) /**< \brief Pwm signal: PWM0_L0 */
+#define PIO_PB1D_PWM0_L1       (1u << 1)  /**< \brief Pwm signal: PWM0_L1 */
+#define PIO_PB6C_PWM0_L2       (1u << 6)  /**< \brief Pwm signal: PWM0_L2 */
+#define PIO_PB8C_PWM0_L3       (1u << 8)  /**< \brief Pwm signal: PWM0_L3 */
 /* ========== Pio definition for QSPI0 peripheral ========== */
 #define PIO_PA1B_QSPI0_CS      (1u << 1)  /**< \brief Qspi0 signal: QSPI0_CS */
 #define PIO_PA15C_QSPI0_CS     (1u << 15) /**< \brief Qspi0 signal: QSPI0_CS */

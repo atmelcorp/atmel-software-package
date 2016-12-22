@@ -79,7 +79,7 @@
 #define ID_SPI1   (25) /**< \brief Serial Peripheral Interface 1 (SPI1) */
 #define ID_TC0    (26) /**< \brief Timer Counter 0 (ch. 0, 1, 2) (TC0) */
 #define ID_TC1    (27) /**< \brief Timer Counter 1 (ch. 3, 4, 5) (TC1) */
-#define ID_PWM    (28) /**< \brief Pulse Width Modulation Controller (PWM) */
+#define ID_PWM0   (28) /**< \brief Pulse Width Modulation Controller (PWM0) */
 #define ID_ADC    (29) /**< \brief Touch Screen ADC Controller (ADC) */
 #define ID_DMAC0  (30) /**< \brief DMA Controller 0 (DMAC0) */
 #define ID_DMAC1  (31) /**< \brief DMA Controller 1 (DMAC1) */

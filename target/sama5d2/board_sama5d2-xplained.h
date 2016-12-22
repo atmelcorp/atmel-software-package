@@ -132,10 +132,10 @@
 #define PWM_LED_CH_1 1
 
 /** LED #1 pin definition (Green). */
-#define PIN_PWM_LED_0 { PIO_GROUP_B, PIO_PB5C_PWMH2, PIO_PERIPH_C, PIO_PULLUP }
+#define PIN_PWM_LED_0 { PIO_GROUP_B, PIO_PB5C_PWM0_H2, PIO_PERIPH_C, PIO_PULLUP }
 
 /** LED #2 pin definition (Blue). */
-#define PIN_PWM_LED_1 { PIO_GROUP_B, PIO_PB0D_PWMH1, PIO_PERIPH_D, PIO_PULLUP }
+#define PIN_PWM_LED_1 { PIO_GROUP_B, PIO_PB0D_PWM0_H1, PIO_PERIPH_D, PIO_PULLUP }
 
 /** List of all PWM LED channels */
 #define PWM_LEDS_CH { PWM_LED_CH_0, PWM_LED_CH_1 }

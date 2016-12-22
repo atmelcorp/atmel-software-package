@@ -237,17 +237,17 @@
 #define PIO_PB10B_PCK0       (1u << 10) /**< \brief Pmc signal: PCK0 */
 #define PIO_PC15C_PCK0       (1u << 15) /**< \brief Pmc signal: PCK0 */
 #define PIO_PC31C_PCK1       (1u << 31) /**< \brief Pmc signal: PCK1 */
-/* ========== Pio definition for PWM peripheral ========== */
-#define PIO_PB11B_PWM0       (1u << 11) /**< \brief Pwm signal: PWM0 */
-#define PIO_PB12B_PWM1       (1u << 12) /**< \brief Pwm signal: PWM1 */
-#define PIO_PB13B_PWM2       (1u << 13) /**< \brief Pwm signal: PWM2 */
-#define PIO_PB14B_PWM3       (1u << 14) /**< \brief Pwm signal: PWM3 */
-#define PIO_PC10C_PWM0       (1u << 10) /**< \brief Pwm signal: PWM0 */
-#define PIO_PC11C_PWM1       (1u << 11) /**< \brief Pwm signal: PWM1 */
-#define PIO_PC18C_PWM0       (1u << 18) /**< \brief Pwm signal: PWM0 */
-#define PIO_PC19C_PWM1       (1u << 19) /**< \brief Pwm signal: PWM1 */
-#define PIO_PC20C_PWM2       (1u << 20) /**< \brief Pwm signal: PWM2 */
-#define PIO_PC21C_PWM3       (1u << 21) /**< \brief Pwm signal: PWM3 */
+/* ========== Pio definition for PWM0 peripheral ========== */
+#define PIO_PB11B_PWM0_0     (1u << 11) /**< \brief Pwm signal: PWM0_0 */
+#define PIO_PB12B_PWM0_1     (1u << 12) /**< \brief Pwm signal: PWM0_1 */
+#define PIO_PB13B_PWM0_2     (1u << 13) /**< \brief Pwm signal: PWM0_2 */
+#define PIO_PB14B_PWM0_3     (1u << 14) /**< \brief Pwm signal: PWM0_3 */
+#define PIO_PC10C_PWM0_0     (1u << 10) /**< \brief Pwm signal: PWM0_0 */
+#define PIO_PC11C_PWM0_1     (1u << 11) /**< \brief Pwm signal: PWM0_1 */
+#define PIO_PC18C_PWM0_0     (1u << 18) /**< \brief Pwm signal: PWM0_0 */
+#define PIO_PC19C_PWM0_1     (1u << 19) /**< \brief Pwm signal: PWM0_1 */
+#define PIO_PC20C_PWM0_2     (1u << 20) /**< \brief Pwm signal: PWM0_2 */
+#define PIO_PC21C_PWM0_3     (1u << 21) /**< \brief Pwm signal: PWM0_3 */
 /* ========== Pio definition for SPI0 peripheral ========== */
 #define PIO_PA1B_SPI0_NPCS2  (1u << 1)  /**< \brief Spi0 signal: SPI0_NPCS2 */
 #define PIO_PA7B_SPI0_NPCS1  (1u << 7)  /**< \brief Spi0 signal: SPI0_NPCS1 */

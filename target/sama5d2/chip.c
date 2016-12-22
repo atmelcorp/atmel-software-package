@@ -91,7 +91,7 @@ static const struct peripheral_xdma _xdmac_peripherals[] = {
 	{ ID_QSPI0,       4,    5 },
 	{ ID_SPI0,        6,    7 },
 	{ ID_SPI1,        8,    9 },
-	{ ID_PWM,        10, 0xff },
+	{ ID_PWM0,       10, 0xff },
 	{ ID_FLEXCOM0,   11,   12 },
 	{ ID_FLEXCOM1,   13,   14 },
 	{ ID_FLEXCOM2,   15,   16 },
@@ -364,16 +364,16 @@ Spi* get_spi_addr_from_id(uint32_t id)
 
 uint32_t get_pwm_id_from_addr(const Pwm* addr)
 {
-	if (addr == PWM)
-		return ID_PWM;
+	if (addr == PWM0)
+		return ID_PWM0;
 	else
 		return ID_PERIPH_COUNT;
 }
 
 Pwm* get_pwm_addr_from_id(uint32_t id)
 {
-	if (id == ID_PWM)
-		return PWM;
+	if (id == ID_PWM0)
+		return PWM0;
 	else
 		return (void*)0;
 }

@@ -131,7 +131,7 @@
 #define USART1   ((Usart    *)0xF0020000U) /**< \brief (USART1  ) Base Address */
 #define UART0    ((Uart     *)0xF0024000U) /**< \brief (UART0   ) Base Address */
 #define GMAC0    ((Gmac     *)0xF0028000U) /**< \brief (GMAC0   ) Base Address */
-#define PWM      ((Pwm      *)0xF002C000U) /**< \brief (PWM     ) Base Address */
+#define PWM0     ((Pwm      *)0xF002C000U) /**< \brief (PWM0    ) Base Address */
 #define LCDC     ((Lcdc     *)0xF0030000U) /**< \brief (LCDC    ) Base Address */
 #define ISI      ((Isi      *)0xF0034000U) /**< \brief (ISI     ) Base Address */
 #define SFR      ((Sfr      *)0xF0038000U) /**< \brief (SFR     ) Base Address */

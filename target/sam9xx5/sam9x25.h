@@ -109,7 +109,7 @@
 #define USART3   ((Usart    *)0xF8028000U) /**< \brief (USART3  ) Base Address */
 #define EMAC0    ((Emac     *)0xF802C000U) /**< \brief (EMAC0   ) Base Address */
 #define EMAC1    ((Emac     *)0xF8030000U) /**< \brief (EMAC1   ) Base Address */
-#define PWM      ((Pwm      *)0xF8034000U) /**< \brief (PWM     ) Base Address */
+#define PWM0     ((Pwm      *)0xF8034000U) /**< \brief (PWM0    ) Base Address */
 #define UDPHS    ((Udphs    *)0xF803C000U) /**< \brief (UDPHS   ) Base Address */
 #define UART0    ((Uart     *)0xF8040000U) /**< \brief (UART0   ) Base Address */
 #define UART1    ((Uart     *)0xF8044000U) /**< \brief (UART1   ) Base Address */

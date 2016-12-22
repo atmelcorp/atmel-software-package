@@ -108,7 +108,7 @@
 #define ID_TC0          (40) /**< \brief Timer Counter 0 (ch. 0, 1, 2) (TC0) */
 #define ID_TC1          (41) /**< \brief Timer Counter 1 (ch. 3, 4, 5) (TC1) */
 #define ID_TC2          (42) /**< \brief Timer Counter 2 (ch. 6, 7, 8) (TC2) */
-#define ID_PWM          (43) /**< \brief Pulse Width Modulation Controller (PWM) */
+#define ID_PWM0         (43) /**< \brief Pulse Width Modulation Controller (PWM0) */
 #define ID_ADC          (44) /**< \brief Touch Screen ADC Controller (ADC) */
 #define ID_DBGU         (45) /**< \brief Debug Unit Interrupt (DBGU) */
 #define ID_UHPHS        (46) /**< \brief USB Host High Speed (UHPHS) */

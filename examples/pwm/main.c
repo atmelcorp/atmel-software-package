@@ -400,17 +400,15 @@ static void _tc_fault_start(void)
  */
 static void _pwm_handler(uint32_t source, void* user_arg)
 {
-	assert(source == ID_PWM);
-
 #ifdef CONFIG_HAVE_PWMC_FMODE
 	trace_debug("PWM handler, interrupt status 0x%08x 0x%08x, "
 		"fault status 0x%08x\r\n",
-		(unsigned)pwmc_get_it_status1(PWM),
-		(unsigned)pwmc_get_it_status2(PWM),
-		(unsigned)pwmc_get_fault_status(PWM));
+		(unsigned)pwmc_get_it_status1(PWM_ADDR),
+		(unsigned)pwmc_get_it_status2(PWM_ADDR),
+		(unsigned)pwmc_get_fault_status(PWM_ADDR));
 #else
 	trace_debug("PWM handler, interrupt status 0x%08x ",
-		(unsigned)pwmc_get_it_status1(PWM));
+		(unsigned)pwmc_get_it_status1(PWM_ADDR));
 #endif
 }
 
@@ -421,15 +419,16 @@ static void _pwm_demo_asynchronous_channel(bool init, uint8_t channel, uint32_t 
 {
 	static uint32_t duty_cycle;
 	static bool duty_cycle_inc;
+	uint32_t id = get_pwm_id_from_addr(PWM_ADDR);
 
 	if (init) {
 		/* Configure PWM channel 0 */
-		pwmc_disable_channel(PWM, channel);
-		pwmc_configure_channel(PWM, channel,
+		pwmc_disable_channel(PWM_ADDR, channel);
+		pwmc_configure_channel(PWM_ADDR, channel,
 			PWM_CMR_CPOL | PWM_CMR_CALG | PWM_CMR_CPRE_CLKA);
-		pwmc_set_period(PWM, channel, cprd);
-		pwmc_set_duty_cycle(PWM, channel, 0);
-		pwmc_enable_channel(PWM, channel);
+		pwmc_set_period(PWM_ADDR, channel, cprd);
+		pwmc_set_duty_cycle(PWM_ADDR, channel, 0);
+		pwmc_enable_channel(PWM_ADDR, channel);
 		duty_cycle = 0;
 		duty_cycle_inc = true;
 		return;
@@ -437,9 +436,9 @@ static void _pwm_demo_asynchronous_channel(bool init, uint8_t channel, uint32_t 
 	printf("-- PWM Channel %u Duty cycle: %lu%% Signal Period: %lu ms--\n\r",
 			(unsigned)channel,
 			(unsigned)(duty_cycle*100)/cprd,
-			(unsigned)((2*cprd*1024*32))/(pmc_get_peripheral_clock(ID_PWM)/1000));
+			(unsigned)((2*cprd*1024*32))/(pmc_get_peripheral_clock(id)/1000));
 
-	pwmc_set_duty_cycle(PWM, channel, duty_cycle);
+	pwmc_set_duty_cycle(PWM_ADDR, channel, duty_cycle);
 	msleep(50);
 
 	if (duty_cycle_inc) {
@@ -473,23 +472,23 @@ static void _pwm_demo_dma(uint8_t channel, uint32_t cprd)
 	int i;
 	bool flag = false;
 
-	pwmc_disable_channel(PWM, channel);
-	pwmc_configure_sync_channels(PWM,
+	pwmc_disable_channel(PWM_ADDR, channel);
+	pwmc_configure_sync_channels(PWM_ADDR,
 		PWM_SCM_UPDM_MODE2 | (1 << channel) | (1 << 0));
-	pwmc_configure_channel(PWM, 0,
+	pwmc_configure_channel(PWM_ADDR, 0,
 		PWM_CMR_CPOL | PWM_CMR_CALG | PWM_CMR_CPRE_CLKA);
-	pwmc_set_period(PWM, 0, cprd);
-	pwmc_set_duty_cycle(PWM, 0, 0);
-	pwmc_set_sync_channels_update_period(PWM, 0, 8);
+	pwmc_set_period(PWM_ADDR, 0, cprd);
+	pwmc_set_duty_cycle(PWM_ADDR, 0, 0);
+	pwmc_set_sync_channels_update_period(PWM_ADDR, 0, 8);
 	/* Enable the synchronous channels */
-	pwmc_enable_channel(PWM, 0);
+	pwmc_enable_channel(PWM_ADDR, 0);
 	for (i = 0; i < ARRAY_SIZE(duty_buffer); i++) {
 		if (0 == (i % cprd))
 			flag = !flag;
 		duty_buffer[i] = flag ? (i % cprd) : (cprd - (i % cprd));
 	}
-	pwmc_set_dma_finished_callback(PWM, _pwmc_callback, 0);
-	pwmc_dma_duty_cycle(PWM, duty_buffer, ARRAY_SIZE(duty_buffer));
+	pwmc_set_dma_finished_callback(PWM_ADDR, _pwmc_callback, 0);
+	pwmc_dma_duty_cycle(PWM_ADDR, duty_buffer, ARRAY_SIZE(duty_buffer));
 }
 
 #endif /* CONFIG_HAVE_PWMC_DMA */
@@ -508,6 +507,7 @@ int main(void)
 	uint8_t key;
 	uint32_t cprd;
 	uint8_t current_demo = 'h';
+	uint32_t id = get_pwm_id_from_addr(PWM_ADDR);
 
 	/* Output example information */
 	console_example_info("PWM Example");
@@ -524,19 +524,19 @@ int main(void)
 	pio_configure(pins_pwm, ARRAY_SIZE(pins_pwm));
 
 	/* Enable PWM peripheral clock */
-	pmc_configure_peripheral(ID_PWM, NULL, true);
+	pmc_configure_peripheral(id, NULL, true);
 
 	/* Enable PWM interrupt */
-	irq_add_handler(ID_PWM, _pwm_handler, NULL);
-	irq_enable(ID_PWM);
+	irq_add_handler(id, _pwm_handler, NULL);
+	irq_enable(id);
 
 	/* Set clock A and clock B */
 	/* CLKA clock is clock selected by PREA : 0x0A Peripheral clock/1024 */
 	/* divided by DIVB factor : 32 */
-	pwmc_configure_clocks(PWM, PWM_CLK_PREB_CLK_DIV1024 | PWM_CLK_DIVB(32) |
+	pwmc_configure_clocks(PWM_ADDR, PWM_CLK_PREB_CLK_DIV1024 | PWM_CLK_DIVB(32) |
 	                           PWM_CLK_PREA_CLK_DIV1024 | PWM_CLK_DIVA(32));
 	printf("-- PWM Peripheral Clock: %u MHz --\n\r",
-			(unsigned)(pmc_get_peripheral_clock(ID_PWM)/1000000));
+			(unsigned)(pmc_get_peripheral_clock(id)/1000000));
 
 	cprd = 26;
 
@@ -559,31 +559,31 @@ int main(void)
 #ifdef CONFIG_HAVE_TC_FAULT_MODE
 #ifdef CONFIG_HAVE_PWMC_FMODE
 			case 'f':
-				pwmc_set_fault_mode(PWM, PWM_FMR_FPOL(1 << pwm_fault_input) |
+				pwmc_set_fault_mode(PWM_ADDR, PWM_FMR_FPOL(1 << pwm_fault_input) |
 				                         PWM_FMR_FMOD(0));
-				pwmc_set_fault_mode(PWM, PWM_FMR_FPOL(1 << pwm_fault_input) |
+				pwmc_set_fault_mode(PWM_ADDR, PWM_FMR_FPOL(1 << pwm_fault_input) |
 				                         PWM_FMR_FMOD(1 << pwm_fault_input));
-				pwmc_set_fault_protection(PWM, (PWM_FPV1_FPVH0 << pwm_channel) |
+				pwmc_set_fault_protection(PWM_ADDR, (PWM_FPV1_FPVH0 << pwm_channel) |
 				                               (PWM_FPV1_FPVL0 << pwm_channel));
 #ifdef CONFIG_HAVE_PWMC_FAULT_PROT_HIZ
-				pwmc_set_fault_protection_to_hiz(PWM, 0);
+				pwmc_set_fault_protection_to_hiz(PWM_ADDR, 0);
 #endif /* CONFIG_HAVE_PWMC_FAULT_PROT_HIZ */
-				pwmc_fault_clear(PWM, 1 << pwm_fault_input);
-				pwmc_enable_fault_protection(PWM, pwm_channel, 1 << pwm_fault_input);
-				pwmc_enable_it(PWM, PWM_IER1_FCHID0 << pwm_channel, 0);
+				pwmc_fault_clear(PWM_ADDR, 1 << pwm_fault_input);
+				pwmc_enable_fault_protection(PWM_ADDR, pwm_channel, 1 << pwm_fault_input);
+				pwmc_enable_it(PWM_ADDR, PWM_IER1_FCHID0 << pwm_channel, 0);
 				_tc_fault_initialize();
 				_tc_fault_start();
 				break;
 			case 'F':
-				pwmc_enable_fault_protection(PWM, pwm_channel, 0);
-				pwmc_disable_it(PWM, PWM_IER1_FCHID0 << pwm_channel, 0);
-				pwmc_fault_clear(PWM, 1 << pwm_fault_input);
+				pwmc_enable_fault_protection(PWM_ADDR, pwm_channel, 0);
+				pwmc_disable_it(PWM_ADDR, PWM_IER1_FCHID0 << pwm_channel, 0);
+				pwmc_fault_clear(PWM_ADDR, 1 << pwm_fault_input);
 				break;
 #endif /* CONFIG_HAVE_PWMC_FMODE */
 #endif /* CONFIG_HAVE_TC_FAULT_MODE */
 #ifdef CONFIG_HAVE_PWMC_STEPPER_MOTOR
 			case 'm':
-				pwmc_configure_stepper_motor_mode(PWM,
+				pwmc_configure_stepper_motor_mode(PWM_ADDR,
 					PWM_SMMR_GCEN0 | PWM_SMMR_GCEN1 | PWM_SMMR_DOWN0);
 				break;
 #endif /* CONFIG_HAVE_PWMC_STEPPER_MOTOR */
@@ -594,17 +594,17 @@ int main(void)
 				key = console_get_char();
 				switch (key) {
 				case '0':
-					pwmc_output_override(PWM, pwm_channel, 0, 0, 0);
-					pwmc_output_override(PWM, pwm_channel, 1, 0, 0);
+					pwmc_output_override(PWM_ADDR, pwm_channel, 0, 0, 0);
+					pwmc_output_override(PWM_ADDR, pwm_channel, 1, 0, 0);
 					break;
 				case '1':
-					pwmc_output_override(PWM, pwm_channel, 0, 1, 0);
-					pwmc_output_override(PWM, pwm_channel, 1, 1, 0);
+					pwmc_output_override(PWM_ADDR, pwm_channel, 0, 1, 0);
+					pwmc_output_override(PWM_ADDR, pwm_channel, 1, 1, 0);
 					break;
 				default:
-					pwmc_output_dead_time(PWM, pwm_channel, 0, 0);
-					pwmc_disable_output_override(PWM, pwm_channel, 0, 0);
-					pwmc_disable_output_override(PWM, pwm_channel, 1, 0);
+					pwmc_output_dead_time(PWM_ADDR, pwm_channel, 0, 0);
+					pwmc_disable_output_override(PWM_ADDR, pwm_channel, 0, 0);
+					pwmc_disable_output_override(PWM_ADDR, pwm_channel, 1, 0);
 					break;
 				}
 				break;
@@ -615,17 +615,17 @@ int main(void)
 			case 'h':
 			default:
 				current_demo = 0;
-				pwmc_disable_channel(PWM, 0);
-				pwmc_disable_channel(PWM, pwm_channel);
+				pwmc_disable_channel(PWM_ADDR, 0);
+				pwmc_disable_channel(PWM_ADDR, pwm_channel);
 #ifdef CONFIG_HAVE_PWMC_SYNC_MODE
 				/* no PWM synchronous channels */
-				pwmc_configure_sync_channels(PWM, 0);
+				pwmc_configure_sync_channels(PWM_ADDR, 0);
 #endif/* CONFIG_HAVE_PWMC_SYNC_MODE */
 #ifdef CONFIG_HAVE_PWMC_DMA
-				pwmc_set_dma_finished_callback(PWM, NULL, 0);
+				pwmc_set_dma_finished_callback(PWM_ADDR, NULL, 0);
 #endif /* CONFIG_HAVE_PWMC_DMA */
 #ifdef CONFIG_HAVE_PWMC_STEPPER_MOTOR
-				pwmc_configure_stepper_motor_mode(PWM, 0);
+				pwmc_configure_stepper_motor_mode(PWM_ADDR, 0);
 #endif /* CONFIG_HAVE_PWMC_STEPPER_MOTOR */
 				_display_menu();
 				break;
