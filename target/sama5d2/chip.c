@@ -86,8 +86,8 @@ static const uint8_t _h64_peripherals[] = {
 };
 
 static const struct peripheral_xdma _xdmac_peripherals[] = {
-	{ ID_TWIHS0,      0,    1 },
-	{ ID_TWIHS1,      2,    3 },
+	{ ID_TWI0,        0,    1 },
+	{ ID_TWI1,        2,    3 },
 	{ ID_QSPI0,       4,    5 },
 	{ ID_SPI0,        6,    7 },
 	{ ID_SPI1,        8,    9 },
@@ -254,13 +254,13 @@ uint32_t get_twi_id_from_addr(const Twi* addr)
 	else if (addr == FLEXTWI4)
 		return ID_FLEXCOM4;
 #endif
-#ifdef TWIHS0
-	else if (addr == TWIHS0)
-		return ID_TWIHS0;
+#ifdef TWI0
+	else if (addr == TWI0)
+		return ID_TWI0;
 #endif
-#ifdef TWIHS1
-	else if (addr == TWIHS1)
-		return ID_TWIHS1;
+#ifdef TWI1
+	else if (addr == TWI1)
+		return ID_TWI1;
 #endif
 	else
 		return ID_PERIPH_COUNT;
@@ -286,13 +286,13 @@ Twi* get_twi_addr_from_id(uint32_t id)
 	else if (id == ID_FLEXCOM4)
 		return FLEXTWI4;
 #endif
-#ifdef TWIHS0
-	else if (id == ID_TWIHS0)
-		return TWIHS0;
+#ifdef TWI0
+	else if (id == ID_TWI0)
+		return TWI0;
 #endif
-#ifdef TWIHS1
-	else if (id == ID_TWIHS1)
-		return TWIHS1;
+#ifdef TWI1
+	else if (id == ID_TWI1)
+		return TWI1;
 #endif
 	else
 		return (void*)0;
@@ -731,11 +731,11 @@ int32_t get_peripheral_fifo_depth(void* addr)
 #ifdef FLEXTWI4
 	case (uint32_t)FLEXTWI4:
 #endif
-#ifdef TWIHS0
-	case (uint32_t)TWIHS0:
+#ifdef TWI0
+	case (uint32_t)TWI0:
 #endif
-#ifdef TWIHS1
-	case (uint32_t)TWIHS1:
+#ifdef TWI1
+	case (uint32_t)TWI1:
 #endif
 		size = TWI_FIFO_DEPTH;
 		break;

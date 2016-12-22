@@ -37,6 +37,6 @@
 /** TWI slave pins definition **/
 #define AT24_EMU_PINS PINS_TWI0_IOS1
 /** TWI slave device definition */
-#define AT24_EMU_DEV TWIHS0
+#define AT24_EMU_DEV TWI0
 
 #endif /* CONFIG_SAMA5D2_XPLAINED_H_ */

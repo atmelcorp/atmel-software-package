@@ -1196,7 +1196,7 @@
 	{ PIO_GROUP_B, PIO_PB30D_TCLK5, PIO_PERIPH_D, PIO_DEFAULT },\
 }
 
-/* ========== Pio PIN definition for TWIHS0 peripheral ========== */
+/* ========== Pio PIN definition for TWI0 peripheral ========== */
 
 /* TWI0 IOSET 1 */
 #define PINS_TWI0_IOS1 {\
@@ -1222,7 +1222,7 @@
 	{ PIO_GROUP_D, PIO_PD22B_TWCK0, PIO_PERIPH_B, PIO_DEFAULT },\
 }
 
-/* ========== Pio PIN definition for TWIHS1 peripheral ========== */
+/* ========== Pio PIN definition for TWI1 peripheral ========== */
 
 /* TWI1 IOSET 1 */
 #define PINS_TWI1_IOS1 {\

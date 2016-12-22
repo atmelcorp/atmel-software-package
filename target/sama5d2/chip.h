@@ -99,8 +99,8 @@
 #define ID_UART2        (26) /**< \brief UART 2 (UART2) */
 #define ID_UART3        (27) /**< \brief UART 3 (UART3) */
 #define ID_UART4        (28) /**< \brief UART 4 (UART4) */
-#define ID_TWIHS0       (29) /**< \brief Two-Wire Interface 0 (TWIHS0) */
-#define ID_TWIHS1       (30) /**< \brief Two-Wire Interface 1 (TWIHS1) */
+#define ID_TWI0         (29) /**< \brief Two-Wire Interface 0 (TWI0) */
+#define ID_TWI1         (30) /**< \brief Two-Wire Interface 1 (TWI1) */
 #define ID_SDMMC0       (31) /**< \brief Secure Digital Multimedia Card Controller 0 (SDMMC0) */
 #define ID_SDMMC1       (32) /**< \brief Secure Digital Multimedia Card Controller 1 (SDMMC1) */
 #define ID_SPI0         (33) /**< \brief Serial Peripheral Interface 0 (SPI0) */
