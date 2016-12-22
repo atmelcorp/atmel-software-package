@@ -28,6 +28,7 @@
 
 CFLAGS_INC += -I$(TOP)/target/common
 
+target-y += target/common/chip_common.o
 target-$(CONFIG_HAVE_AUDIO) += target/common/board_audio.o
 target-$(CONFIG_HAVE_CAN_BUS) += target/common/board_can.o
 target-$(CONFIG_HAVE_ETH) += target/common/board_eth.o

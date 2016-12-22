@@ -45,6 +45,7 @@
 #endif 
 
 #include <stdint.h>
+#include "compiler.h"
 
 /* ************************************************************************** */
 /*   CHIPID DEFINITIONS FOR SAMA5D3x */

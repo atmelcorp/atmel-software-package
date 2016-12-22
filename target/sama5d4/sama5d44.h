@@ -43,9 +43,8 @@
 extern "C" {
 #endif
 
-#include "compiler.h"
-
 #include <stdint.h>
+#include "compiler.h"
 
 /* ************************************************************************** */
 /**  SOFTWARE PERIPHERAL API DEFINITION FOR SAMA5D44 */

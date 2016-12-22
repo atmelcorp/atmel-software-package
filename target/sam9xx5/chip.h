@@ -33,15 +33,20 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "compiler.h"
-
-#ifdef __cplusplus
-#define __I  volatile	    /**< Defines 'read-only'  permissions */
+#if defined(CONFIG_CHIP_SAM9G15)
+  #include "sam9g15.h"
+#elif defined(CONFIG_CHIP_SAM9G25)
+  #include "sam9g25.h"
+#elif defined(CONFIG_CHIP_SAM9G35)
+  #include "sam9g35.h"
+#elif defined(CONFIG_CHIP_SAM9X25)
+  #include "sam9x25.h"
+#elif defined(CONFIG_CHIP_SAM9X35)
+  #include "sam9x35.h"
 #else
-#define __I  volatile const /**< Defines 'read-only'  permissions */
+  #error Library does not support the specified device.
 #endif
-#define   __O  volatile	      /**< Defines 'write-only' permissions */
-#define   __IO volatile	      /**< Defines 'read/write' permissions */
+#include "chip_common.h"
 
 /* ************************************************************************** */
 /*   CHIPID DEFINITIONS FOR SAM9xx5 */
@@ -147,20 +152,6 @@
 /* INCLUDE FOR SAM9xx5 */
 /* ************************************************************************** */
 
-#if defined(CONFIG_CHIP_SAM9G15)
-  #include "sam9g15.h"
-#elif defined(CONFIG_CHIP_SAM9G25)
-  #include "sam9g25.h"
-#elif defined(CONFIG_CHIP_SAM9G35)
-  #include "sam9g35.h"
-#elif defined(CONFIG_CHIP_SAM9X25)
-  #include "sam9x25.h"
-#elif defined(CONFIG_CHIP_SAM9X35)
-  #include "sam9x35.h"
-#else
-  #error Library does not support the specified device.
-#endif
-
 #include "chip_pins.h"
 
 /** L1 data cache line size in bytes */
@@ -263,132 +254,6 @@ extern "C" {
  */
 extern const char* get_chip_name(void);
 
-#ifdef CONFIG_HAVE_CAN
-/**
- * \brief retrieve CAN ID from its base address
- * \return CAN ID on success, ID_PERIPH_COUNT otherwise
- */
-extern uint32_t get_can_id_from_addr(const Can* addr);
-
-/**
- * \brief retrieve CAN base address from its ID
- * \return CAN base address on success, 0 otherwise
- */
-extern Can* get_can_addr_from_id(const uint32_t id);
-#endif /* CONFIG_HAVE_CAN */
-
-/**
- * \brief retrieve TWI ID from its base address
- * \return TWI ID on success, ID_PERIPH_COUNT otherwise
- */
-extern uint32_t get_twi_id_from_addr(const Twi* addr);
-
-/**
- * \brief retrieve TWI base address from its ID
- * \return TWI base address on success, 0 otherwise
- */
-extern Twi* get_twi_addr_from_id(uint32_t id);
-
-/**
- * \brief retrieve SPI ID from its base address
- * \return SPI ID on success, ID_PERIPH_COUNT otherwise
- */
-extern uint32_t get_spi_id_from_addr(const Spi* addr);
-
-/**
- * \brief retrieve SPI base address from its ID
- * \return SPI base address on success, 0 otherwise
- */
-extern Spi* get_spi_addr_from_id(uint32_t id);
-
-/**
- * \brief retrieve PWM ID from its base address
- * \return TC ID on success, ID_PERIPH_COUNT otherwise
- */
-extern uint32_t get_pwm_id_from_addr(const Pwm* addr);
-
-/**
- * \brief retrieve PWM base address from its ID
- * \return TC base address on success, 0 otherwise
- */
-extern Pwm* get_pwm_addr_from_id(uint32_t id);
-
-/**
- * \brief retrieve UART ID from its base address
- * \return UART ID on success, ID_PERIPH_COUNT otherwise
- */
-extern uint32_t get_uart_id_from_addr(const Uart* addr);
-
-/**
- * \brief retrieve UART base address from its ID
- * \return UART base address on success, 0 otherwise
- */
-extern Uart* get_uart_addr_from_id(uint32_t id);
-
-/**
- * \brief retrieve USART ID from its base address
- * \return USART ID on success, ID_PERIPH_COUNT otherwise
- */
-extern uint32_t get_usart_id_from_addr(const Usart* addr);
-
-/**
- * \brief retrieve USART base address from its ID
- * \return USART base address on success, 0 otherwise
- */
-extern Usart* get_usart_addr_from_id(uint32_t id);
-
-/**
- * \brief retrieve Timer/Counter ID from its base address
- * \return TC ID on success, ID_PERIPH_COUNT otherwise
- */
-extern uint32_t get_tc_id_from_addr(const Tc* addr);
-
-/**
- * \brief retrieve Timer/Counter base address from its ID
- * \return TC base address on success, 0 otherwise
- */
-extern Tc* get_tc_addr_from_id(uint32_t id);
-
-/**
- * \brief retrieve the interrupt ID for a given TC/channel.
- * \return IRQ ID
- */
-extern uint32_t get_tc_interrupt(uint32_t tc_id, uint8_t channel);
-
-/**
- * \brief retrieve HSMCI ID from its base address
- * \return HSMCI ID upon success, ID_PERIPH_COUNT otherwise
- */
-extern uint32_t get_hsmci_id_from_addr(const Hsmci* addr);
-
-/**
- * \brief retrieve HSMCI base address from its ID
- * \return HSMCI base address on success, 0 otherwise
- */
-extern Hsmci* get_hsmci_addr_from_id(uint32_t id);
-
-/**
- * \brief retrieve SSC ID from its base address
- * \return SSC ID on success, ID_PERIPH_COUNT otherwise
- */
-extern uint32_t get_ssc_id_from_addr(const Ssc* addr);
-
-/**
- * \brief retrieve EBI memory start from its Chip Select (CS)
- * \return EBI memory start on success, 0 otherwise
- */
-extern uint32_t get_ebi_addr_from_cs(uint32_t cs);
-
-#ifdef CONFIG_HAVE_EMAC
-
-/**
- * \brief retrieve EMAC ID from its base address
- * \return EMAC ID on success, ID_PERIPH_COUNT otherwise
- */
-uint32_t get_emac_id_from_addr(const Emac* addr);
-
-#endif /* CONFIG_HAVE_EMAC */
-
 /** \brief Returns the matrix on which the given peripheral is connected
  *
  * \param id the Peripheral ID
@@ -417,18 +282,6 @@ extern uint32_t get_peripheral_clock_max_freq(uint32_t id);
  * otherwise
  */
 extern bool peripheral_has_clock_div(uint32_t id);
-
-/**
- * \brief retrieve DMAC ID from its base address
- * \return DMAC ID upon success, ID_PERIPH_COUNT otherwise
- */
-extern uint32_t get_dmac_id_from_addr(const Dmac* addr);
-
-/**
- * \brief retrieve DMAC base address from its ID
- * \return DMAC base address on success, 0 otherwise
- */
-extern Dmac* get_dmac_addr_from_id(uint32_t id);
 
 /** \brief Returns the DMAC interface number for a given peripheral
  *

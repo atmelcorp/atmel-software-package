@@ -43,7 +43,7 @@
  extern "C" {
 #endif
 
-#include <stdint.h>
+#include "compiler.h"
 
 /* ************************************************************************** */
 /**  SOFTWARE PERIPHERAL API DEFINITION FOR SAM9G35 */
