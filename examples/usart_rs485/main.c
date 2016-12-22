@@ -131,9 +131,8 @@
  *----------------------------------------------------------------------------*/
 #define BUFFER_SIZE  1024
 
-
 #if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
-#define USART_ADDR USART0
+#define USART_ADDR FLEXUSART0
 #define USART_PINS PINS_FLEXCOM0_USART_IOS1_RS485
 
 #elif defined(CONFIG_BOARD_SAMA5D3_EK)
@@ -155,8 +154,6 @@
 #else
 #error Unsupported SoC!
 #endif
-
-
 
 /*----------------------------------------------------------------------------
  *         Local variables

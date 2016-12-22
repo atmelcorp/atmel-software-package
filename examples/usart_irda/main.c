@@ -107,7 +107,7 @@
 
 /** define the peripherals and pins used for IrDA */
 #if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
-#define IRDA_USART USART3
+#define IRDA_USART FLEXUSART3
 #define IRDA_PINS  PINS_FLEXCOM3_USART_IOS3
 
 #elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)

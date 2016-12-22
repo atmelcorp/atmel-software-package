@@ -158,7 +158,7 @@
 
 /** define the peripherals and pins used for USART */
 #if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
-#define USART_ADDR USART3
+#define USART_ADDR FLEXUSART3
 #define USART_PINS PINS_FLEXCOM3_USART_IOS3
 
 #elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)

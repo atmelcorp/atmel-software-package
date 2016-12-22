@@ -69,45 +69,45 @@ static const struct _pin spi1_ioset3_npcs0 = PIN_SPI1_NPCS0_IOS3;
 static const struct _pin spi1_ioset3_npcs1 = PIN_SPI1_NPCS1_IOS3;
 static const struct _pin spi1_ioset3_npcs2 = PIN_SPI1_NPCS2_IOS3;
 
-static const struct _pin fcomspi0_ioset1[] = PINS_FLEXCOM0_SPI_IOS1;
-static const struct _pin fcomspi0_ioset1_npcs0 = PIN_FLEXCOM0_SPI_NPCS0_IOS1;
-static const struct _pin fcomspi0_ioset1_npcs1 = PIN_FLEXCOM0_SPI_NPCS1_IOS1;
+static const struct _pin flexspi0_ioset1[] = PINS_FLEXCOM0_SPI_IOS1;
+static const struct _pin flexspi0_ioset1_npcs0 = PIN_FLEXCOM0_SPI_NPCS0_IOS1;
+static const struct _pin flexspi0_ioset1_npcs1 = PIN_FLEXCOM0_SPI_NPCS1_IOS1;
 
-static const struct _pin fcomspi1_ioset1[] = PINS_FLEXCOM1_SPI_IOS1;
-static const struct _pin fcomspi1_ioset1_npcs0 = PIN_FLEXCOM1_SPI_NPCS0_IOS1;
-static const struct _pin fcomspi1_ioset1_npcs1 = PIN_FLEXCOM1_SPI_NPCS1_IOS1;
+static const struct _pin flexspi1_ioset1[] = PINS_FLEXCOM1_SPI_IOS1;
+static const struct _pin flexspi1_ioset1_npcs0 = PIN_FLEXCOM1_SPI_NPCS0_IOS1;
+static const struct _pin flexspi1_ioset1_npcs1 = PIN_FLEXCOM1_SPI_NPCS1_IOS1;
 
-static const struct _pin fcomspi2_ioset1[] = PINS_FLEXCOM2_SPI_IOS1;
-static const struct _pin fcomspi2_ioset1_npcs0 = PIN_FLEXCOM2_SPI_NPCS0_IOS1;
-static const struct _pin fcomspi2_ioset1_npcs1 = PIN_FLEXCOM2_SPI_NPCS1_IOS1;
+static const struct _pin flexspi2_ioset1[] = PINS_FLEXCOM2_SPI_IOS1;
+static const struct _pin flexspi2_ioset1_npcs0 = PIN_FLEXCOM2_SPI_NPCS0_IOS1;
+static const struct _pin flexspi2_ioset1_npcs1 = PIN_FLEXCOM2_SPI_NPCS1_IOS1;
 
-static const struct _pin fcomspi2_ioset2[] = PINS_FLEXCOM2_SPI_IOS2;
-static const struct _pin fcomspi2_ioset2_npcs0 = PIN_FLEXCOM2_SPI_NPCS0_IOS2;
-static const struct _pin fcomspi2_ioset2_npcs1 = PIN_FLEXCOM2_SPI_NPCS1_IOS2;
+static const struct _pin flexspi2_ioset2[] = PINS_FLEXCOM2_SPI_IOS2;
+static const struct _pin flexspi2_ioset2_npcs0 = PIN_FLEXCOM2_SPI_NPCS0_IOS2;
+static const struct _pin flexspi2_ioset2_npcs1 = PIN_FLEXCOM2_SPI_NPCS1_IOS2;
 
-static const struct _pin fcomspi3_ioset1[] = PINS_FLEXCOM3_SPI_IOS1;
-static const struct _pin fcomspi3_ioset1_npcs0 = PIN_FLEXCOM3_SPI_NPCS0_IOS1;
-static const struct _pin fcomspi3_ioset1_npcs1 = PIN_FLEXCOM3_SPI_NPCS1_IOS1;
+static const struct _pin flexspi3_ioset1[] = PINS_FLEXCOM3_SPI_IOS1;
+static const struct _pin flexspi3_ioset1_npcs0 = PIN_FLEXCOM3_SPI_NPCS0_IOS1;
+static const struct _pin flexspi3_ioset1_npcs1 = PIN_FLEXCOM3_SPI_NPCS1_IOS1;
 
-static const struct _pin fcomspi3_ioset2[] = PINS_FLEXCOM3_SPI_IOS2;
-static const struct _pin fcomspi3_ioset2_npcs0 = PIN_FLEXCOM3_SPI_NPCS0_IOS2;
-static const struct _pin fcomspi3_ioset2_npcs1 = PIN_FLEXCOM3_SPI_NPCS1_IOS2;
+static const struct _pin flexspi3_ioset2[] = PINS_FLEXCOM3_SPI_IOS2;
+static const struct _pin flexspi3_ioset2_npcs0 = PIN_FLEXCOM3_SPI_NPCS0_IOS2;
+static const struct _pin flexspi3_ioset2_npcs1 = PIN_FLEXCOM3_SPI_NPCS1_IOS2;
 
-static const struct _pin fcomspi3_ioset3[] = PINS_FLEXCOM3_SPI_IOS3;
-static const struct _pin fcomspi3_ioset3_npcs0 = PIN_FLEXCOM3_SPI_NPCS0_IOS3;
-static const struct _pin fcomspi3_ioset3_npcs1 = PIN_FLEXCOM3_SPI_NPCS1_IOS3;
+static const struct _pin flexspi3_ioset3[] = PINS_FLEXCOM3_SPI_IOS3;
+static const struct _pin flexspi3_ioset3_npcs0 = PIN_FLEXCOM3_SPI_NPCS0_IOS3;
+static const struct _pin flexspi3_ioset3_npcs1 = PIN_FLEXCOM3_SPI_NPCS1_IOS3;
 
-static const struct _pin fcomspi4_ioset1[] = PINS_FLEXCOM4_SPI_IOS1;
-static const struct _pin fcomspi4_ioset1_npcs0 = PIN_FLEXCOM4_SPI_NPCS0_IOS1;
-static const struct _pin fcomspi4_ioset1_npcs1 = PIN_FLEXCOM4_SPI_NPCS1_IOS1;
+static const struct _pin flexspi4_ioset1[] = PINS_FLEXCOM4_SPI_IOS1;
+static const struct _pin flexspi4_ioset1_npcs0 = PIN_FLEXCOM4_SPI_NPCS0_IOS1;
+static const struct _pin flexspi4_ioset1_npcs1 = PIN_FLEXCOM4_SPI_NPCS1_IOS1;
 
-static const struct _pin fcomspi4_ioset2[] = PINS_FLEXCOM4_SPI_IOS2;
-static const struct _pin fcomspi4_ioset2_npcs0 = PIN_FLEXCOM4_SPI_NPCS0_IOS2;
-static const struct _pin fcomspi4_ioset2_npcs1 = PIN_FLEXCOM4_SPI_NPCS1_IOS2;
+static const struct _pin flexspi4_ioset2[] = PINS_FLEXCOM4_SPI_IOS2;
+static const struct _pin flexspi4_ioset2_npcs0 = PIN_FLEXCOM4_SPI_NPCS0_IOS2;
+static const struct _pin flexspi4_ioset2_npcs1 = PIN_FLEXCOM4_SPI_NPCS1_IOS2;
 
-static const struct _pin fcomspi4_ioset3[] = PINS_FLEXCOM4_SPI_IOS3;
-static const struct _pin fcomspi4_ioset3_npcs0 = PIN_FLEXCOM4_SPI_NPCS0_IOS3;
-static const struct _pin fcomspi4_ioset3_npcs1 = PIN_FLEXCOM4_SPI_NPCS1_IOS3;
+static const struct _pin flexspi4_ioset3[] = PINS_FLEXCOM4_SPI_IOS3;
+static const struct _pin flexspi4_ioset3_npcs0 = PIN_FLEXCOM4_SPI_NPCS0_IOS3;
+static const struct _pin flexspi4_ioset3_npcs1 = PIN_FLEXCOM4_SPI_NPCS1_IOS3;
 
 /*----------------------------------------------------------------------------
  *        Public constants
@@ -172,110 +172,110 @@ const struct serialflash_pin_definition serialflash_pin_defs[] = {
 	{
 		.instance = 2,
 		.ioset = 1,
-		.addr = FCOMSPI0,
-		.num_pins = ARRAY_SIZE(fcomspi0_ioset1),
-		.pins = fcomspi0_ioset1,
+		.addr = FLEXSPI0,
+		.num_pins = ARRAY_SIZE(flexspi0_ioset1),
+		.pins = flexspi0_ioset1,
 		.npcs_pins = {
-			&fcomspi0_ioset1_npcs0, &fcomspi0_ioset1_npcs1,
+			&flexspi0_ioset1_npcs0, &flexspi0_ioset1_npcs1,
 			NULL, NULL
 		}
 	},
 	{
 		.instance = 3,
 		.ioset = 1,
-		.addr = FCOMSPI1,
-		.num_pins = ARRAY_SIZE(fcomspi1_ioset1),
-		.pins = fcomspi1_ioset1,
+		.addr = FLEXSPI1,
+		.num_pins = ARRAY_SIZE(flexspi1_ioset1),
+		.pins = flexspi1_ioset1,
 		.npcs_pins = {
-			&fcomspi1_ioset1_npcs0, &fcomspi1_ioset1_npcs1,
+			&flexspi1_ioset1_npcs0, &flexspi1_ioset1_npcs1,
 			NULL, NULL
 		}
 	},
 	{
 		.instance = 4,
 		.ioset = 1,
-		.addr = FCOMSPI2,
-		.num_pins = ARRAY_SIZE(fcomspi2_ioset1),
-		.pins = fcomspi2_ioset1,
+		.addr = FLEXSPI2,
+		.num_pins = ARRAY_SIZE(flexspi2_ioset1),
+		.pins = flexspi2_ioset1,
 		.npcs_pins = {
-			&fcomspi2_ioset1_npcs0, &fcomspi2_ioset1_npcs1,
+			&flexspi2_ioset1_npcs0, &flexspi2_ioset1_npcs1,
 			NULL, NULL
 		}
 	},
 	{
 		.instance = 4,
 		.ioset = 2,
-		.addr = FCOMSPI2,
-		.num_pins = ARRAY_SIZE(fcomspi2_ioset2),
-		.pins = fcomspi2_ioset2,
+		.addr = FLEXSPI2,
+		.num_pins = ARRAY_SIZE(flexspi2_ioset2),
+		.pins = flexspi2_ioset2,
 		.npcs_pins = {
-			&fcomspi2_ioset2_npcs0, &fcomspi2_ioset2_npcs1,
+			&flexspi2_ioset2_npcs0, &flexspi2_ioset2_npcs1,
 			NULL, NULL
 		}
 	},
 	{
 		.instance = 5,
 		.ioset = 1,
-		.addr = FCOMSPI3,
-		.num_pins = ARRAY_SIZE(fcomspi3_ioset1),
-		.pins = fcomspi3_ioset1,
+		.addr = FLEXSPI3,
+		.num_pins = ARRAY_SIZE(flexspi3_ioset1),
+		.pins = flexspi3_ioset1,
 		.npcs_pins = {
-			&fcomspi3_ioset1_npcs0, &fcomspi3_ioset1_npcs1,
+			&flexspi3_ioset1_npcs0, &flexspi3_ioset1_npcs1,
 			NULL, NULL
 		}
 	},
 	{
 		.instance = 5,
 		.ioset = 2,
-		.addr = FCOMSPI3,
-		.num_pins = ARRAY_SIZE(fcomspi3_ioset2),
-		.pins = fcomspi3_ioset2,
+		.addr = FLEXSPI3,
+		.num_pins = ARRAY_SIZE(flexspi3_ioset2),
+		.pins = flexspi3_ioset2,
 		.npcs_pins = {
-			&fcomspi3_ioset2_npcs0, &fcomspi3_ioset2_npcs1,
+			&flexspi3_ioset2_npcs0, &flexspi3_ioset2_npcs1,
 			NULL, NULL
 		}
 	},
 	{
 		.instance = 5,
 		.ioset = 3,
-		.addr = FCOMSPI3,
-		.num_pins = ARRAY_SIZE(fcomspi3_ioset3),
-		.pins = fcomspi3_ioset3,
+		.addr = FLEXSPI3,
+		.num_pins = ARRAY_SIZE(flexspi3_ioset3),
+		.pins = flexspi3_ioset3,
 		.npcs_pins = {
-			&fcomspi3_ioset3_npcs0, &fcomspi3_ioset3_npcs1,
+			&flexspi3_ioset3_npcs0, &flexspi3_ioset3_npcs1,
 			NULL, NULL
 		}
 	},
 	{
 		.instance = 6,
 		.ioset = 1,
-		.addr = FCOMSPI4,
-		.num_pins = ARRAY_SIZE(fcomspi4_ioset1),
-		.pins = fcomspi4_ioset1,
+		.addr = FLEXSPI4,
+		.num_pins = ARRAY_SIZE(flexspi4_ioset1),
+		.pins = flexspi4_ioset1,
 		.npcs_pins = {
-			&fcomspi4_ioset1_npcs0, &fcomspi4_ioset1_npcs1,
+			&flexspi4_ioset1_npcs0, &flexspi4_ioset1_npcs1,
 			NULL, NULL
 		}
 	},
 	{
 		.instance = 6,
 		.ioset = 2,
-		.addr = FCOMSPI4,
-		.num_pins = ARRAY_SIZE(fcomspi4_ioset2),
-		.pins = fcomspi4_ioset2,
+		.addr = FLEXSPI4,
+		.num_pins = ARRAY_SIZE(flexspi4_ioset2),
+		.pins = flexspi4_ioset2,
 		.npcs_pins = {
-			&fcomspi4_ioset2_npcs0, &fcomspi4_ioset2_npcs1,
+			&flexspi4_ioset2_npcs0, &flexspi4_ioset2_npcs1,
 			NULL, NULL
 		}
 	},
 	{
 		.instance = 6,
 		.ioset = 3,
-		.addr = FCOMSPI4,
-		.num_pins = ARRAY_SIZE(fcomspi4_ioset3),
-		.pins = fcomspi4_ioset3,
+		.addr = FLEXSPI4,
+		.num_pins = ARRAY_SIZE(flexspi4_ioset3),
+		.pins = flexspi4_ioset3,
 		.npcs_pins = {
-			&fcomspi4_ioset3_npcs0, &fcomspi4_ioset3_npcs1,
+			&flexspi4_ioset3_npcs0, &flexspi4_ioset3_npcs1,
 			NULL, NULL
 		}
 	},

@@ -236,22 +236,22 @@ Mcan* get_mcan_addr_from_id(const uint32_t id)
 
 uint32_t get_twi_id_from_addr(const Twi* addr)
 {
-	if (addr == TWI0)
+	if (addr == FLEXTWI0)
 		return ID_FLEXCOM0;
-#ifdef TWI1
-	else if (addr == TWI1)
+#ifdef FLEXTWI1
+	else if (addr == FLEXTWI1)
 		return ID_FLEXCOM1;
 #endif
-#ifdef TWI2
-	else if (addr == TWI2)
+#ifdef FLEXTWI2
+	else if (addr == FLEXTWI2)
 		return ID_FLEXCOM2;
 #endif
-#ifdef TWI3
-	else if (addr == TWI3)
+#ifdef FLEXTWI3
+	else if (addr == FLEXTWI3)
 		return ID_FLEXCOM3;
 #endif
-#ifdef TWI4
-	else if (addr == TWI4)
+#ifdef FLEXTWI4
+	else if (addr == FLEXTWI4)
 		return ID_FLEXCOM4;
 #endif
 #ifdef TWIHS0
@@ -269,22 +269,22 @@ uint32_t get_twi_id_from_addr(const Twi* addr)
 Twi* get_twi_addr_from_id(uint32_t id)
 {
 	if (id == ID_FLEXCOM0)
-		return TWI0;
-#ifdef TWI1
+		return FLEXTWI0;
+#ifdef FLEXTWI1
 	else if (id == ID_FLEXCOM1)
-		return TWI1;
+		return FLEXTWI1;
 #endif
-#ifdef TWI2
+#ifdef FLEXTWI2
 	else if (id == ID_FLEXCOM2)
-		return TWI2;
+		return FLEXTWI2;
 #endif
-#ifdef TWI3
+#ifdef FLEXTWI3
 	else if (id == ID_FLEXCOM3)
-		return TWI3;
+		return FLEXTWI3;
 #endif
-#ifdef TWI4
+#ifdef FLEXTWI4
 	else if (id == ID_FLEXCOM4)
-		return TWI4;
+		return FLEXTWI4;
 #endif
 #ifdef TWIHS0
 	else if (id == ID_TWIHS0)
@@ -306,25 +306,25 @@ uint32_t get_spi_id_from_addr(const Spi* addr)
 	else if (addr == SPI1)
 		return ID_SPI1;
 #endif
-#ifdef FCOMSPI0
-	else if (addr == FCOMSPI0)
-		return ID_FCOMSPI0;
+#ifdef FLEXSPI0
+	else if (addr == FLEXSPI0)
+		return ID_FLEXCOM0;
 #endif
-#ifdef FCOMSPI1
-	else if (addr == FCOMSPI1)
-		return ID_FCOMSPI1;
+#ifdef FLEXSPI1
+	else if (addr == FLEXSPI1)
+		return ID_FLEXCOM1;
 #endif
-#ifdef FCOMSPI2
-	else if (addr == FCOMSPI2)
-		return ID_FCOMSPI2;
+#ifdef FLEXSPI2
+	else if (addr == FLEXSPI2)
+		return ID_FLEXCOM2;
 #endif
-#ifdef FCOMSPI3
-	else if (addr == FCOMSPI3)
-		return ID_FCOMSPI3;
+#ifdef FLEXSPI3
+	else if (addr == FLEXSPI3)
+		return ID_FLEXCOM3;
 #endif
-#ifdef FCOMSPI4
-	else if (addr == FCOMSPI4)
-		return ID_FCOMSPI4;
+#ifdef FLEXSPI4
+	else if (addr == FLEXSPI4)
+		return ID_FLEXCOM4;
 #endif
 	else
 		return ID_PERIPH_COUNT;
@@ -338,25 +338,25 @@ Spi* get_spi_addr_from_id(uint32_t id)
 	else if (id == ID_SPI1)
 		return SPI1;
 #endif
-#ifdef  FCOMSPI0
-	else if (id == ID_FCOMSPI0)
-		return FCOMSPI0;
+#ifdef  FLEXSPI0
+	else if (id == ID_FLEXCOM0)
+		return FLEXSPI0;
 #endif
-#ifdef  FCOMSPI1
-	else if (id == ID_FCOMSPI1)
-		return FCOMSPI1;
+#ifdef  FLEXSPI1
+	else if (id == ID_FLEXCOM1)
+		return FLEXSPI1;
 #endif
-#ifdef  FCOMSPI2
-	else if (id == ID_FCOMSPI2)
-		return FCOMSPI2;
+#ifdef  FLEXSPI2
+	else if (id == ID_FLEXCOM2)
+		return FLEXSPI2;
 #endif
-#ifdef  FCOMSPI3
-	else if (id == ID_FCOMSPI3)
-		return FCOMSPI3;
+#ifdef  FLEXSPI3
+	else if (id == ID_FLEXCOM3)
+		return FLEXSPI3;
 #endif
-#ifdef  FCOMSPI4
-	else if (id == ID_FCOMSPI4)
-		return FCOMSPI4;
+#ifdef  FLEXSPI4
+	else if (id == ID_FLEXCOM4)
+		return FLEXSPI4;
 #endif
 	else
 		return (void*)0;
@@ -428,23 +428,23 @@ Uart* get_uart_addr_from_id(uint32_t id)
 
 uint32_t get_usart_id_from_addr(const Usart* addr)
 {
-	if (addr == USART0)
-		return ID_USART0;
-#ifdef USART1
-	else if (addr == USART1)
-		return ID_USART1;
+	if (addr == FLEXUSART0)
+		return ID_FLEXCOM0;
+#ifdef FLEXUSART1
+	else if (addr == FLEXUSART1)
+		return ID_FLEXCOM1;
 #endif
-#ifdef USART2
-	else if (addr == USART2)
-		return ID_USART2;
+#ifdef FLEXUSART2
+	else if (addr == FLEXUSART2)
+		return ID_FLEXCOM2;
 #endif
-#ifdef USART3
-	else if (addr == USART3)
-		return ID_USART3;
+#ifdef FLEXUSART3
+	else if (addr == FLEXUSART3)
+		return ID_FLEXCOM3;
 #endif
-#ifdef USART4
-	else if (addr == USART4)
-		return ID_USART4;
+#ifdef FLEXUSART4
+	else if (addr == FLEXUSART4)
+		return ID_FLEXCOM4;
 #endif
 	else
 		return ID_PERIPH_COUNT;
@@ -452,23 +452,23 @@ uint32_t get_usart_id_from_addr(const Usart* addr)
 
 Usart* get_usart_addr_from_id(uint32_t id)
 {
-	if (id == ID_USART0)
-		return USART0;
-#ifdef USART1
-	else if (id == ID_USART1)
-		return USART1;
+	if (id == ID_FLEXCOM0)
+		return FLEXUSART0;
+#ifdef FLEXUSART1
+	else if (id == ID_FLEXCOM1)
+		return FLEXUSART1;
 #endif
-#ifdef USART2
-	else if (id == ID_USART2)
-		return USART2;
+#ifdef FLEXUSART2
+	else if (id == ID_FLEXCOM2)
+		return FLEXUSART2;
 #endif
-#ifdef USART3
-	else if (id == ID_USART3)
-		return USART3;
+#ifdef FLEXUSART3
+	else if (id == ID_FLEXCOM3)
+		return FLEXUSART3;
 #endif
-#ifdef USART4
-	else if (id == ID_USART4)
-		return USART4;
+#ifdef FLEXUSART4
+	else if (id == ID_FLEXCOM4)
+		return FLEXUSART4;
 #endif
 	else
 		return (void*)0;
@@ -681,32 +681,34 @@ int32_t get_peripheral_fifo_depth(void* addr)
 	uint32_t size = -1;
 	uint32_t tmp = (uint32_t)addr;
 	switch (tmp) {
-	case (uint32_t)USART0:
-#ifdef USART1
-	case (uint32_t)USART1:
+	case (uint32_t)FLEXUSART0:
+#ifdef FLEXUSART1
+	case (uint32_t)FLEXUSART1:
 #endif
-#ifdef USART2
-	case (uint32_t)USART2:
+#ifdef FLEXUSART2
+	case (uint32_t)FLEXUSART2:
 #endif
-	case (uint32_t)USART3:
-#ifdef USART3
-	case (uint32_t)USART4:
+#ifdef FLEXUSART3
+	case (uint32_t)FLEXUSART3:
+#endif
+#ifdef FLEXUSART4
+	case (uint32_t)FLEXUSART4:
 #endif
 		size = FLEXCOM_USART_FIFO_DEPTH;
 		break;
 
-	case (uint32_t)FCOMSPI0:
-#ifdef FCOMSPI1
-	case (uint32_t)FCOMSPI1:
+	case (uint32_t)FLEXSPI0:
+#ifdef FLEXSPI1
+	case (uint32_t)FLEXSPI1:
 #endif
-#ifdef FCOMSPI2
-	case (uint32_t)FCOMSPI2:
+#ifdef FLEXSPI2
+	case (uint32_t)FLEXSPI2:
 #endif
-#ifdef FCOMSPI3
-	case (uint32_t)FCOMSPI3:
+#ifdef FLEXSPI3
+	case (uint32_t)FLEXSPI3:
 #endif
-#ifdef FCOMSPI4
-	case (uint32_t)FCOMSPI4:
+#ifdef FLEXSPI4
+	case (uint32_t)FLEXSPI4:
 #endif
 		size = FLEXCOM_SPI_FIFO_DEPTH;
 		break;
@@ -716,18 +718,18 @@ int32_t get_peripheral_fifo_depth(void* addr)
 #endif
 		size = SPI_FIFO_DEPTH;
 		break;
-	case (uint32_t)TWI0:
-#ifdef TWI1
-	case (uint32_t)TWI1:
+	case (uint32_t)FLEXTWI0:
+#ifdef FLEXTWI1
+	case (uint32_t)FLEXTWI1:
 #endif
-#ifdef TWI2
-	case (uint32_t)TWI2:
+#ifdef FLEXTWI2
+	case (uint32_t)FLEXTWI2:
 #endif
-#ifdef TWI3
-	case (uint32_t)TWI3:
+#ifdef FLEXTWI3
+	case (uint32_t)FLEXTWI3:
 #endif
-#ifdef TWI4
-	case (uint32_t)TWI4:
+#ifdef FLEXTWI4
+	case (uint32_t)FLEXTWI4:
 #endif
 #ifdef TWIHS0
 	case (uint32_t)TWIHS0:

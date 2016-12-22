@@ -90,25 +90,10 @@
 #define ID_SMC          (17) /**< \brief Static Memory Controller (SMC) */
 #define ID_PIOA         (18) /**< \brief Parallel I/O Controller (PIOA) */
 #define ID_FLEXCOM0     (19) /**< \brief FLEXCOM 0 (FLEXCOM0) */
-#define ID_USART0       (19) /**< \brief USART (USART0) from FLEXCOM0 */
-#define ID_FCOMSPI0     (19) /**< \brief Serial Peripheral Interface (SPI0) from FLEXCOM0 */
-#define ID_TWI0         (19) /**< \brief Two-Wire Interface (TWI0) from FLEXCOM0 */
 #define ID_FLEXCOM1     (20) /**< \brief FLEXCOM 1 (FLEXCOM1) */
-#define ID_USART1       (20) /**< \brief USART (USART1) from FLEXCOM1 */
-#define ID_FCOMSPI1     (20) /**< \brief Serial Peripheral Interface (SPI1) from FLEXCOM1 */
-#define ID_TWI1         (20) /**< \brief Two-Wire Interface (TWI1) from FLEXCOM1 */
 #define ID_FLEXCOM2     (21) /**< \brief FLEXCOM 1 (FLEXCOM1) */
-#define ID_USART2       (21) /**< \brief USART (USART1) from FLEXCOM1 */
-#define ID_FCOMSPI2     (21) /**< \brief Serial Peripheral Interface (SPI1) from FLEXCOM1 */
-#define ID_TWI2         (21) /**< \brief Two-Wire Interface (TWI1) from FLEXCOM1 */
 #define ID_FLEXCOM3     (22) /**< \brief FLEXCOM 3 (FLEXCOM3) */
-#define ID_USART3       (22) /**< \brief USART (USART3) from FLEXCOM3 */
-#define ID_FCOMSPI3     (22) /**< \brief Serial Peripheral Interface (SPI3) from FLEXCOM3 */
-#define ID_TWI3         (22) /**< \brief Two-Wire Interface (TWI3) from FLEXCOM3 */
 #define ID_FLEXCOM4     (23) /**< \brief FLEXCOM 4 (FLEXCOM4) */
-#define ID_USART4       (23) /**< \brief USART (USART4) from FLEXCOM4 */
-#define ID_FCOMSPI4     (23) /**< \brief Serial Peripheral Interface (SPI4) from FLEXCOM4 */
-#define ID_TWI4         (23) /**< \brief Two-Wire Interface (TWI4) from FLEXCOM4 */
 #define ID_UART0        (24) /**< \brief UART 0 (UART0) */
 #define ID_UART1        (25) /**< \brief UART 1 (UART1) */
 #define ID_UART2        (26) /**< \brief UART 2 (UART2) */

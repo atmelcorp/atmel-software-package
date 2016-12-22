@@ -113,91 +113,91 @@
 /** \addtogroup SAMA5D28_base Peripheral Base Address Definitions */
 /*@{*/
 
-#define AXIMX    ((Aximx    *)0x00600000U) /**< \brief (AXIMX   ) Base Address */
-#define L2CC     ((L2cc     *)0x00A00000U) /**< \brief (L2CC    ) Base Address */
-#define SDMMC0   ((Sdmmc    *)0xA0000000U) /**< \brief (SDMMC0  ) Base Address */
-#define SDMMC1   ((Sdmmc    *)0xB0000000U) /**< \brief (SDMMC1  ) Base Address */
-#define LCDC     ((Lcdc     *)0xF0000000U) /**< \brief (LCDC    ) Base Address */
-#define XDMAC1   ((Xdmac    *)0xF0004000U) /**< \brief (XDMAC1  ) Base Address */
-#define ISC      ((Isc      *)0xF0008000U) /**< \brief (ISC     ) Base Address */
-#define MPDDRC   ((Mpddrc   *)0xF000C000U) /**< \brief (MPDDRC  ) Base Address */
-#define XDMAC0   ((Xdmac    *)0xF0010000U) /**< \brief (XDMAC0  ) Base Address */
-#define PMC      ((Pmc      *)0xF0014000U) /**< \brief (PMC     ) Base Address */
-#define MATRIX0  ((Matrix   *)0xF0018000U) /**< \brief (MATRIX0 ) Base Address */
-#define AESB     ((Aesb     *)0xF001C000U) /**< \brief (AESB    ) Base Address */
-#define QSPI0    ((Qspi     *)0xF0020000U) /**< \brief (QSPI0   ) Base Address */
-#define QSPI1    ((Qspi     *)0xF0024000U) /**< \brief (QSPI1   ) Base Address */
-#define SHA      ((Sha      *)0xF0028000U) /**< \brief (SHA     ) Base Address */
-#define AES      ((Aes      *)0xF002C000U) /**< \brief (AES     ) Base Address */
-#define SPI0     ((Spi      *)0xF8000000U) /**< \brief (SPI0    ) Base Address */
-#define SSC0     ((Ssc      *)0xF8004000U) /**< \brief (SSC0    ) Base Address */
-#define GMAC0    ((Gmac     *)0xF8008000U) /**< \brief (GMAC0   ) Base Address */
-#define TC0      ((Tc       *)0xF800C000U) /**< \brief (TC0     ) Base Address */
-#define TC1      ((Tc       *)0xF8010000U) /**< \brief (TC1     ) Base Address */
-#define NFC      ((Nfc      *)0xF8014000U) /**< \brief (NFC     ) Base Address */
-#define PMECC    ((Pmecc    *)0xF8014070U) /**< \brief (PMECC   ) Base Address */
-#define PMERRLOC ((Pmerrloc *)0xF8014500U) /**< \brief (PMERRLOC) Base Address */
-#define SMC      ((Smc      *)0xF8014700U) /**< \brief (SMC     ) Base Address */
-#define PDMIC0   ((Pdmic    *)0xF8018000U) /**< \brief (PDMIC0  ) Base Address */
-#define UART0    ((Uart     *)0xF801C000U) /**< \brief (UART0   ) Base Address */
-#define UART1    ((Uart     *)0xF8020000U) /**< \brief (UART1   ) Base Address */
-#define UART2    ((Uart     *)0xF8024000U) /**< \brief (UART2   ) Base Address */
-#define TWIHS0   ((Twi      *)0xF8028000U) /**< \brief (TWIHS0  ) Base Address */
-#define PWM0     ((Pwm      *)0xF802C000U) /**< \brief (PWM0    ) Base Address */
-#define SFR      ((Sfr      *)0xF8030000U) /**< \brief (SFR     ) Base Address */
-#define FLEXCOM0 ((Flexcom  *)0xF8034000U) /**< \brief (FLEXCOM0) Base Address */
-#define USART0   ((Usart    *)0xF8034200U) /**< \brief (FLEXCOM0_USART) Base Address */
-#define FCOMSPI0 ((Spi      *)0xF8034400U) /**< \brief (FLEXCOM0_SPI) Base Address */
-#define TWI0     ((Twi      *)0xF8034600U) /**< \brief (FLEXCOM0_TWI) Base Address */
-#define FLEXCOM1 ((Flexcom  *)0xF8038000U) /**< \brief (FLEXCOM1) Base Address */
-#define USART1   ((Usart    *)0xF8038200U) /**< \brief (FLEXCOM1_USART) Base Address */
-#define FCOMSPI1 ((Spi      *)0xF8038400U) /**< \brief (FLEXCOM1_SPI) Base Address */
-#define TWI1     ((Twi      *)0xF8038600U) /**< \brief (FLEXCOM1_TWI) Base Address */
-#define SAIC     ((Aic      *)0xF803C000U) /**< \brief (SAIC    ) Base Address */
-#define ICM      ((Icm      *)0xF8040000U) /**< \brief (ICM     ) Base Address */
-#define SECURAM  ((Securam  *)0xF8044000U) /**< \brief (SECURAM ) Base Address */
-#define RSTC     ((Rstc     *)0xF8048000U) /**< \brief (RSTC    ) Base Address */
-#define SHDWC    ((Shdwc    *)0xF8048010U) /**< \brief (SHDWC   ) Base Address */
-#define PIT      ((Pit      *)0xF8048030U) /**< \brief (PIT     ) Base Address */
-#define WDT      ((Wdt      *)0xF8048040U) /**< \brief (WDT     ) Base Address */
-#define SCKC     ((Sckc     *)0xF8048050U) /**< \brief (SCKC    ) Base Address */
-#define BSC      ((Bsc      *)0xF8048054U) /**< \brief (BSC     ) Base Address */
-#define RTC      ((Rtc      *)0xF80480B0U) /**< \brief (RTC     ) Base Address */
-#define RXLP     ((Rxlp     *)0xF8049000U) /**< \brief (RXLP    ) Base Address */
-#define ACC      ((Acc      *)0xF804A000U) /**< \brief (ACC     ) Base Address */
-#define SFC      ((Sfc      *)0xF804C000U) /**< \brief (SFC     ) Base Address */
-#define I2SC0    ((I2sc     *)0xF8050000U) /**< \brief (I2SC0   ) Base Address */
-#define MCAN0    ((Mcan     *)0xF8054000U) /**< \brief (MCAN0   ) Base Address */
-#define SPI1     ((Spi      *)0xFC000000U) /**< \brief (SPI1    ) Base Address */
-#define SSC1     ((Ssc      *)0xFC004000U) /**< \brief (SSC1    ) Base Address */
-#define UART3    ((Uart     *)0xFC008000U) /**< \brief (UART3   ) Base Address */
-#define UART4    ((Uart     *)0xFC00C000U) /**< \brief (UART4   ) Base Address */
-#define FLEXCOM2 ((Flexcom  *)0xFC010000U) /**< \brief (FLEXCOM2) Base Address */
-#define USART2   ((Usart    *)0xFC010200U) /**< \brief (FLEXCOM2_USART) Base Address */
-#define FCOMSPI2 ((Spi      *)0xFC010400U) /**< \brief (FLEXCOM2_SPI) Base Address */
-#define TWI2     ((Twi      *)0xFC010600U) /**< \brief (FLEXCOM2_TWI) Base Address */
-#define FLEXCOM3 ((Flexcom  *)0xFC014000U) /**< \brief (FLEXCOM3) Base Address */
-#define USART3   ((Usart    *)0xFC014200U) /**< \brief (FLEXCOM3_USART) Base Address */
-#define FCOMSPI3 ((Spi      *)0xFC014400U) /**< \brief (FLEXCOM3_SPI) Base Address */
-#define TWI3     ((Twi      *)0xFC014600U) /**< \brief (FLEXCOM3_TWI) Base Address */
-#define FLEXCOM4 ((Flexcom  *)0xFC018000U) /**< \brief (FLEXCOM4) Base Address */
-#define USART4   ((Usart    *)0xFC018200U) /**< \brief (FLEXCOM4_USART) Base Address */
-#define FCOMSPI4 ((Spi      *)0xFC018400U) /**< \brief (FLEXCOM4_SPI) Base Address */
-#define TWI4     ((Twi      *)0xFC018600U) /**< \brief (FLEXCOM4_TWI) Base Address */
-#define TRNG     ((Trng     *)0xFC01C000U) /**< \brief (TRNG    ) Base Address */
-#define AIC      ((Aic      *)0xFC020000U) /**< \brief (AIC     ) Base Address */
-#define TWIHS1   ((Twi      *)0xFC028000U) /**< \brief (TWIHS1  ) Base Address */
-#define UDPHS    ((Udphs    *)0xFC02C000U) /**< \brief (UDPHS   ) Base Address */
-#define ADC      ((Adc      *)0xFC030000U) /**< \brief (ADC     ) Base Address */
-#define PIOA     ((Pio      *)0xFC038000U) /**< \brief (PIOA    ) Base Address */
-#define MATRIX1  ((Matrix   *)0xFC03C000U) /**< \brief (MATRIX1 ) Base Address */
-#define SECUMOD  ((Secumod  *)0xFC040000U) /**< \brief (SECUMOD ) Base Address */
-#define TDES     ((Tdes     *)0xFC044000U) /**< \brief (TDES    ) Base Address */
-#define CLASSD0  ((Classd   *)0xFC048000U) /**< \brief (CLASSD0 ) Base Address */
-#define I2SC1    ((I2sc     *)0xFC04C000U) /**< \brief (I2SC1   ) Base Address */
-#define MCAN1    ((Mcan     *)0xFC050000U) /**< \brief (MCAN1   ) Base Address */
-#define SFRBU    ((Sfrbu    *)0xFC05C000U) /**< \brief (SFRBU   ) Base Address */
-#define CHIPID   ((Chipid   *)0xFC069000U) /**< \brief (CHIPID  ) Base Address */
+#define AXIMX      ((Aximx    *)0x00600000U) /**< \brief (AXIMX     ) Base Address */
+#define L2CC       ((L2cc     *)0x00A00000U) /**< \brief (L2CC      ) Base Address */
+#define SDMMC0     ((Sdmmc    *)0xA0000000U) /**< \brief (SDMMC0    ) Base Address */
+#define SDMMC1     ((Sdmmc    *)0xB0000000U) /**< \brief (SDMMC1    ) Base Address */
+#define LCDC       ((Lcdc     *)0xF0000000U) /**< \brief (LCDC      ) Base Address */
+#define XDMAC1     ((Xdmac    *)0xF0004000U) /**< \brief (XDMAC1    ) Base Address */
+#define ISC        ((Isc      *)0xF0008000U) /**< \brief (ISC       ) Base Address */
+#define MPDDRC     ((Mpddrc   *)0xF000C000U) /**< \brief (MPDDRC    ) Base Address */
+#define XDMAC0     ((Xdmac    *)0xF0010000U) /**< \brief (XDMAC0    ) Base Address */
+#define PMC        ((Pmc      *)0xF0014000U) /**< \brief (PMC       ) Base Address */
+#define MATRIX0    ((Matrix   *)0xF0018000U) /**< \brief (MATRIX0   ) Base Address */
+#define AESB       ((Aesb     *)0xF001C000U) /**< \brief (AESB      ) Base Address */
+#define QSPI0      ((Qspi     *)0xF0020000U) /**< \brief (QSPI0     ) Base Address */
+#define QSPI1      ((Qspi     *)0xF0024000U) /**< \brief (QSPI1     ) Base Address */
+#define SHA        ((Sha      *)0xF0028000U) /**< \brief (SHA       ) Base Address */
+#define AES        ((Aes      *)0xF002C000U) /**< \brief (AES       ) Base Address */
+#define SPI0       ((Spi      *)0xF8000000U) /**< \brief (SPI0      ) Base Address */
+#define SSC0       ((Ssc      *)0xF8004000U) /**< \brief (SSC0      ) Base Address */
+#define GMAC0      ((Gmac     *)0xF8008000U) /**< \brief (GMAC0     ) Base Address */
+#define TC0        ((Tc       *)0xF800C000U) /**< \brief (TC0       ) Base Address */
+#define TC1        ((Tc       *)0xF8010000U) /**< \brief (TC1       ) Base Address */
+#define NFC        ((Nfc      *)0xF8014000U) /**< \brief (NFC       ) Base Address */
+#define PMECC      ((Pmecc    *)0xF8014070U) /**< \brief (PMECC     ) Base Address */
+#define PMERRLOC   ((Pmerrloc *)0xF8014500U) /**< \brief (PMERRLOC  ) Base Address */
+#define SMC        ((Smc      *)0xF8014700U) /**< \brief (SMC       ) Base Address */
+#define PDMIC0     ((Pdmic    *)0xF8018000U) /**< \brief (PDMIC0    ) Base Address */
+#define UART0      ((Uart     *)0xF801C000U) /**< \brief (UART0     ) Base Address */
+#define UART1      ((Uart     *)0xF8020000U) /**< \brief (UART1     ) Base Address */
+#define UART2      ((Uart     *)0xF8024000U) /**< \brief (UART2     ) Base Address */
+#define TWIHS0     ((Twi      *)0xF8028000U) /**< \brief (TWIHS0    ) Base Address */
+#define PWM0       ((Pwm      *)0xF802C000U) /**< \brief (PWM0      ) Base Address */
+#define SFR        ((Sfr      *)0xF8030000U) /**< \brief (SFR       ) Base Address */
+#define FLEXCOM0   ((Flexcom  *)0xF8034000U) /**< \brief (FLEXCOM0  ) Base Address */
+#define FLEXUSART0 ((Usart    *)0xF8034200U) /**< \brief (FLEXUSART0) Base Address */
+#define FLEXSPI0   ((Spi      *)0xF8034400U) /**< \brief (FLEXSPI0  ) Base Address */
+#define FLEXTWI0   ((Twi      *)0xF8034600U) /**< \brief (FLEXTWI0  ) Base Address */
+#define FLEXCOM1   ((Flexcom  *)0xF8038000U) /**< \brief (FLEXCOM1  ) Base Address */
+#define FLEXUSART1 ((Usart    *)0xF8038200U) /**< \brief (FLEXUSART0) Base Address */
+#define FLEXSPI1   ((Spi      *)0xF8038400U) /**< \brief (FLEXSPI0  ) Base Address */
+#define FLEXTWI1   ((Twi      *)0xF8038600U) /**< \brief (FLEXTWI0  ) Base Address */
+#define SAIC       ((Aic      *)0xF803C000U) /**< \brief (SAIC      ) Base Address */
+#define ICM        ((Icm      *)0xF8040000U) /**< \brief (ICM       ) Base Address */
+#define SECURAM    ((Securam  *)0xF8044000U) /**< \brief (SECURAM   ) Base Address */
+#define RSTC       ((Rstc     *)0xF8048000U) /**< \brief (RSTC      ) Base Address */
+#define SHDWC      ((Shdwc    *)0xF8048010U) /**< \brief (SHDWC     ) Base Address */
+#define PIT        ((Pit      *)0xF8048030U) /**< \brief (PIT       ) Base Address */
+#define WDT        ((Wdt      *)0xF8048040U) /**< \brief (WDT       ) Base Address */
+#define SCKC       ((Sckc     *)0xF8048050U) /**< \brief (SCKC      ) Base Address */
+#define BSC        ((Bsc      *)0xF8048054U) /**< \brief (BSC       ) Base Address */
+#define RTC        ((Rtc      *)0xF80480B0U) /**< \brief (RTC       ) Base Address */
+#define RXLP       ((Rxlp     *)0xF8049000U) /**< \brief (RXLP      ) Base Address */
+#define ACC        ((Acc      *)0xF804A000U) /**< \brief (ACC       ) Base Address */
+#define SFC        ((Sfc      *)0xF804C000U) /**< \brief (SFC       ) Base Address */
+#define I2SC0      ((I2sc     *)0xF8050000U) /**< \brief (I2SC0     ) Base Address */
+#define MCAN0      ((Mcan     *)0xF8054000U) /**< \brief (MCAN0     ) Base Address */
+#define SPI1       ((Spi      *)0xFC000000U) /**< \brief (SPI1      ) Base Address */
+#define SSC1       ((Ssc      *)0xFC004000U) /**< \brief (SSC1      ) Base Address */
+#define UART3      ((Uart     *)0xFC008000U) /**< \brief (UART3     ) Base Address */
+#define UART4      ((Uart     *)0xFC00C000U) /**< \brief (UART4     ) Base Address */
+#define FLEXCOM2   ((Flexcom  *)0xFC010000U) /**< \brief (FLEXCOM2  ) Base Address */
+#define FLEXUSART2 ((Usart    *)0xFC010200U) /**< \brief (FLEXUSART2) Base Address */
+#define FLEXSPI2   ((Spi      *)0xFC010400U) /**< \brief (FLEXSPI2  ) Base Address */
+#define FLEXTWI2   ((Twi      *)0xFC010600U) /**< \brief (FLEXTWI2  ) Base Address */
+#define FLEXCOM3   ((Flexcom  *)0xFC014000U) /**< \brief (FLEXCOM3  ) Base Address */
+#define FLEXUSART3 ((Usart    *)0xFC014200U) /**< \brief (FLEXUSART3) Base Address */
+#define FLEXSPI3   ((Spi      *)0xFC014400U) /**< \brief (FLEXSPI3  ) Base Address */
+#define FLEXTWI3   ((Twi      *)0xFC014600U) /**< \brief (FLEXTWI3  ) Base Address */
+#define FLEXCOM4   ((Flexcom  *)0xFC018000U) /**< \brief (FLEXCOM4  ) Base Address */
+#define FLEXUSART4 ((Usart    *)0xFC018200U) /**< \brief (FLEXUSART4) Base Address */
+#define FLEXSPI4   ((Spi      *)0xFC018400U) /**< \brief (FLEXSPI4  ) Base Address */
+#define FLEXTWI4   ((Twi      *)0xFC018600U) /**< \brief (FLEXTWI4  ) Base Address */
+#define TRNG       ((Trng     *)0xFC01C000U) /**< \brief (TRNG      ) Base Address */
+#define AIC        ((Aic      *)0xFC020000U) /**< \brief (AIC       ) Base Address */
+#define TWIHS1     ((Twi      *)0xFC028000U) /**< \brief (TWIHS1    ) Base Address */
+#define UDPHS      ((Udphs    *)0xFC02C000U) /**< \brief (UDPHS     ) Base Address */
+#define ADC        ((Adc      *)0xFC030000U) /**< \brief (ADC       ) Base Address */
+#define PIOA       ((Pio      *)0xFC038000U) /**< \brief (PIOA      ) Base Address */
+#define MATRIX1    ((Matrix   *)0xFC03C000U) /**< \brief (MATRIX1   ) Base Address */
+#define SECUMOD    ((Secumod  *)0xFC040000U) /**< \brief (SECUMOD   ) Base Address */
+#define TDES       ((Tdes     *)0xFC044000U) /**< \brief (TDES      ) Base Address */
+#define CLASSD0    ((Classd   *)0xFC048000U) /**< \brief (CLASSD0   ) Base Address */
+#define I2SC1      ((I2sc     *)0xFC04C000U) /**< \brief (I2SC1     ) Base Address */
+#define MCAN1      ((Mcan     *)0xFC050000U) /**< \brief (MCAN1     ) Base Address */
+#define SFRBU      ((Sfrbu    *)0xFC05C000U) /**< \brief (SFRBU     ) Base Address */
+#define CHIPID     ((Chipid   *)0xFC069000U) /**< \brief (CHIPID    ) Base Address */
 
 /*@}*/
 
