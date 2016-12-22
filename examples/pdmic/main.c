@@ -158,7 +158,7 @@ static bool _sound_recorded = false;
 
 /** pdmic Configuration */
 static struct _pdmic_desc pdmic_desc = {
-	.addr = PDMIC,
+	.addr = BOARD_PDMIC0_ADDR,
 	.sample_rate = SAMPLE_RATE,
 	.channels = 1,
 	.dsp_size = PDMIC_CONVERTED_DATA_SIZE_16,
@@ -178,14 +178,14 @@ static struct _pdmic_desc pdmic_desc = {
 
 /** ClassD Configuration */
 static struct _classd_desc classd_desc = {
-	.addr = CLASSD,
+	.addr = BOARD_CLASSD0_ADDR,
 	.transfer_mode = CLASSD_MODE_DMA,
 	.sample_rate = SAMPLE_RATE,
-	.mode = BOARD_CLASSD_MODE,
+	.mode = BOARD_CLASSD0_MODE,
 	.non_ovr = CLASSD_NONOVR_10NS,
 	.swap_channels = true,
-	.mono = BOARD_CLASSD_MONO,
-	.mono_mode = BOARD_CLASSD_MONO_MODE,
+	.mono = BOARD_CLASSD0_MONO,
+	.mono_mode = BOARD_CLASSD0_MONO_MODE,
 	.left_enable = true,
 	.right_enable = true,
 };

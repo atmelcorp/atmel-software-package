@@ -126,13 +126,13 @@
 
 /** ClassD Configuration */
 static struct _classd_desc classd_desc = {
-	.addr = CLASSD,
+	.addr = BOARD_CLASSD0_ADDR,
 	.sample_rate = 48000,
-	.mode = BOARD_CLASSD_MODE,
+	.mode = BOARD_CLASSD0_MODE,
 	.non_ovr = CLASSD_NONOVR_10NS,
 	.swap_channels = false,
-	.mono = BOARD_CLASSD_MONO,
-	.mono_mode = BOARD_CLASSD_MONO_MODE,
+	.mono = BOARD_CLASSD0_MONO,
+	.mono_mode = BOARD_CLASSD0_MONO_MODE,
 	.left_enable = true,
 	.right_enable = true,
 	.transfer_mode = CLASSD_MODE_DMA,

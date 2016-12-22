@@ -45,18 +45,20 @@
 #ifdef CONFIG_HAVE_PDMIC
 void board_cfg_pdmic(void)
 {
-	const struct _pin pins_pdmic[] = PINS_PDMIC_IOS1;
-
+#ifdef BOARD_PDMIC0_PINS
+	const struct _pin pins_pdmic[] = BOARD_PDMIC0_PINS;
 	pio_configure(pins_pdmic, ARRAY_SIZE(pins_pdmic));
+#endif
 }
 #endif
 
 #ifdef CONFIG_HAVE_CLASSD
 void board_cfg_classd(void)
 {
-	const struct _pin pins_classd[] = BOARD_CLASSD_PINS;
-
+#ifdef BOARD_CLASSD0_PINS
+	const struct _pin pins_classd[] = BOARD_CLASSD0_PINS;
 	pio_configure(pins_classd, ARRAY_SIZE(pins_classd));
+#endif
 }
 #endif
 

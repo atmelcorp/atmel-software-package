@@ -202,15 +202,15 @@
 #define PIO_PD9A_TMS           (1u << 9)  /**< \brief Arm signal: TMS */
 #define PIO_PD17A_TMS          (1u << 17) /**< \brief Arm signal: TMS */
 #define PIO_PD30B_TMS          (1u << 30) /**< \brief Arm signal: TMS */
-/* ========== Pio definition for CLASSD peripheral ========== */
-#define PIO_PA28F_CLASSD_L0    (1u << 28) /**< \brief Classd signal: CLASSD_L0 */
-#define PIO_PA29F_CLASSD_L1    (1u << 29) /**< \brief Classd signal: CLASSD_L1 */
-#define PIO_PA30F_CLASSD_L2    (1u << 30) /**< \brief Classd signal: CLASSD_L2 */
-#define PIO_PA31F_CLASSD_L3    (1u << 31) /**< \brief Classd signal: CLASSD_L3 */
-#define PIO_PB1F_CLASSD_R0     (1u << 1)  /**< \brief Classd signal: CLASSD_R0 */
-#define PIO_PB2F_CLASSD_R1     (1u << 2)  /**< \brief Classd signal: CLASSD_R1 */
-#define PIO_PB3F_CLASSD_R2     (1u << 3)  /**< \brief Classd signal: CLASSD_R2 */
-#define PIO_PB4F_CLASSD_R3     (1u << 4)  /**< \brief Classd signal: CLASSD_R3 */
+/* ========== Pio definition for CLASSD0 peripheral ========== */
+#define PIO_PA28F_CLASSD0_L0   (1u << 28) /**< \brief Classd signal: CLASSD0_L0 */
+#define PIO_PA29F_CLASSD0_L1   (1u << 29) /**< \brief Classd signal: CLASSD0_L1 */
+#define PIO_PA30F_CLASSD0_L2   (1u << 30) /**< \brief Classd signal: CLASSD0_L2 */
+#define PIO_PA31F_CLASSD0_L3   (1u << 31) /**< \brief Classd signal: CLASSD0_L3 */
+#define PIO_PB1F_CLASSD0_R0    (1u << 1)  /**< \brief Classd signal: CLASSD0_R0 */
+#define PIO_PB2F_CLASSD0_R1    (1u << 2)  /**< \brief Classd signal: CLASSD0_R1 */
+#define PIO_PB3F_CLASSD0_R2    (1u << 3)  /**< \brief Classd signal: CLASSD0_R2 */
+#define PIO_PB4F_CLASSD0_R3    (1u << 4)  /**< \brief Classd signal: CLASSD0_R3 */
 /* ========== Pio definition for EBI peripheral ========== */
 #define PIO_PB11B_A0           (1u << 11) /**< \brief Ebi signal: A0/NBS0 */
 #define PIO_PB11B_NBS0         (1u << 11) /**< \brief Ebi signal: A0/NBS0 */
@@ -582,11 +582,11 @@
 #define PIO_PC28A_LCDPWM       (1u << 28) /**< \brief Lcdc signal: LCDPWM */
 #define PIO_PC5A_LCDVSYNC      (1u << 5)  /**< \brief Lcdc signal: LCDVSYNC */
 #define PIO_PC30A_LCDVSYNC     (1u << 30) /**< \brief Lcdc signal: LCDVSYNC */
-/* ========== Pio definition for PDMIC peripheral ========== */
-#define PIO_PB12D_PDMIC_CLK    (1u << 12) /**< \brief Pdmic signal: PDMIC_CLK */
-#define PIO_PB27D_PDMIC_CLK    (1u << 27) /**< \brief Pdmic signal: PDMIC_CLK */
-#define PIO_PB11D_PDMIC_DAT    (1u << 11) /**< \brief Pdmic signal: PDMIC_DAT */
-#define PIO_PB26D_PDMIC_DAT    (1u << 26) /**< \brief Pdmic signal: PDMIC_DAT */
+/* ========== Pio definition for PDMIC0 peripheral ========== */
+#define PIO_PB12D_PDMIC0_CLK   (1u << 12) /**< \brief Pdmic signal: PDMIC0_CLK */
+#define PIO_PB27D_PDMIC0_CLK   (1u << 27) /**< \brief Pdmic signal: PDMIC0_CLK */
+#define PIO_PB11D_PDMIC0_DAT   (1u << 11) /**< \brief Pdmic signal: PDMIC0_DAT */
+#define PIO_PB26D_PDMIC0_DAT   (1u << 26) /**< \brief Pdmic signal: PDMIC0_DAT */
 /* ========== Pio definition for PMC peripheral ========== */
 #define PIO_PC8D_PCK0          (1u << 8)  /**< \brief Pmc signal: PCK0 */
 #define PIO_PD19A_PCK0         (1u << 19) /**< \brief Pmc signal: PCK0 */

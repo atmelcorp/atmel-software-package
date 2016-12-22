@@ -137,7 +137,7 @@
 #define PMECC    ((Pmecc    *)0xF8014070U) /**< \brief (PMECC   ) Base Address */
 #define PMERRLOC ((Pmerrloc *)0xF8014500U) /**< \brief (PMERRLOC) Base Address */
 #define SMC      ((Smc      *)0xF8014700U) /**< \brief (SMC     ) Base Address */
-#define PDMIC    ((Pdmic    *)0xF8018000U) /**< \brief (PDMIC   ) Base Address */
+#define PDMIC0   ((Pdmic    *)0xF8018000U) /**< \brief (PDMIC0  ) Base Address */
 #define UART0    ((Uart     *)0xF801C000U) /**< \brief (UART0   ) Base Address */
 #define UART1    ((Uart     *)0xF8020000U) /**< \brief (UART1   ) Base Address */
 #define UART2    ((Uart     *)0xF8024000U) /**< \brief (UART2   ) Base Address */
@@ -188,7 +188,7 @@
 #define MATRIX1  ((Matrix   *)0xFC03C000U) /**< \brief (MATRIX1 ) Base Address */
 #define SECUMOD  ((Secumod  *)0xFC040000U) /**< \brief (SECUMOD ) Base Address */
 #define TDES     ((Tdes     *)0xFC044000U) /**< \brief (TDES    ) Base Address */
-#define CLASSD   ((Classd   *)0xFC048000U) /**< \brief (CLASSD  ) Base Address */
+#define CLASSD0  ((Classd   *)0xFC048000U) /**< \brief (CLASSD0 ) Base Address */
 #define I2SC1    ((I2sc     *)0xFC04C000U) /**< \brief (I2SC1   ) Base Address */
 #define SFRBU    ((Sfrbu    *)0xFC05C000U) /**< \brief (SFRBU   ) Base Address */
 #define CHIPID   ((Chipid   *)0xFC069000U) /**< \brief (CHIPID  ) Base Address */

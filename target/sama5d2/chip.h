@@ -131,7 +131,7 @@
 #define ID_LCDC         (45) /**< \brief LCD Controller (LCDC) */
 #define ID_ISC          (46) /**< \brief Camera Interface (ISC) */
 #define ID_TRNG         (47) /**< \brief True Random Number Generator (TRNG) */
-#define ID_PDMIC        (48) /**< \brief Pulse Density Modulation Interface Controller (PDMIC) */
+#define ID_PDMIC0       (48) /**< \brief Pulse Density Modulation Interface Controller (PDMIC0) */
 #define ID_AIC_IRQ      (49) /**< \brief IRQ Interrupt ID (AIC_IRQ) */
 #define ID_SFC          (50) /**< \brief Fuse Controller (SFC) */
 #define ID_SECURAM      (51) /**< \brief Secured RAM (SECURAM) */
@@ -141,7 +141,7 @@
 #define ID_I2SC1        (55) /**< \brief Inter-IC Sound Controller 1 (I2SC1) */
 #define ID_CAN0_INT0    (56) /**< \brief MCAN 0 Interrupt0 (CAN0_INT0) */
 #define ID_CAN1_INT0    (57) /**< \brief MCAN 1 Interrupt0 (CAN1_INT0) */
-#define ID_CLASSD       (59) /**< \brief Audio Class D amplifier (CLASSD) */
+#define ID_CLASSD0      (59) /**< \brief Audio Class D amplifier (CLASSD0) */
 #define ID_SFR          (60) /**< \brief Special Function Register  (SFR) */
 #define ID_SAIC         (61) /**< \brief Secured Advanced Interrupt Controller  (SAIC) */
 #define ID_AIC          (62) /**< \brief Advanced Interrupt Controller  (AIC) */

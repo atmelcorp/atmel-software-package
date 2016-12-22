@@ -112,9 +112,9 @@ static const struct peripheral_xdma _xdmac_peripherals[] = {
 	{ ID_UART4,      43,   44 },
 	{ ID_TC0,      0xff,   45 },
 	{ ID_TC1,      0xff,   46 },
-	{ ID_CLASSD,     47, 0xff },
+	{ ID_CLASSD0,    47, 0xff },
 	{ ID_QSPI0,      48,   49 },
-	{ ID_PDMIC,    0xff,   50 },
+	{ ID_PDMIC0,   0xff,   50 },
 };
 
 /*----------------------------------------------------------------------------
@@ -564,18 +564,18 @@ Sdmmc* get_sdmmc_addr_from_id(uint32_t id)
 
 uint32_t get_classd_id_from_addr(const Classd* addr)
 {
-#ifdef CLASSD
-	if (addr == CLASSD)
-		return ID_CLASSD;
+#ifdef CLASSD0
+	if (addr == CLASSD0)
+		return ID_CLASSD0;
 #endif
 	return ID_PERIPH_COUNT;
 }
 
 uint32_t get_pdmic_id_from_addr(const Pdmic* addr)
 {
-#ifdef PDMIC
-	if (addr == PDMIC)
-		return ID_PDMIC;
+#ifdef PDMIC0
+	if (addr == PDMIC0)
+		return ID_PDMIC0;
 #endif
 	return ID_PERIPH_COUNT;
 }

@@ -226,13 +226,19 @@
 #define BOARD_ISC_PIN_RST  { PIO_GROUP_B, PIO_PB11, PIO_OUTPUT_1, PIO_DEFAULT }
 #define BOARD_ISC_PIN_PWD  { PIO_GROUP_B, PIO_PB12, PIO_OUTPUT_1, PIO_DEFAULT }
 
+/* =================== PIN PDMIC definition ==================== */
+
+#define BOARD_PDMIC0_ADDR PDMIC0
+#define BOARD_PDMIC0_PINS PINS_PDMIC0_IOS1
+
 /* =================== PIN ClassD definition ==================== */
 
-#define BOARD_CLASSD_PINS      { PIN_CLASSD_R0_IOS1, PIN_CLASSD_R1_IOS1,\
-                                 PIN_CLASSD_R2_IOS1, PIN_CLASSD_R3_IOS1 }
-#define BOARD_CLASSD_MODE      CLASSD_OUTPUT_FULL_BRIDGE
-#define BOARD_CLASSD_MONO      true
-#define BOARD_CLASSD_MONO_MODE CLASSD_MONO_MIXED
+#define BOARD_CLASSD0_ADDR      CLASSD0
+#define BOARD_CLASSD0_PINS      { PIN_CLASSD0_R0_IOS1, PIN_CLASSD0_R1_IOS1,\
+                                  PIN_CLASSD0_R2_IOS1, PIN_CLASSD0_R3_IOS1 }
+#define BOARD_CLASSD0_MODE      CLASSD_OUTPUT_FULL_BRIDGE
+#define BOARD_CLASSD0_MONO      true
+#define BOARD_CLASSD0_MONO_MODE CLASSD_MONO_MIXED
 
 /* ================== SSC definition ====================== */
 
