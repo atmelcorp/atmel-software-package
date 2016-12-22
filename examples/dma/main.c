@@ -108,8 +108,7 @@
  *----------------------------------------------------------------------------*/
 
 #define DMA_SINGLE 1
-#define DMA_MULTI  2
-#define DMA_SG     3
+#define DMA_SG     2
 
 /** Maximum size of Linked List in this example */
 #define MAX_SG_SIZE 2
@@ -138,7 +137,7 @@ CACHE_ALIGNED static uint8_t test_buf[BUFFER_LEN];
 CACHE_ALIGNED static uint8_t dest_buf[BUFFER_LEN];
 
 /* Current Programming DMA mode for Multiple Buffer Transfers */
-static uint8_t dma_mode = 0;
+static uint8_t dma_mode = DMA_SINGLE;
 static uint8_t dma_data_width = 0;
 static uint8_t dma_src_addr_mode = 0;
 static uint8_t dma_dest_addr_mode = 0;
@@ -198,9 +197,8 @@ static void _display_menu(void)
 	printf("|=============================================================|\n\r");
 	printf("\n\r");
 	printf("- DMA transfer type\n\r");
-	printf("    S: Single Block with Single Microblock transfer\n\r");
-	printf("    M: Single Block with Multiple Microblock transfer\n\r");
-	printf("    L: Linked List Master transfer\n\r");
+	printf("    S: Single Block transfer\n\r");
+	printf("    L: Linked List transfer\n\r");
 	printf("- H: Display this menu\n\r");
 	printf("\n\r");
 }
@@ -224,42 +222,34 @@ static int _dma_callback(void* arg)
 static void _configure_transfer(void)
 {
 	uint32_t i;
-	struct dma_xfer_cfg cfg;
+	struct _dma_cfg dma_cfg;
 	struct _callback _cb;
 
-	if (dma_mode != DMA_SG) {
-		cfg.sa = (uint32_t *)src_buf;
-		cfg.da = (uint32_t *)dest_buf;
-		cfg.upd_sa_per_data = dma_src_addr_mode ? 1 : 0;
-		cfg.upd_da_per_data = dma_dest_addr_mode ? 1 : 0;
-		cfg.data_width = dma_data_width;
-		cfg.chunk_size = DMA_CHUNK_SIZE_1;
-		cfg.blk_size = (dma_mode == DMA_SINGLE) ? 0 : MICROBLOCK_LEN;
-		cfg.len = (dma_mode == DMA_SINGLE) ? MICROBLOCK_LEN : 2;
+	dma_cfg.incr_saddr = dma_src_addr_mode ? true : false;
+	dma_cfg.incr_daddr = dma_dest_addr_mode ? true : false;
+	dma_cfg.data_width = dma_data_width;
+	dma_cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	dma_cfg.loop = false;
 
-		dma_configure_transfer(dma_chan, &cfg);
+	if (dma_mode == DMA_SINGLE) {
+		struct _dma_transfer_cfg cfg;
+
+		cfg.saddr = (uint32_t *)src_buf;
+		cfg.daddr = (uint32_t *)dest_buf;
+		cfg.len = MICROBLOCK_LEN;
+
+		dma_configure_transfer(dma_chan, &dma_cfg, &cfg, 1);
 
 	} else {
-		struct _dma_sg_cfg sg_cfg;
-		struct _dma_sg_list dma_sg_list[MAX_SG_SIZE];
+		struct _dma_transfer_cfg _sg_list[MAX_SG_SIZE];
 
-
-		for (i = 0; i < ARRAY_SIZE(dma_sg_list); i++) {
-			dma_sg_list[i].saddr = (uint32_t *)(src_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i);
-			dma_sg_list[i].daddr = (uint32_t *)(dest_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i);
-			dma_sg_list[i].len = MICROBLOCK_LEN;
-
-			dma_sg_list[i].next = &dma_sg_list[i + 1];
+		for (i = 0; i < ARRAY_SIZE(_sg_list); i++) {
+			_sg_list[i].saddr = (uint32_t *)(src_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i);
+			_sg_list[i].daddr = (uint32_t *)(dest_buf + MICROBLOCK_LEN * (1 << dma_data_width) * i);
+			_sg_list[i].len = MICROBLOCK_LEN;
 		}
-		dma_sg_list[i - 1].next = NULL;
 
-		sg_cfg.incr_saddr = dma_src_addr_mode ? 1 : 0;
-		sg_cfg.incr_daddr = dma_dest_addr_mode ? 1 : 0;
-		sg_cfg.data_width = dma_data_width;
-		sg_cfg.chunk_size = DMA_CHUNK_SIZE_1;
-		sg_cfg.loop = false;
-
-		dma_sg_configure_transfer(dma_chan, &sg_cfg, dma_sg_list, ARRAY_SIZE(dma_sg_list));
+		dma_configure_transfer(dma_chan, &dma_cfg, _sg_list, ARRAY_SIZE(_sg_list));
 	}
 	callback_set(&_cb, _dma_callback, dma_chan);
 	dma_set_callback(dma_chan, &_cb);
@@ -351,15 +341,11 @@ extern int main(void)
 			dma_dest_addr_mode = key - '2';
 			_display_menu();
 		} else if (key == 'S' || key == 's') {
-			dma_mode = 1;
-			_configure_transfer();
-			configured = true;
-		} else if (key == 'M' || key == 'm') {
-			dma_mode = 2;
+			dma_mode = DMA_SINGLE;
 			_configure_transfer();
 			configured = true;
 		} else if (key == 'L' || key == 'l') {
-			dma_mode = 3;
+			dma_mode = DMA_SG;
 			_configure_transfer();
 			configured = true;
 		} else if (key == 'H') {

@@ -182,7 +182,7 @@ uint32_t get_peripheral_clock_matrix_div(uint32_t id)
 	return 1;
 }
 
-uint8_t get_peripheral_xdma_channel(uint32_t id, Xdmac *xdmac, bool transmit)
+uint8_t get_peripheral_dma_channel(uint32_t id, Xdmac *xdmac, bool transmit)
 {
 	const struct peripheral_xdma *periph_xdma = get_peripheral_xdma(id, xdmac);
 	if (periph_xdma) {
@@ -192,7 +192,7 @@ uint8_t get_peripheral_xdma_channel(uint32_t id, Xdmac *xdmac, bool transmit)
 	}
 }
 
-bool is_peripheral_on_xdma_controller(uint32_t id, Xdmac *xdmac)
+bool is_peripheral_on_dma_controller(uint32_t id, Xdmac *xdmac)
 {
 	return get_peripheral_xdma(id, xdmac) != NULL;
 }

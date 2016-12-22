@@ -91,7 +91,7 @@ static int _spid_dma_rx_callback(void* arg)
 {
 	struct _spi_desc* desc = (struct _spi_desc*)arg;
 
-	cache_invalidate_region(desc->xfer.dma.rx.cfg.da, desc->xfer.dma.rx.cfg.len);
+	cache_invalidate_region(desc->xfer.dma.rx.cfg.daddr, desc->xfer.dma.rx.cfg.len);
 
 	dma_reset_channel(desc->xfer.dma.rx.channel);
 
@@ -137,31 +137,23 @@ static void _spid_dma_write(struct _spi_desc* desc, uint8_t *buf, uint32_t len)
 
 	cache_clean_region(buf, len);
 
-	memset(&desc->xfer.dma.tx.cfg, 0, sizeof(desc->xfer.dma.tx.cfg));
-
-	desc->xfer.dma.tx.cfg.da = (void*)&desc->addr->SPI_TDR;
-	desc->xfer.dma.tx.cfg.sa = buf;
-	desc->xfer.dma.tx.cfg.upd_sa_per_data = 1;
-	desc->xfer.dma.tx.cfg.upd_da_per_data = 0;
-	desc->xfer.dma.tx.cfg.data_width = DMA_DATA_WIDTH_BYTE;
-	desc->xfer.dma.tx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
-	desc->xfer.dma.tx.cfg.blk_size = 0;
+	desc->xfer.dma.tx.cfg.daddr = (void*)&desc->addr->SPI_TDR;
+	desc->xfer.dma.tx.cfg.saddr = buf;
 	desc->xfer.dma.tx.cfg.len = len;
-	dma_configure_transfer(desc->xfer.dma.tx.channel, &desc->xfer.dma.tx.cfg);
+	desc->xfer.dma.tx.cfg_dma.incr_saddr = false;
+	desc->xfer.dma.tx.cfg_dma.incr_daddr = true;
+	dma_configure_transfer(desc->xfer.dma.tx.channel, &desc->xfer.dma.tx.cfg_dma, &desc->xfer.dma.tx.cfg, 1);
 	callback_set(&_cb, &_spid_dma_tx_callback, (void*)desc);
 	dma_set_callback(desc->xfer.dma.tx.channel, &_cb);
 
 	memset(&desc->xfer.dma.rx.cfg, 0, sizeof(desc->xfer.dma.rx.cfg));
 
-	desc->xfer.dma.rx.cfg.sa = (void*)&desc->addr->SPI_RDR;
-	desc->xfer.dma.rx.cfg.da = &_garbage;
-	desc->xfer.dma.rx.cfg.upd_sa_per_data = 0;
-	desc->xfer.dma.rx.cfg.upd_da_per_data = 0;
-	desc->xfer.dma.rx.cfg.data_width = DMA_DATA_WIDTH_BYTE;
-	desc->xfer.dma.rx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
-	desc->xfer.dma.rx.cfg.blk_size = 0;
+	desc->xfer.dma.rx.cfg.saddr = (void*)&desc->addr->SPI_RDR;
+	desc->xfer.dma.rx.cfg.daddr = &_garbage;
 	desc->xfer.dma.rx.cfg.len = len;
-	dma_configure_transfer(desc->xfer.dma.rx.channel, &desc->xfer.dma.rx.cfg);
+	desc->xfer.dma.rx.cfg_dma.incr_saddr = false;
+	desc->xfer.dma.rx.cfg_dma.incr_daddr = false;
+	dma_configure_transfer(desc->xfer.dma.rx.channel, &desc->xfer.dma.rx.cfg_dma, &desc->xfer.dma.rx.cfg, 1);
 
 	callback_set(&_cb, _spid_dma_rx_free_callback, (void*)desc);
 	dma_set_callback(desc->xfer.dma.rx.channel, &_cb);
@@ -177,30 +169,24 @@ static void _spid_dma_read(struct _spi_desc* desc, uint8_t *buf, uint32_t len)
 	memset(&desc->xfer.dma.tx.cfg, 0, sizeof(desc->xfer.dma.tx.cfg));
 
 	dma_reset_channel(desc->xfer.dma.tx.channel);
-	desc->xfer.dma.tx.cfg.da = (void*)&desc->addr->SPI_TDR;
-	desc->xfer.dma.tx.cfg.sa = &_garbage;
-	desc->xfer.dma.tx.cfg.upd_sa_per_data = 0;
-	desc->xfer.dma.tx.cfg.upd_da_per_data = 0;
-	desc->xfer.dma.tx.cfg.data_width = DMA_DATA_WIDTH_BYTE;
-	desc->xfer.dma.tx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
-	desc->xfer.dma.tx.cfg.blk_size = 0;
+	desc->xfer.dma.tx.cfg.daddr = (void*)&desc->addr->SPI_TDR;
+	desc->xfer.dma.tx.cfg.saddr = &_garbage;
 	desc->xfer.dma.tx.cfg.len = len;
-	dma_configure_transfer(desc->xfer.dma.tx.channel, &desc->xfer.dma.tx.cfg);
+	desc->xfer.dma.rx.cfg_dma.incr_saddr = false;
+	desc->xfer.dma.rx.cfg_dma.incr_daddr = false;
+	dma_configure_transfer(desc->xfer.dma.tx.channel, &desc->xfer.dma.tx.cfg_dma, &desc->xfer.dma.tx.cfg, 1);
 	callback_set(&_cb, _spid_dma_tx_free_callback, (void*)desc);
 	dma_set_callback(desc->xfer.dma.tx.channel, &_cb);
 
 	memset(&desc->xfer.dma.rx.cfg, 0, sizeof(desc->xfer.dma.rx.cfg));
 
 	dma_reset_channel(desc->xfer.dma.rx.channel);
-	desc->xfer.dma.rx.cfg.sa = (void*)&desc->addr->SPI_RDR;
-	desc->xfer.dma.rx.cfg.da = buf;
-	desc->xfer.dma.rx.cfg.upd_sa_per_data = 0;
-	desc->xfer.dma.rx.cfg.upd_da_per_data = 1;
-	desc->xfer.dma.rx.cfg.data_width = DMA_DATA_WIDTH_BYTE;
-	desc->xfer.dma.rx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
-	desc->xfer.dma.rx.cfg.blk_size = 0;
+	desc->xfer.dma.rx.cfg.saddr = (void*)&desc->addr->SPI_RDR;
+	desc->xfer.dma.rx.cfg.daddr = buf;
 	desc->xfer.dma.rx.cfg.len = len;
-	dma_configure_transfer(desc->xfer.dma.rx.channel, &desc->xfer.dma.rx.cfg);
+	desc->xfer.dma.rx.cfg_dma.incr_saddr = false;
+	desc->xfer.dma.rx.cfg_dma.incr_daddr = true;
+	dma_configure_transfer(desc->xfer.dma.rx.channel, &desc->xfer.dma.rx.cfg_dma, &desc->xfer.dma.rx.cfg, 1);
 	callback_set(&_cb, _spid_dma_rx_callback, (void*)desc);
 	dma_set_callback(desc->xfer.dma.rx.channel, &_cb);
 
@@ -437,6 +423,16 @@ int spid_configure(struct _spi_desc* desc)
 
 	desc->xfer.dma.rx.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
 	assert(desc->xfer.dma.rx.channel);
+
+	desc->xfer.dma.rx.cfg_dma.incr_saddr = false;
+	desc->xfer.dma.rx.cfg_dma.incr_daddr = true;
+	desc->xfer.dma.rx.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
+	desc->xfer.dma.rx.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
+	desc->xfer.dma.tx.cfg_dma.incr_saddr = false;
+	desc->xfer.dma.tx.cfg_dma.incr_daddr = true;
+	desc->xfer.dma.tx.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
+	desc->xfer.dma.tx.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
+
 
 	spi_enable(desc->addr);
 

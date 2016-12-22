@@ -291,7 +291,7 @@ extern uint32_t get_peripheral_clock_matrix_div(uint32_t id);
  * \param transmit a boolean, true for transmit, false for receive
  * \return the XDMAC interface number or 0xff if none
  */
-uint8_t get_peripheral_xdma_channel(uint32_t id, Xdmac *xdmac, bool transmit);
+extern uint8_t get_peripheral_dma_channel(uint32_t id, Xdmac *xdmac, bool transmit);
 
 /** \brief Checks if a peripheral is usable with a XDMAC controller
  *
@@ -300,7 +300,7 @@ uint8_t get_peripheral_xdma_channel(uint32_t id, Xdmac *xdmac, bool transmit);
  * \return true if the peripheral is usable on the given XDMAC controller,
  * false otherwise
  */
-bool is_peripheral_on_xdma_controller(uint32_t id, Xdmac *xdmac);
+extern bool is_peripheral_on_dma_controller(uint32_t id, Xdmac *xdmac);
 
 #ifdef __cplusplus
 }

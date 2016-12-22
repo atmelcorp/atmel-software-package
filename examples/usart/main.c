@@ -28,24 +28,22 @@
  */
 
 #include <stdint.h>
-
-#include "board.h"
-#include "chip.h"
-#include "cpuidle.h"
-
-#include "peripherals/pmc.h"
-#include "gpio/pio.h"
-#include "serial/usartd.h"
-#include "serial/usart.h"
-
-#include "mm/cache.h"
-#include "serial/console.h"
-
-#include "mutex.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "board.h"
+#include "callback.h"
+#include "chip.h"
+#include "cpuidle.h"
+#include "gpio/pio.h"
+#include "mm/cache.h"
+#include "mutex.h"
+#include "peripherals/pmc.h"
+#include "serial/console.h"
+#include "serial/usart.h"
+#include "serial/usartd.h"
+
 
 #ifdef VARIANT_DDRAM
 #define CMD_BUFFER_SIZE   8*1024*1024

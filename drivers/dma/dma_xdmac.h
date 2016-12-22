@@ -37,22 +37,9 @@
 
 #include "callback.h"
 #include "chip.h"
-#include "dma/dma.h"
 #include "dma/xdmac.h"
 
 #include <stdbool.h>
-
-/*----------------------------------------------------------------------------
- *        Consts
- *----------------------------------------------------------------------------*/
-
-/** \addtogroup dmad_defines DMA Driver Defines
-        @{*/
-
-/** Pseudo Peripheral ID for memory transfers */
-#define XDMACD_PERIPH_MEMORY 0xFF
-
-/**     @}*/
 
 /*----------------------------------------------------------------------------
  *        Types
@@ -60,6 +47,7 @@
 
 /** \addtogroup dmad_structs DMA Driver Structs
         @{*/
+
 struct _dma_channel;
 
 struct _xdmacd_cfg {
@@ -80,14 +68,6 @@ struct _xdmacd_cfg {
  *----------------------------------------------------------------------------*/
 /** \addtogroup dmad_functions DMA Driver Functionos
         @{*/
-
-/**
- * \brief Initialize DMA driver instance.
- * \param polling if true, interrupts will not be configured and xdmacd_poll
- * must be called to poll for transfer completion
- */
-extern void xdmacd_initialize(bool polling);
-
 /**
  * \brief Configure DMA for a single transfer.
  * \param channel Channel pointer
@@ -96,13 +76,9 @@ extern void xdmacd_initialize(bool polling);
  * \param desc_addr optional descriptor address
  */
 extern int xdmacd_configure_transfer(struct _dma_channel* channel,
-				     struct _xdmacd_cfg* cfg, uint32_t desc_ctrl, void* desc_addr);
-
-/**
- * \brief Get size of remaining data to be transferred by DMA transfer.
- * \param channel Channel pointer
- */
-extern uint32_t xdmacd_get_remaining_data_len(struct _dma_channel* channel);
+				     struct _xdmacd_cfg* cfg,
+				     uint32_t desc_ctrl,
+				     void* desc_addr);
 
 /**     @}*/
 

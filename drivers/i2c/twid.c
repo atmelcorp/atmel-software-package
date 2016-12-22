@@ -176,9 +176,9 @@ static int _twid_dma_read_callback(void* arg)
 {
 	struct _twi_desc* desc = (struct _twi_desc *)arg;
 
-	cache_invalidate_region(desc->dma.rx.cfg.da, desc->dma.rx.cfg.len);
+	cache_invalidate_region(desc->dma.rx.cfg.daddr, desc->dma.rx.cfg.len);
 
-	dma_free_channel(desc->dma.rx.channel);
+	dma_reset_channel(desc->dma.rx.channel);
 
 	if (_check_rx_timeout(desc)) {
 		mutex_unlock(&desc->mutex);
@@ -192,16 +192,14 @@ static int _twid_dma_read_callback(void* arg)
 	if (!desc->use_fifo)
 #endif
 	{
-
-
-		((uint8_t*)desc->dma.rx.cfg.da)[desc->dma.rx.cfg.len] = twi_read_byte(desc->addr);
+		((uint8_t*)desc->dma.rx.cfg.daddr)[desc->dma.rx.cfg.len] = twi_read_byte(desc->addr);
 
 		if (_check_rx_timeout(desc)) {
 			mutex_unlock(&desc->mutex);
 			return -ETIMEDOUT;
 		}
 
-		((uint8_t*)desc->dma.rx.cfg.da)[desc->dma.rx.cfg.len + 1] = twi_read_byte(desc->addr);
+		((uint8_t*)desc->dma.rx.cfg.daddr)[desc->dma.rx.cfg.len + 1] = twi_read_byte(desc->addr);
 	}
 
 	mutex_unlock(&desc->mutex);
@@ -214,38 +212,32 @@ static int _twid_dma_read_callback(void* arg)
 static void _twid_dma_read(struct _twi_desc* desc, struct _buffer* buffer)
 {
 	struct _callback _cb;
-	memset(&desc->dma.rx.cfg, 0, sizeof(desc->dma.rx.cfg));
 
-	dma_reset_channel(desc->dma.rx.channel);
-
-	desc->dma.rx.cfg.sa = (void*)&desc->addr->TWI_RHR;
-	desc->dma.rx.cfg.da = buffer->data;
-	desc->dma.rx.cfg.upd_sa_per_data = 0;
-	desc->dma.rx.cfg.upd_da_per_data = 1;
+	desc->dma.rx.cfg.saddr = (void*)&desc->addr->TWI_RHR;
+	desc->dma.rx.cfg.daddr = buffer->data;
 #ifdef CONFIG_HAVE_TWI_FIFO
 	if (desc->use_fifo) {
 		if ((buffer->size % 4) == 0) {
 			desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_RXRDYM_Msk) | TWI_FMR_RXRDYM_FOUR_DATA;
-			desc->dma.rx.cfg.data_width = DMA_DATA_WIDTH_WORD;
+			desc->dma.rx.cfg_dma.data_width = DMA_DATA_WIDTH_WORD;
 		} else if ((buffer->size % 2) == 0)  {
 			desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_RXRDYM_Msk) | TWI_FMR_RXRDYM_TWO_DATA;
-			desc->dma.rx.cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
+			desc->dma.rx.cfg_dma.data_width = DMA_DATA_WIDTH_HALF_WORD;
 		} else {
 			desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_RXRDYM_Msk) | TWI_FMR_RXRDYM_ONE_DATA;
-			desc->dma.rx.cfg.data_width = DMA_DATA_WIDTH_BYTE;
+			desc->dma.rx.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
 		}
 		desc->dma.rx.cfg.len = buffer->size;
 	} else {
 		desc->dma.rx.cfg.len = buffer->size - 2;
 		desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_RXRDYM_Msk) | TWI_FMR_RXRDYM_ONE_DATA;
-		desc->dma.rx.cfg.data_width = DMA_DATA_WIDTH_BYTE;
+		desc->dma.rx.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
 	}
 #else
 	desc->dma.rx.cfg.len = buffer->size - 2;
-	desc->dma.rx.cfg.data_width = DMA_DATA_WIDTH_BYTE;
+	desc->dma.rx.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
 #endif
-	desc->dma.rx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
-	dma_configure_transfer(desc->dma.rx.channel, &desc->dma.rx.cfg);
+	dma_configure_transfer(desc->dma.rx.channel, &desc->dma.rx.cfg_dma, &desc->dma.rx.cfg, 1);
 	callback_set(&_cb, _twid_dma_read_callback, (void*)desc);
 	dma_set_callback(desc->dma.rx.channel, &_cb);
 	dma_start_transfer(desc->dma.rx.channel);
@@ -258,7 +250,7 @@ static int _twid_dma_write_callback(void* arg)
 {
 	struct _twi_desc* desc = (struct _twi_desc *)arg;
 
-	dma_free_channel(desc->dma.tx.channel);
+	dma_reset_channel(desc->dma.tx.channel);
 
 	if (_check_tx_timeout(desc)) {
 		mutex_unlock(&desc->mutex);
@@ -270,7 +262,7 @@ static int _twid_dma_write_callback(void* arg)
 
 #ifdef CONFIG_HAVE_TWI_FIFO
 	if (!desc->use_fifo)
-		twi_write_byte(desc->addr, ((uint8_t *)desc->dma.tx.cfg.sa)[desc->dma.tx.cfg.len]);
+		twi_write_byte(desc->addr, ((uint8_t *)desc->dma.tx.cfg.saddr)[desc->dma.tx.cfg.len]);
 #endif
 
 	mutex_unlock(&desc->mutex);
@@ -286,38 +278,34 @@ static void _twid_dma_write(struct _twi_desc* desc, struct _buffer* buffer)
 
 	memset(&desc->dma.tx.cfg, 0x0, sizeof(desc->dma.tx.cfg));
 
-	dma_reset_channel(desc->dma.tx.channel);
-	desc->dma.tx.cfg.sa = buffer->data;
-	desc->dma.tx.cfg.da = (void*)&desc->addr->TWI_THR;
-	desc->dma.tx.cfg.upd_sa_per_data = 1;
-	desc->dma.tx.cfg.upd_da_per_data = 0;
+	desc->dma.tx.cfg.saddr = buffer->data;
+	desc->dma.tx.cfg.daddr = (void*)&desc->addr->TWI_THR;
 #ifdef CONFIG_HAVE_TWI_FIFO
 	if (desc->use_fifo) {
 		if ((buffer->size % 4) == 0) {
 			desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_TXRDYM_Msk) | TWI_FMR_TXRDYM_FOUR_DATA;
-			desc->dma.tx.cfg.data_width = DMA_DATA_WIDTH_WORD;
+			desc->dma.tx.cfg_dma.data_width = DMA_DATA_WIDTH_WORD;
 		} else if ((buffer->size % 2) == 0) {
 			desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_TXRDYM_Msk) | TWI_FMR_TXRDYM_TWO_DATA;
-			desc->dma.tx.cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
+			desc->dma.tx.cfg_dma.data_width = DMA_DATA_WIDTH_HALF_WORD;
 		} else {
 			desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_TXRDYM_Msk) | TWI_FMR_TXRDYM_ONE_DATA;
-			desc->dma.tx.cfg.data_width = DMA_DATA_WIDTH_BYTE;
+			desc->dma.tx.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
 		}
 		desc->dma.tx.cfg.len = buffer->size;
 	} else {
 		desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_TXRDYM_Msk) | TWI_FMR_TXRDYM_ONE_DATA;
 		desc->dma.tx.cfg.len = buffer->size - 1;
-		desc->dma.tx.cfg.data_width = DMA_DATA_WIDTH_BYTE;
+		desc->dma.tx.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
 	}
 #else
 	desc->dma.tx.cfg.len = buffer->size - 1;
-	desc->dma.tx.cfg.data_width = DMA_DATA_WIDTH_BYTE;
+	desc->dma.tx.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
 #endif
-	desc->dma.tx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
-	dma_configure_transfer(desc->dma.tx.channel, &desc->dma.tx.cfg);
+	dma_configure_transfer(desc->dma.tx.channel, &desc->dma.tx.cfg_dma, &desc->dma.tx.cfg, 1);
 	callback_set(&_cb, _twid_dma_write_callback, (void*)desc);
 	dma_set_callback(desc->dma.tx.channel, &_cb);
-	cache_clean_region(desc->dma.tx.cfg.sa, desc->dma.tx.cfg.len);
+	cache_clean_region(desc->dma.tx.cfg.saddr, desc->dma.tx.cfg.len);
 	dma_start_transfer(desc->dma.tx.channel);
 }
 
@@ -648,10 +636,6 @@ static void _twid_slave_handler(uint32_t source, void* user_arg)
 
 }
 
-/*----------------------------------------------------------------------------
- *        External functions
- *----------------------------------------------------------------------------*/
-
 /*
  *
  */
@@ -792,6 +776,20 @@ int twid_configure(struct _twi_desc* desc)
 	if (desc->use_fifo)
 		twi_fifo_enable(desc->addr, true);
 #endif
+
+	desc->dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
+	assert(desc->dma.tx.channel);
+
+	desc->dma.rx.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
+	assert(desc->dma.rx.channel);
+
+	desc->dma.rx.cfg_dma.incr_saddr = false;
+	desc->dma.rx.cfg_dma.incr_daddr = true;
+	desc->dma.rx.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
+
+	desc->dma.tx.cfg_dma.incr_saddr = true;
+	desc->dma.tx.cfg_dma.incr_daddr = false;
+	desc->dma.tx.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
 
 	desc->mutex = 0;
 

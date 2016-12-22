@@ -55,6 +55,8 @@ static int _adcd_dma_callback(void *arg)
 {
 	struct _adcd_desc* desc = (struct _adcd_desc*)arg;
 
+	dma_reset_channel(desc->xfer.dma.channel);
+
 	/* For read, invalidate region */
 	cache_invalidate_region((uint32_t*)desc->xfer.buf->data, desc->xfer.buf->size);
 
@@ -67,23 +69,16 @@ static int _adcd_dma_callback(void *arg)
 
 static void _adcd_transfer_buffer_dma(struct _adcd_desc* desc)
 {
-	struct dma_xfer_cfg cfg;
+	struct _dma_transfer_cfg cfg;
 	struct _callback _cb;
 
 	adc_start_conversion();
 
-	dma_reset_channel(desc->xfer.dma.channel);
-	memset(&cfg, 0, sizeof(cfg));
-	cfg.sa = (void*)&ADC->ADC_LCDR;
-	cfg.da = (void *)(desc->xfer.buf->data);
-	cfg.upd_sa_per_data = 0;
-	cfg.upd_da_per_data = 1;
-	cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
-	cfg.chunk_size = DMA_CHUNK_SIZE_1;
-	cfg.blk_size = 0;
+	cfg.saddr = (void*)&ADC->ADC_LCDR;
+	cfg.daddr = (void *)(desc->xfer.buf->data);
 	cfg.len = desc->xfer.buf->size;
 
-	dma_configure_transfer(desc->xfer.dma.channel, &cfg);
+	dma_configure_transfer(desc->xfer.dma.channel, &desc->xfer.dma.cfg_dma, &cfg, 0);
 	callback_set(&_cb, _adcd_dma_callback, desc);
 	dma_set_callback(desc->xfer.dma.channel, &_cb);
 	dma_start_transfer(desc->xfer.dma.channel);
@@ -150,6 +145,11 @@ static void adcd_configure(struct _adcd_desc* desc)
 	uint8_t channels = desc->xfer.buf->size;
 
 	irq_disable(ID_ADC);
+
+	desc->xfer.dma.cfg_dma.incr_saddr = false;
+	desc->xfer.dma.cfg_dma.incr_daddr = true;
+	desc->xfer.dma.cfg_dma.data_width = DMA_DATA_WIDTH_HALF_WORD;
+	desc->xfer.dma.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
 
 	for (i = 0; i < channels; i++)
 		adc_disable_channel(desc->cfg.channel_used[i]);

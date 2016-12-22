@@ -46,22 +46,22 @@
  *         Headers
  *---------------------------------------------------------------------------*/
 
-#include "trace.h"
+#include <assert.h>
+#include <string.h>
+
 #include "board.h"
+#include "dma/dma.h"
 #include "intmath.h"
-#include "timer.h"
 #include "irq/irq.h"
+#include "libsdmmc/sdmmc_api.h"
+#include "libsdmmc/sdmmc_hal.h"
+#include "mm/cache.h"
 #include "peripherals/pmc.h"
 #include "peripherals/tc.h"
 #include "sdmmc/hsmci.h"
 #include "sdmmc/hsmcid.h"
-#include "dma/dma.h"
-#include "libsdmmc/sdmmc_hal.h"
-#include "libsdmmc/sdmmc_api.h"
-#include "mm/cache.h"
-
-#include <assert.h>
-#include <string.h>
+#include "timer.h"
+#include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Local definitions
@@ -116,13 +116,13 @@ static void hsmci_power_device(struct hsmci_set *set, bool on)
 	if ((on && set->state != MCID_OFF) || (!on && set->state == MCID_OFF))
 		return;
 	if (on) {
-		trace_debug("Power the device on\n\r");
+		trace_debug("Power the device on\r\n");
 		board_power_sdmmc_device(set->id, true);
 		hsmci_enable(set->regs);
 		set->state = MCID_IDLE;
 		return;
 	}
-	trace_debug("Release and power the device off\n\r");
+	trace_debug("Release and power the device off\r\n");
 	if (set->state == MCID_CMD)
 		hsmci_cancel_command(set);
 	/* Cut the power rail supplying signals to/from the device */
@@ -207,32 +207,32 @@ static void hsmci_handler(struct hsmci_set *set)
 		else
 			pCmd->bStatus = SDMMC_ERR_IO;
 		set->state = MCID_ERROR;
-		trace_debug("HSMCI_SR 0x%08lx\n\r", dwSr);
+		trace_debug("HSMCI_SR 0x%08lx\r\n", dwSr);
 	}
 
 	/* Check command complete */
 	if (dwMaskedSr & HSMCI_SR_CMDRDY) {
 		hsmci_disable_it(regs, HSMCI_IDR_CMDRDY);
 		set->nxt_evts &= ~(uint32_t)HSMCI_IMR_CMDRDY;
-		trace_debug("CMDRDY\n\r");
+		trace_debug("CMDRDY\r\n");
 	}
 	/* Check if not busy */
 	if (dwMaskedSr & HSMCI_SR_NOTBUSY) {
 		hsmci_disable_it(regs, HSMCI_IDR_NOTBUSY);
 		set->nxt_evts &= ~(uint32_t)HSMCI_IMR_NOTBUSY;
-		trace_debug("NOTBUSY\n\r");
+		trace_debug("NOTBUSY\r\n");
 	}
 	/* Check if FIFO empty (all data sent) */
 	if (dwMaskedSr & HSMCI_SR_FIFOEMPTY) {
 		hsmci_disable_it(regs, HSMCI_IDR_FIFOEMPTY);
 		set->nxt_evts &= ~(uint32_t)HSMCI_IMR_FIFOEMPTY;
-		trace_debug("FIFOEMPTY\n\r");
+		trace_debug("FIFOEMPTY\r\n");
 	}
 	/* Check if data transfer has completed */
 	if (dwMaskedSr & HSMCI_SR_XFRDONE) {
 		hsmci_disable_it(regs, HSMCI_IDR_XFRDONE);
 		set->nxt_evts &= ~(uint32_t)HSMCI_IMR_XFRDONE;
-		trace_debug("XFRDONE\n\r");
+		trace_debug("XFRDONE\r\n");
 	}
 
 	/* All none error mask done, complete the command */
@@ -334,12 +334,12 @@ static uint8_t hsmci_release_dma(struct hsmci_set *set)
 		return SDMMC_ERROR_STATE;
 	rc = dma_stop_transfer(set->dma_rx_channel);
 	if (rc != 0) {
-		trace_error("Error halting DMA channel\n\r");
+		trace_error("Error halting DMA channel\r\n");
 		res = SDMMC_ERROR_STATE;
 	}
 	rc = dma_stop_transfer(set->dma_tx_channel);
 	if (rc != 0) {
-		trace_error("Error halting DMA channel\n\r");
+		trace_error("Error halting DMA channel\r\n");
 		res = SDMMC_ERROR_STATE;
 	}
 	return res;
@@ -387,67 +387,31 @@ static uint8_t hsmci_configure_dma(struct hsmci_set *set, uint8_t bRd)
 	assert(cmd);
 	assert(cmd->wBlockSize != 0 && cmd->wNbBlocks != 0);
 
-	const uint32_t ubl_len_max = DMA_MAX_BT_SIZE;
-	const uint32_t ubl_cnt_max = (DMA_MAX_BLOCK_LEN + 1ul);
 	const uint8_t unit = cmd->wBlockSize & 0x3 ? 1 : 4;
-	uint32_t rc, ubl_len, ubl_cnt, quot;
-	uint8_t shift, fail;
-	struct dma_xfer_cfg dma_cfg;
+	uint32_t rc;
+	struct _dma_cfg dma_cfg;
+	struct _dma_transfer_cfg cfg;
 
 	dma_cfg.chunk_size = DMA_CHUNK_SIZE_1;
 	dma_cfg.data_width = (unit == 1) ? DMA_DATA_WIDTH_BYTE : DMA_DATA_WIDTH_WORD;
 	if (bRd) {
-		dma_cfg.upd_sa_per_data = 0;
-		dma_cfg.upd_da_per_data = 1;
+		dma_cfg.incr_saddr = false;
+		dma_cfg.incr_daddr = true;
 	} else {
-		dma_cfg.upd_sa_per_data = 1;
-		dma_cfg.upd_da_per_data = 0;
+		dma_cfg.incr_saddr = true;
+		dma_cfg.incr_daddr = false;
 	}
-	/* Configure data count per microblock */
-	ubl_len = (cmd->wBlockSize / unit) * (uint32_t)cmd->wNbBlocks;
-	/* Configure microblock count per block */
-	ubl_cnt = 1;
-	if (ubl_len > ubl_len_max) {
-		/* Split transfer to fit the limit that each XDMAC level has */
-		if (cmd->wBlockSize / unit <= ubl_len_max
-			&& cmd->wNbBlocks <= ubl_cnt_max) {
-			ubl_len = cmd->wBlockSize / unit;
-			ubl_cnt = cmd->wNbBlocks;
-		}
-		else if (cmd->wBlockSize / unit <= ubl_cnt_max
-			&& cmd->wNbBlocks <= ubl_len_max) {
-			ubl_len = cmd->wNbBlocks;
-			ubl_cnt = cmd->wBlockSize / unit;
-		}
-		else {
-			/* Try dividing size by 2, 4, 8, etc. */
-			quot = CEIL_INT_DIV(ubl_len, ubl_len_max);
-			for (fail = 0, shift = 0; !fail; shift++) {
-				if (ubl_len & 1ul << shift
-					|| 2ul << shift > ubl_cnt_max)
-					fail = 1;
-				else if (2ul << shift >= quot)
-					break;
-			}
-			/* Note that we may try harder, dividing size by
-			 * quot +0, +1, +2, etc. however it would be slow. */
-			if (fail)
-				return SDMMC_ERROR_PARAM;
-			ubl_len >>= shift + 1;
-			ubl_cnt = 2ul << shift;
-		}
-	}
-	dma_cfg.blk_size = ubl_len;
-	dma_cfg.len = ubl_cnt;
+	/* Configure data count */
+	cfg.len = (cmd->wBlockSize / unit) * (uint32_t)cmd->wNbBlocks;
 	/* We may transfer to/from HSMCI_FIFO, however, on ATSAMV71, using
 	 * HSMCI_TDR and HSMCI_RDR registers is as fast as using HSMCI_FIFO. */
-	dma_cfg.sa = bRd ? (void*)&set->regs->HSMCI_RDR : cmd->pData;
-	dma_cfg.da = bRd ? cmd->pData : (void*)&set->regs->HSMCI_TDR;
+	cfg.saddr = bRd ? (void*)&set->regs->HSMCI_RDR : cmd->pData;
+	cfg.daddr = bRd ? cmd->pData : (void*)&set->regs->HSMCI_TDR;
 	/* Configure a single block per master transfer, i.e. no linked list */
 	if (bRd)
-		rc = dma_configure_transfer(set->dma_rx_channel, &dma_cfg);
+		rc = dma_configure_transfer(set->dma_rx_channel, &dma_cfg, &cfg, 1);
 	else
-		rc = dma_configure_transfer(set->dma_tx_channel, &dma_cfg);
+		rc = dma_configure_transfer(set->dma_tx_channel, &dma_cfg, &cfg, 1);
 	if (rc != 0)
 		return SDMMC_ERROR_BUSY;
 	if (bRd)
@@ -548,7 +512,7 @@ static uint32_t hsmci_control(void *_set, uint32_t bCtl, uint32_t param)
 
 #if TRACE_LEVEL >= TRACE_LEVEL_DEBUG
 	if (bCtl != SDMMC_IOCTL_BUSY_CHECK && bCtl != SDMMC_IOCTL_GET_DEVICE)
-		trace_debug("SDMMC_IOCTL_%s(%lu)\n\r", SD_StringifyIOCtrl(bCtl),
+		trace_debug("SDMMC_IOCTL_%s(%lu)\r\n", SD_StringifyIOCtrl(bCtl),
 			param ? *param_u32 : 0);
 #endif
 
@@ -584,7 +548,7 @@ static uint32_t hsmci_control(void *_set, uint32_t bCtl, uint32_t param)
 			return SDMMC_ERROR_PARAM;
 		hsmci_set_bus_width(set->regs, (uint8_t)*param_u32);
 		byte = hsmci_get_bus_width(set->regs);
-		trace_debug("Using a %u-bit data bus\n\r", byte);
+		trace_debug("Using a %u-bit data bus\r\n", byte);
 		if (byte != (uint8_t)*param_u32)
 			rc = SDMMC_ERROR_PARAM;
 		break;
@@ -612,7 +576,7 @@ static uint32_t hsmci_control(void *_set, uint32_t bCtl, uint32_t param)
 			return SDMMC_ERROR_PARAM;
 		rc = hsmci_set_speed_mode(set, (uint8_t)*param_u32);
 		*param_u32 = set->tim_mode;
-		trace_debug("Using timing mode 0x%02x\n\r", set->tim_mode);
+		trace_debug("Using timing mode 0x%02x\r\n", set->tim_mode);
 		break;
 
 	case SDMMC_IOCTL_SET_CLOCK:
@@ -621,7 +585,7 @@ static uint32_t hsmci_control(void *_set, uint32_t bCtl, uint32_t param)
 		if (*param_u32 == 0)
 			return SDMMC_ERROR_PARAM;
 		hsmci_set_device_clock(set, *param_u32);
-		trace_debug("Clocking the device at %lu Hz\n\r", set->dev_freq);
+		trace_debug("Clocking the device at %lu Hz\r\n", set->dev_freq);
 		if (set->dev_freq != *param_u32) {
 			rc = rc == SDMMC_OK ? SDMMC_CHANGED : rc;
 			*param_u32 = set->dev_freq;
@@ -666,7 +630,7 @@ static uint32_t hsmci_control(void *_set, uint32_t bCtl, uint32_t param)
 #if TRACE_LEVEL >= TRACE_LEVEL_ERROR
 	if (rc != SDMMC_OK && rc != SDMMC_CHANGED
 		&& bCtl != SDMMC_IOCTL_BUSY_CHECK) {
-		trace_error("SDMMC_IOCTL_%s ended with %s\n\r",
+		trace_error("SDMMC_IOCTL_%s ended with %s\r\n",
 			SD_StringifyIOCtrl(bCtl), SD_StringifyRetCode(rc));
 	}
 #endif
@@ -707,7 +671,7 @@ static uint32_t hsmci_send_command(void *_set, sSdmmcCommand *cmd)
 	if (hsmci_is_busy(set))
 		return SDMMC_ERROR_BUSY;
 
-	trace_debug("cmd %d, op 0x%04x, %d x %d, arg 0x%08lx, status %d\n\r",
+	trace_debug("cmd %d, op 0x%04x, %d x %d, arg 0x%08lx, status %d\r\n",
 		cmd->bCmd, cmd->cmdOp.wVal, cmd->wBlockSize, cmd->wNbBlocks,
 		cmd->dwArg, cmd->bStatus);
 	hsmci_disable_it(regs, ~0ul);
@@ -777,7 +741,7 @@ static uint32_t hsmci_send_command(void *_set, sSdmmcCommand *cmd)
 		if (rc != SDMMC_SUCCESS) {
 			hsmci_enable(regs);
 			hsmci_finish_cmd(set, rc);
-			trace_error("DMA error %u\n\r", rc);
+			trace_error("DMA error %u\r\n", rc);
 			return rc;
 		}
 		set->nxt_evts = HSMCI_IER_XFRDONE;
@@ -911,11 +875,11 @@ bool hsmci_initialize(struct hsmci_set *set, uint32_t periph_id,
 		}
 	}
 	if (hsmci_prepare_dma(set, 1) != SDMMC_SUCCESS) {
-		trace_error("allocate DMA channel error\n\r");
+		trace_error("allocate DMA channel error\r\n");
 		return false;
 	}
 	if (hsmci_prepare_dma(set, 0) != SDMMC_SUCCESS) {
-		trace_error("allocate DMA channel error\n\r");
+		trace_error("allocate DMA channel error\r\n");
 		return false;
 	}
 	return true;

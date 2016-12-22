@@ -85,7 +85,7 @@ static int _ssc_dma_rx_callback(void* arg)
 {
 	struct _ssc_desc* desc = (struct _ssc_desc*)arg;
 
-	cache_invalidate_region(desc->rx.dma.cfg.da, desc->rx.dma.cfg.len);
+	cache_invalidate_region(desc->rx.dma.cfg.daddr, desc->rx.dma.cfg.len);
 
 	dma_reset_channel(desc->rx.dma.channel);
 
@@ -101,25 +101,20 @@ static void _ssc_dma_rx_transfer(struct _ssc_desc* desc, struct _buffer* buffer)
 
 	assert(id < ID_PERIPH_COUNT);
 
-	memset(&desc->rx.dma.cfg, 0, sizeof(desc->rx.dma.cfg));
-
-	desc->rx.dma.cfg.sa = (void*)&desc->addr->SSC_RHR;
-	desc->rx.dma.cfg.da = buffer->data;
-	desc->rx.dma.cfg.upd_sa_per_data = 0;
-	desc->rx.dma.cfg.upd_da_per_data = 1;
-	desc->rx.dma.cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	desc->rx.dma.cfg.saddr = (void*)&desc->addr->SSC_RHR;
+	desc->rx.dma.cfg.daddr = buffer->data;
 
 	if (desc->slot_length == 8) {
-		desc->rx.dma.cfg.data_width = DMA_DATA_WIDTH_BYTE;
+		desc->rx.dma.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
 		desc->rx.dma.cfg.len  = buffer->size;
 	} else if (desc->slot_length == 16) {
-		desc->rx.dma.cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
+		desc->rx.dma.cfg_dma.data_width = DMA_DATA_WIDTH_HALF_WORD;
 		desc->rx.dma.cfg.len  = buffer->size/2;
 	} else if (desc->slot_length == 32) {
-		desc->rx.dma.cfg.data_width = DMA_DATA_WIDTH_WORD;
+		desc->rx.dma.cfg_dma.data_width = DMA_DATA_WIDTH_WORD;
 		desc->rx.dma.cfg.len  = buffer->size/4;
 	}
-	dma_configure_transfer(desc->rx.dma.channel, &desc->rx.dma.cfg);
+	dma_configure_transfer(desc->rx.dma.channel, &desc->rx.dma.cfg_dma, &desc->rx.dma.cfg, 1);
 	callback_set(&_cb, _ssc_dma_rx_callback, (void*)desc);
 	dma_set_callback(desc->rx.dma.channel, &_cb);
 	dma_start_transfer(desc->rx.dma.channel);
@@ -145,28 +140,23 @@ static void _ssc_dma_tx_transfer(struct _ssc_desc* desc, struct _buffer* buffer)
 
 	memset(&desc->tx.dma.cfg, 0x0, sizeof(desc->tx.dma.cfg));
 
-	desc->tx.dma.cfg.sa = buffer->data;
-	desc->tx.dma.cfg.da = (void*)&desc->addr->SSC_THR;
-	desc->tx.dma.cfg.upd_sa_per_data = 1;
-	desc->tx.dma.cfg.upd_da_per_data = 0;
-	desc->tx.dma.cfg.blk_size = 0;
-	desc->tx.dma.cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	desc->tx.dma.cfg.saddr = buffer->data;
+	desc->tx.dma.cfg.daddr = (void*)&desc->addr->SSC_THR;
 
 	if (desc->slot_length == 8) {
-		desc->tx.dma.cfg.data_width = DMA_DATA_WIDTH_BYTE;
+		desc->tx.dma.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
 		desc->tx.dma.cfg.len  = buffer->size;
 	} else if (desc->slot_length == 16) {
-		desc->tx.dma.cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
+		desc->tx.dma.cfg_dma.data_width = DMA_DATA_WIDTH_HALF_WORD;
 		desc->tx.dma.cfg.len  = buffer->size/2;
 	} else if (desc->slot_length == 32) {
-		desc->tx.dma.cfg.data_width = DMA_DATA_WIDTH_WORD;
+		desc->tx.dma.cfg_dma.data_width = DMA_DATA_WIDTH_WORD;
 		desc->tx.dma.cfg.len  = buffer->size/4;
 	}
-
-	dma_configure_transfer(desc->tx.dma.channel, &desc->tx.dma.cfg);
+	dma_configure_transfer(desc->tx.dma.channel, &desc->tx.dma.cfg_dma, &desc->tx.dma.cfg, 1);
 	callback_set(&_cb, _ssc_dma_tx_callback, (void*)desc);
 	dma_set_callback(desc->tx.dma.channel, &_cb);
-	cache_clean_region(desc->tx.dma.cfg.sa, desc->tx.dma.cfg.len);
+	cache_clean_region(desc->tx.dma.cfg.saddr, desc->tx.dma.cfg.len);
 	dma_start_transfer(desc->tx.dma.channel);
 }
 
@@ -239,6 +229,13 @@ void ssc_configure(struct _ssc_desc* desc)
 
 	/* Enable SSC peripheral clock */
 	pmc_configure_peripheral(id, NULL, true);
+
+	desc->rx.dma.cfg_dma.incr_saddr = false;
+	desc->rx.dma.cfg_dma.incr_daddr = true;
+	desc->rx.dma.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
+	desc->tx.dma.cfg_dma.incr_saddr = true;
+	desc->tx.dma.cfg_dma.incr_daddr = false;
+	desc->tx.dma.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
 
 	desc->tx.dma.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
 	assert(desc->tx.dma.channel);

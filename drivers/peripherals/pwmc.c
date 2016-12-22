@@ -326,20 +326,20 @@ void pwmc_set_dma_finished_callback(Pwm *pwm, struct _callback* cb)
 void pwmc_dma_duty_cycle(Pwm* pwm, uint16_t *duty, uint32_t size)
 {
 	struct _callback _cb;
-	struct dma_xfer_cfg cfg;
+	struct _dma_cfg dma_cfg;
+	struct _dma_transfer_cfg cfg;
 
 	assert(pwm_dma_channel);
 	memset(&cfg, 0, sizeof(cfg));
-	cfg.sa = (void*)duty;
-	cfg.da = (void*)&pwm->PWM_DMAR;
-	cfg.upd_sa_per_data = 1;
-	cfg.upd_da_per_data = 0;
-	cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
-	cfg.chunk_size = DMA_CHUNK_SIZE_1;
-	cfg.blk_size = 0;
+	cfg.saddr = (void*)duty;
+	cfg.daddr = (void*)&pwm->PWM_DMAR;
 	cfg.len = size;
+	dma_cfg.incr_saddr = true;
+	dma_cfg.incr_daddr = false;
+	dma_cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
+	dma_cfg.chunk_size = DMA_CHUNK_SIZE_1;
 	dma_reset_channel(pwm_dma_channel);
-	dma_configure_transfer(pwm_dma_channel, &cfg);
+	dma_configure_transfer(pwm_dma_channel, &dma_cfg, &cfg, 1);
 	callback_set(&_cb, _pwm_dma_callback_wrapper, pwm_dma_channel);
 	dma_set_callback(pwm_dma_channel, &_cb);
 

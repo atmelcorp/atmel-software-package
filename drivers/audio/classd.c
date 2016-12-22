@@ -212,24 +212,20 @@ static void _classd_dma_transfer(struct _classd_desc* desc, struct _buffer* buff
 
 	memset(&desc->tx.dma.cfg, 0x0, sizeof(desc->tx.dma.cfg));
 
-	desc->tx.dma.cfg.sa = buffer->data;
-	desc->tx.dma.cfg.da = (void*)&desc->addr->CLASSD_THR;
-	desc->tx.dma.cfg.upd_sa_per_data = 1;
-	desc->tx.dma.cfg.upd_da_per_data = 0;
-	desc->tx.dma.cfg.blk_size = 0;
-	desc->tx.dma.cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	desc->tx.dma.cfg.saddr = buffer->data;
+	desc->tx.dma.cfg.daddr = (void*)&desc->addr->CLASSD_THR;
 
 	if (desc->left_enable && desc->right_enable) {
-		desc->tx.dma.cfg.data_width = DMA_DATA_WIDTH_WORD;
+		desc->tx.dma.cfg_dma.data_width = DMA_DATA_WIDTH_WORD;
 		desc->tx.dma.cfg.len = buffer->size / 4;
 	} else {
-		desc->tx.dma.cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
+		desc->tx.dma.cfg_dma.data_width = DMA_DATA_WIDTH_HALF_WORD;
 		desc->tx.dma.cfg.len = buffer->size / 2;
 	}
-	dma_configure_transfer(desc->tx.dma.channel, &desc->tx.dma.cfg);
+	dma_configure_transfer(desc->tx.dma.channel, &desc->tx.dma.cfg_dma, &desc->tx.dma.cfg, 1);
 	callback_set(&_cb, _classd_dma_transfer_callback, (void*)desc);
 	dma_set_callback(desc->tx.dma.channel, &_cb);
-	cache_clean_region(desc->tx.dma.cfg.sa, desc->tx.dma.cfg.len);
+	cache_clean_region(desc->tx.dma.cfg.saddr, desc->tx.dma.cfg.len);
 	dma_start_transfer(desc->tx.dma.channel);
 }
 
@@ -365,6 +361,10 @@ int classd_configure(struct _classd_desc *desc)
 
 	desc->tx.dma.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
 	assert(desc->tx.dma.channel != NULL);
+
+	desc->tx.dma.cfg_dma.incr_saddr = true;
+	desc->tx.dma.cfg_dma.incr_daddr = false;
+	desc->tx.dma.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
 
 	desc->tx.mutex = 0;
 

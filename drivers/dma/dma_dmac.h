@@ -43,18 +43,6 @@
 #include <stdbool.h>
 
 /*----------------------------------------------------------------------------
- *        Consts
- *----------------------------------------------------------------------------*/
-
-/** \addtogroup dmacd_defines DMA Driver Defines
-        @{*/
-
-/** Pseudo Peripheral ID for memory transfers */
-#define DMACD_PERIPH_MEMORY 0xFF
-
-/**     @}*/
-
-/*----------------------------------------------------------------------------
  *        Types
  *----------------------------------------------------------------------------*/
 
@@ -62,13 +50,6 @@
         @{*/
 
 struct _dma_channel;
-
-/** DMA status or return code */
-enum {
-	DMACD_AUTO_DIS = 0, /**< Auto mode is disabled */
-	DMACD_AUTO_EN,      /**< Auto mode is enabled */
-	DMACD_AUTO_CLEARED  /**< Auto mode is cleared */
-};
 
 struct _dmacd_cfg {
 	uint8_t  s_decr_fetch:1; /* Buffer Descriptor Fetch operation is disabled for the source */
@@ -91,13 +72,6 @@ struct _dmacd_cfg {
         @{*/
 
 /**
- * \brief Initialize DMA driver instance.
- * \param polling if true, interrupts will not be configured and dmacd_poll
- * must be called to poll for transfer completion
- */
-extern void dmacd_initialize(bool polling);
-
-/**
  * \brief Configure DMA for a single transfer.
  * \param channel Channel pointer
  * \param cfg DMA transfer configuration
@@ -106,12 +80,6 @@ extern void dmacd_initialize(bool polling);
 extern int dmacd_configure_transfer(struct _dma_channel* channel,
                                     struct _dmacd_cfg* cfg,
                                     struct _dmac_desc* desc);
-
-/**
- * \brief Get size of already trasnferred data by DMA.
- * \param channel Channel pointer
- */
-extern uint32_t dmacd_get_transferred_data_len(struct _dma_channel* channel);
 
 /**     @}*/
 

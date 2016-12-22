@@ -42,12 +42,6 @@
 #include "trace.h"
 
 /*----------------------------------------------------------------------------
- *        Local variables
- *----------------------------------------------------------------------------*/
-
-volatile static bool single_transfer_ready;
-
-/*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
 
@@ -55,70 +49,40 @@ static int _shad_dma_callback(void* arg)
 {
 	struct _shad_desc* desc = (struct _shad_desc*)arg;
 
+	dma_reset_channel(desc->xfer.dma.tx.channel);
+
 	mutex_unlock(&desc->mutex);
 
 	return callback_call(&desc->xfer.callback);
 }
 
-/**
- * \brief SHA interrupt handler.
- */
-static void _shad_handler(uint32_t source, void* user_arg)
-{
-	assert(source == ID_SHA);
-
-	if ((sha_get_status() & SHA_ISR_DATRDY) == SHA_ISR_DATRDY) {
-		sha_disable_it(SHA_IER_DATRDY);
-		single_transfer_ready = true;
-	}
-}
-
 static void _shad_transfer_buffer_dma(struct _shad_desc* desc)
 {
-	struct dma_xfer_item* ll;
-	struct dma_xfer_item_tmpl cfg;
-	uint32_t remains;
-	uint32_t offset = 0;
-	uint32_t blk_size;
+	struct _dma_transfer_cfg cfg;
+	struct _dma_cfg cfg_dma;
 	struct _callback _cb;
 
-	dma_reset_channel(desc->xfer.dma.tx.channel);
-	cache_clean_region((uint32_t*)desc->xfer.bufin->data,
-						desc->xfer.bufin->size);
+	cache_clean_region((uint32_t*)desc->xfer.bufin->data, desc->xfer.bufin->size);
 
-	/* For the first block of a message, the FIRST command must be set by
-	 * setting the corresponding bit of the Control Register (SHA_CR). For
-	 * the other blocks, there is nothing to write in this Control Register. */
 	sha_first_block();
-	remains = desc->xfer.bufin->size;
-	for (;;) {
-		ll = dma_sg_allocate_item(desc->xfer.dma.tx.channel);
 
-		blk_size = (remains / 4) <= ROUND_UP_MULT(DMA_MAX_BLOCK_LEN - 32, 32)
-					? (remains / 4) : ROUND_UP_MULT(DMA_MAX_BLOCK_LEN - 32, 32);
-		cfg.sa = (void *)((desc->xfer.bufin->data) + offset);
-		cfg.da = (void*)&SHA->SHA_IDATAR[0];
-		cfg.upd_sa_per_data = 1;
-		cfg.upd_da_per_data = 0;
-		cfg.data_width = DMA_DATA_WIDTH_WORD;
-		cfg.chunk_size = sha_get_dma_chunk_size((uint8_t)desc->cfg.mode);
-		cfg.blk_size = blk_size;
-		offset += blk_size * 4;
-		remains -= blk_size * 4;
-		dma_sg_prepare_item(desc->xfer.dma.tx.channel, &cfg, ll);
-		dma_sg_link_last_item(desc->xfer.dma.tx.channel, ll);
-		if (!remains)
-			break;
-	}
+	memset(&cfg_dma, 0, sizeof(cfg_dma));
+	cfg_dma.incr_saddr = true;
+	cfg_dma.incr_daddr = false;
+	cfg_dma.data_width = DMA_DATA_WIDTH_WORD;
+	cfg_dma.chunk_size = sha_get_dma_chunk_size((uint8_t)desc->cfg.mode);
 
-	dma_sg_link_item(desc->xfer.dma.tx.channel, ll, NULL);
-	dma_sg_configure_transfer(desc->xfer.dma.tx.channel, &cfg, NULL);
+	memset(&cfg, 0, sizeof(cfg));
+	cfg.saddr = (void*)desc->xfer.bufin->data;
+	cfg.daddr = (void*)SHA->SHA_IDATAR;
+	cfg.len = desc->xfer.bufin->size / 4;
+	dma_configure_transfer(desc->xfer.dma.tx.channel, &cfg_dma, &cfg, 1);
+
 	callback_set(&_cb, _shad_dma_callback, (void*)desc);
 	dma_set_callback(desc->xfer.dma.tx.channel, &_cb);
-
 	dma_start_transfer(desc->xfer.dma.tx.channel);
+
 	shad_wait_transfer(desc);
-	dma_free_channel(desc->xfer.dma.tx.channel);
 
 	sha_get_output((uint32_t*)desc->xfer.bufout->data);
 }
@@ -146,20 +110,17 @@ static void _shad_transfer_buffer_polling(struct _shad_desc* desc)
 	sha_first_block();
 
 	for (p = (uint32_t*)desc->xfer.bufin->data, i = 0; i < blk_cnt; i++, p+= l) {
-		single_transfer_ready = false;
 		/* Write the block to be processed in the Input Data Registers */
 		sha_set_input(p, l);
 		if (desc->cfg.transfer_mode == SHAD_TRANS_POLLING_MANUAL) {
 			/* Set the START bit in the SHA Control Register SHA_CR to begin the processing. */
 			sha_start();
 		}
-		/* Set the bit DATRDY (Data Ready) in the SHA Interrupt Enable Register (SHA_IER) */
-		sha_enable_it(SHA_IER_DATRDY);
 		/* When the processing completes, the bit DATRDY in the
 		 * SHA Interrupt Status Register (SHA_ISR) raises. If an
 		 * interrupt has been enabled by setting the bit DATRDY
 		 * in SHA_IER, the interrupt line of the SHA is activated. */
-		while (!single_transfer_ready);
+		while ((sha_get_status() & SHA_ISR_DATRDY) != SHA_ISR_DATRDY);
 		/* Repeat the write procedure for each block, start
 		 * procedure and wait for the interrupt procedure up to
 		 * the last block of the entire message. Each time the
@@ -228,9 +189,6 @@ void shad_init(struct _shad_desc* desc)
 {
 	/* Enable peripheral clock */
 	pmc_configure_peripheral(ID_SHA, NULL, true);
-	/* Enable peripheral interrupt */
-	irq_add_handler(ID_SHA, _shad_handler, NULL);
-	irq_enable(ID_SHA);
 
 	/* Allocate one DMA channel for writing message blocks to SHA_IDATARx */
 	desc->xfer.dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, ID_SHA);

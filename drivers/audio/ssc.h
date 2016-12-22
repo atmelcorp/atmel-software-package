@@ -84,7 +84,8 @@ struct _ssc_desc {
 		struct _callback callback;
 		struct {
 			struct _dma_channel *channel;
-			struct dma_xfer_cfg cfg;
+			struct _dma_cfg cfg_dma;
+			struct _dma_transfer_cfg cfg;
 		} dma;
 	} rx, tx;
 };

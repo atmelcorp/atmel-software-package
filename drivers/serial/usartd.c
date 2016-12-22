@@ -68,7 +68,7 @@ static int _usartd_dma_write_callback(void* arg)
 	uint8_t iface = (uint32_t)arg;
 	assert(iface < USART_IFACE_COUNT);
 
-	dma_free_channel(_serial[iface]->dma.tx.channel);
+	dma_reset_channel(_serial[iface]->dma.tx.channel);
 
 	mutex_unlock(&_serial[iface]->tx.mutex);
 
@@ -93,11 +93,11 @@ static int _usartd_dma_read_callback(void* arg)
 		dma_stop_transfer(channel);
 	dma_fifo_flush(channel);
 
-	desc->rx.transferred = dma_get_transferred_data_len(channel, desc->dma.rx.cfg.chunk_size, desc->dma.rx.cfg.len);
-	dma_free_channel(channel);
+	desc->rx.transferred = dma_get_transferred_data_len(channel, desc->dma.rx.cfg_dma.chunk_size, desc->dma.rx.cfg.len);
+	dma_reset_channel(desc->dma.rx.channel);
 
 	if (desc->rx.transferred > 0)
-		cache_invalidate_region(desc->dma.rx.cfg.da, desc->rx.transferred);
+		cache_invalidate_region(desc->dma.rx.cfg.daddr, desc->rx.transferred);
 
 	desc->rx.buffer.size = 0;
 
@@ -116,15 +116,10 @@ static void _usartd_dma_read(uint8_t iface)
 
 	memset(&desc->dma.rx.cfg, 0x0, sizeof(desc->dma.rx.cfg));
 
-	dma_reset_channel(desc->dma.rx.channel);
-	desc->dma.rx.cfg.sa = (void *)&desc->addr->US_RHR;
-	desc->dma.rx.cfg.da = desc->rx.buffer.data;
-	desc->dma.rx.cfg.upd_sa_per_data = 0;
-	desc->dma.rx.cfg.upd_da_per_data = 1;
-	desc->dma.rx.cfg.data_width = DMA_DATA_WIDTH_BYTE;
-	desc->dma.rx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	desc->dma.rx.cfg.saddr = (void *)&desc->addr->US_RHR;
+	desc->dma.rx.cfg.daddr = desc->rx.buffer.data;
 	desc->dma.rx.cfg.len = desc->rx.buffer.size;
-	dma_configure_transfer(desc->dma.rx.channel, &desc->dma.rx.cfg);
+	dma_configure_transfer(desc->dma.rx.channel, &desc->dma.rx.cfg_dma, &desc->dma.rx.cfg, 1);
 
 	callback_set(&_cb, _usartd_dma_read_callback, (void*)(uint32_t)iface);
 	dma_set_callback(desc->dma.rx.channel, &_cb);
@@ -138,22 +133,16 @@ static void _usartd_dma_write(uint8_t iface)
 	struct _callback _cb;
 	assert(iface < USART_IFACE_COUNT);
 	struct _usart_desc* desc = _serial[iface];
+	struct _dma_transfer_cfg cfg;
 
-	memset(&desc->dma.tx.cfg, 0x0, sizeof(desc->dma.tx.cfg));
-
-	dma_reset_channel(desc->dma.tx.channel);
-	desc->dma.tx.cfg.sa = desc->tx.buffer.data;
-	desc->dma.tx.cfg.da = (void *)&desc->addr->US_THR;
-	desc->dma.tx.cfg.upd_sa_per_data = 1;
-	desc->dma.tx.cfg.upd_da_per_data = 0;
-	desc->dma.tx.cfg.data_width = DMA_DATA_WIDTH_BYTE;
-	desc->dma.tx.cfg.chunk_size = DMA_CHUNK_SIZE_1;
-	desc->dma.tx.cfg.len = desc->tx.buffer.size;
-	dma_configure_transfer(desc->dma.tx.channel, &desc->dma.tx.cfg);
+	cfg.saddr = desc->tx.buffer.data;
+	cfg.daddr = (void *)&desc->addr->US_THR;
+	cfg.len = desc->tx.buffer.size;
+	dma_configure_transfer(desc->dma.tx.channel, &desc->dma.tx.cfg_dma, &cfg, 1);
 
 	callback_set(&_cb, _usartd_dma_write_callback, (void*)(uint32_t)iface);
 	dma_set_callback(desc->dma.tx.channel, &_cb);
-	cache_clean_region(desc->dma.tx.cfg.sa, desc->dma.tx.cfg.len);
+	cache_clean_region(cfg.saddr, cfg.len);
 	dma_start_transfer(desc->dma.tx.channel);
 }
 
@@ -271,6 +260,16 @@ void usartd_configure(uint8_t iface, struct _usart_desc* config)
 	if (config->use_fifo)
 		usart_fifo_enable(config->addr);
 #endif
+
+	config->dma.rx.cfg_dma.incr_saddr = false;
+	config->dma.rx.cfg_dma.incr_daddr = true;
+	config->dma.rx.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
+	config->dma.rx.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
+
+	config->dma.tx.cfg_dma.incr_saddr = true;
+	config->dma.tx.cfg_dma.incr_daddr = false;
+	config->dma.tx.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
+	config->dma.tx.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
 
 	config->dma.rx.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
 	assert(config->dma.rx.channel);

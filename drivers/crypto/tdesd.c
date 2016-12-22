@@ -46,12 +46,6 @@
 #include "trace.h"
 
 /*----------------------------------------------------------------------------
- *        Local variables
- *----------------------------------------------------------------------------*/
-
-volatile static bool single_transfer_ready;
-
-/*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
 
@@ -93,85 +87,40 @@ static uint8_t _tdesd_get_dma_data_width(struct _tdesd_desc* desc)
 
 static void _tdesd_transfer_buffer_dma(struct _tdesd_desc* desc)
 {
-	struct dma_xfer_item* ll;
-	struct dma_xfer_item_tmpl cfg;
-	uint32_t i;
-	uint32_t remains, offset;
-	uint32_t width_in_byte;
-	uint32_t blk_size;
+	struct _dma_transfer_cfg cfg;
+	struct _dma_cfg cfg_dma;
 	struct _callback _cb;
 
 	cache_clean_region((uint32_t*)desc->xfer.bufin->data, desc->xfer.bufin->size);
 
-	remains = desc->xfer.bufin->size;
-	width_in_byte = DMA_DATA_WIDTH_IN_BYTE(_tdesd_get_dma_data_width(desc));
-	offset = 0;
+	memset(&cfg_dma, 0, sizeof(cfg_dma));
+	cfg_dma.incr_saddr = true;
+	cfg_dma.incr_daddr = false;
+	cfg_dma.data_width = _tdesd_get_dma_data_width(desc);
+	cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
 
-	for (i = 0; ; i++) {
-		ll = dma_sg_allocate_item(desc->xfer.dma.tx.channel);
-		blk_size = (remains / width_in_byte) <= DMA_MAX_BLOCK_LEN
-					? (remains / width_in_byte) : DMA_MAX_BLOCK_LEN;
-		cfg.sa = (void *)((desc->xfer.bufin->data) + offset);
-		cfg.da = (void*)TDES->TDES_IDATAR;
-		cfg.upd_sa_per_data = 1;
-		cfg.upd_da_per_data = 0;
-		/* The data size depends on the mode of operation, and is listed
-		in Datasheet Table 50-4.*/
-		cfg.data_width = _tdesd_get_dma_data_width(desc);
-		cfg.chunk_size = DMA_CHUNK_SIZE_1;
-		cfg.blk_size = blk_size;
-		offset += blk_size * width_in_byte;
-		remains -= blk_size * width_in_byte;
-		dma_sg_prepare_item(desc->xfer.dma.tx.channel, &cfg, ll);
-		dma_sg_link_last_item(desc->xfer.dma.tx.channel, ll);
-		if (!remains)
-			break;
-	}
-	dma_sg_link_item(desc->xfer.dma.tx.channel, ll, NULL);
-	dma_sg_configure_transfer(desc->xfer.dma.tx.channel, &cfg, NULL);
+	memset(&cfg, 0, sizeof(cfg));
+	cfg.saddr = (void*)desc->xfer.bufin->data;
+	cfg.daddr = (void*)TDES->TDES_IDATAR;
+	cfg.len = desc->xfer.bufin->size / DMA_DATA_WIDTH_IN_BYTE(cfg_dma.data_width);
+	dma_configure_transfer(desc->xfer.dma.tx.channel, &cfg_dma, &cfg, 1);
+
+	cfg_dma.incr_saddr = false;
+	cfg_dma.incr_daddr = true;
+
+	cfg.saddr = (void*)desc->xfer.bufout->data;
+	cfg.daddr = (void*)TDES->TDES_ODATAR;
+	cfg.len = desc->xfer.bufout->size / DMA_DATA_WIDTH_IN_BYTE(cfg_dma.data_width);
+	dma_configure_transfer(desc->xfer.dma.rx.channel, &cfg_dma, &cfg, 1);
+
 	dma_set_callback(desc->xfer.dma.tx.channel, NULL);
-
-	remains = desc->xfer.bufout->size;
-	offset = 0;
-
-	for (i = 0; ; i++) {
-		ll = dma_sg_allocate_item(desc->xfer.dma.rx.channel);
-		blk_size = (remains / width_in_byte) <= DMA_MAX_BLOCK_LEN
-					? (remains / width_in_byte) : DMA_MAX_BLOCK_LEN;
-		cfg.sa = (void*)TDES->TDES_ODATAR;
-		cfg.da = (void *)((desc->xfer.bufout->data) + offset);
-		cfg.upd_sa_per_data = 0;
-		cfg.upd_da_per_data = 1;
-		/* The data size depends on the mode of operation, and is listed in
-		Datasheet Table 50-4.*/
-		cfg.data_width = _tdesd_get_dma_data_width(desc);
-		cfg.chunk_size = DMA_CHUNK_SIZE_1;
-		cfg.blk_size = blk_size;
-		offset += blk_size * width_in_byte;
-		remains -= blk_size * width_in_byte;
-		dma_sg_prepare_item(desc->xfer.dma.rx.channel, &cfg, ll);
-		dma_sg_link_last_item(desc->xfer.dma.rx.channel, ll);
-		if (!remains)
-			break;
-	}
-	dma_sg_link_item(desc->xfer.dma.rx.channel, ll, NULL);
-	dma_sg_configure_transfer(desc->xfer.dma.rx.channel, &cfg, NULL);
-
 	callback_set(&_cb, _tdesd_dma_rx_callback, (void*)desc);
 	dma_set_callback(desc->xfer.dma.rx.channel, &_cb);
+
 	dma_start_transfer(desc->xfer.dma.tx.channel);
 	dma_start_transfer(desc->xfer.dma.rx.channel);
 
 	tdesd_wait_transfer(desc);
-}
-
-static void _tdesd_handler(uint32_t source, void* user_arg)
-{
-	assert(source == ID_TDES);
-	if ((tdes_get_status() & TDES_ISR_DATRDY) == TDES_ISR_DATRDY) {
-		tdes_disable_it(TDES_IER_DATRDY);
-		single_transfer_ready = true;
-	}
 }
 
 static void _tdesd_transfer_buffer_polling(struct _tdesd_desc* desc)
@@ -190,8 +139,6 @@ static void _tdesd_transfer_buffer_polling(struct _tdesd_desc* desc)
 
 	/* Iterate per 64-bit data block */
 	for (i = 0; i < desc->xfer.bufin->size; i+= size) {
-		single_transfer_ready = false;
-		tdes_enable_it(TDES_IER_DATRDY);
 		/* Write one 64/32-bit input data block to the authorized
 		Input Data Registers */
 		if (size == 8)
@@ -206,7 +153,7 @@ static void _tdesd_transfer_buffer_polling(struct _tdesd_desc* desc)
 			 * decryption process. */
 			tdes_start();
 
-		while(!single_transfer_ready);
+		while ((tdes_get_status() & TDES_ISR_DATRDY) != TDES_ISR_DATRDY);
 
 		if (size == 8)
 			tdes_get_output((uint32_t *)((desc->xfer.bufout->data) + i),
@@ -272,9 +219,6 @@ void tdesd_init(struct _tdesd_desc* desc)
 {
 	/* Enable peripheral clock */
 	pmc_configure_peripheral(ID_TDES, NULL, true);
-	/* Enable peripheral interrupt */
-	irq_add_handler(ID_TDES, _tdesd_handler, NULL);
-	irq_enable(ID_TDES);
 
 	/* Allocate one DMA channel for writing message blocks to TDESx`_IDATAR */
 	desc->xfer.dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, ID_TDES);

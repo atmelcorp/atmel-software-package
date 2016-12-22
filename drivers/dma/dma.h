@@ -61,15 +61,6 @@ enum {
 
 #define DMA_PERIPH_MEMORY  0xFF
 
-#ifdef CONFIG_HAVE_XDMAC
-#define DMA_MAX_BT_SIZE    XDMAC_MAX_BT_SIZE
-#define DMA_MAX_BLOCK_LEN  XDMAC_MAX_BLOCK_LEN
-
-#elif defined(CONFIG_HAVE_DMAC)
-#define DMA_MAX_BT_SIZE    DMAC_MAX_BT_SIZE
-#define DMA_MAX_BLOCK_LEN  DMAC_MAX_BLOCK_LEN
-#endif
-
 #define DMA_DATA_WIDTH_BYTE        0
 #define DMA_DATA_WIDTH_HALF_WORD   1
 #define DMA_DATA_WIDTH_WORD        2
@@ -79,6 +70,12 @@ enum {
 #endif
 
 #ifdef CONFIG_HAVE_XDMAC
+
+#define DMA_CHANNELS XDMAC_CHANNELS
+
+#define DMA_MAX_BT_SIZE    XDMAC_MAX_BT_SIZE
+#define DMA_MAX_BLOCK_LEN  XDMAC_MAX_BLOCK_LEN
+
 #define DMA_CHUNK_SIZE_1   0
 #define DMA_CHUNK_SIZE_2   1
 #define DMA_CHUNK_SIZE_4   2
@@ -86,6 +83,12 @@ enum {
 #define DMA_CHUNK_SIZE_16  4
 
 #elif defined(CONFIG_HAVE_DMAC)
+
+#define DMA_CHANNELS DMAC_CHANNELS
+
+#define DMA_MAX_BT_SIZE    DMAC_MAX_BT_SIZE
+#define DMA_MAX_BLOCK_LEN  DMAC_MAX_BLOCK_LEN
+
 #define DMA_CHUNK_SIZE_1   0
 #define DMA_CHUNK_SIZE_4   1
 #define DMA_CHUNK_SIZE_8   2
@@ -113,9 +116,9 @@ enum {
 /** DMA driver channel */
 struct _dma_channel {
 #if defined(CONFIG_HAVE_DMAC)
-	Dmac* dmac;  /* DMAC instance */
+	Dmac* hw;  /* DMAC instance */
 #elif defined(CONFIG_HAVE_XDMAC)
-	Xdmac* xdmac; /* XDMAC instance */
+	Xdmac* hw; /* XDMAC instance */
 #endif
 	uint32_t id; /* Channel ID */
 
@@ -133,39 +136,28 @@ struct _dma_channel {
 	struct _dma_sg_desc* sg_list;
 };
 
-struct _dma_sg_list {
+struct _dma_transfer_cfg {
 	const void* saddr;
 	void* daddr;
 	uint32_t len;
-
-	struct _dma_sg_list* next;
 };
 
-struct _dma_sg_cfg {
+struct _dma_cfg {
 	uint32_t data_width;
 	uint32_t chunk_size;
 	bool incr_saddr;
 	bool incr_daddr;
-	bool loop;
+	bool loop; /* Used by scatter/gather only */
 };
 
-/* Set of parameters to specify a transfer of contiguous data.
-   Structure members that are zeroed will get assigned their default value.*/
-struct dma_xfer_cfg {
-	uint8_t upd_sa_per_data : 1; /* increment source address when proceeding to the next data element (set by default if memory)
-					0: The source address remains unchanged
-					1: The source address is incremented */
-
-	uint8_t upd_da_per_data : 1;/* increment destination address when proceeding to the next data element (set by default if memory)
-				       0: The destination address remains unchanged
-				       1: The destination address is incremented */
-	void* sa; /* initial source address; alignment shall match data width */
-	void* da; /* initial destination address; alignment shall match data width */
-
-	uint8_t data_width;			/* data element width (AKA transfer width), expressed in bytes (1/2/4/8) */
-	uint8_t chunk_size;			/* chunk size (if transferring with a peripheral), expressed in data elements (1/(2)/4/8/16) */
-	uint32_t blk_size;			/* block size (optional), expressed in data elements */
-	uint32_t len;				/* transfer length, expressed in data elements; if blk_size is non-zero, then len shall be a multiple of blk_size */
+struct _dma_controller {
+	uint32_t pid;
+#if defined(CONFIG_HAVE_XDMAC)
+	Xdmac* hw;
+#elif defined(CONFIG_HAVE_DMAC)
+	Dmac* hw;
+#endif
+	struct _dma_channel channels[DMA_CHANNELS];
 };
 
 /**     @}*/
@@ -189,6 +181,13 @@ extern void dma_initialize(bool polling);
  * transfers.  If interrupt mode is enabled, this function will do nothing.
  */
 extern void dma_poll(void);
+
+/**
+ * \brief Enable clock of the DMA peripheral, Enable the peripheral,
+ * setup configuration register for transfer.
+ * \param channel Channel pointer
+ */
+extern int dma_prepare_channel(struct _dma_channel* channel);
 
 /**
  * \brief Allocate an DMA channel
@@ -216,23 +215,15 @@ extern int dma_set_callback(struct _dma_channel* channel, struct _callback* call
 /**
  * \brief Configure DMA for a transfer of contiguous data.
  * \param channel Channel pointer
- * \param cfg DMA transfer configuration
+ * \param cfg_dma DMA transfer configuration
+ * \param cfg     List of transfer specific configuration
+ * \list_size     0: single/multi block transfer, 1-n: scatter/gather transfer
  * \return error code
  */
-extern int dma_configure_transfer(struct _dma_channel* channel, const struct dma_xfer_cfg *cfg);
-
-/**
- * \brief Configure DMA for a transfer of scattered data, or a transfer of
- * contiguous data that may be reconfigured on a block-by-block basis.
- * \param channel Channel pointer
- * \param cfg Transfer configuration
- * \param list_head Linked list of transfer descriptors.
- * NULL if the list was allocated from linked list pool.
- * \return result code
- */
-extern int dma_sg_configure_transfer(struct _dma_channel* channel,
-				     struct _dma_sg_cfg* cfg,
-				     struct _dma_sg_list* list_head, uint8_t list_size);
+extern int dma_configure_transfer(struct _dma_channel* channel,
+				  struct _dma_cfg* cfg_dma,
+				  struct _dma_transfer_cfg* list,
+				  uint8_t list_size);
 
 /**
  * \brief Stop DMA transfer.
@@ -283,6 +274,12 @@ extern void dma_fifo_flush(struct _dma_channel* channel);
  * \param len Length of data to transfer
  */
 extern uint32_t dma_get_transferred_data_len(struct _dma_channel* channel, uint8_t chunk_size, uint32_t len);
+
+/**
+ * \brief DMA interrupt handler
+ * \param source Peripheral ID of DMA controller
+ */
+extern void dma_irq_handler(uint32_t source, void* user_arg);
 
 /**     @}*/
 

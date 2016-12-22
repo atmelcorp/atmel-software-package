@@ -52,7 +52,7 @@ static int _pdmic_dma_transfer_callback(void* arg)
 {
 	struct _pdmic_desc* desc = (struct _pdmic_desc*)arg;
 
-	cache_invalidate_region(desc->rx.dma.cfg.da, desc->rx.dma.cfg.len);
+	cache_invalidate_region(desc->rx.dma.cfg.daddr, desc->rx.dma.cfg.len);
 
 	dma_free_channel(desc->rx.dma.channel);
 
@@ -67,20 +67,17 @@ static void _pdmic_dma_transfer(struct _pdmic_desc* desc, struct _buffer* buffer
 
 	memset(&desc->rx.dma.cfg, 0, sizeof(desc->rx.dma.cfg));
 
-	desc->rx.dma.cfg.sa = (void*)&desc->addr->PDMIC_CDR;
-	desc->rx.dma.cfg.da = buffer->data;
-	desc->rx.dma.cfg.upd_sa_per_data = 0;
-	desc->rx.dma.cfg.upd_da_per_data = 1;
-	desc->rx.dma.cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	desc->rx.dma.cfg.saddr = (void*)&desc->addr->PDMIC_CDR;
+	desc->rx.dma.cfg.daddr = buffer->data;
 
 	if (desc->dsp_size == PDMIC_CONVERTED_DATA_SIZE_32) {
 		desc->rx.dma.cfg.len = buffer->size / 4;
-		desc->rx.dma.cfg.data_width = DMA_DATA_WIDTH_WORD;
+		desc->rx.dma.cfg_dma.data_width = DMA_DATA_WIDTH_WORD;
 	} else {
 		desc->rx.dma.cfg.len = buffer->size / 2;
-		desc->rx.dma.cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
+		desc->rx.dma.cfg_dma.data_width = DMA_DATA_WIDTH_HALF_WORD;
 	}
-	dma_configure_transfer(desc->rx.dma.channel, &desc->rx.dma.cfg);
+	dma_configure_transfer(desc->rx.dma.channel, &desc->rx.dma.cfg_dma, &desc->rx.dma.cfg, 1);
 	callback_set(&_cb, _pdmic_dma_transfer_callback, (void*)desc);
 	dma_set_callback(desc->rx.dma.channel, &_cb);
 	dma_start_transfer(desc->rx.dma.channel);
@@ -238,6 +235,10 @@ int pdmic_configure(struct _pdmic_desc *desc)
 
 	desc->rx.dma.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
 	assert(desc->rx.dma.channel);
+
+	desc->rx.dma.cfg_dma.incr_saddr = false;
+	desc->rx.dma.cfg_dma.incr_daddr = true;
+	desc->rx.dma.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
 
 	/* write configuration */
 	desc->addr->PDMIC_MR = mr_val;

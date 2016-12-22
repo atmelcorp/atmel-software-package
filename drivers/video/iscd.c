@@ -73,18 +73,19 @@ static int _dma_histo_callback(void *arg)
  */
 static void _iscd_dma_read_histogram(uint32_t buf)
 {
-	struct dma_xfer_cfg cfg;
+	struct _dma_cfg cfg_dma;
+	struct _dma_transfer_cfg cfg;
 
-	cfg.upd_sa_per_data = 1;
-	cfg.upd_da_per_data = 1;
-	cfg.sa = (uint32_t*)&ISC->ISC_HIS_ENTRY[0];
-	cfg.da = (uint32_t*)buf;
-	cfg.data_width = 4;
-	cfg.chunk_size = 1;
-	cfg.blk_size = 0;
+	cfg_dma.data_width = DMA_DATA_WIDTH_WORD;
+	cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
+	cfg_dma.incr_saddr = true;
+	cfg_dma.incr_daddr = true;
+
+	cfg.saddr = (uint32_t*)&ISC->ISC_HIS_ENTRY[0];
+	cfg.daddr = (uint32_t*)buf;
 	cfg.len = HIST_ENTRIES;
 
-	dma_configure_transfer(awb.dma.dma_histo_channel, &cfg);
+	dma_configure_transfer(awb.dma.dma_histo_channel, &cfg_dma, &cfg, 1);
 	dma_start_transfer(awb.dma.dma_histo_channel);
 }
 
@@ -295,7 +296,7 @@ uint8_t iscd_pipe_start(struct _iscd_desc* desc)
 		if (!awb.dma.dma_histo_channel) {
 			/* Allocate a XDMA channel for histogram read. */
 			awb.dma.dma_histo_channel =
-				dma_allocate_channel(XDMACD_PERIPH_MEMORY, XDMACD_PERIPH_MEMORY);
+				dma_allocate_channel(DMA_PERIPH_MEMORY, DMA_PERIPH_MEMORY);
 			callback_set(&_cb, _dma_histo_callback, (void*)desc);
 			dma_set_callback(awb.dma.dma_histo_channel, &_cb);
 			if (!awb.dma.dma_histo_channel) {

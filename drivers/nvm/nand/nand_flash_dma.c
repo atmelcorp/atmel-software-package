@@ -107,21 +107,21 @@ uint8_t nand_dma_configure(void)
 uint8_t nand_dma_write(uint32_t src_address, uint32_t dest_address,
 		uint32_t size)
 {
-	struct dma_xfer_cfg cfg;
+	struct _dma_cfg cfg_dma;
+	struct _dma_transfer_cfg cfg;
 
 	dma_reset_channel(nand_dma_tx_channel);
 	cache_clean_region((uint32_t *)src_address, size);
 
-	cfg.sa = (uint32_t *)src_address;
-	cfg.da = (uint32_t *)dest_address;
-	cfg.upd_sa_per_data = 1;
-	cfg.upd_da_per_data = 1;
-	cfg.data_width = DMA_DATA_WIDTH_BYTE;
-	cfg.chunk_size = DMA_CHUNK_SIZE_1;
-	cfg.blk_size = 0;
+	cfg.saddr = (uint32_t *)src_address;
+	cfg.daddr = (uint32_t *)dest_address;
 	cfg.len = size;
+	cfg_dma.incr_saddr = true;
+	cfg_dma.incr_daddr = true;
+	cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
+	cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
 
-	dma_configure_transfer(nand_dma_tx_channel, &cfg);
+	dma_configure_transfer(nand_dma_tx_channel, &cfg_dma, &cfg, 1);
 
 	/* Start transfer */
 	transfer_complete = false;
@@ -146,18 +146,20 @@ uint8_t nand_dma_write(uint32_t src_address, uint32_t dest_address,
 uint8_t nand_dma_read(uint32_t src_address, uint32_t dest_address,
 		uint32_t size)
 {
-	struct dma_xfer_cfg cfg;
+	struct _dma_cfg cfg_dma;
+	struct _dma_transfer_cfg cfg;
 
 	dma_reset_channel(nand_dma_rx_channel);
-	cfg.sa = (uint32_t *)src_address;
-	cfg.da = (uint32_t *)dest_address;
-	cfg.upd_sa_per_data = 1;
-	cfg.upd_da_per_data = 1;
-	cfg.data_width = DMA_DATA_WIDTH_BYTE;
-	cfg.chunk_size = DMA_CHUNK_SIZE_1;
-	cfg.blk_size = 0;
+	cfg.saddr = (uint32_t *)src_address;
+	cfg.daddr = (uint32_t *)dest_address;
 	cfg.len = size;
-	dma_configure_transfer(nand_dma_rx_channel, &cfg);
+
+	cfg_dma.incr_saddr = true;
+	cfg_dma.incr_daddr = true;
+	cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
+	cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
+
+	dma_configure_transfer(nand_dma_rx_channel, &cfg_dma, &cfg, 1);
 
 	/* Start transfer */
 	transfer_complete = false;

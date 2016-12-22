@@ -47,12 +47,11 @@
 
 #ifdef CONFIG_HAVE_QSPI_DMA
 static struct _dma_channel *dma_ch = NULL;
-static struct dma_xfer_cfg dma_cfg = {
-	.upd_sa_per_data = 1,
-	.upd_da_per_data = 1,
+static struct _dma_cfg dma_cfg = {
+	.incr_saddr = true,
+	.incr_daddr = true,
 	.data_width = DMA_DATA_WIDTH_BYTE,
 	.chunk_size = DMA_CHUNK_SIZE_1,
-	.blk_size = 0,
 };
 #endif
 
@@ -65,10 +64,12 @@ static void qspi_memcpy(uint8_t *dst, const uint8_t *src, int count, bool use_dm
 	uint32_t rc;
 #ifdef CONFIG_HAVE_QSPI_DMA
 	if(use_dma) {
-		dma_cfg.da = (void *)dst;
-		dma_cfg.sa = (void *)src;
-		dma_cfg.len = count;
-		dma_configure_transfer(dma_ch, &dma_cfg);
+		struct _dma_transfer_cfg cfg = {
+			.daddr = (void *)dst,
+			.saddr = (void *)src,
+			.len = count,
+		};
+		dma_configure_transfer(dma_ch, &dma_cfg, &cfg, 1);
 		rc = dma_start_transfer(dma_ch);
 		if (rc != 0)
 			trace_fatal("Couldn't start xDMA transfer\n\r");
