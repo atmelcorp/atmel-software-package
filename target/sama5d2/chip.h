@@ -139,15 +139,15 @@
 #define ID_QSPI1        (53) /**< \brief QSPI 1 (QSPI1) */
 #define ID_I2SC0        (54) /**< \brief Inter-IC Sound Controller 0 (I2SC0) */
 #define ID_I2SC1        (55) /**< \brief Inter-IC Sound Controller 1 (I2SC1) */
-#define ID_CAN0_INT0    (56) /**< \brief MCAN 0 Interrupt0 (CAN0_INT0) */
-#define ID_CAN1_INT0    (57) /**< \brief MCAN 1 Interrupt0 (CAN1_INT0) */
+#define ID_MCAN0_INT0   (56) /**< \brief MCAN 0 Interrupt0 (MCAN0_INT0) */
+#define ID_MCAN1_INT0   (57) /**< \brief MCAN 1 Interrupt0 (MCAN1_INT0) */
 #define ID_CLASSD0      (59) /**< \brief Audio Class D amplifier (CLASSD0) */
 #define ID_SFR          (60) /**< \brief Special Function Register  (SFR) */
 #define ID_SAIC         (61) /**< \brief Secured Advanced Interrupt Controller  (SAIC) */
 #define ID_AIC          (62) /**< \brief Advanced Interrupt Controller  (AIC) */
 #define ID_L2CC         (63) /**< \brief L2 Cache Controller (L2CC) */
-#define ID_CAN0_INT1    (64) /**< \brief MCAN 0 Interrupt1 (CAN0_INT1) */
-#define ID_CAN1_INT1    (65) /**< \brief MCAN 1 Interrupt1 (CAN1_INT1) */
+#define ID_MCAN0_INT1   (64) /**< \brief MCAN 0 Interrupt1 (MCAN0_INT1) */
+#define ID_MCAN1_INT1   (65) /**< \brief MCAN 1 Interrupt1 (MCAN1_INT1) */
 #define ID_GMAC0_Q1     (66) /**< \brief GMAC Queue 1 Interrupt (GMAC0_Q1) */
 #define ID_GMAC0_Q2     (67) /**< \brief GMAC Queue 2 Interrupt (GMAC0_Q2) */
 #define ID_PIOB         (68) /**< \brief  (PIOB) */

@@ -687,9 +687,9 @@ static void _mcan_handler(uint32_t source, void* user_arg)
 	struct _mcan_desc *desc;
 	Mcan *mcan;
 
-	if ((ID_CAN0_INT0 == source) || (ID_CAN0_INT1 == source))
+	if ((ID_MCAN0_INT0 == source) || (ID_MCAN0_INT1 == source))
 		mcan_if = 0;
-	else if ((ID_CAN1_INT0 == source) || (ID_CAN1_INT1 == source))
+	else if ((ID_MCAN1_INT0 == source) || (ID_MCAN1_INT1 == source))
 		mcan_if = 1;
 	else {
 		trace_fatal("MCAN handler error!");
