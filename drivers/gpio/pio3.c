@@ -109,6 +109,10 @@ static bool _pio_has_group(uint32_t group)
 	if (group == 3)
 		return true;
 #endif
+#ifdef ID_PIOE
+	if (group == 4)
+		return true;
+#endif
 	return false;
 }
 
