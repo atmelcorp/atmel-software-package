@@ -40,7 +40,7 @@
 
 #include "trace.h"
 #include "audio/wm8904.h"
-#include "i2c/twi-bus.h"
+#include "peripherals/bus.h"
 #include "i2c/twid.h"
 #include "peripherals/pmc.h"
 
@@ -242,34 +242,30 @@ static const struct _wm8904_para wm8904_access_main[] = {
  * \param reg_addr Register address to read.
  * \return value in the given register.
  */
-static uint16_t wm8904_read(struct _wm8904_desc *wm8904, uint8_t reg_addr)
+static int wm8904_read(struct _wm8904_desc *wm8904, uint8_t reg_addr)
 {
-	int status;
+	int err;
 	uint8_t temp_data[2] = { 0, 0 };
 	struct _buffer buf[2] = {
 		{
 			.data = &reg_addr,
 			.size = 1,
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_TX | BUS_I2C_BUF_ATTR_STOP,
 		},
 		{
 			.data = temp_data,
 			.size = 2,
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_READ | TWID_BUF_ATTR_STOP,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_RX | BUS_I2C_BUF_ATTR_STOP,
 		},
 	};
 
-	while (twi_bus_transaction_pending(wm8904->twi.bus));
-	twi_bus_start_transaction(wm8904->twi.bus);
+	bus_start_transaction(wm8904->twi.bus);
 
-	status = twi_bus_transfer(wm8904->twi.bus, wm8904->twi.addr, buf, 2, NULL);
-	if (status < 0) {
-		twi_bus_stop_transaction(wm8904->twi.bus);
-		return status;
-	}
+	err = bus_transfer(wm8904->twi.bus, wm8904->twi.addr, buf, 2, NULL, NULL);
+	bus_stop_transaction(wm8904->twi.bus);
 
-	twi_bus_wait_transfer(wm8904->twi.bus);
-	twi_bus_stop_transaction(wm8904->twi.bus);
+	if (err < 0)
+		return err;
 
 	return (temp_data[0] << 8) | temp_data[1];
 }
@@ -280,37 +276,31 @@ static uint16_t wm8904_read(struct _wm8904_desc *wm8904, uint8_t reg_addr)
  * \param reg_addr Register address to read.
  * \param data    Data to write
  */
-static void wm8904_write(struct _wm8904_desc *wm8904, uint8_t reg_addr, uint16_t data)
+static int wm8904_write(struct _wm8904_desc *wm8904, uint8_t reg_addr, uint16_t data)
 {
-	int status;
+	int err;
 	uint8_t tmp_data[2] = { 0, 0 };
 	struct _buffer buf[2] = {
 		{
 			.data = &reg_addr,
 			.size = 1,
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_TX,
 		},
 		{
 			.data = tmp_data,
 			.size = 2,
-			.attr = TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
+			.attr = BUS_BUF_ATTR_TX | BUS_I2C_BUF_ATTR_STOP,
 		},
 	};
 
 	tmp_data[0] = (data & 0xff00) >> 8;
 	tmp_data[1] = data & 0xff;
 
-	while (twi_bus_transaction_pending(wm8904->twi.bus));
-	twi_bus_start_transaction(wm8904->twi.bus);
+	bus_start_transaction(wm8904->twi.bus);
+	err = bus_transfer(wm8904->twi.bus, wm8904->twi.addr, buf, 2, NULL);
+	bus_stop_transaction(wm8904->twi.bus);
 
-	status = twi_bus_transfer(wm8904->twi.bus, wm8904->twi.addr, buf, 2, NULL);
-	if (status < 0) {
-		twi_bus_stop_transaction(wm8904->twi.bus);
-		return;
-	}
-
-	twi_bus_wait_transfer(wm8904->twi.bus);
-	twi_bus_stop_transaction(wm8904->twi.bus);
+	return err;
 }
 
 /*----------------------------------------------------------------------------

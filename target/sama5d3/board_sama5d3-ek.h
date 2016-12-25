@@ -35,6 +35,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "peripherals/bus.h"
 
 #include "board_support.h"
 
@@ -229,17 +230,17 @@
 #define BOARD_TWI_BUS0      TWI1
 #define BOARD_TWI_BUS0_FREQ 300000
 #define BOARD_TWI_BUS0_PINS PINS_TWI1
-#define BOARD_TWI_BUS0_MODE TWID_MODE_DMA
+#define BOARD_TWI_BUS0_MODE BUS_TRANSFER_MODE_DMA
 
 /* ================== SPI bus definition ====================== */
 
 #define BOARD_SPI_BUS0       SPI0
 #define BOARD_SPI_BUS0_PINS  PINS_SPI0_NPCS0
-#define BOARD_SPI_BUS0_MODE  SPID_MODE_DMA
+#define BOARD_SPI_BUS0_MODE  BUS_TRANSFER_MODE_DMA
 
 /* =================== ISI device definition =================== */
 
-#define BOARD_ISI_TWI_BUS     0
+#define BOARD_ISI_TWI_BUS     BUS(BUS_TYPE_I2C, 0)
 #define BOARD_ISI_PINS        PINS_ISI_8BIT
 #define BOARD_ISI_RST_PIN     { PIO_GROUP_E, PIO_PE24, PIO_OUTPUT_1, PIO_DEFAULT }
 #define BOARD_ISI_PWD_PIN     { PIO_GROUP_E, PIO_PE29, PIO_OUTPUT_1, PIO_DEFAULT }
@@ -260,7 +261,7 @@
 
 /* =================== AT25 device definition =================== */
 
-#define BOARD_AT25_BUS         0
+#define BOARD_AT25_BUS         BUS(BUS_TYPE_SPI, 0)
 #define BOARD_AT25_CHIP_SELECT 0
 #define BOARD_AT25_BITRATE     40000
 #define BOARD_AT25_DLYBS       0
@@ -273,7 +274,7 @@
 
 /* ================== WM8904 definition ====================== */
 
-#define BOARD_WM8904_TWI_BUS      0
+#define BOARD_WM8904_TWI_BUS      BUS(BUS_TYPE_I2C, 0)
 #define BOARD_WM8904_SLAVE_ADDR   0x1a
 #define BOARD_WM8904_INPUT_PATH   (WM8904_INPUT_PATH_IN2L | WM8904_INPUT_PATH_IN2R)
 #define BOARD_WM8904_MCLK_PCK     0

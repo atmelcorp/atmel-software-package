@@ -33,7 +33,7 @@
 
 #include "board_twi.h"
 
-#include "i2c/twi-bus.h"
+#include "peripherals/bus.h"
 
 #include "gpio/pio.h"
 
@@ -49,40 +49,64 @@ static struct _at24 at24;
 
 void board_cfg_twi_bus(void)
 {
+	struct _bus_iface iface;
+
+	iface.type = BUS_TYPE_I2C;
 #ifdef BOARD_TWI_BUS0
 	const struct _pin pins_twi_bus0[] = BOARD_TWI_BUS0_PINS;
 	pio_configure(pins_twi_bus0, ARRAY_SIZE(pins_twi_bus0));
-	twi_bus_configure(0, BOARD_TWI_BUS0, BOARD_TWI_BUS0_FREQ, BOARD_TWI_BUS0_MODE);
+	iface.i2c.hw = BOARD_TWI_BUS0;
+	iface.i2c.freq = BOARD_TWI_BUS0_FREQ;
+	iface.transfer_mode = BOARD_TWI_BUS0_MODE;
+	bus_configure(BUS(BUS_TYPE_I2C, 0), &iface);
 #endif
 #ifdef BOARD_TWI_BUS1
 	const struct _pin pins_twi_bus1[] = BOARD_TWI_BUS1_PINS;
 	pio_configure(pins_twi_bus1, ARRAY_SIZE(pins_twi_bus1));
-	twi_bus_configure(1, BOARD_TWI_BUS1, BOARD_TWI_BUS1_FREQ, BOARD_TWI_BUS1_MODE);
+	iface.i2c.hw = BOARD_TWI_BUS1;
+	iface.i2c.freq = BOARD_TWI_BUS1_FREQ;
+	iface.transfer_mode = BOARD_TWI_BUS1_MODE;
+	bus_configure(BUS(BUS_TYPE_I2C, 1), &iface);
 #endif
 #ifdef BOARD_TWI_BUS2
 	const struct _pin pins_twi_bus2[] = BOARD_TWI_BUS2_PINS;
 	pio_configure(pins_twi_bus2, ARRAY_SIZE(pins_twi_bus2));
-	twi_bus_configure(2, BOARD_TWI_BUS2, BOARD_TWI_BUS2_FREQ, BOARD_TWI_BUS2_MODE);
+	iface.i2c.hw = BOARD_TWI_BUS2;
+	iface.i2c.freq = BOARD_TWI_BUS2_FREQ;
+	iface.transfer_mode = BOARD_TWI_BUS2_MODE;
+	bus_configure(BUS(BUS_TYPE_I2C, 2), &iface);
 #endif
 #ifdef BOARD_TWI_BUS3
 	const struct _pin pins_twi_bus3[] = BOARD_TWI_BUS3_PINS;
 	pio_configure(pins_twi_bus3, ARRAY_SIZE(pins_twi_bus3));
-	twi_bus_configure(3, BOARD_TWI_BUS3, BOARD_TWI_BUS3_FREQ, BOARD_TWI_BUS3_MODE);
+	iface.i2c.hw = BOARD_TWI_BUS3;
+	iface.i2c.freq = BOARD_TWI_BUS3_FREQ;
+	iface.transfer_mode = BOARD_TWI_BUS3_MODE;
+	bus_configure(BUS(BUS_TYPE_I2C, 3), &iface);
 #endif
 #ifdef BOARD_TWI_BUS4
 	const struct _pin pins_twi_bus4[] = BOARD_TWI_BUS4_PINS;
 	pio_configure(pins_twi_bus4, ARRAY_SIZE(pins_twi_bus4));
-	twi_bus_configure(4, BOARD_TWI_BUS4, BOARD_TWI_BUS4_FREQ, BOARD_TWI_BUS4_MODE);
+	iface.i2c.hw = BOARD_TWI_BUS4;
+	iface.i2c.freq = BOARD_TWI_BUS4_FREQ;
+	iface.transfer_mode = BOARD_TWI_BUS4_MODE;
+	bus_configure(BUS(BUS_TYPE_I2C, 4), &iface;
 #endif
 #ifdef BOARD_TWI_BUS5
 	const struct _pin pins_twi_bus5[] = BOARD_TWI_BUS5_PINS;
 	pio_configure(pins_twi_bus5, ARRAY_SIZE(pins_twi_bus2));
-	twi_bus_configure(5, BOARD_TWI_BUS5, BOARD_TWI_BUS5_FREQ, BOARD_TWI_BUS5_MODE);
+	iface.i2c.hw = BOARD_TWI_BUS5;
+	iface.i2c.freq = BOARD_TWI_BUS5_FREQ;
+	iface.transfer_mode = BOARD_TWI_BUS5_MODE;
+	bus_configure(BUS(BUS_TYPE_I2C, 5), &iface);
 #endif
 #ifdef BOARD_TWI_BUS6
 	const struct _pin pins_twi_bus6[] = BOARD_TWI_BUS6_PINS;
 	pio_configure(pins_twi_bus6, ARRAY_SIZE(pins_twi_bus6));
-	twi_bus_configure(6, BOARD_TWI_BUS6, BOARD_TWI_BUS6_FREQ, BOARD_TWI_BUS6_MODE);
+	iface.i2c.hw = BOARD_TWI_BUS6;
+	iface.i2c.freq = BOARD_TWI_BUS6_FREQ;
+	iface.transfer_mode = BOARD_TWI_BUS6_MODE;
+	bus_configure(BUS(BUS_TYPE_I2C, 6), &iface);
 #endif
 }
 

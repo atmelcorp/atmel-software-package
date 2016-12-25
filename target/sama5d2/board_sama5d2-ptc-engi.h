@@ -47,6 +47,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "peripherals/bus.h"
 
 #include "board_support.h"
 
@@ -132,22 +133,22 @@
 #define BOARD_TWI_BUS0      FLEXTWI4
 #define BOARD_TWI_BUS0_PINS PINS_FLEXCOM4_TWI_IOS3
 #define BOARD_TWI_BUS0_FREQ 400000
-#define BOARD_TWI_BUS0_MODE TWID_MODE_DMA
+#define BOARD_TWI_BUS0_MODE BUS_TRANSFER_MODE_DMA
 
 #define BOARD_TWI_BUS1      TWI1
 #define BOARD_TWI_BUS1_PINS PINS_TWI1_IOS1;
 #define BOARD_TWI_BUS1_FREQ 400000
-#define BOARD_TWI_BUS1_MODE TWID_MODE_DMA
+#define BOARD_TWI_BUS1_MODE BUS_TRANSFER_MODE_DMA
 
 /* ================== SPI bus definition ====================== */
 
 #define BOARD_SPI_BUS0       SPI0
 #define BOARD_SPI_BUS0_PINS  PINS_SPI0_NPCS0_IOS1
-#define BOARD_SPI_BUS0_MODE  SPID_MODE_DMA
+#define BOARD_SPI_BUS0_MODE  BUS_TRANSFER_MODE_DMA
 
 /* ================== ACT8945A PMIC definition ====================== */
 
-#define BOARD_ACT8945A_TWI_BUS     0
+#define BOARD_ACT8945A_TWI_BUS     BUS(BUS_TYPE_I2C, 0)
 #define BOARD_ACT8945A_TWI_ADDR    0x5b
 #define BOARD_ACT8945A_PIN_CHGLEV  { PIO_GROUP_A, PIO_PA22, PIO_OUTPUT_0, PIO_PULLUP }
 #define BOARD_ACT8945A_PIN_IRQ     { PIO_GROUP_B, PIO_PB13, PIO_INPUT, PIO_PULLUP | PIO_IT_FALL_EDGE }
@@ -155,13 +156,13 @@
 
 /* =================== AT24 device definition =================== */
 
-#define BOARD_AT24_TWI_BUS 0
+#define BOARD_AT24_TWI_BUS BUS(BUS_TYPE_I2C, 0)
 #define BOARD_AT24_ADDR    0x54
 #define BOARD_AT24_MODEL   AT24MAC402
 
 /* =================== AT25 device definition =================== */
 
-#define BOARD_AT25_BUS         0
+#define BOARD_AT25_BUS         BUS(BUS_TYPE_SPI, 0)
 #define BOARD_AT25_CHIP_SELECT 0
 #define BOARD_AT25_BITRATE     40000
 #define BOARD_AT25_DLYBS       0

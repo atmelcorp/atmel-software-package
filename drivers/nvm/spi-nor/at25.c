@@ -31,17 +31,18 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include <assert.h>
+#include <stdio.h>
+
 #include "chip.h"
-#include "trace.h"
 #include "compiler.h"
+#include "errno.h"
+#include "gpio/pio.h"
 #include "intmath.h"
 #include "nvm/spi-nor/at25.h"
-#include "gpio/pio.h"
+#include "peripherals/bus.h"
 #include "peripherals/pmc.h"
-#include "spi/spi-bus.h"
-#include <stdio.h>
-#include <assert.h>
-#include <errno.h>
+#include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Local Constants
@@ -100,11 +101,8 @@
  *        Local Functions
  *----------------------------------------------------------------------------*/
 
-static uint32_t _at25_compute_addr(struct _at25* at25, uint8_t* cmd,
-				   uint32_t addr)
+static uint32_t _at25_compute_addr(struct _at25* at25, uint8_t* cmd, uint32_t addr)
 {
-	assert(at25);
-
 	switch (at25->addressing) {
 	case AT25_ADDRESS_4_BYTES:
 		cmd[0] = (addr & 0xFF000000) >> 24;
@@ -123,24 +121,22 @@ static uint32_t _at25_compute_addr(struct _at25* at25, uint8_t* cmd,
 
 static uint8_t _at25_read_status(struct _at25* at25)
 {
-	assert(at25);
 	uint8_t at25_status;
 	uint8_t opcode = CMD_READ_STATUS;
 	struct _buffer buf[2] = {
 		{
 			.data = &opcode,
 			.size = sizeof(opcode),
-			.attr = SPID_BUF_ATTR_WRITE,
+			.attr = BUS_BUF_ATTR_TX,
 		},
 		{
 			.data = &at25_status,
 			.size = sizeof(at25_status),
-			.attr = SPID_BUF_ATTR_READ | SPID_BUF_ATTR_RELEASE_CS,
+			.attr = BUS_BUF_ATTR_RX | BUS_SPI_BUF_ATTR_RELEASE_CS,
 		},
 	};
 
-	spi_bus_transfer(at25->dev.bus, at25->dev.chip_select, buf, 2, NULL);
-	spi_bus_wait_transfer(at25->dev.bus);
+	bus_transfer(at25->cfg.bus, at25->cfg.spi_dev.chip_select, buf, 2, NULL);
 
 	return at25_status;
 }
@@ -156,8 +152,6 @@ static void _at25_wait(struct _at25* at25)
 
 static int _at25_check_writable(struct _at25* at25)
 {
-	assert(at25);
-
 	uint8_t status;
 	status = _at25_read_status(at25) & (AT25_STATUS_RDYBSY_BUSY | AT25_STATUS_SWP);
 	if (status & AT25_STATUS_RDYBSY_BUSY) {
@@ -173,92 +167,75 @@ static int _at25_check_writable(struct _at25* at25)
 
 static void _at25_enable_write(struct _at25* at25)
 {
-	assert(at25);
-
 	uint8_t opcode = CMD_WRITE_ENABLE;
 	struct _buffer out = {
 		.data = &opcode,
 		.size = 1,
-		.attr = SPID_BUF_ATTR_WRITE | SPID_BUF_ATTR_RELEASE_CS,
+		.attr = BUS_BUF_ATTR_TX | BUS_SPI_BUF_ATTR_RELEASE_CS,
 	};
 
-	spi_bus_transfer(at25->dev.bus, at25->dev.chip_select, &out, 1, NULL);
-	spi_bus_wait_transfer(at25->dev.bus);
+	bus_transfer(at25->cfg.bus, at25->cfg.spi_dev.chip_select, &out, 1, NULL);
 }
 
 static void _at25_disable_write(struct _at25* at25)
 {
-	assert(at25);
-
 	uint8_t opcode = CMD_WRITE_DISABLE;
 	struct _buffer out = {
 		.data = &opcode,
 		.size = 1,
-		.attr = SPID_BUF_ATTR_WRITE | SPID_BUF_ATTR_RELEASE_CS,
+		.attr = BUS_BUF_ATTR_TX | BUS_SPI_BUF_ATTR_RELEASE_CS,
 	};
 
-	spi_bus_transfer(at25->dev.bus, at25->dev.chip_select, &out, 1, NULL);
-	spi_bus_wait_transfer(at25->dev.bus);
+	bus_transfer(at25->cfg.bus, at25->cfg.spi_dev.chip_select, &out, 1, NULL);
 }
 
 static void _at25_write_status(struct _at25* at25, uint8_t value)
 {
-	assert(at25);
-
 	uint8_t cmd[2] = { CMD_WRITE_STATUS, value };
 	struct _buffer out = {
 		.data = cmd,
 		.size = 2,
-		.attr = SPID_BUF_ATTR_WRITE | SPID_BUF_ATTR_RELEASE_CS,
+		.attr = BUS_BUF_ATTR_TX | BUS_SPI_BUF_ATTR_RELEASE_CS,
 	};
 
 	_at25_enable_write(at25);
 
-	spi_bus_transfer(at25->dev.bus, at25->dev.chip_select, &out, 1, NULL);
-	spi_bus_wait_transfer(at25->dev.bus);
+	bus_transfer(at25->cfg.bus, at25->cfg.spi_dev.chip_select, &out, 1, NULL);
 
 	_at25_disable_write(at25);
 }
 
 static void _at25_enter_4addr_mode(struct _at25* at25)
 {
-	assert(at25);
-
 	_at25_enable_write(at25);
 
 	uint8_t opcode = CMD_ENTER_4ADDR_MODE;
 	struct _buffer out = {
 		.data = &opcode,
 		.size = 1,
-		.attr = SPID_BUF_ATTR_WRITE | SPID_BUF_ATTR_RELEASE_CS,
+		.attr = BUS_BUF_ATTR_TX | BUS_SPI_BUF_ATTR_RELEASE_CS,
 	};
-	spi_bus_transfer(at25->dev.bus, at25->dev.chip_select, &out, 1, NULL);
+	bus_transfer(at25->cfg.bus, at25->cfg.spi_dev.chip_select, &out, 1, NULL);
 	at25->addressing = AT25_ADDRESS_4_BYTES;
-	spi_bus_wait_transfer(at25->dev.bus);
 }
 
 static void _at25_exit_4addr_mode(struct _at25* at25)
 {
-	assert(at25);
-
 	_at25_enable_write(at25);
 
 	uint8_t opcode = CMD_EXIT_4ADDR_MODE;
 	struct _buffer out = {
 		.data = &opcode,
 		.size = 1,
-		.attr = SPID_BUF_ATTR_WRITE | SPID_BUF_ATTR_RELEASE_CS,
+		.attr = BUS_BUF_ATTR_TX | BUS_SPI_BUF_ATTR_RELEASE_CS,
 	};
-	spi_bus_transfer(at25->dev.bus, at25->dev.chip_select, &out, 1, NULL);
+	bus_transfer(at25->cfg.bus, at25->cfg.spi_dev.chip_select, &out, 1, NULL);
 	at25->addressing = AT25_ADDRESS_3_BYTES;
-	spi_bus_wait_transfer(at25->dev.bus);
+	bus_wait_transfer(at25->cfg.bus);
 }
 
 static void _at25_set_addressing(struct _at25* at25)
 {
-	assert(at25);
-	assert(at25->desc);
-
 	if (at25->desc->size > MODE_3B_MAX_SIZE) {
 		_at25_enter_4addr_mode(at25);
 	} else {
@@ -268,24 +245,22 @@ static void _at25_set_addressing(struct _at25* at25)
 
 static uint32_t _at25_read_jedec_id(struct _at25* at25)
 {
-	assert(at25);
 	uint8_t opcode = CMD_READ_JEDEC_ID;
 	uint8_t _jedec_id[3];
 	struct _buffer buf[2] = {
 		{
 			.data = &opcode,
 			.size = 1,
-			.attr = SPID_BUF_ATTR_WRITE,
+			.attr = BUS_BUF_ATTR_TX,
 		},
 		{
 			.data = _jedec_id,
 			.size = 3,
-			.attr = SPID_BUF_ATTR_READ | SPID_BUF_ATTR_RELEASE_CS,
+			.attr = BUS_BUF_ATTR_RX | BUS_SPI_BUF_ATTR_RELEASE_CS,
 		},
 	};
 
-	spi_bus_transfer(at25->dev.bus, at25->dev.chip_select, buf, 2, NULL);
-	spi_bus_wait_transfer(at25->dev.bus);
+	bus_transfer(at25->cfg.bus, at25->cfg.spi_dev.chip_select, buf, 2, NULL);
 
 	return (_jedec_id[2] << 16) | (_jedec_id[1] << 8) | _jedec_id[0];
 }
@@ -296,57 +271,49 @@ static uint32_t _at25_read_jedec_id(struct _at25* at25)
 
 void at25_wait(struct _at25* at25)
 {
-	while (spi_bus_transaction_pending(at25->dev.bus));
-	spi_bus_start_transaction(at25->dev.bus);
+	bus_start_transaction(at25->cfg.bus);
 
 	_at25_wait(at25);
 
-	spi_bus_stop_transaction(at25->dev.bus);
+	bus_stop_transaction(at25->cfg.bus);
 }
 
 int at25_configure(struct _at25* at25)
 {
 	uint32_t jedec_id;
-
 	/* Configure chip select */
-	spi_bus_configure_cs(at25->dev.bus, at25->dev.chip_select, at25->dev.bitrate,
-	                     at25->dev.delay.bs, at25->dev.delay.bct, at25->dev.spi_mode);
+	bus_configure_slave(at25->cfg.bus, &at25->cfg);
 
-	while (spi_bus_transaction_pending(at25->dev.bus));
-	spi_bus_start_transaction(at25->dev.bus);
+	bus_start_transaction(at25->cfg.bus);
 
 	jedec_id = _at25_read_jedec_id(at25);
 	trace_debug("at25: read JEDEC ID 0x%08x.\r\n", (unsigned)jedec_id);
 	at25->desc = spi_nor_find(jedec_id);
 	if (!at25->desc) {
-		spi_bus_stop_transaction(at25->dev.bus);
+		bus_stop_transaction(at25->cfg.bus);
 		return -ENODEV;
 	}
 
 	_at25_set_addressing(at25);
 
-	spi_bus_stop_transaction(at25->dev.bus);
+	bus_stop_transaction(at25->cfg.bus);
 
 	return 0;
 }
 
 int at25_read_jedec_id(struct _at25* at25, uint32_t *jedec_id)
 {
-	assert(at25);
-
-	while (spi_bus_transaction_pending(at25->dev.bus));
-	spi_bus_start_transaction(at25->dev.bus);
+	bus_start_transaction(at25->cfg.bus);
 
 	*jedec_id = _at25_read_jedec_id(at25);
 
-	spi_bus_stop_transaction(at25->dev.bus);
+	bus_stop_transaction(at25->cfg.bus);
 
 	return 0;
 }
 
 uint8_t at25_read_status(struct _at25* at25)
 {
-	assert(at25);
 	uint8_t status;
 	uint8_t at25_status;
 	uint8_t opcode = CMD_READ_STATUS;
@@ -354,32 +321,25 @@ uint8_t at25_read_status(struct _at25* at25)
 		{
 			.data = &opcode,
 			.size = sizeof(opcode),
-			.attr = SPID_BUF_ATTR_WRITE,
+			.attr = BUS_BUF_ATTR_TX,
 		},
 		{
 			.data = &at25_status,
 			.size = sizeof(status),
-			.attr = SPID_BUF_ATTR_READ | SPID_BUF_ATTR_RELEASE_CS,
+			.attr = BUS_BUF_ATTR_RX | BUS_SPI_BUF_ATTR_RELEASE_CS,
 		},
 	};
 
-	while (spi_bus_transaction_pending(at25->dev.bus));
-	spi_bus_start_transaction(at25->dev.bus);
-
-	spi_bus_transfer(at25->dev.bus, at25->dev.chip_select, buf, 2, NULL);
-	spi_bus_wait_transfer(at25->dev.bus);
-
-	spi_bus_stop_transaction(at25->dev.bus);
+	bus_start_transaction(at25->cfg.bus);
+	bus_transfer(at25->cfg.bus, at25->cfg.spi_dev.chip_select, buf, 2, NULL);
+	bus_stop_transaction(at25->cfg.bus);
 
 	return at25_status;
 }
 
 int at25_set_protection(struct _at25* at25, bool enable)
 {
-	assert(at25);
-
-	while (spi_bus_transaction_pending(at25->dev.bus));
-	spi_bus_start_transaction(at25->dev.bus);
+	bus_start_transaction(at25->cfg.bus);
 
 	if (enable) {
 		/* Perform a global protect command */
@@ -387,7 +347,7 @@ int at25_set_protection(struct _at25* at25, bool enable)
 	} else {
 		/* Get the status register value to check the current protection */
 		if ((_at25_read_status(at25) & AT25_STATUS_SWP) == AT25_STATUS_SWP_PROTNONE) {
-			spi_bus_stop_transaction(at25->dev.bus);
+			bus_stop_transaction(at25->cfg.bus);
 			return 0;
 		}
 
@@ -397,19 +357,17 @@ int at25_set_protection(struct _at25* at25, bool enable)
 
 		/* Check the new status */
 		if (_at25_read_status(at25) & (AT25_STATUS_SPRL | AT25_STATUS_SWP)) {
-			spi_bus_stop_transaction(at25->dev.bus);
+			bus_stop_transaction(at25->cfg.bus);
 			return -EPERM;
 		}
 	}
-	spi_bus_stop_transaction(at25->dev.bus);
+	bus_stop_transaction(at25->cfg.bus);
 
 	return 0;
 }
 
 void at25_print_device_info(struct _at25* at25)
 {
-	assert(at25);
-
 	if (!at25->desc)
 		return;
 
@@ -465,37 +423,34 @@ bool at25_is_busy(struct _at25* at25)
 {
 	bool busy;
 
-	while (spi_bus_transaction_pending(at25->dev.bus));
-	spi_bus_start_transaction(at25->dev.bus);
-
+	bus_start_transaction(at25->cfg.bus);
 	busy = (_at25_read_status(at25) & AT25_STATUS_RDYBSY_BUSY) != 0;
-
-	spi_bus_stop_transaction(at25->dev.bus);
+	bus_stop_transaction(at25->cfg.bus);
 
 	return busy;
 }
 
 int at25_read(struct _at25* at25, uint32_t addr, uint8_t* data, uint32_t length)
 {
+	int err;
+
 	if (addr > at25->desc->size)
 		return -EINVAL;
 
 	trace_debug("at25: Start flash read at address: 0x%08X\r\n",
 		    (unsigned int)(addr & (at25->desc->size - 1)));
 
-	assert(at25);
-
 	uint8_t cmd[6];
 	struct _buffer buf[2] = {
 		{
 			.data = cmd,
 			.size = 1,
-			.attr = SPID_BUF_ATTR_WRITE,
+			.attr = BUS_BUF_ATTR_TX,
 		},
 		{
 			.data = data,
 			.size = length,
-			.attr = SPID_BUF_ATTR_READ | SPID_BUF_ATTR_RELEASE_CS,
+			.attr = BUS_BUF_ATTR_RX | BUS_SPI_BUF_ATTR_RELEASE_CS,
 		},
 	};
 
@@ -503,29 +458,24 @@ int at25_read(struct _at25* at25, uint32_t addr, uint8_t* data, uint32_t length)
 	buf[0].size += _at25_compute_addr(at25, &cmd[1], addr);
 	buf[0].size += 1; /* one dummy byte */
 
-	while (spi_bus_transaction_pending(at25->dev.bus));
-	spi_bus_start_transaction(at25->dev.bus);
+	bus_start_transaction(at25->cfg.bus);
+	err = bus_transfer(at25->cfg.bus, at25->cfg.spi_dev.chip_select, buf, 2, NULL);
+	bus_stop_transaction(at25->cfg.bus);
 
-	spi_bus_transfer(at25->dev.bus, at25->dev.chip_select, buf, 2, NULL);
-	spi_bus_wait_transfer(at25->dev.bus);
-
-	spi_bus_stop_transaction(at25->dev.bus);
-
-	return 0;
+	return err;
 }
 
 int at25_erase_chip(struct _at25* at25)
 {
+	int err;
+
 	trace_debug("at25: Start flash reset all block will be erased\r\n");
 
-	assert(at25);
-
-	while (spi_bus_transaction_pending(at25->dev.bus));
-	spi_bus_start_transaction(at25->dev.bus);
+	bus_start_transaction(at25->cfg.bus);
 
 	int status = _at25_check_writable(at25);
 	if (status < 0) {
-		spi_bus_stop_transaction(at25->dev.bus);
+		bus_stop_transaction(at25->cfg.bus);
 		return status;
 	}
 
@@ -533,19 +483,18 @@ int at25_erase_chip(struct _at25* at25)
 	struct _buffer out = {
 		.data = &cmd,
 		.size = 1,
-		.attr = SPID_BUF_ATTR_WRITE | SPID_BUF_ATTR_RELEASE_CS,
+		.attr = BUS_BUF_ATTR_TX | BUS_SPI_BUF_ATTR_RELEASE_CS,
 	};
 
 	_at25_enable_write(at25);
 
-	spi_bus_transfer(at25->dev.bus, at25->dev.chip_select, &out, 1, NULL);
-	spi_bus_wait_transfer(at25->dev.bus);
+	err = bus_transfer(at25->cfg.bus, at25->cfg.spi_dev.chip_select, &out, 1, NULL);
 
 	_at25_disable_write(at25);
 
-	spi_bus_stop_transaction(at25->dev.bus);
+	bus_stop_transaction(at25->cfg.bus);
 
-	return 0;
+	return err;
 }
 
 int at25_erase_block(struct _at25* at25, uint32_t addr, uint32_t length)
@@ -553,17 +502,14 @@ int at25_erase_block(struct _at25* at25, uint32_t addr, uint32_t length)
 	trace_debug("at25: Start flash erase at address: 0x%08X\r\n",
 		    (unsigned int)(addr & (at25->desc->size - 1)));
 
-	assert(at25);
-
 	if ((addr + length) > at25->desc->size)
 		return -EINVAL;
 
-	while (spi_bus_transaction_pending(at25->dev.bus));
-	spi_bus_start_transaction(at25->dev.bus);
+	bus_start_transaction(at25->cfg.bus);
 
 	int status = _at25_check_writable(at25);
 	if (status < 0) {
-		spi_bus_stop_transaction(at25->dev.bus);
+		bus_stop_transaction(at25->cfg.bus);
 		return status;
 	}
 
@@ -572,7 +518,7 @@ int at25_erase_block(struct _at25* at25, uint32_t addr, uint32_t length)
 	struct _buffer out = {
 		.data = cmd,
 		.size = 1,
-		.attr = SPID_BUF_ATTR_WRITE | SPID_BUF_ATTR_RELEASE_CS,
+		.attr = BUS_BUF_ATTR_TX | BUS_SPI_BUF_ATTR_RELEASE_CS,
 	};
 
 	uint8_t command;
@@ -620,7 +566,7 @@ int at25_erase_block(struct _at25* at25, uint32_t addr, uint32_t length)
 	}
 
 	if (status < 0) {
-		spi_bus_stop_transaction(at25->dev.bus);
+		bus_stop_transaction(at25->cfg.bus);
 		return status;
 	}
 
@@ -631,20 +577,19 @@ int at25_erase_block(struct _at25* at25, uint32_t addr, uint32_t length)
 
 	_at25_enable_write(at25);
 
-	status = spi_bus_transfer(at25->dev.bus, at25->dev.chip_select, &out, 1, NULL);
-	spi_bus_wait_transfer(at25->dev.bus);
+	status = bus_transfer(at25->cfg.bus, at25->cfg.spi_dev.chip_select, &out, 1, NULL);
 
 	if (_at25_read_status(at25) & AT25_STATUS_EPE) {
-		spi_bus_stop_transaction(at25->dev.bus);
+		bus_stop_transaction(at25->cfg.bus);
 		return -EIO;
 	}
 
 	_at25_wait(at25);
 	_at25_disable_write(at25);
 
-	spi_bus_stop_transaction(at25->dev.bus);
+	bus_stop_transaction(at25->cfg.bus);
 
-	return 0;
+	return status;
 }
 
 int at25_write(struct _at25* at25, uint32_t addr, const uint8_t* data, uint32_t length)
@@ -656,15 +601,12 @@ int at25_write(struct _at25* at25, uint32_t addr, const uint8_t* data, uint32_t 
 
 	trace_debug("at25: Start flash write at address: 0x%08X\r\n",
 		    (unsigned int)(addr & (at25->desc->size - 1)));
-	assert(at25);
-	assert(data);
 
-	while (spi_bus_transaction_pending(at25->dev.bus));
-	spi_bus_start_transaction(at25->dev.bus);
+	bus_start_transaction(at25->cfg.bus);
 
 	int status = _at25_check_writable(at25);
 	if  (status < 0) {
-		spi_bus_stop_transaction(at25->dev.bus);
+		bus_stop_transaction(at25->cfg.bus);
 		return status;
 	}
 
@@ -675,12 +617,12 @@ int at25_write(struct _at25* at25, uint32_t addr, const uint8_t* data, uint32_t 
 		{
 			.data = cmd,
 			/* .size, */
-			.attr = SPID_BUF_ATTR_WRITE,
+			.attr = BUS_BUF_ATTR_TX,
 		},
 		{
 			.data = (uint8_t*)data,
 			/* .size, */
-			.attr = SPID_BUF_ATTR_WRITE | SPID_BUF_ATTR_RELEASE_CS,
+			.attr = BUS_BUF_ATTR_TX | BUS_SPI_BUF_ATTR_RELEASE_CS,
 		}
 	};
 
@@ -702,11 +644,10 @@ int at25_write(struct _at25* at25, uint32_t addr, const uint8_t* data, uint32_t 
 		buf[0].size += _at25_compute_addr(at25, &cmd[1], addr);
 		buf[1].size = write_size;
 
-		spi_bus_transfer(at25->dev.bus, at25->dev.chip_select, buf, 2, NULL);
-		spi_bus_wait_transfer(at25->dev.bus);
+		bus_transfer(at25->cfg.bus, at25->cfg.spi_dev.chip_select, buf, 2, NULL);
 
 		if (_at25_read_status(at25) & AT25_STATUS_EPE) {
-			spi_bus_stop_transaction(at25->dev.bus);
+			bus_stop_transaction(at25->cfg.bus);
 			return -EIO;
 		}
 
@@ -718,7 +659,7 @@ int at25_write(struct _at25* at25, uint32_t addr, const uint8_t* data, uint32_t 
 
 	}
 
-	spi_bus_stop_transaction(at25->dev.bus);
+	bus_stop_transaction(at25->cfg.bus);
 
 	return 0;
 }

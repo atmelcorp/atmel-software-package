@@ -68,4 +68,3 @@ void board_cfg_can_bus(void)
 	can_bus_configure(1, BOARD_CAN_BUS1, BOARD_CAN_BUS1_FREQ, BOARD_CAN_BUS1_FREQ_FD);
 #endif
 }
-

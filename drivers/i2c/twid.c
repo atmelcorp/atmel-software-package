@@ -42,6 +42,7 @@
 #include "io.h"
 #include "irq/irq.h"
 #include "mm/cache.h"
+#include "peripherals/bus.h"
 #ifdef CONFIG_HAVE_FLEXCOM
 #include "peripherals/flexcom.h"
 #endif
@@ -185,7 +186,7 @@ static int _twid_dma_read_callback(void* arg)
 		return -ETIMEDOUT;
 	}
 
-	if (desc->flags & TWID_BUF_ATTR_STOP)
+	if (desc->flags & BUS_I2C_BUF_ATTR_STOP)
 		twi_send_stop_condition(desc->addr);
 
 #ifdef CONFIG_HAVE_FIFO
@@ -242,7 +243,7 @@ static void _twid_dma_read(struct _twi_desc* desc, struct _buffer* buffer)
 	dma_set_callback(desc->dma.rx.channel, &_cb);
 	dma_start_transfer(desc->dma.rx.channel);
 
-	if (desc->flags & TWID_BUF_ATTR_START)
+	if (desc->flags & BUS_I2C_BUF_ATTR_START)
 		twi_send_start_condition(desc->addr);
 }
 
@@ -257,7 +258,7 @@ static int _twid_dma_write_callback(void* arg)
 		return -ETIMEDOUT;
 	}
 
-	if (desc->flags & TWID_BUF_ATTR_STOP)
+	if (desc->flags & BUS_I2C_BUF_ATTR_STOP)
 		twi_send_stop_condition(desc->addr);
 
 #ifdef CONFIG_HAVE_TWI_FIFO
@@ -351,12 +352,12 @@ static void _twid_handler(uint32_t source, void* user_arg)
 
 		/* Only one byte remaining, send stop condition */
 		if (adesc->transferred == buf_size)
-			if (adesc->twi_desc->flags & TWID_BUF_ATTR_STOP)
+			if (adesc->twi_desc->flags & BUS_I2C_BUF_ATTR_STOP)
 				twi_send_stop_condition(addr);
 
 		if (adesc->transferred == adesc->buf.size) {
 			twi_disable_it(addr, TWI_IDR_RXRDY);
-			if (adesc->twi_desc->flags & TWID_BUF_ATTR_STOP) {
+			if (adesc->twi_desc->flags & BUS_I2C_BUF_ATTR_STOP) {
 				twi_enable_it(addr, TWI_IER_TXCOMP);
 			} else {
 				adesc->twi_id = 0;
@@ -377,7 +378,7 @@ static void _twid_handler(uint32_t source, void* user_arg)
 
 			/* Transfer finished ? */
 			if (adesc->transferred == adesc->buf.size)
-				if (adesc->twi_desc->flags & TWID_BUF_ATTR_STOP)
+				if (adesc->twi_desc->flags & BUS_I2C_BUF_ATTR_STOP)
 					twi_send_stop_condition(addr);
 
 			if ((adesc->buf.size - adesc->transferred) >= 4)
@@ -390,7 +391,7 @@ static void _twid_handler(uint32_t source, void* user_arg)
 		} else {
 			/* Transfer finished ? */
 			if (adesc->transferred == adesc->buf.size - 1)
-				if (adesc->twi_desc->flags & TWID_BUF_ATTR_STOP)
+				if (adesc->twi_desc->flags & BUS_I2C_BUF_ATTR_STOP)
 					twi_send_stop_condition(addr);
 
 			twi_write_byte(addr, adesc->buf.data[adesc->transferred]);
@@ -399,7 +400,7 @@ static void _twid_handler(uint32_t source, void* user_arg)
 
 		if (adesc->transferred >= adesc->buf.size){
 			twi_disable_it(addr, TWI_IDR_TXRDY);
-			if (adesc->twi_desc->flags & TWID_BUF_ATTR_STOP) {
+			if (adesc->twi_desc->flags & BUS_I2C_BUF_ATTR_STOP) {
 				twi_enable_it(addr, TWI_IER_TXCOMP);
 			} else {
 				adesc->twi_id = 0;
@@ -438,7 +439,7 @@ static int _twid_poll_read(struct _twi_desc* desc, struct _buffer* buffer)
 	if (size < 0)
 		size = 0;
 
-	if (desc->flags & TWID_BUF_ATTR_START)
+	if (desc->flags & BUS_I2C_BUF_ATTR_START)
 		twi_send_start_condition(addr);
 
 	if (use_fifo) {
@@ -478,7 +479,7 @@ static int _twid_poll_read(struct _twi_desc* desc, struct _buffer* buffer)
 	}
 
 	/* Before receive last data, send stop */
-	if (desc->flags & TWID_BUF_ATTR_STOP)
+	if (desc->flags & BUS_I2C_BUF_ATTR_STOP)
 		twi_send_stop_condition(addr);
 
 	if ((size == (buffer->size - 1)) || (size == 0)) {
@@ -488,7 +489,7 @@ static int _twid_poll_read(struct _twi_desc* desc, struct _buffer* buffer)
 	}
 
 	/* wait transfer to be finished */
-	if (desc->flags & TWID_BUF_ATTR_STOP)
+	if (desc->flags & BUS_I2C_BUF_ATTR_STOP)
 		return _twid_wait_twi_transfer(desc);
 	return 0;
 }
@@ -512,7 +513,7 @@ static int _twid_poll_write(struct _twi_desc* desc, struct _buffer* buffer)
 
 	/* If only one byte send stop immediatly */
 	if (buffer->size <= 1)
-		if (desc->flags & TWID_BUF_ATTR_STOP)
+		if (desc->flags & BUS_I2C_BUF_ATTR_STOP)
 			twi_send_stop_condition(desc->addr);
 
 	if (use_fifo) {
@@ -545,7 +546,7 @@ static int _twid_poll_write(struct _twi_desc* desc, struct _buffer* buffer)
 	}
 
 	if (buffer->size > 1)
-		if (desc->flags & TWID_BUF_ATTR_STOP)
+		if (desc->flags & BUS_I2C_BUF_ATTR_STOP)
 			twi_send_stop_condition(desc->addr);
 
 	if (size == (buffer->size - 1)) {
@@ -555,7 +556,7 @@ static int _twid_poll_write(struct _twi_desc* desc, struct _buffer* buffer)
 	}
 
 	/* wait transfer to be finished */
-	if (desc->flags & TWID_BUF_ATTR_STOP)
+	if (desc->flags & BUS_I2C_BUF_ATTR_STOP)
 		return _twid_wait_twi_transfer(desc);
 	return 0;
 }
@@ -653,15 +654,15 @@ static int _twid_transfer(struct _twi_desc* desc, struct _buffer* buf,  struct _
 	tmode = desc->transfer_mode;
 
 	/* If short transfer detected, use POLLING mode */
-	if (tmode != TWID_MODE_POLLING) {
+	if (tmode != BUS_TRANSFER_MODE_POLLING) {
 		if (buf->size == 0)
-			tmode = TWID_MODE_POLLING;
+			tmode = BUS_TRANSFER_MODE_POLLING;
 		else if (buf->size < TWID_POLLING_THRESHOLD)
-			tmode = TWID_MODE_POLLING;
+			tmode = BUS_TRANSFER_MODE_POLLING;
 	}
 
-	if (desc->flags & TWID_BUF_ATTR_START) {
-		if (desc->flags & TWID_BUF_ATTR_WRITE) {
+	if (desc->flags & BUS_I2C_BUF_ATTR_START) {
+		if (desc->flags & BUS_BUF_ATTR_TX) {
 			twi_init_write(desc->addr, desc->slave_addr, 0, 0);
 #ifdef CONFIG_HAVE_TWI_FIFO
 			if (desc->use_fifo)
@@ -677,7 +678,7 @@ static int _twid_transfer(struct _twi_desc* desc, struct _buffer* buf,  struct _
 	}
 
 	switch (tmode) {
-	case TWID_MODE_ASYNC:
+	case BUS_TRANSFER_MODE_ASYNC:
 		/* Copy descriptor to async descriptor */
 		async_desc[adesc_index].twi_desc = desc;
 		/* Init param used by interrupt handler */
@@ -693,7 +694,7 @@ static int _twid_transfer(struct _twi_desc* desc, struct _buffer* buf,  struct _
 		/* Enable TWI interrupt */
 		irq_enable(id);
 
-		if (desc->flags & TWID_BUF_ATTR_WRITE) {
+		if (desc->flags & BUS_BUF_ATTR_TX) {
 			if (_check_tx_timeout(desc)) {
 				twi_disable_it(desc->addr, TWI_IER_TXRDY);
 				irq_disable(id);
@@ -718,15 +719,15 @@ static int _twid_transfer(struct _twi_desc* desc, struct _buffer* buf,  struct _
 			/* Enable read interrupt and start the transfer */
 			twi_enable_it(desc->addr, TWI_IER_RXRDY);
 
-			if (desc->flags & TWID_BUF_ATTR_START)
+			if (desc->flags & BUS_I2C_BUF_ATTR_START)
 				twi_send_start_condition(desc->addr);
 		}
 
 		adesc_index = (adesc_index + 1) % TWI_IFACE_COUNT;
 		break;
 
-	case TWID_MODE_POLLING:
-		if (desc->flags & TWID_BUF_ATTR_WRITE)
+	case BUS_TRANSFER_MODE_POLLING:
+		if (desc->flags & BUS_BUF_ATTR_TX)
 			err = _twid_poll_write(desc, buf);
 		else
 			err = _twid_poll_read(desc, buf);
@@ -736,8 +737,8 @@ static int _twid_transfer(struct _twi_desc* desc, struct _buffer* buf,  struct _
 		mutex_unlock(&desc->mutex);
 		break;
 
-	case TWID_MODE_DMA:
-		if (desc->flags & TWID_BUF_ATTR_WRITE)
+	case BUS_TRANSFER_MODE_DMA:
+		if (desc->flags & BUS_BUF_ATTR_TX)
 			_twid_dma_write(desc, buf);
 		else
 			_twid_dma_read(desc, buf);
@@ -830,10 +831,10 @@ int twid_transfer(struct _twi_desc* desc, struct _buffer* buf, int buffers, stru
 		return -EINVAL;
 
 	for (b = 0 ; b < buffers ; b++) {
-		if ((buf[b].attr & (TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_READ)) == 0)
+		if ((buf[b].attr & (BUS_BUF_ATTR_TX | BUS_BUF_ATTR_RX)) == 0)
 			return -EINVAL;
 
-		if ((buf[b].attr & (TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_READ)) == (TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_READ))
+		if ((buf[b].attr & (BUS_BUF_ATTR_TX | BUS_BUF_ATTR_RX)) == (BUS_BUF_ATTR_TX | BUS_BUF_ATTR_RX))
 			return -EINVAL;
 
 		if (b == (buffers - 1)) {
@@ -841,8 +842,8 @@ int twid_transfer(struct _twi_desc* desc, struct _buffer* buf, int buffers, stru
 		} else {
 #if defined(CONFIG_SOC_SAM9XX5) || defined(CONFIG_SOC_SAMA5D3)
 			/* workaround for IP versions that do not support manual restart */
-			if (buf[b + 1].attr & TWID_BUF_ATTR_START)
-				buf[b].attr |= TWID_BUF_ATTR_STOP;
+			if (buf[b + 1].attr & BUS_I2C_BUF_ATTR_START)
+				buf[b].attr |= BUS_I2C_BUF_ATTR_STOP;
 #endif
 			err = _twid_transfer(desc, &buf[b], NULL);
 		}

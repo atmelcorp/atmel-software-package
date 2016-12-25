@@ -1,0 +1,453 @@
+/* ----------------------------------------------------------------------------
+ *         SAM Software Package License
+ * ----------------------------------------------------------------------------
+ * Copyright (c) 2016, Atmel Corporation
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * - Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the disclaimer below.
+ *
+ * Atmel's name may not be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * ----------------------------------------------------------------------------
+ */
+
+/*----------------------------------------------------------------------------
+ *         Headers
+ *----------------------------------------------------------------------------*/
+
+#include <string.h>
+
+#include "callback.h"
+#include "peripherals/bus.h"
+#include "errno.h"
+#ifdef CONFIG_HAVE_BUS_SPI
+#include "spi/spid.h"
+#endif
+#ifdef CONFIG_HAVE_BUS_I2C
+#include "i2c/twid.h"
+#endif
+#include "trace.h"
+
+/*----------------------------------------------------------------------------
+ *         Definitions
+ *----------------------------------------------------------------------------*/
+
+#define O_BLOCK (0x01)
+
+struct _bus_desc {
+	enum _bus_type type;
+	union {
+		uint32_t dummy;
+#ifdef CONFIG_HAVE_SPI_BUS
+		struct _spi_desc spid;
+#endif
+#ifdef CONFIG_HAVE_I2C_BUS
+		struct _twi_desc twid;
+#endif
+	} iface;
+
+	enum _bus_transfer_mode transfer_mode;
+
+	uint32_t options;
+
+	struct _callback callback;
+
+	struct {
+		mutex_t lock;
+		mutex_t transaction;
+	} mutex;
+};
+
+/*----------------------------------------------------------------------------
+ *         Local variables
+ *----------------------------------------------------------------------------*/
+
+static struct _bus_desc _bus[BUS_COUNT];
+
+/*----------------------------------------------------------------------------
+ *         Local functions
+ *----------------------------------------------------------------------------*/
+
+static int _bus_callback(void* arg)
+{
+	uint32_t bus_id = (uint32_t)arg;
+
+	if (bus_id >= BUS_COUNT)
+		return -ENODEV;
+
+	mutex_unlock(&_bus[bus_id].mutex.lock);
+
+	return callback_call(&_bus[bus_id].callback);
+}
+
+/*----------------------------------------------------------------------------
+ *         Exported functions
+ *----------------------------------------------------------------------------*/
+
+int bus_get_id(enum _bus_type type, int bus_id)
+{
+	int i, found = 0;
+
+	for (i = 0 ; i < BUS_COUNT; i++) {
+		if (_bus[bus_id].type == type) {
+			if (found == bus_id)
+				return found;
+			found++;
+		}
+	}
+
+	return -ENODEV;
+}
+
+int bus_configure(uint8_t bus_id, const struct _bus_iface* iface)
+{
+	if (bus_id >= BUS_COUNT)
+		return -ENODEV;
+
+	memset(&_bus[bus_id], 0, sizeof(_bus[bus_id]));
+	_bus[bus_id].transfer_mode = iface->transfer_mode;
+	_bus[bus_id].options = O_BLOCK;
+	_bus[bus_id].type = iface->type;
+
+	switch (_bus[bus_id].type) {
+#ifdef CONFIG_HAVE_SPI_BUS
+	case BUS_TYPE_SPI:
+		_bus[bus_id].iface.spid.addr = iface->spi.hw;
+		_bus[bus_id].iface.spid.transfer_mode = iface->transfer_mode;
+
+		spid_configure(&_bus[bus_id].iface.spid);
+		spid_configure_master(&_bus[bus_id].iface.spid, true);
+		break;
+#endif
+#ifdef CONFIG_HAVE_I2C_BUS
+	case BUS_TYPE_I2C:
+		_bus[bus_id].iface.twid.addr = iface->i2c.hw;
+		_bus[bus_id].iface.twid.transfer_mode = iface->transfer_mode;
+		_bus[bus_id].iface.twid.freq = iface->i2c.freq;
+
+		twid_configure(&_bus[bus_id].iface.twid);
+		break;
+#endif
+	default:
+		return -EINVAL;
+	}
+
+	bus_enable(bus_id);
+
+	return 0;
+}
+
+int bus_configure_slave(uint8_t bus_id, const struct _bus_dev_cfg* cfg)
+{
+	if (bus_id >= BUS_COUNT)
+		return -ENODEV;
+
+	switch (_bus[bus_id].type) {
+#ifdef CONFIG_HAVE_SPI_BUS
+	case BUS_TYPE_SPI:
+		spid_configure_cs(&_bus[bus_id].iface.spid,
+		                  cfg->spi_dev.chip_select,
+		                  cfg->spi_dev.bitrate,
+		                  cfg->spi_dev.delay.bs,
+		                  cfg->spi_dev.delay.bct,
+		                  cfg->spi_dev.spi_mode);
+		break;
+#endif
+#ifdef CONFIG_HAVE_I2C_BUS
+	case BUS_TYPE_I2C:
+		break;
+#endif
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+int bus_transfer(uint8_t bus_id, uint16_t remote, struct _buffer* buf, uint16_t buffers, struct _callback* cb)
+{
+	int err;
+	struct _callback _cb;
+
+	if (bus_id >= BUS_COUNT)
+		return -ENODEV;
+
+	if (buffers == 0)
+		return 0;
+
+	if (!mutex_is_locked(&_bus[bus_id].mutex.transaction)) {
+		trace_error("bus: no opened transaction on the bus.");
+		return -EBUSY;
+	}
+	if (!mutex_try_lock(&_bus[bus_id].mutex.lock))
+		return -EAGAIN;
+
+	callback_copy(&_bus[bus_id].callback, cb);
+
+	callback_set(&_cb, _bus_callback, (void*)(uint32_t)bus_id);
+	switch (_bus[bus_id].type) {
+#ifdef CONFIG_HAVE_SPI_BUS
+	case BUS_TYPE_SPI:
+		_bus[bus_id].iface.spid.chip_select = (uint8_t)remote;
+
+		err = spid_transfer(&_bus[bus_id].iface.spid, buf, buffers, &_cb);
+		break;
+#endif
+#ifdef CONFIG_HAVE_I2C_BUS
+	case BUS_TYPE_I2C:
+		_bus[bus_id].iface.twid.slave_addr = (uint8_t)remote;
+
+		err = twid_transfer(&_bus[bus_id].iface.twid, buf, buffers, &_cb);
+		break;
+#endif
+	default:
+		return -EINVAL;
+	}
+
+	if (err < 0) {
+		mutex_unlock(&_bus[bus_id].mutex.lock);
+		return err;
+	}
+	if (_bus[bus_id].options & O_BLOCK)
+		while (mutex_is_locked(&_bus[bus_id].mutex.lock));
+
+	return err;
+}
+
+int bus_start_transaction(uint8_t bus_id)
+{
+	if (bus_id >= BUS_COUNT)
+		return -ENODEV;
+
+	mutex_lock(&_bus[bus_id].mutex.transaction);
+
+	return 0;
+}
+
+int bus_stop_transaction(uint8_t bus_id)
+{
+	if (bus_id >= BUS_COUNT)
+		return -ENODEV;
+
+	mutex_unlock(&_bus[bus_id].mutex.transaction);
+
+	return 0;
+}
+
+bool bus_wait_transaction(uint8_t bus_id)
+{
+	return mutex_is_locked(&_bus[bus_id].mutex.transaction);
+}
+
+bool bus_is_busy(uint8_t bus_id)
+{
+	return mutex_is_locked(&_bus[bus_id].mutex.lock);
+}
+
+void bus_wait_transfer(uint8_t bus_id)
+{
+	while (bus_is_busy(bus_id));
+}
+
+int bus_get_transfer_mode(uint8_t bus_id)
+{
+	if (bus_id >= BUS_COUNT)
+		return -ENODEV;
+
+	switch (_bus[bus_id].type) {
+#ifdef CONFIG_HAVE_SPI_BUS
+	case BUS_TYPE_SPI:
+		return _bus[bus_id].iface.spid.transfer_mode;
+#endif
+#ifdef CONFIG_HAVE_I2C_BUS
+	case BUS_TYPE_I2C:
+		return _bus[bus_id].iface.twid.transfer_mode;
+#endif
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+int bus_set_transfer_mode(uint8_t bus_id, enum _bus_transfer_mode mode)
+{
+	if (bus_id >= BUS_COUNT)
+		return -ENODEV;
+
+	switch (_bus[bus_id].type) {
+#ifdef CONFIG_HAVE_SPI_BUS
+	case BUS_TYPE_SPI:
+		_bus[bus_id].iface.spid.transfer_mode = mode;
+		break;
+#endif
+#ifdef CONFIG_HAVE_I2C_BUS
+	case BUS_TYPE_I2C:
+		_bus[bus_id].iface.twid.transfer_mode = mode;
+		break;
+#endif
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+int bus_enable(uint8_t bus_id)
+{
+	if (bus_id >= BUS_COUNT)
+		return -ENODEV;
+
+	switch (_bus[bus_id].type) {
+#ifdef CONFIG_HAVE_SPI_BUS
+	case BUS_TYPE_SPI:
+		break;
+#endif
+#ifdef CONFIG_HAVE_I2C_BUS
+	case BUS_TYPE_I2C:
+		break;
+#endif
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+int bus_disable(uint8_t bus_id)
+{
+	if (bus_id >= BUS_COUNT)
+		return -ENODEV;
+
+	switch (_bus[bus_id].type) {
+#ifdef CONFIG_HAVE_SPI_BUS
+	case BUS_TYPE_SPI:
+		break;
+#endif
+#ifdef CONFIG_HAVE_I2C_BUS
+	case BUS_TYPE_I2C:
+		break;
+#endif
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+int bus_suspend(uint8_t bus_id)
+{
+	if (bus_id >= BUS_COUNT)
+	return -ENODEV;
+
+	switch (_bus[bus_id].type) {
+#ifdef CONFIG_HAVE_SPI_BUS
+	case BUS_TYPE_SPI:
+		break;
+#endif
+#ifdef CONFIG_HAVE_I2C_BUS
+	case BUS_TYPE_I2C:
+		break;
+#endif
+	default:
+		return -EINVAL;
+	}
+
+	return -ENOTSUP;
+}
+
+int bus_fifo_enable(uint8_t bus_id)
+{
+	int err = 0;
+
+	if (bus_id >= BUS_COUNT)
+		return -ENODEV;
+
+	switch (_bus[bus_id].type) {
+#ifdef CONFIG_HAVE_SPI_BUS
+	case BUS_TYPE_SPI:
+#ifdef CONFIG_HAVE_SPI_FIFO
+		_bus[bus_id].iface.spid.use_fifo = true;
+#endif
+		break;
+#endif
+#ifdef CONFIG_HAVE_I2C_BUS
+	case BUS_TYPE_I2C:
+#ifdef CONFIG_HAVE_TWI_FIFO
+		_bus[bus_id].iface.twid.use_fifo = true;
+#endif
+		break;
+#endif
+	default:
+		return -EINVAL;
+	}
+
+	return err;
+}
+
+int bus_fifo_disable(uint8_t bus_id)
+{
+	int err = 0;
+
+	if (bus_id >= BUS_COUNT)
+		return -ENODEV;
+
+	switch (_bus[bus_id].type) {
+#ifdef CONFIG_HAVE_I2C_BUS
+	case BUS_TYPE_I2C:
+#ifdef CONFIG_HAVE_TWI_FIFO
+		_bus[bus_id].iface.twid.use_fifo = false;
+#endif
+		break;
+#endif
+	default:
+		return -EINVAL;
+	}
+
+	return err;
+}
+
+int bus_fifo_is_enabled(uint8_t bus_id)
+{
+	int err = 0;
+
+	if (bus_id >= BUS_COUNT)
+		return -ENODEV;
+
+	switch (_bus[bus_id].type) {
+#ifdef CONFIG_HAVE_SPI_BUS
+	case BUS_TYPE_SPI:
+#ifdef CONFIG_HAVE_SPI_FIFO
+		err = _bus[bus_id].iface.spid.use_fifo;
+#endif
+		break;
+#endif
+#ifdef CONFIG_HAVE_I2C_BUS
+	case BUS_TYPE_I2C:
+#ifdef CONFIG_HAVE_TWI_FIFO
+		err = _bus[bus_id].iface.twid.use_fifo;
+#endif
+		break;
+#endif
+	default:
+		return -EINVAL;
+	}
+
+	return err;
+}

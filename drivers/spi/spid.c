@@ -41,6 +41,7 @@
 #include "errno.h"
 #include "irq/irq.h"
 #include "mm/cache.h"
+#include "peripherals/bus.h"
 #ifdef CONFIG_HAVE_FLEXCOM
 #include "peripherals/flexcom.h"
 #endif
@@ -274,7 +275,7 @@ static void _spid_transfer_current_buffer_async(struct _spi_desc* desc)
 {
 	desc->xfer.transferred = 0;
 
-	if (desc->xfer.current->attr & SPID_BUF_ATTR_WRITE) {
+	if (desc->xfer.current->attr & BUS_BUF_ATTR_TX) {
 		spi_enable_it(desc->addr, SPI_IER_TDRE);
 	} else {
 		spi_enable_it(desc->addr, SPI_IER_RDRF);
@@ -285,7 +286,7 @@ static void _spid_transfer_current_buffer_async(struct _spi_desc* desc)
 
 static void _spid_transfer_current_buffer_dma(struct _spi_desc* desc)
 {
-	if (desc->xfer.current->attr & SPID_BUF_ATTR_WRITE) {
+	if (desc->xfer.current->attr & BUS_BUF_ATTR_TX) {
 		_spid_dma_write(desc, desc->xfer.current->data, desc->xfer.current->size);
 	} else {
 		_spid_dma_read(desc, desc->xfer.current->data, desc->xfer.current->size);
@@ -294,7 +295,7 @@ static void _spid_transfer_current_buffer_dma(struct _spi_desc* desc)
 
 static void _spid_transfer_current_buffer_polling(struct _spi_desc* desc)
 {
-	if (desc->xfer.current->attr & SPID_BUF_ATTR_WRITE) {
+	if (desc->xfer.current->attr & BUS_BUF_ATTR_TX) {
 		_spid_poll_write(desc, desc->xfer.current);
 	} else {
 		_spid_poll_read(desc, desc->xfer.current);
@@ -307,21 +308,21 @@ static void _spid_transfer_current_buffer_polling(struct _spi_desc* desc)
 
 static void _spid_transfer_current_buffer(struct _spi_desc* desc)
 {
-	enum _spid_trans_mode tmode = desc->transfer_mode;
+	enum _bus_transfer_mode tmode = desc->transfer_mode;
 
 	if (desc->xfer.current->size < SPID_POLLING_THRESHOLD)
-		tmode = SPID_MODE_POLLING;
+		tmode = BUS_TRANSFER_MODE_POLLING;
 
 	switch (tmode) {
-	case SPID_MODE_POLLING:
+	case BUS_TRANSFER_MODE_POLLING:
 		_spid_transfer_current_buffer_polling(desc);
 		break;
 
-	case SPID_MODE_ASYNC:
+	case BUS_TRANSFER_MODE_ASYNC:
 		_spid_transfer_current_buffer_async(desc);
 		break;
 
-	case SPID_MODE_DMA:
+	case BUS_TRANSFER_MODE_DMA:
 		_spid_transfer_current_buffer_dma(desc);
 		break;
 
@@ -337,7 +338,7 @@ static void _spid_transfer_next_buffer(struct _spi_desc* desc)
 
 		_spid_transfer_current_buffer(desc);
 	} else {
-		if (desc->xfer.current->attr & SPID_BUF_ATTR_RELEASE_CS)
+		if (desc->xfer.current->attr & BUS_SPI_BUF_ATTR_RELEASE_CS)
 			spi_release_cs(desc->addr);
 
 		desc->xfer.current = NULL;
@@ -360,10 +361,10 @@ int spid_transfer(struct _spi_desc* desc,
 		return -EINVAL;
 
 	for (i = 0 ; i < buffer_count ; i++) {
-		if ((buffers[i].attr & (SPID_BUF_ATTR_WRITE | SPID_BUF_ATTR_READ)) == 0)
+		if ((buffers[i].attr & (BUS_BUF_ATTR_TX | BUS_BUF_ATTR_RX)) == 0)
 			return -EINVAL;
 
-		if ((buffers[i].attr & (SPID_BUF_ATTR_WRITE | SPID_BUF_ATTR_READ)) == (SPID_BUF_ATTR_WRITE | SPID_BUF_ATTR_READ))
+		if ((buffers[i].attr & (BUS_BUF_ATTR_TX | BUS_BUF_ATTR_RX)) == (BUS_BUF_ATTR_TX | BUS_BUF_ATTR_RX))
 			return -EINVAL;
 	}
 
@@ -391,7 +392,7 @@ bool spid_is_busy(struct _spi_desc* desc)
 void spid_wait_transfer(struct _spi_desc* desc)
 {
 	while (spid_is_busy(desc)) {
-		if (desc->transfer_mode == SPID_MODE_DMA)
+		if (desc->transfer_mode == BUS_TRANSFER_MODE_DMA)
 			dma_poll();
 	}
 }

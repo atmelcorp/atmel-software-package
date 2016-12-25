@@ -106,7 +106,7 @@ struct _act8865 {
 /*
  * Function Declarations
  */
-extern bool act8865_set_reg_voltage(struct _act8865* act8865, uint8_t volt_reg, uint8_t value);
-extern bool act8865_check_twi_status(struct _act8865* act8865);
+extern int act8865_set_reg_voltage(struct _act8865* act8865, uint8_t volt_reg, uint8_t value);
+extern int act8865_check_twi_status(struct _act8865* act8865);
 
 #endif /* _ACT_8865_H_ */

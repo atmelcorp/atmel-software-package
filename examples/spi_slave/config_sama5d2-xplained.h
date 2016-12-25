@@ -2,7 +2,7 @@
 #define __CONFIG_SAMA5D2_XPLAINED_H__
 
 /** define the SPI master bus */
-#define SPI_MASTER_BUS 0
+#define SPI_MASTER_BUS BUS(BUS_TYPE_SPI, 0)
 /** define the CS signal of SPI master */
 #define SPI_MASTER_CS 2
 /** define the bitrate of SPI master */

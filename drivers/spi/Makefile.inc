@@ -26,7 +26,6 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-drivers-$(CONFIG_HAVE_SPI_BUS) += drivers/spi/spi-bus.o
 drivers-$(CONFIG_HAVE_QSPI) += drivers/spi/qspi.o
 drivers-$(CONFIG_HAVE_SPI) += drivers/spi/spi.o
 drivers-$(CONFIG_HAVE_SPI) += drivers/spi/spid.o

@@ -30,8 +30,10 @@
 #ifndef CONFIG_SAMA5D2_XPLAINED_H_
 #define CONFIG_SAMA5D2_XPLAINED_H_
 
+#include "peripherals/bus.h"
+
 /** TWI master bus used to communicate with emulator */
-#define AT24_EMU_MASTER_BUS 1
+#define AT24_EMU_MASTER_BUS BUS(BUS_TYPE_I2C, 1)
 /** TWI slave AT24 address */
 #define AT24_EMU_ADDR 0x53
 /** TWI slave pins definition **/

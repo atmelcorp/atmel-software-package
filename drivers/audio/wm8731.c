@@ -40,7 +40,7 @@
 
 #include "trace.h"
 #include "audio/wm8731.h"
-#include "i2c/twi-bus.h"
+#include "peripherals/bus.h"
 #include "i2c/twid.h"
 #include "peripherals/pmc.h"
 
@@ -200,7 +200,6 @@
  */
 static void wm8731_write(struct _wm8731_desc *wm8731, uint8_t reg_addr, uint16_t data)
 {
-	int status;
 	uint16_t tmp = ((reg_addr & 0x7f) << 9) | (data & 0x1ff);
 	uint8_t tmp_data[2] = {(tmp & 0xff00) >> 8, tmp & 0xff};
 
@@ -208,26 +207,18 @@ static void wm8731_write(struct _wm8731_desc *wm8731, uint8_t reg_addr, uint16_t
 		{
 			.data = &tmp_data[0],
 			.size = 1,
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_TX,
 		},
 		{
 			.data = &tmp_data[1],
 			.size = 1,
-			.attr = TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
+			.attr = BUS_BUF_ATTR_TX | BUS_I2C_BUF_ATTR_STOP,
 		},
 	};
 
-	while (twi_bus_transaction_pending(wm8731->twi.bus));
-	twi_bus_start_transaction(wm8731->twi.bus);
-
-	status = twi_bus_transfer(wm8731->twi.bus, wm8731->twi.addr, buf, 2, NULL);
-	if (status < 0) {
-		twi_bus_stop_transaction(wm8731->twi.bus);
-		return;
-	}
-
-	twi_bus_wait_transfer(wm8731->twi.bus);
-	twi_bus_stop_transaction(wm8731->twi.bus);
+	bus_start_transaction(wm8731->twi.bus);
+	bus_transfer(wm8731->twi.bus, wm8731->twi.addr, buf, 2, NULL);
+	bus_stop_transaction(wm8731->twi.bus);
 }
 
 /*----------------------------------------------------------------------------
@@ -279,7 +270,7 @@ void wm8731_set_left_volume(struct _wm8731_desc *wm8731, uint8_t vol)
 {
 	uint16_t reg_value;
 	vol &= WM8731_LHPVOL_BITS;
-	vol = (vol * 80 / 63 + WM8731_LHPVOL_BASE) > WM8731_LHPVOL_BITS 
+	vol = (vol * 80 / 63 + WM8731_LHPVOL_BASE) > WM8731_LHPVOL_BITS
 		  ? WM8731_LHPVOL_BITS : (vol * 80 / 63 + WM8731_LHPVOL_BASE);
 	reg_value = WM8731_LRHPBOTH_BIT | WM8731_LZCEN_BIT | vol;
 	wm8731_write(wm8731, WM8731_REG_LEFT_HPOUT, reg_value);
@@ -289,7 +280,7 @@ void wm8731_set_right_volume(struct _wm8731_desc *wm8731, uint8_t vol)
 {
 	uint16_t reg_value;
 	vol &= WM8731_RHPVOL_BITS;
-	vol = (vol * 80 / 63 + WM8731_RHPVOL_BASE) > WM8731_RHPVOL_BITS 
+	vol = (vol * 80 / 63 + WM8731_RHPVOL_BASE) > WM8731_RHPVOL_BITS
 		  ? WM8731_RHPVOL_BITS : (vol * 80 / 63 + WM8731_RHPVOL_BASE);
 	reg_value = WM8731_RZCEN_BIT | WM8731_RLHPBOTH_BIT | vol ;
 	wm8731_write(wm8731, WM8731_REG_RIGHT_HPOUT, reg_value);

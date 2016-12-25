@@ -31,7 +31,7 @@
 #define CONFIG_SAMA5D3_XPLAINED_H_
 
 /** TWI master bus used to communicate with emulator */
-#define AT24_EMU_MASTER_BUS 0
+#define AT24_EMU_MASTER_BUS BUS(BUS_TYPE_I2C, 0)
 /** TWI slave AT24 address */
 #define AT24_EMU_ADDR 0x53
 /** TWI slave pins definition **/

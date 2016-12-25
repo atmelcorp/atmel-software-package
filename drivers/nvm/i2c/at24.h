@@ -99,9 +99,9 @@ struct _at24 {
  *         Exported functions
  *----------------------------------------------------------------------------*/
 
-extern bool at24_configure(struct _at24* at24, const struct _at24_config* cfg);
-extern bool at24_read(const struct _at24* at24, uint32_t offset, uint8_t* data, uint16_t length);
-extern bool at24_write(const struct _at24* at24, uint32_t offset, const uint8_t* data, uint16_t length);
+extern int at24_configure(struct _at24* at24, const struct _at24_config* cfg);
+extern int at24_read(const struct _at24* at24, uint32_t offset, uint8_t* data, uint16_t length);
+extern int at24_write(const struct _at24* at24, uint32_t offset, const uint8_t* data, uint16_t length);
 extern bool at24_has_serial(const struct _at24* at24);
 extern bool at24_read_serial(const struct _at24* at24, uint8_t* serial);
 extern bool at24_has_eui48(const struct _at24* at24);

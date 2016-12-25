@@ -26,6 +26,7 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
+drivers-y += drivers/peripherals/bus.o
 drivers-y += drivers/peripherals/matrix.o
 drivers-$(CONFIG_HAVE_PIT) += drivers/peripherals/pit.o
 drivers-y += drivers/peripherals/pmc.o

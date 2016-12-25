@@ -46,19 +46,6 @@
  *        Types
  *----------------------------------------------------------------------------*/
 
-enum _spid_buf_attr {
-	SPID_BUF_ATTR_READ       = 0x01,
-	SPID_BUF_ATTR_WRITE      = 0x02,
-	SPID_BUF_ATTR_RELEASE_CS = 0x04,
-};
-
-enum _spid_trans_mode
-{
-	SPID_MODE_POLLING,
-	SPID_MODE_ASYNC,
-	SPID_MODE_DMA
-};
-
 enum _spid_mode {
 	SPID_MODE_0 = 0x00, // POL=0, CPHA=0
 	SPID_MODE_1 = 0x01, // POL=0, CPHA=1
@@ -67,11 +54,11 @@ enum _spid_mode {
 };
 
 struct _spi_desc {
-	Spi*            addr;
-	uint8_t         chip_select;
-	enum _spid_trans_mode transfer_mode;
+	Spi* addr;
+	uint8_t chip_select;
+	int transfer_mode;
 	/* following fields are used internally */
-	mutex_t         mutex;
+	mutex_t mutex;
 
 #ifdef CONFIG_HAVE_SPI_FIFO
 	bool use_fifo;

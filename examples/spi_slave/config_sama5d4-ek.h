@@ -2,7 +2,7 @@
 #define __CONFIG_SAMA5D4_EK_H__
 
 /** define the address of SPI master */
-#define SPI_MASTER_BUS 1
+#define SPI_MASTER_BUS BUS(BUS_TYPE_SPI, 1)
 /** define the CS signal of SPI master */
 #define SPI_MASTER_CS 2
 /** define the bitrate of SPI master */

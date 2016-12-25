@@ -31,17 +31,16 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
-
-#include "video/image_sensor_inf.h"
-#include "i2c/twi-bus.h"
-#include "i2c/twid.h"
-
 #include <stdbool.h>
 #include <stdio.h>
 
+#include "chip.h"
+#include "errno.h"
+#include "i2c/twid.h"
+#include "peripherals/bus.h"
 #include "timer.h"
 #include "trace.h"
+#include "video/image_sensor_inf.h"
 
 /*----------------------------------------------------------------------------
  *        Local variables
@@ -68,21 +67,21 @@ static const struct sensor_profile* sensor_profiles[SENSOR_SUPPORTED_NUMBER] = {
  * \param data Data read
  * \return SENSOR_OK if no error; otherwise SENSOR_TWI_ERROR
  */
-static uint32_t sensor_twi_read_reg(uint8_t twi_mode, uint8_t bus, uint8_t addr,
-									uint16_t reg, uint8_t *data)
+static int sensor_twi_read_reg(uint8_t twi_mode, uint8_t bus, uint8_t addr,
+			       uint16_t reg, uint8_t *data)
 {
-	int status;
+	int err;
 	uint8_t reg8[2];
 	struct _buffer buf[2] = {
 		{
 			/* .data */
 			/* .size */
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_TX | BUS_I2C_BUF_ATTR_STOP,
 		},
 		{
 			/* .data */
 			/* .size */
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_READ | TWID_BUF_ATTR_STOP,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_RX | BUS_I2C_BUF_ATTR_STOP,
 		},
 	};
 
@@ -111,22 +110,14 @@ static uint32_t sensor_twi_read_reg(uint8_t twi_mode, uint8_t bus, uint8_t addr,
 		break;
 
 	default:
-		return SENSOR_TWI_ERROR;
+		return -EINVAL;
 	}
 
-	while (twi_bus_transaction_pending(bus));
-	twi_bus_start_transaction(bus);
+	bus_start_transaction(bus);
+	err = bus_transfer(bus, addr, buf, 2, NULL);
+	bus_stop_transaction(bus);
 
-	status = twi_bus_transfer(bus, addr, buf, 2, NULL);
-	if (status < 0) {
-		twi_bus_stop_transaction(bus);
-		return SENSOR_TWI_ERROR;
-	}
-
-	twi_bus_wait_transfer(bus);
-	twi_bus_stop_transaction(bus);
-
-	return SENSOR_OK;
+	return err;
 }
 
 /**
@@ -137,21 +128,21 @@ static uint32_t sensor_twi_read_reg(uint8_t twi_mode, uint8_t bus, uint8_t addr,
  * \param data Data written
  * \return SENSOR_OK if no error; otherwise SENSOR_TWI_ERROR
  */
-static uint32_t sensor_twi_write_reg(uint8_t twi_mode, uint8_t bus, uint8_t addr,
-									 uint16_t reg, uint8_t *data)
+static int sensor_twi_write_reg(uint8_t twi_mode, uint8_t bus, uint8_t addr,
+				uint16_t reg, uint8_t *data)
 {
-	int status;
+	int err;
 	uint8_t addr_buf[2];
 	struct _buffer buf[2] = {
 		{
 			.data = addr_buf,
 			/* .size */
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_TX,
 		},
 		{
 			.data = data,
 			/* .size */
-			.attr = TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
+			.attr = BUS_BUF_ATTR_TX | BUS_I2C_BUF_ATTR_STOP,
 		},
 	};
 
@@ -177,22 +168,14 @@ static uint32_t sensor_twi_write_reg(uint8_t twi_mode, uint8_t bus, uint8_t addr
 		break;
 
 	default:
-		return SENSOR_TWI_ERROR;
+		return -EINVAL;
 	}
 
-	while (twi_bus_transaction_pending(bus));
-	twi_bus_start_transaction(bus);
+	bus_start_transaction(bus);
+	err = bus_transfer(bus, addr, buf, 2, NULL);
+	bus_stop_transaction(bus);
 
-	status = twi_bus_transfer(bus, addr, buf, 2, NULL);
-	if (status < 0) {
-		twi_bus_stop_transaction(bus);
-		return SENSOR_TWI_ERROR;
-	}
-
-	twi_bus_wait_transfer(bus);
-	twi_bus_stop_transaction(bus);
-
-	return SENSOR_OK;
+	return err;
 }
 
 /**
@@ -214,13 +197,13 @@ static uint32_t sensor_check_pid(uint8_t twi_bus, struct sensor_profile* sensor_
 	if (sensor_twi_read_reg(sensor_profile->twi_inf_mode,
 							twi_bus,
 							sensor_profile->addr,
-							reg_h, (uint8_t*)&pid_high) != SENSOR_OK)
+							reg_h, (uint8_t*)&pid_high) < 0)
 		return SENSOR_TWI_ERROR;
 	pid_high &= 0xff;
 	if (sensor_twi_read_reg(sensor_profile->twi_inf_mode,
 							twi_bus,
 							sensor_profile->addr,
-							reg_l, (uint8_t*)&pid_low) != SENSOR_OK)
+							reg_l, (uint8_t*)&pid_low) < 0)
 		return SENSOR_TWI_ERROR;
 	pid_low &= 0xff;
 
@@ -240,11 +223,11 @@ static uint32_t sensor_check_pid(uint8_t twi_bus, struct sensor_profile* sensor_
  * \param reglist Register list to be written
  * \return SENSOR_OK if no error; otherwise SENSOR_TWI_ERROR
  */
-static uint32_t sensor_twi_write_regs(uint8_t twi_bus, 
+static uint32_t sensor_twi_write_regs(uint8_t twi_bus,
 									  struct sensor_profile* sensor_profile,
 									  const struct sensor_reg* reglist)
 {
-	uint32_t status;
+	int status;
 	const struct sensor_reg *next = reglist;
 
 	while (!((next->reg == SENSOR_REG_TERM) && (next->val == SENSOR_VAL_TERM))) {
@@ -254,7 +237,7 @@ static uint32_t sensor_twi_write_regs(uint8_t twi_bus,
 									  next->reg,
 									  (uint8_t *)(&next->val));
 		msleep(2);
-		if (status)
+		if (status < 0)
 			return SENSOR_TWI_ERROR;
 		next++;
 	}

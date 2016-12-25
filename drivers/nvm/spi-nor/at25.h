@@ -37,10 +37,11 @@
 //------------------------------------------------------------------------------
 
 #include <stdint.h>
-#include "nvm/spi-nor/spi-nor.h"
-#include "spi/spid.h"
-#include "spi/spi-bus.h"
+
 #include "mutex.h"
+#include "nvm/spi-nor/spi-nor.h"
+#include "peripherals/bus.h"
+#include "spi/spid.h"
 
 /*----------------------------------------------------------------------------
  *        Local definitions
@@ -89,7 +90,7 @@
 #define AT25_ADDRESS_3_BYTES      0x3Bu
 
 struct _at25 {
-	struct _spi_dev_desc dev;
+	struct _bus_dev_cfg cfg;
 
 	const struct _spi_nor_desc* desc;
 	uint32_t addressing;

@@ -31,21 +31,19 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
-#include "timer.h"
-#include "intmath.h"
-#include "trace.h"
-
-#include "i2c/twi-bus.h"
-
-#include "mm/cache.h"
-
-#include "nvm/i2c/at24.h"
-
 #include <assert.h>
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
+
+#include "chip.h"
+#include "errno.h"
+#include "intmath.h"
+#include "mm/cache.h"
+#include "nvm/i2c/at24.h"
+#include "peripherals/bus.h"
+#include "timer.h"
+#include "trace.h"
 
 /*------------------------------------------------------------------------------
  *         Local definitions
@@ -121,36 +119,30 @@ static int _at24_compute_address_field(const struct _at24* at24, uint8_t *addr_b
 	}
 }
 
-static bool _at24_twi_read(const struct _at24* at24, uint8_t addr_offset, struct _buffer *buf)
+static int _at24_twi_read(const struct _at24* at24, uint8_t addr_offset, struct _buffer *buf)
 {
-	uint8_t status;
+	int err;
 
 	/* start a TWI bus transaction */
-	while (twi_bus_transaction_pending(at24->bus));
-	twi_bus_start_transaction(at24->bus);
+	bus_start_transaction(at24->bus);
 
 	/* start the TWI bus transfer */
-	status = twi_bus_transfer(at24->bus, at24->addr + addr_offset, buf, 2, NULL);
+	err = bus_transfer(at24->bus, at24->addr + addr_offset, buf, 2, NULL);
 
-	/* wait for completion and stop transaction */
-	twi_bus_wait_transfer(at24->bus);
-	twi_bus_stop_transaction(at24->bus);
+	bus_stop_transaction(at24->bus);
 
-	return !status;
+	return err;
 }
 
 //------------------------------------------------------------------------------
 ///        Exported functions
 //------------------------------------------------------------------------------
 
-bool at24_configure(struct _at24* at24, const struct _at24_config* cfg)
+int at24_configure(struct _at24* at24, const struct _at24_config* cfg)
 {
 	int i;
 	const struct _at24_desc *desc;
 	uint8_t addr_mask;
-
-	assert(at24);
-	assert(cfg);
 
 	for (i = 0, desc = NULL; i < ARRAY_SIZE(_at24_devices); i++) {
 		if (_at24_devices[i].model == cfg->model) {
@@ -160,7 +152,7 @@ bool at24_configure(struct _at24* at24, const struct _at24_config* cfg)
 	}
 	if (!desc) {
 		trace_error("at24: unknown model %u\r\n", cfg->model);
-		return false;
+		return -ENOTSUP;
 	}
 
 	if (at24->desc->size == 18) {
@@ -172,28 +164,29 @@ bool at24_configure(struct _at24* at24, const struct _at24_config* cfg)
 	}
 	if ((cfg->addr & addr_mask) != AT24_EEPROM_ADDR) {
 		trace_error("at24: invalid TWI address %u\r\n", cfg->addr);
-		return false;
+		return -ENODEV;
 	}
 
 	at24->bus = cfg->bus;
 	at24->addr = cfg->addr;
 	at24->desc = desc;
-	return true;
+
+	return 0;
 }
 
-bool at24_read(const struct _at24* at24, uint32_t offset, uint8_t* data, uint16_t length)
+int at24_read(const struct _at24* at24, uint32_t offset, uint8_t* data, uint16_t length)
 {
 	uint8_t addr_offset, addr_buf[2];
 	struct _buffer buf[2] = {
 		{
 			.data = addr_buf,
 			/* .size */
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_TX,
 		},
 		{
 			.data = data,
 			.size = length,
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_READ | TWID_BUF_ATTR_STOP,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_RX | BUS_I2C_BUF_ATTR_STOP,
 		},
 	};
 
@@ -204,7 +197,7 @@ bool at24_read(const struct _at24* at24, uint32_t offset, uint8_t* data, uint16_
 	return _at24_twi_read(at24, addr_offset, buf);
 }
 
-bool at24_write(const struct _at24* at24, uint32_t offset, const uint8_t* data, uint16_t length)
+int at24_write(const struct _at24* at24, uint32_t offset, const uint8_t* data, uint16_t length)
 {
 	const uint8_t page_size = at24->desc->page_size;
 	uint8_t addr_offset, addr_buf[2];
@@ -212,19 +205,19 @@ bool at24_write(const struct _at24* at24, uint32_t offset, const uint8_t* data, 
 		{
 			.data = addr_buf,
 			/* .size */
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_TX,
 		},
 		{
 			/* .data */
 			/* .size */
-			.attr = TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
+			.attr = BUS_BUF_ATTR_TX | BUS_I2C_BUF_ATTR_STOP,
 		},
 	};
-	uint8_t status, chunk_size;
+	uint8_t chunk_size;
+	int err = 0;
 
 	/* start a TWI bus transaction */
-	while (twi_bus_transaction_pending(at24->bus));
-	twi_bus_start_transaction(at24->bus);
+	bus_start_transaction(at24->bus);
 
 	while (length) {
 		/* compute chunk size (aligned to write page size) */
@@ -236,12 +229,9 @@ bool at24_write(const struct _at24* at24, uint32_t offset, const uint8_t* data, 
 		buf[1].size = chunk_size;
 
 		/* start the TWI bus transfer */
-		status = twi_bus_transfer(at24->bus, at24->addr + addr_offset, buf, 2, NULL);
-		if (status)
+		err = bus_transfer(at24->bus, at24->addr + addr_offset, buf, 2, NULL);
+		if (err < 0)
 			break;
-
-		/* wait for completion */
-		twi_bus_wait_transfer(at24->bus);
 
 		/* update position & remaining data length */
 		offset += chunk_size;
@@ -253,9 +243,9 @@ bool at24_write(const struct _at24* at24, uint32_t offset, const uint8_t* data, 
 	};
 
 	/* stop transaction */
-	twi_bus_stop_transaction(at24->bus);
+	bus_stop_transaction(at24->bus);
 
-	return !status;
+	return err;
 }
 
 bool at24_has_serial(const struct _at24* at24)
@@ -272,12 +262,12 @@ bool at24_read_serial(const struct _at24* at24, uint8_t* serial)
 		{
 			.data = &offset,
 			.size = 1,
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_TX,
 		},
 		{
 			.data = _at24_buffer,
 			.size = AT24_SERIAL_LENGTH,
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_READ | TWID_BUF_ATTR_STOP,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_RX | BUS_I2C_BUF_ATTR_STOP,
 		},
 	};
 
@@ -288,7 +278,7 @@ bool at24_read_serial(const struct _at24* at24, uint8_t* serial)
 		return false;
 	}
 
-	if (_at24_twi_read(at24, AT24_SERIAL_ADDR_OFFSET, buf)) {
+	if (_at24_twi_read(at24, AT24_SERIAL_ADDR_OFFSET, buf) == 0) {
 		/* copy serial number to user buffer */
 		memcpy(serial, _at24_buffer, AT24_SERIAL_LENGTH);
 		return true;
@@ -309,12 +299,12 @@ bool at24_read_eui48(const struct _at24* at24, uint8_t* eui48)
 		{
 			.data = &offset,
 			.size = 1,
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_TX,
 		},
 		{
 			.data = _at24_buffer,
 			.size = AT24_EUI48_LENGTH,
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_READ | TWID_BUF_ATTR_STOP,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_RX | BUS_I2C_BUF_ATTR_STOP,
 		},
 	};
 
@@ -325,7 +315,7 @@ bool at24_read_eui48(const struct _at24* at24, uint8_t* eui48)
 		return false;
 	}
 
-	if (_at24_twi_read(at24, AT24_EUI48_ADDR_OFFSET, buf)) {
+	if (_at24_twi_read(at24, AT24_EUI48_ADDR_OFFSET, buf) == 0) {
 		/* copy EUI48 to user buffer */
 		memcpy(eui48, _at24_buffer, AT24_EUI48_LENGTH);
 		return true;
@@ -346,12 +336,12 @@ bool at24_read_eui64(const struct _at24* at24, uint8_t* eui64)
 		{
 			.data = &offset,
 			.size = 1,
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_TX,
 		},
 		{
 			.data = _at24_buffer,
 			.size = AT24_EUI64_LENGTH,
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_READ | TWID_BUF_ATTR_STOP,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_RX | BUS_I2C_BUF_ATTR_STOP,
 		},
 	};
 
@@ -362,7 +352,7 @@ bool at24_read_eui64(const struct _at24* at24, uint8_t* eui64)
 		return false;
 	}
 
-	if (_at24_twi_read(at24, AT24_EUI64_ADDR_OFFSET, buf)) {
+	if (_at24_twi_read(at24, AT24_EUI64_ADDR_OFFSET, buf) == 0) {
 		/* copy EUI64 to user buffer */
 		memcpy(eui64, _at24_buffer, AT24_EUI64_LENGTH);
 		return true;

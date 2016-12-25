@@ -118,10 +118,12 @@
 #include "cpuidle.h"
 #include "extram/mpddrc.h"
 #include "gpio/pio.h"
-#include "i2c/twi-bus.h"
 #include "irq/irq.h"
 #include "led/led.h"
+#include "led/led.h"
+#include "serial/console.h"
 #include "mm/l2cache.h"
+#include "peripherals/bus.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
 #include "peripherals/rtc.h"
@@ -697,7 +699,7 @@ void board_init(void)
 	/* Configure console */
 	board_cfg_console(0);
 
-#ifdef CONFIG_HAVE_TWI_BUS
+#ifdef CONFIG_HAVE_I2C_BUS
 	/* Configure TWI bus */
 	board_cfg_twi_bus();
 
@@ -706,7 +708,7 @@ void board_init(void)
 	/* Configure PMIC */
 	board_cfg_pmic();
 #endif
-#endif /* CONFIG_HAVE_TWI_BUS */
+#endif /* CONFIG_HAVE_I2C_BUS */
 }
 
 /**

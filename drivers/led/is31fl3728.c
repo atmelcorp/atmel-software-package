@@ -38,19 +38,16 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
-
-#include "gpio/pio.h"
-#include "i2c/twid.h"
-#include "i2c/twi-bus.h"
-
-#include "timer.h"
-
-#include "led/is31fl3728.h"
-
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+
+#include "chip.h"
+#include "gpio/pio.h"
+#include "i2c/twid.h"
+#include "led/is31fl3728.h"
+#include "peripherals/bus.h"
+#include "timer.h"
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -63,31 +60,24 @@
  * \param reg_addr Register address to write.
  * \param data    Data to write.
  */
-static void _is31fl3728_write_reg(struct _is31fl3728* is31fl3728, uint8_t iaddr, uint8_t data)
+static int _is31fl3728_write_reg(struct _is31fl3728* is31fl3728, uint8_t iaddr, uint8_t data)
 {
-	int status;
+	int err;
 	uint8_t tmp[2] = { iaddr, data };
 	struct _buffer buf[1] = {
 		{
 			.data = tmp,
 			.size = 2,
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_TX | BUS_I2C_BUF_ATTR_STOP,
 		},
 	};
 
-	while (twi_bus_transaction_pending(is31fl3728->twi.bus));
-	twi_bus_start_transaction(act8865a->bus);
+	bus_start_transaction(act8865a->bus);
+	err = bus_transfer(is31fl3728->twi.bus, is31fl3728->twi.addr, buf, 1, NULL);
+	bus_stop_transaction(is31fl3728->twi.bus);
 
-	status = twi_bus_transfer(is31fl3728->twi.bus, is31fl3728->twi.addr, buf, 1, NULL);
-	if (status < 0) {
-		twi_bus_stop_transaction(is31fl3728->twi.bus);
-		return false;
-	}
-
-	twi_bus_wait_transfer(is31fl3728->twi.bus);
-	twi_bus_stop_transaction(is31fl3728->twi.bus);
+	return err;
 }
-
 
 /*----------------------------------------------------------------------------
  *        Exported functions

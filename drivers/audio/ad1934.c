@@ -40,7 +40,7 @@
 #include "peripherals/pmc.h"
 #include "gpio/pio.h"
 #include "spi/spid.h"
-#include "spi/spi-bus.h"
+#include "peripherals/bus.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -100,7 +100,7 @@
 #define AD1934_CTRL1_BCLK_POLARITY_NORMAL    (0 << 7)
 
 #define AD1934_DAC_CTRL0_SAMPLE_RATE_SHFT    (1)
-#define AD1934_DAC_CTRL0_SAMPLE_RATE_MASK    (3 << AD1934_DAC_CTRL0_SAMPLE_RATE_SHFT)    
+#define AD1934_DAC_CTRL0_SAMPLE_RATE_MASK    (3 << AD1934_DAC_CTRL0_SAMPLE_RATE_SHFT)
 
 #define AD1934_DAC_WORD_LEN_SHFT         3
 #define AD1934_DAC_WORD_LEN_MASK        (3 << AD1934_DAC_WORD_LEN_SHFT)
@@ -140,7 +140,7 @@
  * \param reg_addr Register address to read.
  * \return value in the given register.
  */
-static uint8_t ad1934_read_reg(struct _spi_dev_desc* spid, uint8_t reg_addr)
+static uint8_t ad1934_read_reg(struct _ad1934_desc* ad1934, uint8_t reg_addr)
 {
 	uint8_t spi_in_message[1], spi_out_message[2];
 
@@ -152,23 +152,18 @@ static uint8_t ad1934_read_reg(struct _spi_dev_desc* spid, uint8_t reg_addr)
 		{
 			.data = spi_out_message,
 			.size = sizeof(spi_out_message),
-			.attr = SPID_BUF_ATTR_WRITE,
+			.attr = BUS_BUF_ATTR_TX,
 		},
 		{
 			.data = spi_in_message,
 			.size = sizeof(spi_in_message),
-			.attr = SPID_BUF_ATTR_READ | SPID_BUF_ATTR_RELEASE_CS,
+			.attr = BUS_BUF_ATTR_RX | BUS_SPI_BUF_ATTR_RELEASE_CS,
 		},
 	};
 
-
-	while (spi_bus_transaction_pending(spid->bus));
-	spi_bus_start_transaction(spid->bus);
-
-	spi_bus_transfer(spid->bus, spid->chip_select, buf, 2, NULL);
-	spi_bus_wait_transfer(spid->bus);
-
-	spi_bus_stop_transaction(spid->bus);
+	bus_start_transaction(ad1934->bus);
+	bus_transfer(ad1934->bus, ad1934->dev->spi_dev.chip_select, buf, 2, NULL);
+	bus_stop_transaction(ad1934->bus);
 
 	return spi_in_message[0];
 }
@@ -180,7 +175,7 @@ static uint8_t ad1934_read_reg(struct _spi_dev_desc* spid, uint8_t reg_addr)
  * \param reg_addr Register address to read.
  * \param data    Data to write
  */
-static void ad1934_write_reg(struct _spi_dev_desc* spid, uint8_t reg_addr, uint8_t data)
+static void ad1934_write_reg(struct _ad1934_desc* ad1934, uint8_t reg_addr, uint8_t data)
 {
 	uint8_t spi_out_message[3];
 
@@ -192,16 +187,12 @@ static void ad1934_write_reg(struct _spi_dev_desc* spid, uint8_t reg_addr, uint8
 	struct _buffer out = {
 		.data = spi_out_message,
 		.size = 3,
-		.attr = SPID_BUF_ATTR_WRITE | SPID_BUF_ATTR_RELEASE_CS,
+		.attr = BUS_BUF_ATTR_TX | BUS_SPI_BUF_ATTR_RELEASE_CS,
 	};
 
-	while (spi_bus_transaction_pending(spid->bus));
-	spi_bus_start_transaction(spid->bus);
-
-	spi_bus_transfer(spid->bus, spid->chip_select, &out, 1, NULL);
-	spi_bus_wait_transfer(spid->bus);
-
-	spi_bus_stop_transaction(spid->bus);
+	bus_start_transaction(ad1934->bus);
+	bus_transfer(ad1934->bus, ad1934->dev->spi_dev.chip_select, &out, 1, NULL);
+	bus_stop_transaction(ad1934->bus);
 
 	return;
 }
@@ -213,22 +204,21 @@ static void ad1934_write_reg(struct _spi_dev_desc* spid, uint8_t reg_addr, uint8
 void ad1934_configure(struct _ad1934_desc* ad1934)
 {
 	/* Configure spi chip select */
-	spi_bus_configure_cs(ad1934->spi_desc->bus, ad1934->spi_desc->chip_select, ad1934->spi_desc->bitrate,
-		ad1934->spi_desc->delay.bs, ad1934->spi_desc->delay.bct, ad1934->spi_desc->spi_mode);
+	bus_configure_slave(ad1934->dev->bus, ad1934->dev);
 
 	/* unmute all dac channels */
-	ad1934_write_reg(ad1934->spi_desc, AD1934_DAC_CHNL_MUTE, 0x0);
+	ad1934_write_reg(ad1934, AD1934_DAC_CHNL_MUTE, 0x0);
 
 	/* mclk=12.288Mhz fs=48Khz, 256*fs mode */
-	ad1934_write_reg(ad1934->spi_desc, AD1934_PLL_CLK_CTRL0,
+	ad1934_write_reg(ad1934, AD1934_PLL_CLK_CTRL0,
 		AD1934_PLL_NORMAL_OPERATION | AD1934_PLL_INPUT_256 | AD1934_PLL_MCLKO_OFF |
 		AD1934_PLL_INPUT_MCLK | AD1934_PLL_DAC_ACTIVE);
 
 	/* Serial format in tdm mode, fs=48K, SDATA=1*/
-	ad1934_write_reg(ad1934->spi_desc, AD1934_DAC_CTRL0, AD1934_DAC_SERFMT_TDM);
+	ad1934_write_reg(ad1934, AD1934_DAC_CTRL0, AD1934_DAC_SERFMT_TDM);
 
 	/* LRCLK polarity left low, BCLK source internally generated, master mode */
-	ad1934_write_reg(ad1934->spi_desc, AD1934_DAC_CTRL1, 
+	ad1934_write_reg(ad1934, AD1934_DAC_CTRL1,
 		AD1934_CTRL1_BCLK_ACTIVE_EDGE_NORMAL | AD1934_CTRL1_LRCLK_LEFT_LOW |
 		AD1934_CTRL1_LRCLK_MODE_MASTER | AD1934_CTRL1_BCLK_MODE_MASTER |
 		AD1934_CTRL1_BCLK_SOURCE_INTERNAL | AD1934_CTRL1_BCLK_POLARITY_NORMAL);
@@ -237,11 +227,11 @@ void ad1934_configure(struct _ad1934_desc* ad1934)
 
 void ad1934_master_volume_mute(struct _ad1934_desc* ad1934, bool mute)
 {
-	uint8_t val = ad1934_read_reg(ad1934->spi_desc, AD1934_DAC_CTRL2);
+	uint8_t val = ad1934_read_reg(ad1934, AD1934_DAC_CTRL2);
 	if (mute)
-		ad1934_write_reg(ad1934->spi_desc, AD1934_DAC_CTRL2, val | AD1934_DAC_MASTER_MUTE);
+		ad1934_write_reg(ad1934, AD1934_DAC_CTRL2, val | AD1934_DAC_MASTER_MUTE);
 	else
-		ad1934_write_reg(ad1934->spi_desc, AD1934_DAC_CTRL2, val & ~AD1934_DAC_MASTER_MUTE);
+		ad1934_write_reg(ad1934, AD1934_DAC_CTRL2, val & ~AD1934_DAC_MASTER_MUTE);
 }
 
 
@@ -267,8 +257,8 @@ bool ad1934_set_tdm_slot(struct _ad1934_desc* ad1934, int slots)
 		return false;
 	}
 
-	val = ad1934_read_reg(ad1934->spi_desc, AD1934_DAC_CTRL1);
-	ad1934_write_reg(ad1934->spi_desc, AD1934_DAC_CTRL1,
+	val = ad1934_read_reg(ad1934, AD1934_DAC_CTRL1);
+	ad1934_write_reg(ad1934, AD1934_DAC_CTRL1,
 			(val & ~AD1934_DAC_CHAN_MASK) | (channels << AD1934_DAC_CHAN_SHFT));
 
 	return true;
@@ -298,9 +288,9 @@ bool ad1934_set_sample_rate(struct _ad1934_desc* ad1934, uint32_t sample_rate)
 		return false;
 	}
 
-	val = ad1934_read_reg(ad1934->spi_desc, AD1934_DAC_CTRL0);
-	ad1934_write_reg(ad1934->spi_desc, AD1934_DAC_CTRL0,
-			(val & ~AD1934_DAC_CTRL0_SAMPLE_RATE_MASK) 
+	val = ad1934_read_reg(ad1934, AD1934_DAC_CTRL0);
+	ad1934_write_reg(ad1934, AD1934_DAC_CTRL0,
+			(val & ~AD1934_DAC_CTRL0_SAMPLE_RATE_MASK)
 				| (fs << AD1934_DAC_CTRL0_SAMPLE_RATE_SHFT));
 	return true;
 }
@@ -326,8 +316,8 @@ bool ad1934_set_word_width(struct _ad1934_desc* ad1934, uint8_t word_len)
 		return false;
 	}
 
-	val = ad1934_read_reg(ad1934->spi_desc, AD1934_DAC_CTRL2);
-	ad1934_write_reg(ad1934->spi_desc, AD1934_DAC_CTRL2,
+	val = ad1934_read_reg(ad1934, AD1934_DAC_CTRL2);
+	ad1934_write_reg(ad1934, AD1934_DAC_CTRL2,
 			(val & ~AD1934_DAC_WORD_LEN_MASK) | (word_len << AD1934_DAC_WORD_LEN_SHFT));
 
 	return true;
@@ -368,5 +358,5 @@ void ad1934_set_channel_volume(struct _ad1934_desc* ad1934, enum _ad1934_dac_cha
 	}
 
 	/* 0 -> No attenuation, 1 to 254 -> -3/8 db per step, 255->Full attenuation */
-	ad1934_write_reg(ad1934->spi_desc, chan_reg, volume);
+	ad1934_write_reg(ad1934, chan_reg, volume);
 }

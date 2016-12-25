@@ -145,7 +145,7 @@
 #include "gpio/pio.h"
 #include "spi/spid.h"
 
-#include "spi/spi-bus.h"
+#include "peripherals/bus.h"
 
 #include "serial/console.h"
 #include "mm/cache.h"
@@ -193,28 +193,27 @@ CACHE_ALIGNED static uint8_t spi_buffer_master_tx[DMA_TRANS_SIZE];
 /** data buffer for SPI slave's transfer */
 CACHE_ALIGNED static uint8_t spi_buffer_slave_rx[DMA_TRANS_SIZE];
 
-/** Pio pins for SPI master (CS only, the rest is configured by board support code) */
-static const struct _pin pins_spi_master[] = SPI_MASTER_PINS;
-
 /** Pio pins for SPI slave */
 static const struct _pin pins_spi_slave[] = SPI_SLAVE_PINS;
 
 /** descriptor for SPI master */
-static const struct _spi_dev_desc spi_master_dev = {
+static const struct _bus_dev_cfg spi_master_dev = {
 	.bus = SPI_MASTER_BUS,
-	.chip_select = SPI_MASTER_CS,
-	.bitrate = SPI_MASTER_BITRATE,
-	.delay = {
-		.bs = 0,
-		.bct = 0,
+	.spi_dev = {
+		.chip_select = SPI_MASTER_CS,
+		.bitrate = SPI_MASTER_BITRATE,
+		.delay = {
+			.bs = 0,
+			.bct = 0,
+		},
+		.spi_mode = SPID_MODE_0,
 	},
-	.spi_mode = SPID_MODE_0,
 };
 
 static struct _spi_desc spi_slave_dev = {
 	.addr = SPI_SLAVE_ADDR,
 	.chip_select = 0,
-	.transfer_mode = SPID_MODE_DMA,
+	.transfer_mode = BUS_TRANSFER_MODE_DMA,
 };
 
 /*----------------------------------------------------------------------------
@@ -243,17 +242,17 @@ static int _spi_slave_transfer_callback(void* args)
  */
 static void _spi_transfer(void)
 {
+	int err;
 	int i;
-	uint32_t status;
 	struct _buffer master_buf = {
 		.data = spi_buffer_master_tx,
 		.size = DMA_TRANS_SIZE,
-		.attr = SPID_BUF_ATTR_WRITE | SPID_BUF_ATTR_RELEASE_CS,
+		.attr = BUS_BUF_ATTR_TX | BUS_SPI_BUF_ATTR_RELEASE_CS,
 	};
 	struct _buffer slave_buf = {
 		.data = spi_buffer_slave_rx,
 		.size = DMA_TRANS_SIZE,
-		.attr = SPID_BUF_ATTR_READ,
+		.attr = BUS_BUF_ATTR_RX,
 	};
 	struct _callback _cb = {
 		.method = _spi_slave_transfer_callback,
@@ -264,25 +263,18 @@ static void _spi_transfer(void)
 		spi_buffer_master_tx[i] = i;
 	memset(spi_buffer_slave_rx, 0, DMA_TRANS_SIZE);
 
-	while (spi_bus_transaction_pending(spi_master_dev.bus));
-	spi_bus_start_transaction(spi_master_dev.bus);
+	bus_start_transaction(spi_master_dev.bus);
 
 	printf("Slave receiving...\r\n");
-	status = spid_transfer(&spi_slave_dev, &slave_buf, 1, &_cb);
-	if (status < 0) {
+	err = spid_transfer(&spi_slave_dev, &slave_buf, 1, &_cb);
+	if (err < 0) {
 		trace_error("SPI: SLAVE: transfer failed.\r\n");
 		return;
 	}
 
 	printf("Master sending...\r\n");
-	status = spi_bus_transfer(spi_master_dev.bus, spi_master_dev.chip_select, &master_buf, 1, NULL);
-	if (status < 0) {
-		trace_error("SPI: MASTER: transfer failed.\r\n");
-		return;
-	}
-
-	spi_bus_wait_transfer(spi_master_dev.bus);
-	spi_bus_stop_transaction(spi_master_dev.bus);
+	bus_transfer(spi_master_dev.bus, spi_master_dev.spi_dev.chip_select, &master_buf, 1, NULL);
+	bus_stop_transaction(spi_master_dev.bus);
 	spid_wait_transfer(&spi_slave_dev);
 
 	if (memcmp(spi_buffer_master_tx, spi_buffer_slave_rx, DMA_TRANS_SIZE)) {
@@ -309,14 +301,13 @@ int main(void)
 	/* Output example information */
 	console_example_info("SPI Slave Example");
 
+	/* Configure SPI slave */
 	pio_configure(pins_spi_slave, ARRAY_SIZE(pins_spi_slave));
 	spid_configure(&spi_slave_dev);
 	spid_configure_master(&spi_slave_dev, false);
 	spid_configure_cs(&spi_slave_dev, 0, 0, 0, 0, SPID_MODE_0);
 
-	pio_configure(pins_spi_master, ARRAY_SIZE(pins_spi_master));
-	spi_bus_configure_cs(spi_master_dev.bus, spi_master_dev.chip_select, spi_master_dev.bitrate,
-	                     spi_master_dev.delay.bs, spi_master_dev.delay.bct, spi_master_dev.spi_mode);
+	bus_configure_slave(spi_master_dev.bus, &spi_master_dev);
 
 	_display_menu();
 

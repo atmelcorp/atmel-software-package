@@ -44,26 +44,12 @@
  *        Types
  *----------------------------------------------------------------------------*/
 
-enum _twid_buf_attr {
-	TWID_BUF_ATTR_START  = 0x01,
-	TWID_BUF_ATTR_STOP   = 0x02,
-	TWID_BUF_ATTR_READ   = 0x04,
-	TWID_BUF_ATTR_WRITE  = 0x08,
-};
-
-enum _twid_trans_mode
-{
-	TWID_MODE_POLLING,
-	TWID_MODE_DMA,
-	TWID_MODE_ASYNC,
-};
-
 struct _twi_desc
 {
 	Twi*  addr;
 	uint32_t freq;
 	uint32_t slave_addr;
-	enum _twid_trans_mode transfer_mode;
+	int transfer_mode;
 	uint32_t flags;
 	uint32_t timeout; /**< timeout (if 0, a default timeout is used) */
 	mutex_t mutex;

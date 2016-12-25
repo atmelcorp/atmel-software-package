@@ -35,6 +35,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "peripherals/bus.h"
 
 #include "board_support.h"
 
@@ -224,17 +225,17 @@
 #define BOARD_TWI_BUS0      TWI1
 #define BOARD_TWI_BUS0_FREQ 400000
 #define BOARD_TWI_BUS0_PINS PINS_TWI1
-#define BOARD_TWI_BUS0_MODE TWID_MODE_DMA
+#define BOARD_TWI_BUS0_MODE BUS_TRANSFER_MODE_DMA
 
 /* ================== SPI bus definition ====================== */
 
 #define BOARD_SPI_BUS0       SPI0
 #define BOARD_SPI_BUS0_PINS  PINS_SPI0_NPCS0
-#define BOARD_SPI_BUS0_MODE  SPID_MODE_DMA
+#define BOARD_SPI_BUS0_MODE  BUS_TRANSFER_MODE_DMA
 
 /* =================== AT25 device definition =================== */
 
-#define BOARD_AT25_BUS         0
+#define BOARD_AT25_BUS         BUS(BUS_TYPE_SPI, 0)
 #define BOARD_AT25_CHIP_SELECT 0
 #define BOARD_AT25_BITRATE     40000
 #define BOARD_AT25_DLYBS       0
@@ -243,7 +244,7 @@
 
 /* ================== ACT8865 PMIC definition ====================== */
 
-#define BOARD_ACT8865_TWI_BUS  0
+#define BOARD_ACT8865_TWI_BUS  BUS(BUS_TYPE_I2C, 0)
 #define BOARD_ACT8865_FREQ     400000
 #define BOARD_ACT8865_TWI_ADDR 0x5b
 #define BOARD_ACT8865_PIN_IRQ { PIO_GROUP_C, PIO_PC31, PIO_INPUT, PIO_PULLUP | PIO_IT_FALL_EDGE }

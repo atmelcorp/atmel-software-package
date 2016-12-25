@@ -37,6 +37,6 @@ target-$(CONFIG_HAVE_ISI) += target/common/board_isi.o
 target-$(CONFIG_HAVE_LCD) += target/common/board_lcd.o
 target-$(CONFIG_HAVE_LED) += target/common/board_led.o
 target-$(CONFIG_HAVE_SPI_BUS) += target/common/board_spi.o
-target-$(CONFIG_HAVE_TWI_BUS) += target/common/board_twi.o
+target-$(CONFIG_HAVE_I2C_BUS) += target/common/board_twi.o
 
 bootstrap-y ?= target/common/bootstrap.o

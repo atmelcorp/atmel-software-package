@@ -35,6 +35,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "peripherals/bus.h"
 
 #include "board_support.h"
 
@@ -175,33 +176,33 @@
 #define BOARD_TWI_BUS0      TWI3
 #define BOARD_TWI_BUS0_FREQ 400000
 #define BOARD_TWI_BUS0_PINS PINS_TWI3
-#define BOARD_TWI_BUS0_MODE TWID_MODE_DMA
+#define BOARD_TWI_BUS0_MODE BUS_TRANSFER_MODE_DMA
 
 #define BOARD_TWI_BUS1      TWI0
 #define BOARD_TWI_BUS1_FREQ 400000
 #define BOARD_TWI_BUS1_PINS PINS_TWI0
-#define BOARD_TWI_BUS1_MODE TWID_MODE_DMA
+#define BOARD_TWI_BUS1_MODE BUS_TRANSFER_MODE_DMA
 
 /* ================== SPI bus definition ====================== */
 
 #define BOARD_SPI_BUS0       SPI0
 #define BOARD_SPI_BUS0_PINS  PINS_SPI0_NPCS0
-#define BOARD_SPI_BUS0_MODE  SPID_MODE_DMA
+#define BOARD_SPI_BUS0_MODE  BUS_TRANSFER_MODE_DMA
 
 #define BOARD_SPI_BUS1       SPI1
 #define BOARD_SPI_BUS1_PINS  PINS_SPI1_NPCS0
-#define BOARD_SPI_BUS1_MODE  SPID_MODE_DMA
+#define BOARD_SPI_BUS1_MODE  BUS_TRANSFER_MODE_DMA
 
 
 /* =================== AT24 device definition =================== */
 
-#define BOARD_AT24_TWI_BUS 1
+#define BOARD_AT24_TWI_BUS BUS(BUS_TYPE_I2C, 1)
 #define BOARD_AT24_ADDR    0x54
 #define BOARD_AT24_MODEL   AT24MAC402
 
 /* =================== AT25 device definition =================== */
 
-#define BOARD_AT25_BUS         0
+#define BOARD_AT25_BUS         BUS(BUS_TYPE_SPI, 0)
 #define BOARD_AT25_CHIP_SELECT 0
 #define BOARD_AT25_BITRATE     40000
 #define BOARD_AT25_DLYBS       0
@@ -250,7 +251,7 @@
 
 /* ================== ACT8865 PMIC definition ====================== */
 
-#define BOARD_ACT8865_TWI_BUS  0
+#define BOARD_ACT8865_TWI_BUS  BUS(BUS_TYPE_I2C, 0)
 #define BOARD_ACT8865_TWI_ADDR 0x5b
 #define BOARD_ACT8865_PIN_IRQ  { PIO_GROUP_E, PIO_PE25, PIO_INPUT, PIO_PULLUP | PIO_IT_FALL_EDGE }
 

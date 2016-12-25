@@ -47,6 +47,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "peripherals/bus.h"
 
 #include "board_support.h"
 
@@ -236,7 +237,7 @@
 
 /* =================== ISI device definition =================== */
 
-#define BOARD_ISI_TWI_BUS     0
+#define BOARD_ISI_TWI_BUS     BUS(BUS_TYPE_I2C, 0)
 #define BOARD_ISI_PINS        PINS_ISI
 #define BOARD_ISI_RST_PIN     { PIO_GROUP_A, PIO_PA7, PIO_OUTPUT_1, PIO_DEFAULT }
 #define BOARD_ISI_PWD_PIN     { PIO_GROUP_A, PIO_PA13, PIO_OUTPUT_1, PIO_DEFAULT }
@@ -260,23 +261,23 @@
 #define BOARD_TWI_BUS0      TWI0
 #define BOARD_TWI_BUS0_FREQ 400000
 #define BOARD_TWI_BUS0_PINS PINS_TWI0
-#define BOARD_TWI_BUS0_MODE TWID_MODE_DMA
+#define BOARD_TWI_BUS0_MODE BUS_TRANSFER_MODE_DMA
 
 /* ================== SPI bus definition ====================== */
 
 #define BOARD_SPI_BUS0       SPI0
 #define BOARD_SPI_BUS0_PINS  PINS_SPI0_NPCS0
-#define BOARD_SPI_BUS0_MODE  SPID_MODE_DMA
+#define BOARD_SPI_BUS0_MODE  BUS_TRANSFER_MODE_DMA
 
 /* =================== AT24 device definition =================== */
 
-#define BOARD_AT24_TWI_BUS 0
+#define BOARD_AT24_TWI_BUS BUS(BUS_TYPE_I2C, 0)
 #define BOARD_AT24_ADDR    0x51
 #define BOARD_AT24_MODEL   AT24C512
 
 /* =================== AT25 device definition =================== */
 
-#define BOARD_AT25_BUS         0
+#define BOARD_AT25_BUS         BUS(BUS_TYPE_SPI, 0)
 #define BOARD_AT25_CHIP_SELECT 0
 #define BOARD_AT25_BITRATE     40000
 #define BOARD_AT25_DLYBS       0
@@ -285,7 +286,7 @@
 
 /* ================== WM8731 definition ====================== */
 
-#define BOARD_WM8731_TWI_BUS      0
+#define BOARD_WM8731_TWI_BUS      BUS(BUS_TYPE_I2C, 0)
 #define BOARD_WM8731_SLAVE_ADDR   0x1a
 #define BOARD_WM8731_MCLK_PCK     0
 #define BOARD_WM8731_MCLK_PCK_SRC PMC_PCK_CSS_MAIN_CLK

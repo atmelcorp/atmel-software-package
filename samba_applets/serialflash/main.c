@@ -35,7 +35,7 @@
 #include "board.h"
 #include "chip.h"
 #include "nvm/spi-nor/at25.h"
-#include "spi/spi-bus.h"
+#include "core/bus.h"
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"
 #include "spi/spid.h"
@@ -112,7 +112,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	uint32_t ioset = mbx->in.parameters[1];
 	uint32_t chip_select = mbx->in.parameters[2];
 	uint32_t freq = mbx->in.parameters[3];
-	Spi* spi;
+	struct _bus_iface iface;
 
 	assert(cmd == APPLET_CMD_INITIALIZE);
 
@@ -129,16 +129,18 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 		return APPLET_FAIL;
 	}
 
-	if (!configure_instance_pio(instance, ioset, chip_select, &spi)) {
+	if (!configure_instance_pio(instance, ioset, chip_select, &iface.spi.hw)) {
 		trace_error_wp("Invalid configuration: SPI%u IOSet%u NPCS%u\r\n",
 			(unsigned)instance, (unsigned)ioset,
 			(unsigned)chip_select);
 		return APPLET_FAIL;
 	}
 
-	spi_bus_configure(0, spi, SPID_MODE_DMA);
+	iface.type = BUS_TYPE_SPI;
+	iface.spi.mode = BUS_TRANSFER_MODE_DMA;
+	bus_configure(iBUS(BUS_TYPE_SPI, 0), &iface);
 #ifdef CONFIG_HAVE_SPI_FIFO
-	spi_bus_fifo_enable(true);
+	bus_fifo_enable(true);
 #endif
 
 	at25drv.dev.bitrate = ROUND_INT_DIV(freq, 1000);

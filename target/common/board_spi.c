@@ -31,16 +31,15 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include <errno.h>
-
 #include "board_spi.h"
+#include "errno.h"
 #include "gpio/pio.h"
 #include "nvm/spi-nor/at25.h"
 #ifdef CONFIG_HAVE_QSPI
 #include "nvm/spi-nor/qspiflash.h"
 #include "spi/qspi.h"
 #endif
-#include "spi/spi-bus.h"
+#include "peripherals/bus.h"
 #include "trace.h"
 
 /*----------------------------------------------------------------------------
@@ -49,15 +48,17 @@
 
 #ifdef CONFIG_HAVE_SPI_AT25
 static struct _at25 at25 = {
-	.dev = {
+	.cfg = {
 		.bus = BOARD_AT25_BUS,
-		.chip_select = BOARD_AT25_CHIP_SELECT,
-		.bitrate = BOARD_AT25_BITRATE,
-		.delay = {
-			.bs = BOARD_AT25_DLYBS,
-			.bct = BOARD_AT25_DLYBCT,
+		.spi_dev = {
+			.chip_select = BOARD_AT25_CHIP_SELECT,
+			.bitrate = BOARD_AT25_BITRATE,
+			.delay = {
+				.bs = BOARD_AT25_DLYBS,
+				.bct = BOARD_AT25_DLYBCT,
+			},
+			.spi_mode = BOARD_AT25_SPI_MODE,
 		},
-		.spi_mode = BOARD_AT25_SPI_MODE,
 	},
 };
 #endif
@@ -72,35 +73,50 @@ static struct _qspiflash qspiflash;
 
 void board_cfg_spi_bus(void)
 {
+	struct _bus_iface iface;
+
+	iface.type = BUS_TYPE_SPI;
 #ifdef BOARD_SPI_BUS0
 	const struct _pin pins_spi_bus0[] = BOARD_SPI_BUS0_PINS;
 	pio_configure(pins_spi_bus0, ARRAY_SIZE(pins_spi_bus0));
-	spi_bus_configure(0, BOARD_SPI_BUS0, BOARD_SPI_BUS0_MODE);
+	iface.spi.hw = BOARD_SPI_BUS0;
+	iface.transfer_mode = BOARD_SPI_BUS0_MODE;
+	bus_configure(BUS(BUS_TYPE_SPI, 0), &iface);
 #endif
 #ifdef BOARD_SPI_BUS1
 	const struct _pin pins_spi_bus1[] = BOARD_SPI_BUS1_PINS;
 	pio_configure(pins_spi_bus1, ARRAY_SIZE(pins_spi_bus1));
-	spi_bus_configure(1, BOARD_SPI_BUS1, BOARD_SPI_BUS1_MODE);
+	iface.spi.hw = BOARD_SPI_BUS1;
+	iface.transfer_mode = BOARD_SPI_BUS1_MODE;
+	bus_configure(BUS(BUS_TYPE_SPI, 1), &iface);
 #endif
 #ifdef BOARD_SPI_BUS2
 	const struct _pin pins_spi_bus2[] = BOARD_SPI_BUS2_PINS;
 	pio_configure(pins_spi_bus2, ARRAY_SIZE(pins_spi_bus2));
-	spi_bus_configure(2, BOARD_SPI_BUS2, BOARD_SPI_BUS2_MODE);
+	iface.spi.hw = BOARD_SPI_BUS2;
+	iface.transfer_mode = BOARD_SPI_BUS2_MODE;
+	bus_configure(BUS(BUS_TYPE_SPI, 2), &iface);
 #endif
 #ifdef BOARD_SPI_BUS3
 	const struct _pin pins_spi_bus3[] = BOARD_SPI_BUS3_PINS;
 	pio_configure(pins_spi_bus3, ARRAY_SIZE(pins_spi_bus3));
-	spi_bus_configure(3, BOARD_SPI_BUS3, BOARD_SPI_BUS3_MODE);
+	iface.spi.hw = BOARD_SPI_BUS3;
+	iface.transfer_mode = BOARD_SPI_BUS3_MODE;
+	bus_configure(BUS(BUS_TYPE_SPI, 3), &iface;
 #endif
 #ifdef BOARD_SPI_BUS4
 	const struct _pin pins_spi_bus4[] = BOARD_SPI_BUS4_PINS;
 	pio_configure(pins_spi_bus4, ARRAY_SIZE(pins_spi_bus4));
-	spi_bus_configure(4, BOARD_SPI_BUS4, BOARD_SPI_BUS4_MODE);
+	iface.spi.hw = BOARD_SPI_BUS4;
+	iface.transfer_mode = BOARD_SPI_BUS4_MODE;
+	bus_configure(BUS(BUS_TYPE_SPI, 4), &iface);
 #endif
 #ifdef BOARD_SPI_BUS5
 	const struct _pin pins_spi_bus5[] = BOARD_SPI_BUS5_PINS;
 	pio_configure(pins_spi_bus5, ARRAY_SIZE(pins_spi_bus5));
-	spi_bus_configure(5, BOARD_SPI_BUS5, BOARD_SPI_BUS5_MODE);
+	iface.spi.hw = BOARD_SPI_BUS5;
+	iface.transfer_mode = BOARD_SPI_BUS5_MODE;
+	bus_configure(BUS(BUS_TYPE_SPI, 5), &iface);
 #endif
 }
 

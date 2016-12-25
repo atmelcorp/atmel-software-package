@@ -26,6 +26,5 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-
 drivers-$(CONFIG_HAVE_LED) += drivers/led/led.o
 drivers-$(CONFIG_HAVE_IS31FL3728) += drivers/led/is31fl3728.o

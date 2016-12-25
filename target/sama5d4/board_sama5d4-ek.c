@@ -81,7 +81,7 @@ WEAK void board_init(void)
 #endif
 #endif
 
-#ifdef CONFIG_HAVE_TWI_BUS
+#ifdef CONFIG_HAVE_I2C_BUS
 	/* Configure TWI bus */
 	board_cfg_twi_bus();
 

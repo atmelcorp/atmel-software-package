@@ -43,7 +43,7 @@
 #include "sensor/bmp280.h"
 #include "gpio/pio.h"
 #include "i2c/twid.h"
-#include "i2c/twi-bus.h"
+#include "peripherals/bus.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -59,63 +59,50 @@
  *         Local functions
  *----------------------------------------------------------------------------*/
 
-static uint8_t _bmp280_read(struct _bmp280* bmp280, uint8_t iaddr, uint8_t* buffer, uint32_t len)
+static int _bmp280_read(struct _bmp280* bmp280, uint8_t iaddr, uint8_t* buffer, uint32_t len)
 {
-	uint8_t status;
+	int err;
 	struct _buffer buf[2] = {
 		{
 			.data = &iaddr,
 			.size = 1,
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_TX | BUS_I2C_BUF_ATTR_STOP,
 		},
 		{
 			.data = buffer,
 			.size = len,
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_READ | TWID_BUF_ATTR_STOP,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_RX | BUS_I2C_BUF_ATTR_STOP,
 		},
 	};
 
-	while (twi_bus_transaction_pending(bmp280->bus));
-	twi_bus_start_transaction(bmp280->bus);
+	bus_start_transaction(bmp280->bus);
+	err = bus_transfer(bmp280->bus, bmp280->addr, buf, 2, NULL);
+	bus_stop_transaction(bmp280->bus);
 
-	status = twi_bus_transfer(bmp280->bus, bmp280->addr, buf, 2, NULL);
-	if (status) {
-		twi_bus_stop_transaction(bmp280->bus);
-		return status;
-	}
-	twi_bus_stop_transaction(bmp280->bus);
-
-	return 0;
+	return err;
 }
 
 static uint8_t _bmp280_write(struct _bmp280* bmp280, uint8_t iaddr, const uint8_t* buffer, uint32_t len)
 {
-	uint8_t status;
+	int err;
 	struct _buffer buf[2] = {
 		{
 			.data = &iaddr,
 			.size = len,
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_TX,
 		},
 		{
 			.data = (uint8_t*)buffer,
 			.size = len,
-			.attr = TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
+			.attr = BUS_BUF_ATTR_TX | BUS_I2C_BUF_ATTR_STOP,
 		},
 	};
 
-	while (twi_bus_transaction_pending(bmp280->bus));
-	twi_bus_start_transaction(bmp280->bus);
+	bus_start_transaction(bmp280->bus);
+	err = bus_transfer(bmp280->bus, bmp280->addr, buf, 2, NULL);
+	bus_stop_transaction(bmp280->bus);
 
-	status = twi_bus_transfer(bmp280->bus, bmp280->addr, buf, 2, NULL);
-	if (status) {
-		twi_bus_stop_transaction(bmp280->bus);
-		return status;
-	}
-	while (twi_bus_is_busy(bmp280->bus));
-	twi_bus_stop_transaction(bmp280->bus);
-
-	return 0;
+	return err;
 }
 
 /*------------------------------------------------------------------------------

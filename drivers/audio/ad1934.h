@@ -30,11 +30,15 @@
 #ifndef AD1934_H_
 #define AD1934_H_
 
-#include "spi/spi-bus.h"
+/*----------------------------------------------------------------------------
+ *        Types
+ *----------------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+
+#include "peripherals/bus.h"
 
 /*----------------------------------------------------------------------------
  *        Types
@@ -52,7 +56,8 @@ enum _ad1934_dac_channel {
 };
 
 struct _ad1934_desc {
-	struct _spi_dev_desc* spi_desc;
+	uint8_t bus; /* SPI bus */
+	const struct _bus_dev_cfg* dev; /* SPI device configuration */
 };
 
 /*----------------------------------------------------------------------------

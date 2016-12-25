@@ -35,6 +35,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "peripherals/bus.h"
 
 #include "board_support.h"
 
@@ -121,11 +122,11 @@
 #define BOARD_TWI_BUS0      TWI0
 #define BOARD_TWI_BUS0_FREQ 400000
 #define BOARD_TWI_BUS0_PINS PINS_TWI0
-#define BOARD_TWI_BUS0_MODE TWID_MODE_DMA
+#define BOARD_TWI_BUS0_MODE BUS_TRANSFER_MODE_DMA
 
 /* =================== AT24 device definition =================== */
 
-#define BOARD_AT24_TWI_BUS 0
+#define BOARD_AT24_TWI_BUS BUS(BUS_TYPE_I2C, 0)
 #define BOARD_AT24_ADDR    0x57
 #define BOARD_AT24_MODEL   AT24MAC402
 

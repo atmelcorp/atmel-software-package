@@ -33,7 +33,7 @@
 #include "audio/audio_device.h"
 #include "chip.h"
 #include "spi/spid.h"
-#include "spi/spi-bus.h"
+#include "peripherals/bus.h"
 
 /* =================== AD1934 spi interface definition =================== */
 
@@ -44,23 +44,24 @@
 #define AD1934_DLYCT    0
 #define AD1934_SPI_MODE SPID_MODE_0
 
-static struct _spi_dev_desc ad1934_spi_desc = {
-
+static struct _bus_dev_cfg ad1934_dev_desc = {
 	.bus = AD1934_BUS,
-	.chip_select = AD1934_CS,
-	.bitrate = AD1934_FREQ,
-	.delay = {
-		.bs = AD1934_DLYBS,
-		.bct = AD1934_DLYCT,
+	.spi_dev = {
+		.chip_select = AD1934_CS,
+		.bitrate = AD1934_FREQ,
+		.delay = {
+			.bs = AD1934_DLYBS,
+			.bct = AD1934_DLYCT,
+		},
+		.spi_mode = AD1934_SPI_MODE,
 	},
-	.spi_mode = AD1934_SPI_MODE,
 };
 
 static struct codec_desc ad1934_codec = {
 	.type = AUDIO_CODEC_AD1934,
 	/* codec control interface */
 	.ad1934 = {
-		.spi_desc = &ad1934_spi_desc,
+		.dev = &ad1934_dev_desc,
 	},
 };
 

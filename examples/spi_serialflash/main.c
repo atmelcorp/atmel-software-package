@@ -40,7 +40,7 @@
 #include "chip.h"
 #include "cpuidle.h"
 
-#include "spi/spi-bus.h"
+#include "peripherals/bus.h"
 
 #include "peripherals/pmc.h"
 #include "gpio/pio.h"
@@ -228,13 +228,13 @@ static void _flash_delete_arg_parser(const uint8_t* buffer, uint32_t len)
 static void _flash_mode_arg_parser(const uint8_t* buffer, uint32_t len)
 {
 	if (!strncmp((char*)buffer, "polling", 7)) {
-		spi_bus_set_transfer_mode(at25drv->dev.bus, SPID_MODE_POLLING);
+		bus_set_transfer_mode(at25drv->cfg.bus, BUS_TRANSFER_MODE_POLLING);
 		printf("Use POLLING mode\r\n");
 	} else if (!strncmp((char*)buffer, "async", 5)) {
-		spi_bus_set_transfer_mode(at25drv->dev.bus, SPID_MODE_ASYNC);
+		bus_set_transfer_mode(at25drv->cfg.bus, BUS_TRANSFER_MODE_ASYNC);
 		printf("Use ASYNC mode\r\n");
 	} else if (!strncmp((char*)buffer, "dma", 3)) {
-		spi_bus_set_transfer_mode(at25drv->dev.bus, SPID_MODE_DMA);
+		bus_set_transfer_mode(at25drv->cfg.bus, BUS_TRANSFER_MODE_DMA);
 		printf("Use DMA mode\r\n");
 	} else {
 		printf("Args: %s\r\n"
@@ -246,11 +246,11 @@ static void _flash_mode_arg_parser(const uint8_t* buffer, uint32_t len)
 static void _flash_feature_arg_parser(const uint8_t* buffer, uint32_t len)
 {
 	if (!strncmp((char*)buffer, "fifo", 4)) {
-		if (!spi_bus_fifo_is_enabled(at25drv->dev.bus)) {
-			spi_bus_fifo_enable(at25drv->dev.bus);
+		if (!bus_fifo_is_enabled(at25drv->cfg.bus)) {
+			bus_fifo_enable(at25drv->cfg.bus);
 			printf("Enable FIFO\r\n");
 		} else {
-			spi_bus_fifo_disable(at25drv->dev.bus);
+			bus_fifo_disable(at25drv->cfg.bus);
 			printf("Disable FIFO\r\n");
 		}
 	}
@@ -266,14 +266,14 @@ static void print_menu(void)
 	printf("|=============== SPI SerialFlash Example ===============|\r\n");
 
 	printf("| Device: %-46s|\r\n", at25drv->desc ? at25drv->desc->name : "N/A");
-	switch (spi_bus_get_transfer_mode(at25drv->dev.bus)) {
-	case SPID_MODE_POLLING:
+	switch (bus_get_transfer_mode(at25drv->cfg.bus)) {
+	case BUS_TRANSFER_MODE_POLLING:
 		mode_str = "polling";
 		break;
-	case SPID_MODE_ASYNC:
+	case BUS_TRANSFER_MODE_ASYNC:
 		mode_str = "async";
 		break;
-	case SPID_MODE_DMA:
+	case BUS_TRANSFER_MODE_DMA:
 		mode_str = "DMA";
 		break;
 	default:
@@ -282,7 +282,7 @@ static void print_menu(void)
 	}
 	printf("| Mode: %-48s|\r\n", mode_str);
 #ifdef CONFIG_HAVE_SPI_FIFO
-	printf("| FIFO: %-48s|\r\n", spi_bus_fifo_is_enabled(at25drv->dev.bus) ? "enabled" : "disabled");
+	printf("| FIFO: %-48s|\r\n", bus_fifo_is_enabled(at25drv->cfg.bus) ? "enabled" : "disabled");
 #endif
 
 	printf("|====================== Commands =======================|\r\n"

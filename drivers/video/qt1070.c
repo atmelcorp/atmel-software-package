@@ -40,7 +40,7 @@
 
 #include "i2c/twi.h"
 #include "i2c/twid.h"
-#include "twi-i2c/twi-bus.h"
+#include "twi-peripherals/bus.h"
 
 #include "video/qt1070.h"
 
@@ -61,35 +61,29 @@
  * \param reg_addr Register address to read.
  * \return value in the given register.
  */
-static uint8_t _qt1070_read_reg(struct _qt1070* qt1070, uint8_t reg_addr)
+static int _qt1070_read_reg(struct _qt1070* qt1070, uint8_t reg_addr)
 {
-	int status;
+	int err;
 	uint8_t data;
 	struct _buffer buf[2] = {
 		{
 			.data = &reg_addr,
 			.size = 1,
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_TX,
 		},
 		{
 			.data = &data,
 			.size = 1,
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_READ | TWID_BUF_ATTR_STOP,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_RX | BUS_I2C_BUF_ATTR_STOP,
 		},
 	};
 
-	while (twi_bus_transaction_pending(qt1070->bus));
-	twi_bus_start_transaction(qt1070->bus);
+	bus_start_transaction(qt1070->bus);
+	err = bus_transfer(qt1070->bus, qt1070->addr, buf, 2, NULL);
+	bus_stop_transaction(qt1070->bus);
 
-	status = twi_bus_transfer(qt1070->bus, qt1070->addr, buf, 2, NULL);
-	if (status < 0) {
-		twi_bus_stop_transaction(qt1070->bus);
-		return 0;
-	}
-
-	twi_bus_wait_transfer(qt1070->bus);
-	twi_bus_stop_transaction(qt1070->bus);
-
+	if (err < 0)
+		return err;
 	return data;
 }
 
@@ -100,30 +94,24 @@ static uint8_t _qt1070_read_reg(struct _qt1070* qt1070, uint8_t reg_addr)
  * \param reg_addr Register address to write.
  * \param data    Data to write.
  */
-static void _qt1070_write_reg(struct _qt1070* qt1070, uint32_t reg_addr,
+static int _qt1070_write_reg(struct _qt1070* qt1070, uint32_t reg_addr,
 			      uint8_t data)
 {
-	int status;
+	int err;
 	uint8_t _data[2] = { reg_addr , data };
 	struct _buffer buf[1] = {
 		{
 			.data = _data,
 			.size = 2,
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_TX | BUS_I2C_BUF_ATTR_STOP,
 		}
 	};
 
-	while (twi_bus_transaction_pending(qt1070->bus));
-	twi_bus_start_transaction(qt1070->bus);
+	bus_start_transaction(qt1070->bus);
+	err = bus_transfer(qt1070->bus, qt1070->addr, buf, 1, NULL);
+	bus_stop_transaction(qt1070->bus);
 
-	status = twi_bus_transfer(qt1070->bus, qt1070->addr, buf, 1, NULL);
-	if (status < 0) {
-		twi_bus_stop_transaction(qt1070->bus);
-		return;
-	}
-
-	twi_bus_wait_transfer(qt1070->bus);
-	twi_bus_stop_transaction(qt1070->bus);
+	return err;
 }
 
 /*----------------------------------------------------------------------------

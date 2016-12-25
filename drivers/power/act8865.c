@@ -31,96 +31,77 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
-
-#include "i2c/twi-bus.h"
-
-#include "gpio/pio.h"
-#include "peripherals/pmc.h"
-#include "i2c/twid.h"
-
-#include "power/act8865.h"
-
-#include "trace.h"
-
-#include <stdio.h>
-#include <stdint.h>
-#include <string.h>
 #include <assert.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
 
+#include "chip.h"
+#include "errno.h"
+#include "gpio/pio.h"
+#include "i2c/twid.h"
+#include "peripherals/bus.h"
+#include "peripherals/pmc.h"
+#include "power/act8865.h"
+#include "trace.h"
 
 /*------------------------------------------------------------------------------
  *         Local functions
  *----------------------------------------------------------------------------*/
-static bool _act8865_read_reg(struct _act8865* act8865, uint8_t iaddr, uint8_t* value)
+static int _act8865_read_reg(struct _act8865* act8865, uint8_t iaddr, uint8_t* value)
 {
-
-	int status;
+	int err;
 	struct _buffer buf[2] = {
 		{
 			.data = &iaddr,
 			.size = 1,
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_TX | BUS_I2C_BUF_ATTR_STOP,
 		},
 		{
 			.data = value,
 			.size = 1,
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_READ | TWID_BUF_ATTR_STOP,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_RX | BUS_I2C_BUF_ATTR_STOP,
 		},
 	};
 
-	while (twi_bus_transaction_pending(act8865->bus));
-	twi_bus_start_transaction(act8865->bus);
+	bus_start_transaction(act8865->bus);
+	err = bus_transfer(act8865->bus, act8865->addr, buf, 2, NULL);
+	bus_stop_transaction(act8865->bus);
 
-	status = twi_bus_transfer(act8865->bus, act8865->addr, buf, 2, NULL);
-	if (status < 0) {
-		twi_bus_stop_transaction(act8865->bus);
-		return false;
-	}
-
-	twi_bus_wait_transfer(act8865->bus);
-	twi_bus_stop_transaction(act8865->bus);
-	return true;
+	return err;
 }
 
-static bool _act8865_write_reg(struct _act8865* act8865, uint8_t iaddr, uint8_t value)
+static int _act8865_write_reg(struct _act8865* act8865, uint8_t iaddr, uint8_t value)
 {
-	int status;
+	int err;
 	uint8_t _data[2] = { iaddr , value };
 	struct _buffer buf[1] = {
 		{
 			.data = _data,
 			.size = 2,
-			.attr = TWID_BUF_ATTR_START | TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_STOP,
+			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_TX | BUS_I2C_BUF_ATTR_STOP,
 		}
 	};
 
-	while (twi_bus_transaction_pending(act8865->bus));
-	twi_bus_start_transaction(act8865->bus);
+	bus_start_transaction(act8865->bus);
+	err = bus_transfer(act8865->bus, act8865->addr, buf, 1, NULL);
+	bus_stop_transaction(act8865->bus);
 
-	status = twi_bus_transfer(act8865->bus, act8865->addr, buf, 1, NULL);
-	if (status < 0) {
-		twi_bus_stop_transaction(act8865->bus);
-		return false;
-	}
-
-	twi_bus_wait_transfer(act8865->bus);
-	twi_bus_stop_transaction(act8865->bus);
-	return true;
+	return err;
 }
 
-bool act8865_check_twi_status(struct _act8865* act8865)
+int act8865_check_twi_status(struct _act8865* act8865)
 {
 	uint8_t data = 0;
 
 	return _act8865_read_reg(act8865, SYS_0, &data);
 }
 
-bool act8865_set_reg_voltage(struct _act8865* act8865, uint8_t volt_reg, uint8_t value)
+int act8865_set_reg_voltage(struct _act8865* act8865, uint8_t volt_reg, uint8_t value)
 {
+	int ret;
 	uint8_t enable_reg;
 	uint8_t data;
-	bool ret;
 
 	switch (volt_reg) {
 	case REG1_0:
@@ -148,25 +129,24 @@ bool act8865_set_reg_voltage(struct _act8865* act8865, uint8_t volt_reg, uint8_t
 		enable_reg = REG7_1;
 		break;
 	default:
-		return false;
+		return -EINVAL;
 	}
 
 	/* Set output voltage */
 	ret = _act8865_write_reg(act8865, volt_reg, value);
-	if (!ret)
-		return false;
+	if (ret < 0)
+		return ret;
 
 	/* Enable Regulator */
 	data = 0;
 	ret = _act8865_read_reg(act8865, enable_reg, &data);
-	if (!ret)
-		return false;
+	if (ret < 0)
+		return ret;
 
 	data |= REG_ENABLE_BIT;
 	ret = _act8865_write_reg(act8865, enable_reg, data);
-	if (!ret)
-		return false;
+	if (ret < 0)
+		return ret;
 
-	return true;
+	return 0;
 }
-
