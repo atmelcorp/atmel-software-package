@@ -174,11 +174,6 @@ const char* get_chip_name(void)
 	return "Unknown";
 }
 
-Matrix* get_peripheral_matrix(uint32_t id)
-{
-	return MATRIX; // AHB 32-bit matrix
-}
-
 uint32_t get_peripheral_clock_matrix_div(uint32_t id)
 {
 	return 1;

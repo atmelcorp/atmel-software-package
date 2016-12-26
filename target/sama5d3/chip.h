@@ -249,13 +249,6 @@ extern "C" {
  */
 extern const char* get_chip_name(void);
 
-/** \brief Returns the matrix on which the given peripheral is connected
- *
- * \param id the Peripheral ID
- * \return a pointer to the Matrix instance
- */
-extern Matrix* get_peripheral_matrix(uint32_t id);
-
 /** \brief Returns the matrix clock divider for the given peripheral
  *
  * \param id the Peripheral ID

@@ -177,11 +177,6 @@ uint8_t get_flash_wait_states(uint32_t frequency)
 	return i;
 }
 
-Matrix* get_peripheral_matrix(uint32_t id)
-{
-	return MATRIX;
-}
-
 uint32_t get_peripheral_clock_matrix_div(uint32_t id)
 {
 	return 1;
