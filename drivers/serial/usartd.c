@@ -27,25 +27,28 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "chip.h"
+/*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
 
+#include <assert.h>
+#include <stdint.h>
+#include <string.h>
+
+#include "callback.h"
+#include "chip.h"
+#include "dma/dma.h"
+#include "io.h"
+#include "irq/irq.h"
+#include "mm/cache.h"
+#include "mutex.h"
 #ifdef CONFIG_HAVE_FLEXCOM
 #include "peripherals/flexcom.h"
 #endif
-#include "irq/irq.h"
 #include "peripherals/pmc.h"
-#include "serial/usartd.h"
 #include "serial/usart.h"
-#include "dma/dma.h"
-#include "mm/cache.h"
-
+#include "serial/usartd.h"
 #include "trace.h"
-#include "io.h"
-#include "mutex.h"
-
-#include <assert.h>
-#include <string.h>
-#include <stdint.h>
 
 /*----------------------------------------------------------------------------
  *        Definition
@@ -67,10 +70,9 @@ static void _usartd_dma_write_callback(struct dma_channel* channel, void* args)
 
 	dma_free_channel(channel);
 
-	if (_serial[iface]->tx.callback)
-		_serial[iface]->tx.callback(iface, _serial[iface]->tx.cb_args);
-
 	mutex_unlock(&_serial[iface]->tx.mutex);
+
+	callback_call(&_serial[iface]->tx.callback);
 }
 
 static void _usartd_dma_read_callback(struct dma_channel* channel, void* args)
@@ -91,16 +93,14 @@ static void _usartd_dma_read_callback(struct dma_channel* channel, void* args)
 	desc->rx.transferred = dma_get_transferred_data_len(channel, desc->dma.rx.cfg.chunk_size, desc->dma.rx.cfg.len);
 	dma_free_channel(channel);
 
-	if (desc->rx.transferred > 0) {
+	if (desc->rx.transferred > 0)
 		cache_invalidate_region(desc->dma.rx.cfg.da, desc->rx.transferred);
 
-		if (desc->rx.callback)
-			desc->rx.callback(iface, desc->rx.cb_args);
-	}
-
 	desc->rx.buffer.size = 0;
-
 	mutex_unlock(&desc->rx.mutex);
+
+	if (desc->rx.transferred > 0)
+		callback_call(&desc->rx.callback);
 }
 
 static void _usartd_dma_read(uint8_t iface)
@@ -270,7 +270,7 @@ void usartd_configure(uint8_t iface, struct _usart_desc* config)
 	assert(config->dma.tx.channel);
 }
 
-uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf, usartd_callback_t cb, void* user_args)
+uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf, struct _callback* cb)
 {
 	assert(iface < USART_IFACE_COUNT);
 	struct _usart_desc *desc = _serial[iface];
@@ -289,8 +289,7 @@ uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf, usartd_callback_t c
 		desc->rx.buffer.data = buf->data;
 		desc->rx.buffer.size = buf->size;
 		desc->rx.buffer.attr = buf->attr;
-		desc->rx.callback = cb;
-		desc->rx.cb_args = user_args;
+		callback_copy(&desc->rx.callback, cb);
 
 		desc->rx.has_timeout = false;
 	}
@@ -303,8 +302,7 @@ uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf, usartd_callback_t c
 		desc->tx.buffer.data = buf->data;
 		desc->tx.buffer.size = buf->size;
 		desc->tx.buffer.attr = buf->attr;
-		desc->tx.callback = cb;
-		desc->tx.cb_args = user_args;
+		callback_copy(&desc->tx.callback, cb);
 	}
 
 	tmode = desc->transfer_mode;
@@ -352,9 +350,8 @@ uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf, usartd_callback_t c
 
 				if (desc->tx.transferred >= desc->tx.buffer.size) {
 					desc->tx.buffer.size = 0;
-					if (desc->tx.callback)
-						desc->tx.callback(iface, desc->tx.cb_args);
 					mutex_unlock(&desc->tx.mutex);
+					callback_call(&desc->tx.callback);
 				}
 			}
 			if (i < desc->rx.buffer.size) {
@@ -395,9 +392,8 @@ uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf, usartd_callback_t c
 
 				if (desc->rx.transferred >= desc->rx.buffer.size) {
 					desc->rx.buffer.size = 0;
-					if (desc->rx.callback)
-						desc->rx.callback(iface, desc->rx.cb_args);
 					mutex_unlock(&desc->rx.mutex);
+					callback_call(&desc->rx.callback);
 				}
 			}
 		}
@@ -427,20 +423,6 @@ uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf, usartd_callback_t c
 	}
 
 	return USARTD_SUCCESS;
-}
-
-void usartd_finish_rx_transfer_callback(uint8_t iface, void* user_args)
-{
-	assert(iface < USART_IFACE_COUNT);
-	(void)user_args;
-	usartd_finish_rx_transfer(iface);
-}
-
-void usartd_finish_tx_transfer_callback(uint8_t iface, void* user_args)
-{
-	assert(iface < USART_IFACE_COUNT);
-	(void)user_args;
-	usartd_finish_tx_transfer(iface);
 }
 
 void usartd_finish_rx_transfer(uint8_t iface)

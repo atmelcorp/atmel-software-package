@@ -234,6 +234,12 @@ static void irda_interface_init(void)
 	irq_enable(id);
 }
 
+static int irda_finish_tx_transfer_callback(void* arg)
+{
+	usartd_finish_tx_transfer(0);
+	return 0;
+}
+
 /*------------------------------------------------------------------------------
  *         Exported functions
  *------------------------------------------------------------------------------*/
@@ -268,7 +274,11 @@ extern int main( void )
 				.size = sizeof(buffer_tx),
 				.attr = USARTD_BUF_ATTR_WRITE,
 			};
-			usartd_transfer(0, &tx, usartd_finish_tx_transfer_callback, 0);
+			struct _callback _cb = {
+				.method = irda_finish_tx_transfer_callback,
+				.arg = 0,
+			};
+			usartd_transfer(0, &tx, &_cb);
 			msleep(200);
 		}
 	}

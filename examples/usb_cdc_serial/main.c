@@ -291,6 +291,12 @@ void usbd_callbacks_request_received(const USBGenericRequest *request)
  *         Internal functions
  *----------------------------------------------------------------------------*/
 
+static int _usart_finish_tx_transfer_callback(void* arg)
+{
+	usartd_finish_tx_transfer(0);
+	return 0;
+}
+
 /**
  *  \brief Send single buffer data through DMA
  */
@@ -302,7 +308,11 @@ static void _usart_dma_tx(const uint8_t* buffer, uint32_t len )
 		.size = len,
 		.attr = USARTD_BUF_ATTR_WRITE,
 	};
-	usartd_transfer(0, &tx, usartd_finish_tx_transfer_callback, 0);
+	struct _callback _cb = {
+		.method = _usart_finish_tx_transfer_callback,
+		.arg = 0,
+	};
+	usartd_transfer(0, &tx, &_cb);
 
 }
 

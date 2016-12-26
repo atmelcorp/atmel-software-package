@@ -32,18 +32,19 @@
 
 #ifdef CONFIG_HAVE_USART
 
-/*------------------------------------------------------------------------------
- *         Headers
- *------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
 
-#include "serial/usart.h"
+#include "callback.h"
 #include "dma/dma.h"
-#include "mutex.h"
 #include "io.h"
+#include "mutex.h"
+#include "serial/usart.h"
 
-/*------------------------------------------------------------------------------
- *         Definitions
- *------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------
+ *        Constants
+ *----------------------------------------------------------------------------*/
 
 #define USARTD_SUCCESS         (0)
 #define USARTD_INVALID_ID      (1)
@@ -52,14 +53,14 @@
 #define USARTD_ERROR_DUPLEX    (4)
 #define USARTD_ERROR_TIMEOUT   (5)
 
+/*----------------------------------------------------------------------------
+ *        Type definitions
+ *----------------------------------------------------------------------------*/
+
 enum _usartd_buf_attr {
 	USARTD_BUF_ATTR_WRITE = 0x01,
 	USARTD_BUF_ATTR_READ  = 0x02,
 };
-
-struct _usart_desc;
-
-typedef void (*usartd_callback_t)(uint8_t iface, void* args);
 
 struct _usart_desc
 {
@@ -77,8 +78,7 @@ struct _usart_desc
 		uint16_t transferred;
 		bool has_timeout;
 
-		usartd_callback_t callback;
-		void*   cb_args;
+		struct _callback callback;
 	} rx, tx;
 
 #ifdef CONFIG_HAVE_USART_FIFO
@@ -111,18 +111,15 @@ enum _usartd_trans_mode
 	USARTD_MODE_FIFO,
 };
 
-/*------------------------------------------------------------------------------*/
-/*         Exported functions                                                   */
-/*------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------
+ *        Exported functions
+ *----------------------------------------------------------------------------*/
 
 extern void usartd_configure(uint8_t iface, struct _usart_desc* desc);
-extern uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf,
-			  usartd_callback_t cb, void* user_args);
-extern void usartd_finish_rx_transfer_callback(uint8_t iface, void* user_args);
+extern uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf, struct _callback* cb);
 extern void usartd_finish_rx_transfer(uint8_t iface);
 extern uint32_t usartd_rx_is_busy(const uint8_t iface);
 extern void usartd_wait_rx_transfer(const uint8_t iface);
-extern void usartd_finish_tx_transfer_callback(uint8_t iface, void* user_args);
 extern void usartd_finish_tx_transfer(uint8_t iface);
 extern uint32_t usartd_tx_is_busy(const uint8_t iface);
 extern void usartd_wait_tx_transfer(const uint8_t iface);

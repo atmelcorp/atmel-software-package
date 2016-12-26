@@ -191,6 +191,11 @@ static const struct _pin usart_pins[] = USART_PINS;
  *         Local functions
  *----------------------------------------------------------------------------*/
 
+static int _usart_finish_tx_transfer_callback(void* arg)
+{
+	usartd_finish_tx_transfer(0);
+	return 0;
+}
 
 /**
  *  \brief Send single buffer data through DMA
@@ -203,9 +208,19 @@ static void _usart_dma_tx(const uint8_t* buffer, uint32_t len )
 		.size = len,
 		.attr = USARTD_BUF_ATTR_WRITE,
 	};
-	usartd_transfer(0, &tx, usartd_finish_tx_transfer_callback, 0);
+	struct _callback _cb = {
+		.method = _usart_finish_tx_transfer_callback,
+		.arg = 0,
+	};
+	usartd_transfer(0, &tx, &_cb);
 	usartd_wait_tx_transfer(0);
 
+}
+
+static int _usart_finish_rx_transfer_callback(void* arg)
+{
+	usartd_finish_rx_transfer(0);
+	return 0;
 }
 
 /**
@@ -219,11 +234,14 @@ static void _usart_dma_rx(const uint8_t* buffer, uint32_t len )
 		.size = len,
 		.attr = USARTD_BUF_ATTR_READ,
 	};
-	usartd_transfer(0, &rx, usartd_finish_rx_transfer_callback, 0);
+	struct _callback _cb = {
+		.method = _usart_finish_rx_transfer_callback,
+		.arg = 0,
+	};
+	usartd_transfer(0, &rx, &_cb);
 	usartd_wait_rx_transfer(0);
 
 }
-
 
 /**
  * \brief Display main menu.
