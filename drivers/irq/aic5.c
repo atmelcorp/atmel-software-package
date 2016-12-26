@@ -170,30 +170,14 @@ void aic_configure_priority(uint32_t source, uint8_t priority)
 
 void aic_enable(uint32_t source)
 {
-	Aic* aic = AIC;
-
-#ifdef CONFIG_HAVE_SAIC
-	if (SFR->SFR_AICREDIR == 0) {
-		Matrix* matrix = get_peripheral_matrix(source);
-		if (matrix_is_peripheral_secured(matrix, source))
-			aic = SAIC;
-	}
-#endif
+	Aic* aic = _get_aic_instance(source);
 	aic->AIC_SSR = AIC_SSR_INTSEL(source);
 	aic->AIC_IECR = AIC_IECR_INTEN;
 }
 
 void aic_disable(uint32_t source)
 {
-	Aic* aic = AIC;
-
-#ifdef CONFIG_HAVE_SAIC	
-	if (SFR->SFR_AICREDIR == 0) {
-		Matrix* matrix = get_peripheral_matrix(source);
-		if (matrix_is_peripheral_secured(matrix, source))
-			aic = SAIC;
-	}
-#endif
+	Aic* aic = _get_aic_instance(source);
 	aic->AIC_SSR = AIC_SSR_INTSEL(source);
 	aic->AIC_IDCR = AIC_IDCR_INTD;
 }
