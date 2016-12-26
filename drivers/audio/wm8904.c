@@ -262,7 +262,7 @@ static uint16_t wm8904_read(struct _wm8904_desc *wm8904, uint8_t reg_addr)
 	while (twi_bus_transaction_pending(wm8904->twi.bus));
 	twi_bus_start_transaction(wm8904->twi.bus);
 
-	status = twi_bus_transfer(wm8904->twi.bus, wm8904->twi.addr, buf, 2, NULL, NULL);
+	status = twi_bus_transfer(wm8904->twi.bus, wm8904->twi.addr, buf, 2, NULL);
 	if (status != TWID_SUCCESS) {
 		twi_bus_stop_transaction(wm8904->twi.bus);
 		return status;
@@ -303,7 +303,7 @@ static void wm8904_write(struct _wm8904_desc *wm8904, uint8_t reg_addr, uint16_t
 	while (twi_bus_transaction_pending(wm8904->twi.bus));
 	twi_bus_start_transaction(wm8904->twi.bus);
 
-	status = twi_bus_transfer(wm8904->twi.bus, wm8904->twi.addr, buf, 2, NULL, NULL);
+	status = twi_bus_transfer(wm8904->twi.bus, wm8904->twi.addr, buf, 2, NULL);
 	if (status != TWID_SUCCESS) {
 		twi_bus_stop_transaction(wm8904->twi.bus);
 		return;

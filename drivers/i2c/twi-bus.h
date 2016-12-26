@@ -30,26 +30,33 @@
 #ifndef TWI_BUS_H
 #define TWI_BUS_H
 
+/*------------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
+
+#include "callback.h"
 #include "i2c/twid.h"
 #include "mutex.h"
 
-typedef void (*twi_bus_callback_t)(void* args);
+/*------------------------------------------------------------------------------
+ *        Type Definitions
+ *----------------------------------------------------------------------------*/
 
 struct _twi_bus_desc {
 	struct _twi_desc twid;
-
-	twi_bus_callback_t callback;
-	void *cb_args;
-
+	struct _callback callback;
 	mutex_t mutex;
 	mutex_t transaction;
 };
 
+/*------------------------------------------------------------------------------
+ *        Exported functions
+ *----------------------------------------------------------------------------*/
 
 int32_t twi_bus_configure(uint8_t bus_id, Twi *iface, uint32_t freq, enum _twid_trans_mode mode);
 
 int32_t twi_bus_transfer(uint8_t bus_id, uint8_t slave_addr, struct _buffer *buf, uint16_t buffers,
-                         twi_bus_callback_t cb, void *user_args);
+                         struct _callback* cb);
 
 int32_t twi_bus_start_transaction(uint8_t bus_id);
 

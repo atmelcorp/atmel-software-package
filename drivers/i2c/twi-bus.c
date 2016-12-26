@@ -27,28 +27,46 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "twi-bus.h"
-#include "board.h"
-
-#include "trace.h"
+/*------------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
 
 #include <string.h>
 #include <assert.h>
 
+#include "board.h"
+#include "callback.h"
+#include "errno.h"
+#include "trace.h"
+#include "twi-bus.h"
+
+/*------------------------------------------------------------------------------
+ *        Local variables
+ *----------------------------------------------------------------------------*/
+
 static struct _twi_bus_desc _twi_bus[TWI_IFACE_COUNT];
 
-static void twi_bus_callback(struct _twi_desc *twi, void *args)
+/*------------------------------------------------------------------------------
+ *        Local functions
+ *----------------------------------------------------------------------------*/
+
+static int _twi_bus_callback(void* arg)
 {
-	uint8_t bus_id = *(uint8_t *)args;
+	uint8_t bus_id = *(uint8_t *)arg;
 
 	if (bus_id >= TWI_IFACE_COUNT)
-		return;
-
-	if (_twi_bus[bus_id].callback)
-		_twi_bus[bus_id].callback(_twi_bus[bus_id].cb_args);
+		return -ENODEV;
 
 	mutex_unlock(&_twi_bus[bus_id].mutex);
+
+	callback_call(&_twi_bus[bus_id].callback);
+
+	return 0;
 }
+
+/*------------------------------------------------------------------------------
+ *        Exported functions
+ *----------------------------------------------------------------------------*/
 
 int32_t twi_bus_configure(uint8_t bus_id, Twi *iface, uint32_t freq, enum _twid_trans_mode mode)
 {
@@ -65,33 +83,34 @@ int32_t twi_bus_configure(uint8_t bus_id, Twi *iface, uint32_t freq, enum _twid_
 }
 
 int32_t twi_bus_transfer(uint8_t bus_id, uint8_t slave_addr, struct _buffer *buf, uint16_t buffers,
-                         twi_bus_callback_t cb, void *user_args)
+                         struct _callback* cb)
 {
+	struct _callback _cb;
 	uint32_t status;
 
 	assert(bus_id < TWI_IFACE_COUNT);
 
 	if (buffers == 0)
-		return TWID_SUCCESS;
+		return 0;
 
 	if (!mutex_is_locked(&_twi_bus[bus_id].transaction)) {
-		trace_error("-W- twi_bus: no opened transaction on the bus.");
+		trace_error("twi_bus: no opened transaction on the bus.");
 		return TWID_ERROR_LOCK;
 	}
 	if (!mutex_try_lock(&_twi_bus[bus_id].mutex))
 		return TWID_ERROR_LOCK;
 
 	_twi_bus[bus_id].twid.slave_addr = slave_addr;
-	_twi_bus[bus_id].callback = cb;
-	_twi_bus[bus_id].cb_args = user_args;
+	callback_copy(&_twi_bus[bus_id].callback, cb);
 
-	status = twid_transfer(&_twi_bus[bus_id].twid, buf, buffers, twi_bus_callback, (void *)&bus_id);
+	callback_set(&_cb, _twi_bus_callback, &bus_id);
+	status = twid_transfer(&_twi_bus[bus_id].twid, buf, buffers, &_cb);
 	if (status) {
 		mutex_unlock(&_twi_bus[bus_id].mutex);
 		return status;
 	}
 
-	return TWID_SUCCESS;
+	return 0;
 }
 
 bool twi_bus_is_busy(uint8_t bus_id)

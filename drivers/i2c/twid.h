@@ -31,13 +31,14 @@
 #define TWID_H_
 
 /*------------------------------------------------------------------------------
- *        Header
+ *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "i2c/twi.h"
+#include "callback.h"
 #include "dma/dma.h"
-#include "mutex.h"
+#include "i2c/twi.h"
 #include "io.h"
+#include "mutex.h"
 
 /*------------------------------------------------------------------------------
  *        Types
@@ -68,10 +69,6 @@ enum _twid_trans_mode
 	TWID_MODE_ASYNC,
 };
 
-struct _twi_desc;
-
-typedef void (*twid_callback_t)(struct _twi_desc* twi, void* args);
-
 struct _twi_desc
 {
 	Twi*  addr;
@@ -80,10 +77,8 @@ struct _twi_desc
 	enum _twid_trans_mode transfer_mode;
 	uint32_t flags;
 	uint32_t timeout; /**< timeout (if 0, a default timeout is used) */
-	/* implicit internal padding is mandatory here */
 	mutex_t mutex;
-	twid_callback_t callback;
-	void*   cb_args;
+	struct _callback callback;
 
 #ifdef CONFIG_HAVE_TWI_FIFO
 	bool use_fifo;
@@ -132,7 +127,7 @@ extern void twid_configure(struct _twi_desc* desc);
 extern void twid_slave_configure(struct _twi_slave_desc* desc, struct _twi_slave_ops* ops);
 
 extern uint32_t twid_transfer(struct _twi_desc* desc, struct _buffer* buf, int buffers,
-                              twid_callback_t cb, void* user_args);
+                              struct _callback* cb);
 
 extern uint32_t twid_is_busy(const struct _twi_desc* desc);
 

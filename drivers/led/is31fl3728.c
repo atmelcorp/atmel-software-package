@@ -77,7 +77,7 @@ static void _is31fl3728_write_reg(struct _is31fl3728* is31fl3728, uint8_t iaddr,
 	while (twi_bus_transaction_pending(is31fl3728->twi.bus));
 	twi_bus_start_transaction(act8865a->bus);
 
-	status = twi_bus_transfer(is31fl3728->twi.bus, is31fl3728->twi.addr, buf, 1, NULL, NULL);
+	status = twi_bus_transfer(is31fl3728->twi.bus, is31fl3728->twi.addr, buf, 1, NULL);
 	if (status != TWID_SUCCESS) {
 		twi_bus_stop_transaction(is31fl3728->twi.bus);
 		return false;

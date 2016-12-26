@@ -78,7 +78,7 @@ static uint8_t _bmp280_read(struct _bmp280* bmp280, uint8_t iaddr, uint8_t* buff
 	while (twi_bus_transaction_pending(bmp280->bus));
 	twi_bus_start_transaction(bmp280->bus);
 
-	status = twi_bus_transfer(bmp280->bus, bmp280->addr, buf, 2, NULL, NULL);
+	status = twi_bus_transfer(bmp280->bus, bmp280->addr, buf, 2, NULL);
 	if (status) {
 		twi_bus_stop_transaction(bmp280->bus);
 		return status;
@@ -107,7 +107,7 @@ static uint8_t _bmp280_write(struct _bmp280* bmp280, uint8_t iaddr, const uint8_
 	while (twi_bus_transaction_pending(bmp280->bus));
 	twi_bus_start_transaction(bmp280->bus);
 
-	status = twi_bus_transfer(bmp280->bus, bmp280->addr, buf, 2, NULL, NULL);
+	status = twi_bus_transfer(bmp280->bus, bmp280->addr, buf, 2, NULL);
 	if (status) {
 		twi_bus_stop_transaction(bmp280->bus);
 		return status;

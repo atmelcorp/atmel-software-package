@@ -220,7 +220,7 @@ static void wm8731_write(struct _wm8731_desc *wm8731, uint8_t reg_addr, uint16_t
 	while (twi_bus_transaction_pending(wm8731->twi.bus));
 	twi_bus_start_transaction(wm8731->twi.bus);
 
-	status = twi_bus_transfer(wm8731->twi.bus, wm8731->twi.addr, buf, 2, NULL, NULL);
+	status = twi_bus_transfer(wm8731->twi.bus, wm8731->twi.addr, buf, 2, NULL);
 	if (status != TWID_SUCCESS) {
 		twi_bus_stop_transaction(wm8731->twi.bus);
 		return;

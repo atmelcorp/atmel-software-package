@@ -31,23 +31,23 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include <assert.h>
+#include <string.h>
+
+#include "callback.h"
+#include "dma/dma.h"
+#include "errno.h"
+#include "i2c/twi.h"
+#include "i2c/twid.h"
+#include "io.h"
+#include "irq/irq.h"
+#include "mm/cache.h"
 #ifdef CONFIG_HAVE_FLEXCOM
 #include "peripherals/flexcom.h"
 #endif
-
-#include "irq/irq.h"
 #include "peripherals/pmc.h"
-#include "i2c/twid.h"
-#include "i2c/twi.h"
-#include "dma/dma.h"
-#include "mm/cache.h"
-
-#include "trace.h"
-#include "io.h"
 #include "timer.h"
-
-#include <assert.h>
-#include <string.h>
+#include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Definition
@@ -198,10 +198,9 @@ static void _twid_dma_read_callback(struct dma_channel* channel, void* args)
 		((uint8_t*)desc->dma.rx.cfg.da)[desc->dma.rx.cfg.len + 1] = twi_read_byte(desc->addr);
 	}
 
-	if (desc->callback)
-		desc->callback(desc, desc->cb_args);
-
 	mutex_unlock(&desc->mutex);
+
+	callback_call(&desc->callback);
 }
 
 static void _twid_dma_read(struct _twi_desc* desc, struct _buffer* buffer)
@@ -264,10 +263,9 @@ static void _twid_dma_write_callback(struct dma_channel* channel, void* args)
 		twi_write_byte(desc->addr, ((uint8_t *)desc->dma.tx.cfg.sa)[desc->dma.tx.cfg.len]);
 #endif
 
-	if (desc->callback)
-		desc->callback(desc, desc->cb_args);
-
 	mutex_unlock(&desc->mutex);
+
+	callback_call(&desc->callback);
 }
 
 static void _twid_dma_write(struct _twi_desc* desc, struct _buffer* buffer)
@@ -410,10 +408,9 @@ static void _twid_handler(uint32_t source, void* user_arg)
 	else if (TWI_STATUS_TXCOMP(status)) {
 		irq_disable(adesc->twi_id);
 		twi_disable_it(addr, TWI_IDR_TXCOMP);
-		if (adesc->twi_desc->callback)
-			adesc->twi_desc->callback(adesc->twi_desc, adesc->twi_desc->cb_args);
 		adesc->twi_id = 0;
 		mutex_unlock(&adesc->twi_desc->mutex);
+		callback_call(&adesc->twi_desc->callback);
 	}
 }
 
@@ -698,7 +695,7 @@ void twid_slave_configure(struct _twi_slave_desc *desc, struct _twi_slave_ops* o
 /*
  *
  */
-static uint32_t _twid_transfer(struct _twi_desc* desc, struct _buffer* buf, twid_callback_t cb, void* user_args)
+static uint32_t _twid_transfer(struct _twi_desc* desc, struct _buffer* buf, struct _callback* cb)
 {
 	uint32_t status = TWID_SUCCESS;
 	uint32_t id;
@@ -707,8 +704,7 @@ static uint32_t _twid_transfer(struct _twi_desc* desc, struct _buffer* buf, twid
 	if (!mutex_try_lock(&desc->mutex))
 		return TWID_ERROR_LOCK;
 
-	desc->callback = cb;
-	desc->cb_args = user_args;
+	callback_copy(&desc->callback, cb);
 	desc->flags = buf->attr;
 	tmode = desc->transfer_mode;
 
@@ -791,8 +787,8 @@ static uint32_t _twid_transfer(struct _twi_desc* desc, struct _buffer* buf, twid
 		else
 			status = _twid_poll_read(desc, buf);
 
-		if (status == TWID_SUCCESS && cb)
-			cb(desc, user_args);
+		if (status == TWID_SUCCESS)
+			callback_call(&desc->callback);
 		mutex_unlock(&desc->mutex);
 		break;
 
@@ -810,8 +806,7 @@ static uint32_t _twid_transfer(struct _twi_desc* desc, struct _buffer* buf, twid
 	return status;
 }
 
-uint32_t twid_transfer(struct _twi_desc* desc, struct _buffer* buf, int buffers,
-					   twid_callback_t cb, void* user_args)
+uint32_t twid_transfer(struct _twi_desc* desc, struct _buffer* buf, int buffers, struct _callback* cb)
 {
 	int b;
 	uint32_t status;
@@ -827,14 +822,14 @@ uint32_t twid_transfer(struct _twi_desc* desc, struct _buffer* buf, int buffers,
 			return TWID_ERROR_DUPLEX;
 
 		if (b == (buffers - 1)) {
-			status = _twid_transfer(desc, &buf[b], cb, user_args);
+			status = _twid_transfer(desc, &buf[b], cb);
 		} else {
 #if defined(CONFIG_SOC_SAM9XX5) || defined(CONFIG_SOC_SAMA5D3)
 			/* workaround for IP versions that do not support manual restart */
 			if (buf[b + 1].attr & TWID_BUF_ATTR_START)
 				buf[b].attr |= TWID_BUF_ATTR_STOP;
 #endif
-			status = _twid_transfer(desc, &buf[b], NULL, NULL);
+			status = _twid_transfer(desc, &buf[b], NULL);
 		}
 		if (status)
 			return status;

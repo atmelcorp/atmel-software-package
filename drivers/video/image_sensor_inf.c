@@ -117,7 +117,7 @@ static uint32_t sensor_twi_read_reg(uint8_t twi_mode, uint8_t bus, uint8_t addr,
 	while (twi_bus_transaction_pending(bus));
 	twi_bus_start_transaction(bus);
 
-	status = twi_bus_transfer(bus, addr, buf, 2, NULL, 0);
+	status = twi_bus_transfer(bus, addr, buf, 2, NULL);
 	if (status != TWID_SUCCESS) {
 		twi_bus_stop_transaction(bus);
 		return SENSOR_TWI_ERROR;
@@ -183,7 +183,7 @@ static uint32_t sensor_twi_write_reg(uint8_t twi_mode, uint8_t bus, uint8_t addr
 	while (twi_bus_transaction_pending(bus));
 	twi_bus_start_transaction(bus);
 
-	status = twi_bus_transfer(bus, addr, buf, 2, NULL, 0);
+	status = twi_bus_transfer(bus, addr, buf, 2, NULL);
 	if (status != TWID_SUCCESS) {
 		twi_bus_stop_transaction(bus);
 		return SENSOR_TWI_ERROR;

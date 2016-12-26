@@ -130,7 +130,7 @@ static bool _at24_twi_read(const struct _at24* at24, uint8_t addr_offset, struct
 	twi_bus_start_transaction(at24->bus);
 
 	/* start the TWI bus transfer */
-	status = twi_bus_transfer(at24->bus, at24->addr + addr_offset, buf, 2, NULL, NULL);
+	status = twi_bus_transfer(at24->bus, at24->addr + addr_offset, buf, 2, NULL);
 
 	/* wait for completion and stop transaction */
 	twi_bus_wait_transfer(at24->bus);
@@ -236,7 +236,7 @@ bool at24_write(const struct _at24* at24, uint32_t offset, const uint8_t* data, 
 		buf[1].size = chunk_size;
 
 		/* start the TWI bus transfer */
-		status = twi_bus_transfer(at24->bus, at24->addr + addr_offset, buf, 2, NULL, NULL);
+		status = twi_bus_transfer(at24->bus, at24->addr + addr_offset, buf, 2, NULL);
 		if (status)
 			break;
 

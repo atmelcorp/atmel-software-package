@@ -287,7 +287,7 @@ static bool _act8945a_read_reg(struct _act8945a* act8945a, uint8_t iaddr, uint8_
 	while (twi_bus_transaction_pending(act8945a->bus));
 	twi_bus_start_transaction(act8945a->bus);
 
-	status = twi_bus_transfer(act8945a->bus, act8945a->addr, buf, 2, NULL, NULL);
+	status = twi_bus_transfer(act8945a->bus, act8945a->addr, buf, 2, NULL);
 	if (status != TWID_SUCCESS) {
 		twi_bus_stop_transaction(act8945a->bus);
 		return false;
@@ -313,7 +313,7 @@ static bool _act8945a_write_reg(struct _act8945a* act8945a, uint8_t iaddr, uint8
 	while (twi_bus_transaction_pending(act8945a->bus));
 	twi_bus_start_transaction(act8945a->bus);
 
-	status = twi_bus_transfer(act8945a->bus, act8945a->addr, buf, 1, NULL, 0);
+	status = twi_bus_transfer(act8945a->bus, act8945a->addr, buf, 1, NULL);
 	if (status != TWID_SUCCESS) {
 		twi_bus_stop_transaction(act8945a->bus);
 		return false;

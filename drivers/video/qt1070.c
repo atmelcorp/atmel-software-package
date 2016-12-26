@@ -81,7 +81,7 @@ static uint8_t _qt1070_read_reg(struct _qt1070* qt1070, uint8_t reg_addr)
 	while (twi_bus_transaction_pending(qt1070->bus));
 	twi_bus_start_transaction(qt1070->bus);
 
-	status = twi_bus_transfer(qt1070->bus, qt1070->addr, buf, 2, NULL, NULL);
+	status = twi_bus_transfer(qt1070->bus, qt1070->addr, buf, 2, NULL);
 	if (status != TWID_SUCCESS) {
 		twi_bus_stop_transaction(qt1070->bus);
 		return 0;
@@ -116,7 +116,7 @@ static void _qt1070_write_reg(struct _qt1070* qt1070, uint32_t reg_addr,
 	while (twi_bus_transaction_pending(qt1070->bus));
 	twi_bus_start_transaction(qt1070->bus);
 
-	status = twi_bus_transfer(qt1070->bus, qt1070->addr, buf, 1, NULL, 0);
+	status = twi_bus_transfer(qt1070->bus, qt1070->addr, buf, 1, NULL);
 	if (status != TWID_SUCCESS) {
 		twi_bus_stop_transaction(qt1070->bus);
 		return;
