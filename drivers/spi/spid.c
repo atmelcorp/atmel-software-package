@@ -27,23 +27,26 @@
  * ----------------------------------------------------------------------------
  */
 
-
-#ifdef CONFIG_HAVE_FLEXCOM
-#include "peripherals/flexcom.h"
-#endif
-#include "irq/irq.h"
-#include "peripherals/pmc.h"
-#include "spi/spid.h"
-#include "spi/spi.h"
-#include "dma/dma.h"
-#include "mm/cache.h"
-
-#include "trace.h"
+/*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
 
 #include <stddef.h>
 #include <stdint.h>
 #include <assert.h>
 #include <string.h>
+
+#include "callback.h"
+#include "dma/dma.h"
+#include "irq/irq.h"
+#include "mm/cache.h"
+#ifdef CONFIG_HAVE_FLEXCOM
+#include "peripherals/flexcom.h"
+#endif
+#include "peripherals/pmc.h"
+#include "spi/spi.h"
+#include "spi/spid.h"
+#include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Definitions
@@ -333,9 +336,8 @@ static void _spid_transfer_next_buffer(struct _spi_desc* desc)
 			spi_release_cs(desc->addr);
 
 		desc->xfer.current = NULL;
-		if (desc->xfer.callback)
-			desc->xfer.callback(desc->xfer.cb_args);
 		mutex_unlock(&desc->mutex);
+		callback_call(&desc->xfer.callback);
 	}
 }
 
@@ -345,7 +347,7 @@ static void _spid_transfer_next_buffer(struct _spi_desc* desc)
 
 uint32_t spid_transfer(struct _spi_desc* desc,
 		struct _buffer* buffers, int buffer_count,
-		spid_callback_t cb, void* user_args)
+		struct _callback* cb)
 {
 	int i;
 
@@ -369,8 +371,7 @@ uint32_t spid_transfer(struct _spi_desc* desc,
 
 	desc->xfer.current = buffers;
 	desc->xfer.last = &buffers[buffer_count - 1];
-	desc->xfer.callback = cb;
-	desc->xfer.cb_args = user_args;
+	callback_copy(&desc->xfer.callback, cb);
 
 	_spid_transfer_current_buffer(desc);
 

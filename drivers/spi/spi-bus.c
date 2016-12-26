@@ -27,30 +27,46 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "spi-bus.h"
-#include "spi/spid.h"
-#include "spi/spi.h"
-#include "board.h"
-
-#include "trace.h"
+/*------------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
 
 #include <string.h>
 #include <assert.h>
 
+#include "board.h"
+#include "callback.h"
+#include "errno.h"
+#include "spi-bus.h"
+#include "spi/spi.h"
+#include "spi/spid.h"
+#include "trace.h"
+
+/*------------------------------------------------------------------------------
+ *        Local variables
+ *----------------------------------------------------------------------------*/
+
 static struct _spi_bus_desc _spi_bus[SPI_IFACE_COUNT];
 
-static void spi_bus_callback(void *args)
+/*------------------------------------------------------------------------------
+ *        Local functions
+ *----------------------------------------------------------------------------*/
+
+static int _spi_bus_callback(void* arg)
 {
-	uint8_t bus_id = *(uint8_t *)args;
+	uint8_t bus_id = (uint32_t)arg;
 
 	if (bus_id >= SPI_IFACE_COUNT)
-		return;
-
-	if (_spi_bus[bus_id].callback)
-		_spi_bus[bus_id].callback(_spi_bus[bus_id].cb_args);
+		return -ENODEV;
 
 	mutex_unlock(&_spi_bus[bus_id].mutex);
+
+	return callback_call(&_spi_bus[bus_id].callback);
 }
+
+/*------------------------------------------------------------------------------
+ *        Functions
+ *----------------------------------------------------------------------------*/
 
 int32_t spi_bus_configure(uint8_t bus_id, Spi *iface, enum _spid_trans_mode mode)
 {
@@ -74,9 +90,10 @@ void spi_bus_configure_cs(uint8_t bus_id, uint8_t cs, uint32_t bitrate, uint32_t
 }
 
 int32_t spi_bus_transfer(uint8_t bus_id, uint8_t cs, struct _buffer *buf, uint16_t buffers,
-						 spi_bus_callback_t cb, void *user_args)
+			 struct _callback* cb)
 {
 	uint32_t status;
+	struct _callback _cb;
 
 	assert(bus_id < SPI_IFACE_COUNT);
 
@@ -91,10 +108,10 @@ int32_t spi_bus_transfer(uint8_t bus_id, uint8_t cs, struct _buffer *buf, uint16
 		return SPID_ERROR_LOCK;
 
 	_spi_bus[bus_id].spid.chip_select = cs;
-	_spi_bus[bus_id].callback = cb;
-	_spi_bus[bus_id].cb_args = user_args;
+	callback_copy(&_spi_bus[bus_id].callback, cb);
 
-	status = spid_transfer(&_spi_bus[bus_id].spid, buf, buffers, spi_bus_callback, (void *)&bus_id);
+	callback_set(&_cb, _spi_bus_callback, (void *)(uint32_t)bus_id);
+	status = spid_transfer(&_spi_bus[bus_id].spid, buf, buffers, &_cb);
 	if (status) {
 		mutex_unlock(&_spi_bus[bus_id].mutex);
 		return status;

@@ -165,7 +165,7 @@ static uint8_t ad1934_read_reg(struct _spi_dev_desc* spid, uint8_t reg_addr)
 	while (spi_bus_transaction_pending(spid->bus));
 	spi_bus_start_transaction(spid->bus);
 
-	spi_bus_transfer(spid->bus, spid->chip_select, buf, 2, NULL, NULL);
+	spi_bus_transfer(spid->bus, spid->chip_select, buf, 2, NULL);
 	spi_bus_wait_transfer(spid->bus);
 
 	spi_bus_stop_transaction(spid->bus);
@@ -198,7 +198,7 @@ static void ad1934_write_reg(struct _spi_dev_desc* spid, uint8_t reg_addr, uint8
 	while (spi_bus_transaction_pending(spid->bus));
 	spi_bus_start_transaction(spid->bus);
 
-	spi_bus_transfer(spid->bus, spid->chip_select, &out, 1, NULL, NULL);
+	spi_bus_transfer(spid->bus, spid->chip_select, &out, 1, NULL);
 	spi_bus_wait_transfer(spid->bus);
 
 	spi_bus_stop_transaction(spid->bus);

@@ -36,10 +36,11 @@
  *----------------------------------------------------------------------------*/
 
 #include <stdint.h>
-#include "mutex.h"
-#include "io.h"
 
+#include "callback.h"
 #include "dma/dma.h"
+#include "io.h"
+#include "mutex.h"
 
 /*------------------------------------------------------------------------------
  *        Types
@@ -50,10 +51,6 @@
 #define SPID_INVALID_BITRATE (2)
 #define SPID_ERROR_LOCK      (3)
 #define SPID_ERROR_TRANSFER  (4)
-
-struct _spi_desc;
-
-typedef void (*spid_callback_t)(void* args);
 
 enum _spid_buf_attr {
 	SPID_BUF_ATTR_READ       = 0x01,
@@ -94,11 +91,10 @@ struct _spi_desc {
 
 	/* structure to hold data about current transfer */
 	struct {
-		struct _buffer *current;     /*< Current buffer */
-		struct _buffer *last;        /*< Last buffer */
-		uint32_t        transferred; /*< Number of bytes transferred for current buffer */
-		spid_callback_t callback;
-		void*           cb_args;
+		struct _buffer*  current;     /*< Current buffer */
+		struct _buffer*  last;        /*< Last buffer */
+		uint32_t         transferred; /*< Number of bytes transferred for current buffer */
+		struct _callback callback;
 
 		struct {
 			struct {
@@ -117,7 +113,7 @@ extern void spid_configure(struct _spi_desc* desc);
 
 extern uint32_t spid_transfer(struct _spi_desc* desc,
 		struct _buffer* buffers, int buffer_count,
-		spid_callback_t cb, void* user_args);
+		struct _callback* cb);
 
 extern bool spid_is_busy(struct _spi_desc* desc);
 

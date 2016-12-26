@@ -31,24 +31,20 @@
 #define SPI_BUS_H
 
 /*----------------------------------------------------------------------------
- *         Includes
+ *         Headers
  *----------------------------------------------------------------------------*/
 
-#include "spi/spid.h"
+#include "callback.h"
 #include "mutex.h"
+#include "spi/spid.h"
 
 /*----------------------------------------------------------------------------
  *         Exported types
  *----------------------------------------------------------------------------*/
 
-typedef void (*spi_bus_callback_t)(void* args);
-
 struct _spi_bus_desc {
 	struct _spi_desc spid;
-
-	spi_bus_callback_t callback;
-	void *cb_args;
-
+	struct _callback callback;
 	mutex_t mutex;
 	mutex_t transaction;
 };
@@ -74,7 +70,7 @@ void spi_bus_configure_cs(uint8_t bus_id, uint8_t cs, uint32_t bitrate, uint32_t
 						  enum _spid_mode mode);
 
 int32_t spi_bus_transfer(uint8_t bus_id, uint8_t cs, struct _buffer *buf, uint16_t buffers,
-						 spi_bus_callback_t cb, void *user_args);
+			 struct _callback* cb);
 
 int32_t spi_bus_start_transaction(uint8_t bus_id);
 

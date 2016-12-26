@@ -232,9 +232,10 @@ static void _display_menu(void)
 	printf("  h: Display menu \r\n\r\n");
 }
 
-static void _spi_slave_transfer_callback(void* args)
+static int _spi_slave_transfer_callback(void* args)
 {
 	printf("Slave transfer complete\r\n");
+	return 0;
 }
 
 /**
@@ -254,6 +255,10 @@ static void _spi_transfer(void)
 		.size = DMA_TRANS_SIZE,
 		.attr = SPID_BUF_ATTR_READ,
 	};
+	struct _callback _cb = {
+		.method = _spi_slave_transfer_callback,
+		.arg = 0,
+	};
 
 	for (i = 0; i < DMA_TRANS_SIZE; i++)
 		spi_buffer_master_tx[i] = i;
@@ -263,14 +268,14 @@ static void _spi_transfer(void)
 	spi_bus_start_transaction(spi_master_dev.bus);
 
 	printf("Slave receiving...\r\n");
-	status = spid_transfer(&spi_slave_dev, &slave_buf, 1, _spi_slave_transfer_callback, NULL);
+	status = spid_transfer(&spi_slave_dev, &slave_buf, 1, &_cb);
 	if (SPID_SUCCESS != status) {
 		trace_error("SPI: SLAVE: transfer failed.\r\n");
 		return;
 	}
 
 	printf("Master sending...\r\n");
-	status = spi_bus_transfer(spi_master_dev.bus, spi_master_dev.chip_select, &master_buf, 1, NULL, NULL);
+	status = spi_bus_transfer(spi_master_dev.bus, spi_master_dev.chip_select, &master_buf, 1, NULL);
 	if (SPID_SUCCESS != status) {
 		trace_error("SPI: MASTER: transfer failed.\r\n");
 		return;
