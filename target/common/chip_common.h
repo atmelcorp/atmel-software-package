@@ -264,6 +264,8 @@ extern uint32_t get_twi_id_from_addr(const Twi* addr);
  */
 extern Twi* get_twi_addr_from_id(uint32_t id);
 
+#ifdef CONFIG_HAVE_UART
+
 /**
  * \brief retrieve UART ID from its base address
  * \return UART ID on success, ID_PERIPH_COUNT otherwise
@@ -275,6 +277,8 @@ extern uint32_t get_uart_id_from_addr(const Uart* addr);
  * \return UART base address on success, 0 otherwise
  */
 extern Uart* get_uart_addr_from_id(uint32_t id);
+
+#endif /* CONFIG_HAVE_UART */
 
 /**
  * \brief retrieve USART ID from its base address

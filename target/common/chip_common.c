@@ -794,6 +794,8 @@ Twi* get_twi_addr_from_id(uint32_t id)
 	return NULL;
 }
 
+#ifdef CONFIG_HAVE_UART
+
 uint32_t get_uart_id_from_addr(const Uart* addr)
 {
 #ifdef UART0
@@ -843,6 +845,8 @@ Uart* get_uart_addr_from_id(uint32_t id)
 #endif
 	return NULL;
 }
+
+#endif /* CONFIG_HAVE_UART */
 
 uint32_t get_usart_id_from_addr(const Usart* addr)
 {

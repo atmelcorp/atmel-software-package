@@ -28,8 +28,8 @@
 
 drivers-y += drivers/serial/console.o
 drivers-$(CONFIG_HAVE_DBGU) += drivers/serial/dbgu.o
-drivers-y += drivers/serial/uart.o
-drivers-y += drivers/serial/usart.o
+drivers-$(CONFIG_HAVE_UART) += drivers/serial/uart.o
+drivers-$(CONFIG_HAVE_USART) += drivers/serial/usart.o
+drivers-$(CONFIG_HAVE_USART) += drivers/serial/usartd.o
 drivers-$(CONFIG_HAVE_USART_ISO7816_4) += drivers/serial/usart_iso7816_4.o
 drivers-$(CONFIG_HAVE_USART_LIN) += drivers/serial/usart_lin.o
-drivers-y += drivers/serial/usartd.o

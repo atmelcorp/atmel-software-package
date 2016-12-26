@@ -37,8 +37,10 @@
  *
  */
 
-#ifndef _USART_LIN_
-#define _USART_LIN_
+#ifndef USART_LIN_H
+#define USART_LIN_H
+
+#ifdef CONFIG_HAVE_USART_LIN
 
 /*------------------------------------------------------------------------------
  *         Headers
@@ -90,4 +92,6 @@ extern uint32_t usart_lin_write_stream(Usart *usart, uint8_t *stream, uint32_t l
 }
 #endif
 
-#endif	/* #ifndef _USART_LIN_ */
+#endif /* CONFIG_HAVE_USART_LIN */
+
+#endif /* USART_LIN_H */

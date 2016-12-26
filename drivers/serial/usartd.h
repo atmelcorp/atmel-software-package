@@ -27,13 +27,23 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef USARTD_HEADER__
-#define USARTD_HEADER__
+#ifndef USARTD_H_
+#define USARTD_H_
+
+#ifdef CONFIG_HAVE_USART
+
+/*------------------------------------------------------------------------------
+ *         Headers
+ *------------------------------------------------------------------------------*/
 
 #include "serial/usart.h"
 #include "dma/dma.h"
 #include "mutex.h"
 #include "io.h"
+
+/*------------------------------------------------------------------------------
+ *         Definitions
+ *------------------------------------------------------------------------------*/
 
 #define USARTD_SUCCESS         (0)
 #define USARTD_INVALID_ID      (1)
@@ -101,6 +111,10 @@ enum _usartd_trans_mode
 	USARTD_MODE_FIFO,
 };
 
+/*------------------------------------------------------------------------------*/
+/*         Exported functions                                                   */
+/*------------------------------------------------------------------------------*/
+
 extern void usartd_configure(uint8_t iface, struct _usart_desc* desc);
 extern uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf,
 			  usartd_callback_t cb, void* user_args);
@@ -113,4 +127,6 @@ extern void usartd_finish_tx_transfer(uint8_t iface);
 extern uint32_t usartd_tx_is_busy(const uint8_t iface);
 extern void usartd_wait_tx_transfer(const uint8_t iface);
 
-#endif /* USARTD_HEADER__ */
+#endif /* CONFIG_HAVE_USART */
+
+#endif /* USARTD_H_ */

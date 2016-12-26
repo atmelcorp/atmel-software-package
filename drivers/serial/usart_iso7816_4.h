@@ -53,6 +53,8 @@
 #ifndef ISO7816_4_H
 #define ISO7816_4_H
 
+#ifdef CONFIG_HAVE_USART_ISO7816_4
+
 /*------------------------------------------------------------------------------
  * Include headers
  *----------------------------------------------------------------------------*/
@@ -125,7 +127,6 @@ extern void iso7816_decode_ATR(uint8_t * pAtr);
 
 extern uint8_t iso7816_init(struct _iso7816_desc* iso7816, const struct _iso7816_opt* opt);
 
+#endif /* CONFIG_HAVE_USART_ISO7816_4 */
 
-
-
-#endif				/* ISO7816_4_H */
+#endif /* ISO7816_4_H */

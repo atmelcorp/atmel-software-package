@@ -49,8 +49,10 @@
  *    usart_set_transmitter_enabled and usart_set_receiver_enabled.
  */
 
-#ifndef _USART_
-#define _USART_
+#ifndef USART_H
+#define USART_H
+
+#ifdef CONFIG_HAVE_USART
 
 /*------------------------------------------------------------------------------
  *         Headers
@@ -393,4 +395,6 @@ extern uint32_t usart_fifo_get_tx_size(Usart *usart);
 }
 #endif
 
-#endif /* _USART_ */
+#endif /* CONFIG_HAVE_USART */
+
+#endif /* USART_H */
