@@ -217,19 +217,19 @@
 /* INCLUDE FOR SAMA5D2x */
 /* ************************************************************************** */
 
-#if defined(CONFIG_SOC_SAMA5D21)
+#if defined(CONFIG_CHIP_SAMA5D21)
   #include "sama5d21.h"
-#elif defined(CONFIG_SOC_SAMA5D22)
+#elif defined(CONFIG_CHIP_SAMA5D22)
   #include "sama5d22.h"
-#elif defined(CONFIG_SOC_SAMA5D23)
+#elif defined(CONFIG_CHIP_SAMA5D23)
   #include "sama5d23.h"
-#elif defined(CONFIG_SOC_SAMA5D24)
+#elif defined(CONFIG_CHIP_SAMA5D24)
   #include "sama5d24.h"
-#elif defined(CONFIG_SOC_SAMA5D26)
+#elif defined(CONFIG_CHIP_SAMA5D26)
   #include "sama5d26.h"
-#elif defined(CONFIG_SOC_SAMA5D27)
+#elif defined(CONFIG_CHIP_SAMA5D27)
   #include "sama5d27.h"
-#elif defined(CONFIG_SOC_SAMA5D28)
+#elif defined(CONFIG_CHIP_SAMA5D28)
   #include "sama5d28.h"
 #else
   #error Library does not support the specified device.

@@ -192,20 +192,20 @@ tpl-set-configuration() {
     sed -i "s/__REPLACE_TARGET__/$target/g" "$tpl"
 }
 
-tpl-set-soc() {
+tpl-set-chip() {
     local tpl="$1"
-    local soc=
+    local chip=
 
     for flag in $CFLAGS_DEFS; do
-        if [ "$soc" \< "$(echo $flag | grep CONFIG_SOC_ | sed 's/-DCONFIG_SOC_//')" ]; then
-            soc=$(echo $flag | grep CONFIG_SOC_ | sed 's/-DCONFIG_SOC_/AT/')
+        if [ "$chip" \< "$(echo $flag | grep CONFIG_CHIP_ | sed 's/-DCONFIG_CHIP_//')" ]; then
+            chip=$(echo $flag | grep CONFIG_CHIP_ | sed 's/-DCONFIG_CHIP_/AT/')
             # workaround: IAR uses "AT91" prefix for SAM9xx5 devices and "AT" for SAMA5
-            soc=$(echo $soc | sed 's/ATSAM9/AT91SAM9/')
+            chip=$(echo $chip | sed 's/ATSAM9/AT91SAM9/')
         fi
     done
 
-    echo "SET SOC=$soc"
-    sed -i "s/__REPLACE_SOC__/$soc/g" "$tpl"
+    echo "SET CHIP=$chip"
+    sed -i "s/__REPLACE_CHIP__/$chip/g" "$tpl"
 }
 
 
@@ -253,7 +253,7 @@ generate-ewd() {
         rm -f "$DIR/${file}_$variant.ewd"
     done
 
-    tpl-set-soc "$DIR/$file.ewd.bodies"
+    tpl-set-chip "$DIR/$file.ewd.bodies"
 
     echo "GEN ${file}_$TARGET.ewd"
     cat "$DIR/$tpl_debug.head" > "$tpl"
@@ -321,7 +321,7 @@ generate-ewp() {
     tpl-set-deps      "$tpl" "usb"           "$usb_y"
     tpl-set-deps      "$tpl" "libsdmmc"      "$libsdmmc_y"
     tpl-set-deps      "$tpl" "libfatfs"      "$libfatfs_y"
-    tpl-set-soc       "$tpl"
+    tpl-set-chip      "$tpl"
     tpl-set-prj-files "$tpl" "project_files" "$obj_y"
     tpl-finalize      "$tpl"
 }

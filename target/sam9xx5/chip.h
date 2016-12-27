@@ -147,15 +147,15 @@
 /* INCLUDE FOR SAM9xx5 */
 /* ************************************************************************** */
 
-#if defined(CONFIG_SOC_SAM9G15)
+#if defined(CONFIG_CHIP_SAM9G15)
   #include "sam9g15.h"
-#elif defined(CONFIG_SOC_SAM9G25)
+#elif defined(CONFIG_CHIP_SAM9G25)
   #include "sam9g25.h"
-#elif defined(CONFIG_SOC_SAM9G35)
+#elif defined(CONFIG_CHIP_SAM9G35)
   #include "sam9g35.h"
-#elif defined(CONFIG_SOC_SAM9X25)
+#elif defined(CONFIG_CHIP_SAM9X25)
   #include "sam9x25.h"
-#elif defined(CONFIG_SOC_SAM9X35)
+#elif defined(CONFIG_CHIP_SAM9X35)
   #include "sam9x35.h"
 #else
   #error Library does not support the specified device.
