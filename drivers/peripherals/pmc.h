@@ -166,7 +166,7 @@ extern void pmc_set_oscillators(uint32_t external_slow, uint32_t external_main);
 /**
  * \brief Configure PCK and MCK with custom setting
  */
-extern void pmc_set_custom_pck_mck(struct pck_mck_cfg *cfg);
+extern void pmc_set_custom_pck_mck(const struct pck_mck_cfg *cfg);
 
 /**
  * \brief Get the configured frequency of the master clock
@@ -262,7 +262,7 @@ extern void pmc_switch_mck_to_slck(void);
  * \brief Configure PLL Registers.
  * \param plla PLLA configuration.
  */
-extern void pmc_configure_plla(struct _pmc_plla_cfg* plla);
+extern void pmc_configure_plla(const struct _pmc_plla_cfg* plla);
 
 /**
  * \brief Configure MCK Prescaler.
@@ -346,7 +346,7 @@ extern void pmc_set_fast_startup_polarity(uint32_t high_level,
  * \param cfg pcr configuration
  * \param enable enable peripheral clk
  */
-extern void pmc_configure_peripheral(uint32_t id,struct _pmc_periph_cfg* cfg, bool enable);
+extern void pmc_configure_peripheral(uint32_t id, const struct _pmc_periph_cfg* cfg, bool enable);
 
 /**
  * \brief Enables the clock of a peripheral. The peripheral ID is used
@@ -482,7 +482,7 @@ extern bool pmc_is_gck_enabled(uint32_t id);
 /**
  * \brief Configure the audio clock
  */
-extern void pmc_configure_audio(struct _pmc_audio_cfg *cfg);
+extern void pmc_configure_audio(const struct _pmc_audio_cfg *cfg);
 
 /**
  * \brief Enable audio clocks

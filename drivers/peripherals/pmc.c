@@ -672,7 +672,7 @@ void pmc_set_mck_divider(uint32_t divider)
 	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
 }
 
-void pmc_configure_plla(struct _pmc_plla_cfg* plla)
+void pmc_configure_plla(const struct _pmc_plla_cfg* plla)
 {
 	uint32_t pllar = 0;
 
@@ -738,7 +738,7 @@ void pmc_set_fast_startup_polarity(uint32_t high_level, uint32_t low_level)
 }
 #endif /* CONFIG_HAVE_PMC_FAST_STARTUP */
 
-void pmc_set_custom_pck_mck(struct pck_mck_cfg *cfg)
+void pmc_set_custom_pck_mck(const struct pck_mck_cfg *cfg)
 {
 	pmc_switch_mck_to_slck();
 
@@ -792,7 +792,7 @@ void pmc_set_custom_pck_mck(struct pck_mck_cfg *cfg)
  *        Exported functions (Peripherals)
  *----------------------------------------------------------------------------*/
 
-void pmc_configure_peripheral(uint32_t id, struct _pmc_periph_cfg* cfg, bool enable)
+void pmc_configure_peripheral(uint32_t id, const struct _pmc_periph_cfg* cfg, bool enable)
 {
 	assert(id < ID_PERIPH_COUNT);
 
@@ -1157,7 +1157,7 @@ bool pmc_is_gck_enabled(uint32_t id)
  *----------------------------------------------------------------------------*/
 
 #ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK
-void pmc_configure_audio(struct _pmc_audio_cfg *cfg)
+void pmc_configure_audio(const struct _pmc_audio_cfg *cfg)
 {
 	/* reset audio clock */
 	PMC->PMC_AUDIO_PLL0 &= ~PMC_AUDIO_PLL0_RESETN;
