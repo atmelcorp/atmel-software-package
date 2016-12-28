@@ -36,6 +36,5 @@ VARIANT ?= sram
 BINNAME = power_consumption_pll
 
 obj-y += examples/power_consumption_pll/main.o
-obj-y += examples/power_consumption_pll/clk-config_$(chip-family).o
 
 include $(TOP)/scripts/Makefile.rules

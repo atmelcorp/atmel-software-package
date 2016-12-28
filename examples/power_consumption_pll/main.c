@@ -114,8 +114,6 @@
 #include "led/led.h"
 #include "serial/console.h"
 
-#include "clk-config.h"
-
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -131,6 +129,34 @@
 #else
 #define _PMC_PLLICPR_IPLL_PLLA 0
 #endif
+
+/*----------------------------------------------------------------------------
+ *        Local constants
+ *----------------------------------------------------------------------------*/
+
+static const struct pck_mck_cfg clock_test_setting[] = {
+	/* PCK = MCK = 12MHz */
+	/* MAIN RC12M RC32K MULA=0 DIV2ON=0 PRES=0 MDIV=0 */
+	{
+		.pck_input = PMC_MCKR_CSS_MAIN_CLK,
+		.ext12m = true,
+		.ext32k = false,
+		.plla = {
+			.mul = 0,
+		},
+		.pck_pres = PMC_MCKR_PRES_CLOCK,
+		.mck_div = PMC_MCKR_MDIV_EQ_PCK,
+#ifdef CONFIG_HAVE_PMC_PLLADIV2
+		.plla_div2 = false,
+#endif
+#ifdef CONFIG_HAVE_PMC_UPLLDIV2
+		.upll_div2 = false,
+#endif
+#ifdef CONFIG_HAVE_PMC_H32MXDIV
+		.h32mx_div2 = false,
+#endif
+	},
+};
 
 /*----------------------------------------------------------------------------
  *        Local variables
@@ -330,7 +356,9 @@ int main(void)
 
 			/* disable UTMI CLK */
 			pmc_disable_upll_clock();
+#ifdef CONFIG_HAVE_PMC_UPLL_BIAS
 			pmc_disable_upll_bias();
+#endif
 
 			MenuChoice = 0;
 			_print_menu();
@@ -341,7 +369,9 @@ int main(void)
 
 			/* enable UTMI CLK */
 			pmc_enable_upll_clock();
+#ifdef CONFIG_HAVE_PMC_UPLL_BIAS
 			pmc_enable_upll_bias();
+#endif
 
 			MenuChoice = 0;
 			_print_menu();
