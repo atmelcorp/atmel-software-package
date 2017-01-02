@@ -220,7 +220,7 @@ struct _udphs_dma_desc {
 
 /** 7.1.20 Test Mode Support
  * Test codes for the USB HS test mode. */
-static const char test_packet_buffer[] = {
+static const uint8_t test_packet_buffer[] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // JKJKJKJK * 9
 	0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA,       // JJKKJJKK * 8
 	0xEE, 0xEE, 0xEE, 0xEE, 0xEE, 0xEE, 0xEE, 0xEE,       // JJJJKKKK * 8
@@ -297,6 +297,28 @@ static void udphs_enable_bias(void)
 static void udphs_disable_bias(void)
 {
 	pmc_disable_upll_bias();
+}
+
+/**
+ * Copy data from a memory buffer to the endpoint FIFO (Write to FIFO).
+ */
+static void udphs_write_fifo_buffer(uint8_t ep, const uint8_t* data, uint32_t size)
+{
+	volatile uint8_t *fifo = ((volatile uint8_t*)UDPHS_RAM_ADDR) + EPT_VIRTUAL_SIZE * ep;
+	for (; size; size--)
+		*(fifo++) = *(data++);
+	dmb();
+}
+
+/**
+ * Copy data from endpoint FIFO into a memory buffer (Read from FIFO).
+ */
+static void udphs_read_fifo_buffer(uint8_t ep, uint8_t* data, uint32_t size)
+{
+	volatile uint8_t *fifo = ((volatile uint8_t*)UDPHS_RAM_ADDR) + EPT_VIRTUAL_SIZE * ep;
+	dmb();
+	for (; size; size--)
+		*(data++) = *(fifo++);
 }
 
 /**
@@ -423,11 +445,9 @@ static void udphs_write_fifo_multi(uint8_t ep)
 {
 	struct _endpoint *endpoint = &endpoints[ep];
 	struct _multi_xfer *xfer = &endpoint->transfer.multi;
-	volatile uint8_t *fifo;
-	uint32_t size;
 	struct _usbd_transfer_buffer *buffer = &xfer->buffers[xfer->out];
-
-	volatile uint8_t *pBytes;
+	uint8_t* data;
+	uint32_t size;
 
 	/* Get the number of bytes to send */
 	size = endpoint->size;
@@ -436,15 +456,12 @@ static void udphs_write_fifo_multi(uint8_t ep)
 
 	USB_HAL_TRACE("w%d.%d ", xfer->out, (unsigned)size);
 
-	pBytes = &buffer->buffer[buffer->transferred + buffer->buffered];
+	data = &buffer->buffer[buffer->transferred + buffer->buffered];
 	buffer->buffered += size;
 	udphs_multi_update(xfer, buffer, size, 0);
 
 	/* Write packet in the FIFO buffer */
-	fifo = ((uint8_t*)UDPHS_RAM_ADDR) + EPT_VIRTUAL_SIZE * ep;
-	for (; size; size--)
-		*(fifo++) = *(pBytes++);
-	dmb();
+	udphs_write_fifo_buffer(ep, data, size);
 }
 
 /**
@@ -456,7 +473,7 @@ static void udphs_write_fifo_single(uint8_t ep)
 {
 	struct _endpoint *endpoint = &endpoints[ep];
 	struct _single_xfer *xfer = &endpoint->transfer.single;
-	volatile uint8_t *fifo;
+	uint8_t* data = xfer->data;
 	uint32_t size;
 
 	/* Get the number of bytes to send */
@@ -465,14 +482,12 @@ static void udphs_write_fifo_single(uint8_t ep)
 		size = xfer->remaining;
 
 	/* Update transfer descriptor information */
+	xfer->data += size;
 	xfer->buffered += size;
 	xfer->remaining -= size;
 
 	/* Write packet in the FIFO buffer */
-	fifo = ((uint8_t*)UDPHS_RAM_ADDR) + EPT_VIRTUAL_SIZE * ep;
-	for (; size; size--)
-		*(fifo++) = *(xfer->data++);
-	dmb();
+	udphs_write_fifo_buffer(ep, data, size);
 }
 
 /**
@@ -484,7 +499,7 @@ static void udphs_read_fifo_single(uint8_t ep, uint32_t size)
 {
 	struct _endpoint *endpoint = &endpoints[ep];
 	struct _single_xfer *xfer = &endpoint->transfer.single;
-	volatile uint8_t *fifo;
+	uint8_t* data = xfer->data;
 
 	/* Check that the requested size is not bigger than the remaining transfer */
 	if (size > xfer->remaining) {
@@ -493,14 +508,12 @@ static void udphs_read_fifo_single(uint8_t ep, uint32_t size)
 	}
 
 	/* Update transfer descriptor information */
+	xfer->data += size;
 	xfer->remaining -= size;
 	xfer->transferred += size;
 
 	/* Retrieve packet */
-	fifo = ((uint8_t*)UDPHS_RAM_ADDR) + EPT_VIRTUAL_SIZE * ep;
-	dmb();
-	for (; size; size--)
-		*(xfer->data++) = *(fifo++);
+	udphs_read_fifo_buffer(ep, data, size);
 }
 
 /**
@@ -509,11 +522,7 @@ static void udphs_read_fifo_single(uint8_t ep, uint32_t size)
  */
 static void udphs_read_request(USBGenericRequest *request)
 {
-	uint32_t *data = (uint32_t*)request;
-	volatile uint32_t *fifo = (volatile uint32_t*)UDPHS_RAM_ADDR;
-	dmb();
-	*data++ = *fifo++;
-	*data = *fifo;
+	udphs_read_fifo_buffer(0, (uint8_t*)request, sizeof(USBGenericRequest));
 }
 
 /**
@@ -1960,9 +1969,6 @@ void usbd_hal_activate(void)
  */
 void usbd_hal_test(uint8_t index)
 {
-	uint8_t *fifo;
-	int i;
-
 	/* remove suspend for TEST */
 	UDPHS->UDPHS_IEN &= ~UDPHS_IEN_DET_SUSPD;
 
@@ -1987,9 +1993,7 @@ void usbd_hal_test(uint8_t index)
 		UDPHS->UDPHS_EPT[2].UDPHS_EPTCTLENB = UDPHS_EPTCTLENB_EPT_ENABL;
 
 		/* Write FIFO */
-		fifo = ((uint8_t*)UDPHS_RAM_ADDR) + EPT_VIRTUAL_SIZE * 2;
-		for (i = 0; i < sizeof(test_packet_buffer); i++)
-			fifo[i] = test_packet_buffer[i];
+		udphs_write_fifo_buffer(2, test_packet_buffer, sizeof(test_packet_buffer));
 
 		/* Tst PACKET */
 		UDPHS->UDPHS_TST |= UDPHS_TST_TST_PKT;
