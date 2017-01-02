@@ -331,15 +331,6 @@ enum usb_device_feature {
 /**  Endpoint sends data to the host. */
 #define USBEndpointDescriptor_IN            1
 
-/**
- * \brief Endpoint transfer direction is IN
- */
-#define  USB_EP_DIR_IN        0x80
-
-/**
- * \brief Endpoint transfer direction is OUT
- */
-#define  USB_EP_DIR_OUT       0x00
 /**         @}*/
 
 /** \addtogroup usb_ep_type USB Endpoint types
