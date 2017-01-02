@@ -1210,21 +1210,24 @@ uint8_t usbd_hal_configure(const USBEndpointDescriptor *descriptor)
 		endpoint->size = usb_endpoint_descriptor_get_max_packet_size(descriptor);
 
 		/* Convert descriptor value to EP configuration */
-		if (usbd_hal_is_high_speed()) {
+		if (type == USBEndpointDescriptor_ISOCHRONOUS && usbd_hal_is_high_speed()) {
 			/* HS Interval, *125us */
 			/* MPS: Bit12,11 specify NB_TRANS, as USB 2.0 Spec. */
-			nb_trans = (endpoint->size >> 11) & 0x3;
-			if (nb_trans == 3)
-				nb_trans = 1;
-			else
-				nb_trans++;
-
-			/* Mask, bit 10..0 is the size */
-			endpoint->size &= 0x7ff;
+			nb_trans = ((endpoint->size >> 11) & 0x3) + 1;
+			if (nb_trans > 1) {
+				if (CHIP_USB_ENDPOINT_IS_HBW(ep)) {
+					if (nb_trans == 4)
+						nb_trans = 1;
+				} else {
+					trace_fatal("usbd_hal_configure: invalid descriptor (NBTRANS > 0 but endpoint is not High Bandwidth capable\r\n");
+				}
+			}
 		}
+
+		/* Mask, bit 10..0 is the size */
+		endpoint->size &= 0x7ff;
 	} else {
-		trace_error("usbd_hal_configure: invalid descriptor\r\n");
-		return 0xff;
+		trace_fatal("usbd_hal_configure: invalid descriptor\r\n");
 	}
 
 	ept = &UDPHS->UDPHS_EPT[ep];
