@@ -222,6 +222,10 @@
 #define CHIP_USB_ENDPOINT_HAS_DMA(ep) \
     ((ep) > 0 && ((ep) < 7))
 
+/** Endpoints High Band Width support */
+#define CHIP_USB_ENDPOINT_IS_HBW(ep) \
+    ((ep) == 1 || (ep) == 2)
+
 /** NAND EBI Chip Select */
 #define NAND_EBI_CS 3
 
