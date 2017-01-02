@@ -64,17 +64,16 @@ struct _spi_dev_desc {
  *         Exported functions
  *----------------------------------------------------------------------------*/
 
-int32_t spi_bus_configure(uint8_t bus_id, Spi *iface, enum _spid_trans_mode mode);
+int spi_bus_configure(uint8_t bus_id, Spi *iface, enum _spid_trans_mode mode);
 
 void spi_bus_configure_cs(uint8_t bus_id, uint8_t cs, uint32_t bitrate, uint32_t dlybs, uint32_t dlybct,
 						  enum _spid_mode mode);
 
-int32_t spi_bus_transfer(uint8_t bus_id, uint8_t cs, struct _buffer *buf, uint16_t buffers,
-			 struct _callback* cb);
+int spi_bus_transfer(uint8_t bus_id, uint8_t cs, struct _buffer *buf, uint16_t buffers, struct _callback* cb);
 
-int32_t spi_bus_start_transaction(uint8_t bus_id);
+bool spi_bus_start_transaction(uint8_t bus_id);
 
-int32_t spi_bus_stop_transaction(uint8_t bus_id);
+int spi_bus_stop_transaction(uint8_t bus_id);
 
 bool spi_bus_transaction_pending(uint8_t bus_id);
 

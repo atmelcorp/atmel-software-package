@@ -46,12 +46,6 @@
  *        Types
  *----------------------------------------------------------------------------*/
 
-#define SPID_SUCCESS         (0)
-#define SPID_INVALID_ID      (1)
-#define SPID_INVALID_BITRATE (2)
-#define SPID_ERROR_LOCK      (3)
-#define SPID_ERROR_TRANSFER  (4)
-
 enum _spid_buf_attr {
 	SPID_BUF_ATTR_READ       = 0x01,
 	SPID_BUF_ATTR_WRITE      = 0x02,
@@ -109,9 +103,9 @@ struct _spi_desc {
  *        Functions
  *----------------------------------------------------------------------------*/
 
-extern void spid_configure(struct _spi_desc* desc);
+extern int spid_configure(struct _spi_desc* desc);
 
-extern uint32_t spid_transfer(struct _spi_desc* desc,
+extern int spid_transfer(struct _spi_desc* desc,
 		struct _buffer* buffers, int buffer_count,
 		struct _callback* cb);
 
@@ -126,7 +120,7 @@ extern void spid_configure_cs(struct _spi_desc* desc, uint8_t cs,
 extern void spid_set_cs_bitrate(struct _spi_desc* desc, uint8_t cs,
 		uint32_t bitrate);
 
-extern void spid_configure_master(struct _spi_desc* desc, bool master);
+extern int spid_configure_master(struct _spi_desc* desc, bool master);
 
 
 #endif /* SPID_HEADER__ */

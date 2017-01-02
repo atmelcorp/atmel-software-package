@@ -38,6 +38,7 @@
 
 #include "callback.h"
 #include "dma/dma.h"
+#include "errno.h"
 #include "irq/irq.h"
 #include "mm/cache.h"
 #ifdef CONFIG_HAVE_FLEXCOM
@@ -237,7 +238,7 @@ static void _spid_handler(uint32_t source, void* user_arg)
 	}
 }
 
-static uint32_t _spid_poll_write(struct _spi_desc* desc, struct _buffer* buffer)
+static void _spid_poll_write(struct _spi_desc* desc, struct _buffer* buffer)
 {
 	int i;
 
@@ -247,11 +248,9 @@ static uint32_t _spid_poll_write(struct _spi_desc* desc, struct _buffer* buffer)
 #endif /* CONFIG_HAVE_SPI_FIFO */
 		spi_transfer(desc->addr, buffer->data[i]);
 	}
-
-	return SPID_SUCCESS;
 }
 
-static uint32_t _spid_poll_read(struct _spi_desc* desc, struct _buffer* buffer)
+static void _spid_poll_read(struct _spi_desc* desc, struct _buffer* buffer)
 {
 	int i;
 
@@ -261,8 +260,6 @@ static uint32_t _spid_poll_read(struct _spi_desc* desc, struct _buffer* buffer)
 #endif /* CONFIG_HAVE_SPI_FIFO */
 		buffer->data[i] = spi_transfer(desc->addr, 0xff);
 	}
-
-	return SPID_SUCCESS;
 }
 
 static void _spid_transfer_current_buffer_async(struct _spi_desc* desc)
@@ -345,26 +342,26 @@ static void _spid_transfer_next_buffer(struct _spi_desc* desc)
  *        Public functions
  *----------------------------------------------------------------------------*/
 
-uint32_t spid_transfer(struct _spi_desc* desc,
+int spid_transfer(struct _spi_desc* desc,
 		struct _buffer* buffers, int buffer_count,
 		struct _callback* cb)
 {
 	int i;
 
 	if (buffers == NULL)
-		return SPID_ERROR_TRANSFER;
+		return -EINVAL;
 
 	for (i = 0 ; i < buffer_count ; i++) {
 		if ((buffers[i].attr & (SPID_BUF_ATTR_WRITE | SPID_BUF_ATTR_READ)) == 0)
-			return SPID_ERROR_TRANSFER;
+			return -EINVAL;
 
 		if ((buffers[i].attr & (SPID_BUF_ATTR_WRITE | SPID_BUF_ATTR_READ)) == (SPID_BUF_ATTR_WRITE | SPID_BUF_ATTR_READ))
-			return SPID_ERROR_TRANSFER;
+			return -EINVAL;
 	}
 
 	if (!mutex_try_lock(&desc->mutex)) {
 		trace_error("SPID mutex already locked!\r\n");
-		return SPID_ERROR_LOCK;
+		return -EBUSY;
 	}
 
 	spi_select_cs(desc->addr, desc->chip_select);
@@ -375,7 +372,7 @@ uint32_t spid_transfer(struct _spi_desc* desc,
 
 	_spid_transfer_current_buffer(desc);
 
-	return SPID_SUCCESS;
+	return 0;
 }
 
 bool spid_is_busy(struct _spi_desc* desc)
@@ -391,7 +388,7 @@ void spid_wait_transfer(struct _spi_desc* desc)
 	}
 }
 
-void spid_configure(struct _spi_desc* desc)
+int spid_configure(struct _spi_desc* desc)
 {
 	uint32_t id = get_spi_id_from_addr(desc->addr);
 
@@ -420,6 +417,8 @@ void spid_configure(struct _spi_desc* desc)
 	assert(desc->xfer.dma.rx.channel);
 
 	spi_enable(desc->addr);
+
+	return 0;
 }
 
 void spid_configure_cs(struct _spi_desc* desc, uint8_t cs,
@@ -451,9 +450,11 @@ void spid_set_cs_bitrate(struct _spi_desc* desc, uint8_t cs, uint32_t bitrate)
 	spi_set_cs_bitrate(desc->addr, cs, bitrate);
 }
 
-void spid_configure_master(struct _spi_desc* desc, bool master)
+int spid_configure_master(struct _spi_desc* desc, bool master)
 {
 	spi_disable(desc->addr);
 	spi_mode_master_enable(desc->addr, master);
 	spi_enable(desc->addr);
+
+	return 0;
 }

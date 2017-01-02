@@ -78,7 +78,7 @@
  * - SPI0_MISO (PA11 on J1 pin 27) - SPI1_MISO (PA21 on J1 pin 16)
  * - SPI0_MOSI (PA12 on J1 pin 29) - SPI1_MOSI (PA22 on J1 pin 18)
  * - SPI0_SPCK (PA13 on J1 pin 31) - SPI1_SPCK (PA23 on J1 pin 20)
- * - SPI0_NPCS1 (PA7 on J1 pin 19) - SPI1_NPCS0 (PA8 on J1 pin 21) 
+ * - SPI0_NPCS1 (PA7 on J1 pin 19) - SPI1_NPCS0 (PA8 on J1 pin 21)
  *
  * \section Descriptions
  *
@@ -269,14 +269,14 @@ static void _spi_transfer(void)
 
 	printf("Slave receiving...\r\n");
 	status = spid_transfer(&spi_slave_dev, &slave_buf, 1, &_cb);
-	if (SPID_SUCCESS != status) {
+	if (status < 0) {
 		trace_error("SPI: SLAVE: transfer failed.\r\n");
 		return;
 	}
 
 	printf("Master sending...\r\n");
 	status = spi_bus_transfer(spi_master_dev.bus, spi_master_dev.chip_select, &master_buf, 1, NULL);
-	if (SPID_SUCCESS != status) {
+	if (status < 0) {
 		trace_error("SPI: MASTER: transfer failed.\r\n");
 		return;
 	}
@@ -284,7 +284,7 @@ static void _spi_transfer(void)
 	spi_bus_wait_transfer(spi_master_dev.bus);
 	spi_bus_stop_transaction(spi_master_dev.bus);
 	spid_wait_transfer(&spi_slave_dev);
-	
+
 	if (memcmp(spi_buffer_master_tx, spi_buffer_slave_rx, DMA_TRANS_SIZE)) {
 		trace_error("SPI: received data does not match!\r\n");
 		return;
@@ -317,7 +317,7 @@ int main(void)
 	pio_configure(pins_spi_master, ARRAY_SIZE(pins_spi_master));
 	spi_bus_configure_cs(spi_master_dev.bus, spi_master_dev.chip_select, spi_master_dev.bitrate,
 	                     spi_master_dev.delay.bs, spi_master_dev.delay.bct, spi_master_dev.spi_mode);
-	
+
 	_display_menu();
 
 	while (1) {
@@ -336,4 +336,3 @@ int main(void)
 		}
 	}
 }
-
