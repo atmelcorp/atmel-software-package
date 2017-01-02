@@ -31,15 +31,14 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
-#include "trace.h"
+#include <assert.h>
+#include <string.h>
 
+#include "board.h"
 #include "can/cand.h"
 #include "irq/irq.h"
 #include "peripherals/pmc.h"
-
-#include <assert.h>
-#include <string.h>
+#include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Local definitions
@@ -265,7 +264,7 @@ static void _can_handler(uint32_t source, void* user_arg)
  * \param can      Pointer to Can instance.
  * \param baudrate Baudrate value (b/s)
  *                 allowed: 100000, 800000, 500000, 250000, 125000, 50000, 25000, 10000
- * \return 1 in success, otherwise return 0.
+ * \return 0 on success, otherwise return errno.
  */
 static uint8_t cand_set_baudrate(Can* can, uint32_t baudrate)
 {
@@ -286,7 +285,7 @@ static uint8_t cand_set_baudrate(Can* can, uint32_t baudrate)
 		tq = 16;
 	brp = (clock / (baudrate * 1000 * tq)) - 1;
 	if (brp == 0)
-		return 0;
+		return -EINVAL;
 
 	/* Timing delay:
 	   Delay Bus Driver     - 50ns
@@ -312,16 +311,16 @@ static uint8_t cand_set_baudrate(Can* can, uint32_t baudrate)
 		sjw = phase1;
 
 	if ((propag + phase1 + phase2) != (uint32_t)(tq - 4))
-		return 0;
+		return -EINVAL;
 
 	can->CAN_BR = CAN_BR_PHASE2(phase2)
-	            | CAN_BR_PHASE1(phase1)
-	            | CAN_BR_PROPAG(propag)
-	            | CAN_BR_SJW(sjw)
-	            | CAN_BR_BRP(brp)
-	            | CAN_BR_SMP_ONCE;
+		| CAN_BR_PHASE1(phase1)
+		| CAN_BR_PROPAG(propag)
+		| CAN_BR_SJW(sjw)
+		| CAN_BR_BRP(brp)
+		| CAN_BR_SMP_ONCE;
 
-	return 1;
+	return 0;
 }
 
 /*----------------------------------------------------------------------------
@@ -330,21 +329,25 @@ static uint8_t cand_set_baudrate(Can* can, uint32_t baudrate)
 
 struct _can_desc* cand_get_desc(uint8_t can_if)
 {
-	assert(can_if < CAN_IFACE_COUNT);
+	if (can_if >= CAN_IFACE_COUNT)
+		return NULL;
 	return &can_desc[can_if];
 }
 
-void cand_configure(struct _can_desc* desc)
+int cand_configure(struct _can_desc* desc)
 {
 	uint32_t mailbox;
 	Can *can = desc->addr;
 	uint32_t id = get_can_id_from_addr(can);
-	assert(id < ID_PERIPH_COUNT);
+	int err;
 
 	pmc_enable_peripheral(id);
 
-	if (!cand_set_baudrate(can, desc->freq))
-		trace_fatal("Set baudrate for can bus failed!");
+	err = cand_set_baudrate(can, desc->freq);
+	if (err < 0) {
+		trace_error("Set baudrate for can bus failed!");
+		return err;
+	}
 
 	/* Reset CAN mode */
 	can_configure_mode(can, 0);
@@ -363,6 +366,8 @@ void cand_configure(struct _can_desc* desc)
 
 	irq_add_handler(id, _can_handler, desc);
 	irq_enable(id);
+
+	return 0;
 }
 
 void cand_enable(struct _can_desc* desc)
@@ -384,10 +389,10 @@ void cand_enable(struct _can_desc* desc)
 
 bool cand_is_enabled(struct _can_desc* desc)
 {
-	return (desc->state >= CAND_STATE_ACTIVATED) ? true : false;
+	return (desc->state >= CAND_STATE_ACTIVATED);
 }
 
-uint32_t cand_transfer(struct _can_desc* desc, struct _buffer* buf,
+int cand_transfer(struct _can_desc* desc, struct _buffer* buf,
 		cand_callback_t cb, void* user_args)
 {
 	uint32_t type;
@@ -400,7 +405,7 @@ uint32_t cand_transfer(struct _can_desc* desc, struct _buffer* buf,
 
 	mailbox = cand_allocate_mailbox(desc);
 	if (mailbox >= CAN_NUM_MAILBOX)
-		return CAND_ERROR;
+		return -ENOMEM;
 
 	mb = &desc->mailboxes[mailbox];
 	mb->callback = cb;
@@ -417,7 +422,7 @@ uint32_t cand_transfer(struct _can_desc* desc, struct _buffer* buf,
 	else if (buf->attr & CAND_BUF_ATTR_PRODUCER)
 		type = CAN_MMR_MOT_MB_PRODUCER;
 	else
-		return CAND_ERROR;
+		return -EINVAL;
 
 	if (buf->attr & CAND_BUF_ATTR_EXTENDED) {
 		mask = CAN_MID_MIDvB(desc->mask);
@@ -457,5 +462,5 @@ uint32_t cand_transfer(struct _can_desc* desc, struct _buffer* buf,
 	/* Enable interrupts */
 	can_enable_it(can, 1 << mailbox | CAN_ERRS);
 
-	return CAND_OK;
+	return 0;
 }

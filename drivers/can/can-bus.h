@@ -50,21 +50,6 @@ enum can_mode
 	CAN_MODE_CAN_FD_DUAL_RATE,
 };
 
-/** Operation success */
-#define CAND_OK             0
-/** The driver/mailbox is busy */
-#define CAND_BUSY           1
-/** General error */
-#define CAND_ERROR          0x10
-/** Bad operation because of wrong state */
-#define CAND_ERR_STATE      0x11
-/** Bad operation for parameter error */
-#define CAND_ERR_PARAM      0xFE
-
-#define CAND_XFR_DONE 11
-
-#define CAND_UNSUPPORTED -1
-
 enum _cand_buf_attr {
 	CAND_BUF_ATTR_STANDARD     = 0x00,
 	CAND_BUF_ATTR_EXTENDED     = 0x01,
@@ -88,6 +73,7 @@ enum _cand_buf_attr {
 #elif defined(CONFIG_HAVE_MCAN)
 #include "can/mcand.h"
 #endif
+#include "errno.h"
 #include "mutex.h"
 #include "io.h"
 
@@ -106,19 +92,19 @@ struct _can_bus_desc {
  *         Exported functions
  *----------------------------------------------------------------------------*/
 
-extern int32_t can_bus_configure(uint8_t bus_id, void *iface, uint32_t freq, uint32_t freq_fd);
+extern int can_bus_configure(uint8_t bus_id, void *iface, uint32_t freq, uint32_t freq_fd);
 
-extern int32_t can_bus_mode(uint8_t bus_id, enum can_mode mode);
+extern int can_bus_mode(uint8_t bus_id, enum can_mode mode);
 
-extern int32_t can_bus_loopback(uint8_t bus_id, bool loop_back);
+extern int can_bus_loopback(uint8_t bus_id, bool loop_back);
 
-extern int32_t can_bus_transfer(uint8_t bus_id,
+extern int can_bus_transfer(uint8_t bus_id,
 	uint32_t identifier, uint32_t mask, struct _buffer *buf,
 	void *call_back, void *user_args);
 
 extern bool can_bus_wait_transfer_done(struct _buffer *buf, uint32_t wait_ms);
 
-extern int32_t can_bus_activate(uint8_t bus_id, uint32_t wait);
+extern int can_bus_activate(uint8_t bus_id, uint32_t wait);
 
 extern void can_bus_low_power(uint8_t bus_id);
 

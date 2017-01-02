@@ -71,7 +71,7 @@ struct _can_desc {
 
 extern struct _can_desc* cand_get_desc(uint8_t can_if);
 
-extern void cand_configure(struct _can_desc* desc);
+extern int cand_configure(struct _can_desc* desc);
 
 extern void cand_enable(struct _can_desc* desc);
 
@@ -84,7 +84,7 @@ extern bool cand_is_enabled(struct _can_desc* desc);
  * \param cb   Pointer to call back function.
  * \param user_args parameter of the call back function.
  */
-extern uint32_t cand_transfer(struct _can_desc* desc, struct _buffer* buf,
+extern int cand_transfer(struct _can_desc* desc, struct _buffer* buf,
 			cand_callback_t cb, void* user_args);
 
 #endif /* CAND_H_ */

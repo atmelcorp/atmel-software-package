@@ -67,23 +67,23 @@ enum _mcan_ram {
 
 struct mcan_config
 {
-	uint32_t *msg_ram[2];            /* base address of the Message RAM to be
-	                               * assigned to this MCAN instance */
+	uint32_t *msg_ram[2];           /* base address of the Message RAM to be
+					 * assigned to this MCAN instance */
 	uint32_t ram_size[2];
 	uint8_t item_count[MCAN_RAM_TOTAL];
 	uint32_t ram_status[MCAN_RAM_TOTAL];
 	uint32_t ram_index[MCAN_RAM_TOTAL];
 
-	uint8_t buf_size_rx_fifo0;    /* size of the data field in each Rx
-	                               * Buffer of Rx FIFO 0, in bytes */
-	uint8_t buf_size_rx_fifo1;    /* size of the data field in each Rx
-	                               * Buffer of Rx FIFO 1, in bytes */
-	uint8_t buf_size_rx;          /* size of the data field in each
-	                               * dedicated Rx Buffer, in bytes */
-	uint8_t buf_size_tx;          /* size of the data field in each Tx
-	                               * Buffer, in bytes. Applies to all Tx
-	                               * Buffers, dedicated and in Tx FIFO /
-	                               * Queue. */
+	uint8_t buf_size_rx_fifo0;      /* size of the data field in each Rx
+					 * Buffer of Rx FIFO 0, in bytes */
+	uint8_t buf_size_rx_fifo1;      /* size of the data field in each Rx
+					 * Buffer of Rx FIFO 1, in bytes */
+	uint8_t buf_size_rx;            /* size of the data field in each
+					 * dedicated Rx Buffer, in bytes */
+	uint8_t buf_size_tx;            /* size of the data field in each Tx
+					 * Buffer, in bytes. Applies to all Tx
+					 * Buffers, dedicated and in Tx FIFO /
+					 * Queue. */
 };
 
 /* This structure is private to the MCAN Driver.
@@ -119,7 +119,7 @@ struct _mcan_desc {
  *----------------------------------------------------------------------------*/
 
 extern struct _mcan_desc* mcand_get_desc(uint8_t mcan_if);
-extern void mcand_configure(struct _mcan_desc* desc);
+extern int mcand_configure(struct _mcan_desc* desc);
 
 /**
  * Configure the CAN Mailbox for message transfer.
@@ -128,7 +128,7 @@ extern void mcand_configure(struct _mcan_desc* desc);
  * \param cb   Pointer to call back function.
  * \param user_args parameter of the call back function.
  */
-extern uint32_t mcand_transfer(struct _mcan_desc* desc, struct _buffer *buf,
-			mcand_callback_t cb, void* user_args);
+extern int mcand_transfer(struct _mcan_desc* desc, struct _buffer *buf,
+			  mcand_callback_t cb, void* user_args);
 /**@}*/
 #endif /* #ifndef _MCAN_H_ */

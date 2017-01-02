@@ -27,6 +27,10 @@
  * ----------------------------------------------------------------------------
  */
 
+/*----------------------------------------------------------------------------
+ *         Headers
+ *----------------------------------------------------------------------------*/
+
 #include <assert.h>
 #include <string.h>
 
@@ -36,9 +40,17 @@
 #include "timer.h"
 #include "trace.h"
 
+/*----------------------------------------------------------------------------
+ *         Local variables
+ *----------------------------------------------------------------------------*/
+
 static struct _can_bus_desc _can_bus[CAN_IFACE_COUNT];
 
-int32_t can_bus_configure(uint8_t bus_id, void *iface, uint32_t freq, uint32_t freq_fd)
+/*----------------------------------------------------------------------------
+ *         Exported functions
+ *----------------------------------------------------------------------------*/
+
+int can_bus_configure(uint8_t bus_id, void *iface, uint32_t freq, uint32_t freq_fd)
 {
 	assert(bus_id < CAN_IFACE_COUNT);
 
@@ -62,20 +74,20 @@ int32_t can_bus_configure(uint8_t bus_id, void *iface, uint32_t freq, uint32_t f
 	return 0;
 }
 
-int32_t can_bus_mode(uint8_t bus_id, enum can_mode mode)
+int can_bus_mode(uint8_t bus_id, enum can_mode mode)
 {
 	assert(bus_id < CAN_IFACE_COUNT);
 
 #if defined(CONFIG_HAVE_CAN)
 	if (mode != CAN_MODE_CAN)
-		return CAND_UNSUPPORTED;
+		return -ENOTSUP;
 #elif defined(CONFIG_HAVE_MCAN)
 	Mcan *mcan = _can_bus[bus_id].mcand->addr;
 	mcan_disable(mcan);
 	mcan_reconfigure(mcan);
 	if (!mcan_set_mode(mcan, mode)) {
 		mcan_enable(mcan);
-		return CAND_UNSUPPORTED;
+		return -ENOTSUP;
 	}
 	mcan_enable(mcan);
 #endif
@@ -83,13 +95,13 @@ int32_t can_bus_mode(uint8_t bus_id, enum can_mode mode)
 	return 0;
 }
 
-int32_t can_bus_loopback(uint8_t bus_id, bool loop_back)
+int can_bus_loopback(uint8_t bus_id, bool loop_back)
 {
 	assert(bus_id < CAN_IFACE_COUNT);
 
 #if defined(CONFIG_HAVE_CAN)
 	if (loop_back)
-		return CAND_UNSUPPORTED;
+		return -ENOTSUP;
 #elif defined(CONFIG_HAVE_MCAN)
 	Mcan *mcan = _can_bus[bus_id].mcand->addr;
 	mcan_disable(mcan);
@@ -100,7 +112,7 @@ int32_t can_bus_loopback(uint8_t bus_id, bool loop_back)
 	return 0;
 }
 
-int32_t can_bus_transfer(uint8_t bus_id,
+int can_bus_transfer(uint8_t bus_id,
 	uint32_t identifier, uint32_t mask, struct _buffer *buf,
 	void *call_back, void *user_args)
 {
@@ -112,7 +124,7 @@ int32_t can_bus_transfer(uint8_t bus_id,
 		return 0;
 
 	if (!mutex_try_lock(&_can_bus[bus_id].mutex))
-		return CAND_ERROR;
+		return -EBUSY;
 
 #if defined(CONFIG_HAVE_CAN)
 	_can_bus[bus_id].cand->identifier = identifier;
@@ -154,7 +166,7 @@ bool can_bus_wait_transfer_done(struct _buffer *buf, uint32_t wait_ms)
 	return false;
 }
 
-int32_t can_bus_activate(uint8_t bus_id, uint32_t wait_ms)
+int can_bus_activate(uint8_t bus_id, uint32_t wait_ms)
 {
 	struct _timeout timeout;
 
@@ -173,12 +185,13 @@ int32_t can_bus_activate(uint8_t bus_id, uint32_t wait_ms)
 	while (!timer_timeout_reached(&timeout)) {
 #if defined(CONFIG_HAVE_CAN)
 		if (cand_is_enabled(desc))
+			return 0;
 #elif defined(CONFIG_HAVE_MCAN)
 		if (mcan_is_enabled(mcan))
+			return 0;
 #endif
-			return CAND_OK;
 	}
-	return 1;
+	return -ETIMEDOUT;
 }
 
 void can_bus_low_power(uint8_t bus_id)

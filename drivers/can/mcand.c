@@ -35,67 +35,36 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
-
-#include "barriers.h"
-#include "irq/irq.h"
-#include "peripherals/pmc.h"
-#include "mm/cache.h"
-#include "trace.h"
-#include "can/mcand.h"
 #include <assert.h>
 #include <string.h>
+
+#include "barriers.h"
+#include "board.h"
+#include "can/mcand.h"
+#include "errno.h"
+#include "irq/irq.h"
+#include "mm/cache.h"
+#include "peripherals/pmc.h"
+#include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
 #define MCAN_INT_ALL 0x3FCFFFFF
-#define MCAN_ERRS   (0 \
-					/*| MCAN_IR_RF0N*/ \
-					| MCAN_IR_RF0W \
-					| MCAN_IR_RF0F \
-					| MCAN_IR_RF0L \
-					/*| MCAN_IR_RF1N*/ \
-					| MCAN_IR_RF1W \
-					| MCAN_IR_RF1F \
-					| MCAN_IR_RF1L \
-					/*| MCAN_IR_HPM*/ \
-					/*| MCAN_IR_TC*/ \
-					| MCAN_IR_TCF \
-					| MCAN_IR_TFE \
-					/*| MCAN_IR_TEFN*/ \
-					| MCAN_IR_TEFW \
-					| MCAN_IR_TEFF \
-					| MCAN_IR_TEFL \
-					| MCAN_IR_TSW \
-					| MCAN_IR_MRAF \
-					| MCAN_IR_TOO \
-					/*| MCAN_IR_DRX*/ \
-					/*| MCAN_IR_BEC*/ \
-					/*| MCAN_IR_BEU*/ \
-					| MCAN_IR_ELO \
-					| MCAN_IR_EP \
-					| MCAN_IR_EW \
-					/*| MCAN_IR_BO*/ \
-					| MCAN_IR_WDI \
-					| MCAN_IR_PEA \
-					| MCAN_IR_PED \
-					| MCAN_IR_ARA \
-					)
-#undef MCAN_ERRS
+
 #define MCAN_ERRS 0xFFFFFFFF
 
 struct _mcan_quanta {
 	uint16_t before_sp; /* duration of the time segment before the
-						 * sample point (Sync_Seg + Prop_Seg +
-						 * Phase_Seg1), expressed in CAN time quanta */
+			     * sample point (Sync_Seg + Prop_Seg +
+			     * Phase_Seg1), expressed in CAN time quanta */
 
 	uint8_t after_sp;  /* duration of the time segment after the sample point
-						* (Phase_Seg2), expressed in CAN time quanta */
+			    * (Phase_Seg2), expressed in CAN time quanta */
 
 	uint8_t sync_jump; /* duration of a (re)synchronization jump,
-						* expressed in CAN time quanta */
+			    * expressed in CAN time quanta */
 };
 
 /*----------------------------------------------------------------------------
@@ -129,7 +98,7 @@ struct _mcan_quanta {
 #define RAM_TX_FIFO_CNT        (4u)
 
 #define MSG_RAM_SIZE0      ( \
-	  RAM_FILT_STD_CNT * MCAN_RAM_FILT_STD_SIZE \
+	RAM_FILT_STD_CNT * MCAN_RAM_FILT_STD_SIZE \
 	+ RAM_FILT_EXT_CNT * MCAN_RAM_FILT_EXT_SIZE \
 	+ RAM_TX_BUF_CNT * RAM_BUF_SIZE \
 	+ RAM_TX_FIFO_CNT * RAM_BUF_SIZE )
@@ -212,10 +181,10 @@ static uint8_t get_data_length(enum mcan_dlc dlc)
  * need to be configured. The other parameters can be left blank at this stage.
  * \param size  address where the required size of the Message RAM will be
  * written, expressed in (32-bit) words.
- * \return true if successful, false if a parameter is set to an unsupported
+ * \return 0 if successful
  * value.
  */
-static bool configure_ram(struct mcan_set *set, const struct mcan_config *cfg)
+static int configure_ram(struct mcan_set *set, const struct mcan_config *cfg)
 {
 	uint32_t size[2];
 	if (cfg->item_count[MCAN_RAM_STD_FILTER] > 128
@@ -230,7 +199,7 @@ static bool configure_ram(struct mcan_set *set, const struct mcan_config *cfg)
 		|| cfg->buf_size_rx_fifo0 > 64
 		|| cfg->buf_size_rx_fifo1 > 64
 		|| cfg->buf_size_rx > 64 || cfg->buf_size_tx > 64)
-		return false;
+		return -EINVAL;
 
 	set->ram_filt_std = cfg->msg_ram[0];
 	size[0] = (uint32_t)cfg->item_count[MCAN_RAM_STD_FILTER] *
@@ -262,7 +231,7 @@ static bool configure_ram(struct mcan_set *set, const struct mcan_config *cfg)
 	size[0] += (uint32_t)cfg->item_count[MCAN_RAM_TX_FIFO] *
 				(MCAN_RAM_BUF_HDR_SIZE + cfg->buf_size_tx / 4);
 
-	return true;
+	return 0;
 }
 
 /**
@@ -270,12 +239,13 @@ static bool configure_ram(struct mcan_set *set, const struct mcan_config *cfg)
  * Default: Non-FD, ISO 11898-1 CAN mode; mixed mode TX Buffer + FIFO.
  * \param set  Pointer to uninitialized driver instance data.
  * \param cfg  MCAN configuration to be used.
- * \return true if successful, false if a parameter is set to an unsupported
+ * \return 0 if successful
  * value.
  */
-static bool mcan_initialize(struct _mcan_desc* desc, const struct mcan_config *cfg)
+static int mcan_initialize(struct _mcan_desc* desc, const struct mcan_config *cfg)
 {
 	struct mcan_set *set = &desc->set;
+	int err;
 
 	assert(set);
 	assert(cfg);
@@ -285,8 +255,9 @@ static bool mcan_initialize(struct _mcan_desc* desc, const struct mcan_config *c
 	Mcan *mcan = desc->addr;
 
 	memset(set, 0, sizeof(*set));
-	if (!configure_ram(set, cfg))
-		return false;
+	err = configure_ram(set, cfg);
+	if (err < 0)
+		return err;
 	set->cfg = *cfg;
 
 	/* Configure the MSB of the Message RAM Base Address */
@@ -357,10 +328,10 @@ static bool mcan_initialize(struct _mcan_desc* desc, const struct mcan_config *c
 	/* Configure the size of data fields in Rx and Tx Buffer Elements */
 	if (!mcan_set_rx_element_size(mcan,
 			cfg->buf_size_rx, cfg->buf_size_rx_fifo0, cfg->buf_size_rx_fifo1))
-		return false;
+		return -EINVAL;
 
 	if (!mcan_set_tx_element_size(mcan, cfg->buf_size_tx))
-		return false;
+		return -EINVAL;
 
 	mcan->MCAN_NDAT1 = 0xFFFFFFFF;   /* clear new (rx) data flags */
 	mcan->MCAN_NDAT2 = 0xFFFFFFFF;   /* clear new (rx) data flags */
@@ -370,10 +341,10 @@ static bool mcan_initialize(struct _mcan_desc* desc, const struct mcan_config *c
 
 	mcan_enable_it(mcan, MCAN_IE_BOE);
 
-	return true;
+	return 0;
 }
 
-static bool mcand_get_ram(struct _mcan_desc *desc,
+static int mcand_get_ram(struct _mcan_desc *desc,
 				enum _mcan_ram item, uint8_t *index)
 {
 	bool rv = true;
@@ -388,7 +359,7 @@ static bool mcand_get_ram(struct _mcan_desc *desc,
 	if (item == MCAN_RAM_TX_FIFO) {
 		/* Configured for FifoQ and FifoQ not full? */
 		if (cnt == 0 || (desc->addr->MCAN_TXFQS & MCAN_TXFQS_TFQF))
-			return false;
+			return -EINVAL;
 		i = (uint8_t)((desc->addr->MCAN_TXFQS & MCAN_TXFQS_TFQPI_Msk)
 			>> MCAN_TXFQS_TFQPI_Pos);
 		i -= desc->set.cfg.item_count[MCAN_RAM_TX_BUFFER];
@@ -405,20 +376,21 @@ static bool mcand_get_ram(struct _mcan_desc *desc,
 
 	if (rv) {
 		if ((i >= cnt) || (status[i / 32] & (1 << (i & 0x1F))))
-			return false;
+			return -EINVAL;
 		status[i / 32] |= (1 << (i & 0x1F));
 		*index = i;
-		return true;
+		return 0;
 	}
 
 	for (i = 0; i < cnt; i ++) {
 		if (0 == (status[i / 32] & (1 << (i & 0x1F)))) {
 			status[i / 32] |= (1 << (i & 0x1F));
 			*index = i;
-			return true;
+			return 0;
 		}
 	}
-	return false;
+
+	return -ENOSYS;
 }
 
 static void mcand_release_ram(struct _mcan_desc *desc,
@@ -460,6 +432,7 @@ static void _mcand_tx_buffer_handler(struct _mcan_desc *desc)
 	struct _cand_ram_item *ram_item;
 	uint32_t *tx_buf;
 
+	uint32_t id;
 	uint32_t buf_count = desc->set.cfg.item_count[MCAN_RAM_TX_BUFFER];
 	uint32_t ram_idx =	desc->set.cfg.ram_index[MCAN_RAM_TX_BUFFER];
 	Mcan *mcan = desc->addr;
@@ -482,9 +455,8 @@ static void _mcand_tx_buffer_handler(struct _mcan_desc *desc)
 
 			if (ram_item->buf)
 				ram_item->buf->attr |= CAND_BUF_ATTR_TRANSFER_DONE;
-			else {
+			else
 				trace_error("tx_buf null, idx=%u\n\r", (unsigned)buf_idx);
-			}
 
 			if (buf_idx >= buf_count)
 				mcand_release_ram(desc, MCAN_RAM_TX_FIFO, buf_idx);
@@ -814,7 +786,7 @@ static void _mcan_handler(uint32_t source, void* user_arg)
 
 /**
  * \brief Calculate and configure the baudrate
- * \return 1 in success, otherwise return 0.
+ * \return 0 in success
  */
 static uint8_t mcand_set_baudrate(Mcan *mcan, uint32_t freq, uint32_t freq_fd)
 {
@@ -843,11 +815,11 @@ static uint8_t mcand_set_baudrate(Mcan *mcan, uint32_t freq, uint32_t freq_fd)
 	if (freq == 0 || quanta.before_sp < 3 || quanta.before_sp > 257
 		|| quanta.after_sp < 1 || quanta.after_sp > 128
 		|| quanta.sync_jump < 1 || quanta.sync_jump > 128)
-		return 0;
+		return -EINVAL;
 	/* Compute the Nominal Baud Rate Prescaler */
 	val = ROUND_INT_DIV(clk, freq * (quanta.before_sp + quanta.after_sp));
 	if (val < 1 || val > 512)
-		return 0;
+		return -EINVAL;
 	/* Apply bit timing configuration */
 	mcan->MCAN_NBTP = MCAN_NBTP_NBRP(val - 1)
 		| MCAN_NBTP_NTSEG1(quanta.before_sp - 1 - 1)
@@ -858,23 +830,22 @@ static uint8_t mcand_set_baudrate(Mcan *mcan, uint32_t freq, uint32_t freq_fd)
 	if (freq_fd < freq || quanta_fd.before_sp < 3 || quanta_fd.before_sp > 33
 		|| quanta_fd.after_sp < 1 || quanta_fd.after_sp > 16
 		|| quanta_fd.sync_jump < 1 || quanta_fd.sync_jump > 8)
-		return 0;
+		return -EINVAL;
 	/* Compute the Fast Baud Rate Prescaler */
 	val = ROUND_INT_DIV(clk,
 			freq_fd * (quanta_fd.before_sp + quanta_fd.after_sp));
 	if (val < 1 || val > 32)
-		return 0;
+		return -EINVAL;
 	/* Apply bit timing configuration */
 	mcan->MCAN_DBTP = MCAN_DBTP_DBRP(val - 1)
 		| MCAN_DBTP_DTSEG1(quanta_fd.before_sp - 1 - 1)
 		| MCAN_DBTP_DTSEG2(quanta_fd.after_sp - 1)
 		| MCAN_DBTP_DSJW(quanta_fd.sync_jump - 1);
 
-	return 1;
+	return 0;
 }
 
-static uint8_t * mcan_prepare_tx_buffer(struct _mcan_desc *desc, uint8_t buf_idx,
-				 uint32_t id, uint8_t len)
+static uint8_t* mcan_prepare_tx_buffer(struct _mcan_desc *desc, uint8_t buf_idx, uint32_t id, uint8_t len)
 {
 	struct mcan_set *set = &desc->set;
 	assert(buf_idx < set->cfg.item_count[MCAN_RAM_TX_BUFFER]);
@@ -944,17 +915,19 @@ static void mcan_enqueue_outgoing_msg(struct _mcan_desc *desc,
 	mcan->MCAN_TXBAR = (1 << putIdx);
 }
 
-static uint32_t mcand_tx(struct _mcan_desc *desc, struct _buffer *buf,
+static int mcand_tx(struct _mcan_desc *desc, struct _buffer *buf,
 			mcand_callback_t cb, void* user_args)
 {
+	int status = 0;
 	struct _cand_ram_item * ram_item;
 	uint8_t buf_idx;
 	uint32_t id = (buf->attr & CAND_BUF_ATTR_EXTENDED) ?
 			MCAN_RAM_T0_XTD | MCAN_RAM_T0_XTDID(desc->identifier) :
 			MCAN_RAM_T0_STDID(desc->identifier);
 	if (buf->attr & CAND_BUF_ATTR_USING_FIFO) {
-		if (!mcand_get_ram(desc, MCAN_RAM_TX_FIFO, &buf_idx))
-			return CAND_ERROR;
+		status = mcand_get_ram(desc, MCAN_RAM_TX_FIFO, &buf_idx);
+		if (status < 0)
+			return status;
 		ram_item = &desc->ram_item[desc->set.cfg.ram_index[MCAN_RAM_TX_FIFO] + buf_idx];
 		ram_item->buf = buf;
 		ram_item->callback = cb;
@@ -963,8 +936,9 @@ static uint32_t mcand_tx(struct _mcan_desc *desc, struct _buffer *buf,
 
 		mcan_enqueue_outgoing_msg(desc, buf_idx + desc->set.cfg.item_count[MCAN_RAM_TX_BUFFER], id, buf->size, buf->data);
 	} else {
-		if (!mcand_get_ram(desc, MCAN_RAM_TX_BUFFER, &buf_idx))
-			return CAND_ERROR;
+		status = mcand_get_ram(desc, MCAN_RAM_TX_BUFFER, &buf_idx);
+		if (status < 0)
+			return status;
 		uint8_t * tx_buf;
 		tx_buf = mcan_prepare_tx_buffer(desc, buf_idx, id, buf->size);
 
@@ -984,7 +958,8 @@ static uint32_t mcand_tx(struct _mcan_desc *desc, struct _buffer *buf,
 
 	}
 	mcan_enable_it(desc->addr, MCAN_IE_TCE);
-	return CAND_OK;
+
+	return 0;
 }
 
 static uint32_t mcand_rx(struct _mcan_desc *desc, struct _buffer *buf,
@@ -997,10 +972,11 @@ static uint32_t mcand_rx(struct _mcan_desc *desc, struct _buffer *buf,
 	uint32_t *filter;
 	uint32_t it;
 	enum _mcan_ram ram;
+	int status = 0;
 
 	if (buf->attr & CAND_BUF_ATTR_USING_FIFO) {
 		if (buf->attr & CAND_BUF_ATTR_RX_OVERWRITE)
-			return CAND_ERROR;
+			return -EACCES;
 		if (CAND_BUF_ATTR_USING_FIFO1 == (buf->attr & CAND_BUF_ATTR_USING_FIFO1)) {
 			ram = MCAN_RAM_RX_FIFO1;
 			it = MCAN_IE_RF1NE | MCAN_IE_RF1WE | MCAN_IE_RF1FE | MCAN_IE_RF1LE;
@@ -1014,8 +990,9 @@ static uint32_t mcand_rx(struct _mcan_desc *desc, struct _buffer *buf,
 	}
 
 	// get rx buffer
-	if (!mcand_get_ram(desc, ram, &buf_idx))
-		return CAND_ERROR;
+	status = mcand_get_ram(desc, ram, &buf_idx);
+	if (status < 0)
+		return status;
 	assert(buf_idx < set->cfg.item_count[ram]);
 
 	// get filter
@@ -1023,22 +1000,24 @@ static uint32_t mcand_rx(struct _mcan_desc *desc, struct _buffer *buf,
 		assert(desc->identifier <= 0x1fffffff);
 		if (desc->mask != 0x1fffffff) {
 			trace_info("Not support current ID mask yet!");
-			return CAND_ERROR;
+			return -ENOTSUP;
 		}
-		if (!mcand_get_ram(desc, MCAN_RAM_EXT_FILTER, &filt_idx)) {
+		status = mcand_get_ram(desc, MCAN_RAM_EXT_FILTER, &filt_idx);
+		if (status < 0) {
 			mcand_release_ram(desc, ram, buf_idx);
-			return CAND_ERROR;
+			return status;
 		}
 		assert(filt_idx < set->cfg.item_count[MCAN_RAM_EXT_FILTER]);
 	} else {
 		assert(desc->identifier <= 0x7ff);
 		if (desc->mask != 0x7ff) {
-			trace_info("Not support current ID mask yet!");
-			return CAND_ERROR;
+			trace_info("Current ID mask not supported!");
+			return -ENOTSUP;
 		}
-		if (!mcand_get_ram(desc, MCAN_RAM_STD_FILTER, &filt_idx)) {
+		status = mcand_get_ram(desc, MCAN_RAM_STD_FILTER, &filt_idx);
+		if (status < 0) {
 			mcand_release_ram(desc, ram, buf_idx);
-			return CAND_ERROR;
+			return status;
 		}
 		assert(filt_idx < set->cfg.item_count[MCAN_RAM_STD_FILTER]);
 	}
@@ -1086,7 +1065,7 @@ static uint32_t mcand_rx(struct _mcan_desc *desc, struct _buffer *buf,
 	ram_item->state = 0;
 
 	mcan_enable_it(desc->addr, it);
-	return CAND_OK;
+	return 0;
 }
 
 /*----------------------------------------------------------------------------
@@ -1099,8 +1078,9 @@ struct _mcan_desc* mcand_get_desc(uint8_t mcan_if)
 	return &mcan_desc[mcan_if];
 }
 
-void mcand_configure(struct _mcan_desc* desc)
+int mcand_configure(struct _mcan_desc* desc)
 {
+	int err;
 	Mcan *mcan = desc->addr;
 	uint32_t index;
 	uint32_t id0 = get_mcan_id_from_addr(mcan, 0);
@@ -1149,11 +1129,17 @@ void mcand_configure(struct _mcan_desc* desc)
 	assert(index <= ARRAY_SIZE(mcan_ram_item));
 	desc->ram_item = mcan_ram_item;
 
-	if (!mcan_initialize(desc, &mcan_cfg))
-		trace_fatal("Configure message RAM failed!");
+	err = mcan_initialize(desc, &mcan_cfg);
+	if (err < 0) {
+		trace_error("Configure message RAM failed!");
+		return err;
+	}
 
-	if (!mcand_set_baudrate(mcan, desc->freq, desc->freq_fd))
-		trace_fatal("Set baudrate for can bus failed!");
+	err = mcand_set_baudrate(mcan, desc->freq, desc->freq_fd);
+	if (err < 0) {
+		trace_error("Set baudrate for can bus failed!");
+		return err;
+	}
 
 	mcan_line0_it(mcan, MCAN_ERRS);
 	mcan_enable_line_it(mcan, MCAN_ILE_EINT0);
@@ -1163,15 +1149,16 @@ void mcand_configure(struct _mcan_desc* desc)
 
 	irq_add_handler(id1, _mcan_handler, NULL);
 	irq_enable(id1);
+
+	return 0;
 }
 
-uint32_t mcand_transfer(struct _mcan_desc *desc, struct _buffer *buf,
+int mcand_transfer(struct _mcan_desc *desc, struct _buffer *buf,
 			mcand_callback_t cb, void* user_args)
 {
 	if (buf->attr & CAND_BUF_ATTR_TX)
 		return mcand_tx(desc, buf, cb, user_args);
 	else if (buf->attr & CAND_BUF_ATTR_RX)
 		return mcand_rx(desc, buf, cb, user_args);
-	return CAND_ERROR;
+	return -EINVAL;
 }
-

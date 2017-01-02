@@ -527,11 +527,11 @@ int main(void)
 			display_menu();
 			break;
 		case 'p':
-			if (CAND_OK != can_bus_activate(0, CAN_TO)) {
+			if (can_bus_activate(0, CAN_TO) < 0) {
 				trace_error("Failed to enable CAN/MCAN.\r\n");
 				break;
 			}
-			if (CAND_OK != can_bus_activate(1, CAN_TO)) {
+			if (can_bus_activate(1, CAN_TO) < 0) {
 				trace_error("Failed to enable CAN/MCAN.\r\n");
 				break;
 			}
@@ -548,7 +548,7 @@ int main(void)
 					.size = sizeof(rx_buffers[_RX_BUFF_SIMPLE]),
 					.attr = CAND_BUF_ATTR_STANDARD | CAND_BUF_ATTR_RX,
 				};
-			if (CAND_OK != can_bus_activate(1, CAN_TO)) {
+			if (can_bus_activate(1, CAN_TO) < 0) {
 				trace_error("Failed to enable CAN/MCAN.\r\n");
 				break;
 			}
@@ -567,7 +567,7 @@ int main(void)
 					.size = 8,
 					.attr = CAND_BUF_ATTR_STANDARD | CAND_BUF_ATTR_TX,
 				};
-			if (CAND_OK != can_bus_activate(1, CAN_TO)) {
+			if (can_bus_activate(1, CAN_TO) < 0) {
 				trace_error("Failed to enable CAN/MCAN.\n\r");
 				break;
 			}
