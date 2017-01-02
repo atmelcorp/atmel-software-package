@@ -281,7 +281,8 @@ extern void qt1070_start_reset(struct _qt1070* qt1070);
  *
  * \param qt1070 Pointer to the driver structure.
  * \param twid Pointer to twi driver structure.
+ * \return 0 on success
  */
-extern uint8_t qt1070_configure(struct _qt1070* qt1070);
+extern int qt1070_configure(struct _qt1070* qt1070);
 
 #endif /* _QT1070_H_ */

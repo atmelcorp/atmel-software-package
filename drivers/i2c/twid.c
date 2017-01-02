@@ -50,7 +50,7 @@
 #include "trace.h"
 
 /*----------------------------------------------------------------------------
- *        Definition
+ *        Definitions
  *----------------------------------------------------------------------------*/
 
 #define TWID_POLLING_THRESHOLD  16
@@ -69,11 +69,15 @@ struct _async_desc
 	uint32_t transferred; /**< Number of already transferred bytes. */
 };
 
+/*----------------------------------------------------------------------------
+ *        Local variables
+ *----------------------------------------------------------------------------*/
+
 static struct _async_desc async_desc[TWI_IFACE_COUNT];
 static uint8_t adesc_index = 0;
 
 /*----------------------------------------------------------------------------
- *        Internal functions
+ *        Local functions
  *----------------------------------------------------------------------------*/
 
 /*
@@ -152,7 +156,7 @@ static bool _check_tx_timeout(struct _twi_desc* desc)
 	return false;
 }
 
-static uint32_t _twid_wait_twi_transfer(struct _twi_desc* desc)
+static int _twid_wait_twi_transfer(struct _twi_desc* desc)
 {
 	struct _timeout timeout;
 
@@ -161,11 +165,11 @@ static uint32_t _twid_wait_twi_transfer(struct _twi_desc* desc)
 		if (timer_timeout_reached(&timeout)) {
 			trace_error("twid: Unable to complete transfer!\r\n");
 			twid_configure(desc);
-			return TWID_ERROR_TRANSFER;
+			return -ETIMEDOUT;
 		}
 	}
 
-	return TWID_SUCCESS;
+	return 0;
 }
 
 static void _twid_dma_read_callback(struct dma_channel* channel, void* args)
@@ -188,6 +192,8 @@ static void _twid_dma_read_callback(struct dma_channel* channel, void* args)
 	if (!desc->use_fifo)
 #endif
 	{
+
+
 		((uint8_t*)desc->dma.rx.cfg.da)[desc->dma.rx.cfg.len] = twi_read_byte(desc->addr);
 
 		if (_check_rx_timeout(desc)) {
@@ -417,7 +423,7 @@ static void _twid_handler(uint32_t source, void* user_arg)
 /*
  *
  */
-static uint32_t _twid_poll_read(struct _twi_desc* desc, struct _buffer* buffer)
+static int _twid_poll_read(struct _twi_desc* desc, struct _buffer* buffer)
 {
 	int i;
 	Twi* addr = desc->addr;
@@ -459,7 +465,7 @@ static uint32_t _twid_poll_read(struct _twi_desc* desc, struct _buffer* buffer)
 			i += twi_fifo_read(desc->addr, &buffer->data[i], len);
 
 			if ((i < size) && _check_nack(desc))
-				return TWID_ERROR_ACK;
+				return -ECONNABORTED;
 		}
 #endif /* CONFIG_HAVE_TWI_FIFO */
 	} else {
@@ -470,7 +476,7 @@ static uint32_t _twid_poll_read(struct _twi_desc* desc, struct _buffer* buffer)
 			buffer->data[i] = twi_read_byte(addr);
 
 			if (_check_nack(desc))
-				return TWID_ERROR_ACK;
+				return -ECONNABORTED;
 		}
 	}
 
@@ -480,17 +486,17 @@ static uint32_t _twid_poll_read(struct _twi_desc* desc, struct _buffer* buffer)
 
 	if ((size == (buffer->size - 1)) || (size == 0)) {
 		if (_check_rx_timeout(desc))
-			return TWID_ERROR_TIMEOUT;
+			return -ETIMEDOUT;
 		buffer->data[i] = twi_read_byte(addr);
 	}
 
 	/* wait transfer to be finished */
 	if (desc->flags & TWID_BUF_ATTR_STOP)
 		return _twid_wait_twi_transfer(desc);
-	return TWID_SUCCESS;
+	return 0;
 }
 
-static uint32_t _twid_poll_write(struct _twi_desc* desc, struct _buffer* buffer)
+static int _twid_poll_write(struct _twi_desc* desc, struct _buffer* buffer)
 {
 	int i = 0;
 	int size;
@@ -527,7 +533,7 @@ static uint32_t _twid_poll_write(struct _twi_desc* desc, struct _buffer* buffer)
 			i += twi_fifo_write(desc->addr, &buffer->data[i], len);
 
 			if ((i < size - 1) && _check_nack(desc))
-				return TWID_ERROR_ACK;
+				return -ECONNABORTED;
 		}
 #endif /* CONFIG_HAVE_TWI_FIFO */
 	} else {
@@ -537,7 +543,7 @@ static uint32_t _twid_poll_write(struct _twi_desc* desc, struct _buffer* buffer)
 			twi_write_byte(desc->addr, buffer->data[i]);
 
 			if (_check_nack(desc))
-				return TWID_ERROR_ACK;
+				return -ECONNABORTED;
 		}
 	}
 
@@ -547,14 +553,14 @@ static uint32_t _twid_poll_write(struct _twi_desc* desc, struct _buffer* buffer)
 
 	if (size == (buffer->size - 1)) {
 		if (_check_tx_timeout(desc))
-			return TWID_ERROR_TIMEOUT;
+			return -ETIMEDOUT;
 		twi_write_byte(desc->addr, buffer->data[i]);
 	}
 
 	/* wait transfer to be finished */
 	if (desc->flags & TWID_BUF_ATTR_STOP)
 		return _twid_wait_twi_transfer(desc);
-	return TWID_SUCCESS;
+	return 0;
 }
 
 #ifdef CONFIG_HAVE_TWI_FIFO
@@ -566,7 +572,7 @@ static void twid_fifo_configure(struct _twi_desc *desc)
 	desc->fifo.tx.size = get_peripheral_fifo_depth(desc->addr);
 	desc->fifo.tx.threshold = desc->fifo.tx.size / 2;
 	twi_fifo_configure(desc->addr, desc->fifo.tx.threshold, desc->fifo.rx.threshold,
-	                   TWI_FMR_RXRDYM_FOUR_DATA | TWI_FMR_TXRDYM_FOUR_DATA);
+			   TWI_FMR_RXRDYM_FOUR_DATA | TWI_FMR_TXRDYM_FOUR_DATA);
 }
 
 #endif /* CONFIG_HAVE_TWI_FIFO */
@@ -637,72 +643,17 @@ static void _twid_slave_handler(uint32_t source, void* user_arg)
  *        External functions
  *----------------------------------------------------------------------------*/
 
-void twid_configure(struct _twi_desc* desc)
-{
-	uint32_t id = get_twi_id_from_addr(desc->addr);
-	assert(id < ID_PERIPH_COUNT);
-
-	if (desc->timeout == 0)
-		desc->timeout = TWID_TIMEOUT;
-
-#ifdef CONFIG_HAVE_FLEXCOM
-	Flexcom* flexcom = get_flexcom_addr_from_id(get_twi_id_from_addr(desc->addr));
-	if (flexcom) {
-		flexcom_select(flexcom, FLEX_MR_OPMODE_TWI);
-	}
-#endif
-
-	pmc_configure_peripheral(id, NULL, true);
-	twi_configure_master(desc->addr, desc->freq);
-#ifdef CONFIG_HAVE_TWI_FIFO
-	twid_fifo_configure(desc);
-	if (desc->use_fifo)
-		twi_fifo_enable(desc->addr, true);
-#endif
-
-	desc->dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
-	assert(desc->dma.tx.channel);
-
-	desc->dma.rx.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
-	assert(desc->dma.rx.channel);
-
-	desc->mutex = 0;
-}
-
-void twid_slave_configure(struct _twi_slave_desc *desc, struct _twi_slave_ops* ops)
-{
-	uint32_t twi_id = get_twi_id_from_addr(desc->twi);
-
-	irq_disable(twi_id);
-	twi_disable_it(desc->twi, 0xffffffff);
-
-	desc->ops = ops;
-	desc->state = TWID_SLAVE_STATE_STOPPED;
-
-	async_desc[adesc_index].twi_id = twi_id;
-	async_desc[adesc_index].twi_slave_desc = desc;
-
-	/* Configure TWI slave */
-	pmc_configure_peripheral(twi_id, NULL, true);
-	twi_configure_slave(desc->twi, desc->addr);
-	irq_add_handler(twi_id, _twid_slave_handler, &async_desc[adesc_index]);
-	twi_enable_it(desc->twi, TWI_IER_SVACC | TWI_IER_EOSACC);
-	irq_enable(twi_id);
-
-	adesc_index = (adesc_index + 1) % TWI_IFACE_COUNT;
-}
-
 /*
  *
  */
-static uint32_t _twid_transfer(struct _twi_desc* desc, struct _buffer* buf, struct _callback* cb)
+static int _twid_transfer(struct _twi_desc* desc, struct _buffer* buf,  struct _callback* cb)
 {
-	uint32_t status = TWID_SUCCESS;
+	int err = 0;
 	uint32_t id;
 	uint8_t tmode;
 
 	if (!mutex_try_lock(&desc->mutex))
-		return TWID_ERROR_LOCK;
+		return -EBUSY;
 
 	callback_copy(&desc->callback, cb);
 	desc->flags = buf->attr;
@@ -753,7 +704,7 @@ static uint32_t _twid_transfer(struct _twi_desc* desc, struct _buffer* buf, stru
 			if (_check_tx_timeout(desc)) {
 				twi_disable_it(desc->addr, TWI_IER_TXRDY);
 				irq_disable(id);
-				return TWID_ERROR_TIMEOUT;
+				return -ETIMEDOUT;
 			}
 
 #ifdef CONFIG_HAVE_TWI_FIFO
@@ -783,11 +734,11 @@ static uint32_t _twid_transfer(struct _twi_desc* desc, struct _buffer* buf, stru
 
 	case TWID_MODE_POLLING:
 		if (desc->flags & TWID_BUF_ATTR_WRITE)
-			status = _twid_poll_write(desc, buf);
+			err = _twid_poll_write(desc, buf);
 		else
-			status = _twid_poll_read(desc, buf);
+			err = _twid_poll_read(desc, buf);
 
-		if (status == TWID_SUCCESS)
+		if (err == 0)
 			callback_call(&desc->callback);
 		mutex_unlock(&desc->mutex);
 		break;
@@ -800,46 +751,103 @@ static uint32_t _twid_transfer(struct _twi_desc* desc, struct _buffer* buf, stru
 		break;
 
 	default:
-		trace_fatal("Unknown TWI transfer mode");
+		trace_error("Unknown TWI transfer mode");
+		err = -ENOTSUP;
 	}
 
-	return status;
+	return err;
 }
 
-uint32_t twid_transfer(struct _twi_desc* desc, struct _buffer* buf, int buffers, struct _callback* cb)
+/*----------------------------------------------------------------------------
+ *        External functions
+ *----------------------------------------------------------------------------*/
+
+int twid_configure(struct _twi_desc* desc)
+{
+	uint32_t id = get_twi_id_from_addr(desc->addr);
+	assert(id < ID_PERIPH_COUNT);
+
+	if (desc->timeout == 0)
+		desc->timeout = TWID_TIMEOUT;
+
+#ifdef CONFIG_HAVE_FLEXCOM
+	Flexcom* flexcom = get_flexcom_addr_from_id(get_twi_id_from_addr(desc->addr));
+	if (flexcom)
+		flexcom_select(flexcom, FLEX_MR_OPMODE_TWI);
+#endif
+
+	pmc_configure_peripheral(id, NULL, true);
+	twi_configure_master(desc->addr, desc->freq);
+#ifdef CONFIG_HAVE_TWI_FIFO
+	twid_fifo_configure(desc);
+	if (desc->use_fifo)
+		twi_fifo_enable(desc->addr, true);
+#endif
+
+	desc->mutex = 0;
+
+	return 0;
+}
+
+int twid_slave_configure(struct _twi_slave_desc *desc, struct _twi_slave_ops* ops)
+{
+	uint32_t twi_id = get_twi_id_from_addr(desc->twi);
+
+	irq_disable(twi_id);
+	twi_disable_it(desc->twi, 0xffffffff);
+
+	desc->ops = ops;
+	desc->state = TWID_SLAVE_STATE_STOPPED;
+
+	async_desc[adesc_index].twi_id = twi_id;
+	async_desc[adesc_index].twi_slave_desc = desc;
+
+	/* Configure TWI slave */
+	pmc_configure_peripheral(twi_id, NULL, true);
+	twi_configure_slave(desc->twi, desc->addr);
+	irq_add_handler(twi_id, _twid_slave_handler, &async_desc[adesc_index]);
+	twi_enable_it(desc->twi, TWI_IER_SVACC | TWI_IER_EOSACC);
+	irq_enable(twi_id);
+
+	adesc_index = (adesc_index + 1) % TWI_IFACE_COUNT;
+
+	return 0;
+}
+
+int twid_transfer(struct _twi_desc* desc, struct _buffer* buf, int buffers, struct _callback* cb)
 {
 	int b;
-	uint32_t status;
+	int err;
 
 	if (buf == NULL)
-		return TWID_ERROR_TRANSFER;
+		return -EINVAL;
 
 	for (b = 0 ; b < buffers ; b++) {
 		if ((buf[b].attr & (TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_READ)) == 0)
-			return TWID_ERROR_TRANSFER;
+			return -EINVAL;
 
 		if ((buf[b].attr & (TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_READ)) == (TWID_BUF_ATTR_WRITE | TWID_BUF_ATTR_READ))
-			return TWID_ERROR_DUPLEX;
+			return -EINVAL;
 
 		if (b == (buffers - 1)) {
-			status = _twid_transfer(desc, &buf[b], cb);
+			err = _twid_transfer(desc, &buf[b], cb);
 		} else {
 #if defined(CONFIG_SOC_SAM9XX5) || defined(CONFIG_SOC_SAMA5D3)
 			/* workaround for IP versions that do not support manual restart */
 			if (buf[b + 1].attr & TWID_BUF_ATTR_START)
 				buf[b].attr |= TWID_BUF_ATTR_STOP;
 #endif
-			status = _twid_transfer(desc, &buf[b], NULL);
+			err = _twid_transfer(desc, &buf[b], NULL);
 		}
-		if (status)
-			return status;
+		if (err < 0)
+			return err;
 		twid_wait_transfer(desc);
 	}
 
-	return TWID_SUCCESS;
+	return 0;
 }
 
-uint32_t twid_is_busy(const struct _twi_desc* desc)
+bool twid_is_busy(const struct _twi_desc* desc)
 {
 	return mutex_is_locked(&desc->mutex);
 }

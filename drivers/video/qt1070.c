@@ -63,7 +63,7 @@
  */
 static uint8_t _qt1070_read_reg(struct _qt1070* qt1070, uint8_t reg_addr)
 {
-	uint32_t status;
+	int status;
 	uint8_t data;
 	struct _buffer buf[2] = {
 		{
@@ -82,7 +82,7 @@ static uint8_t _qt1070_read_reg(struct _qt1070* qt1070, uint8_t reg_addr)
 	twi_bus_start_transaction(qt1070->bus);
 
 	status = twi_bus_transfer(qt1070->bus, qt1070->addr, buf, 2, NULL);
-	if (status != TWID_SUCCESS) {
+	if (status < 0) {
 		twi_bus_stop_transaction(qt1070->bus);
 		return 0;
 	}
@@ -103,7 +103,7 @@ static uint8_t _qt1070_read_reg(struct _qt1070* qt1070, uint8_t reg_addr)
 static void _qt1070_write_reg(struct _qt1070* qt1070, uint32_t reg_addr,
 			      uint8_t data)
 {
-	uint32_t status;
+	int status;
 	uint8_t _data[2] = { reg_addr , data };
 	struct _buffer buf[1] = {
 		{
@@ -117,7 +117,7 @@ static void _qt1070_write_reg(struct _qt1070* qt1070, uint32_t reg_addr,
 	twi_bus_start_transaction(qt1070->bus);
 
 	status = twi_bus_transfer(qt1070->bus, qt1070->addr, buf, 1, NULL);
-	if (status != TWID_SUCCESS) {
+	if (status < 0) {
 		twi_bus_stop_transaction(qt1070->bus);
 		return;
 	}
@@ -198,10 +198,8 @@ void qt1070_start_reset(struct _qt1070* qt1070)
 	_qt1070_write_reg(qt1070, QT1070_REG_RESET, 1);
 }
 
-uint8_t qt1070_configure(struct _qt1070* qt1070)
+int qt1070_configure(struct _qt1070* qt1070)
 {
-	uint8_t status = TWID_SUCCESS;
-
 	/*
 	qt1070_start_calibrate(qt1070);
 	do {
@@ -212,5 +210,5 @@ uint8_t qt1070_configure(struct _qt1070* qt1070)
 	qt1070->chip_id = qt1070_get_chip_id(qt1070);
 	qt1070->firmware_version = qt1070_get_firmware_version(qt1070);
 
-	return status;
+	return 0;
 }

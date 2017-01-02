@@ -71,7 +71,7 @@ static const struct sensor_profile* sensor_profiles[SENSOR_SUPPORTED_NUMBER] = {
 static uint32_t sensor_twi_read_reg(uint8_t twi_mode, uint8_t bus, uint8_t addr,
 									uint16_t reg, uint8_t *data)
 {
-	uint8_t status;
+	int status;
 	uint8_t reg8[2];
 	struct _buffer buf[2] = {
 		{
@@ -118,7 +118,7 @@ static uint32_t sensor_twi_read_reg(uint8_t twi_mode, uint8_t bus, uint8_t addr,
 	twi_bus_start_transaction(bus);
 
 	status = twi_bus_transfer(bus, addr, buf, 2, NULL);
-	if (status != TWID_SUCCESS) {
+	if (status < 0) {
 		twi_bus_stop_transaction(bus);
 		return SENSOR_TWI_ERROR;
 	}
@@ -140,7 +140,7 @@ static uint32_t sensor_twi_read_reg(uint8_t twi_mode, uint8_t bus, uint8_t addr,
 static uint32_t sensor_twi_write_reg(uint8_t twi_mode, uint8_t bus, uint8_t addr,
 									 uint16_t reg, uint8_t *data)
 {
-	uint8_t status;
+	int status;
 	uint8_t addr_buf[2];
 	struct _buffer buf[2] = {
 		{
@@ -184,7 +184,7 @@ static uint32_t sensor_twi_write_reg(uint8_t twi_mode, uint8_t bus, uint8_t addr
 	twi_bus_start_transaction(bus);
 
 	status = twi_bus_transfer(bus, addr, buf, 2, NULL);
-	if (status != TWID_SUCCESS) {
+	if (status < 0) {
 		twi_bus_stop_transaction(bus);
 		return SENSOR_TWI_ERROR;
 	}

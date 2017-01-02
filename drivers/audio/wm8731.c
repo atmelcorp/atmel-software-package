@@ -200,7 +200,7 @@
  */
 static void wm8731_write(struct _wm8731_desc *wm8731, uint8_t reg_addr, uint16_t data)
 {
-	uint32_t status = TWID_SUCCESS;
+	int status;
 	uint16_t tmp = ((reg_addr & 0x7f) << 9) | (data & 0x1ff);
 	uint8_t tmp_data[2] = {(tmp & 0xff00) >> 8, tmp & 0xff};
 
@@ -221,7 +221,7 @@ static void wm8731_write(struct _wm8731_desc *wm8731, uint8_t reg_addr, uint16_t
 	twi_bus_start_transaction(wm8731->twi.bus);
 
 	status = twi_bus_transfer(wm8731->twi.bus, wm8731->twi.addr, buf, 2, NULL);
-	if (status != TWID_SUCCESS) {
+	if (status < 0) {
 		twi_bus_stop_transaction(wm8731->twi.bus);
 		return;
 	}

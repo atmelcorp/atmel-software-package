@@ -31,22 +31,19 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
-
-#include "gpio/pio.h"
-#include "peripherals/pmc.h"
-#include "peripherals/flexcom.h"
-#include "i2c/twi-bus.h"
-#include "i2c/twid.h"
-
-#include "power/act8945a.h"
-
-#include "trace.h"
-
+#include <assert.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
-#include <assert.h>
+
+#include "chip.h"
+#include "gpio/pio.h"
+#include "i2c/twi-bus.h"
+#include "i2c/twid.h"
+#include "peripherals/pmc.h"
+#include "peripherals/flexcom.h"
+#include "power/act8945a.h"
+#include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Types
@@ -270,7 +267,7 @@ static const char *_ovp_setting[4] = {
 
 static bool _act8945a_read_reg(struct _act8945a* act8945a, uint8_t iaddr, uint8_t* value)
 {
-	uint32_t status;
+	int err;
 	struct _buffer buf[2] = {
 		{
 			.data = &iaddr,
@@ -287,8 +284,8 @@ static bool _act8945a_read_reg(struct _act8945a* act8945a, uint8_t iaddr, uint8_
 	while (twi_bus_transaction_pending(act8945a->bus));
 	twi_bus_start_transaction(act8945a->bus);
 
-	status = twi_bus_transfer(act8945a->bus, act8945a->addr, buf, 2, NULL);
-	if (status != TWID_SUCCESS) {
+	err = twi_bus_transfer(act8945a->bus, act8945a->addr, buf, 2, NULL);
+	if (err < 0) {
 		twi_bus_stop_transaction(act8945a->bus);
 		return false;
 	}
@@ -300,7 +297,7 @@ static bool _act8945a_read_reg(struct _act8945a* act8945a, uint8_t iaddr, uint8_
 
 static bool _act8945a_write_reg(struct _act8945a* act8945a, uint8_t iaddr, uint8_t value)
 {
-	uint32_t status;
+	int err;
 	uint8_t _data[2] = { iaddr , value };
 	struct _buffer buf[1] = {
 		{
@@ -313,8 +310,8 @@ static bool _act8945a_write_reg(struct _act8945a* act8945a, uint8_t iaddr, uint8
 	while (twi_bus_transaction_pending(act8945a->bus));
 	twi_bus_start_transaction(act8945a->bus);
 
-	status = twi_bus_transfer(act8945a->bus, act8945a->addr, buf, 1, NULL);
-	if (status != TWID_SUCCESS) {
+	err = twi_bus_transfer(act8945a->bus, act8945a->addr, buf, 1, NULL);
+	if (err < 0) {
 		twi_bus_stop_transaction(act8945a->bus);
 		return false;
 	}

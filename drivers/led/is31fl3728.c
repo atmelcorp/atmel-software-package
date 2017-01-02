@@ -65,6 +65,7 @@
  */
 static void _is31fl3728_write_reg(struct _is31fl3728* is31fl3728, uint8_t iaddr, uint8_t data)
 {
+	int status;
 	uint8_t tmp[2] = { iaddr, data };
 	struct _buffer buf[1] = {
 		{
@@ -78,7 +79,7 @@ static void _is31fl3728_write_reg(struct _is31fl3728* is31fl3728, uint8_t iaddr,
 	twi_bus_start_transaction(act8865a->bus);
 
 	status = twi_bus_transfer(is31fl3728->twi.bus, is31fl3728->twi.addr, buf, 1, NULL);
-	if (status != TWID_SUCCESS) {
+	if (status < 0) {
 		twi_bus_stop_transaction(is31fl3728->twi.bus);
 		return false;
 	}
@@ -123,10 +124,8 @@ void is31fl3728_refresh(struct _is31fl3728 *is31fl3728)
 	_is31fl3728_write_reg(is31fl3728, IS31FL3728_REG_UPDATE_COLUMN, 0xFF);
 }
 
-uint8_t is31fl3728_configure(struct _is31fl3728 *is31fl3728, uint8_t addr, uint8_t *fb)
+int is31fl3728_configure(struct _is31fl3728 *is31fl3728, uint8_t addr, uint8_t *fb)
 {
-	uint8_t status = TWID_SUCCESS;
-
 	is31fl3728->addr = addr;
 
 	is31fl3728->fb = fb;
@@ -135,5 +134,5 @@ uint8_t is31fl3728_configure(struct _is31fl3728 *is31fl3728, uint8_t addr, uint8
 	is31fl3728_fb_reset(is31fl3728, 0);
 	is31fl3728_refresh(is31fl3728);
 
-	return status;
+	return 0;
 }

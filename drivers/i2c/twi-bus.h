@@ -53,14 +53,14 @@ struct _twi_bus_desc {
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-int32_t twi_bus_configure(uint8_t bus_id, Twi *iface, uint32_t freq, enum _twid_trans_mode mode);
+int twi_bus_configure(uint8_t bus_id, Twi *iface, uint32_t freq, enum _twid_trans_mode mode);
 
-int32_t twi_bus_transfer(uint8_t bus_id, uint8_t slave_addr, struct _buffer *buf, uint16_t buffers,
+int twi_bus_transfer(uint8_t bus_id, uint8_t slave_addr, struct _buffer *buf, uint16_t buffers,
                          struct _callback* cb);
 
-int32_t twi_bus_start_transaction(uint8_t bus_id);
+bool twi_bus_start_transaction(uint8_t bus_id);
 
-int32_t twi_bus_stop_transaction(uint8_t bus_id);
+int twi_bus_stop_transaction(uint8_t bus_id);
 
 bool twi_bus_transaction_pending(uint8_t bus_id);
 

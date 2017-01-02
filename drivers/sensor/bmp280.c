@@ -85,7 +85,7 @@ static uint8_t _bmp280_read(struct _bmp280* bmp280, uint8_t iaddr, uint8_t* buff
 	}
 	twi_bus_stop_transaction(bmp280->bus);
 
-	return TWID_SUCCESS;
+	return 0;
 }
 
 static uint8_t _bmp280_write(struct _bmp280* bmp280, uint8_t iaddr, const uint8_t* buffer, uint32_t len)
@@ -115,7 +115,7 @@ static uint8_t _bmp280_write(struct _bmp280* bmp280, uint8_t iaddr, const uint8_
 	while (twi_bus_is_busy(bmp280->bus));
 	twi_bus_stop_transaction(bmp280->bus);
 
-	return TWID_SUCCESS;
+	return 0;
 }
 
 /*------------------------------------------------------------------------------

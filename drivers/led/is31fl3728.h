@@ -138,15 +138,15 @@ struct _is31fl3728 {
  * Configure the LED driver
  * @param is31fl3728      Control structure
  * @param fb              Framebuffer to hold the LED status
- * @return Success
+ * @return 0 on success
  */
-uint8_t is31fl3728_configure (struct _is31fl3728 *is31fl3728, uint8_t addr, uint8_t *fb);
+extern int is31fl3728_configure(struct _is31fl3728 *is31fl3728, uint8_t addr, uint8_t *fb);
 
 /**
  * Refresh the framebuffer. It updates the IS31FL3728 to drive the LED to the framebuffer state
  * @param is31fl3728      Control structure
  */
-void is31fl3728_refresh(struct _is31fl3728 *is31fl3728);
+extern void is31fl3728_refresh(struct _is31fl3728 *is31fl3728);
 
 /**
  * Set one LED to 1 in the frame buffer
@@ -154,14 +154,14 @@ void is31fl3728_refresh(struct _is31fl3728 *is31fl3728);
  * @param x               X coordinate
  * @param y               Y coordinate
  */
-void is31fl3728_fb_set(struct _is31fl3728 *is31fl3728, uint8_t x, uint8_t y);
+extern void is31fl3728_fb_set(struct _is31fl3728 *is31fl3728, uint8_t x, uint8_t y);
 
 /**
  * Reset the framebuffer to the given value
  * @param is31fl3728      Control structure
  * @param value
  */
-void is31fl3728_fb_reset(struct _is31fl3728 *is31fl3728, uint8_t value);
+extern void is31fl3728_fb_reset(struct _is31fl3728 *is31fl3728, uint8_t value);
 
 
 #endif /* _IS31FL3728_H_ */

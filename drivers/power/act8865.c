@@ -55,7 +55,7 @@
 static bool _act8865_read_reg(struct _act8865* act8865, uint8_t iaddr, uint8_t* value)
 {
 
-	uint32_t status;
+	int status;
 	struct _buffer buf[2] = {
 		{
 			.data = &iaddr,
@@ -73,7 +73,7 @@ static bool _act8865_read_reg(struct _act8865* act8865, uint8_t iaddr, uint8_t* 
 	twi_bus_start_transaction(act8865->bus);
 
 	status = twi_bus_transfer(act8865->bus, act8865->addr, buf, 2, NULL);
-	if (status != TWID_SUCCESS) {
+	if (status < 0) {
 		twi_bus_stop_transaction(act8865->bus);
 		return false;
 	}
@@ -85,7 +85,7 @@ static bool _act8865_read_reg(struct _act8865* act8865, uint8_t iaddr, uint8_t* 
 
 static bool _act8865_write_reg(struct _act8865* act8865, uint8_t iaddr, uint8_t value)
 {
-	uint32_t status;
+	int status;
 	uint8_t _data[2] = { iaddr , value };
 	struct _buffer buf[1] = {
 		{
@@ -99,7 +99,7 @@ static bool _act8865_write_reg(struct _act8865* act8865, uint8_t iaddr, uint8_t 
 	twi_bus_start_transaction(act8865->bus);
 
 	status = twi_bus_transfer(act8865->bus, act8865->addr, buf, 1, NULL);
-	if (status != TWID_SUCCESS) {
+	if (status < 0) {
 		twi_bus_stop_transaction(act8865->bus);
 		return false;
 	}

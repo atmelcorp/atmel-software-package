@@ -44,17 +44,6 @@
  *        Types
  *----------------------------------------------------------------------------*/
 
-#define TWID_SUCCESS         (0)
-#define TWID_INVALID_ID      (1)
-#define TWID_INVALID_BITRATE (2)
-#define TWID_ERROR_LOCK      (3)
-#define TWID_ERROR_DUPLEX    (4)
-#define TWID_ERROR_ACK       (5)
-#define TWID_ERROR_TIMEOUT   (6)
-#define TWID_ERROR_TRANSFER  (7)
-
-#define TWID_TRANSFER_IN_PROGRESS  (0x80)
-
 enum _twid_buf_attr {
 	TWID_BUF_ATTR_START  = 0x01,
 	TWID_BUF_ATTR_STOP   = 0x02,
@@ -119,17 +108,16 @@ struct _twi_slave_desc {
 };
 
 /*------------------------------------------------------------------------------
- *        Functions
+ *        Exported functions
  *----------------------------------------------------------------------------*/
 
-extern void twid_configure(struct _twi_desc* desc);
+extern int twid_configure(struct _twi_desc* desc);
 
-extern void twid_slave_configure(struct _twi_slave_desc* desc, struct _twi_slave_ops* ops);
+extern int twid_slave_configure(struct _twi_slave_desc* desc, struct _twi_slave_ops* ops);
 
-extern uint32_t twid_transfer(struct _twi_desc* desc, struct _buffer* buf, int buffers,
-                              struct _callback* cb);
+extern int twid_transfer(struct _twi_desc* desc, struct _buffer* buf, int buffers, struct _callback* cb);
 
-extern uint32_t twid_is_busy(const struct _twi_desc* desc);
+extern bool twid_is_busy(const struct _twi_desc* desc);
 
 extern void twid_wait_transfer(const struct _twi_desc* desc);
 

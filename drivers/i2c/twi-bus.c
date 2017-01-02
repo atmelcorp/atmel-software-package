@@ -27,12 +27,12 @@
  * ----------------------------------------------------------------------------
  */
 
-/*------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include <string.h>
 #include <assert.h>
+#include <string.h>
 
 #include "board.h"
 #include "callback.h"
@@ -64,11 +64,11 @@ static int _twi_bus_callback(void* arg)
 	return 0;
 }
 
-/*------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-int32_t twi_bus_configure(uint8_t bus_id, Twi *iface, uint32_t freq, enum _twid_trans_mode mode)
+int twi_bus_configure(uint8_t bus_id, Twi *iface, uint32_t freq, enum _twid_trans_mode mode)
 {
 	assert(bus_id < TWI_IFACE_COUNT);
 
@@ -82,11 +82,11 @@ int32_t twi_bus_configure(uint8_t bus_id, Twi *iface, uint32_t freq, enum _twid_
 	return 0;
 }
 
-int32_t twi_bus_transfer(uint8_t bus_id, uint8_t slave_addr, struct _buffer *buf, uint16_t buffers,
+int twi_bus_transfer(uint8_t bus_id, uint8_t slave_addr, struct _buffer *buf, uint16_t buffers,
                          struct _callback* cb)
 {
 	struct _callback _cb;
-	uint32_t status;
+	int err;
 
 	assert(bus_id < TWI_IFACE_COUNT);
 
@@ -95,19 +95,19 @@ int32_t twi_bus_transfer(uint8_t bus_id, uint8_t slave_addr, struct _buffer *buf
 
 	if (!mutex_is_locked(&_twi_bus[bus_id].transaction)) {
 		trace_error("twi_bus: no opened transaction on the bus.");
-		return TWID_ERROR_LOCK;
+		return -ECONNREFUSED;
 	}
 	if (!mutex_try_lock(&_twi_bus[bus_id].mutex))
-		return TWID_ERROR_LOCK;
+		return -EBUSY;
 
 	_twi_bus[bus_id].twid.slave_addr = slave_addr;
 	callback_copy(&_twi_bus[bus_id].callback, cb);
 
 	callback_set(&_cb, _twi_bus_callback, &bus_id);
-	status = twid_transfer(&_twi_bus[bus_id].twid, buf, buffers, &_cb);
-	if (status) {
+	err = twid_transfer(&_twi_bus[bus_id].twid, buf, buffers, &_cb);
+	if (err < 0) {
 		mutex_unlock(&_twi_bus[bus_id].mutex);
-		return status;
+		return err;
 	}
 
 	return 0;
@@ -127,12 +127,12 @@ void twi_bus_wait_transfer(uint8_t bus_id)
 	while (twi_bus_is_busy(bus_id));
 }
 
-int32_t twi_bus_start_transaction(uint8_t bus_id)
+bool twi_bus_start_transaction(uint8_t bus_id)
 {
 	return mutex_try_lock(&_twi_bus[bus_id].transaction);
 }
 
-int32_t twi_bus_stop_transaction(uint8_t bus_id)
+int twi_bus_stop_transaction(uint8_t bus_id)
 {
 	assert(bus_id < TWI_IFACE_COUNT);
 

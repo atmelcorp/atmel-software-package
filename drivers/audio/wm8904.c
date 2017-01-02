@@ -244,7 +244,7 @@ static const struct _wm8904_para wm8904_access_main[] = {
  */
 static uint16_t wm8904_read(struct _wm8904_desc *wm8904, uint8_t reg_addr)
 {
-	uint16_t status;
+	int status;
 	uint8_t temp_data[2] = { 0, 0 };
 	struct _buffer buf[2] = {
 		{
@@ -263,7 +263,7 @@ static uint16_t wm8904_read(struct _wm8904_desc *wm8904, uint8_t reg_addr)
 	twi_bus_start_transaction(wm8904->twi.bus);
 
 	status = twi_bus_transfer(wm8904->twi.bus, wm8904->twi.addr, buf, 2, NULL);
-	if (status != TWID_SUCCESS) {
+	if (status < 0) {
 		twi_bus_stop_transaction(wm8904->twi.bus);
 		return status;
 	}
@@ -282,7 +282,7 @@ static uint16_t wm8904_read(struct _wm8904_desc *wm8904, uint8_t reg_addr)
  */
 static void wm8904_write(struct _wm8904_desc *wm8904, uint8_t reg_addr, uint16_t data)
 {
-	uint32_t status = TWID_SUCCESS;
+	int status;
 	uint8_t tmp_data[2] = { 0, 0 };
 	struct _buffer buf[2] = {
 		{
@@ -304,7 +304,7 @@ static void wm8904_write(struct _wm8904_desc *wm8904, uint8_t reg_addr, uint16_t
 	twi_bus_start_transaction(wm8904->twi.bus);
 
 	status = twi_bus_transfer(wm8904->twi.bus, wm8904->twi.addr, buf, 2, NULL);
-	if (status != TWID_SUCCESS) {
+	if (status < 0) {
 		twi_bus_stop_transaction(wm8904->twi.bus);
 		return;
 	}
