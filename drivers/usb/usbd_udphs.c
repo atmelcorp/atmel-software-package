@@ -179,9 +179,6 @@ struct _endpoint {
 	/**  Current endpoint state. */
 	volatile enum _endpoint_state state;
 
-	/**  Current reception bank (0 or 1). */
-	volatile uint8_t bank;
-
 	/**  Maximum packet size for the endpoint. */
 	volatile uint16_t size;
 
@@ -1148,9 +1145,6 @@ void usbd_hal_reset_endpoints(uint32_t endpoint_bits, uint8_t status, bool keep_
 			/* Reset transfer information */
 			endpoint = &(endpoints[ep]);
 
-			/* Reset endpoint state */
-			endpoint->bank = 0;
-
 			/* save endpoint config */
 			ep_cfg = ept->UDPHS_EPTCFG;
 
@@ -1184,6 +1178,7 @@ uint8_t usbd_hal_configure(const USBEndpointDescriptor *descriptor)
 	uint8_t direction;
 	uint8_t type;
 	uint8_t nb_trans = 1;
+	uint8_t nb_banks;
 
 	/* NULL or DEVICE descriptor -> Control endpoint 0 */
 	if (!descriptor || descriptor->bDescriptorType == USBGenericDescriptor_DEVICE) {
@@ -1231,7 +1226,7 @@ uint8_t usbd_hal_configure(const USBEndpointDescriptor *descriptor)
 	}
 
 	ept = &UDPHS->UDPHS_EPT[ep];
-	endpoint->bank = CHIP_USB_ENDPOINT_BANKS(ep);
+	nb_banks = CHIP_USB_ENDPOINT_BANKS(ep);
 
 	USB_HAL_TRACE("CfgE%d ", ep);
 
@@ -1290,7 +1285,7 @@ uint8_t usbd_hal_configure(const USBEndpointDescriptor *descriptor)
 	ept->UDPHS_EPTCFG = ept_size |
 		(direction << 3) |
 		(type << 4) |
-		(endpoint->bank << 6) |
+		(nb_banks << 6) |
 		(nb_trans << 8);
 
 	if ((ept->UDPHS_EPTCFG & UDPHS_EPTCFG_EPT_MAPD) == 0) {
@@ -1298,7 +1293,7 @@ uint8_t usbd_hal_configure(const USBEndpointDescriptor *descriptor)
 		trace_error_wp("ept_size=0x%X ", ept_size);
 		trace_error_wp("direction=%d ", direction);
 		trace_error_wp("type=0x%X ", type);
-		trace_error_wp("bank=%d ", endpoint->bank);
+		trace_error_wp("nb_banks=%d ", nb_banks);
 		trace_error_wp("UDPHS_EPTCFG=0x%X\n\r",
 				(unsigned)ept->UDPHS_EPTCFG);
 		trace_fatal("EP%d configuration failed\n\r", ep);
