@@ -217,26 +217,17 @@
 /** Frequency of the on-chip main clock oscillator */
 #define MAIN_CLOCK_INT_OSC 12000000
 
-/** Indicates chip has an UDP High Speed. */
-#define CHIP_USB_UDPHS
-
-/** Indicates chip has an internal pull-up. */
-#define CHIP_USB_PULLUP_INTERNAL
-
-/** Number of USB endpoints */
-#define CHIP_USB_ENDPOINTS 7
-
 /** Endpoints max paxcket size */
 #define CHIP_USB_ENDPOINT_MAXPACKETSIZE(ep) \
-   ((ep == 0) ? 64 : 1024)
+   ((ep) == 0 ? 64 : 1024)
 
 /** Endpoints Number of Bank */
 #define CHIP_USB_ENDPOINT_BANKS(ep) \
-   ((ep == 0) ? 1 : ((ep == 1) ? 2 : ((ep == 2) ? 2 : 3)))
+   ((ep) == 0 ? 1 : ((ep) < 3 ? 2 : 3))
 
 /** Endpoints DMA support */
 #define CHIP_USB_ENDPOINT_HAS_DMA(ep) \
-    ((ep == 0) ? false : true)
+    ((ep) > 0)
 
 /** NAND EBI Chip Select */
 #define NAND_EBI_CS 3

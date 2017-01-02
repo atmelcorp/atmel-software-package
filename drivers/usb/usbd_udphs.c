@@ -71,11 +71,14 @@
 #define USB_HAL_TRACE(...)
 #endif
 
-/** Max size of the FMA FIFO */
-#define DMA_MAX_FIFO_SIZE     (65536/1)
+/** Max size of the DMA FIFO */
+#define DMA_MAX_FIFO_SIZE     (65536)
 
-/** fifo space size in bytes */
-#define EPT_VIRTUAL_SIZE      65536
+/** FIFO space size in bytes */
+#define EPT_VIRTUAL_SIZE      (65536)
+
+/** Number of endpoints */
+#define USB_ENDPOINTS         FIELD_ARRAY_SIZE(Udphs, UDPHS_EPT)
 
 /** Get Number of buffer in Multi-Buffer-List
  *  \param i    input index
@@ -234,7 +237,7 @@ static const char test_packet_buffer[] = {
  *---------------------------------------------------------------------------*/
 
 /** Holds the internal state for each endpoint of the UDP. */
-static struct _endpoint endpoints[CHIP_USB_ENDPOINTS];
+static struct _endpoint endpoints[USB_ENDPOINTS];
 
 /** Force Full-Speed mode */
 static bool force_full_speed = false;
@@ -1091,7 +1094,7 @@ static void udphs_irq_handler(uint32_t source, void* user_arg)
 		/* Endpoints */
 		else {
 			uint32_t ep;
-			for (ep = 0; ep < CHIP_USB_ENDPOINTS; ep++) {
+			for (ep = 0; ep < USB_ENDPOINTS; ep++) {
 				if (CHIP_USB_ENDPOINT_HAS_DMA(ep) &&
 						(status & (UDPHS_INTSTA_DMA_1 << (ep - 1)))) {
 					udphs_dma_handler(ep);
@@ -1131,11 +1134,11 @@ void usbd_hal_reset_endpoints(uint32_t endpoint_bits, uint8_t status, bool keep_
 {
 	UdphsEpt *ept;
 	struct _endpoint *endpoint;
-	uint32_t tmp = endpoint_bits & ((1 << CHIP_USB_ENDPOINTS) - 1);
+	uint32_t tmp = endpoint_bits & ((1 << USB_ENDPOINTS) - 1);
 	uint8_t ep;
 	uint32_t ep_cfg;
 
-	for (ep = 0; ep < CHIP_USB_ENDPOINTS; ep++) {
+	for (ep = 0; ep < USB_ENDPOINTS; ep++) {
 		if (tmp & (1 << ep)) {
 			ept = &UDPHS->UDPHS_EPT[ep];
 
