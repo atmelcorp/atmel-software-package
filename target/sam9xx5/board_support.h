@@ -112,13 +112,6 @@ extern void board_cfg_nand_flash(void);
 #endif /* CONFIG_HAVE_NAND_FLASH */
 
 /**
- * \brief Configures LCD for the board.
- */
-#ifdef CONFIG_HAVE_LCDC
-extern void board_cfg_lcd(void);
-#endif
-
-/**
  * \brief Configures the board.
  */
 extern void board_init(void);

@@ -38,7 +38,7 @@ BINNAME = isc
 
 CONFIG_IMAGE_SENSOR = y
 CONFIG_ISC = y
-CONFIG_LCDC = y
+CONFIG_LCD = y
 
 obj-y += examples/isc/main.o
 

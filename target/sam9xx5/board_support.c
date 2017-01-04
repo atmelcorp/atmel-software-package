@@ -42,9 +42,6 @@
 #include "trace.h"
 
 #include "irq/irq.h"
-#ifdef CONFIG_HAVE_LCDC
-#include "display/lcdc.h"
-#endif
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"
 #include "extram/smc.h"
@@ -483,26 +480,3 @@ bool board_power_sdmmc_device(uint32_t periph_id, bool on)
 {
 	return true;
 }
-
-#ifdef CONFIG_HAVE_LCDC
-void board_cfg_lcd(void)
-{
-#ifdef BOARD_LCD_PINS
-	const struct _pin pins_lcd[] = BOARD_LCD_PINS;
-	const struct _lcdc_desc lcd_desc = {
-		.width = BOARD_LCD_WIDTH,
-		.height = BOARD_LCD_HEIGHT,
-		.framerate = BOARD_LCD_FRAMERATE,
-		.timing_vfp = BOARD_LCD_TIMING_VFP,
-		.timing_vbp = BOARD_LCD_TIMING_VBP,
-		.timing_vpw = BOARD_LCD_TIMING_VPW,
-		.timing_hfp = BOARD_LCD_TIMING_HFP,
-		.timing_hbp = BOARD_LCD_TIMING_HBP,
-		.timing_hpw = BOARD_LCD_TIMING_HPW,
-	};
-
-	pio_configure(pins_lcd, ARRAY_SIZE(pins_lcd));
-	lcdc_configure(&lcd_desc);
-#endif
-}
-#endif

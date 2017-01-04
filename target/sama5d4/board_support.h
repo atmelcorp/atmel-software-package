@@ -129,13 +129,6 @@ extern void board_cfg_nor_flash(void);
 extern void board_cfg_pmic(void);
 
 /**
- * \brief Configures LCD for the board
- */
-#ifdef CONFIG_HAVE_LCDC
-extern void board_cfg_lcd(void);
-#endif
-
-/**
  * \brief Configure a SD/MMC slot of the board
  * \param hsmci_id  HSMCI peripheral ID (ID_HSMCIx).
  * \note The application shall have enabled the clocks assigned to this HSMCI

@@ -27,100 +27,35 @@
  * ----------------------------------------------------------------------------
  */
 
- /*----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
-#include "board_audio.h"
-#include "board_eth.h"
-#include "board_isi.h"
 #include "board_lcd.h"
-#include "board_led.h"
-#include "board_spi.h"
-#include "board_twi.h"
-#include "compiler.h"
-
-#include "dma/dma.h"
-
-#include "board_support.h"
+#include "display/lcdc.h"
+#include "gpio/pio.h"
 
 /*----------------------------------------------------------------------------
- *        Exported functions
+ *        Public functions
  *----------------------------------------------------------------------------*/
 
-WEAK void board_init(void)
+void board_cfg_lcd(void)
 {
-#ifdef VARIANT_DDRAM
-	bool ddram = false;
-#else
-	bool ddram = true;
-#endif
+#ifdef BOARD_LCD_PINS
+	const struct _pin pins_lcd[] = BOARD_LCD_PINS;
+	const struct _lcdc_desc lcd_desc = {
+		.width = BOARD_LCD_WIDTH,
+		.height = BOARD_LCD_HEIGHT,
+		.framerate = BOARD_LCD_FRAMERATE,
+		.timing_vfp = BOARD_LCD_TIMING_VFP,
+		.timing_vbp = BOARD_LCD_TIMING_VBP,
+		.timing_vpw = BOARD_LCD_TIMING_VPW,
+		.timing_hfp = BOARD_LCD_TIMING_HFP,
+		.timing_hbp = BOARD_LCD_TIMING_HBP,
+		.timing_hpw = BOARD_LCD_TIMING_HPW,
+	};
 
-#ifdef VARIANT_SRAM
-	bool clocks = true;
-#else
-	bool clocks = false;
-#endif
-
-	/* Configure misc low-level stuff */
-	board_cfg_lowlevel(clocks, ddram, true);
-
-	/* Configure console */
-	board_cfg_console(0);
-
-	/* DMA Driver init */
-	dma_initialize(false);
-
-#ifdef CONFIG_HAVE_SPI_BUS
-	/* Configure SPI bus */
-	board_cfg_spi_bus();
-
-#ifdef CONFIG_HAVE_SPI_AT25
-	board_cfg_at25();
-#endif
-#endif
-
-#ifdef CONFIG_HAVE_TWI_BUS
-	/* Configure TWI bus */
-	board_cfg_twi_bus();
-
-	/* Configure PMIC */
-	board_cfg_pmic();
-
-#ifdef CONFIG_HAVE_TWI_AT24
-	board_cfg_at24();
-#endif
-#endif
-
-#ifdef CONFIG_HAVE_LED
-	/* Configure LEDs */
-	board_cfg_led();
-#endif
-
-#ifdef CONFIG_HAVE_ETH
-	board_cfg_net(0);
-	board_cfg_net(1);
-#endif
-
-#ifdef CONFIG_HAVE_LCDC
-	/* Configure LCD controller/display */
-	board_cfg_lcd();
-#endif
-
-#ifdef CONFIG_HAVE_ISI
-	/* Configure camera interface */
-	board_cfg_isi();
-#endif
-
-#ifdef CONFIG_HAVE_NAND_FLASH
-	/* Configure NAND flash */
-	board_cfg_nand_flash();
-#endif
-
-#ifdef CONFIG_HAVE_SSC
-#ifndef CONFIG_HAVE_ISI
-	board_cfg_ssc();
-#endif
+	pio_configure(pins_lcd, ARRAY_SIZE(pins_lcd));
+	lcdc_configure(&lcd_desc);
 #endif
 }

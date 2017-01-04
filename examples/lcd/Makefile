@@ -37,7 +37,7 @@ TOP := ../..
 BINNAME = lcd
 
 CONFIG_LED = y
-CONFIG_LCDC = y
+CONFIG_LCD = y
 
 obj-y += examples/lcd/main.o
 obj-y += examples/lcd/font.o

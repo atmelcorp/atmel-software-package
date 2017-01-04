@@ -43,7 +43,6 @@
 #include "timer.h"
 
 #include "irq/irq.h"
-#include "display/lcdc.h"
 #include "peripherals/matrix.h"
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"
@@ -525,29 +524,6 @@ void board_cfg_pmic(void)
 	}
 #endif
 }
-
-#ifdef CONFIG_HAVE_LCDC
-void board_cfg_lcd(void)
-{
-#ifdef BOARD_LCD_PINS
-	const struct _pin pins_lcd[] = BOARD_LCD_PINS;
-	const struct _lcdc_desc lcd_desc = {
-		.width = BOARD_LCD_WIDTH,
-		.height = BOARD_LCD_HEIGHT,
-		.framerate = BOARD_LCD_FRAMERATE,
-		.timing_vfp = BOARD_LCD_TIMING_VFP,
-		.timing_vbp = BOARD_LCD_TIMING_VBP,
-		.timing_vpw = BOARD_LCD_TIMING_VPW,
-		.timing_hfp = BOARD_LCD_TIMING_HFP,
-		.timing_hbp = BOARD_LCD_TIMING_HBP,
-		.timing_hpw = BOARD_LCD_TIMING_HPW,
-	};
-
-	pio_configure(pins_lcd, ARRAY_SIZE(pins_lcd));
-	lcdc_configure(&lcd_desc);
-#endif
-}
-#endif
 
 bool board_cfg_sdmmc(uint32_t periph_id)
 {

@@ -34,6 +34,7 @@ target-$(CONFIG_HAVE_CAN_BUS) += target/common/board_can.o
 target-$(CONFIG_HAVE_ETH) += target/common/board_eth.o
 target-$(CONFIG_HAVE_ISC) += target/common/board_isc.o
 target-$(CONFIG_HAVE_ISI) += target/common/board_isi.o
+target-$(CONFIG_HAVE_LCD) += target/common/board_lcd.o
 target-$(CONFIG_HAVE_LED) += target/common/board_led.o
 target-$(CONFIG_HAVE_SPI_BUS) += target/common/board_spi.o
 target-$(CONFIG_HAVE_TWI_BUS) += target/common/board_twi.o
