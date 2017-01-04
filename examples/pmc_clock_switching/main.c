@@ -193,7 +193,9 @@ int main(void)
 
 	/* -------- Enable UTMI CLK ---------------------- */
 	pmc_enable_upll_clock();
+#ifdef CONFIG_HAVE_PMC_UPLL_BIAS
 	pmc_enable_upll_bias();
+#endif
 
 	_print_clocks();
 	_print_menu();
