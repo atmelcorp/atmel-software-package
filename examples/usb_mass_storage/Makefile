@@ -27,12 +27,13 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the USB Mass Storage example
-AVAILABLE_TARGETS = sama5d2-xplained \
-                    sama5d3-ek sama5d3-xplained \
-                    sama5d4-ek sama5d4-xplained \
-                    sam9g15-ek sam9g25-ek sam9g35-ek sam9x25-ek sam9x35-ek
+AVAILABLE_TARGETS = sam9g15-ek sam9g25-ek sam9g35-ek sam9x25-ek sam9x35-ek \
+		    sama5d2-xplained \
+		    sama5d3-ek sama5d3-xplained \
+		    sama5d4-ek sama5d4-xplained
 
 AVAILABLE_VARIANTS = ddram
+
 VARIANT ?= ddram
 
 TOP := ../..

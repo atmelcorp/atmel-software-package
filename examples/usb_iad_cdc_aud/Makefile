@@ -26,11 +26,14 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-# Makefile for compiling the Getting Started example
-AVAILABLE_TARGETS = sama5d2-xplained sama5d3-ek sama5d4-ek \
-                    sam9g15-ek sam9g25-ek sam9g35-ek sam9x25-ek sam9x35-ek
+# Makefile for compiling the USB IAD CDC + Audio example
+AVAILABLE_TARGETS = sam9g15-ek sam9g25-ek sam9g35-ek sam9x25-ek sam9x35-ek \
+		    sama5d2-xplained \
+		    sama5d3-ek \
+		    sama5d4-ek
 
 AVAILABLE_VARIANTS = ddram
+
 VARIANT ?= ddram
 
 TOP := ../..

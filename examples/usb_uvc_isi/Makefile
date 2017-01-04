@@ -27,8 +27,12 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the USB UVC isi example
-AVAILABLE_TARGETS = sama5d4-ek sama5d3-ek sam9g25-ek
+AVAILABLE_TARGETS = sam9g25-ek \
+		    sama5d3-ek \
+		    sama5d4-ek
+
 AVAILABLE_VARIANTS = ddram
+
 VARIANT ?= ddram
 
 TOP := ../..
