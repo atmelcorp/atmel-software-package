@@ -102,10 +102,12 @@ static struct _lcdc_dma_desc base_dma_desc;  /**< DMA desc. for Base Layer */
 
 static struct _layer_data lcdc_base;         /**< Base Layer */
 
+#ifdef CONFIG_HAVE_LCDC_OVR1
 CACHE_ALIGNED_DDR
 static struct _lcdc_dma_desc ovr1_dma_desc;  /**< DMA desc. for OVR1 Layer */
 
 static struct _layer_data lcdc_ovr1;         /**< OVR1 Layer */
+#endif
 
 #ifdef CONFIG_HAVE_LCDC_OVR2
 CACHE_ALIGNED_DDR
@@ -149,6 +151,7 @@ static const struct _layer_info lcdc_layers[] = {
 		.reg_color = &LCDC->LCDC_BASECFG3,
 		.reg_clut = &LCDC->LCDC_BASECLUT[0]
 	},
+#ifdef CONFIG_HAVE_LCDC_OVR1
 	/* 2: LCDC_OVR1 */
 	{
 		.data = &lcdc_ovr1,
@@ -162,6 +165,12 @@ static const struct _layer_info lcdc_layers[] = {
 		.reg_color = &LCDC->LCDC_OVR1CFG6,
 		.reg_clut = &LCDC->LCDC_OVR1CLUT[0],
 	},
+#else
+	/* 2: N/A */
+	{
+		.data = NULL,
+	},
+#endif
 	/* 3: LCDC_HEO */
 	{
 		.data = &lcdc_heo,
@@ -245,6 +254,7 @@ static uint32_t _get_bits_per_pixel(uint32_t mode_reg)
 	case LCDC_HEOCFG1_CLUTMODE_8BPP | LCDC_HEOCFG1_CLUTEN:
 		return 8;
 
+#ifdef LCDC_HEOCFG1_YUVEN
 	/* YUV modes */
 
 	case LCDC_HEOCFG1_YUVEN | LCDC_HEOCFG1_YUVMODE_32BPP_AYCBCR:
@@ -258,6 +268,7 @@ static uint32_t _get_bits_per_pixel(uint32_t mode_reg)
 	case LCDC_HEOCFG1_YUVEN | LCDC_HEOCFG1_YUVMODE_12BPP_YCBCR_SEMIPLANAR:
 	case LCDC_HEOCFG1_YUVEN | LCDC_HEOCFG1_YUVMODE_12BPP_YCBCR_PLANAR:
 		return 16;
+#endif /* LCDC_HEOCFG1_YUVEN */
 	}
 	return 0;
 }
@@ -405,9 +416,11 @@ void lcdc_configure(const struct _lcdc_desc *desc)
 	lcdc_base.bpp = 0;
 	lcdc_base.buffer = NULL;
 	lcdc_base.dma_desc = &base_dma_desc;
+#ifdef CONFIG_HAVE_LCDC_OVR1
 	lcdc_ovr1.bpp = 0;
 	lcdc_ovr1.buffer = NULL;
 	lcdc_ovr1.dma_desc = &ovr1_dma_desc;
+#endif
 #ifdef CONFIG_HAVE_LCDC_OVR2
 	lcdc_ovr2.bpp = 0;
 	lcdc_ovr2.buffer = NULL;
@@ -438,6 +451,7 @@ void lcdc_configure(const struct _lcdc_desc *desc)
 	                      LCDC_BASECFG0_BLEN_AHB_INCR16;
 	LCDC->LCDC_BASECFG1 = LCDC_BASECFG1_RGBMODE_24BPP_RGB_888_PACKED;
 
+#ifdef CONFIG_HAVE_LCDC_OVR1
 	/* Overlay 1, GA 0xFF */
 	LCDC->LCDC_OVR1CFG0 = LCDC_OVR1CFG0_DLBO |
 	                      LCDC_OVR1CFG0_BLEN_AHB_INCR16 |
@@ -445,6 +459,7 @@ void lcdc_configure(const struct _lcdc_desc *desc)
 	LCDC->LCDC_OVR1CFG1 = LCDC_OVR1CFG1_RGBMODE_24BPP_RGB_888_PACKED;
 	LCDC->LCDC_OVR1CFG9 = LCDC_OVR1CFG9_GA(0xFF) |
 	                      LCDC_OVR1CFG9_GAEN;
+#endif
 
 #ifdef CONFIG_HAVE_LCDC_OVR2
 	/* Overlay 2, GA 0xFF */
@@ -527,9 +542,9 @@ void lcdc_refresh(uint8_t layer_id)
 	if (!layer->reg_enable || !layer->reg_blender)
 		return;
 
-	if (layer->reg_enable[2] & LCDC_OVR1CHSR_CHSR) {
+	if (layer->reg_enable[2] & LCDC_HEOCHSR_CHSR) {
 		layer->reg_blender[0] |= LCDC_HEOCFG12_DMA;
-		layer->reg_enable[0] = LCDC_OVR1CHER_UPDATEEN;
+		layer->reg_enable[0] = LCDC_HEOCHER_UPDATEEN;
 	}
 }
 
@@ -547,17 +562,17 @@ void lcdc_set_position(uint8_t layer_id, uint32_t x, uint32_t y)
 	if (!layer->reg_enable || !layer->reg_win)
 		return;
 
-	w = (layer->reg_win[1] & LCDC_OVR1CFG3_XSIZE_Msk) >> LCDC_OVR1CFG3_XSIZE_Pos;
-	h = (layer->reg_win[1] & LCDC_OVR1CFG3_YSIZE_Msk) >> LCDC_OVR1CFG3_YSIZE_Pos;
+	w = (layer->reg_win[1] & LCDC_HEOCFG3_XSIZE_Msk) >> LCDC_HEOCFG3_XSIZE_Pos;
+	h = (layer->reg_win[1] & LCDC_HEOCFG3_YSIZE_Msk) >> LCDC_HEOCFG3_YSIZE_Pos;
 
 	if (x + w >= lcdc_config.width)
 		x = lcdc_config.width - w;
 	if (y + h >= lcdc_config.height)
 		y = lcdc_config.height - h;
 
-	layer->reg_win[0] = LCDC_OVR1CFG2_XPOS(x) | LCDC_OVR1CFG2_YPOS(y);
-	if (layer->reg_enable[2] & LCDC_OVR1CHSR_CHSR)
-		layer->reg_enable[0] = LCDC_OVR1CHER_UPDATEEN;
+	layer->reg_win[0] = LCDC_HEOCFG2_XPOS(x) | LCDC_HEOCFG2_YPOS(y);
+	if (layer->reg_enable[2] & LCDC_HEOCHSR_CHSR)
+		layer->reg_enable[0] = LCDC_HEOCHER_UPDATEEN;
 }
 
 /**
@@ -567,6 +582,7 @@ void lcdc_set_position(uint8_t layer_id, uint32_t x, uint32_t y)
  */
 void lcdc_set_priority(uint8_t layer_id, uint8_t priority)
 {
+#ifdef LCDC_HEOCFG12_VIDPRI
 	if (layer_id != LCDC_HEO)
 		return;
 
@@ -575,6 +591,7 @@ void lcdc_set_priority(uint8_t layer_id, uint8_t priority)
 	else
 		LCDC->LCDC_HEOCFG12 &= ~LCDC_HEOCFG12_VIDPRI;
 	LCDC->LCDC_HEOCHER = LCDC_HEOCHER_UPDATEEN;
+#endif /* LCDC_HEOCFG12_VIDPRI */
 }
 
 /**
@@ -583,10 +600,14 @@ void lcdc_set_priority(uint8_t layer_id, uint8_t priority)
  */
 uint8_t lcdc_get_priority(uint8_t layer_id)
 {
+#ifdef LCDC_HEOCFG12_VIDPRI
 	if (layer_id != LCDC_HEO)
 		return 0;
 
 	return (LCDC->LCDC_HEOCFG12 & LCDC_HEOCFG12_VIDPRI) > 0;
+#else
+	return 0;
+#endif /* LCDC_HEOCFG12_VIDPRI */
 }
 
 /**
@@ -603,13 +624,13 @@ void lcdc_enable_alpha(uint8_t layer_id, bool enable_local, bool enable_global)
 	if (!layer->reg_enable || !layer->reg_blender)
 		return;
 
-	cfg = layer->reg_blender[0] & ~(LCDC_OVR1CFG9_LAEN | LCDC_OVR1CFG9_GAEN);
+	cfg = layer->reg_blender[0] & ~(LCDC_HEOCFG12_LAEN | LCDC_HEOCFG12_GAEN);
 	if (enable_global)
-		cfg |= LCDC_OVR1CFG9_GAEN;
+		cfg |= LCDC_HEOCFG12_GAEN;
 	if (enable_local)
-		cfg |= LCDC_OVR1CFG9_LAEN;
+		cfg |= LCDC_HEOCFG12_LAEN;
 	layer->reg_blender[0] = cfg;
-	layer->reg_enable[0] = LCDC_OVR1CHER_UPDATEEN;
+	layer->reg_enable[0] = LCDC_HEOCHER_UPDATEEN;
 }
 
 /**
@@ -626,11 +647,11 @@ void lcdc_set_alpha(uint8_t layer_id, bool reverse, uint8_t alpha)
 	if (!layer->reg_enable || !layer->reg_blender)
 		return;
 
-	cfg = layer->reg_blender[0] & ~(LCDC_OVR1CFG9_REVALPHA | LCDC_OVR1CFG9_GA_Msk);
+	cfg = layer->reg_blender[0] & ~(LCDC_HEOCFG12_REVALPHA | LCDC_HEOCFG12_GA_Msk);
 	if (reverse)
-		cfg |= LCDC_OVR1CFG9_REVALPHA;
-	layer->reg_blender[0] = cfg | LCDC_OVR1CFG9_GA(alpha);
-	layer->reg_enable[0] = LCDC_OVR1CHER_UPDATEEN;
+		cfg |= LCDC_HEOCFG12_REVALPHA;
+	layer->reg_blender[0] = cfg | LCDC_HEOCFG12_GA(alpha);
+	layer->reg_enable[0] = LCDC_HEOCHER_UPDATEEN;
 }
 
 /**
@@ -644,7 +665,7 @@ uint8_t lcdc_get_alpha(uint8_t layer_id)
 	if (!layer->reg_blender)
 		return 0;
 
-	return (layer->reg_blender[0] & LCDC_OVR1CFG9_GA_Msk) >> LCDC_OVR1CFG9_GA_Pos;
+	return (layer->reg_blender[0] & LCDC_HEOCFG12_GA_Msk) >> LCDC_HEOCFG12_GA_Pos;
 }
 
 /**
@@ -784,7 +805,9 @@ void * lcdc_put_image_rotated(uint8_t layer_id,
 	switch (bpp) {
 	/*  RGB 565 */
 	case 16:
+#ifdef LCDC_HEOCFG1_YUVEN
 		if ((layer->reg_cfg[1] & LCDC_HEOCFG1_YUVEN) != LCDC_HEOCFG1_YUVEN)
+#endif
 			layer->reg_cfg[1] = LCDC_HEOCFG1_RGBMODE_16BPP_RGB_565;
 		break;
 	/*  RGB  888 packed */
@@ -1112,6 +1135,7 @@ void lcdc_stop_base(void)
 	while (LCDC->LCDC_BASECHSR & LCDC_BASECHSR_CHSR);
 }
 
+#ifdef CONFIG_HAVE_LCDC_OVR1
 /**
  * Start display on overlay 1 layer
  */
@@ -1146,6 +1170,7 @@ void lcdc_stop_ovr1(void)
 	   successfully disabled. */
 	while (LCDC->LCDC_OVR1CHSR & LCDC_OVR1CHSR_CHSR);
 }
+#endif /* CONFIG_HAVE_LCDC_OVR1 */
 
 /**
  * Start display on High End Overlay layer
@@ -1202,12 +1227,21 @@ void lcdc_on(void)
 	pmc_enable_system_clock(PMC_SYSTEM_CLOCK_LCD);
 
 	/* 1. Configure LCD timing parameters, signal polarity and clock period. */
+#ifdef LCDC_LCDCFG0_CLKSEL
 	cfg0 = LCDC_LCDCFG0_CLKDIV((pmc_get_master_clock() * 2) / pixel_clock - 2) |
 	       LCDC_LCDCFG0_CGDISBASE |
-	       LCDC_LCDCFG0_CGDISOVR1 |
 	       LCDC_LCDCFG0_CGDISHEO |
 	       LCDC_LCDCFG0_CLKPWMSEL |
 	       LCDC_LCDCFG0_CLKSEL;
+#else
+	cfg0 = LCDC_LCDCFG0_CLKDIV((pmc_get_master_clock()) / pixel_clock - 2) |
+	       LCDC_LCDCFG0_CGDISBASE |
+	       LCDC_LCDCFG0_CGDISHEO |
+	       LCDC_LCDCFG0_CLKPWMSEL;
+#endif
+#ifdef LCDC_LCDCFG0_CGDISOVR1
+	cfg0 |= LCDC_LCDCFG0_CGDISOVR1;
+#endif
 #ifdef LCDC_LCDCFG0_CGDISOVR2
 	cfg0 |= LCDC_LCDCFG0_CGDISOVR2;
 #endif
@@ -1283,7 +1317,9 @@ void lcdc_off(void)
 
 	/* Disable all DMA channel descriptors */
 	_clear_dma_desc(lcdc_base.dma_desc, &LCDC->LCDC_BASEADDR);
+#ifdef CONFIG_HAVE_LCDC_OVR1
 	_clear_dma_desc(lcdc_ovr1.dma_desc, &LCDC->LCDC_OVR1ADDR);
+#endif
 #ifdef CONFIG_HAVE_LCDC_OVR2
 	_clear_dma_desc(lcdc_ovr2.dma_desc, &LCDC->LCDC_OVR2ADDR);
 #endif
@@ -1296,7 +1332,12 @@ void lcdc_off(void)
 
 	/* Disable DMA channels */
 	LCDC->LCDC_BASECHDR = LCDC_BASECHDR_CHDIS;
+#ifdef CONFIG_HAVE_LCDC_OVR1
 	LCDC->LCDC_OVR1CHDR = LCDC_OVR1CHDR_CHDIS;
+#endif
+#ifdef CONFIG_HAVE_LCDC_OVR2
+	LCDC->LCDC_OVR2CHDR = LCDC_OVR2CHDR_CHDIS;
+#endif
 	LCDC->LCDC_HEOCHDR = LCDC_HEOCHDR_CHDIS;
 	LCDC->LCDC_BASECFG4 = 0;
 
@@ -1306,7 +1347,12 @@ void lcdc_off(void)
 	/* 5. Poll CHSR field in the CHXCHSR register until the channel is
 	   successfully disabled. */
 	while (LCDC->LCDC_BASECHSR & LCDC_BASECHSR_CHSR);
+#ifdef CONFIG_HAVE_LCDC_OVR1
 	while (LCDC->LCDC_OVR1CHSR & LCDC_OVR1CHSR_CHSR);
+#endif
+#ifdef CONFIG_HAVE_LCDC_OVR2
+	while (LCDC->LCDC_OVR2CHSR & LCDC_OVR1CHSR_CHSR);
+#endif
 	while (LCDC->LCDC_HEOCHSR & LCDC_HEOCHSR_CHSR);
 
 	/* Timing Engine Power Down Software Operation */
@@ -1430,7 +1476,9 @@ void * lcdc_create_canvas(uint8_t layer_id, void *buffer, uint8_t bpp,
 		x = 0;
 		y = 0;
 		break;
+#ifdef CONFIG_HAVE_LCDC_OVR1
 	case LCDC_OVR1:
+#endif
 #ifdef CONFIG_HAVE_LCDC_OVR2
 	case LCDC_OVR2:
 #endif

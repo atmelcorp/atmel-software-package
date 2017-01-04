@@ -162,6 +162,7 @@ endif
 # features that are different between chips
 ifeq ($(CONFIG_CHIP_SAM9G15),y)
 	CONFIG_HAVE_LCDC = y
+	CONFIG_HAVE_LCDC_OVR1 = y
 endif
 ifeq ($(CONFIG_CHIP_SAM9G25),y)
 	CONFIG_HAVE_ISI = y
@@ -169,6 +170,7 @@ ifeq ($(CONFIG_CHIP_SAM9G25),y)
 endif
 ifeq ($(CONFIG_CHIP_SAM9G35),y)
 	CONFIG_HAVE_LCDC = y
+	CONFIG_HAVE_LCDC_OVR1 = y
 	CONFIG_HAVE_EMAC = y
 endif
 ifeq ($(CONFIG_CHIP_SAM9X25),y)
@@ -178,6 +180,7 @@ endif
 ifeq ($(CONFIG_CHIP_SAM9X35),y)
 	CONFIG_HAVE_CAN = y
 	CONFIG_HAVE_LCDC = y
+	CONFIG_HAVE_LCDC_OVR1 = y
 	CONFIG_HAVE_EMAC = y
 endif
 
