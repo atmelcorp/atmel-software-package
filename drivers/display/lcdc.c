@@ -298,11 +298,40 @@ static void _clear_dma_desc(struct _lcdc_dma_desc *desc,
 }
 
 /**
- * Return scaling factor
+ * Compute scaling factors
  */
-static uint32_t _calc_scale_factor(uint32_t target_width, uint32_t width)
+static void _compute_scaling_factors(const struct _layer_info *layer,
+		uint16_t* xfactor, uint16_t* yfactor)
 {
-	return LCDC_SCALER_FACTOR * width / target_width;
+	uint16_t xmemsize, ymemsize;
+	uint16_t xsize, ysize;
+#ifdef LCDC_HEOCFG41_XPHIDEF
+	uint16_t xfactor_1st, yfactor_1st;
+#endif
+
+	xmemsize = (layer->reg_win[2] & LCDC_HEOCFG4_XMEMSIZE_Msk) >> LCDC_HEOCFG4_XMEMSIZE_Pos;
+	ymemsize = (layer->reg_win[2] & LCDC_HEOCFG4_YMEMSIZE_Msk) >> LCDC_HEOCFG4_YMEMSIZE_Pos;
+	xsize = (layer->reg_win[1] & LCDC_HEOCFG3_XSIZE_Msk) >> LCDC_HEOCFG3_XSIZE_Pos;
+	ysize = (layer->reg_win[1] & LCDC_HEOCFG3_YSIZE_Msk) >> LCDC_HEOCFG3_YSIZE_Pos;
+
+#ifdef LCDC_HEOCFG41_XPHIDEF
+	/* we assume that XPHIDEF & YPHIDEF are 0 */
+	xfactor_1st = (2048 * xmemsize / xsize) + 1;
+	yfactor_1st = (2048 * ymemsize / ysize) + 1;
+
+	if ((xfactor_1st * xsize / 2048) > xmemsize)
+		*xfactor = xfactor_1st - 1;
+	else
+		*xfactor = xfactor_1st;
+
+	if ((yfactor_1st * ysize / 2048) > ymemsize)
+		*yfactor = yfactor_1st - 1;
+	else
+		*yfactor = yfactor_1st;
+#else
+	*xfactor = 1024 * (xmemsize + 1) / (xsize + 1);
+	*yfactor = 1024 * (ymemsize + 1) / (ysize + 1);
+#endif
 }
 
 /**
@@ -972,9 +1001,7 @@ void * lcdc_put_image_rotated(uint8_t layer_id,
 		/* Scaled */
 		if (w != src_w || h != src_h) {
 			uint16_t scale_w, scale_h;
-			scale_w = _calc_scale_factor(w, src_w);
-			scale_h = _calc_scale_factor(h, src_h);
-			//printf("- Scale(%d,%d)\n\r", scale_w, scale_h);
+			_compute_scaling_factors(layer, &scale_w, &scale_h);
 			layer->reg_scale[0] = LCDC_HEOCFG13_YFACTOR(scale_h)
 				| LCDC_HEOCFG13_XFACTOR(scale_w)
 				| LCDC_HEOCFG13_SCALEN;

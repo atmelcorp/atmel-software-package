@@ -236,9 +236,6 @@
 /** NAND EBI Chip Select */
 #define NAND_EBI_CS 3
 
-/** LCDC scaler factor */
-#define LCDC_SCALER_FACTOR (1024)
-
 #ifdef __cplusplus
 extern "C" {
 #endif
