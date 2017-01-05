@@ -69,7 +69,7 @@ This release contains the following examples:
 * spi_serialflash: Read/Write/Delete commands to an SPI serial flash
 * spi_slave: Set up an SPI slave
 * ssc_dma_audio: Example of SSC to play sound
-* tc_capture_waveform: Use TC in capture mode to measure pulse frequency of an external signal
+* tc: Use TC driver
 * test-pio: Simple example to test PIO features
 * timer: Example of time function usage
 * twi_eeprom: Read/Write/Delete commands to an Two-Wire EEPROM
@@ -137,7 +137,7 @@ smc_nandflash_slc      | OK               | OK               | OK         | OK  
 spi_serialflash        | OK               | OK               | OK         | OK               | OK         | OK         | TODO            | TODO
 spi_slave              | OK               | x                | OK         | OK               | OK         | OK         | TODO            | TODO
 ssc_dma_audio          | TODO             | OK               | OK         | OK               | OK         | OK         | TODO            | TODO
-tc_capture_waveform    | OK               | OK               | OK         | OK               | OK         | OK         | TODO            | TODO
+tc                     | OK               | OK               | OK         | OK               | OK         | OK         | TODO            | TODO
 test-pio               | OK               | OK               | TODO       | OK               | OK         | OK         | OK              | OK
 timer                  | OK               | OK               | OK         | OK               | OK         | OK         | OK              | OK
 twi_eeprom             | OK               | OK               | OK         | OK               | OK         | OK         | TODO            | TODO

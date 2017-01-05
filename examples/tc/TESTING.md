@@ -35,31 +35,29 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-This package can be used with SAMA5D4-XULT and SAMA5D2-XULT.
-
-### SAMA5D2-XULT
-----------------
+### SAMA5D2-XPLAINED
+--------------------
 Connect EXP_PA19 (J21 pin 2) and EXP_PB22 (J22 pin 6) on the board.
 
 ### SAMA5D4-EK
-----------------
+--------------
 Connect USBC_EN5V_PE12 (J19 pin 44) and MCI1_PWR_PE15 (J19 pin 47) on the board.
 
-### SAMA5D4-XULT
-----------------
+### SAMA5D4-XPLAINED
+--------------------
 Connect EXP_PE12 (J15 pin 9) and EXP_PE15 (J18 pin 6) on the board.
 
 ### SAMA5D3-EK
-----------------
+--------------
 Connect PE27 (J22 pin 11) and PC12 (J2 pin 29) on the board.
 
 ### SAMA9XX5-EK
-----------------
+---------------
 Connect PA22 (J1 pin 18) and PA23 (J1 pin 20) on the board.
 
 
-## Start the application (SAMA5D2-XPLAINED,SAMA5D3-EK,SAMA5D4-XPLAINED,SAMA5D4-EK)
--------------------------------------------
+## Start the application
+------------------------
 In the terminal window, the following text should appear (values depend on the
 board and chip used):
 ```

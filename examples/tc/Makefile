@@ -34,8 +34,8 @@ AVAILABLE_TARGETS = sama5d2-xplained \
 
 TOP := ../..
 
-BINNAME = tc_capture_waveform
+BINNAME = tc
 
-obj-y += examples/tc_capture_waveform/main.o
+obj-y += examples/tc/main.o
 
 include $(TOP)/scripts/Makefile.rules
