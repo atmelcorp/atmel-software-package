@@ -26,20 +26,20 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-lwip-y += lib/lwip/src/netif/etharp.o
+lwip-y += lib/lwip/src/netif/ethernet.o
 lwip-y += lib/lwip/src/netif/ethernetif.o
-lwip-y += lib/lwip/src/netif/loopif.o
+lwip-y += lib/lwip/src/netif/lowpan6.o
 lwip-y += lib/lwip/src/netif/slipif.o
 lwip-y += lib/lwip/src/netif/ppp/auth.o
-lwip-y += lib/lwip/src/netif/ppp/chap.o
-lwip-y += lib/lwip/src/netif/ppp/chpms.o
+lwip-y += lib/lwip/src/netif/ppp/chap_ms.o
+lwip-y += lib/lwip/src/netif/ppp/chap-md5.o
+lwip-y += lib/lwip/src/netif/ppp/chap-new.o
 lwip-y += lib/lwip/src/netif/ppp/fsm.o
 lwip-y += lib/lwip/src/netif/ppp/ipcp.o
 lwip-y += lib/lwip/src/netif/ppp/lcp.o
 lwip-y += lib/lwip/src/netif/ppp/magic.o
-lwip-y += lib/lwip/src/netif/ppp/md5.o
-lwip-y += lib/lwip/src/netif/ppp/pap.o
+lwip-y += lib/lwip/src/netif/ppp/polarssl/md5.o
+lwip-y += lib/lwip/src/netif/ppp/upap.o
 lwip-y += lib/lwip/src/netif/ppp/ppp.o
-lwip-y += lib/lwip/src/netif/ppp/ppp_oe.o
-lwip-y += lib/lwip/src/netif/ppp/randm.o
+lwip-y += lib/lwip/src/netif/ppp/pppoe.o
 lwip-y += lib/lwip/src/netif/ppp/vj.o

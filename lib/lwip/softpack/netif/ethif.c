@@ -58,7 +58,7 @@
 #include "netif/etharp.h"
 
 #include "timer.h"
-#include "lwip/tcp.h"
+#include "lwip/priv/tcp_priv.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -137,22 +137,21 @@ static void timers_update(void)
 
 /* Forward declarations. */
 static void  ethif_input(struct netif *netif);
-static err_t ethif_output(struct netif *netif, struct pbuf *p, struct ip_addr *ipaddr);
+static err_t ethif_output(struct netif *netif, struct pbuf *p, ip4_addr_t *ipaddr);
 
 static void glow_level_init(struct netif *netif, struct _ethd* ethd)
 {
 	uint8_t _mac_addr[6];
 
 	/* set MAC hardware address length */
-	netif->hwaddr_len = ETHARP_HWADDR_LEN;
+	netif->hwaddr_len = sizeof(netif->hwaddr);
 	/* set MAC hardware address */
 	ethd_get_mac_addr(ethd, 0, _mac_addr);
-	memcpy(netif->hwaddr, _mac_addr, sizeof(netif->hwaddr));
+	SMEMCPY(netif->hwaddr, _mac_addr, sizeof(netif->hwaddr));
 	/* maximum transfer unit */
 	netif->mtu = 1500;
-
 	/* device capabilities */
-	netif->flags = NETIF_FLAG_BROADCAST;
+	netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_ETHERNET| NETIF_FLAG_LINK_UP;
 }
 
 /**
@@ -167,6 +166,7 @@ static void glow_level_init(struct netif *netif, struct _ethd* ethd)
  */
 static err_t glow_level_output(struct netif *netif, struct pbuf *p)
 {
+
     struct pbuf *q;
     uint8_t buf[1514];
     uint8_t *bufptr = &buf[0];
@@ -197,6 +197,7 @@ static err_t glow_level_output(struct netif *netif, struct pbuf *p)
 
     LINK_STATS_INC(link.xmit);
     return ERR_OK;
+
 }
 
 /**
@@ -267,12 +268,11 @@ static struct pbuf *glow_level_input(struct netif *netif)
  * do the actual transmission of the packet.
  *
  */
-static err_t ethif_output(struct netif *netif, struct pbuf *p, struct ip_addr *ipaddr)
+static err_t ethif_output(struct netif *netif, struct pbuf *p, ip4_addr_t *ipaddr)
 {
     /* resolve hardware address, then send (or queue) packet */
     return etharp_output(netif, p, ipaddr);
 }
-
 /**
  * This function should be called when a packet is ready to be read
  * from the interface. It uses the function low_level_input() that
@@ -306,13 +306,14 @@ static void ethif_input(struct netif *netif)
 
         case ETHTYPE_ARP:
             /* pass p to ARP module  */
-            etharp_arp_input(netif, (struct eth_addr*)netif->hwaddr, p);
+		  	ethernet_input(p, netif);
             break;
         default:
             pbuf_free(p);
             p = NULL;
             break;
         }
+
 }
 
 /*----------------------------------------------------------------------------
@@ -329,7 +330,7 @@ err_t ethif_init(struct netif *netif)
 {
 	netif->name[0] = IFNAME0;
 	netif->name[1] = IFNAME1;
-	netif->output = ethif_output;
+	netif->output = (netif_output_fn) ethif_output;
 	netif->linkoutput = glow_level_output;
 	glow_level_init(netif, board_get_eth(netif->num));
 	etharp_init();

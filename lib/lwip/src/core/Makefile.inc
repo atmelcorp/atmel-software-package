@@ -26,7 +26,6 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-lwip-y += lib/lwip/src/core/dhcp.o
 lwip-y += lib/lwip/src/core/dns.o
 lwip-y += lib/lwip/src/core/init.o
 lwip-y += lib/lwip/src/core/mem.o
@@ -34,27 +33,29 @@ lwip-y += lib/lwip/src/core/memp.o
 lwip-y += lib/lwip/src/core/netif.o
 lwip-y += lib/lwip/src/core/pbuf.o
 lwip-y += lib/lwip/src/core/raw.o
-lwip-y += lib/lwip/src/core/snmp/asn1_dec.o
-lwip-y += lib/lwip/src/core/snmp/asn1_enc.o
-lwip-y += lib/lwip/src/core/snmp/mib2.o
-lwip-y += lib/lwip/src/core/snmp/mib_structs.o
-lwip-y += lib/lwip/src/core/snmp/msg_in.o
-lwip-y += lib/lwip/src/core/snmp/msg_out.o
+lwip-y += lib/lwip/src/apps/snmp/snmp_asn1.o
+lwip-y += lib/lwip/src/apps/snmp/snmp_mib2.o
+lwip-y += lib/lwip/src/apps/snmp/snmp_mib2_interfaces.o
+lwip-y += lib/lwip/src/apps/snmp/snmp_msg.o
 lwip-y += lib/lwip/src/core/stats.o
+lwip-y += lib/lwip/src/core/def.o
 lwip-y += lib/lwip/src/core/sys.o
 lwip-y += lib/lwip/src/core/tcp.o
 lwip-y += lib/lwip/src/core/tcp_in.o
 lwip-y += lib/lwip/src/core/tcp_out.o
 lwip-y += lib/lwip/src/core/udp.o
+lwip-y += lib/lwip/src/core/inet_chksum.o
+lwip-y += lib/lwip/src/core/ip.o
+lwip-y += lib/lwip/src/core/timeouts.o
 
+lwip-$(CONFIG_LIB_LWIP_IPV4) += lib/lwip/src/core/ipv4/dhcp.o
 lwip-$(CONFIG_LIB_LWIP_IPV4) += lib/lwip/src/core/ipv4/autoip.o
+lwip-$(CONFIG_LIB_LWIP_IPV4) += lib/lwip/src/core/ipv4/etharp.o
 lwip-$(CONFIG_LIB_LWIP_IPV4) += lib/lwip/src/core/ipv4/icmp.o
 lwip-$(CONFIG_LIB_LWIP_IPV4) += lib/lwip/src/core/ipv4/igmp.o
-lwip-$(CONFIG_LIB_LWIP_IPV4) += lib/lwip/src/core/ipv4/inet.o
-lwip-$(CONFIG_LIB_LWIP_IPV4) += lib/lwip/src/core/ipv4/inet_chksum.o
-lwip-$(CONFIG_LIB_LWIP_IPV4) += lib/lwip/src/core/ipv4/ip_addr.o
-lwip-$(CONFIG_LIB_LWIP_IPV4) += lib/lwip/src/core/ipv4/ip.o
-lwip-$(CONFIG_LIB_LWIP_IPV4) += lib/lwip/src/core/ipv4/ip_frag.o
+lwip-$(CONFIG_LIB_LWIP_IPV4) += lib/lwip/src/core/ipv4/ip4_addr.o
+lwip-$(CONFIG_LIB_LWIP_IPV4) += lib/lwip/src/core/ipv4/ip4_frag.o
+lwip-$(CONFIG_LIB_LWIP_IPV4) += lib/lwip/src/core/ipv4/ip4.o
 
 lwip-$(CONFIG_LIB_LWIP_IPV6) += lib/lwip/src/core/ipv6/icmp6.o
 lwip-$(CONFIG_LIB_LWIP_IPV6) += lib/lwip/src/core/ipv6/inet6.o

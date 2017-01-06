@@ -179,7 +179,7 @@ static uint8_t select_eth_port(void)
  */
 int main(void)
 {
-	struct ip_addr ipaddr, netmask, gw;
+	ip_addr_t ipaddr, netmask, gw;
 	struct netif NetIf, *netif;
 	uint8_t eth_port = 0;
 

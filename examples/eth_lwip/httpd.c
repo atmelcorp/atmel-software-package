@@ -91,9 +91,8 @@ httpd_recv(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_t err)
 		/* Free the pbuf. */
 		pbuf_free(p);
 	}
-	/* Close the connection. */
+	/* send a segment including FIN flag but not data. */
 	tcp_close(pcb);
-
 	return ERR_OK;
 }
 

@@ -20,6 +20,7 @@
 #include "src/include/lwip/memp.h"
 #include "src/include/lwip/udp.h"
 #include "src/include/lwip/dhcp.h"
+#include "src/include/lwip/def.h"
 #include "arch/sys_arch.h"
 #include "netif/ethif.h"
 

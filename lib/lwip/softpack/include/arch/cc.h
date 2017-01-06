@@ -30,21 +30,12 @@
 #ifndef _CC_H
 #define _CC_H
 
+#include <stdio.h>
+
 /* Define platform endianness */
+#ifndef BYTE_ORDER
 #define BYTE_ORDER LITTLE_ENDIAN
-
-/* The unsigned data types */
-typedef unsigned char   u8_t;
-typedef unsigned short  u16_t;
-typedef unsigned int    u32_t;
-
-/* The signed counterparts */
-typedef signed char     s8_t;
-typedef signed short    s16_t;
-typedef signed int      s32_t;
-
-/* A generic pointer type */
-typedef u32_t mem_ptr_t;
+#endif
 
 /* Display name of types */
 #define U16_F           "hu"
@@ -53,6 +44,7 @@ typedef u32_t mem_ptr_t;
 #define U32_F           "u"
 #define S32_F           "d"
 #define X32_F           "x"
+
 
 /* Compiler hints for packing lwip's structures */
 #if defined(__CC_ARM)

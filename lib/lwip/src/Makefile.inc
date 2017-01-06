@@ -26,8 +26,8 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-lwip-inc-$(CONFIG_LIB_LWIP_IPV6) = -I$(TOP)/lib/lwip/src/include/ipv6
-lwip-inc-$(CONFIG_LIB_LWIP_IPV4) = -I$(TOP)/lib/lwip/src/include/ipv4
+lwip-inc-y = -I$(TOP)/lib/lwip/src/include/lwip/priv
+
 
 CFLAGS_INC += -I$(TOP)/lib/lwip/src/include
 CFLAGS_INC += $(lwip-inc-y)
