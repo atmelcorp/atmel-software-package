@@ -47,10 +47,6 @@
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-/**
- * \brief Sets SMC timing for NAND FLASH.
- * \param bus_width  bus width 8/16.
- */
 void smc_nand_configure(uint8_t bus_width)
 {
 #ifdef ID_SMC
@@ -90,11 +86,6 @@ void smc_nand_configure(uint8_t bus_width)
 		SMC_MODE_TDF_CYCLES(1);
 }
 
-/**
- * \brief Sets SMC timing for NOR FLASH.
- * \param cs  chip select.
- * \param bus_width  bus width 8/16.
- */
 void smc_nor_configure(uint8_t cs, uint8_t bus_width)
 {
 #ifdef ID_SMC
@@ -128,3 +119,28 @@ void smc_nor_configure(uint8_t cs, uint8_t bus_width)
 		SMC_MODE_EXNW_MODE_DISABLED |
 		SMC_MODE_TDF_CYCLES(1);
 }
+
+#ifdef CONFIG_HAVE_SMC_SCRAMBLING
+
+void smc_scrambling_set_key(uint32_t key1, uint32_t key2)
+{
+	SMC->SMC_KEY1 = key1;
+	SMC->SMC_KEY2 = key2;
+}
+
+void smc_scrambling_enable(void)
+{
+	SMC->SMC_OCMS |= SMC_OCMS_SMSE;
+}
+
+void smc_scrambling_disable(void)
+{
+	SMC->SMC_OCMS &= ~SMC_OCMS_SMSE;
+}
+
+bool smc_scrambling_is_enabled(void)
+{
+	return SMC->SMC_OCMS & SMC_OCMS_SMSE;
+}
+
+#endif /* CONFIG_HAVE_SMC_SCRAMBLING */

@@ -68,6 +68,26 @@ extern void nfc_wait_xfr_done(void);
 
 extern void nfc_wait_rb_busy(void);
 
+#ifdef CONFIG_HAVE_SMC_SCRAMBLING
+
+/**
+ * \brief Enables scrambling of NFC SRAM
+ */
+extern void nfc_sram_scrambling_enable(void);
+
+/**
+ * \brief Disables scrambling of NFC SRAM
+ */
+extern void nfc_sram_scrambling_disable(void);
+
+/**
+ * \brief Check if scrambling for NAND FLASH is enabled.
+ * \return true if NFC SRAM scrambling is enabled, false otherwise
+ */
+extern bool nfc_sram_scrambling_is_enabled(void);
+
+#endif /* CONFIG_HAVE_SMC_SCRAMBLING */
+
 #endif /* CONFIG_HAVE_NFC */
 
 #endif /* NFC_H_ */

@@ -201,3 +201,22 @@ void nfc_send_cmd(uint32_t cmd, uint8_t *cycle_bytes)
 	/* Wait for command completion */
 	nfc_wait_cmd_done();
 }
+
+#ifdef CONFIG_HAVE_SMC_SCRAMBLING
+
+void nfc_sram_scrambling_enable(void)
+{
+	SMC->SMC_OCMS |= SMC_OCMS_SRSE;
+}
+
+void nfc_sram_scrambling_disable(void)
+{
+	SMC->SMC_OCMS &= ~SMC_OCMS_SRSE;
+}
+
+bool nfc_sram_scrambling_is_enabled(void)
+{
+	return SMC->SMC_OCMS & SMC_OCMS_SRSE;
+}
+
+#endif /* CONFIG_HAVE_SMC_SCRAMBLING */

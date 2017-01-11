@@ -41,13 +41,46 @@
  *----------------------------------------------------------------------------*/
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
+/**
+ * \brief Sets SMC timing for NAND FLASH.
+ * \param bus_width  bus width 8/16.
+ */
 extern void smc_nand_configure(uint8_t bus_width);
 
+/**
+ * \brief Sets SMC timing for NOR FLASH.
+ * \param cs  chip select.
+ * \param bus_width  bus width 8/16.
+ */
 extern void smc_nor_configure(uint8_t cs, uint8_t bus_width);
+
+/**
+ * \brief Set SMC scrambling key.
+ * \param key1
+ * \param key2
+ */
+extern void smc_scrambling_set_key(uint32_t key1, uint32_t key2);
+
+/**
+ * \brief Enables SMC scrambling
+ */
+extern void smc_scrambling_enable(void);
+
+/**
+ * \brief Disables SMC scrambling
+ */
+extern void smc_scrambling_disable(void);
+
+/**
+ * \brief Check if SMC scrambling is enabled
+ * \return true if SMC scrambling enabled, false otherwise
+ */
+extern bool smc_scrambling_is_enabled(void);
 
 #endif /* SMC_H_ */
