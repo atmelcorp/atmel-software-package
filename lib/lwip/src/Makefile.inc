@@ -33,5 +33,6 @@ CFLAGS_INC += -I$(TOP)/lib/lwip/src/include
 CFLAGS_INC += $(lwip-inc-y)
 
 include $(TOP)/lib/lwip/src/api/Makefile.inc
+include $(TOP)/lib/lwip/src/apps/Makefile.inc
 include $(TOP)/lib/lwip/src/core/Makefile.inc
 include $(TOP)/lib/lwip/src/netif/Makefile.inc

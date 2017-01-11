@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2015, Atmel Corporation
+# Copyright (c) 2017, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -26,29 +26,7 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-# Makefile for compiling the ETH LWIP example
-AVAILABLE_TARGETS = sama5d2-xplained \
-                    sama5d3-xplained sama5d3-ek \
-                    sama5d4-xplained sama5d4-ek \
-                    sam9g25-ek sam9g35-ek sam9x25-ek sam9x35-ek
+lwip-$(CONFIG_LIB_LWIP_HTTPD) += lib/lwip/src/apps/httpd/fs.o
+lwip-$(CONFIG_LIB_LWIP_HTTPD) += lib/lwip/src/apps/httpd/httpd.o
 
-AVAILABLE_VARIANTS = ddram
-
-VARIANT ?= ddram
-
-TOP := ../..
-
-BINNAME = eth_lwip
-
-CONFIG_NET = y
-CONFIG_TWI = y
-CONFIG_TWI_AT24 = y
-CONFIG_LIB_LWIP = y
-CONFIG_LIB_LWIP_IPV4 = y
-CONFIG_LIB_LWIP_HTTPD = y
-CONFIG_LIB_LWIP_HTTPD_FSDATA = y # Embed default webpages from lwip
-
-
-obj-y += examples/eth_lwip/main.o
-
-include $(TOP)/scripts/Makefile.rules
+lwip-$(CONFIG_LIB_LWIP_HTTPD_FSDATA) += lib/lwip/src/apps/httpd/fsdata.o

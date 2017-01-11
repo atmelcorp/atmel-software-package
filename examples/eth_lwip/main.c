@@ -114,7 +114,7 @@
 #include "serial/console.h"
 
 #include "liblwip.h"
-#include "httpd.h"
+#include "lwip/apps/httpd.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -225,12 +225,9 @@ int main(void)
 	netif_set_up(netif);
 
 	/* Initialize http server application */
-	if (ERR_OK != httpd_init()) {
-		printf("httpd_init ERR_OK!");
-		return -1;
-	}
+	httpd_init();
 	printf ("Type the IP address of the device in a web browser, http://192.168.1.3 \n\r");
-	while(1) {
+	while (1) {
 		/* Run polling tasks */
 		ethif_poll(netif);
 	}
