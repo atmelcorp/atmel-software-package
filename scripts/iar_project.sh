@@ -48,7 +48,7 @@ find-source() {
     if [ ! -f "$dir/$path" ]; then
         path=${obj//.o/.s}
         if [ ! -f "$dir/$path" ]; then
-            echo "File $path not found!" 1>&2
+            echo "Source file for $obj not found!" 1>&2
             exit 3
         fi
     fi
