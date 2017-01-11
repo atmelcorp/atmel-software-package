@@ -115,6 +115,7 @@
 
 #include "liblwip.h"
 #include "lwip/apps/httpd.h"
+#include "lwip/apps/lwiperf.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -166,6 +167,23 @@ static uint8_t select_eth_port(void)
 	}
 
 	return send_port;
+}
+
+static void
+lwiperf_report(void *arg, enum lwiperf_report_type report_type,
+	       const ip_addr_t* local_addr, u16_t local_port, const ip_addr_t* remote_addr, u16_t remote_port,
+	       u32_t bytes_transferred, u32_t ms_duration, u32_t bandwidth_kbitpsec)
+{
+	LWIP_UNUSED_ARG(arg);
+	LWIP_UNUSED_ARG(local_addr);
+	LWIP_UNUSED_ARG(local_port);
+
+	printf("IPERF report: type=%d, remote: %s:%d, total bytes: %d, duration in ms: %d, kbits/s: %d\r\n",
+	       (int)report_type,
+	       ipaddr_ntoa(remote_addr), (int)remote_port,
+	       (unsigned)bytes_transferred,
+	       (unsigned)ms_duration,
+	       (unsigned)bandwidth_kbitpsec);
 }
 
 /*----------------------------------------------------------------------------
@@ -226,6 +244,7 @@ int main(void)
 
 	/* Initialize http server application */
 	httpd_init();
+	lwiperf_start_tcp_server_default(lwiperf_report, NULL);
 	printf ("Type the IP address of the device in a web browser, http://192.168.1.3 \n\r");
 	while (1) {
 		/* Run polling tasks */

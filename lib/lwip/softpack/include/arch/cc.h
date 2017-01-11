@@ -37,6 +37,13 @@
 #define BYTE_ORDER LITTLE_ENDIAN
 #endif
 
+typedef uint8_t  u8_t;
+typedef uint16_t u16_t;
+typedef uint32_t u32_t;
+typedef int8_t   s8_t;
+typedef int16_t  s16_t;
+typedef int32_t  s32_t;
+
 /* Display name of types */
 #define U16_F           "hu"
 #define S16_F           "hd"
@@ -44,7 +51,6 @@
 #define U32_F           "u"
 #define S32_F           "d"
 #define X32_F           "x"
-
 
 /* Compiler hints for packing lwip's structures */
 #if defined(__CC_ARM)

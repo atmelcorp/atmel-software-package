@@ -30,3 +30,5 @@ lwip-$(CONFIG_LIB_LWIP_HTTPD) += lib/lwip/src/apps/httpd/fs.o
 lwip-$(CONFIG_LIB_LWIP_HTTPD) += lib/lwip/src/apps/httpd/httpd.o
 
 lwip-$(CONFIG_LIB_LWIP_HTTPD_FSDATA) += lib/lwip/src/apps/httpd/fsdata.o
+
+lwip-$(CONFIG_LIB_LWIP_IPERF) += lib/lwip/src/apps/lwiperf/lwiperf.o

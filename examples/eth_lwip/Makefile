@@ -47,7 +47,7 @@ CONFIG_LIB_LWIP = y
 CONFIG_LIB_LWIP_IPV4 = y
 CONFIG_LIB_LWIP_HTTPD = y
 CONFIG_LIB_LWIP_HTTPD_FSDATA = y # Embed default webpages from lwip
-
+CONFIG_LIB_LWIP_IPERF = y
 
 obj-y += examples/eth_lwip/main.o
 

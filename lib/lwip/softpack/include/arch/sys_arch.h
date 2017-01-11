@@ -33,4 +33,8 @@
 #ifndef _SYS_ARCH_H
 #define _SYS_ARCH_H
 
+
+
+u32_t sys_now(void);
+
 #endif
