@@ -235,6 +235,9 @@
 /** Build a set/way parameter for cache operations */
 #define L1_CACHE_SETWAY(set, way) (((set) << 5) | ((way) << 30))
 
+/** TC channel size (in bits) */
+#define TC_CHANNEL_SIZE 16
+
 /** CAN Interface max */
 #ifndef CAN_IFACE_COUNT
 #define CAN_IFACE_COUNT (2)

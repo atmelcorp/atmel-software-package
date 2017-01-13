@@ -156,6 +156,9 @@
 /** Build a set/way parameter for cache operations */
 #define L1_CACHE_SETWAY(set, way) (((set) << 5) | ((way) << 30))
 
+/** TC channel size (in bits) */
+#define TC_CHANNEL_SIZE 32
+
 /** Frequency of the on-chip slow clock oscillator */
 #define SLOW_CLOCK_INT_OSC 32000
 
