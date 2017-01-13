@@ -197,6 +197,8 @@ static void get_time(void)
 
 int main(void)
 {
+	uint64_t start, end;
+
 	/* Output example information */
 	console_example_info("Timer Example");
 
@@ -206,16 +208,22 @@ int main(void)
 		get_time();
 		switch (cmd_buffer[0]) {
 		case 'a':
+			start = timer_get_tick();
 			sleep(time_count);
-			printf("%ds elapsed!\r\n", (unsigned int)time_count);
+			end = timer_get_tick();
+			printf("%dms elapsed!\r\n", (unsigned)(end - start));
 			break;
 		case 'b':
+			start = timer_get_tick();
 			msleep(time_count);
-			printf("%dms elapsed!\r\n", (unsigned int)time_count);
+			end = timer_get_tick();
+			printf("%dms elapsed!\r\n", (unsigned)(end - start));
 			break;
 		case 'c':
+			start = timer_get_tick();
 			usleep(time_count);
-			printf("%dus elapsed!\r\n", (unsigned int)time_count);
+			end = timer_get_tick();
+			printf("%dms elapsed!\r\n", (unsigned)(end - start));
 			break;
 		case 'h':
 			print_menu();
