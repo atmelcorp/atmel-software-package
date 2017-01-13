@@ -105,7 +105,7 @@ static uint8_t _aesd_get_size_per_trans(struct _aesd_desc* desc)
 				size = 16;
 				break;
 			case AESD_CFBS_64:
-				size = 4;
+				size = 8;
 				break;
 			case AESD_CFBS_32:
 				size = 4;
