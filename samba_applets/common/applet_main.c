@@ -27,19 +27,20 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "chip.h"
-#include "board.h"
+#include <string.h>
+
 #include "applet.h"
 #include "applet_legacy.h"
-#include "trace.h"
-#include "timer.h"
+#include "board.h"
+#include "board_timer.h"
+#include "chip.h"
 #include "dma/dma.h"
 #include "gpio/pio.h"
-#include "peripherals/pmc.h"
 #include "nvm/sfc.h"
+#include "peripherals/pmc.h"
 #include "serial/console.h"
-
-#include <string.h>
+#include "timer.h"
+#include "trace.h"
 
 /* define this to enable debug display of mailbox content */
 #undef APPLET_MAILBOX_DEBUG
