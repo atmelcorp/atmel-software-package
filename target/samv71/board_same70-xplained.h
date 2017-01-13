@@ -75,11 +75,9 @@
 	PIN_SDRAM_SDCKE, PIN_SDRAM_SDCK, PIN_SDRAM_SDCS,\
 	PIN_SDRAM_NBS0, PIN_SDRAM_NBS1, PIN_SDRAM_SDWE }
 
-/** \def Board System timer resolution */
-#define BOARD_TIMER_TC          TC1
-#define BOARD_TIMER_CHANNEL     0
-#define BOARD_TIMER_FREQ        1000     // IRQ frequency (1kHz)
-#define BOARD_TIMER_RESOLUTION	1000000  // Precision: 1MHz
+/** \def Board System timer */
+#define BOARD_TIMER_TC      TC1
+#define BOARD_TIMER_CHANNEL 0
 
 /* =================== PIN CONSOLE definition ================== */
 

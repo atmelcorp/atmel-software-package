@@ -68,11 +68,9 @@
 /** \def Board DDR memory size in bytes */
 #define BOARD_DDR_MEMORY_SIZE    512*1024*1024
 
-/** \def Board System timer resolution */
-#define BOARD_TIMER_TC          TC1
-#define BOARD_TIMER_CHANNEL     0
-#define BOARD_TIMER_FREQ        1000     // IRQ fequency (1kHz)
-#define BOARD_TIMER_RESOLUTION	1000000  // Precision: 1MHz
+/** \def Board System timer */
+#define BOARD_TIMER_TC      TC1
+#define BOARD_TIMER_CHANNEL 0
 
 /* =================== PIN CONSOLE definition ================== */
 

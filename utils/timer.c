@@ -27,93 +27,97 @@
  * ----------------------------------------------------------------------------
  */
 
-/**
- *  \file
- *  Implement simple TC usage as system tick.
- */
-
 /*----------------------------------------------------------------------------
  *         Headers
  *----------------------------------------------------------------------------*/
 
 #include "board.h"
-#include "cpuidle.h"
-#include "timer.h"
+#include "irqflags.h"
 #include "irq/irq.h"
-#include "peripherals/tc.h"
 #include "peripherals/pmc.h"
+#include "peripherals/tc.h"
+#include "timer.h"
 
-#include <assert.h>
-#include <string.h>
+/*----------------------------------------------------------------------------
+ *         Local type definitions
+ *----------------------------------------------------------------------------*/
+
+struct _timer {
+	Tc* tc;
+	uint8_t channel;
+	uint32_t channel_freq;
+	volatile uint32_t upper;
+};
 
 /*----------------------------------------------------------------------------
  *         Local variables
  *----------------------------------------------------------------------------*/
 
 /** System timer */
-static struct _timer _sys_timer;
+static struct _timer _timer;
+
+/*----------------------------------------------------------------------------
+ *         Local Functions
+ *----------------------------------------------------------------------------*/
+
+static void timer_update_upper_tick_counter(void)
+{
+	uint32_t status = tc_get_status(_timer.tc, _timer.channel);
+	if ((status & TC_SR_COVFS) == TC_SR_COVFS)
+		_timer.upper++;
+}
+
+static uint32_t timer_get_upper_tick_counter(void)
+{
+	timer_update_upper_tick_counter();
+	return _timer.upper;
+}
+
+#ifndef CONFIG_TIMER_POLLING
+
+/**
+ *  \brief Handler for timer interrupt.
+ */
+static void timer_irq_handler(uint32_t source, void* user_arg)
+{
+	timer_update_upper_tick_counter();
+}
+
+#endif /* !CONFIG_TIMER_POLLING */
 
 /*----------------------------------------------------------------------------
  *         Exported Functions
  *----------------------------------------------------------------------------*/
 
-/**
- *  \brief Handler for timer interrupt.
- */
-static void timer_increment(uint32_t source, void* user_arg)
+void timer_configure(Tc* tc, uint8_t channel, uint32_t clock_source)
 {
-	assert(source == get_tc_id_from_addr(_sys_timer.tc));
-	struct _timer* timer = (struct _timer*)user_arg;
-
-	uint32_t status = tc_get_status(timer->tc, timer->channel);
-	if ((status & TC_SR_CPCS) == TC_SR_CPCS)
-		timer->tick++;
-}
-
-void timer_configure(struct _timer* timer)
-{
-	uint32_t rc = 0;
-	uint32_t tc_clks = 0;
-	uint32_t tc_id = get_tc_id_from_addr(timer->tc);
-
-	memcpy(&_sys_timer, timer, sizeof(_sys_timer));
-
-#ifdef CONFIG_HAVE_PMC_GENERATED_CLOCKS
-	// For devices that support generated clock, configure TC to use Main
-	// Clock as generated clock source
-	struct _pmc_periph_cfg cfg = {
-		.gck = {
-			.css = PMC_PCR_GCKCSS_MAIN_CLK,
-			.div = 1,
-		},
-	};
-	pmc_configure_peripheral(tc_id, &cfg, true);
-#else
-	pmc_configure_peripheral(tc_id, NULL, true);
+	uint32_t tc_id = get_tc_id_from_addr(tc);
+#ifndef CONFIG_TIMER_POLLING
+	uint32_t tc_irq = get_tc_interrupt(tc_id, channel);
 #endif
 
-	// Select clock source, configure tc base on timer clock
-	tc_clks = tc_find_best_clock_source(timer->tc, timer->resolution);
-	tc_configure(timer->tc, timer->channel, tc_clks | TC_CMR_WAVE | TC_CMR_WAVSEL_UP_RC | TC_CMR_CPCTRG);
-	rc = (tc_get_available_freq(timer->tc, tc_clks) * timer->freq) / timer->resolution;
-	tc_set_ra_rb_rc(timer->tc, timer->channel, 0, 0, &rc);
+	_timer.tc = tc;
+	_timer.channel = channel;
 
-#ifdef CONFIG_TIMER_POLLING
-	tc_disable_it(timer->tc, timer->channel, TC_IER_CPCS);
-#else
-	uint32_t irq_id = get_tc_interrupt(tc_id, timer->channel);
-	irq_add_handler(irq_id, timer_increment, &_sys_timer);
-	irq_enable(irq_id);
-	tc_enable_it(timer->tc, timer->channel, TC_IER_CPCS);
+	if (!pmc_is_peripheral_enabled(tc_id))
+		pmc_configure_peripheral(tc_id, NULL, true);
+
+	tc_configure(tc, channel, TC_CMR_WAVE | TC_CMR_WAVSEL_UP |
+			(clock_source & TC_CMR_TCCLKS_Msk));
+	_timer.channel_freq = tc_get_channel_freq(tc, channel);
+#ifndef CONFIG_TIMER_POLLING
+	irq_add_handler(tc_irq, timer_irq_handler, &_timer);
+	irq_enable(tc_irq);
+	tc_enable_it(tc, channel, TC_IER_COVFS);
 #endif
-	tc_start(timer->tc, timer->channel);
+	tc_start(tc, channel);
 }
 
 uint64_t timer_get_interval(uint64_t start, uint64_t end)
 {
 	if (end >= start)
-		return (end - start);
-	return (end + (0xFFFFFFFFFFFFFFFF - start) + 1);
+		return end - start;
+	return end + (0xffffffffffffffffu - start) + 1;
 }
 
 void timer_start_timeout(struct _timeout* timeout, uint64_t count)
@@ -134,38 +138,29 @@ uint8_t timer_timeout_reached(struct _timeout* timeout)
 
 void timer_sleep(uint64_t count)
 {
-	volatile uint32_t _timeout_usec = tc_get_cv(_sys_timer.tc, _sys_timer.channel);
-	volatile uint64_t _timeout_msec = timer_get_tick() + count;
+	uint64_t end_tick = timer_get_tick() + count;
 
-	while (((int64_t)_timeout_msec - timer_get_tick()) > 0) {
-#ifndef CONFIG_TIMER_POLLING
-		cpu_idle();
-#endif
-	}
-
-	while (((int32_t)_timeout_usec - tc_get_cv(_sys_timer.tc, _sys_timer.channel)) > 0);
-}
-
-void timer_usleep(uint64_t count)
-{
-	volatile uint32_t _timeout_usec = tc_get_cv(_sys_timer.tc, _sys_timer.channel) + (count % 1000);
-	volatile uint64_t _timeout_msec = timer_get_tick() + (count / 1000);
-
-	while (((int64_t)_timeout_msec - timer_get_tick()) > 0) {
-#ifndef CONFIG_TIMER_POLLING
-		cpu_idle();
-#endif
-	}
-
-	while (((int64_t)_timeout_usec - tc_get_cv(_sys_timer.tc, _sys_timer.channel)) > 0);
+	while (timer_get_tick() <= end_tick);
 }
 
 uint64_t timer_get_tick(void)
 {
-#ifdef CONFIG_TIMER_POLLING
-	timer_increment(get_tc_id_from_addr(_sys_timer.tc), &_sys_timer);
-#endif
-	return _sys_timer.tick;
+	uint32_t upper, lower;
+	uint64_t tick;
+
+	do {
+		upper = timer_get_upper_tick_counter();
+		COMPILER_BARRIER();
+		lower = tc_get_cv(_timer.tc, _timer.channel);
+	} while (upper != timer_get_upper_tick_counter());
+
+	tick = (((uint64_t)upper) << TC_CHANNEL_SIZE) | lower;
+	return (tick * 1000) / _timer.channel_freq;
+}
+
+void sleep(uint32_t count)
+{
+	timer_sleep(count * 1000);
 }
 
 void msleep(uint32_t count)
@@ -173,12 +168,29 @@ void msleep(uint32_t count)
 	timer_sleep(count);
 }
 
-void sleep(uint32_t count)
-{
-	msleep(count * 1000);
-}
-
 void usleep(uint32_t count)
 {
-	timer_usleep(count);
+	uint32_t rc;
+	uint32_t status;
+
+	if (count < 2)
+		count = 2;
+
+	/* Disable interrupts */
+	arch_irq_disable();
+
+	/* Configure RC */
+	rc = ROUND_INT_DIV((_timer.channel_freq / 1000) * count, 1000);
+	rc += tc_get_cv(_timer.tc, _timer.channel);
+	tc_set_ra_rb_rc(_timer.tc, _timer.channel, 0, 0, &rc);
+
+	/* Wait for RC compare */
+	do {
+		status = tc_get_status(_timer.tc, _timer.channel);
+		if (status & TC_SR_COVFS)
+			_timer.upper++;
+	} while ((status & TC_SR_CPCS) == 0);
+
+	/* Re-enable interrupts */
+	arch_irq_enable();
 }

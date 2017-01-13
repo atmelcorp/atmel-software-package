@@ -75,11 +75,6 @@ extern void board_cfg_matrix_for_ddr(void);
 extern void board_cfg_ddram(void);
 
 /**
- * \brief Configure the system timer
- */
-extern void board_cfg_timer(void);
-
-/**
  * \brief Configure the board console if any
  * \param baudrate Requested baudrate, or board default if 0
  */

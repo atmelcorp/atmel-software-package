@@ -27,46 +27,25 @@
  * ----------------------------------------------------------------------------
  */
 
-/**
- *  \file
- *
- *  \par Purpose
- *
- *  Methods and definitions for an internal timer.
- *
- *  Defines a common and simpliest use of timer to generate delays using TC
- *
- *  \par Usage
- *
- *  -# Configure the System Tick with timer_configure() when MCK changed
- *     \note
- *     Must be done before any invoke of timer_sleep()
- *
- */
-
-#ifndef TIMER_HEADER_
-#define TIMER_HEADER_
+#ifndef TIMER_H_
+#define TIMER_H_
 
 /*----------------------------------------------------------------------------
  *         Headers
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
 #include <stdint.h>
+
+#include "board.h"
+
+/*----------------------------------------------------------------------------
+ *         Type definitions
+ *----------------------------------------------------------------------------*/
 
 struct _timeout
 {
 	uint64_t start;
 	uint64_t count;
-};
-
-struct _timer {
-	Tc* tc;
-	uint8_t channel;
-	uint32_t freq;
-	uint32_t resolution;
-
-	volatile uint64_t tick;
 };
 
 /*----------------------------------------------------------------------------
@@ -86,7 +65,7 @@ struct _timer {
  *
  * \param timer Pointer to a struct _timer instance
  */
-extern void timer_configure(struct _timer *timer);
+extern void timer_configure(Tc* tc, uint8_t channel, uint32_t clock_source);
 
 /**
  * \brief Wait for count times the timer resolution
@@ -96,13 +75,6 @@ extern void timer_configure(struct _timer *timer);
  * busy-loop is used to poll the TC counter value.
  */
 extern void timer_sleep(uint64_t count);
-
-/**
- * \brief Retrieve current timer resolution.
- *
- * \return Current timer resolution (0 if not already configured)
- */
-extern void timer_usleep(uint64_t count);
 
 /**
  *  \brief Initialize a timeout
@@ -134,18 +106,25 @@ extern uint64_t timer_get_interval(uint64_t start, uint64_t end);
 extern uint64_t timer_get_tick(void);
 
 /**
- *  \brief Alias for timer_sleep.
+ *  \brief Wait for at least count seconds.
+ */
+extern void sleep(uint32_t count);
+
+/**
+ *  \brief Wait for at least count milliseconds
  */
 extern void msleep(uint32_t count);
 
 /**
- *  \brief Wait for us.
+ *  \brief Wait for at least count microseconds
+ *
+ * Notes:
+ * - interrupts are disabled during the wait
+ * - if count is <2, it is assumed to be 2
+ * - maximum wait interval depends on the effective TC frequency and the TC
+ * channel resolution (it is expected that this function is called with
+ * count<1000)
  */
 extern void usleep(uint32_t count);
 
-/**
- *  \brief Wait for seconds.
- */
-extern void sleep(uint32_t count);
-
-#endif /* TIMER_HEADER_ */
+#endif /* TIMER_H_ */

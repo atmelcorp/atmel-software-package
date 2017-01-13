@@ -40,13 +40,9 @@
 
 void board_cfg_timer(void)
 {
-	struct _timer __timer = {
-		.tc = BOARD_TIMER_TC,
-		.channel = BOARD_TIMER_CHANNEL,
-		.freq = BOARD_TIMER_FREQ,
-		.resolution = BOARD_TIMER_RESOLUTION,
-		.tick = 0,
-	};
-
-	timer_configure(&__timer);
+#ifdef BOARD_TIMER_CLOCK_SRC
+	timer_configure(BOARD_TIMER_TC, BOARD_TIMER_CHANNEL, BOARD_TIMER_CLOCK_SRC);
+#else
+	timer_configure(BOARD_TIMER_TC, BOARD_TIMER_CHANNEL, TC_CMR_TCCLKS_TIMER_CLOCK4);
+#endif
 }
