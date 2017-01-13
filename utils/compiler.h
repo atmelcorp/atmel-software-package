@@ -70,7 +70,7 @@
 
 #define ROUND_UP_MULT(x,m) (((x) + ((m)-1)) & ~((m)-1))
 
-#define ROUND_INT_DIV(n,d) ((2 * (n) + (d)) / (2 * (d)))
+#define ROUND_INT_DIV(n,d) (((n) + ((d)-1)) / (d))
 
 #define ARRAY_SIZE(x) (sizeof ((x)) / sizeof(*(x)))
 
