@@ -76,7 +76,6 @@ struct _wm8904_desc {
  *----------------------------------------------------------------------------*/
 
 extern void wm8904_configure(struct _wm8904_desc *wm8904);
-extern void wm8904_in2r_in1l(struct _wm8904_desc *wm8904);
 extern void wm8904_set_left_volume(struct _wm8904_desc *wm8904, uint8_t vol);
 extern void wm8904_set_right_volume(struct _wm8904_desc *wm8904, uint8_t vol);
 extern void wm8904_volume_mute(struct _wm8904_desc *wm8904, bool left, bool right);
