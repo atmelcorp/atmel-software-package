@@ -111,6 +111,9 @@ void tc_start(Tc *tc, uint32_t channel)
 
 	ch = &tc->TC_CHANNEL[channel];
 
+	/*  Clear status register */
+	ch->TC_SR;
+
 	ch->TC_CCR = TC_CCR_CLKEN | TC_CCR_SWTRG;
 }
 
