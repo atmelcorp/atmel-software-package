@@ -207,6 +207,17 @@ uint32_t tc_get_available_freq(Tc *tc, uint8_t tc_clks)
 	}
 }
 
+uint32_t tc_get_channel_freq(Tc *tc, uint32_t channel)
+{
+	TcChannel* ch;
+
+	assert(channel < ARRAY_SIZE(tc->TC_CHANNEL));
+
+	ch = &tc->TC_CHANNEL[channel];
+
+	return tc_get_available_freq(tc, ch->TC_CMR & TC_CMR_TCCLKS_Msk);
+}
+
 void tc_set_ra_rb_rc(Tc *tc, uint32_t channel,
 	uint32_t *ra, uint32_t *rb, uint32_t *rc)
 {

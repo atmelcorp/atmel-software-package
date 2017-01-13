@@ -145,6 +145,14 @@ extern void tc_trigger_on_freq(Tc* tc, uint32_t channel, uint32_t freq);
 extern uint32_t tc_get_available_freq(Tc* tc, uint8_t tc_clks);
 
 /**
+ * \brief Get current frequency of Timer Counter according to clock selection
+ * \param tc Pointer to Tc instance
+ * \param channel Channel number
+ * \return TC frequency
+ */
+extern uint32_t tc_get_channel_freq(Tc* tc, uint32_t channel);
+
+/**
  * \brief Set RA, RB, RC for Timer Counter
  * \param tc Pointer to Tc instance
  * \param channel channel number of the Timer Counter
