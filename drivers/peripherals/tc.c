@@ -71,12 +71,12 @@
  *         Headers
  *------------------------------------------------------------------------------*/
 
+#include <assert.h>
+
 #include "chip.h"
 #include "compiler.h"
 #include "peripherals/tc.h"
 #include "peripherals/pmc.h"
-
-#include <assert.h>
 
 /*------------------------------------------------------------------------------
  *         Global functions
@@ -185,21 +185,24 @@ void tc_trigger_on_freq(Tc *tc, uint32_t channel, uint32_t freq)
 
 uint32_t tc_get_available_freq(Tc *tc, uint8_t tc_clks)
 {
-	assert(tc_clks <= TC_CMR_TCCLKS_TIMER_CLOCK5);
+	uint32_t tc_id = get_tc_id_from_addr(tc);
 
 	switch (tc_clks) {
 	case TC_CMR_TCCLKS_TIMER_CLOCK1:
 #ifdef CONFIG_HAVE_PMC_GENERATED_CLOCKS
-		return pmc_get_gck_clock(get_tc_id_from_addr(tc));
+		if (pmc_is_gck_enabled(tc_id))
+			return pmc_get_gck_clock(tc_id);
+		else
+			return 0;
 #else
-		return pmc_get_peripheral_clock(get_tc_id_from_addr(tc)) >> 1;
+		return pmc_get_peripheral_clock(tc_id) >> 1;
 #endif
 	case TC_CMR_TCCLKS_TIMER_CLOCK2:
-		return pmc_get_peripheral_clock(get_tc_id_from_addr(tc)) >> 3;
+		return pmc_get_peripheral_clock(tc_id) >> 3;
 	case TC_CMR_TCCLKS_TIMER_CLOCK3:
-		return pmc_get_peripheral_clock(get_tc_id_from_addr(tc)) >> 5;
+		return pmc_get_peripheral_clock(tc_id) >> 5;
 	case TC_CMR_TCCLKS_TIMER_CLOCK4:
-		return pmc_get_peripheral_clock(get_tc_id_from_addr(tc)) >> 7;
+		return pmc_get_peripheral_clock(tc_id) >> 7;
 	case TC_CMR_TCCLKS_TIMER_CLOCK5:
 		return pmc_get_slow_clock();
 	default:
