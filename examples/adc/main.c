@@ -329,10 +329,10 @@ static void _configure_tc_trigger(void)
 	pio_configure(&pin_tioa0, 1);
 	/* Configure TC for a 10Hz frequency and trigger on RC compare. */
 	pmc_configure_peripheral(ID_TC0, NULL, true);
-	tcclks = tc_find_best_clock_source(TC0, 10);
+	tcclks = tc_find_best_clock_source(TC0, 0, 10);
 	tc_configure(TC0, 0, tcclks | TC_CMR_WAVE | TC_CMR_ACPA_SET 
 				| TC_CMR_ACPC_CLEAR | TC_CMR_CPCTRG);
-	rc = tc_get_available_freq(TC0, tcclks) / 10;
+	rc = tc_get_available_freq(TC0, 0, tcclks) / 10;
 	ra = 50 * rc / 100;
 	tc_set_ra_rb_rc(TC0, 0, &ra, 0, &rc);
 }

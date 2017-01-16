@@ -150,7 +150,7 @@ void tc_disable_it(Tc *tc, uint32_t channel, uint32_t mask)
 	ch->TC_IDR = mask;
 }
 
-uint32_t tc_find_best_clock_source(Tc *tc, uint32_t freq)
+uint32_t tc_find_best_clock_source(Tc *tc, uint8_t channel, uint32_t freq)
 {
 	const int tcclks[] = {
 		TC_CMR_TCCLKS_TIMER_CLOCK1,
@@ -165,7 +165,7 @@ uint32_t tc_find_best_clock_source(Tc *tc, uint32_t freq)
 	best = higher = -1;
 	best_freq = higher_freq = 0;
 	for (i = 0 ; i < ARRAY_SIZE(tcclks) ; i++) {
-		uint32_t f = tc_get_available_freq(tc, tcclks[i]);
+		uint32_t f = tc_get_available_freq(tc, channel, tcclks[i]);
 		if (higher < 0 || f > higher_freq) {
 			higher_freq = f;
 			higher = tcclks[i];
@@ -191,9 +191,9 @@ uint32_t tc_get_status(Tc *tc, uint32_t channel)
 	return tc->TC_CHANNEL[channel].TC_SR;
 }
 
-uint32_t tc_get_available_freq(Tc *tc, uint8_t tc_clks)
+uint32_t tc_get_available_freq(Tc *tc, uint8_t channel, uint8_t tc_clks)
 {
-	uint32_t tc_id = get_tc_id_from_addr(tc);
+	uint32_t tc_id = get_tc_id_from_addr(tc, channel);
 
 	switch (tc_clks) {
 	case TC_CMR_TCCLKS_TIMER_CLOCK1:
@@ -226,7 +226,7 @@ uint32_t tc_get_channel_freq(Tc *tc, uint32_t channel)
 
 	ch = &tc->TC_CHANNEL[channel];
 
-	return tc_get_available_freq(tc, ch->TC_CMR & TC_CMR_TCCLKS_Msk);
+	return tc_get_available_freq(tc, channel, ch->TC_CMR & TC_CMR_TCCLKS_Msk);
 }
 
 void tc_set_ra_rb_rc(Tc *tc, uint32_t channel,

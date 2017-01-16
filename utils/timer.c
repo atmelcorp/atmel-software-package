@@ -91,10 +91,7 @@ static void timer_irq_handler(uint32_t source, void* user_arg)
 
 void timer_configure(Tc* tc, uint8_t channel, uint32_t clock_source)
 {
-	uint32_t tc_id = get_tc_id_from_addr(tc);
-#ifndef CONFIG_TIMER_POLLING
-	uint32_t tc_irq = get_tc_interrupt(tc_id, channel);
-#endif
+	uint32_t tc_id = get_tc_id_from_addr(tc, channel);
 
 	_timer.tc = tc;
 	_timer.channel = channel;
@@ -106,8 +103,8 @@ void timer_configure(Tc* tc, uint8_t channel, uint32_t clock_source)
 			(clock_source & TC_CMR_TCCLKS_Msk));
 	_timer.channel_freq = tc_get_channel_freq(tc, channel);
 #ifndef CONFIG_TIMER_POLLING
-	irq_add_handler(tc_irq, timer_irq_handler, &_timer);
-	irq_enable(tc_irq);
+	irq_add_handler(tc_id, timer_irq_handler, &_timer);
+	irq_enable(tc_id);
 	tc_enable_it(tc, channel, TC_IER_COVFS);
 #endif
 	tc_start(tc, channel);

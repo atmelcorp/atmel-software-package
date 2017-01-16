@@ -256,7 +256,7 @@ static void _tc_capture_handler(uint32_t source, void* user_arg)
 {
 	uint32_t status = tc_get_status(tc_capture.addr, tc_capture.channel);
 
-	assert(source == get_tc_id_from_addr(tc_capture.addr));
+	assert(source == get_tc_id_from_addr(tc_capture.addr, tc_capture.channel));
 
 	if ((status & TC_SR_LDRBS) == TC_SR_LDRBS) {
 		tc_get_ra_rb_rc(tc_capture.addr, tc_capture.channel,
@@ -274,8 +274,7 @@ static void _tc_capture_handler(uint32_t source, void* user_arg)
  */
 static void _tc_capture_initialize(void)
 {
-	uint32_t tc_id = get_tc_id_from_addr(tc_capture.addr);
-	uint32_t irq_id = get_tc_interrupt(tc_id, tc_capture.channel);
+	uint32_t tc_id = get_tc_id_from_addr(tc_capture.addr, tc_capture.channel);
 	uint32_t mode = TC_CMR_TCCLKS(capture_clock_sel)
 	              | TC_CMR_LDRA_RISING
 	              | TC_CMR_LDRB_FALLING
@@ -290,8 +289,8 @@ static void _tc_capture_initialize(void)
 	tc_stop(tc_capture.addr, 2);
 
 	tc_configure(tc_capture.addr, tc_capture.channel, mode);
-	irq_add_handler(irq_id, _tc_capture_handler, NULL);
-	irq_enable(irq_id);
+	irq_add_handler(tc_id, _tc_capture_handler, NULL);
+	irq_enable(tc_id);
 }
 
 /**
@@ -328,7 +327,7 @@ static void _show_captured_results(void)
 			(unsigned int)captured_pulses);
 	for (i = 0; i < MAX_CAPTURES; ++i)
 	{
-		frequency = tc_get_available_freq(tc_capture.addr, capture_clock_sel);
+		frequency = tc_get_available_freq(tc_capture.addr, tc_capture.channel, capture_clock_sel);
 		frequency /= captured_rarb[i][1];
 		duty_cycle = (captured_rarb[i][1] - captured_rarb[i][0]) * 100;
 		duty_cycle /= captured_rarb[i][1];
@@ -349,7 +348,7 @@ static void _tc_fault_handler(uint32_t source, void* user_arg)
 {
 	uint32_t status = tc_get_status(tc_fault.addr, tc_fault.channel);
 
-	assert(source == get_tc_id_from_addr(tc_fault.addr));
+	assert(source == get_tc_id_from_addr(tc_fault.addr, tc_fault.channel));
 
 	if ((status & TC_SR_CPCS) == TC_SR_CPCS)
 		printf("TC fault triggered, press 'F' to clear fault\r\n");
@@ -361,8 +360,7 @@ static void _tc_fault_handler(uint32_t source, void* user_arg)
  */
 static void _tc_fault_initialize(void)
 {
-	uint32_t tc_id = get_tc_id_from_addr(tc_fault.addr);
-	uint32_t irq_id = get_tc_interrupt(tc_id, tc_capture.channel);
+	uint32_t tc_id = get_tc_id_from_addr(tc_fault.addr, tc_fault.channel);
 	uint32_t mode = TC_CMR_TCCLKS(4)
 	              | TC_CMR_CPCSTOP
 	              //| TC_CMR_WAVSEL_UP_RC
@@ -381,8 +379,8 @@ static void _tc_fault_initialize(void)
 	tc_set_ra_rb_rc(tc_fault.addr, tc_fault.channel, NULL, NULL, &rc);
 
 	tc_enable_it(tc_fault.addr, tc_fault.channel, TC_IER_CPCS);
-	irq_add_handler(irq_id, _tc_fault_handler, NULL);
-	irq_enable(irq_id);
+	irq_add_handler(tc_id, _tc_fault_handler, NULL);
+	irq_enable(tc_id);
 }
 
 /**

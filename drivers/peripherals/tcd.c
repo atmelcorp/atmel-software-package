@@ -130,7 +130,7 @@ static int _tcd_capture_polling(struct _tcd_desc* desc)
 
 int tcd_configure_counter(struct _tcd_desc* desc, uint32_t min_timer_freq, uint32_t frequency)
 {
-	uint32_t tc_id = get_tc_id_from_addr(desc->addr);
+	uint32_t tc_id = get_tc_id_from_addr(desc->addr, desc->channel);
 	uint32_t tc_clks, config, rc, chan_freq;
 
 	desc->mutex = 0;
@@ -145,7 +145,7 @@ int tcd_configure_counter(struct _tcd_desc* desc, uint32_t min_timer_freq, uint3
 	if (min_timer_freq < frequency)
 		min_timer_freq = frequency;
 
-	tc_clks = tc_find_best_clock_source(desc->addr, min_timer_freq);
+	tc_clks = tc_find_best_clock_source(desc->addr, desc->channel, min_timer_freq);
 	config = tc_clks | TC_CMR_WAVE | TC_CMR_WAVSEL_UP_RC;
 	tc_configure(desc->addr, desc->channel, config);
 	chan_freq = tc_get_channel_freq(desc->addr, desc->channel);
@@ -158,7 +158,7 @@ int tcd_configure_counter(struct _tcd_desc* desc, uint32_t min_timer_freq, uint3
 
 int tcd_configure_waveform(struct _tcd_desc* desc, uint32_t min_timer_freq, uint32_t frequency, uint16_t duty_cycle)
 {
-	uint32_t tc_id = get_tc_id_from_addr(desc->addr);
+	uint32_t tc_id = get_tc_id_from_addr(desc->addr, desc->channel);
 	uint32_t tc_clks, config, ra, rc, duty, chan_freq;
 
 	if (duty_cycle > 1000)
@@ -177,7 +177,7 @@ int tcd_configure_waveform(struct _tcd_desc* desc, uint32_t min_timer_freq, uint
 	if (min_timer_freq < frequency)
 		min_timer_freq = frequency;
 
-	tc_clks = tc_find_best_clock_source(desc->addr, min_timer_freq);
+	tc_clks = tc_find_best_clock_source(desc->addr, desc->channel, min_timer_freq);
 	config = tc_clks | TC_CMR_WAVE | TC_CMR_WAVSEL_UP_RC | TC_CMR_ACPA_CLEAR | TC_CMR_ACPC_SET | TC_CMR_ASWTRG_SET;
 	tc_configure(desc->addr, desc->channel, config);
 	chan_freq = tc_get_channel_freq(desc->addr, desc->channel);
@@ -192,7 +192,7 @@ int tcd_configure_waveform(struct _tcd_desc* desc, uint32_t min_timer_freq, uint
 
 int tcd_configure_capture(struct _tcd_desc* desc, uint32_t frequency, struct _buffer* buffer)
 {
-	uint32_t tc_id = get_tc_id_from_addr(desc->addr);
+	uint32_t tc_id = get_tc_id_from_addr(desc->addr, desc->channel);
 	uint32_t tc_clks, config, chan_freq;
 
 	desc->mutex = 0;
@@ -211,7 +211,7 @@ int tcd_configure_capture(struct _tcd_desc* desc, uint32_t frequency, struct _bu
 	if (!pmc_is_peripheral_enabled(tc_id))
 		pmc_configure_peripheral(tc_id, NULL, true);
 
-	tc_clks = tc_find_best_clock_source(desc->addr, frequency);
+	tc_clks = tc_find_best_clock_source(desc->addr, desc->channel, frequency);
 	config = tc_clks | TC_CMR_LDRA_RISING | TC_CMR_LDRB_FALLING | TC_CMR_ABETRG | TC_CMR_ETRGEDG_FALLING;
 	tc_configure(desc->addr, desc->channel, config);
 	chan_freq = tc_get_channel_freq(desc->addr, desc->channel);
@@ -221,8 +221,7 @@ int tcd_configure_capture(struct _tcd_desc* desc, uint32_t frequency, struct _bu
 
 int tcd_start(struct _tcd_desc* desc, struct _callback* cb)
 {
-	uint32_t tc_id = get_tc_id_from_addr(desc->addr);
-	uint32_t irq_id = get_tc_interrupt(tc_id, desc->channel);
+	uint32_t tc_id = get_tc_id_from_addr(desc->addr, desc->channel);
 
 	if (!mutex_try_lock(&desc->mutex))
 		return -EBUSY;
@@ -231,8 +230,8 @@ int tcd_start(struct _tcd_desc* desc, struct _callback* cb)
 
 	switch (desc->mode) {
 	case TCD_MODE_COUNTER:
-		irq_add_handler(irq_id, _tcd_counter_handler, (void*)desc);
-		irq_enable(irq_id);
+		irq_add_handler(tc_id, _tcd_counter_handler, (void*)desc);
+		irq_enable(tc_id);
 		tc_enable_it(desc->addr, desc->channel, TC_IER_CPCS);
 		tc_start(desc->addr, desc->channel);
 		break;

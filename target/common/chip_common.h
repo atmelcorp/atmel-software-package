@@ -238,19 +238,13 @@ extern uint32_t get_ssc_id_from_addr(const Ssc* addr);
  * \brief retrieve Timer/Counter ID from its base address
  * \return TC ID on success, ID_PERIPH_COUNT otherwise
  */
-extern uint32_t get_tc_id_from_addr(const Tc* addr);
+extern uint32_t get_tc_id_from_addr(const Tc* addr, uint8_t channel);
 
 /**
  * \brief retrieve Timer/Counter base address from its ID
  * \return TC base address on success, 0 otherwise
  */
 extern Tc* get_tc_addr_from_id(uint32_t id);
-
-/**
- * \brief retrieve the interrupt ID for a given TC/channel.
- * \return IRQ ID
- */
-extern uint32_t get_tc_interrupt(uint32_t tc_id, uint8_t channel);
 
 /**
  * \brief retrieve TWI ID from its base address

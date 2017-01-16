@@ -118,12 +118,13 @@ extern void tc_disable_it(Tc* tc, uint32_t channel, uint32_t mask);
  * If no clock source has a frequency that is greater or equal to the requested
  * frequency, the clock source with the higher frequency is returned.
  *
- * \param tc    TC instance.
- * \param freq  Requested timer frequency
+ * \param tc Pointer to Tc instance.
+ * \param channel Channel number.
+ * \param freq Requested timer frequency
  *
  * \return The clock source (one of the TC_CMR_TCCLKS_TIMER_CLOCKx constants)
  */
-extern uint32_t tc_find_best_clock_source(Tc *tc, uint32_t freq);
+extern uint32_t tc_find_best_clock_source(Tc *tc, uint8_t channel, uint32_t freq);
 
 /**
  * \brief Get the value of the status register for a Channel
@@ -136,10 +137,11 @@ extern uint32_t tc_get_status(Tc* tc, uint32_t channel);
 /**
  * \brief Get available frequency of Timer Counter according to clock selection
  * \param tc Pointer to Tc instance
+ * \param channel Channel number
  * \param tc_clks TC_CMR_TCCLKS_TIMER_CLOCKx field value for clock selection.
  * \return TC frequency
  */
-extern uint32_t tc_get_available_freq(Tc* tc, uint8_t tc_clks);
+extern uint32_t tc_get_available_freq(Tc* tc, uint8_t channel, uint8_t tc_clks);
 
 /**
  * \brief Get current frequency of Timer Counter according to clock selection

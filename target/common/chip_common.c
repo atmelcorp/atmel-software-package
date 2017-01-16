@@ -610,23 +610,42 @@ Spi* get_spi_addr_from_id(uint32_t id)
 	return NULL;
 }
 
-uint32_t get_tc_id_from_addr(const Tc* addr)
+uint32_t get_tc_id_from_addr(const Tc* addr, uint8_t channel)
 {
 #ifdef TC0
 	if (addr == TC0)
+#ifdef ID_TC0_CH0
+		return ID_TC0 + channel;
+#else
 		return ID_TC0;
 #endif
+#endif
+
 #ifdef TC1
 	if (addr == TC1)
+#ifdef ID_TC1_CH0
+		return ID_TC1 + channel;
+#else
 		return ID_TC1;
 #endif
+#endif
+
 #ifdef TC2
 	if (addr == TC2)
+#ifdef ID_TC2_CH0
+		return ID_TC2 + channel;
+#else
 		return ID_TC2;
 #endif
+#endif
+
 #ifdef TC3
 	if (addr == TC3)
+#ifdef ID_TC3_CH0
+		return ID_TC3 + channel;
+#else
 		return ID_TC3;
+#endif
 #endif
 	return ID_PERIPH_COUNT;
 }
@@ -651,18 +670,6 @@ Tc* get_tc_addr_from_id(uint32_t id)
 #endif
 	return NULL;
 }
-
-uint32_t get_tc_interrupt(uint32_t tc_id, uint8_t channel)
-{
-#ifdef TC0_CH0
-	/* per-channel interrupt */
-	return tc_id + channel;
-#else
-	/* per-TC interrupt */
-	return tc_id;
-#endif
-}
-
 
 uint32_t get_twi_id_from_addr(const Twi* addr)
 {
