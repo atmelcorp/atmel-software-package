@@ -109,14 +109,19 @@ extern void tc_enable_it(Tc* tc, uint32_t channel, uint32_t mask);
 extern void tc_disable_it(Tc* tc, uint32_t channel, uint32_t mask);
 
 /**
- * \brief Find the best clock source for the required frequency
+ * \brief Find the best clock source for the requested frequency
  *
- * Finds the best clock source
+ * Finds a clock source whose frequency is greater or equal to the requested
+ * frequency and closer than all other clock sources to the requested
+ * frequency.
+ *
+ * If no clock source has a frequency that is greater or equal to the requested
+ * frequency, the clock source with the higher frequency is returned.
  *
  * \param tc    TC instance.
- * \param freq  Desired timer freq.
+ * \param freq  Requested timer frequency
  *
- * \return The clock source index
+ * \return The clock source (one of the TC_CMR_TCCLKS_TIMER_CLOCKx constants)
  */
 extern uint32_t tc_find_best_clock_source(Tc *tc, uint32_t freq);
 

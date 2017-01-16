@@ -152,16 +152,36 @@ void tc_disable_it(Tc *tc, uint32_t channel, uint32_t mask)
 
 uint32_t tc_find_best_clock_source(Tc *tc, uint32_t freq)
 {
-	uint32_t i;
+	const int tcclks[] = {
+		TC_CMR_TCCLKS_TIMER_CLOCK1,
+		TC_CMR_TCCLKS_TIMER_CLOCK2,
+		TC_CMR_TCCLKS_TIMER_CLOCK3,
+		TC_CMR_TCCLKS_TIMER_CLOCK4,
+		TC_CMR_TCCLKS_TIMER_CLOCK5,
+	};
+	int i, best, higher;
+	int best_freq, higher_freq;
 
-	for (i = 0 ; i < 5 ; i++)
-		if (freq > tc_get_available_freq(tc, i))
-			break;
+	best = higher = -1;
+	best_freq = higher_freq = 0;
+	for (i = 0 ; i < ARRAY_SIZE(tcclks) ; i++) {
+		uint32_t f = tc_get_available_freq(tc, tcclks[i]);
+		if (higher < 0 || f > higher_freq) {
+			higher_freq = f;
+			higher = tcclks[i];
+		}
+		if (f > freq) {
+			if (best < 0 || (f - freq) < (f - best_freq)) {
+				best_freq = f;
+				best = tcclks[i];
+			}
+		}
+	}
 
-	if (i > 0)
-		i--;
+	if (best < 0)
+		best = higher;
 
-	return i;
+	return best;
 }
 
 uint32_t tc_get_status(Tc *tc, uint32_t channel)
