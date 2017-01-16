@@ -137,7 +137,7 @@ smc_nandflash_slc      | OK               | OK               | OK         | OK  
 spi_serialflash        | OK               | OK               | OK         | OK               | OK         | OK         | TODO            | TODO
 spi_slave              | OK               | x                | OK         | OK               | OK         | OK         | TODO            | TODO
 ssc_dma_audio          | TODO             | OK               | OK         | OK               | OK         | OK         | TODO            | TODO
-tc                     | OK               | OK               | OK         | OK               | OK         | OK         | TODO            | TODO
+tc                     | OK               | OK               | OK         | OK               | OK         | OK         | OK              | OK
 test-pio               | OK               | OK               | TODO       | OK               | OK         | OK         | OK              | OK
 timer                  | OK               | OK               | OK         | OK               | OK         | OK         | OK              | OK
 twi_eeprom             | OK               | OK               | OK         | OK               | OK         | OK         | TODO            | TODO

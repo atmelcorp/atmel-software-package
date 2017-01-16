@@ -38,7 +38,8 @@
  *
  * \section Requirements
  *
- * This package can be used with SAMA5D2, SAMA5D3, SAMA5D3 and SAM9XX5 targets.
+ * This package can be used with SAMA5D2, SAMA5D3, SAMA5D3, SAM9XX5 and SAMV71
+ * targets.
  * A jumper cable must connected between the TC Waveform pin and the TC capture
  * pin, please read README.md for information.
  *
@@ -157,6 +158,10 @@
 	#include "config_sam9xx5-ek.h"
 #elif defined(CONFIG_BOARD_SAM9X35_EK)
 	#include "config_sam9xx5-ek.h"
+#elif defined(CONFIG_BOARD_SAME70_XPLAINED)
+	#include "config_same70-xplained.h"
+#elif defined(CONFIG_BOARD_SAMV71_XPLAINED)
+	#include "config_samv71-xplained.h"
 #else
 	#error Unsupported board!
 #endif
