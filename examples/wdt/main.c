@@ -97,7 +97,7 @@
 #include "board.h"
 #include "irq/irq.h"
 #include "peripherals/pmc.h"
-#include "peripherals/tc.h"
+#include "peripherals/tcd.h"
 #include "peripherals/wdt.h"
 #include "serial/console.h"
 
@@ -118,6 +118,11 @@
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
+
+static struct _tcd_desc _tc = {
+	.addr = TC0,
+	.channel = 0,
+};
 
 /** Global timestamp in 1/4 seconds since last watchdog reset */
 static volatile uint32_t _countdown_timer = 0;
@@ -140,16 +145,23 @@ static void _configure_wdt(uint32_t timer, uint32_t delta_timer)
 }
 
 /**
- * Interrupt handler for TC0 interrupt.
+ *  Interrupt handler for WDT interrupt.
+ */
+static void _wdt_handler(uint32_t source, void* user_arg)
+{
+	assert(source == ID_WDT);
+
+	uint8_t status = wdt_get_status();
+	printf("WDT interrupt - Watchdog UnderFlow:%d - Watchdog Error:%d\n\r",
+		status & WDT_SR_WDUNF  ? 1 : 0, status & WDT_SR_WDERR ? 1 : 0);
+}
+
+/**
+ * Callback for TC
  * Resets WDT at different periods depending on user input
  */
-static void tc0_handler(uint32_t source, void* user_arg)
+static int _tc_handler(void* user_arg)
 {
-	assert(source == ID_TC0);
-
-	/* Clear status bit to acknowledge interrupt */
-	tc_get_status(TC0, 0);
-
 	if (_countdown_timer > (16000 / 250) && _change_period == 0) {
 		printf("WDT has been Reset after 16s\n\r");
 		_countdown_timer = 0;
@@ -170,40 +182,20 @@ static void tc0_handler(uint32_t source, void* user_arg)
 	} else {
 		_countdown_timer++;
 	}
+
+	return 0;
 }
 
 /**
- *  Interrupt handler for WDT interrupt.
- */
-static void wdt_handler(uint32_t source, void* user_arg)
-{
-	assert(source == ID_WDT);
-
-	uint8_t status = wdt_get_status();
-	printf("WDT interrupt - Watchdog UnderFlow:%d - Watchdog Error:%d\n\r",
-		status & WDT_SR_WDUNF  ? 1 : 0, status & WDT_SR_WDERR ? 1 : 0);
-}
-
-/**
- *  Configure Timer Counter 0 to generate an interrupt every 250ms.
+ *  Configure Timer Counter to generate an interrupt every 250ms.
  */
 static void _configure_tc(void)
 {
-	uint32_t irq_id = get_tc_interrupt(ID_TC0, 0);
+	struct _callback _cb;
 
-	/** Enable peripheral clock. */
-	pmc_configure_peripheral(ID_TC0, NULL, true);
-
-	/** Configure TC for a 4Hz frequency and trigger on RC compare */
-	tc_trigger_on_freq(TC0, 0, 4);
-
-	/* Configure and enable interrupt on RC compare */
-	irq_add_handler(irq_id, tc0_handler, NULL);
-	irq_enable(irq_id);
-	tc_enable_it(TC0, 0, TC_IER_CPCS);
-
-	/* Start the counter */
-	tc_start(TC0, 0);
+	tcd_configure_counter(&_tc, 0, 4); /* 4 Hz */
+	callback_set(&_cb, _tc_handler, NULL);
+	tcd_start(&_tc, &_cb);
 }
 
 /*----------------------------------------------------------------------------
@@ -228,7 +220,7 @@ int main(void)
 	_configure_tc() ;
 
 	printf("Configure WDT.\n\r");
-	irq_add_handler(ID_WDT, wdt_handler, NULL);
+	irq_add_handler(ID_WDT, _wdt_handler, NULL);
 	irq_enable(ID_WDT);
 
 	printf("uses DBG key 1/2/3/4.\n\r");

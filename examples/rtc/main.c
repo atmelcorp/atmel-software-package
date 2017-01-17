@@ -119,7 +119,7 @@
 #include "irq/irq.h"
 #include "peripherals/pmc.h"
 #include "peripherals/rtc.h"
-#include "peripherals/tc.h"
+#include "peripherals/tcd.h"
 
 #include <assert.h>
 #include <stdint.h>
@@ -153,6 +153,11 @@
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
+
+static struct _tcd_desc calibration_tc = {
+        .addr = TC0,
+        .channel = 0,
+};
 
 volatile uint16_t temperature = 0;
 volatile uint32_t count_down_timer = 0;
@@ -553,13 +558,8 @@ static void rtc_handler(uint32_t source, void* user_arg)
 /**
  *  Interrupt handler for TC0 interrupt. resets wdt at different period depending on user input
  */
-static void calibration_tc_handler(uint32_t source, void* user_arg)
+static int calibration_tc_handler(void* user_arg)
 {
-	assert(source == ID_TC0);
-
-	/* Clear status bit to acknowledge interrupt */
-	tc_get_status(TC0, 0);
-
 	 // Recalibrate at every 1 minute
 	if (count_down_timer >= 60) {
 		rtc_calibration(temperature);
@@ -567,39 +567,23 @@ static void calibration_tc_handler(uint32_t source, void* user_arg)
 		count_down_timer = 0;
 	}
 	count_down_timer++;
-}
 
-/**
- *  Configure Timer Counter 0 to generate an interrupt every 250ms.
- */
-static void configure_calibration_tc(void)
-{
-	uint32_t irq_id = get_tc_interrupt(ID_TC0, 0);
-
-	/** Enable peripheral clock. */
-	pmc_configure_peripheral(ID_TC0, NULL, true);
-
-	/** Configure TC for a 1Hz frequency and trigger on RC compare. */
-	tc_trigger_on_freq(TC0, 0, 1);
-
-	/* Configure and enable interrupt on RC compare */
-	irq_add_handler(irq_id, calibration_tc_handler, NULL);
-	irq_enable(irq_id);
-	tc_enable_it(TC0, 0, TC_IER_CPCS);
-
-	/* Start the counter */
-	tc_start(TC0, 0);
+	return 0;
 }
 
 static void disable_calibration_tc(void)
 {
-	tc_stop(TC0, 0);
+	tcd_stop(&calibration_tc);
 }
 
 static void enable_calibration_tc(void)
 {
+	struct _callback _cb;
+
+	callback_set(&_cb, calibration_tc_handler, NULL);
+
 	count_down_timer = 0;
-	tc_start(TC0, 0);
+	tcd_start(&calibration_tc, &_cb);
 }
 
 #else /* CONFIG_HAVE_RTC_CALIBRATION */
@@ -641,7 +625,8 @@ int main(void)
 
 #ifdef CONFIG_HAVE_RTC_CALIBRATION
 	printf("Configuring TC for periodic re-calibration.\r\n");
-	configure_calibration_tc();
+	tcd_configure_counter(&calibration_tc, 0, 1); /* 1 Hz */
+	enable_calibration_tc();
 	rtc_calibration(temperature);
 #endif
 

@@ -107,7 +107,7 @@
 #include "lin.h"
 #include "peripherals/pit.h"
 #include "peripherals/pmc.h"
-#include "peripherals/tc.h"
+#include "peripherals/tcd.h"
 #include "serial/console.h"
 #include "serial/usart.h"
 #include "timer.h"
@@ -140,6 +140,9 @@
 /** LIN slave node number */
 #define LIN_SLAVE_NODE_NUM    1
 
+/** Timer counter used */
+#define TC_ADDR               TC0
+
 /** Timer counter channel used */
 #define TC_CHANNEL            0
 
@@ -152,6 +155,11 @@
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
+
+static struct _tcd_desc _tc = {
+	.addr = TC_ADDR,
+	.channel = TC_CHANNEL,
+};
 
 static const struct _pin pins_com2[] = COM2_USART_PINS;
 
@@ -195,7 +203,7 @@ static struct _lin_message lin_msg_slave = {
 
 static uint32_t lin_led_red_counter = 0;
 
-static uint8_t key;
+static volatile uint8_t key;
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -280,39 +288,28 @@ static void _console_handler(uint8_t k)
 }
 
 /**
- * \brief Interrupt handler for TC0. Record the number of bytes received,
+ * \brief Interrupt handler for TC. Record the number of bytes received,
  * and then restart a read transfer on the USART if the transfer was stopped.
  */
-static void _tc_handler(uint32_t source, void* user_arg)
+static int _tc_handler(void* user_arg)
 {
-	/* Clear status bit to acknowledge interrupt */
-	tc_get_status(TC0, TC_CHANNEL);
-
 	if (lin_msg_master.lin_cmd == PUBLISH)
 		lin_send_cmd(LIN_MASTER_NODE_NUM, LIN_FRAME_ID_12, sizeof(lin_data_master));
 	else
 		lin_send_cmd(LIN_MASTER_NODE_NUM, LIN_FRAME_ID_15, sizeof(lin_data_master));
+
+	return 0;
 }
 
-
 /**
- *  Configure Timer Counter 0 to generate an interrupt every 250ms.
+ * \brief start the TC
  */
-static void _configure_tc(Tc* tc)
+static void _start_tc(void)
 {
-	uint32_t tc_id = get_tc_id_from_addr(tc);
-	uint32_t irq_id = get_tc_interrupt(tc_id, TC_CHANNEL);
+	struct _callback _cb;
 
-	/** Enable peripheral clock. */
-	pmc_configure_peripheral(tc_id, NULL, true);
-
-	/** Configure TC for a 50Hz frequency and trigger on RC compare. */
-	tc_trigger_on_freq(tc, TC_CHANNEL, TC_FREQ);
-
-	/* Configure and enable interrupt on RC compare */
-	irq_add_handler(irq_id, _tc_handler, NULL);
-	irq_enable(irq_id);
-	tc_enable_it(tc, TC_CHANNEL, TC_IER_CPCS);
+	callback_set(&_cb, _tc_handler, NULL);
+	tcd_start(&_tc, &_cb);
 }
 
 /**
@@ -400,7 +397,7 @@ int main(void)
 	console_enable_rx_interrupt();
 
 	/* Configure Timer/Counter */
-	_configure_tc(TC0);
+	tcd_configure_counter(&_tc, 0, TC_FREQ);
 
 	/* Configure com port */
 	_init_com_master();
@@ -416,13 +413,13 @@ int main(void)
 		case 's':
 		case 'I':
 		case 'i':
-			tc_stop(TC0, TC_CHANNEL);
+			tcd_stop(&_tc);
 			_process_button_evt();
 			_display_menu();
 			if (key == 'I' || key == 'i')
-				tc_stop(TC0, 0);
+				tcd_stop(&_tc);
 			else
-				tc_start(TC0, TC_CHANNEL);
+				_start_tc();
 			key = 0;
 			break;
 		default:
@@ -430,7 +427,7 @@ int main(void)
 		}
 	} while (key != 'q' && key != 'Q');
 
-	tc_stop(TC0, TC_CHANNEL);
+	tcd_stop(&_tc);
 	msleep(500);
 	printf("\n\rEnd of demo\n\r");
 	while (1);

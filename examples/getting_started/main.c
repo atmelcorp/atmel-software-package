@@ -107,7 +107,7 @@
 #include "irq/irq.h"
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"
-#include "peripherals/tc.h"
+#include "peripherals/tcd.h"
 
 #include "serial/console.h"
 #include "led/led.h"
@@ -123,8 +123,10 @@
 /** Delay for pushbutton debouncing (in milliseconds). */
 #define DEBOUNCE_TIME       500
 
-#define TC_ADDR    TC0
-#define TC_CHAN    0
+struct _tcd_desc tc = {
+	.addr = TC0,
+	.channel = 0,
+};
 
 /*----------------------------------------------------------------------------
  *        Local variables
@@ -216,6 +218,27 @@ static void configure_buttons(void)
 
 #endif /* PINS_PUSHBUTTONS */
 
+#if NUM_LEDS > 1
+/**
+ *  Interrupt handler for TC interrupt. Toggles the state of all LEDs except 0
+ */
+static int _tc_handler(void* user_arg)
+{
+	int i;
+
+	/** Toggle LEDs state. */
+	for (i = 1; i < NUM_LEDS; ++i) {
+		if (led_status[i]) {
+			led_toggle(i);
+			printf("%i ", (unsigned int)i);
+		}
+	}
+
+	return 0;
+}
+
+#endif /* NUM_LEDS > 1 */
+
 /**
  *  \brief Handler for DBGU input.
  *
@@ -228,57 +251,15 @@ static void console_handler(uint8_t key)
 	}
 #if NUM_LEDS > 1
 	else if (key == 's') {
-		tc_stop(TC_ADDR, TC_CHAN);
+		tcd_stop(&tc);
 	} else if (key == 'b') {
-		tc_start(TC_ADDR, TC_CHAN);
+		struct _callback _cb;
+
+		callback_set(&_cb, _tc_handler, NULL);
+		tcd_start(&tc, &_cb);
 	}
 #endif
 }
-
-#if NUM_LEDS > 1
-/**
- *  Interrupt handler for TC interrupt. Toggles the state of all LEDs except 0
- */
-static void tc_handler(uint32_t source, void* user_arg)
-{
-	uint32_t status, i;
-
-	/* Get status to acknowledge interrupt */
-	status = tc_get_status(TC_ADDR, TC_CHAN);
-	if (status & TC_SR_CPCS) {
-		/** Toggle LEDs state. */
-		for (i = 1; i < NUM_LEDS; ++i) {
-			if (led_status[i]) {
-				led_toggle(i);
-				printf("%i ", (unsigned int)i);
-			}
-		}
-	}
-}
-
-/**
- *  Configure Timer Counter 0 to generate an interrupt every 250ms.
- */
-static void configure_tc(void)
-{
-	uint32_t tc_id = get_tc_id_from_addr(TC_ADDR);
-	uint32_t irq_id = get_tc_interrupt(tc_id, TC_CHAN);
-
-	/** Enable peripheral clock. */
-	pmc_configure_peripheral(tc_id, NULL, true);
-
-	/** Configure TC for a 4Hz frequency and trigger on RC compare. */
-	tc_trigger_on_freq(TC_ADDR, TC_CHAN, 4);
-
-	/* Configure and enable interrupt on RC compare */
-	irq_add_handler(irq_id, tc_handler, NULL);
-	irq_enable(irq_id);
-	tc_enable_it(TC_ADDR, TC_CHAN, TC_IER_CPCS);
-
-	/* Start the counter */
-	tc_start(TC_ADDR, TC_CHAN);
-}
-#endif /* NUM_LEDS > 1 */
 
 /*----------------------------------------------------------------------------
  *        Global functions
@@ -325,7 +306,7 @@ int main(void)
 	printf("LEDs 1-%d use a TC\r\n", NUM_LEDS - 1);
 #endif
 	printf("Press 's' to stop the TC and 'b' to start it\r\n");
-	configure_tc();
+	tcd_configure_counter(&tc, 0, 4); /* 4Hz */
 #endif
 
 	while (1) {
