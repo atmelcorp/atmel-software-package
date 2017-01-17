@@ -69,6 +69,7 @@ enum _bus_ioctl {
 	BUS_IOCTL_GET_FIFO_STATUS = 5,
 	BUS_IOCTL_SET_TRANSFER_MODE = 6,
 	BUS_IOCTL_GET_TRANSFER_MODE = 7,
+	BUS_IOCTL_SET_TIMEOUT = 8,
 };
 
 /*----------------------------------------------------------------------------
@@ -166,6 +167,7 @@ int bus_configure_slave(uint8_t bus_id, const struct _bus_dev_cfg* cfg);
  *  - BUS_IOCTL_GET_FIFO_STATUS: arg is a bool*
  *  - BUS_IOCTL_SET_TRANSFER_MODE: arg is an enum _bus_transfer_mode*
  *  - BUS_IOCTL_GET_TRANSFER_MODE: arg is an enum _bus_transfer_mode*
+ *  - BUS_IOCTL_SET_TIMEOUT: arg is a uint32_t*
  *
  * \param arg     Argument of a control
  * \return 0 on success, < 0 on error
@@ -220,8 +222,9 @@ bool bus_is_busy(uint8_t bus_id);
  * \brief Wait until the current transfer is over
  *
  * \param bus_id     bus id
+ * \return 0 on succes, errno on error
  */
-void bus_wait_transfer(uint8_t bus_id);
+int bus_wait_transfer(uint8_t bus_id);
 
 /**
  * \brief Suspend the bus if possible

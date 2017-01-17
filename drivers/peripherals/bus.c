@@ -42,6 +42,7 @@
 #ifdef CONFIG_HAVE_BUS_I2C
 #include "i2c/twid.h"
 #endif
+#include "timer.h"
 #include "trace.h"
 
 /*----------------------------------------------------------------------------
@@ -65,6 +66,8 @@ struct _bus_desc {
 	enum _bus_transfer_mode transfer_mode;
 
 	uint32_t options;
+
+	uint32_t timeout;
 
 	struct _callback callback;
 
@@ -366,6 +369,10 @@ int bus_ioctl(uint8_t bus_id, int req, void* arg)
 		if (err >= 0)
 			*(enum _bus_transfer_mode*)arg = (enum _bus_transfer_mode)err;
 		break;
+	case BUS_IOCTL_SET_TIMEOUT:
+		_bus[bus_id].timeout = *(uint32_t*)arg;
+		break;
+
 	default:
 		return -EINVAL;
 	}
@@ -453,15 +460,32 @@ bool bus_is_busy(uint8_t bus_id)
 	return mutex_is_locked(&_bus[bus_id].mutex.lock);
 }
 
-void bus_wait_transfer(uint8_t bus_id)
+int bus_wait_transfer(uint8_t bus_id)
 {
-	while (bus_is_busy(bus_id));
+	if (bus_id >= BUS_COUNT)
+		return -ENODEV;
+
+	if (_bus[bus_id].timeout > 0) {
+		struct _timeout _to;
+
+		timer_start_timeout(&_to, _bus[bus_id].timeout);
+		while (!timer_timeout_reached(&_to)) {
+			if (!bus_is_busy(bus_id))
+				return 0;
+		}
+
+		return -ETIMEDOUT;
+	} else {
+		while (bus_is_busy(bus_id));
+	}
+
+	return 0;
 }
 
 int bus_suspend(uint8_t bus_id)
 {
 	if (bus_id >= BUS_COUNT)
-	return -ENODEV;
+		return -ENODEV;
 
 	switch (_bus[bus_id].type) {
 #ifdef CONFIG_HAVE_SPI_BUS
