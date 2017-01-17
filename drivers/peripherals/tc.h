@@ -134,14 +134,6 @@ extern uint32_t tc_find_best_clock_source(Tc *tc, uint32_t freq);
 extern uint32_t tc_get_status(Tc* tc, uint32_t channel);
 
 /**
- * \brief Configure the TC to trigger on a given frequency
- * \param tc Pointer to Tc instance
- * \param channel Channel number
- * \param freq Desired timer frequency
- */
-extern void tc_trigger_on_freq(Tc* tc, uint32_t channel, uint32_t freq);
-
-/**
  * \brief Get available frequency of Timer Counter according to clock selection
  * \param tc Pointer to Tc instance
  * \param tc_clks TC_CMR_TCCLKS_TIMER_CLOCKx field value for clock selection.

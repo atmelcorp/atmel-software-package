@@ -191,18 +191,6 @@ uint32_t tc_get_status(Tc *tc, uint32_t channel)
 	return tc->TC_CHANNEL[channel].TC_SR;
 }
 
-void tc_trigger_on_freq(Tc *tc, uint32_t channel, uint32_t freq)
-{
-	uint32_t tcclks, rc;
-
-	assert(channel < ARRAY_SIZE(tc->TC_CHANNEL));
-
-	tcclks = tc_find_best_clock_source(tc, freq);
-	tc_configure(tc, channel, tcclks | TC_CMR_WAVE | TC_CMR_WAVSEL_UP_RC | TC_CMR_CPCTRG);
-	rc = tc_get_available_freq(tc, tcclks) / freq;
-	tc_set_ra_rb_rc(tc, channel, NULL, NULL, &rc);
-}
-
 uint32_t tc_get_available_freq(Tc *tc, uint8_t tc_clks)
 {
 	uint32_t tc_id = get_tc_id_from_addr(tc);
