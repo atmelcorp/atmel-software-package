@@ -27,11 +27,11 @@
 /* EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                           */
 /* ---------------------------------------------------------------------------- */
 
-#ifndef _SAMA5D21_
-#define _SAMA5D21_
+#ifndef _SAMA5D2_
+#define _SAMA5D2_
 
-/** \addtogroup SAMA5D21_definitions SAMA5D21 definitions
-  This file defines all structures and symbols for SAMA5D21:
+/** \addtogroup SAMA5D2_definitions SAMA5D2 definitions
+  This file defines all structures and symbols for SAMA5D2:
     - registers and bitfields
     - peripheral base address
     - peripheral ID
@@ -47,10 +47,10 @@
 #include "compiler.h"
 
 /* ************************************************************************** */
-/**  SOFTWARE PERIPHERAL API DEFINITION FOR SAMA5D21 */
+/**  SOFTWARE PERIPHERAL API DEFINITION FOR SAMA5D2 */
 /* ************************************************************************** */
 
-/** \addtogroup SAMA5D21_api Peripheral Software API */
+/** \addtogroup SAMA5D2_api Peripheral Software API */
 /*@{*/
 
 #include "component/component_acc.h"
@@ -70,6 +70,9 @@
 #include "component/component_l2cc.h"
 #include "component/component_lcdc.h"
 #include "component/component_matrix.h"
+#ifdef CONFIG_HAVE_MCAN
+#include "component/component_mcan.h"
+#endif
 #include "component/component_mpddrc.h"
 #include "component/component_nfc.h"
 #include "component/component_pdmic.h"
@@ -107,14 +110,20 @@
 /*@}*/
 
 /* ************************************************************************** */
-/*   BASE ADDRESS DEFINITIONS FOR SAMA5D21 */
+/*   BASE ADDRESS DEFINITIONS FOR SAMA5D2 */
 /* ************************************************************************** */
 
-/** \addtogroup SAMA5D21_base Peripheral Base Address Definitions */
+/** \addtogroup SAMA5D2_base Peripheral Base Address Definitions */
 /*@{*/
 
 #define AXIMX      ((Aximx    *)0x00600000U) /**< \brief (AXIMX     ) Base Address */
 #define L2CC       ((L2cc     *)0x00A00000U) /**< \brief (L2CC      ) Base Address */
+#if defined(CONFIG_CHIP_SAMA5D24) ||\
+    defined(CONFIG_CHIP_SAMA5D26) ||\
+    defined(CONFIG_CHIP_SAMA5D27) ||\
+    defined(CONFIG_CHIP_SAMA5D28)
+#define SDMMC0     ((Sdmmc    *)0xA0000000U) /**< \brief (SDMMC0    ) Base Address */
+#endif
 #define SDMMC1     ((Sdmmc    *)0xB0000000U) /**< \brief (SDMMC1    ) Base Address */
 #define LCDC       ((Lcdc     *)0xF0000000U) /**< \brief (LCDC      ) Base Address */
 #define XDMAC1     ((Xdmac    *)0xF0004000U) /**< \brief (XDMAC1    ) Base Address */
@@ -166,10 +175,22 @@
 #define ACC        ((Acc      *)0xF804A000U) /**< \brief (ACC       ) Base Address */
 #define SFC        ((Sfc      *)0xF804C000U) /**< \brief (SFC       ) Base Address */
 #define I2SC0      ((I2sc     *)0xF8050000U) /**< \brief (I2SC0     ) Base Address */
+#ifdef CONFIG_HAVE_MCAN
+#define MCAN0      ((Mcan     *)0xF8054000U) /**< \brief (MCAN0     ) Base Address */
+#endif
 #define SPI1       ((Spi      *)0xFC000000U) /**< \brief (SPI1      ) Base Address */
 #define SSC1       ((Ssc      *)0xFC004000U) /**< \brief (SSC1      ) Base Address */
 #define UART3      ((Uart     *)0xFC008000U) /**< \brief (UART3     ) Base Address */
 #define UART4      ((Uart     *)0xFC00C000U) /**< \brief (UART4     ) Base Address */
+#if defined(CONFIG_CHIP_SAMA5D24) ||\
+    defined(CONFIG_CHIP_SAMA5D26) ||\
+    defined(CONFIG_CHIP_SAMA5D27) ||\
+    defined(CONFIG_CHIP_SAMA5D28)
+#define FLEXCOM2   ((Flexcom  *)0xFC010000U) /**< \brief (FLEXCOM2  ) Base Address */
+#define FLEXUSART2 ((Usart    *)0xFC010200U) /**< \brief (FLEXUSART2) Base Address */
+#define FLEXSPI2   ((Spi      *)0xFC010400U) /**< \brief (FLEXSPI2  ) Base Address */
+#define FLEXTWI2   ((Twi      *)0xFC010600U) /**< \brief (FLEXTWI2  ) Base Address */
+#endif
 #define FLEXCOM3   ((Flexcom  *)0xFC014000U) /**< \brief (FLEXCOM3  ) Base Address */
 #define FLEXUSART3 ((Usart    *)0xFC014200U) /**< \brief (FLEXUSART3) Base Address */
 #define FLEXSPI3   ((Spi      *)0xFC014400U) /**< \brief (FLEXSPI3  ) Base Address */
@@ -189,24 +210,33 @@
 #define TDES       ((Tdes     *)0xFC044000U) /**< \brief (TDES      ) Base Address */
 #define CLASSD0    ((Classd   *)0xFC048000U) /**< \brief (CLASSD0   ) Base Address */
 #define I2SC1      ((I2sc     *)0xFC04C000U) /**< \brief (I2SC1     ) Base Address */
+#ifdef CONFIG_HAVE_MCAN
+#define MCAN1      ((Mcan     *)0xFC050000U) /**< \brief (MCAN1     ) Base Address */
+#endif
 #define SFRBU      ((Sfrbu    *)0xFC05C000U) /**< \brief (SFRBU     ) Base Address */
 #define CHIPID     ((Chipid   *)0xFC069000U) /**< \brief (CHIPID    ) Base Address */
 
 /*@}*/
 
 /* ************************************************************************** */
-/*   PIO DEFINITIONS FOR SAMA5D21 */
+/*   PIO DEFINITIONS FOR SAMA5D2 */
 /* ************************************************************************** */
 
-/** \addtogroup SAMA5D21_pio Peripheral Pio Definitions */
+/** \addtogroup SAMA5D2_pio Peripheral Pio Definitions */
 /*@{*/
 
-#include "pio/pio_sama5d21.h"
+#if defined(CONFIG_PACKAGE_196PIN)
+	#include "pio/pio_sama5d2_196pin.h"
+#elif defined(CONFIG_PACKAGE_256PIN)
+	#include "pio/pio_sama5d2_256pin.h"
+#elif defined(CONFIG_PACKAGE_289PIN)
+	#include "pio/pio_sama5d2_289pin.h"
+#endif
 
 /*@}*/
 
 /* ************************************************************************** */
-/*   MEMORY MAPPING DEFINITIONS FOR SAMA5D21 */
+/*   MEMORY MAPPING DEFINITIONS FOR SAMA5D2 */
 /* ************************************************************************** */
 
 #define IRAM_SIZE (0x20000u)
@@ -219,6 +249,12 @@
 #define EBI_CS3_ADDR    (0x80000000u) /**< EBI Chip Select 3 base address */
 #define QSPI_AES0_ADDR  (0x90000000u) /**< QPSI Memory crypted with AES 0 base address */
 #define QSPI_AES1_ADDR  (0x98000000u) /**< QPSI Memory crypted with AES 1 base address */
+#if defined(CONFIG_CHIP_SAMA5D24) ||\
+    defined(CONFIG_CHIP_SAMA5D26) ||\
+    defined(CONFIG_CHIP_SAMA5D27) ||\
+    defined(CONFIG_CHIP_SAMA5D28)
+#define SDMMC0_ADDR     (0xA0000000u) /**< SDMMC 0 base address */
+#endif
 #define SDMMC1_ADDR     (0xB0000000u) /**< SDMMC 1 base address */
 #define NFC_CMD_ADDR    (0xC0000000u) /**< NAND Flash Controller Command base address */
 #define QSPIMEM0_ADDR   (0xD0000000u) /**< QSPI Memory 0 base address */
@@ -242,4 +278,4 @@
 
 /*@}*/
 
-#endif /* _SAMA5D21_ */
+#endif /* _SAMA5D2_ */

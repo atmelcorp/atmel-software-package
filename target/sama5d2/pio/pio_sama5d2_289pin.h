@@ -27,8 +27,8 @@
 /* EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                           */
 /* ---------------------------------------------------------------------------- */
 
-#ifndef _SAMA5D27_PIO_
-#define _SAMA5D27_PIO_
+#ifndef _SAMA5D2_PIO_
+#define _SAMA5D2_PIO_
 
 #define PIO_PA0                (1u << 0)  /**< \brief Pin Controlled by PA0 */
 #define PIO_PA1                (1u << 1)  /**< \brief Pin Controlled by PA1 */
@@ -583,13 +583,17 @@
 #define PIO_PC5A_LCDVSYNC      (1u << 5)  /**< \brief Lcdc signal: LCDVSYNC */
 #define PIO_PC30A_LCDVSYNC     (1u << 30) /**< \brief Lcdc signal: LCDVSYNC */
 /* ========== Pio definition for MCAN0 peripheral ========== */
+#ifdef MCAN0
 #define PIO_PC2C_CANRX0        (1u << 2)  /**< \brief Mcan0 signal: CANRX0 */
 #define PIO_PC11E_CANRX0       (1u << 11) /**< \brief Mcan0 signal: CANRX0 */
 #define PIO_PC1C_CANTX0        (1u << 1)  /**< \brief Mcan0 signal: CANTX0 */
 #define PIO_PC10E_CANTX0       (1u << 10) /**< \brief Mcan0 signal: CANTX0 */
+#endif
 /* ========== Pio definition for MCAN1 peripheral ========== */
+#ifdef MCAN1
 #define PIO_PC27D_CANRX1       (1u << 27) /**< \brief Mcan1 signal: CANRX1 */
 #define PIO_PC26D_CANTX1       (1u << 26) /**< \brief Mcan1 signal: CANTX1 */
+#endif
 /* ========== Pio definition for PDMIC0 peripheral ========== */
 #define PIO_PB12D_PDMIC0_CLK   (1u << 12) /**< \brief Pdmic signal: PDMIC0_CLK */
 #define PIO_PB27D_PDMIC0_CLK   (1u << 27) /**< \brief Pdmic signal: PDMIC0_CLK */
@@ -959,4 +963,4 @@
 #define PIO_PD30_IDX           126
 #define PIO_PD31_IDX           127
 
-#endif /* _SAMA5D27_PIO_ */
+#endif /* _SAMA5D2_PIO_ */
