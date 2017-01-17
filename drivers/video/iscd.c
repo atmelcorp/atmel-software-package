@@ -112,9 +112,10 @@ static uint32_t _float2hex(uint8_t sign_bit, uint8_t magnitude_bit,
 			hex = (uint32_t)((f) * (-1.0) * (1 << fractional_bit));
 			hex &= hex_mask;
 			hex = ~hex - 1;
-		} else
+		} else {
 			hex = (uint32_t)(f * (1 << fractional_bit));
 			hex &= hex_mask;
+		}
 	}
 	return hex;
 }
@@ -132,7 +133,7 @@ static void _awb_update(void)
 	count[HISTOGRAM_GB] = (awb.count[HISTOGRAM_GB] +  awb.backup[HISTOGRAM_GB]) / 2;
 	count[HISTOGRAM_GR] = (awb.count[HISTOGRAM_GR] + awb.backup[HISTOGRAM_GR]) / 2;
 	count[HISTOGRAM_B] = (awb.count[HISTOGRAM_B] + awb.backup[HISTOGRAM_B]) / 2;
-	
+
 	gain[HISTOGRAM_R] = (float)(count[HISTOGRAM_GB]) / (float)(count[HISTOGRAM_R]);
 	gain[HISTOGRAM_GB] = 1.0000000;
 	gain[HISTOGRAM_GR] = 1.0000000;
