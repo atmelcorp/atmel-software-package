@@ -61,6 +61,16 @@ enum _bus_type {
 	(((type) == BUS_TYPE_I2C) ? (SPI_IFACE_COUNT) : \
 	(-BUS_COUNT - 1))) + (index))
 
+enum _bus_ioctl {
+	BUS_IOCTL_ENABLE = 1,
+	BUS_IOCTL_DISABLE = 2,
+	BUS_IOCTL_ENABLE_FIFO = 3,
+	BUS_IOCTL_DISABLE_FIFO = 4,
+	BUS_IOCTL_GET_FIFO_STATUS = 5,
+	BUS_IOCTL_SET_TRANSFER_MODE = 6,
+	BUS_IOCTL_GET_TRANSFER_MODE = 7,
+};
+
 /*----------------------------------------------------------------------------
  *         Exported types
  *----------------------------------------------------------------------------*/
@@ -126,38 +136,99 @@ struct _bus_dev_cfg {
  *         Exported functions
  *----------------------------------------------------------------------------*/
 
-int bus_get_id(enum _bus_type type, int bus_id);
-
+/**
+ * \brief Configure an I2C or SPI bus
+ *
+ * \param bus_id     bus id
+ * \param iface      Pointer to the configuration of the interface to plug on
+ * \return 0 on success, < 0 on error
+ */
 int bus_configure(uint8_t bus_id, const struct _bus_iface* iface);
 
+/**
+ * \brief Configure a remote device on the bus
+ *
+ * \param bus_id     bus id
+ * \param cfg        Pointer to the configuration to reach a specific remote on the bus
+ * \return 0 on success, < 0 on error
+ */
 int bus_configure_slave(uint8_t bus_id, const struct _bus_dev_cfg* cfg);
 
-int bus_transfer(uint8_t bus_id, uint16_t remote, struct _buffer* buf, uint16_t buffers, struct _callback* cb);
+/**
+ * Control the bus with specific functions
+ *
+ * \param bus_id  The bus to control
+ * \param req     The control to use
+ *  - BUS_IOCTL_ENABLE: arg is ignored
+ *  - BUS_IOCTL_DISABLE: arg is ignored,
+ *  - BUS_IOCTL_ENABLE_FIFO: arg is ignored
+ *  - BUS_IOCTL_DISABLE_FIFO: arg is ignored
+ *  - BUS_IOCTL_GET_FIFO_STATUS: arg is a bool*
+ *  - BUS_IOCTL_SET_TRANSFER_MODE: arg is an enum _bus_transfer_mode*
+ *  - BUS_IOCTL_GET_TRANSFER_MODE: arg is an enum _bus_transfer_mode*
+ *
+ * \param arg     Argument of a control
+ * \return 0 on success, < 0 on error
+ */
+int bus_ioctl(uint8_t bus_id, int req, void* arg);
 
+/**
+ * Lock the bus to transfer data.
+ * One transaction can lock the bus for multiple data transfer.
+ *
+ * It is mandatory to lock the bus before trasnferring data
+ * \param bus_id     Bus id
+ * \return 0 on success, < 0 on error
+ */
 int bus_start_transaction(uint8_t bus_id);
 
+/**
+ * Unlock the bus at the end of a transaction
+ * \param bus_id     Bus id
+ * \return 0 on success, < 0 on error
+ */
 int bus_stop_transaction(uint8_t bus_id);
 
-bool bus_wait_transaction(uint8_t bus_id);
+/**
+ * \brief Wait until the current transaction is over
+ *
+ * \param bus_id     bus id
+ */
+void bus_wait_transaction(uint8_t bus_id);
 
+/**
+ * \brief Start a data transfer on bus \bus_id for remote at address \remote
+ *
+ * \param bus_id     bus id
+ * \param remote     Address of the remote device
+ * \param buf        List of buffer to transfer
+ * \param buffers    Number of buffers to transfer
+ * \param cb         Callback to call when transfer is over
+ * \return 0 on success, < 0 on error
+ */
+int bus_transfer(uint8_t bus_id, uint16_t remote, struct _buffer* buf, uint16_t buffers, struct _callback* cb);
+
+/**
+ * \brief Verify is the bus is in use
+ *
+ * \param bus_id     bus id
+ * \return true if the bus is in use, else return false
+ */
 bool bus_is_busy(uint8_t bus_id);
 
+/**
+ * \brief Wait until the current transfer is over
+ *
+ * \param bus_id     bus id
+ */
 void bus_wait_transfer(uint8_t bus_id);
 
-int bus_get_transfer_mode(uint8_t bus_id);
-
-int bus_set_transfer_mode(uint8_t bus_id, enum _bus_transfer_mode mode);
-
-int bus_enable(uint8_t bus_id);
-
-int bus_disable(uint8_t bus_id);
-
+/**
+ * \brief Suspend the bus if possible
+ *
+ * \param bus_id     bus id
+ * \return 0 on success, < 0 on error
+ */
 int bus_suspend(uint8_t bus_id);
-
-int bus_fifo_enable(uint8_t bus_id);
-
-int bus_fifo_disable(uint8_t bus_id);
-
-int bus_fifo_is_enabled(uint8_t bus_id);
 
 #endif /* ! BUS_H */

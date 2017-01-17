@@ -227,30 +227,37 @@ static void _flash_delete_arg_parser(const uint8_t* buffer, uint32_t len)
 
 static void _flash_mode_arg_parser(const uint8_t* buffer, uint32_t len)
 {
+	enum _bus_transfer_mode mode;
+
 	if (!strncmp((char*)buffer, "polling", 7)) {
-		bus_set_transfer_mode(at25drv->cfg.bus, BUS_TRANSFER_MODE_POLLING);
+		mode = BUS_TRANSFER_MODE_POLLING;
 		printf("Use POLLING mode\r\n");
 	} else if (!strncmp((char*)buffer, "async", 5)) {
-		bus_set_transfer_mode(at25drv->cfg.bus, BUS_TRANSFER_MODE_ASYNC);
+		mode = BUS_TRANSFER_MODE_ASYNC;
 		printf("Use ASYNC mode\r\n");
 	} else if (!strncmp((char*)buffer, "dma", 3)) {
-		bus_set_transfer_mode(at25drv->cfg.bus, BUS_TRANSFER_MODE_DMA);
+		mode = BUS_TRANSFER_MODE_DMA;
 		printf("Use DMA mode\r\n");
 	} else {
-		printf("Args: %s\r\n"
-			   "Invalid mode (polling, async, dma)\r\n", buffer);
+		printf("Args: %s\r\nInvalid mode (polling, async, dma)\r\n", buffer);
+		return;
 	}
+
+	bus_ioctl(at25drv->cfg.bus, BUS_IOCTL_SET_TRANSFER_MODE, &mode);
 }
 
 #ifdef CONFIG_HAVE_SPI_FIFO
 static void _flash_feature_arg_parser(const uint8_t* buffer, uint32_t len)
 {
 	if (!strncmp((char*)buffer, "fifo", 4)) {
-		if (!bus_fifo_is_enabled(at25drv->cfg.bus)) {
-			bus_fifo_enable(at25drv->cfg.bus);
+		bool _enabled;
+
+		bus_ioctl(at25drv->cfg.bus, BUS_IOCTL_GET_FIFO_STATUS, &_enabled);
+		if (!_enabled) {
+			bus_ioctl(at25drv->cfg.bus, BUS_IOCTL_ENABLE_FIFO, NULL);
 			printf("Enable FIFO\r\n");
 		} else {
-			bus_fifo_disable(at25drv->cfg.bus);
+			bus_ioctl(at25drv->cfg.bus, BUS_IOCTL_DISABLE_FIFO, NULL);
 			printf("Disable FIFO\r\n");
 		}
 	}
@@ -260,13 +267,16 @@ static void _flash_feature_arg_parser(const uint8_t* buffer, uint32_t len)
 static void print_menu(void)
 {
 	const char* mode_str;
+	enum _bus_transfer_mode mode;
 
 	printf("\r\n");
 
 	printf("|=============== SPI SerialFlash Example ===============|\r\n");
 
 	printf("| Device: %-46s|\r\n", at25drv->desc ? at25drv->desc->name : "N/A");
-	switch (bus_get_transfer_mode(at25drv->cfg.bus)) {
+
+	bus_ioctl(at25drv->cfg.bus, BUS_IOCTL_GET_TRANSFER_MODE, &mode);
+	switch (mode) {
 	case BUS_TRANSFER_MODE_POLLING:
 		mode_str = "polling";
 		break;
@@ -282,7 +292,12 @@ static void print_menu(void)
 	}
 	printf("| Mode: %-48s|\r\n", mode_str);
 #ifdef CONFIG_HAVE_SPI_FIFO
-	printf("| FIFO: %-48s|\r\n", bus_fifo_is_enabled(at25drv->cfg.bus) ? "enabled" : "disabled");
+	{
+		bool _enabled;
+
+		bus_ioctl(at25drv->cfg.bus, BUS_IOCTL_GET_FIFO_STATUS, &_enabled);
+		printf("| FIFO: %-48s|\r\n", _enabled ? "enabled" : "disabled");
+	}
 #endif
 
 	printf("|====================== Commands =======================|\r\n"

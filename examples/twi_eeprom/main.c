@@ -147,7 +147,6 @@ static volatile uint32_t cmd_length = 0;
 static volatile bool cmd_complete = false;
 CACHE_ALIGNED static uint8_t cmd_buffer[256];
 
-int32_t _old_twid_bus_transfer_mode = -1;
 #ifdef HAVE_AT24_DEVICE
 static struct _at24* at24_device;
 #endif
@@ -164,6 +163,7 @@ static struct _at24* at24;
 static void print_menu(void)
 {
 	const char* mode_str;
+	enum _bus_transfer_mode mode;
 
 	printf("\r\n");
 
@@ -172,7 +172,9 @@ static void print_menu(void)
 	printf("| I2C Address: 0x%02x                                     |\r\n",
 	       at24->addr);
 	printf("| Device: %-46s|\r\n", at24->desc->name);
-	switch (bus_get_transfer_mode(at24->bus)) {
+
+	bus_ioctl(at24->bus, BUS_IOCTL_GET_TRANSFER_MODE, &mode);
+	switch (mode) {
 	case BUS_TRANSFER_MODE_POLLING:
 		mode_str = "polling";
 		break;
@@ -189,8 +191,12 @@ static void print_menu(void)
 	printf("| Emulated: %-44s|\r\n", at24 == &at24_emulator ? "yes" : "no");
 	printf("| Mode: %-48s|\r\n", mode_str);
 #ifdef CONFIG_HAVE_TWI_FIFO
-	printf("| FIFO: %-48s|\r\n",
-	       bus_fifo_is_enabled(at24->bus) ? "enabled" : "disabled");
+	{
+		bool _enabled;
+
+		bus_ioctl(at24->bus, BUS_IOCTL_GET_FIFO_STATUS, &_enabled);
+		printf("| FIFO: %-48s|\r\n", _enabled ? "enabled" : "disabled");
+	}
 #endif
 
 	printf("|====================== Commands =======================|\r\n"
@@ -370,24 +376,36 @@ static void _eeprom_query_arg_parser(const uint8_t* buffer, uint32_t len)
 	printf("Invalid advanced command!\r\n");
 }
 
+static void _eeprom_select_emulator(void)
+{
+	enum _bus_transfer_mode mode;
+
+	printf("Using AT24 emulator\r\n");
+	at24 = &at24_emulator;
+
+	/* In TWI slave mode, only polling mode is supported */
+	printf("Using polling mode.\r\n");
+	mode = BUS_TRANSFER_MODE_POLLING;
+	bus_ioctl(at24->bus, BUS_IOCTL_SET_TRANSFER_MODE, &mode);
+}
+
 #ifdef HAVE_AT24_DEVICE
+static void _eeprom_select_real_device(void)
+{
+	printf("Using AT24 device\r\n");
+	at24 = at24_device;
+}
+
 static void _eeprom_toggle_device_arg_parser(const uint8_t* buffer, uint32_t len)
 {
 	if (!strncmp((char*)buffer, "emulator", 8)) {
-		at24 = &at24_emulator;
-		printf("Using AT24 emulator\r\n");
-		_old_twid_bus_transfer_mode = bus_get_transfer_mode(at24->bus);
-		/* In TWI slave mode, only polling mode is supported */
-		bus_set_transfer_mode(at24->bus, BUS_TRANSFER_MODE_POLLING);
+		_eeprom_select_emulator();
 		print_menu();
 		return;
 	}
 
 	if (!strncmp((char*)buffer, "device", 8)) {
-		at24 = at24_device;
-		printf("Using AT24 device\r\n");
-		if (_old_twid_bus_transfer_mode >= 0)
-			 _old_twid_bus_transfer_mode = bus_get_transfer_mode(at24->bus);
+		_eeprom_select_real_device();
 		print_menu();
 		return;
 	}
@@ -398,36 +416,36 @@ static void _eeprom_toggle_device_arg_parser(const uint8_t* buffer, uint32_t len
 
 static void _eeprom_toggle_mode_arg_parser(const uint8_t* buffer, uint32_t len)
 {
+	enum _bus_transfer_mode mode;
+
 	if (!strncmp((char*)buffer, "polling", 7)) {
-		bus_set_transfer_mode(at24->bus, BUS_TRANSFER_MODE_POLLING);
+		mode = BUS_TRANSFER_MODE_POLLING;
 		printf("Using polling mode.\r\n");
-		return;
-	}
-
-	if (!strncmp((char*)buffer, "async", 5)) {
-		bus_set_transfer_mode(at24->bus, BUS_TRANSFER_MODE_ASYNC);
+	} else if (!strncmp((char*)buffer, "async", 5)) {
+		mode = BUS_TRANSFER_MODE_ASYNC;
 		printf("Using async mode.\r\n");
-		return;
-	}
-
-	if (!strncmp((char*)buffer, "dma", 3)) {
-		bus_set_transfer_mode(at24->bus, BUS_TRANSFER_MODE_DMA);
+	} else if (!strncmp((char*)buffer, "dma", 3)) {
+		mode = BUS_TRANSFER_MODE_DMA;
 		printf("Using DMA mode.\r\n");
-		return;
+	} else {
+		printf("Invalid mode command!\r\n");
 	}
 
-	printf("Invalid mode command!\r\n");
+	bus_ioctl(at24->bus, BUS_IOCTL_SET_TRANSFER_MODE, &mode);
 }
 
 static void _eeprom_toggle_feature_arg_parser(const uint8_t* buffer, uint32_t len)
 {
 #ifdef CONFIG_HAVE_TWI_FIFO
 	if (!strncmp((char*)buffer, "fifo", 4)) {
-		if (!bus_fifo_is_enabled(at24->bus)) {
-			bus_fifo_enable(at24->bus);
+		bool _enabled;
+
+		bus_ioctl(at24->bus, BUS_IOCTL_GET_FIFO_STATUS, &_enabled);
+		if (!_enabled) {
+			bus_ioctl(at24->bus, BUS_IOCTL_ENABLE_FIFO, NULL);
 			printf("Enable FIFO use.\r\n");
 		} else {
-			bus_fifo_disable(at24->bus);
+			bus_ioctl(at24->bus, BUS_IOCTL_DISABLE_FIFO, NULL);
 			printf("Disable FIFO use.\r\n");
 		}
 		return;
@@ -511,11 +529,9 @@ int main (void)
 
 #ifdef HAVE_AT24_DEVICE
 	at24_device = board_get_at24();
-	at24 = at24_device;
+	_eeprom_select_real_device();
 #else
-	at24 = &at24_emulator;
-	/* TWI slave implementation support only polling mode */
-	bus_set_transfer_mode(at24->bus, BUS_TRANSFER_MODE_POLLING);
+	_eeprom_select_emulator();
 #endif
 
 	print_menu();

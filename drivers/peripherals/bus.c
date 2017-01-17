@@ -96,24 +96,175 @@ static int _bus_callback(void* arg)
 	return callback_call(&_bus[bus_id].callback);
 }
 
+static int _bus_fifo_enable(uint8_t bus_id)
+{
+	int err = 0;
+
+	if (bus_id >= BUS_COUNT)
+		return -ENODEV;
+
+	switch (_bus[bus_id].type) {
+#ifdef CONFIG_HAVE_SPI_BUS
+	case BUS_TYPE_SPI:
+#ifdef CONFIG_HAVE_SPI_FIFO
+		_bus[bus_id].iface.spid.use_fifo = true;
+#endif
+		break;
+#endif
+#ifdef CONFIG_HAVE_I2C_BUS
+	case BUS_TYPE_I2C:
+#ifdef CONFIG_HAVE_TWI_FIFO
+		_bus[bus_id].iface.twid.use_fifo = true;
+#endif
+		break;
+#endif
+	default:
+		return -EINVAL;
+	}
+
+	return err;
+}
+
+static int _bus_fifo_disable(uint8_t bus_id)
+{
+	int err = 0;
+
+	if (bus_id >= BUS_COUNT)
+		return -ENODEV;
+
+	switch (_bus[bus_id].type) {
+#ifdef CONFIG_HAVE_I2C_BUS
+	case BUS_TYPE_I2C:
+#ifdef CONFIG_HAVE_TWI_FIFO
+		_bus[bus_id].iface.twid.use_fifo = false;
+#endif
+		break;
+#endif
+	default:
+		return -EINVAL;
+	}
+
+	return err;
+}
+
+static int _bus_fifo_is_enabled(uint8_t bus_id)
+{
+	int err = 0;
+
+	if (bus_id >= BUS_COUNT)
+		return -ENODEV;
+
+	switch (_bus[bus_id].type) {
+#ifdef CONFIG_HAVE_SPI_BUS
+	case BUS_TYPE_SPI:
+#ifdef CONFIG_HAVE_SPI_FIFO
+		err = _bus[bus_id].iface.spid.use_fifo;
+#endif
+		break;
+#endif
+#ifdef CONFIG_HAVE_I2C_BUS
+	case BUS_TYPE_I2C:
+#ifdef CONFIG_HAVE_TWI_FIFO
+		err = _bus[bus_id].iface.twid.use_fifo;
+#endif
+		break;
+#endif
+	default:
+		return -EINVAL;
+	}
+
+	return err;
+}
+
+static int _bus_enable(uint8_t bus_id)
+{
+	if (bus_id >= BUS_COUNT)
+		return -ENODEV;
+
+	switch (_bus[bus_id].type) {
+#ifdef CONFIG_HAVE_SPI_BUS
+	case BUS_TYPE_SPI:
+		break;
+#endif
+#ifdef CONFIG_HAVE_I2C_BUS
+	case BUS_TYPE_I2C:
+		break;
+#endif
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int _bus_disable(uint8_t bus_id)
+{
+	if (bus_id >= BUS_COUNT)
+		return -ENODEV;
+
+	switch (_bus[bus_id].type) {
+#ifdef CONFIG_HAVE_SPI_BUS
+	case BUS_TYPE_SPI:
+		break;
+#endif
+#ifdef CONFIG_HAVE_I2C_BUS
+	case BUS_TYPE_I2C:
+		break;
+#endif
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int _bus_get_transfer_mode(uint8_t bus_id)
+{
+	if (bus_id >= BUS_COUNT)
+		return -ENODEV;
+
+	switch (_bus[bus_id].type) {
+#ifdef CONFIG_HAVE_SPI_BUS
+	case BUS_TYPE_SPI:
+		return _bus[bus_id].iface.spid.transfer_mode;
+#endif
+#ifdef CONFIG_HAVE_I2C_BUS
+	case BUS_TYPE_I2C:
+		return _bus[bus_id].iface.twid.transfer_mode;
+#endif
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static int _bus_set_transfer_mode(uint8_t bus_id, enum _bus_transfer_mode mode)
+{
+	if (bus_id >= BUS_COUNT)
+		return -ENODEV;
+
+	switch (_bus[bus_id].type) {
+#ifdef CONFIG_HAVE_SPI_BUS
+	case BUS_TYPE_SPI:
+		_bus[bus_id].iface.spid.transfer_mode = mode;
+		break;
+#endif
+#ifdef CONFIG_HAVE_I2C_BUS
+	case BUS_TYPE_I2C:
+		_bus[bus_id].iface.twid.transfer_mode = mode;
+		break;
+#endif
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
 /*----------------------------------------------------------------------------
  *         Exported functions
  *----------------------------------------------------------------------------*/
-
-int bus_get_id(enum _bus_type type, int bus_id)
-{
-	int i, found = 0;
-
-	for (i = 0 ; i < BUS_COUNT; i++) {
-		if (_bus[bus_id].type == type) {
-			if (found == bus_id)
-				return found;
-			found++;
-		}
-	}
-
-	return -ENODEV;
-}
 
 int bus_configure(uint8_t bus_id, const struct _bus_iface* iface)
 {
@@ -148,7 +299,7 @@ int bus_configure(uint8_t bus_id, const struct _bus_iface* iface)
 		return -EINVAL;
 	}
 
-	bus_enable(bus_id);
+	bus_ioctl(bus_id, BUS_IOCTL_ENABLE, NULL);
 
 	return 0;
 }
@@ -178,6 +329,48 @@ int bus_configure_slave(uint8_t bus_id, const struct _bus_dev_cfg* cfg)
 	}
 
 	return 0;
+}
+
+int bus_ioctl(uint8_t bus_id, int req, void* arg)
+{
+	int err = 0;
+
+	if (bus_id >= BUS_COUNT)
+		return -EINVAL;
+
+	switch (req) {
+	case BUS_IOCTL_ENABLE:
+		err = _bus_enable(bus_id);
+		break;
+	case BUS_IOCTL_DISABLE:
+		err = _bus_disable(bus_id);
+		break;
+	case BUS_IOCTL_ENABLE_FIFO:
+		err = _bus_fifo_enable(bus_id);
+		break;
+	case BUS_IOCTL_DISABLE_FIFO:
+		err = _bus_fifo_disable(bus_id);
+		break;
+	case BUS_IOCTL_GET_FIFO_STATUS:
+		err = _bus_fifo_is_enabled(bus_id);
+		if (err >= 0) {
+			*(bool*)arg = err;
+			err = 0;
+		}
+		break;
+	case BUS_IOCTL_SET_TRANSFER_MODE:
+		err = _bus_set_transfer_mode(bus_id, *(enum _bus_transfer_mode*)arg);
+		break;
+	case BUS_IOCTL_GET_TRANSFER_MODE:
+		err = _bus_get_transfer_mode(bus_id);
+		if (err >= 0)
+			*(enum _bus_transfer_mode*)arg = (enum _bus_transfer_mode)err;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	return err;
 }
 
 int bus_transfer(uint8_t bus_id, uint16_t remote, struct _buffer* buf, uint16_t buffers, struct _callback* cb)
@@ -250,9 +443,9 @@ int bus_stop_transaction(uint8_t bus_id)
 	return 0;
 }
 
-bool bus_wait_transaction(uint8_t bus_id)
+void bus_wait_transaction(uint8_t bus_id)
 {
-	return mutex_is_locked(&_bus[bus_id].mutex.transaction);
+	while (mutex_is_locked(&_bus[bus_id].mutex.transaction));
 }
 
 bool bus_is_busy(uint8_t bus_id)
@@ -263,92 +456,6 @@ bool bus_is_busy(uint8_t bus_id)
 void bus_wait_transfer(uint8_t bus_id)
 {
 	while (bus_is_busy(bus_id));
-}
-
-int bus_get_transfer_mode(uint8_t bus_id)
-{
-	if (bus_id >= BUS_COUNT)
-		return -ENODEV;
-
-	switch (_bus[bus_id].type) {
-#ifdef CONFIG_HAVE_SPI_BUS
-	case BUS_TYPE_SPI:
-		return _bus[bus_id].iface.spid.transfer_mode;
-#endif
-#ifdef CONFIG_HAVE_I2C_BUS
-	case BUS_TYPE_I2C:
-		return _bus[bus_id].iface.twid.transfer_mode;
-#endif
-	default:
-		return -EINVAL;
-	}
-
-	return 0;
-}
-
-int bus_set_transfer_mode(uint8_t bus_id, enum _bus_transfer_mode mode)
-{
-	if (bus_id >= BUS_COUNT)
-		return -ENODEV;
-
-	switch (_bus[bus_id].type) {
-#ifdef CONFIG_HAVE_SPI_BUS
-	case BUS_TYPE_SPI:
-		_bus[bus_id].iface.spid.transfer_mode = mode;
-		break;
-#endif
-#ifdef CONFIG_HAVE_I2C_BUS
-	case BUS_TYPE_I2C:
-		_bus[bus_id].iface.twid.transfer_mode = mode;
-		break;
-#endif
-	default:
-		return -EINVAL;
-	}
-
-	return 0;
-}
-
-int bus_enable(uint8_t bus_id)
-{
-	if (bus_id >= BUS_COUNT)
-		return -ENODEV;
-
-	switch (_bus[bus_id].type) {
-#ifdef CONFIG_HAVE_SPI_BUS
-	case BUS_TYPE_SPI:
-		break;
-#endif
-#ifdef CONFIG_HAVE_I2C_BUS
-	case BUS_TYPE_I2C:
-		break;
-#endif
-	default:
-		return -EINVAL;
-	}
-
-	return 0;
-}
-
-int bus_disable(uint8_t bus_id)
-{
-	if (bus_id >= BUS_COUNT)
-		return -ENODEV;
-
-	switch (_bus[bus_id].type) {
-#ifdef CONFIG_HAVE_SPI_BUS
-	case BUS_TYPE_SPI:
-		break;
-#endif
-#ifdef CONFIG_HAVE_I2C_BUS
-	case BUS_TYPE_I2C:
-		break;
-#endif
-	default:
-		return -EINVAL;
-	}
-
-	return 0;
 }
 
 int bus_suspend(uint8_t bus_id)
@@ -370,84 +477,4 @@ int bus_suspend(uint8_t bus_id)
 	}
 
 	return -ENOTSUP;
-}
-
-int bus_fifo_enable(uint8_t bus_id)
-{
-	int err = 0;
-
-	if (bus_id >= BUS_COUNT)
-		return -ENODEV;
-
-	switch (_bus[bus_id].type) {
-#ifdef CONFIG_HAVE_SPI_BUS
-	case BUS_TYPE_SPI:
-#ifdef CONFIG_HAVE_SPI_FIFO
-		_bus[bus_id].iface.spid.use_fifo = true;
-#endif
-		break;
-#endif
-#ifdef CONFIG_HAVE_I2C_BUS
-	case BUS_TYPE_I2C:
-#ifdef CONFIG_HAVE_TWI_FIFO
-		_bus[bus_id].iface.twid.use_fifo = true;
-#endif
-		break;
-#endif
-	default:
-		return -EINVAL;
-	}
-
-	return err;
-}
-
-int bus_fifo_disable(uint8_t bus_id)
-{
-	int err = 0;
-
-	if (bus_id >= BUS_COUNT)
-		return -ENODEV;
-
-	switch (_bus[bus_id].type) {
-#ifdef CONFIG_HAVE_I2C_BUS
-	case BUS_TYPE_I2C:
-#ifdef CONFIG_HAVE_TWI_FIFO
-		_bus[bus_id].iface.twid.use_fifo = false;
-#endif
-		break;
-#endif
-	default:
-		return -EINVAL;
-	}
-
-	return err;
-}
-
-int bus_fifo_is_enabled(uint8_t bus_id)
-{
-	int err = 0;
-
-	if (bus_id >= BUS_COUNT)
-		return -ENODEV;
-
-	switch (_bus[bus_id].type) {
-#ifdef CONFIG_HAVE_SPI_BUS
-	case BUS_TYPE_SPI:
-#ifdef CONFIG_HAVE_SPI_FIFO
-		err = _bus[bus_id].iface.spid.use_fifo;
-#endif
-		break;
-#endif
-#ifdef CONFIG_HAVE_I2C_BUS
-	case BUS_TYPE_I2C:
-#ifdef CONFIG_HAVE_TWI_FIFO
-		err = _bus[bus_id].iface.twid.use_fifo;
-#endif
-		break;
-#endif
-	default:
-		return -EINVAL;
-	}
-
-	return err;
 }
