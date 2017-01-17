@@ -37,12 +37,15 @@
 
 bool slowclock_is_internal(void)
 {
-	return (SCKC->SCKC_CR & SCKC_CR_OSCSEL) == SCKC_CR_OSCSEL;
+	return (SCKC->SCKC_CR & SCKC_CR_OSCSEL) != SCKC_CR_OSCSEL;
 }
 
 void slowclock_select_internal(void)
 {
 	volatile int count;
+
+	if (slowclock_is_internal())
+		return;
 
 #ifdef SCKC_CR_RCEN
 	/* enable external OSC 32 kHz */
@@ -67,6 +70,9 @@ void slowclock_select_internal(void)
 void slowclock_select_external(void)
 {
 	volatile int count;
+
+	if (!slowclock_is_internal())
+		return;
 
 #ifdef SCKC_CR_OSC32EN
 	/* enable external OSC 32 kHz */
