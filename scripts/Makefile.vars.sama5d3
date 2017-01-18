@@ -129,6 +129,6 @@ ifeq ($(CONFIG_CHIP_SAMA5D36),y)
 	CONFIG_HAVE_UART = y
 endif
 
-CFLAGS_CPU += -mcpu=cortex-a5  -mfpu=vfpv4-d16
+CFLAGS_CPU += -mcpu=cortex-a5 -mfpu=vfpv4-d16 -mfloat-abi=hard
 
 endif
