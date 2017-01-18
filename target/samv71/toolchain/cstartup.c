@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "barriers.h"
 #include "board.h"
 #include "irq/nvic.h"
 
@@ -182,6 +183,11 @@ static void _dummy_handler(void)
 SECTION(".cstartup") USED
 void reset_handler(void)
 {
+	/* enable FPU */
+	SCB->SCB_CPACR |= SCB_CPACR_CP10_FULL | SCB_CPACR_CP11_FULL;
+	dsb();
+	isb();
+
 #if defined(__GNUC__)
 
 	uint32_t *src, *dst;

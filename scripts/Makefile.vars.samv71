@@ -210,6 +210,6 @@ ifeq ($(CONFIG_CHIP_SAMV71J19),y)
 	CONFIG_FLASH_512KB = y
 endif
 
-CFLAGS_CPU += -mcpu=cortex-m7 -mthumb
+CFLAGS_CPU += -mcpu=cortex-m7 -mthumb -mfpu=fpv5-d16 -mfloat-abi=hard
 
 endif
