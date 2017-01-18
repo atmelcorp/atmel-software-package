@@ -33,7 +33,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "sama5d3x.h"
+#include "sama5d3.h"
 #include "chip_common.h"
 
 /* ************************************************************************** */

@@ -207,11 +207,15 @@
 #define PIO_PC31A_FIQ        (1u << 31) /**< \brief Aic signal: FIQ */
 #define PIO_PE31A_IRQ        (1u << 31) /**< \brief Aic signal: IRQ */
 /* ========== Pio definition for CAN0 peripheral ========== */
+#ifdef CAN0
 #define PIO_PD14C_CANRX0     (1u << 14) /**< \brief Can0 signal: CANRX0 */
 #define PIO_PD15C_CANTX0     (1u << 15) /**< \brief Can0 signal: CANTX0 */
+#endif
 /* ========== Pio definition for CAN1 peripheral ========== */
+#ifdef CAN1
 #define PIO_PB14B_CANRX1     (1u << 14) /**< \brief Can1 signal: CANRX1 */
 #define PIO_PB15B_CANTX1     (1u << 15) /**< \brief Can1 signal: CANTX1 */
+#endif
 /* ========== Pio definition for DBGU peripheral ========== */
 #define PIO_PB30A_DRXD       (1u << 30) /**< \brief Dbgu signal: DRXD */
 #define PIO_PB31A_DTXD       (1u << 31) /**< \brief Dbgu signal: DTXD */
@@ -252,6 +256,7 @@
 #define PIO_PE29A_NWR1       (1u << 29) /**< \brief Ebi signal: NWR1/NBS1 */
 #define PIO_PE29A_NBS1       (1u << 29) /**< \brief Ebi signal: NWR1/NBS1 */
 /* ========== Pio definition for EMAC peripheral ========== */
+#ifdef EMAC0
 #define PIO_PC5A_ECRSDV      (1u << 5)  /**< \brief Emac signal: ECRSDV */
 #define PIO_PC8A_EMDC        (1u << 8)  /**< \brief Emac signal: EMDC */
 #define PIO_PC9A_EMDIO       (1u << 9)  /**< \brief Emac signal: EMDIO */
@@ -262,7 +267,9 @@
 #define PIO_PC0A_ETX0        (1u << 0)  /**< \brief Emac signal: ETX0 */
 #define PIO_PC1A_ETX1        (1u << 1)  /**< \brief Emac signal: ETX1 */
 #define PIO_PC4A_ETXEN       (1u << 4)  /**< \brief Emac signal: ETXEN */
+#endif
 /* ========== Pio definition for GMAC peripheral ========== */
+#ifdef GMAC0
 #define PIO_PB18A_G125CK     (1u << 18) /**< \brief Gmac signal: G125CK */
 #define PIO_PB27B_G125CKO    (1u << 27) /**< \brief Gmac signal: G125CKO */
 #define PIO_PB15A_GCOL       (1u << 15) /**< \brief Gmac signal: GCOL */
@@ -291,6 +298,7 @@
 #define PIO_PB8A_GTXCK       (1u << 8)  /**< \brief Gmac signal: GTXCK */
 #define PIO_PB9A_GTXEN       (1u << 9)  /**< \brief Gmac signal: GTXEN */
 #define PIO_PB10A_GTXER      (1u << 10) /**< \brief Gmac signal: GTXER */
+#endif
 /* ========== Pio definition for HSMCI0 peripheral ========== */
 #define PIO_PD0A_MCI0_CDA    (1u << 0)  /**< \brief Hsmci0 signal: MCI0_CDA */
 #define PIO_PD9A_MCI0_CK     (1u << 9)  /**< \brief Hsmci0 signal: MCI0_CK */
@@ -310,12 +318,14 @@
 #define PIO_PB22A_MCI1_DA2   (1u << 22) /**< \brief Hsmci1 signal: MCI1_DA2 */
 #define PIO_PB23A_MCI1_DA3   (1u << 23) /**< \brief Hsmci1 signal: MCI1_DA3 */
 /* ========== Pio definition for HSMCI2 peripheral ========== */
+#ifdef HSMCI2
 #define PIO_PC10A_MCI2_CDA   (1u << 10) /**< \brief Hsmci2 signal: MCI2_CDA */
 #define PIO_PC15A_MCI2_CK    (1u << 15) /**< \brief Hsmci2 signal: MCI2_CK */
 #define PIO_PC11A_MCI2_DA0   (1u << 11) /**< \brief Hsmci2 signal: MCI2_DA0 */
 #define PIO_PC12A_MCI2_DA1   (1u << 12) /**< \brief Hsmci2 signal: MCI2_DA1 */
 #define PIO_PC13A_MCI2_DA2   (1u << 13) /**< \brief Hsmci2 signal: MCI2_DA2 */
 #define PIO_PC14A_MCI2_DA3   (1u << 14) /**< \brief Hsmci2 signal: MCI2_DA3 */
+#endif
 /* ========== Pio definition for ISI peripheral ========== */
 #define PIO_PA16C_ISI_D0     (1u << 16) /**< \brief Isi signal: ISI_D0 */
 #define PIO_PA17C_ISI_D1     (1u << 17) /**< \brief Isi signal: ISI_D1 */
@@ -333,6 +343,7 @@
 #define PIO_PC30C_ISI_PCK    (1u << 30) /**< \brief Isi signal: ISI_PCK */
 #define PIO_PA30C_ISI_VSYNC  (1u << 30) /**< \brief Isi signal: ISI_VSYNC */
 /* ========== Pio definition for LCDC peripheral ========== */
+#ifdef LCDC
 #define PIO_PA0A_LCDDAT0     (1u << 0)  /**< \brief Lcdc signal: LCDDAT0 */
 #define PIO_PA1A_LCDDAT1     (1u << 1)  /**< \brief Lcdc signal: LCDDAT1 */
 #define PIO_PA10A_LCDDAT10   (1u << 10) /**< \brief Lcdc signal: LCDDAT10 */
@@ -371,6 +382,7 @@
 #define PIO_PA28A_LCDPCK     (1u << 28) /**< \brief Lcdc signal: LCDPCK */
 #define PIO_PA24A_LCDPWM     (1u << 24) /**< \brief Lcdc signal: LCDPWM */
 #define PIO_PA26A_LCDVSYNC   (1u << 26) /**< \brief Lcdc signal: LCDVSYNC */
+#endif
 /* ========== Pio definition for PMC peripheral ========== */
 #define PIO_PD30B_PCK0       (1u << 30) /**< \brief Pmc signal: PCK0 */
 #define PIO_PD31B_PCK1       (1u << 31) /**< \brief Pmc signal: PCK1 */
@@ -439,6 +451,7 @@
 #define PIO_PC13B_TIOB1      (1u << 13) /**< \brief Tc0 signal: TIOB1 */
 #define PIO_PE28B_TIOB2      (1u << 28) /**< \brief Tc0 signal: TIOB2 */
 /* ========== Pio definition for TC1 peripheral ========== */
+#ifdef TC1
 #define PIO_PC2B_TCLK3       (1u << 2)  /**< \brief Tc1 signal: TCLK3 */
 #define PIO_PC5B_TCLK4       (1u << 5)  /**< \brief Tc1 signal: TCLK4 */
 #define PIO_PC8B_TCLK5       (1u << 8)  /**< \brief Tc1 signal: TCLK5 */
@@ -448,6 +461,7 @@
 #define PIO_PC1B_TIOB3       (1u << 1)  /**< \brief Tc1 signal: TIOB3 */
 #define PIO_PC4B_TIOB4       (1u << 4)  /**< \brief Tc1 signal: TIOB4 */
 #define PIO_PC7B_TIOB5       (1u << 7)  /**< \brief Tc1 signal: TIOB5 */
+#endif
 /* ========== Pio definition for TWI0 peripheral ========== */
 #define PIO_PA31A_TWCK0      (1u << 31) /**< \brief Twi0 signal: TWCK0 */
 #define PIO_PA30A_TWD0       (1u << 30) /**< \brief Twi0 signal: TWD0 */
@@ -458,11 +472,15 @@
 #define PIO_PA19B_TWCK2      (1u << 19) /**< \brief Twi2 signal: TWCK2 */
 #define PIO_PA18B_TWD2       (1u << 18) /**< \brief Twi2 signal: TWD2 */
 /* ========== Pio definition for UART0 peripheral ========== */
+#ifdef UART0
 #define PIO_PC29A_URXD0      (1u << 29) /**< \brief Uart0 signal: URXD0 */
 #define PIO_PC30A_UTXD0      (1u << 30) /**< \brief Uart0 signal: UTXD0 */
+#endif
 /* ========== Pio definition for UART1 peripheral ========== */
+#ifdef UART1
 #define PIO_PA30B_URXD1      (1u << 30) /**< \brief Uart1 signal: URXD1 */
 #define PIO_PA31B_UTXD1      (1u << 31) /**< \brief Uart1 signal: UTXD1 */
+#endif
 /* ========== Pio definition for USART0 peripheral ========== */
 #define PIO_PD15A_CTS0       (1u << 15) /**< \brief Usart0 signal: CTS0 */
 #define PIO_PD16A_RTS0       (1u << 16) /**< \brief Usart0 signal: RTS0 */

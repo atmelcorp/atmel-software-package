@@ -73,16 +73,24 @@
 #include "component/component_aic.h"
 #include "component/component_aximx.h"
 #include "component/component_bsc.h"
+#ifdef CONFIG_HAVE_CAN
 #include "component/component_can.h"
+#endif
 #include "component/component_dbgu.h"
 #include "component/component_dmac.h"
+#ifdef CONFIG_HAVE_EMAC
 #include "component/component_emac.h"
+#endif
+#ifdef CONFIG_HAVE_GMAC
 #include "component/component_gmac.h"
+#endif
 #include "component/component_fuse.h"
 #include "component/component_gpbr.h"
 #include "component/component_hsmci.h"
 #include "component/component_isi.h"
+#ifdef CONFIG_HAVE_LCDC
 #include "component/component_lcdc.h"
+#endif
 #include "component/component_matrix.h"
 #include "component/component_mpddrc.h"
 #include "component/component_nfc.h"
@@ -103,7 +111,9 @@
 #include "component/component_tc.h"
 #include "component/component_trng.h"
 #include "component/component_twi.h"
+#ifdef CONFIG_HAVE_UART
 #include "component/component_uart.h"
+#endif
 #include "component/component_udphs.h"
 #include "component/component_usart.h"
 #include "component/component_wdt.h"
@@ -124,30 +134,52 @@
 #define HSMCI0   ((Hsmci    *)0xF0000000U) /**< \brief (HSMCI0  ) Base Address */
 #define SPI0     ((Spi      *)0xF0004000U) /**< \brief (SPI0    ) Base Address */
 #define SSC0     ((Ssc      *)0xF0008000U) /**< \brief (SSC0    ) Base Address */
+#ifdef CONFIG_HAVE_CAN
 #define CAN0     ((Can      *)0xF000C000U) /**< \brief (CAN0    ) Base Address */
+#endif
 #define TC0      ((Tc       *)0xF0010000U) /**< \brief (TC0     ) Base Address */
 #define TWI0     ((Twi      *)0xF0014000U) /**< \brief (TWI0    ) Base Address */
 #define TWI1     ((Twi      *)0xF0018000U) /**< \brief (TWI1    ) Base Address */
 #define USART0   ((Usart    *)0xF001C000U) /**< \brief (USART0  ) Base Address */
 #define USART1   ((Usart    *)0xF0020000U) /**< \brief (USART1  ) Base Address */
+#ifdef CONFIG_HAVE_UART
 #define UART0    ((Uart     *)0xF0024000U) /**< \brief (UART0   ) Base Address */
+#endif
+#ifdef CONFIG_HAVE_GMAC
 #define GMAC0    ((Gmac     *)0xF0028000U) /**< \brief (GMAC0   ) Base Address */
+#endif
 #define PWM0     ((Pwm      *)0xF002C000U) /**< \brief (PWM0    ) Base Address */
+#ifdef CONFIG_HAVE_LCDC
 #define LCDC     ((Lcdc     *)0xF0030000U) /**< \brief (LCDC    ) Base Address */
+#endif
 #define ISI      ((Isi      *)0xF0034000U) /**< \brief (ISI     ) Base Address */
 #define SFR      ((Sfr      *)0xF0038000U) /**< \brief (SFR     ) Base Address */
 #define HSMCI1   ((Hsmci    *)0xF8000000U) /**< \brief (HSMCI1  ) Base Address */
+#if defined(CONFIG_CHIP_SAMA5D31) ||\
+    defined(CONFIG_CHIP_SAMA5D34) ||\
+    defined(CONFIG_CHIP_SAMA5D35) ||\
+    defined(CONFIG_CHIP_SAMA5D36)
 #define HSMCI2   ((Hsmci    *)0xF8004000U) /**< \brief (HSMCI2  ) Base Address */
+#endif
 #define SPI1     ((Spi      *)0xF8008000U) /**< \brief (SPI1    ) Base Address */
 #define SSC1     ((Ssc      *)0xF800C000U) /**< \brief (SSC1    ) Base Address */
+#ifdef CONFIG_HAVE_CAN
 #define CAN1     ((Can      *)0xF8010000U) /**< \brief (CAN1    ) Base Address */
+#endif
+#if defined(CONFIG_CHIP_SAMA5D35) ||\
+    defined(CONFIG_CHIP_SAMA5D36)
 #define TC1      ((Tc       *)0xF8014000U) /**< \brief (TC1     ) Base Address */
+#endif
 #define ADC      ((Adc      *)0xF8018000U) /**< \brief (ADC     ) Base Address */
 #define TWI2     ((Twi      *)0xF801C000U) /**< \brief (TWI2    ) Base Address */
 #define USART2   ((Usart    *)0xF8020000U) /**< \brief (USART2  ) Base Address */
 #define USART3   ((Usart    *)0xF8024000U) /**< \brief (USART3  ) Base Address */
+#ifdef CONFIG_HAVE_UART
 #define UART1    ((Uart     *)0xF8028000U) /**< \brief (UART1   ) Base Address */
+#endif
+#ifdef CONFIG_HAVE_EMAC
 #define EMAC0    ((Emac     *)0xF802C000U) /**< \brief (EMAC0   ) Base Address */
+#endif
 #define UDPHS    ((Udphs    *)0xF8030000U) /**< \brief (UDPHS   ) Base Address */
 #define SHA      ((Sha      *)0xF8034000U) /**< \brief (SHA     ) Base Address */
 #define AES      ((Aes      *)0xF8038000U) /**< \brief (AES     ) Base Address */
@@ -187,7 +219,7 @@
 /** \addtogroup SAMA5D3x_pio Peripheral Pio Definitions */
 /*@{*/
 
-#include "pio/pio_sama5d3x.h"
+#include "pio/pio_sama5d3.h"
 
 /*@}*/
 
