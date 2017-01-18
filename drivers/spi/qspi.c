@@ -188,6 +188,25 @@ static int qspi_init_ifr(const struct spi_flash_command *cmd, uint32_t *ifr)
 {
 	*ifr = 0;
 
+#ifdef QSPI_IFR_TFRTYP_TRSFR_REGISTER
+	switch (cmd->flags & SFLASH_TYPE_MASK) {
+	case SFLASH_TYPE_READ_REG:
+		*ifr |= QSPI_IFR_APBTFRTYP_READ | QSPI_IFR_TFRTYP_TRSFR_REGISTER;
+		break;
+	case SFLASH_TYPE_READ:
+		*ifr |= QSPI_IFR_APBTFRTYP_READ | QSPI_IFR_TFRTYP_TRSFR_MEMORY;
+		break;
+	case SFLASH_TYPE_WRITE_REG:
+	case SFLASH_TYPE_ERASE:
+		*ifr |= QSPI_IFR_APBTFRTYP_WRITE | QSPI_IFR_TFRTYP_TRSFR_REGISTER;
+		break;
+	case SFLASH_TYPE_WRITE:
+		*ifr |= QSPI_IFR_APBTFRTYP_WRITE | QSPI_IFR_TFRTYP_TRSFR_MEMORY;
+		break;
+	default:
+		return -1;
+	}
+#else
 	switch (cmd->flags & SFLASH_TYPE_MASK) {
 	case SFLASH_TYPE_READ:
 		*ifr |= QSPI_IFR_TFRTYP_TRSFR_READ_MEMORY;
@@ -209,6 +228,7 @@ static int qspi_init_ifr(const struct spi_flash_command *cmd, uint32_t *ifr)
 	default:
 		return -1;
 	}
+#endif
 
 	switch (cmd->proto) {
 	case SFLASH_PROTO_1_1_1:
@@ -280,6 +300,10 @@ static int qspi_exec(union spi_flash_priv* priv, const struct spi_flash_command 
 		 ((cmd->flags & SFLASH_TYPE_MASK) == SFLASH_TYPE_READ_REG ) ||
 		 (((cmd->flags & SFLASH_TYPE_MASK) == SFLASH_TYPE_WRITE_REG ) &&
 		  (cmd->data_len != 0))) ? true : false;
+#ifdef QSPI_RICR_RDINST
+	bool icr_write = false;
+#endif
+
 	iar = 0;
 	icr = 0;
 
@@ -288,7 +312,18 @@ static int qspi_exec(union spi_flash_priv* priv, const struct spi_flash_command 
 		return -1;
 
 	/* Compute instruction parameters. */
+#ifdef QSPI_RICR_RDINST
+	if (!cmd->data_len
+	    || cmd->flags & SFLASH_TYPE_MASK == SFLASH_TYPE_WRITE_REG
+	    || cmd->flags & SFLASH_TYPE_MASK == SFLASH_TYPE_WRITE) {
+		icr_write = true;
+		icr |= QSPI_WICR_WRINST(cmd->instruction);
+	} else {
+		icr |= QSPI_RICR_RDINST(cmd->instruction);
+	}
+#else
 	icr |= QSPI_ICR_INST(cmd->inst);
+#endif
 	ifr |= QSPI_IFR_INSTEN;
 
 	/* Compute address parameters. */
@@ -312,7 +347,14 @@ static int qspi_exec(union spi_flash_priv* priv, const struct spi_flash_command 
 	if (cmd->num_mode_cycles) {
 		uint32_t mode_cycle_bits, mode_bits;
 
+#ifdef QSPI_RICR_RDINST
+		if (icr_write)
+			icr |= QSPI_WICR_WROPT(cmd->mode);
+		else
+			icr |= QSPI_RICR_RDOPT(cmd->mode);
+#else
 		icr |= QSPI_ICR_OPT(cmd->mode);
+#endif
 		ifr |= QSPI_IFR_OPTEN;
 
 		switch (ifr & QSPI_IFR_WIDTH_Msk) {
@@ -414,7 +456,14 @@ next:
 
 	/* Set QSPI Instruction Frame registers. */
 	qspi->QSPI_IAR = iar;
+#ifdef QSPI_RICR_RDINST
+	if (icr_write)
+		qspi->QSPI_WICR = icr;
+	else
+		qspi->QSPI_RICR = icr;
+#else
 	qspi->QSPI_ICR = icr;
+#endif
 	qspi->QSPI_IFR = ifr;
 
 	/* Skip to the final steps if there is no data. */
