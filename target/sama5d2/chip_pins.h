@@ -856,7 +856,7 @@
 
 /* QSPI0 IOSET 3 */
 #define PINS_QSPI0_IOS3 {\
-	{ PIO_GROUP_A, 0x0fc00000, PIO_PERIPH_F, PIO_PULLUP },\
+	{ PIO_GROUP_A, 0x0fc00000, PIO_PERIPH_F, PIO_PULLUP | PIO_DRVSTR_HI },\
 }
 
 /* ========== Pio PIN definition for QSPI1 peripheral ========== */
