@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2016, Atmel Corporation
+ * Copyright (c) 2017, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,17 +27,8 @@
  * ----------------------------------------------------------------------------
  */
 
-/**
- * \file
- *
- * Interface for Enhanced Embedded Flash Controller (EEFC).
- *
- */
-
-#ifndef EEFC_H_
-#define EEFC_H_
-
-#ifdef CONFIG_HAVE_EEFC
+#ifndef EEFC_H
+#define EEFC_H
 
 /*----------------------------------------------------------------------------
  *        Headers
@@ -50,11 +41,62 @@
  *----------------------------------------------------------------------------*/
 
 /**
- * \brief Set the number of wait states for read and write operations.
- * \param fws Number of cycles for Read/Write operations - 1
+ * \brief Enables the flash ready interrupt source on the EEFC peripheral.
+ *
+ * \param efc  Pointer to a Eefc instance
  */
-extern void eefc_set_flash_wait_states(uint8_t fws);
+extern void eefc_enable_frdy_it(Eefc* eefc);
 
-#endif /* CONFIG_HAVE_EEFC */
+/**
+ * \brief Disables the flash ready interrupt source on the EEFC peripheral.
+ *
+ * \param efc  Pointer to a Efc instance
+ */
+extern void eefc_disable_frdy_it(Eefc* eefc);
 
-#endif /* EEFC_H_ */
+/**
+ * \brief Set read/write wait state on the EEFC peripheral.
+ *
+ * \param efc  Pointer to a Efc instance
+ * \param cycles  the number of wait states in cycle.
+ */
+extern void eefc_set_flash_wait_states(Eefc* eefc, uint8_t cycles);
+
+/**
+ * \brief Read Unique Identifier from the EEFC peripheral.
+ *
+ * \param efc  Pointer to a Efc instance
+ * \param uid  Pointer to a 16-byte buffer that will be updated with the unique ID.
+ */
+extern int eefc_read_unique_id(Eefc* eefc, uint8_t* uid);
+
+/**
+ * \brief Performs the given command and wait until its completion (or an error).
+ *
+ * \param eefc  Pointer to a Efc instance
+ * \param cmd  Command to perform.
+ * \param arg  Optional command argument.
+ *
+ * \return 0 if successful, otherwise returns an error code.
+ */
+extern int eefc_perform_command(Eefc* eefc, uint32_t command, uint32_t arg);
+
+/**
+ * \brief Returns the current status of the EEFC.
+ *
+ * \note Keep in mind that this function clears the value of some status bits
+ * (LOCKE, PROGE).
+ *
+ * \param efc  Pointer to a Efc instance
+ */
+extern uint32_t eefc_get_status(Eefc* eefc);
+
+/**
+ * \brief Returns the result of the last executed command.
+ *
+ * \param efc  Pointer to a Efc instance
+ */
+extern uint32_t eefc_get_result(Eefc* eefc);
+
+#endif /* EEFC_H */
+

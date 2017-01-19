@@ -110,7 +110,7 @@ void board_cfg_clocks(void)
 		.div = 1,
 		.count = 0x3f,
 	};
-	eefc_set_flash_wait_states(get_flash_wait_states(300000000));
+	eefc_set_flash_wait_states(EEFC, get_flash_wait_states(300000000));
 	pmc_switch_mck_to_slck();
 	pmc_disable_plla();
 	pmc_select_external_osc();

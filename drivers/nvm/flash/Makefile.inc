@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2015, Atmel Corporation
+# Copyright (c) 2017, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -26,9 +26,5 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-drivers-$(CONFIG_HAVE_SFC) += drivers/nvm/sfc.o
-
-include $(TOP)/drivers/nvm/i2c/Makefile.inc
-include $(TOP)/drivers/nvm/nand/Makefile.inc
-include $(TOP)/drivers/nvm/spi-nor/Makefile.inc
-include $(TOP)/drivers/nvm/flash/Makefile.inc
+drivers-$(CONFIG_HAVE_EEFC) += drivers/nvm/flash/eefc.o
+drivers-$(CONFIG_HAVE_EEFC) += drivers/nvm/flash/flashd.o
