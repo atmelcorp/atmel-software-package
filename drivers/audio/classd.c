@@ -419,8 +419,8 @@ void classd_disable_channels(struct _classd_desc *desc, bool left, bool right)
 
 void classd_set_left_attenuation(struct _classd_desc *desc, uint8_t attn)
 {
-	if (attn < 1 || attn > 0x3f)
-		return;
+	if (attn > (CLASSD_INTPMR_ATTL_Msk >> CLASSD_INTPMR_ATTL_Pos))
+		attn = (CLASSD_INTPMR_ATTL_Msk >> CLASSD_INTPMR_ATTL_Pos);
 
 	uint32_t intpmr = desc->addr->CLASSD_INTPMR & ~CLASSD_INTPMR_ATTL_Msk;
 	desc->addr->CLASSD_INTPMR = intpmr | CLASSD_INTPMR_ATTL(attn);
@@ -428,8 +428,8 @@ void classd_set_left_attenuation(struct _classd_desc *desc, uint8_t attn)
 
 void classd_set_right_attenuation(struct _classd_desc *desc, uint8_t attn)
 {
-	if (attn < 1 || attn > 0x3f)
-		return;
+	if (attn > (CLASSD_INTPMR_ATTL_Msk >> CLASSD_INTPMR_ATTL_Pos))
+		attn = (CLASSD_INTPMR_ATTL_Msk >> CLASSD_INTPMR_ATTL_Pos);
 
 	uint32_t intpmr = desc->addr->CLASSD_INTPMR & ~CLASSD_INTPMR_ATTR_Msk;
 	desc->addr->CLASSD_INTPMR = intpmr | CLASSD_INTPMR_ATTR(attn);
