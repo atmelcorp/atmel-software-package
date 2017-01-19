@@ -46,7 +46,7 @@ MEMORY
 }
 
 /* Sizes of the stacks used by the application. NOTE: you need to adjust */
-C_STACK_SIZE   = 0x400;
+C_STACK_SIZE   = 0x800;
 HEAP_SIZE      = 0x200;
 
 /* Section Definitions */

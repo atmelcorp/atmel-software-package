@@ -4,7 +4,7 @@ define region RAM_NC_region = mem:[from 0x2045F000 to 0x2045FFFF];
 define region EXTRAM_region = mem:[from 0x70000000 to 0x700FFFFF];
 define region FLASH_region = mem:[from 0x00400000 to 0x005FFFFF];
 
-define block CSTACK with alignment = 8, size = 0x400 { };
+define block CSTACK with alignment = 8, size = 0x800 { };
 define block HEAP   with alignment = 4, size = 0x200 { };
 
 define block SRAM { section .region_sram  };
