@@ -40,6 +40,9 @@ Dependencies:
 - scripts/
   generators and build script templates (Makefiles)
 
+- arch/
+  CPU Core driver source files
+
 - drivers/
   Driver source files
 
@@ -59,7 +62,7 @@ The examples are listed in [softpack.md](softpack.md).
 
 ## Environment Variable
 
-TARGET: Name of the wanted target (sama5d2-xplained for SAMA5D2 XPLAINED ULTRA
+TARGET: Name of the target (sama5d2-xplained for SAMA5D2 XPLAINED ULTRA
 boards).
 
 VARIANT: Build variant, for example "sram" or "ddram".
@@ -70,6 +73,8 @@ TRACE_LEVEL: Log level, 5 correspond to full, 0 to none (default to 5)
 
 RELEASE: Build for release, otherwise build for debug.
 
+V=1: Verbose build
+
 All these variables are optional except for TARGET that must be provided or set
 at each make invocation.
 
@@ -77,7 +82,7 @@ at each make invocation.
 
 Run:
 
-``make TARGET=wanted_target``
+``make TARGET=target``
 
 ## Run and Debug (with GDB)
 
@@ -87,7 +92,7 @@ for each platform at http://www.segger.com
 A make target is provided to launch the test with the correct gdb command
 arguments, run:
 
-``make TARGET=wanted_target debug``
+``make TARGET=target debug``
 
 # Usage (IAR)
 
@@ -101,7 +106,7 @@ and must be installed manually.
 
 An IAR project can be generated with GNU make, run in the example directory:
 
-``make TARGET=wanted_target iar``
+``make TARGET=target iar``
 
 All needed IAR project files will be put in the example directory, including a
 default workspace one.

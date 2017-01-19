@@ -1,5 +1,59 @@
 # Atmel Software Package
 
+The Atmel Softpack can be found on [GitHub](https://github.com/atmelcorp/atmel-software-package).
+
+## Version 2.8 - 2017-01
+
+### New drivers/examples
+
+- Add preliminary support for SAME70/S70/V70/V71 Cortex-M7 MCUs: support for
+  running from SRAM and flash, few drivers and examples supported (see
+  softpack.md).
+- Add generic API for IRQ handling. All drivers updated to use this new API.
+- Add generic DMA API: simplification and scatter-gather management. All
+  drivers updated to use this new API.
+- Add support for IS42S16100E SDRAM.
+- Add common bus API covering SPI and I2C.
+- Add high-level TC driver (supports counter, waveform and capture). All
+  examples and drivers updated to use this new API.
+
+### Enhancements
+
+- Fixed system time counting. Less interrupts triggered now and micro-second
+  precision.
+- Reorganized source files in drivers/ directory.
+- Changed build output directory: now ./build/<target>/<variant>.
+- IAR entry point is now configurable from Makefiles.
+- Rename CONFIG_SOC_xxx to CONFIG_CHIP for actual device name.
+- Move CPU core drivers to a new arch/ directory.
+- Group common code from target/<target>/board_support to target/common:
+  CLASSD, ISC, ISI, LCD, PDMIC, QSPI, SSC, timer.
+- Group common chip code to target/common/chip_common.{c,h}:
+  get_xxx_addr_from_id and get_xxx_id_from_addr functions.
+- Reworked l1/l2 cache API.
+- Upgrade LWIP to 2.0.0. Add HTTP and iperf server examples.
+- Audio device driver now handles DMA setup.
+- Reuse allocated DMA channels in all drivers instead of reallocating them on
+  each transfer.
+- Change several drivers to return errno values.
+- Improve SHA driver and implement message padding
+- Renamed several peripherals: PWM to PWM0, CLASSD to CLASSD0, PDMIC to PDMIC0,
+  TWIHSx to TWIx.
+- Renamed Flexcom devices: now FLEXUSARTx, FLEXTWIx and FLEXSPIx.
+- Merge SAMA5D2 headers: now single header for all SAMA5D2x devices.
+- Handle variation between SAMA5D3 devices.
+
+### Fixes
+
+- Fix ClassD stereo playing in polling mode.
+- Fix AES CFB transfer size.
+- Add support for missing group E to PIO3 driver.
+- Fix xdmac_enable_channels/xdmac_disable_channels to support more than 8
+  channels.
+- Fix inversion of slow clock frequency between internal RC and external
+  crystal.
+
+
 ## Version 2.7 - 2016-12
 
 ### New drivers/examples

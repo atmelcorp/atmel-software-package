@@ -1,4 +1,4 @@
-Copyright (c) 2015-2016, Atmel Corporation All rights reserved.
+Copyright (c) 2015-2017, Atmel Corporation All rights reserved.
 ---------------------------------------------------------------
 
 Redistribution and use in source and binary forms, with or without
