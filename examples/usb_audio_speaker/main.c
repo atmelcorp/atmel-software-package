@@ -194,9 +194,14 @@ static struct _audio_ctx {
 		.tx = 0,
 		.count = 0,
 	},
-	.volume =  AUDIO_PLAY_MAX_VOLUME / 2,
+	.volume =  (AUDIO_PLAY_MAX_VOLUME * 80) / 100,
 	.playing = false,
 };
+
+#ifdef PINS_PUSHBUTTONS
+/** Pushbutton \#1 pin instance. */
+static const struct _pin button_pins[] = PINS_PUSHBUTTONS;
+#endif
 
 /*----------------------------------------------------------------------------
  *         Internal functions
@@ -278,6 +283,14 @@ static void _usb_frame_recv_callback(void* arg, uint8_t status, uint32_t transfe
 static void console_handler(uint8_t key)
 {
 	switch (key) {
+	case '0':
+		_audio_ctx.volume = 0;
+		audio_set_volume(&audio_device, _audio_ctx.volume);
+		break;
+	case '1':
+		_audio_ctx.volume = AUDIO_PLAY_MAX_VOLUME;
+		audio_set_volume(&audio_device, _audio_ctx.volume);
+		break;
 	case '+':
 		if (_audio_ctx.volume < AUDIO_PLAY_MAX_VOLUME) {
 			_audio_ctx.volume += 10;
@@ -305,6 +318,47 @@ static void console_handler(uint8_t key)
 		break;
 	}
 }
+
+#ifdef PINS_PUSHBUTTONS
+
+/**
+ *  \brief Handler for Buttons rising edge interrupt.
+ *
+ *  Handle process led1 status change.
+ */
+static void pio_handler(uint32_t group, uint32_t status, void* user_arg)
+{
+	if (group == button_pins[0].group && (status & button_pins[0].mask)) {
+		if (_audio_ctx.volume < AUDIO_PLAY_MAX_VOLUME)
+			_audio_ctx.volume += 10;
+		else
+			_audio_ctx.volume = 0;
+		audio_set_volume(&audio_device, _audio_ctx.volume);
+	}
+}
+
+/**
+ *  \brief Configure the Pushbuttons
+ *
+ *  Configure the PIO as inputs and generate corresponding interrupt when
+ *  pressed or released.
+ */
+static void configure_buttons(void)
+{
+	/* Adjust debounce filter parameters, use 10 Hz filter */
+	pio_set_debounce_filter(10);
+
+	/* Configure PIO */
+	pio_configure(&button_pins[0], 1);
+
+	/* Initialize interrupt with its handlers */
+	pio_add_handler_to_group(button_pins[0].group, button_pins[0].mask, pio_handler, NULL);
+
+	/* Enable interrupts */
+	pio_enable_it(button_pins);
+}
+
+#endif /* PINS_PUSHBUTTONS */
 
 /*----------------------------------------------------------------------------
  *         Callbacks re-implementation
@@ -406,6 +460,10 @@ int main(void)
 	/* Configure audio play volume */
 	audio_set_volume(&audio_device, _audio_ctx.volume);
 
+#ifdef PINS_PUSHBUTTONS
+	configure_buttons();
+#endif
+
 	/* USB audio driver initialization */
 	audd_speaker_driver_initialize(&audd_speaker_driver_descriptors);
 
@@ -414,6 +472,7 @@ int main(void)
 
 	printf("=========================================================\n\r");
 	printf("Input '+' or '-' to increase or decrease volume\n\r");
+	printf("Input '0' or '1' to set volume to min / max\n\r");
 	printf("Input 'm' or 'u' to mute or unmute sound\n\r");
 	printf("=========================================================\n\r");
 
