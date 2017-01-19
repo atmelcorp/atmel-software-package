@@ -46,6 +46,7 @@ This release contains the following examples:
 * ddram: Example of DDRAM usage
 * dma: Example of DMA usage with generic API
 * getting_started: LED blink (uses PIT, TC and PIO)
+* eefc: Internal Flash Example
 * eth: GMAC/EMAC example using a simple IP stack
 * eth_lwip: GMAC/EMAC example using LWIP stack
 * eth_uip_helloworld: GMAC/EMAC example using UIP stack (UIP helloworld example)
@@ -114,6 +115,7 @@ crypto_trng            | OK               | OK               | OK         | OK  
 ddram                  | OK               | OK               | OK         | OK               | OK         | OK         | OK              | OK
 dma                    | OK               | OK               | OK         | OK               | OK         | OK         | TODO            | TODO
 getting_started        | OK               | OK               | OK         | OK               | OK         | OK         | OK              | OK
+eefc                   | x                | x                | x          | x                | x          | x          | OK              | OK
 eth                    | OK               | OK               | OK         | OK               | OK         | OK         | TODO            | TODO
 eth_lwip               | OK               | OK               | OK         | OK               | OK         | OK         | TODO            | TODO
 eth_uip_helloworld     | OK               | OK               | OK         | OK               | OK         | OK         | TODO            | TODO
