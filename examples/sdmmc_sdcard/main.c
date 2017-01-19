@@ -446,7 +446,6 @@ static bool read_file(uint8_t slot_ix, sSdCard *pSd, FATFS *fs)
 	    file_size += len) {
 		res = f_read(&f_header, data_buf, buf_size, &len);
 		if (res == FR_OK) {
-			cache_clean_region(data_buf, len);
 #ifdef CONFIG_HAVE_SHA
 			sha_buf.attr = 0;
 			sha_buf.data = (uint8_t*)data_buf;
