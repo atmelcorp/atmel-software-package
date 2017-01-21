@@ -120,7 +120,7 @@ void dcache_clean(void)
 
 	for (way = 0; way < L1_CACHE_WAYS; way++)
 		for (set = 0; set < L1_CACHE_SETS; set++)
-			cp15_dcache_invalidate_setway(L1_CACHE_SETWAY(set, way));
+			cp15_dcache_clean_setway(L1_CACHE_SETWAY(set, way));
 
 	dsb();
 }
