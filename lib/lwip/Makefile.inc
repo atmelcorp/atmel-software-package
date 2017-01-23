@@ -34,6 +34,10 @@ lib-y += lib/lwip.a
 
 lwip-y :=
 
+ifeq ($(CONFIG_LIB_LWIP_DEFAULT_CONFIG),y)
+CFLAGS_DEFS += -DCONFIG_LIB_LWIP_DEFAULT_CONFIG
+endif
+
 include $(TOP)/lib/lwip/softpack/Makefile.inc
 include $(TOP)/lib/lwip/src/Makefile.inc
 
