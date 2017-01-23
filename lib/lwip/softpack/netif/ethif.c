@@ -38,30 +38,29 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
-#include "board.h"
-#include "board_eth.h"
-
-#include "compiler.h"
-
-#include "network/ethd.h"
-#include "gpio/pio.h"
-#include "network/phy.h"
-
-#include "lwip/opt.h"
-#include "netif/ethif.h"
-#include "lwip/def.h"
-#include "lwip/mem.h"
-#include "lwip/pbuf.h"
-#include "lwip/sys.h"
-#include "lwip/stats.h"
-#include "netif/etharp.h"
-
-#include "timer.h"
-#include "lwip/priv/tcp_priv.h"
-
 #include <string.h>
 #include <stdio.h>
+
+#include "board.h"
+#include "board_eth.h"
+#include "chip.h"
+#include "compiler.h"
+#include "gpio/pio.h"
+#include "lwip/opt.h"
+#include "netif/etharp.h"
+#include "netif/ethif.h"
+#include "network/ethd.h"
+#include "network/phy.h"
+#include "lwip/def.h"
+#if LWIP_DHCP
+#include "lwip/dhcp.h"
+#endif
+#include "lwip/mem.h"
+#include "lwip/pbuf.h"
+#include "lwip/priv/tcp_priv.h"
+#include "lwip/stats.h"
+#include "lwip/sys.h"
+#include "timer.h"
 
 /*----------------------------------------------------------------------------
  *        Definitions
@@ -89,10 +88,14 @@ typedef struct _timers_info {
 /* lwIP tmr functions list */
 static timers_info timers_table[] = {
 	/* LWIP_TCP */
+#if LWIP_TCP
 	{ 0, TCP_FAST_INTERVAL,     tcp_fasttmr},
 	{ 0, TCP_SLOW_INTERVAL,     tcp_slowtmr},
+#endif
 	/* LWIP_ARP */
+#if LWIP_ARP
 	{ 0, ARP_TMR_INTERVAL,      etharp_tmr},
+#endif
 	/* LWIP_DHCP */
 #if LWIP_DHCP
 	{ 0, DHCP_COARSE_TIMER_SECS, dhcp_coarse_tmr},
