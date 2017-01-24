@@ -450,6 +450,22 @@
 	PIN_QSPI0_SCK,\
 }
 
+/* ========== Pio PIN definition for HSMCI0 peripheral ========== */
+
+/** HSMCI0 pin Card Command slot A (CDA) */
+#define PIN_HSMCI0_CMD_A { PIO_GROUP_A, PIO_PA28C_MCCDA, PIO_PERIPH_C, PIO_DEFAULT }
+
+/** HSMCI0 pin Card Clock (CK) */
+#define PIN_HSMCI0_CK { PIO_GROUP_A, PIO_PA25D_MCCK, PIO_PERIPH_D, PIO_DEFAULT }
+
+/** HSMCI0 pin 1-bit Data slot A (DA0) */
+#define PIN_HSMCI0_DATA1B_A { PIO_GROUP_A, 0x40000000, PIO_PERIPH_C, PIO_DEFAULT }
+
+/** HSMCI0 pin 4-bit Data slot A (DA0-3) */
+#define PIN_HSMCI0_DATA4B_A { PIO_GROUP_A, 0xCC000000, PIO_PERIPH_C, PIO_DEFAULT }
+
+//=============================================================================
+
 /* ========== Pio PIN definition for GMAC0 peripheral ========== */
 
 #define PIN_GMAC0_GTXCK { PIO_GROUP_D, PIO_PD0A_GTXCK, PIO_PERIPH_A, PIO_DEFAULT }

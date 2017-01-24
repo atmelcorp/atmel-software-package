@@ -141,4 +141,22 @@
 #define BOARD_ETH0_PHY_RETRIES PHY_DEFAULT_RETRIES
 #define BOARD_ETH0_PHY_IRQ_PIN { PIO_GROUP_A, PIO_PA19, PIO_INPUT, PIO_PULLUP }
 
+/* =================== HSMCI device definition ==================== */
+
+/** HSMCI Card detect pin definition */
+#define BOARD_HSMCI0_PIN_CD \
+	{ PIO_GROUP_D, PIO_PD18, PIO_INPUT, PIO_DEFAULT }
+
+/** HSMCI0 device interface pin set definition */
+#define BOARD_HSMCI0_DEV_PINS \
+	{ PIN_HSMCI0_CMD_A, PIN_HSMCI0_CK, PIN_HSMCI0_DATA4B_A }
+
+/** HSMCI0 pin set definition */
+#define BOARD_HSMCI0_PINS \
+	{ PIN_HSMCI0_CMD_A, PIN_HSMCI0_CK, PIN_HSMCI0_DATA4B_A, \
+	  BOARD_HSMCI0_PIN_CD }
+
+/** HSMCI0 slot definition */
+#define BOARD_HSMCI0_SLOT 0
+
 #endif /* _BOARD_SAMV71_XPLAINED_H */
