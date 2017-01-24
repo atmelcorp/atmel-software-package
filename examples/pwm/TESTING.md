@@ -48,7 +48,15 @@ Connect EXP_PB11 (J15 pin 26) and EXP_PE12 (J15 pin 9) on the board.
 ----------------
 Connect PC11 (J2 pin 27) and PA22 (J1 pin 18) on the board.
 
-* Start the application (SAMA5D2-XPLAINED,SAMA5D3-EK,SAMA5D4-XPLAINED,SAMA5D4-EK)
+### SAME70-XPLAINED
+----------------
+Connect PA25 (J507 pin 25) and PA0 (J401 pin 7) on the board.
+
+### SAMV71-XPLAINED
+----------------
+Connect PC19 (EXT2 pin 7) and PA0 (J503 pin 3) on the board.
+
+* Start the application
 * In the terminal window, the following text should appear (values depend on the
  board and chip used):
 ```

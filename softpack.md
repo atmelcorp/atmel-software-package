@@ -126,7 +126,7 @@ low_power_mode         | OK               | OK               | OK         | OK  
 pdmic                  | OK               | x                | x          | x                | x          | x          | TODO            | TODO
 pmc_clock_switching    | OK               | OK               | OK         | OK               | OK         | OK         | TODO            | TODO
 power_consumption_pll  | OK               | OK               | OK         | OK               | OK         | OK         | TODO            | TODO
-pwm                    | OK               | x                | OK         | OK               | OK         | OK         | x               | x
+pwm                    | OK               | x                | OK         | OK               | OK         | OK         | OK              | OK
 qspi_flash             | OK               | x                | x          | x                | x          | x          | x               | TODO
 qspi_xip               | OK               | x                | x          | x                | x          | x          | x               | TODO
 rtc                    | OK               | OK               | OK         | OK               | OK         | OK         | TODO            | TODO
