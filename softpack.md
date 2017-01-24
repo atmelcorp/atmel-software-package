@@ -141,7 +141,7 @@ tc                     | OK               | OK               | OK         | OK  
 test-pio               | OK               | OK               | TODO       | OK               | OK         | OK         | OK              | OK
 timer                  | OK               | OK               | OK         | OK               | OK         | OK         | OK              | OK
 twi_eeprom             | OK               | OK               | OK         | OK               | OK         | OK         | TODO            | TODO
-usart                  | OK               | OK               | TODO       | OK               | OK         | OK         | TODO            | TODO
+usart                  | OK               | OK               | TODO       | OK               | OK         | OK         | OK              | OK
 usart_irda             | OK               | TODO             | TODO       | OK               | OK         | OK         | TODO            | TODO
 usart_iso7816          | OK               | OK               | OK         | OK               | OK         | OK         | TODO            | TODO
 usart_lin              | OK               | x                | x          | x                | x          | x          | TODO            | TODO

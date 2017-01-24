@@ -39,6 +39,14 @@ Connect USART4
 --------------------
 Connect USART3 (pin 1 on J20 and pin 2 on J20)
 
+### same70-xplained
+--------------------
+Connect USART2 (pin 5 on J505 and pin 6 on J505)
+
+### samv71-xplained
+--------------------
+Connect USART2 (pin 5 on J505 and pin 6 on J505)
+
 ## Start the application
 ------------------------
 
