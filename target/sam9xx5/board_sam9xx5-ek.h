@@ -148,22 +148,21 @@
 
 /* =================== HSMCI device definition ==================== */
 
-/** HSMCI0 power control: none, always powered on */
-
 /** HSMCI0 Card detect pin definition */
 #define BOARD_HSMCI0_PIN_CD \
 	{ PIO_GROUP_D, PIO_PD15, PIO_INPUT, PIO_DEFAULT }
 
 /** HSMCI0 device interface pin set definition */
 #define BOARD_HSMCI0_DEV_PINS \
-	{ PIN_HSMCI0_CDA, PIN_HSMCI0_CK, PINS_HSMCI0_DA }
+	{ PIN_HSMCI0_CMD_A, PIN_HSMCI0_CK, PINS_HSMCI0_DATA4B_A }
 
 /** HSMCI0 pin set definition */
 #define BOARD_HSMCI0_PINS \
-	{ PIN_HSMCI0_CDA, PIN_HSMCI0_CK, PINS_HSMCI0_DA, BOARD_HSMCI0_PIN_CD }
+	{ PIN_HSMCI0_CMD_A, PIN_HSMCI0_CK, PINS_HSMCI0_DATA4B_A, \
+	  BOARD_HSMCI0_PIN_CD }
 
 /** HSMCI0 slot definition */
-#define BOARD_HSMCI0_SLOT HSMCI_SDCR_SDCSEL_SLOTA
+#define BOARD_HSMCI0_SLOT 0
 
 /** HSMCI1 Card detect pin definition */
 #define BOARD_HSMCI1_PIN_CD \
@@ -171,11 +170,15 @@
 
 /** HSMCI1 device interface pin set definition */
 #define BOARD_HSMCI1_DEV_PINS \
-	{ PIN_HSMCI1_CDA, PIN_HSMCI1_CK, PINS_HSMCI1_DA }
+	{ PIN_HSMCI1_CMD_A, PIN_HSMCI1_CK, PINS_HSMCI1_DATA4B_A }
 
 /** HSMCI1 pin set definition */
 #define BOARD_HSMCI1_PINS \
-	{ PIN_HSMCI1_CDA, PIN_HSMCI1_CK, PINS_HSMCI1_DA, BOARD_HSMCI1_PIN_CD }
+	{ PIN_HSMCI1_CMD_A, PIN_HSMCI1_CK, PINS_HSMCI1_DATA4B_A, \
+	  BOARD_HSMCI1_PIN_CD }
+
+/** HSMCI1 slot definition */
+#define BOARD_HSMCI1_SLOT 0
 
 /* =================== ETH0 definition =================== */
 

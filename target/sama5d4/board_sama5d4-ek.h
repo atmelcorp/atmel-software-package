@@ -145,29 +145,27 @@
 
 /* =================== HSMCI device definition ==================== */
 
-/** HSMCI0 power control: none, always powered on */
-
-/** HSMCI0: the 4 most-significant data bits miss on-board pull-up resistors,
- *  enable the on-chip pull-up resistors. */
-#define PINS_HSMCI0_DA4_7 \
-	{ PIO_GROUP_C, PIO_PC10B_MCI0_DA4 | PIO_PC11B_MCI0_DA5 \
-	  | PIO_PC12B_MCI0_DA6 | PIO_PC13B_MCI0_DA7, PIO_PERIPH_B, PIO_PULLUP }
-
 /** HSMCI0 Card detect pin definition */
 #define BOARD_HSMCI0_PIN_CD \
 	{ PIO_GROUP_E, PIO_PE5, PIO_INPUT, PIO_DEFAULT }
 
+/** HSMCI0: the 4 most-significant data bits miss on-board pull-up resistors,
+ *  enable the on-chip pull-up resistors. */
+#define PINS_HSMCI0_DATA8B_A_MSB \
+	{ PIO_GROUP_C, PIO_PC10B_MCI0_DA4 | PIO_PC11B_MCI0_DA5 \
+	  | PIO_PC12B_MCI0_DA6 | PIO_PC13B_MCI0_DA7, PIO_PERIPH_B, PIO_PULLUP }
+
 /** HSMCI0 device interface pin set definition */
 #define BOARD_HSMCI0_DEV_PINS \
-	{ PIN_HSMCI0_CDA, PIN_HSMCI0_CK, PINS_HSMCI0_DA0_3, PINS_HSMCI0_DA4_7 }
+	{ PIN_HSMCI0_CMD_A, PIN_HSMCI0_CK, PINS_HSMCI0_DATA4B_A, PINS_HSMCI0_DATA8B_A_MSB }
 
 /** HSMCI0 pin set definition */
 #define BOARD_HSMCI0_PINS \
-	{ PIN_HSMCI0_CDA, PIN_HSMCI0_CK, PINS_HSMCI0_DA0_3, PINS_HSMCI0_DA4_7, \
+	{ PIN_HSMCI0_CMD_A, PIN_HSMCI0_CK, PINS_HSMCI0_DATA4B_A, PINS_HSMCI0_DATA8B_A_MSB, \
 	  BOARD_HSMCI0_PIN_CD }
 
 /** HSMCI0 slot definition */
-#define BOARD_HSMCI0_SLOT HSMCI_SDCR_SDCSEL_SLOTA
+#define BOARD_HSMCI0_SLOT 0
 
 /** HSMCI1 power control definition */
 #define BOARD_HSMCI1_PIN_POWER \
@@ -179,12 +177,15 @@
 
 /** HSMCI1 device interface pin set definition */
 #define BOARD_HSMCI1_DEV_PINS \
-	{ PIN_HSMCI1_CDA, PIN_HSMCI1_CK, PINS_HSMCI1_DA }
+	{ PIN_HSMCI1_CMD_A, PIN_HSMCI1_CK, PINS_HSMCI1_DATA4B_A }
 
 /** HSMCI1 pin set definition */
 #define BOARD_HSMCI1_PINS \
-	{ BOARD_HSMCI1_PIN_POWER, PIN_HSMCI1_CDA, \
-	  PIN_HSMCI1_CK, PINS_HSMCI1_DA, BOARD_HSMCI1_PIN_CD }
+	{ PIN_HSMCI1_CMD_A, PIN_HSMCI1_CK, PINS_HSMCI1_DATA4B_A, \
+	  BOARD_HSMCI1_PIN_CD, BOARD_HSMCI1_PIN_POWER }
+
+/** HSMCI1 slot definition */
+#define BOARD_HSMCI1_SLOT 0
 
 /* ================== TWI bus definition ====================== */
 
