@@ -58,10 +58,8 @@
 #include "libsdmmc/sdmmc_hal.h"
 #include "mm/cache.h"
 #include "peripherals/pmc.h"
-#include "peripherals/tc.h"
 #include "sdmmc/hsmci.h"
 #include "sdmmc/hsmcid.h"
-#include "timer.h"
 #include "trace.h"
 
 /*----------------------------------------------------------------------------
@@ -96,11 +94,11 @@
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-static uint8_t hsmci_cancel_command(struct hsmci_set *set);
-static uint8_t hsmci_release_dma(struct hsmci_set *set);
-static void hsmci_finish_cmd(struct hsmci_set *set, uint8_t status);
+static uint8_t hsmci_cancel_command(struct _hsmci_set *set);
+static uint8_t hsmci_release_dma(struct _hsmci_set *set);
+static void hsmci_finish_cmd(struct _hsmci_set *set, uint8_t status);
 
-static void hsmci_power_device(struct hsmci_set *set, bool on)
+static void hsmci_power_device(struct _hsmci_set *set, bool on)
 {
 	assert(set);
 
@@ -109,7 +107,8 @@ static void hsmci_power_device(struct hsmci_set *set, bool on)
 
 	if (on) {
 		trace_debug("Power the device on\r\n");
-		board_power_sdmmc_device(set->id, true);
+		if (set->ops.set_card_power)
+			set->ops.set_card_power(set->id, true);
 		hsmci_enable(set->regs);
 		set->state = MCID_IDLE;
 		return;
@@ -132,11 +131,12 @@ static void hsmci_power_device(struct hsmci_set *set, bool on)
 
 	/* Reset the peripheral. This will reset almost all registers. */
 	hsmci_reset(set->regs, true);
-	board_power_sdmmc_device(set->id, false);
+	if (set->ops.set_card_power)
+		set->ops.set_card_power(set->id, false);
 	set->state = MCID_OFF;
 }
 
-static uint8_t hsmci_set_speed_mode(struct hsmci_set *set, uint8_t mode)
+static uint8_t hsmci_set_speed_mode(struct _hsmci_set *set, uint8_t mode)
 {
 	assert(set);
 
@@ -156,7 +156,7 @@ static uint8_t hsmci_set_speed_mode(struct hsmci_set *set, uint8_t mode)
 	return SDMMC_OK;
 }
 
-static void hsmci_set_device_clock(struct hsmci_set *set, uint32_t freq)
+static void hsmci_set_device_clock(struct _hsmci_set *set, uint32_t freq)
 {
 	assert(set);
 	assert(freq);
@@ -176,7 +176,7 @@ static void hsmci_set_device_clock(struct hsmci_set *set, uint32_t freq)
 	set->dev_freq = new_freq;
 }
 
-static void hsmci_handler(struct hsmci_set *set)
+static void hsmci_handler(struct _hsmci_set *set)
 {
 	Hsmci *regs = set->regs;
 	sSdmmcCommand *pCmd = set->cmd;
@@ -276,14 +276,14 @@ static void hsmci_handler(struct hsmci_set *set)
 
 static void hsmci_irq_handler(uint32_t source, void* user_arg)
 {
-	struct hsmci_set* set = (struct hsmci_set*)user_arg;
+	struct _hsmci_set* set = (struct _hsmci_set*)user_arg;
 	hsmci_handler(set);
 }
 
 /**
  * \brief Check if the command is finished.
  */
-static bool hsmci_is_busy(struct hsmci_set *set)
+static bool hsmci_is_busy(struct _hsmci_set *set)
 {
 	assert(set->state != MCID_OFF);
 
@@ -299,7 +299,7 @@ static bool hsmci_is_busy(struct hsmci_set *set)
 	return false;
 }
 
-static uint8_t hsmci_cancel_command(struct hsmci_set *set)
+static uint8_t hsmci_cancel_command(struct _hsmci_set *set)
 {
 	assert(set);
 
@@ -320,7 +320,7 @@ static uint8_t hsmci_cancel_command(struct hsmci_set *set)
 
 static int _hsmci_dma_callback_wrapper(void *arg)
 {
-	struct hsmci_set* set = (struct hsmci_set*) arg;
+	struct _hsmci_set* set = (struct _hsmci_set*) arg;
 
 	assert(set);
 	assert(set->regs);
@@ -334,7 +334,7 @@ static int _hsmci_dma_callback_wrapper(void *arg)
  * \brief Release the DMA channel
  * \return SDMMC_SUCCESS if the DMA channel has been released without issue.
  */
-static uint8_t hsmci_release_dma(struct hsmci_set *set)
+static uint8_t hsmci_release_dma(struct _hsmci_set *set)
 {
 	uint32_t rc;
 	uint8_t res = SDMMC_SUCCESS;
@@ -363,7 +363,7 @@ static uint8_t hsmci_release_dma(struct hsmci_set *set)
  * \brief Prepare DMA channels
  * \return SDMMC_SUCCESS if the DMA channels are ready for transfer setup.
  */
-static uint8_t hsmci_prepare_dma_channels(struct hsmci_set *set)
+static uint8_t hsmci_prepare_dma_channels(struct _hsmci_set *set)
 {
 	struct _callback _cb;
 
@@ -388,7 +388,7 @@ static uint8_t hsmci_prepare_dma_channels(struct hsmci_set *set)
  * \brief Configure and start DMA for the specified data transfer
  * \return SDMMC_SUCCESS if the DMA transfer has been started.
  */
-static uint8_t hsmci_configure_dma(struct hsmci_set *set, uint8_t bRd)
+static uint8_t hsmci_configure_dma(struct _hsmci_set *set, uint8_t bRd)
 {
 	sSdmmcCommand * const cmd = set->cmd;
 
@@ -449,7 +449,7 @@ static uint8_t hsmci_configure_dma(struct hsmci_set *set, uint8_t bRd)
 	return rc == 0 ? SDMMC_SUCCESS : SDMMC_ERROR_STATE;
 }
 
-static void hsmci_finish_cmd(struct hsmci_set *set, uint8_t status)
+static void hsmci_finish_cmd(struct _hsmci_set *set, uint8_t status)
 {
 	sSdmmcCommand * const cmd = set->cmd;
 
@@ -481,7 +481,7 @@ static uint32_t hsmci_lock(void *_set, uint8_t slot)
 {
 	assert(_set);
 
-	struct hsmci_set *set = (struct hsmci_set *)_set;
+	struct _hsmci_set *set = (struct _hsmci_set *)_set;
 	Hsmci *regs = set->regs;
 
 	if (slot > 0)
@@ -505,7 +505,7 @@ static uint32_t hsmci_release(void *_set)
 {
 	assert(_set);
 
-	struct hsmci_set *set = (struct hsmci_set *)_set;
+	struct _hsmci_set *set = (struct _hsmci_set *)_set;
 
 	if (set->state >= MCID_CMD)
 		return SDMMC_ERROR_BUSY;
@@ -527,7 +527,7 @@ static uint32_t hsmci_control(void *_set, uint32_t bCtl, uint32_t param)
 {
 	assert(_set);
 
-	struct hsmci_set *set = (struct hsmci_set *)_set;
+	struct _hsmci_set *set = (struct _hsmci_set *)_set;
 	uint32_t rc = SDMMC_OK, *param_u32 = (uint32_t *)param;
 	uint8_t byte;
 
@@ -541,7 +541,10 @@ static uint32_t hsmci_control(void *_set, uint32_t bCtl, uint32_t param)
 	case SDMMC_IOCTL_GET_DEVICE:
 		if (!param)
 			return SDMMC_ERROR_PARAM;
-		*param_u32 = board_is_sdmmc_inserted(set->id) ? 1 : 0;
+		if (set->ops.get_card_detect_status)
+			*param_u32 = set->ops.get_card_detect_status(set->id) ? 1 : 0;
+		else
+			*param_u32 = 1; /* assume card is always present */
 		break;
 
 	case SDMMC_IOCTL_POWER:
@@ -661,7 +664,7 @@ static uint32_t hsmci_control(void *_set, uint32_t bCtl, uint32_t param)
 /**
  * Here is the fSdmmcSendCommand-type callback.
  * SD/MMC command.
- * \param _set  Pointer to driver instance data (struct hsmci_set).
+ * \param _set  Pointer to driver instance data (struct _hsmci_set).
  * \param cmd  Pointer to the command to be sent. Owned by the caller. Shall
  * remain valid until the command is completed or stopped. For commands which
  * transfer data, mind the peripheral and DMA alignment requirements that the
@@ -678,7 +681,7 @@ static uint32_t hsmci_send_command(void *_set, sSdmmcCommand *cmd)
 	assert(_set);
 	assert(cmd);
 
-	struct hsmci_set *set = (struct hsmci_set *)_set;
+	struct _hsmci_set *set = (struct _hsmci_set *)_set;
 	Hsmci *regs = set->regs;
 	uint32_t mr, ier;
 	uint32_t cmdr = 0;
@@ -852,36 +855,24 @@ static sSdHalFunctions sdHal = {
  *         Exported functions
  *---------------------------------------------------------------------------*/
 
-bool hsmci_initialize(struct hsmci_set *set, uint32_t periph_id,
-	uint32_t tc_id, uint32_t tc_ch)
+bool hsmci_initialize(struct _hsmci_set* set, const struct _hsmci_cfg* config)
 {
 	assert(set);
-	assert(periph_id <= 0xff);
+	assert(config);
+	assert(config->periph_id <= 0xff);
 
-	Tc * const tc_module = get_tc_addr_from_id(tc_id);
-	assert(tc_module);
-
-	Hsmci* regs = get_hsmci_addr_from_id(periph_id);
+	Hsmci* regs = get_hsmci_addr_from_id(config->periph_id);
 	assert(regs);
 
 	memset(set, 0, sizeof(*set));
-	set->id = periph_id;
+	set->id = config->periph_id;
 	set->regs = regs;
 
-	set->tc_id = tc_id;
-	set->timer = &tc_module->TC_CHANNEL[tc_ch];
-	set->use_polling = false;
+	set->use_polling = config->use_polling;
+	set->ops = config->ops;
 	set->state = MCID_OFF;
 	set->dma_unlocks_mutex = 0;
 
-	/* Prepare our Timer/Counter */
-	pmc_configure_peripheral(get_tc_id_from_addr(tc_module, tc_ch), NULL, true);
-	tc_configure(tc_module, tc_ch, TC_CMR_WAVE | TC_CMR_WAVSEL_UP
-		| TC_CMR_CPCDIS | TC_CMR_BURST_NONE
-		| TC_CMR_TCCLKS_TIMER_CLOCK2);
-#if defined(TC_EMR_NODIVCLK)
-	set->timer->TC_EMR |= TC_EMR_NODIVCLK;
-#endif
 	hsmci_disable_it(regs, ~0ul);
 	hsmci_reset(set->regs, false);
 	hsmci_disable_it(regs, ~0ul);
@@ -893,16 +884,19 @@ bool hsmci_initialize(struct hsmci_set *set, uint32_t periph_id,
 		| HSMCI_DTOR_DTOMUL_1048576);
 	hsmci_cfg_compl_timeout(regs, HSMCI_CSTOR_CSTOCYC_Msk
 		| HSMCI_CSTOR_CSTOMUL_1048576);
+	hsmci_set_slot(regs, config->slot);
 
 	if (!set->use_polling) {
 		/* enable interrupt */
-		irq_add_handler(periph_id, hsmci_irq_handler, set);
-		irq_enable(periph_id);
+		irq_add_handler(set->id, hsmci_irq_handler, set);
+		irq_enable(set->id);
 	}
+
 	if (hsmci_prepare_dma_channels(set) != SDMMC_SUCCESS) {
 		trace_error("allocate DMA channels error\r\n");
 		return false;
 	}
+
 	return true;
 }
 

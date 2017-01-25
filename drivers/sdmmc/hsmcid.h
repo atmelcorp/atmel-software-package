@@ -70,14 +70,26 @@ struct _SdmmcCommand;
  *         Definitions
  *----------------------------------------------------------------------------*/
 
+struct _hsmci_set;
+
+struct _hsmci_ops {
+	bool (*get_card_detect_status)(uint32_t periph_id);
+	bool (*set_card_power)(uint32_t periph_id, bool power);
+};
+
+struct _hsmci_cfg {
+	uint32_t periph_id;    /* HSMCI peripheral ID (ID_HSMCIx) */
+	uint8_t slot;          /* HSMCI slot ID (0..3 for A..D) */
+	bool use_polling;      /* Use interrupts if false, otherwise only use polling */
+	struct _hsmci_ops ops; /* Function pointers for power control and card detect */
+};
+
 /* This structure is private to the HSMCI Driver.
  * Allocate it but ignore its members. */
-struct hsmci_set
-{
+struct _hsmci_set {
 	uint32_t id;                  /* HSMCI peripheral ID (ID_HSMCIx) */
 	Hsmci *regs;                  /* set of HSMCI hardware registers */
-	uint32_t tc_id;               /* Timer/Counter peripheral ID (ID_TCx) */
-	TcChannel *timer;             /* set of TC channel hardware registers */
+	struct _hsmci_ops ops;
 	struct _dma_channel *dma_tx_channel;
 	struct _dma_channel *dma_rx_channel;
 	uint32_t nxt_evts;            /* HSMCI IRQs we're still waiting for */
@@ -108,19 +120,11 @@ struct hsmci_set
 /**
  * \brief Initialize the specified driver instance and the associated HSMCI
  * peripheral.
- * \param set		Pointer to uninitialized driver instance data.
- * \param periph_id	HSMCI peripheral ID (ID_HSMCIx).
- * \param tc_id		Timer/Counter peripheral ID (ID_TCx).
- * \note The application shall have enabled the clock assigned to this
- * Timer/Counter peripheral.
- * \param tc_ch		TC channel number, within the Timer/Counter module
- * designated by tc_id. Every instance of the HSMCI Driver requires a
- * Timer/Counter channel for its exclusive usage.
- * \return true if successful, false if a parameter is assigned an unsupported
+ * \param set Pointer to uninitialized driver instance data.
+ * \param config Pointer to driver configuration
  * value.
  */
-extern bool hsmci_initialize(struct hsmci_set *set, uint32_t periph_id,
-	uint32_t tc_id, uint32_t tc_ch);
+extern bool hsmci_initialize(struct _hsmci_set* set, const struct _hsmci_cfg* config);
 
 /**     @} */
 

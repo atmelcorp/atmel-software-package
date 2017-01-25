@@ -40,6 +40,7 @@
 
 #include "board.h"
 #include "board_timer.h"
+#include "timer.h"
 #include "trace.h"
 
 #include "irq/irq.h"
@@ -67,6 +68,43 @@ static const char* board_name = BOARD_NAME;
  *----------------------------------------------------------------------------*/
 
 SECTION(".region_ddr") ALIGNED(16384) static uint32_t tlb[4096];
+
+/*----------------------------------------------------------------------------
+ *        Local functions
+ *----------------------------------------------------------------------------*/
+
+static bool board_cfg_sd_dev_pins(uint32_t periph_id, bool down, bool up)
+{
+	struct _pin *dev_pins = NULL;
+	uint32_t count = 0, pin;
+
+#ifdef BOARD_HSMCI0_DEV_PINS
+	struct _pin dev0_pins[] = BOARD_HSMCI0_DEV_PINS;
+	if (periph_id == ID_HSMCI0) {
+		dev_pins = dev0_pins;
+		count = ARRAY_SIZE(dev0_pins);
+	}
+#endif
+
+#ifdef BOARD_HSMCI1_DEV_PINS
+	struct _pin dev1_pins[] = BOARD_HSMCI1_DEV_PINS;
+	if (periph_id == ID_HSMCI1) {
+		dev_pins = dev1_pins;
+		count = ARRAY_SIZE(dev1_pins);
+	}
+#endif
+
+	if (count == 0)
+		return false;
+
+	for (pin = 0; (down || up) && pin < count; pin++) {
+		dev_pins[pin].type = up ? PIO_OUTPUT_1 : PIO_OUTPUT_0;
+		dev_pins[pin].attribute = PIO_DEFAULT;
+	}
+
+	pio_configure(dev_pins, count);
+	return true;
+}
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -426,6 +464,7 @@ bool board_cfg_sdmmc(uint32_t periph_id)
 		return true;
 #else
 		trace_fatal("Target board misses HSMCI0 pins");
+		return false;
 #endif
 	}
 	case ID_HSMCI1:
@@ -438,6 +477,7 @@ bool board_cfg_sdmmc(uint32_t periph_id)
 		return true;
 #else
 		trace_fatal("Target board misses HSMCI1 pins");
+		return false;
 #endif
 	}
 	default:
@@ -445,24 +485,72 @@ bool board_cfg_sdmmc(uint32_t periph_id)
 	}
 }
 
-bool board_is_sdmmc_inserted(uint32_t periph_id)
+bool board_get_hsmci_card_detect_status(uint32_t periph_id)
 {
 	const struct _pin *cd_input = NULL;
+
 #ifdef BOARD_HSMCI0_PIN_CD
 	const struct _pin cd0_input = BOARD_HSMCI0_PIN_CD;
 	cd_input = periph_id == ID_HSMCI0 ? &cd0_input : cd_input;
 #endif
+
 #ifdef BOARD_HSMCI1_PIN_CD
 	const struct _pin cd1_input = BOARD_HSMCI1_PIN_CD;
 	cd_input = periph_id == ID_HSMCI1 ? &cd1_input : cd_input;
 #endif
 
-	if (!cd_input)
+	if (periph_id != ID_HSMCI0 && periph_id != ID_HSMCI1)
 		return false;
-	return true;
+
+	/* no detection, assume card is always present */
+	if (!cd_input)
+		return true;
+
+	return pio_get(cd_input) ? false : true;
 }
 
-bool board_power_sdmmc_device(uint32_t periph_id, bool on)
+bool board_set_hsmci_card_power(uint32_t periph_id, bool on)
 {
+	const struct _pin *pwr_ctrl = NULL;
+
+#ifdef BOARD_HSMCI0_PIN_POWER
+	const struct _pin pwr0_ctrl = BOARD_HSMCI0_PIN_POWER;
+	pwr_ctrl = periph_id == ID_HSMCI0 ? &pwr0_ctrl : pwr_ctrl;
+#endif
+
+#ifdef BOARD_HSMCI1_PIN_POWER
+	const struct _pin pwr1_ctrl = BOARD_HSMCI1_PIN_POWER;
+	pwr_ctrl = periph_id == ID_HSMCI1 ? &pwr1_ctrl : pwr_ctrl;
+#endif
+
+	if (periph_id != ID_HSMCI0 && periph_id != ID_HSMCI1)
+		return false;
+
+	/* This slot doesn't support switching VDD on/off */
+	if (!pwr_ctrl)
+		return false;
+
+	if (on) {
+		/*
+		 * Workaround HW issue: flipping straight the VDD switch often
+		 * causes the VCC_3V3 rail to drop and trigger reset upon
+		 * under-voltage.
+		 */
+		board_cfg_sd_dev_pins(periph_id, false, true);
+		msleep(100);
+		pio_clear(pwr_ctrl);
+		/* Wait for the VDD rail to settle at nominal voltage */
+		msleep(1);
+		board_cfg_sd_dev_pins(periph_id, false, false);
+		msleep(1);
+	} else {
+		pio_set(pwr_ctrl);
+		/*
+		 * Drive all device signals low, in an attempt to have VDD
+		 * falling quicker.
+		 */
+		board_cfg_sd_dev_pins(periph_id, true, false);
+	}
+
 	return true;
 }

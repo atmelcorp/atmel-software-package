@@ -193,8 +193,28 @@ static struct sdmmc_set sd_drv[BOARD_NUM_SDMMC];
 #  define HOST0_ID                    ID_HSMCI0
 #  define HOST1_ID                    ID_HSMCI1
 
+static const struct _hsmci_cfg sd_drv_config[BOARD_NUM_SDMMC] = {
+	{
+		.periph_id = ID_HSMCI0,
+		.slot = BOARD_HSMCI0_SLOT,
+		.use_polling = false,
+		.ops = {
+			.get_card_detect_status = board_get_hsmci_card_detect_status,
+			.set_card_power = board_set_hsmci_card_power,
+		},
+	},
+	{
+		.periph_id = ID_HSMCI1,
+		.slot = BOARD_HSMCI1_SLOT,
+		.use_polling = false,
+		.ops = {
+			.get_card_detect_status = board_get_hsmci_card_detect_status,
+			.set_card_power = board_set_hsmci_card_power,
+		},
+	}
+};
 /* MCI driver instance data (a.k.a. SDCard driver instance) */
-static struct hsmci_set sd_drv[BOARD_NUM_SDMMC];
+static struct _hsmci_set sd_drv[BOARD_NUM_SDMMC];
 #endif
 
 /* Library instance data (a.k.a. SDCard library instance) */
@@ -338,12 +358,8 @@ static void sd_driver_configure(void)
 	sdmmc_initialize(&sd_drv[1], HOST1_ID, TIMER1_MODULE,
 	    TIMER1_CHANNEL, sd_dma_table1, ARRAY_SIZE(sd_dma_table1), false);
 #elif defined(CONFIG_HAVE_HSMCI)
-	hsmci_initialize(&sd_drv[0], HOST0_ID,
-		TIMER0_MODULE, TIMER0_CHANNEL);
-	Hsmci* mci = get_hsmci_addr_from_id(HOST0_ID);
-	hsmci_set_slot(mci, BOARD_HSMCI0_SLOT);
-	hsmci_initialize(&sd_drv[1], HOST1_ID,
-		TIMER1_MODULE, TIMER1_CHANNEL);
+	hsmci_initialize(&sd_drv[0], &sd_drv_config[0]);
+	hsmci_initialize(&sd_drv[1], &sd_drv_config[1]);
 #endif
 
 	/* As of writing, libsdmmc ignores the slot number */
