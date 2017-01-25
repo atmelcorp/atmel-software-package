@@ -40,17 +40,21 @@
  *        Local constants
  *----------------------------------------------------------------------------*/
 
-static const struct _pin pin_sdmmc0_ck = PIN_SDMMC0_CK_IOS1;
-static const struct _pin pin_sdmmc0_cmd = PIN_SDMMC0_CMD_IOS1;
-static const struct _pin pin_sdmmc0_vdd_sel = PIN_SDMMC0_VDDSEL_IOS1;
-static const struct _pin pins_sdmmc0_data1b[] = { PINS_SDMMC0_DATA1B_IOS1 };
-static const struct _pin pins_sdmmc0_data4b[] = { PINS_SDMMC0_DATA4B_IOS1 };
-static const struct _pin pins_sdmmc0_data8b[] = { PINS_SDMMC0_DATA8B_IOS1 };
+static const struct _pin pin_hsmci0_ck = PIN_HSMCI0_CK;
+static const struct _pin pin_hsmci0_cmd_a = PIN_HSMCI0_CMD_A;
+static const struct _pin pins_hsmci0_data1b_a[] = { PINS_HSMCI0_DATA1B_A };
+static const struct _pin pins_hsmci0_data4b_a[] = { PINS_HSMCI0_DATA4B_A };
+static const struct _pin pins_hsmci0_data8b_a[] = { PINS_HSMCI0_DATA8B_A };
 
-static const struct _pin pin_sdmmc1_ck = PIN_SDMMC1_CK_IOS1;
-static const struct _pin pin_sdmmc1_cmd = PIN_SDMMC1_CMD_IOS1;
-static const struct _pin pins_sdmmc1_data1b[] = { PINS_SDMMC1_DATA1B_IOS1 };
-static const struct _pin pins_sdmmc1_data4b[] = { PINS_SDMMC1_DATA4B_IOS1 };
+static const struct _pin pin_hsmci1_ck = PIN_HSMCI1_CK;
+static const struct _pin pin_hsmci1_cmd_a = PIN_HSMCI1_CMD_A;
+static const struct _pin pins_hsmci1_data1b_a[] = { PINS_HSMCI1_DATA1B_A };
+static const struct _pin pins_hsmci1_data4b_a[] = { PINS_HSMCI1_DATA4B_A };
+
+static const struct _pin pin_hsmci2_ck = PIN_HSMCI2_CK;
+static const struct _pin pin_hsmci2_cmd_a = PIN_HSMCI2_CMD_A;
+static const struct _pin pins_hsmci2_data1b_a[] = { PINS_HSMCI2_DATA1B_A };
+static const struct _pin pins_hsmci2_data4b_a[] = { PINS_HSMCI2_DATA4B_A };
 
 /*----------------------------------------------------------------------------
  *        Public constants
@@ -59,29 +63,43 @@ static const struct _pin pins_sdmmc1_data4b[] = { PINS_SDMMC1_DATA4B_IOS1 };
 const struct sdmmc_pin_definition sdmmc_pin_defs[] = {
 	{
 		.instance = 0,
-		.name = "SDMMC0",
-		.addr = SDMMC0,
-		.pin_vdd_sel = &pin_sdmmc0_vdd_sel,
-		.pin_ck = &pin_sdmmc0_ck,
-		.pin_cmd = &pin_sdmmc0_cmd,
-		.num_pins_data1b = ARRAY_SIZE(pins_sdmmc0_data1b),
-		.pins_data1b = pins_sdmmc0_data1b,
-		.num_pins_data4b = ARRAY_SIZE(pins_sdmmc0_data4b),
-		.pins_data4b = pins_sdmmc0_data4b,
-		.num_pins_data8b = ARRAY_SIZE(pins_sdmmc0_data8b),
-		.pins_data8b = pins_sdmmc0_data8b,
+		.name = "HSMCI0",
+		.addr = HSMCI0,
+		.slot = HSMCI_SDCR_SDCSEL_SLOTA,
+		.pin_ck = &pin_hsmci0_ck,
+		.pin_cmd = &pin_hsmci0_cmd_a,
+		.num_pins_data1b = ARRAY_SIZE(pins_hsmci0_data1b_a),
+		.pins_data1b = pins_hsmci0_data1b_a,
+		.num_pins_data4b = ARRAY_SIZE(pins_hsmci0_data4b_a),
+		.pins_data4b = pins_hsmci0_data4b_a,
+		.num_pins_data8b = ARRAY_SIZE(pins_hsmci0_data8b_a),
+		.pins_data8b = pins_hsmci0_data8b_a,
 	},
 	{
 		.instance = 1,
-		.name = "SDMMC1",
-		.addr = SDMMC1,
-		.pin_vdd_sel = NULL,
-		.pin_ck = &pin_sdmmc1_ck,
-		.pin_cmd = &pin_sdmmc1_cmd,
-		.num_pins_data1b = ARRAY_SIZE(pins_sdmmc1_data1b),
-		.pins_data1b = pins_sdmmc1_data1b,
-		.num_pins_data4b = ARRAY_SIZE(pins_sdmmc1_data4b),
-		.pins_data4b = pins_sdmmc1_data4b,
+		.name = "HSMCI1",
+		.addr = HSMCI1,
+		.slot = HSMCI_SDCR_SDCSEL_SLOTA,
+		.pin_ck = &pin_hsmci1_ck,
+		.pin_cmd = &pin_hsmci1_cmd_a,
+		.num_pins_data1b = ARRAY_SIZE(pins_hsmci1_data1b_a),
+		.pins_data1b = pins_hsmci1_data1b_a,
+		.num_pins_data4b = ARRAY_SIZE(pins_hsmci1_data4b_a),
+		.pins_data4b = pins_hsmci1_data4b_a,
+		.num_pins_data8b = 0,
+		.pins_data8b = NULL,
+	},
+	{
+		.instance = 2,
+		.name = "HSMCI2",
+		.addr = HSMCI2,
+		.slot = HSMCI_SDCR_SDCSEL_SLOTA,
+		.pin_ck = &pin_hsmci2_ck,
+		.pin_cmd = &pin_hsmci2_cmd_a,
+		.num_pins_data1b = ARRAY_SIZE(pins_hsmci2_data1b_a),
+		.pins_data1b = pins_hsmci2_data1b_a,
+		.num_pins_data4b = ARRAY_SIZE(pins_hsmci2_data4b_a),
+		.pins_data4b = pins_hsmci2_data4b_a,
 		.num_pins_data8b = 0,
 		.pins_data8b = NULL,
 	},

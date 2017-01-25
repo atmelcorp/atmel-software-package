@@ -40,7 +40,13 @@
 #include "pin_defs.h"
 #include "serial/console.h"
 #include "mm/cache.h"
+#ifdef CONFIG_HAVE_HSMCI
+#include "sdmmc/hsmci.h"
+#include "sdmmc/hsmcid.h"
+#endif
+#ifdef CONFIG_HAVE_SDMMC
 #include "sdmmc/sdmmc.h"
+#endif
 #include "peripherals/wdt.h"
 #include "peripherals/pmc.h"
 #include "gpio/pio.h"
@@ -53,9 +59,18 @@
 #include <stdio.h>
 #include <string.h>
 
-#if !defined(CONFIG_SOC_SAMA5D2)
-#error Unsupported SOC!
+/*----------------------------------------------------------------------------
+ *        Local type definitions
+ *----------------------------------------------------------------------------*/
+
+struct _sdmmc_applet_config {
+	uint32_t instance;
+	uint32_t boot_partition;
+	uint32_t bus_width;
+#ifdef CONFIG_HAVE_SDMMC
+	uint32_t supported_voltages;
 #endif
+};
 
 /*----------------------------------------------------------------------------
  *        Local definitions
@@ -66,7 +81,7 @@
                     SDMMC_CA0R_V18VSUP | SDMMC_CA0R_SLTYPE_Msk | \
                     SDMMC_CA0R_ED8SUP)
 
-/* Allocate 2 Timers/Counters, that are not used already by the libraries and
+/* Allocate a Timer/Counter that is not used already by the libraries and
  * drivers this applet depends on. */
 #define TIMER0_MODULE                 ID_TC0
 #define TIMER0_CHANNEL                0
@@ -94,14 +109,26 @@ static uint32_t buffer_size;
 
 static uint32_t mem_size;
 
+#if defined(CONFIG_HAVE_SDMMC)
+
 /* Driver instance data (a.k.a. MCI driver instance) */
 static struct sdmmc_set drv;
 
-/* Library instance data (a.k.a. SDCard driver instance) */
-CACHE_ALIGNED static sSdCard lib;
-
 /* Reserved memory for SDMMC DMA descriptors */
 static uint32_t dma_table[32 * SDMMC_DMADL_SIZE];
+
+#elif defined(CONFIG_HAVE_HSMCI)
+
+/* Driver configuration data (a.k.a. MCI driver configuration) */
+static struct _hsmci_cfg drv_config;
+
+/* Driver instance data (a.k.a. MCI driver instance) */
+static struct _hsmci_set drv;
+
+#endif
+
+/* Library instance data (a.k.a. SDCard driver instance) */
+CACHE_ALIGNED static sSdCard lib;
 
 /*----------------------------------------------------------------------------
  *         Local functions
@@ -111,18 +138,23 @@ static void get_data_pins(const struct sdmmc_pin_definition* def,
 		uint32_t bus_width, const struct _pin **pins_data,
 		uint32_t *num_pins)
 {
-	if (bus_width == 1) {
+	switch (bus_width) {
+	case 1:
 		*pins_data = def->pins_data1b;
 		*num_pins = def->num_pins_data1b;
-	} else if (bus_width == 4) {
+		break;
+	case 4:
 		*pins_data = def->pins_data4b;
 		*num_pins = def->num_pins_data4b;
-	} else if (bus_width == 8) {
+		break;
+	case 8:
 		*pins_data = def->pins_data8b;
 		*num_pins = def->num_pins_data8b;
-	} else {
+		break;
+	default:
 		*pins_data = NULL;
 		*num_pins = 0;
+		break;
 	}
 }
 
@@ -163,12 +195,12 @@ static const struct sdmmc_pin_definition* find_instance(uint32_t instance)
 }
 
 static void configure_instance_pio(const struct sdmmc_pin_definition* def,
-		uint32_t bus_width, uint32_t supported_voltages)
+		struct _sdmmc_applet_config* config)
 {
 	const struct _pin *pins_data;
 	uint32_t num_pins_data;
 
-	get_data_pins(def, bus_width, &pins_data, &num_pins_data);
+	get_data_pins(def, config->bus_width, &pins_data, &num_pins_data);
 	if (!pins_data || !num_pins_data)
 		return;
 
@@ -177,8 +209,9 @@ static void configure_instance_pio(const struct sdmmc_pin_definition* def,
 	pio_configure(def->pin_cmd, 1);
 	unconfigure_all_data_pins(def);
 	pio_configure(pins_data, num_pins_data);
+#ifdef CONFIG_HAVE_SDMMC
 	if (def->pin_vdd_sel) {
-		if (supported_voltages ==
+		if (config->supported_voltages ==
 				SUPPORTED_VOLTAGE_18V) {
 			// only 1.8V, force VDD_SEL to 1
 			struct _pin pin = *def->pin_vdd_sel;
@@ -190,8 +223,10 @@ static void configure_instance_pio(const struct sdmmc_pin_definition* def,
 			pio_configure(def->pin_vdd_sel, 1);
 		}
 	}
+#endif /* CONFIG_HAVE_SDMMC */
 }
 
+#ifdef CONFIG_HAVE_SDMMC
 static char* get_supported_voltage_string(uint32_t supported_voltages)
 {
 	static char str[5 * 3 + 1];
@@ -205,16 +240,14 @@ static char* get_supported_voltage_string(uint32_t supported_voltages)
 	str[strlen(str) - 1] = 0;
 	return str;
 }
+#endif /* CONFIG_HAVE_SDMMC */
 
 static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 {
 	union initialize_mailbox *mbx = (union initialize_mailbox*)mailbox;
-	uint32_t instance = mbx->in.parameters[0];
-	uint32_t boot_partition = mbx->in.parameters[1];
-	uint32_t bus_width = mbx->in.parameters[2];
-	uint32_t supported_voltages = mbx->in.parameters[3];
+	struct _sdmmc_applet_config config;
 	const struct sdmmc_pin_definition* instance_def;
-	uint32_t max_bus_width, sdmmc_id, caps0;
+	uint32_t max_bus_width, id;
 	uint8_t rc, card_type;
 
 	assert(cmd == APPLET_CMD_INITIALIZE);
@@ -224,88 +257,101 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	trace_info_wp("\r\nApplet 'SD/MMC' from "
 			"softpack " SOFTPACK_VERSION ".\r\n");
 
-	if (bus_width != 0 && bus_width != 1 &&
-			bus_width != 4 && bus_width != 8) {
-		trace_error_wp("Invalid configuration: Unsupported bus width %u\r\n",
-			(unsigned)bus_width);
-		return APPLET_FAIL;
-	}
-
-	if (!supported_voltages || (supported_voltages & ~SUPPORTED_VOLTAGE_MASK)) {
-		trace_error_wp("Invalid supported voltages value: 0x%x\r\n",
-			(unsigned)supported_voltages);
-		return APPLET_FAIL;
-	}
-
-	instance_def = find_instance(instance);
+	config.instance = mbx->in.parameters[0];
+	instance_def = find_instance(config.instance);
 	if (!instance_def) {
-		trace_error_wp("Invalid configuration: SDMMC%u\r\n",
-			(unsigned)instance);
+		trace_error_wp("Invalid configuration: Unknown instance %u\r\n",
+			(unsigned)config.instance);
+		return APPLET_FAIL;
+	}
+
+	config.boot_partition = mbx->in.parameters[1];
+	if (config.boot_partition > 2) {
+		trace_error_wp("Invalid configuration: Unknown partition %u\r\n",
+			(unsigned)config.boot_partition);
+		return APPLET_FAIL;
+	}
+
+	config.bus_width = mbx->in.parameters[2];
+	if (config.bus_width != 0 && config.bus_width != 1 &&
+	    config.bus_width != 4 && config.bus_width != 8) {
+		trace_error_wp("Invalid configuration: Unsupported bus width %u\r\n",
+			(unsigned)config.bus_width);
 		return APPLET_FAIL;
 	}
 
 	max_bus_width = get_max_bus_width(instance_def);
-	if (!bus_width) {
-		bus_width = max_bus_width;
-	} else if (bus_width > max_bus_width) {
-		trace_error_wp("Invalid configuration: SDMMC%u Bus Width %u\r\n",
-			(unsigned)instance, (unsigned)bus_width);
+	if (!config.bus_width) {
+		config.bus_width = max_bus_width;
+	} else if (config.bus_width > max_bus_width) {
+		trace_error_wp("Invalid configuration: %s Bus Width %u\r\n",
+			instance_def->name, (unsigned)config.bus_width);
 		return APPLET_FAIL;
 	}
 
-	if (boot_partition > 2) {
-		trace_error_wp("Invalid configuration: Unknown partition %u\r\n",
-			(unsigned)boot_partition);
+#ifdef CONFIG_HAVE_SDMMC
+	config.supported_voltages = mbx->in.parameters[3];
+	if (!config.supported_voltages || (config.supported_voltages & ~SUPPORTED_VOLTAGE_MASK)) {
+		trace_error_wp("Invalid supported voltages value: 0x%x\r\n",
+			(unsigned)config.supported_voltages);
 		return APPLET_FAIL;
 	}
+#endif
 
-	trace_info_wp("Initializing SDMMC%u", (unsigned)instance);
-	if (boot_partition)
-		trace_info_wp(", boot partition %u",
-				(unsigned)boot_partition);
+	trace_info_wp("Initializing %s", instance_def->name);
+	if (config.boot_partition)
+		trace_info_wp(", boot partition %u", (unsigned)config.boot_partition);
 	else
 		trace_info_wp(", user partition");
-	if (bus_width == 1)
-		trace_info_wp(", 1-bit");
-	else if (bus_width == 4)
-		trace_info_wp(", 4-bit");
-	else if (bus_width == 8)
-		trace_info_wp(", 8-bit");
-	trace_info_wp(", %s",
-			get_supported_voltage_string(supported_voltages));
+	trace_info_wp(", %d-bit", (unsigned)config.bus_width);
+#if defined(CONFIG_HAVE_SDMMC)
+	trace_info_wp(", %s", get_supported_voltage_string(config.supported_voltages));
+#endif
 	trace_info_wp("\r\n");
 
 	/* Configure PIO */
-	configure_instance_pio(instance_def, bus_width, supported_voltages);
+	configure_instance_pio(instance_def, &config);
 
+	pmc_configure_peripheral(TIMER0_MODULE, NULL, true);
+
+#if defined(CONFIG_HAVE_SDMMC)
 	/* The SDMMC peripherals are clocked by their Peripheral Clock, the
 	 * Master Clock, and a Generated Clock (at least on SAMA5D2x).
 	 * Configure GCLKx = <PLLA clock> divided by 1
 	 * As of writing, the PLLA clock runs at 498 MHz */
-	sdmmc_id = get_sdmmc_id_from_addr(instance_def->addr);
+	id = get_sdmmc_id_from_addr(instance_def->addr);
 	struct _pmc_periph_cfg cfg = {
 		.gck = {
 			.css = PMC_PCR_GCKCSS_PLLA_CLK,
 			.div = 1,
 		},
 	};
-	pmc_configure_peripheral(sdmmc_id, &cfg, true);
+	pmc_configure_peripheral(id, &cfg, true);
 
 	// set SDMMC controller capabilities
-	caps0 = SDMMC_CA0R_SLTYPE_EMBEDDED;
-	if (bus_width == 8)
+	uint32_t caps0 = SDMMC_CA0R_SLTYPE_EMBEDDED;
+	if (config.bus_width == 8)
 		caps0 |= SDMMC_CA0R_ED8SUP;
-	if (supported_voltages & SUPPORTED_VOLTAGE_18V)
+	if (config.supported_voltages & SUPPORTED_VOLTAGE_18V)
 		caps0 |= SDMMC_CA0R_V18VSUP;
-	if (supported_voltages & SUPPORTED_VOLTAGE_30V)
+	if (config.supported_voltages & SUPPORTED_VOLTAGE_30V)
 		caps0 |= SDMMC_CA0R_V30VSUP;
-	if (supported_voltages & SUPPORTED_VOLTAGE_33V)
+	if (config.supported_voltages & SUPPORTED_VOLTAGE_33V)
 		caps0 |= SDMMC_CA0R_V33VSUP;
 	sdmmc_set_capabilities(instance_def->addr,
 			caps0, CAPS0_MASK, 0, 0);
 
-	sdmmc_initialize(&drv, sdmmc_id, TIMER0_MODULE, TIMER0_CHANNEL,
+	sdmmc_initialize(&drv, id, TIMER0_MODULE, TIMER0_CHANNEL,
 			dma_table, ARRAY_SIZE(dma_table), true);
+#elif defined(CONFIG_HAVE_HSMCI)
+	id = get_hsmci_id_from_addr(instance_def->addr);
+	pmc_configure_peripheral(id, NULL, true);
+	memset(&drv_config, 0, sizeof(drv_config));
+	drv_config.periph_id = id;
+	drv_config.slot = instance_def->slot;
+	drv_config.use_polling = true;
+	hsmci_initialize(&drv, &drv_config);
+#endif
 
 	SDD_InitializeSdmmcMode(&lib, &drv, 0);
 	if (SD_GetStatus(&lib) == SDMMC_NOT_SUPPORTED) {
@@ -327,7 +373,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 
 	SD_DumpStatus(&lib);
 
-	if (boot_partition) {
+	if (config.boot_partition) {
 		/* check that card is MMC */
 		if (!(card_type & CARD_TYPE_bmMMC)) {
 			trace_error_wp("Invalid card type: boot partition in only supported on MMC\n\r");
@@ -342,8 +388,8 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 		}
 
 		/* configure boot partition */
-		mmc_configure_partition(&lib, EMMC_BOOT_PARTITION_ACCESS(boot_partition) |
-		                              EMMC_BOOT_PARTITION_ENABLE(boot_partition) |
+		mmc_configure_partition(&lib, EMMC_BOOT_PARTITION_ACCESS(config.boot_partition) |
+		                              EMMC_BOOT_PARTITION_ENABLE(config.boot_partition) |
 		                              EMMC_BOOT_ACK);
 		mmc_configure_boot_bus(&lib, 0);
 	} else {

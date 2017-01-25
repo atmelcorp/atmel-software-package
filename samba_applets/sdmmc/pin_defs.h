@@ -37,10 +37,16 @@
 struct sdmmc_pin_definition
 {
 	uint32_t           instance;
+	const char*        name;
+#if defined(CONFIG_HAVE_SDMMC)
 	Sdmmc*             addr;
+	const struct _pin *pin_vdd_sel;
+#elif defined(CONFIG_HAVE_HSMCI)
+	Hsmci*             addr;
+	uint32_t           slot;
+#endif
 	const struct _pin *pin_ck;
 	const struct _pin *pin_cmd;
-	const struct _pin *pin_vdd_sel;
 	uint32_t           num_pins_data1b;
 	const struct _pin *pins_data1b;
 	uint32_t           num_pins_data4b;
