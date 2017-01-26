@@ -92,6 +92,9 @@ void board_cfg_lowlevel(bool clocks, bool ddram, bool mpu)
 	/* Disable Watchdog */
 	wdt_disable();
 
+	/* Configure PB4/PB5 as PIO instead of JTAG */
+	MATRIX->CCFG_SYSIO |= CCFG_SYSIO_SYSIO4 | CCFG_SYSIO_SYSIO5;
+
 	/* Disable all PIO interrupts */
 	pio_reset_all_it();
 
