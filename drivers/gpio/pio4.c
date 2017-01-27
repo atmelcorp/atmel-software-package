@@ -248,9 +248,11 @@ void pio_configure(const struct _pin *pin_list, uint32_t size)
 		case PIO_DRVSTR_LO:
 			cfgr |= PIO_CFGR_DRVSTR_LO;
 			break;
+#ifdef PIO_CFGR_DRVSTR_ME
 		case PIO_DRVSTR_ME:
 			cfgr |= PIO_CFGR_DRVSTR_ME;
 			break;
+#endif
 		case PIO_DRVSTR_HI:
 			cfgr |= PIO_CFGR_DRVSTR_HI;
 			break;
