@@ -1015,6 +1015,32 @@ void pmc_enable_upll_clock(void)
 	uckr |= CKGR_UCKR_BIASCOUNT(0x1);
 #endif
 
+#if defined(SFR_UTMICKTRIM_FREQ_Msk)
+	switch (_pmc_oscillators.external.main) {
+#ifdef SFR_UTMICKTRIM_FREQ_48
+	case 48000000:
+		SFR->SFR_UTMICKTRIM = (SFR->SFR_UTMICKTRIM & ~SFR_UTMICKTRIM_FREQ_Msk) | SFR_UTMICKTRIM_FREQ_48;
+		break;
+#endif
+	case 24000000:
+		SFR->SFR_UTMICKTRIM = (SFR->SFR_UTMICKTRIM & ~SFR_UTMICKTRIM_FREQ_Msk) | SFR_UTMICKTRIM_FREQ_24;
+		break;
+	case 16000000:
+		SFR->SFR_UTMICKTRIM = (SFR->SFR_UTMICKTRIM & ~SFR_UTMICKTRIM_FREQ_Msk) | SFR_UTMICKTRIM_FREQ_16;
+		break;
+	default:
+		SFR->SFR_UTMICKTRIM = (SFR->SFR_UTMICKTRIM & ~SFR_UTMICKTRIM_FREQ_Msk) | SFR_UTMICKTRIM_FREQ_12;
+	}
+#elif defined(UTMI_CKTRIM_FREQ_Msk)
+	switch (_pmc_oscillators.external.main) {
+	case 16000000:
+		UTMI->UTMI_CKTRIM = (UTMI->UTMI_CKTRIM & ~UTMI_CKTRIM_FREQ_Msk) | UTMI_CKTRIM_FREQ_XTAL16;
+		break;
+	default:
+		UTMI->UTMI_CKTRIM = (UTMI->UTMI_CKTRIM & ~UTMI_CKTRIM_FREQ_Msk) | UTMI_CKTRIM_FREQ_XTAL12;
+	}
+#endif
+
 	/* enable the 480MHz UTMI PLL  */
 	PMC->CKGR_UCKR = uckr;
 
@@ -1031,14 +1057,29 @@ uint32_t pmc_get_upll_clock(void)
 {
 	uint32_t upllclk;
 
-#ifdef SFR_UTMICKTRIM_FREQ_Msk
+#if defined(SFR_UTMICKTRIM_FREQ_Msk)
 	uint32_t clktrim = SFR->SFR_UTMICKTRIM & SFR_UTMICKTRIM_FREQ_Msk;
 	switch (clktrim) {
+#ifdef SFR_UTMICKTRIM_FREQ_48
+		case SFR_UTMICKTRIM_FREQ_48:
+			upllclk = 10 * _pmc_oscillators.external.main;
+			break;
+#endif
+		case SFR_UTMICKTRIM_FREQ_24:
+			upllclk = 20 * _pmc_oscillators.external.main;
+			break;
 		case SFR_UTMICKTRIM_FREQ_16:
 			upllclk = 30 * _pmc_oscillators.external.main;
 			break;
-		case SFR_UTMICKTRIM_FREQ_24:
-			upllclk = 20 * _pmc_oscillators.external.main;
+		default:
+			upllclk = 40 * _pmc_oscillators.external.main;
+			break;
+	}
+#elif defined(UTMI_CKTRIM_FREQ_Msk)
+	uint32_t clktrim = UTMI->UTMI_CKTRIM & UTMI_CKTRIM_FREQ_Msk;
+	switch (clktrim) {
+		case UTMI_CKTRIM_FREQ_XTAL16:
+			upllclk = 30 * _pmc_oscillators.external.main;
 			break;
 		default:
 			upllclk = 40 * _pmc_oscillators.external.main;
