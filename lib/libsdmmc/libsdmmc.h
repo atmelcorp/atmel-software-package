@@ -41,6 +41,5 @@
 #include "libsdmmc/sdmmc_api.h"
 #include "libsdmmc/sdio.h"
 #include "libsdmmc/sdmmc_hal.h"
-//#include "include\sdmmc_dbg.h"
 
 #endif				/* #define _SDMMC_LIB_H */
