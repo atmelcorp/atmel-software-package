@@ -220,8 +220,10 @@ void pio_configure(const struct _pin *pin_list, uint32_t size)
 		if (pin->type == PIO_INPUT)
 			pmc_configure_peripheral(ID_PIOA, NULL, true);
 
+#ifdef CONFIG_HAVE_PIO4_SECURE
 		/* Configure pins as non-secure */
 		PIOA->S_PIO_IO[pin->group].S_PIO_SIONR = pin->mask;
+#endif
 
 		/* Enable pull-up resistors as requested */
 		if (pin->attribute & PIO_PULLUP)
@@ -353,7 +355,11 @@ uint32_t pio_get_output_data_status(const struct _pin *pin)
 void pio_set_debounce_filter(uint32_t cutoff)
 {
 	cutoff = ((pmc_get_slow_clock() / (2 * cutoff)) - 1) & 0x3FFF;
+#ifdef CONFIG_HAVE_PIO4_SECURE
 	PIOA->S_PIO_SCDR = cutoff;
+#else
+	PIOA->PIO_SCDR = cutoff;
+#endif
 }
 
 void pio_enable_write_protect(void)
