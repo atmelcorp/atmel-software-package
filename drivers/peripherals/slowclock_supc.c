@@ -36,21 +36,46 @@
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-bool slowclock_is_internal(void)
+bool slowclock_is_internal(enum _slowclock_domain domain)
 {
+#ifdef CONFIG_HAVE_SLOWCLOCK_TIMING_DOMAIN
+	if (domain == SLOWCLOCK_DOMAIN_TIMING)
+		return (SUPC->SUPC_SR & SUPC_SR_TDOSCSEL) == SUPC_SR_TDOSCSEL_RC;
+	else
+		return (SUPC->SUPC_PWR & SUPC_PWR_MONSELS) == SUPC_PWR_MONSELS_RC;
+#else
 	return (SUPC->SUPC_SR & SUPC_SR_OSCSEL) == SUPC_SR_OSCSEL_RC;
+#endif
 }
 
-void slowclock_select_internal(void)
+void slowclock_select_internal(enum _slowclock_domain domain)
 {
-	if (!slowclock_is_internal())
+	if (!slowclock_is_internal(domain))
 		trace_fatal("Cannot switch back to internal 32KHz RC\r\n");
 }
 
-void slowclock_select_external(void)
+void slowclock_select_external(enum _slowclock_domain domain)
 {
-	if (slowclock_is_internal()) {
+	if (slowclock_is_internal(domain)) {
+#ifdef CONFIG_HAVE_SLOWCLOCK_TIMING_DOMAIN
+		if (domain == SLOWCLOCK_DOMAIN_TIMING) {
+			SUPC->SUPC_CR = SUPC_CR_KEY_PASSWD | SUPC_CR_TDXTALSEL_CRYSTAL_SEL;
+			while ((SUPC->SUPC_SR & SUPC_SR_TDOSCSEL) != SUPC_SR_TDOSCSEL_CRYST);
+		} else {
+			SUPC->SUPC_CR = SUPC_CR_KEY_PASSWD | SUPC_CR_MDXTALSEL_CRYSTAL_SEL;
+			while ((SUPC->SUPC_PWR & SUPC_PWR_MONSELS) != SUPC_PWR_MONSELS_CRYST);
+		}
+#else
 		SUPC->SUPC_CR = SUPC_CR_KEY_PASSWD | SUPC_CR_XTALSEL_CRYSTAL_SEL;
-		while (!(SUPC->SUPC_SR & SUPC_SR_OSCSEL));
+		while ((SUPC->SUPC_SR & SUPC_SR_OSCSEL) != SUPC_SR_OSCSEL_CRYST);
+#endif
 	}
+}
+
+uint32_t slowclock_get_clock(enum _slowclock_domain domain)
+{
+	if (slowclock_is_internal(domain))
+		return 32000;
+	else
+		return 32768;
 }

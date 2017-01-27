@@ -35,16 +35,16 @@
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-bool slowclock_is_internal(void)
+bool slowclock_is_internal(enum _slowclock_domain domain)
 {
 	return (SCKC->SCKC_CR & SCKC_CR_OSCSEL) != SCKC_CR_OSCSEL;
 }
 
-void slowclock_select_internal(void)
+void slowclock_select_internal(enum _slowclock_domain domain)
 {
 	volatile int count;
 
-	if (slowclock_is_internal())
+	if (slowclock_is_internal(domain))
 		return;
 
 #ifdef SCKC_CR_RCEN
@@ -67,11 +67,11 @@ void slowclock_select_internal(void)
 #endif
 }
 
-void slowclock_select_external(void)
+void slowclock_select_external(enum _slowclock_domain domain)
 {
 	volatile int count;
 
-	if (!slowclock_is_internal())
+	if (!slowclock_is_internal(domain))
 		return;
 
 #ifdef SCKC_CR_OSC32EN
@@ -91,4 +91,12 @@ void slowclock_select_external(void)
 	if ((SCKC->SCKC_CR & SCKC_CR_RCEN) == SCKC_CR_RCEN)
 		SCKC->SCKC_CR &= ~SCKC_CR_RCEN;
 #endif
+}
+
+uint32_t slowclock_get_clock(enum _slowclock_domain domain)
+{
+	if (slowclock_is_internal(domain))
+		return 32000;
+	else
+		return 32768;
 }

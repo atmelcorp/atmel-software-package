@@ -78,11 +78,9 @@
  *        Types
  *----------------------------------------------------------------------------*/
 
-struct _pmc_osc {
-	struct {
-		uint32_t slow;
-		uint32_t main;
-	} internal, external;
+struct _pmc_main_osc {
+	uint32_t rc_freq;
+	uint32_t crystal_freq;
 };
 
 /*----------------------------------------------------------------------------
@@ -90,11 +88,8 @@ struct _pmc_osc {
  *----------------------------------------------------------------------------*/
 
 static uint32_t _pmc_mck = 0;
-static struct _pmc_osc _pmc_oscillators = {
-	.internal = {
-		.slow = SLOW_CLOCK_INT_OSC,
-		.main = MAIN_CLOCK_INT_OSC,
-	},
+static struct _pmc_main_osc _pmc_main_oscillators = {
+	.rc_freq = MAIN_CLOCK_INT_OSC,
 };
 
 /*----------------------------------------------------------------------------
@@ -367,10 +362,9 @@ static void _pmc_configure_peripheral_div(uint32_t id, uint32_t div)
  *        Exported functions (General)
  *----------------------------------------------------------------------------*/
 
-void pmc_set_oscillators(uint32_t external_slow, uint32_t external_main)
+void pmc_set_main_oscillator_freq(uint32_t freq)
 {
-	_pmc_oscillators.external.slow = external_slow;
-	_pmc_oscillators.external.main = external_main;
+	_pmc_main_oscillators.crystal_freq = freq;
 }
 
 uint32_t pmc_get_master_clock(void)
@@ -383,18 +377,15 @@ uint32_t pmc_get_master_clock(void)
 
 uint32_t pmc_get_slow_clock(void)
 {
-	if (slowclock_is_internal())
-		return _pmc_oscillators.internal.slow; /* on-chip slow clock RC */
-	else
-		return _pmc_oscillators.external.slow; /* external crystal */
+	return slowclock_get_clock(SLOWCLOCK_DOMAIN_DEFAULT);
 }
 
 uint32_t pmc_get_main_clock(void)
 {
 	if (PMC->CKGR_MOR & CKGR_MOR_MOSCSEL)
-		return _pmc_oscillators.external.main; /* external crystal */
+		return _pmc_main_oscillators.crystal_freq; /* external crystal */
 	else
-		return _pmc_oscillators.internal.main; /* on-chip main clock RC */
+		return _pmc_main_oscillators.rc_freq; /* on-chip main clock RC */
 }
 
 uint32_t pmc_get_plla_clock(void)
@@ -452,7 +443,7 @@ void pmc_select_external_crystal(void)
 		return_to_slck = true;
 	}
 
-	slowclock_select_external();
+	slowclock_select_external(SLOWCLOCK_DOMAIN_DEFAULT);
 
 	/* Switch to slow clock again if needed */
 	if (return_to_slck)
@@ -468,7 +459,7 @@ void pmc_select_internal_crystal(void)
 		return_to_slck = true;
 	}
 
-	slowclock_select_internal();
+	slowclock_select_internal(SLOWCLOCK_DOMAIN_DEFAULT);
 
 	/* Switch to slow clock again if needed */
 	if (return_to_slck)
@@ -1016,7 +1007,7 @@ void pmc_enable_upll_clock(void)
 #endif
 
 #if defined(SFR_UTMICKTRIM_FREQ_Msk)
-	switch (_pmc_oscillators.external.main) {
+	switch (_pmc_main_oscillators.crystal_freq) {
 #ifdef SFR_UTMICKTRIM_FREQ_48
 	case 48000000:
 		SFR->SFR_UTMICKTRIM = (SFR->SFR_UTMICKTRIM & ~SFR_UTMICKTRIM_FREQ_Msk) | SFR_UTMICKTRIM_FREQ_48;
@@ -1032,7 +1023,7 @@ void pmc_enable_upll_clock(void)
 		SFR->SFR_UTMICKTRIM = (SFR->SFR_UTMICKTRIM & ~SFR_UTMICKTRIM_FREQ_Msk) | SFR_UTMICKTRIM_FREQ_12;
 	}
 #elif defined(UTMI_CKTRIM_FREQ_Msk)
-	switch (_pmc_oscillators.external.main) {
+	switch (_pmc_main_oscillators.crystal_freq) {
 	case 16000000:
 		UTMI->UTMI_CKTRIM = (UTMI->UTMI_CKTRIM & ~UTMI_CKTRIM_FREQ_Msk) | UTMI_CKTRIM_FREQ_XTAL16;
 		break;
@@ -1062,31 +1053,31 @@ uint32_t pmc_get_upll_clock(void)
 	switch (clktrim) {
 #ifdef SFR_UTMICKTRIM_FREQ_48
 		case SFR_UTMICKTRIM_FREQ_48:
-			upllclk = 10 * _pmc_oscillators.external.main;
+			upllclk = 10 * _pmc_main_oscillators.crystal_freq;
 			break;
 #endif
 		case SFR_UTMICKTRIM_FREQ_24:
-			upllclk = 20 * _pmc_oscillators.external.main;
+			upllclk = 20 * _pmc_main_oscillators.crystal_freq;
 			break;
 		case SFR_UTMICKTRIM_FREQ_16:
-			upllclk = 30 * _pmc_oscillators.external.main;
+			upllclk = 30 * _pmc_main_oscillators.crystal_freq;
 			break;
 		default:
-			upllclk = 40 * _pmc_oscillators.external.main;
+			upllclk = 40 * _pmc_main_oscillators.crystal_freq;
 			break;
 	}
 #elif defined(UTMI_CKTRIM_FREQ_Msk)
 	uint32_t clktrim = UTMI->UTMI_CKTRIM & UTMI_CKTRIM_FREQ_Msk;
 	switch (clktrim) {
 		case UTMI_CKTRIM_FREQ_XTAL16:
-			upllclk = 30 * _pmc_oscillators.external.main;
+			upllclk = 30 * _pmc_main_oscillators.crystal_freq;
 			break;
 		default:
-			upllclk = 40 * _pmc_oscillators.external.main;
+			upllclk = 40 * _pmc_main_oscillators.crystal_freq;
 			break;
 	}
 #else
-	upllclk = 40 * _pmc_oscillators.external.main;
+	upllclk = 40 * _pmc_main_oscillators.crystal_freq;
 #endif
 
 #ifdef CONFIG_HAVE_PMC_UPLLDIV2
@@ -1253,7 +1244,7 @@ uint32_t pmc_get_audio_pmc_clock(void)
 	uint32_t fracr = (pll1 & PMC_AUDIO_PLL1_FRACR_Msk) >> PMC_AUDIO_PLL1_FRACR_Pos;
 	uint32_t qdpmc = (pll0 & PMC_AUDIO_PLL0_QDPMC_Msk) >> PMC_AUDIO_PLL0_QDPMC_Pos;
 
-	uint64_t clk = _pmc_oscillators.external.main;
+	uint64_t clk = _pmc_main_oscillators.crystal_freq;
 	clk *= ((nd + 1) << 22) + fracr;
 	clk /= 1 << 22;
 	clk /= qdpmc + 1;
@@ -1275,7 +1266,7 @@ uint32_t pmc_get_audio_pad_clock(void)
 	if (div != 2 && div != 3)
 		return 0;
 
-	uint64_t clk = _pmc_oscillators.external.main;
+	uint64_t clk = _pmc_main_oscillators.crystal_freq;
 	clk *= ((nd + 1) << 22) + fracr;
 	clk /= 1 << 22;
 	clk /= div * qdaudio;

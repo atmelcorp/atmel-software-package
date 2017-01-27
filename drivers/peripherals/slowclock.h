@@ -47,23 +47,39 @@
 extern "C" {
 #endif
 
-/**
- * \brief Check if the slow clock source is the external 32K crystal or the
- * internal 32K RC.
- * \return true if the slow clock source is the internal 32K RC, false if it is
- * the external 32K crystal
- */
-extern bool slowclock_is_internal(void);
+enum _slowclock_domain {
+	SLOWCLOCK_DOMAIN_DEFAULT, /* Default slow clock, used as input for peripherals */
+#ifdef CONFIG_HAVE_SLOWCLOCK_TIMING_DOMAIN
+	SLOWCLOCK_DOMAIN_TIMING,  /* Timing Domain slow clock (RTC, RTT) */
+#endif
+};
 
 /**
- * \brief Select internal 32K RC.
+ * \brief Check if the slow clock is using the internal or external oscillator.
+ * \param domain slow clock domain
+ * \return true if the slow clock source is the internal RC oscillator, false if it is
+ * the external crystal oscillator.
  */
-extern void slowclock_select_internal(void);
+extern bool slowclock_is_internal(enum _slowclock_domain domain);
 
 /**
- * \brief Select external 32K crystal.
+ * \brief Select internal slow clock RC oscillator.
+ * \param domain slow clock domain
  */
-extern void slowclock_select_external(void);
+extern void slowclock_select_internal(enum _slowclock_domain domain);
+
+/**
+ * \brief Select external slow clock crystal oscillator.
+ * \param domain slow clock domain
+ */
+extern void slowclock_select_external(enum _slowclock_domain domain);
+
+/*
+ * \brief Get the frequency of the currently selected slow clock oscillator (32K or 32.768K)
+ * \param domain slow clock domain
+ * \return the oscillator frequency in Hertz.
+ */
+extern uint32_t slowclock_get_clock(enum _slowclock_domain domain);
 
 
 #ifdef __cplusplus
