@@ -111,6 +111,10 @@ static uint32_t _pio_get_group_mask(uint32_t id)
 	if (id == ID_PIOD)
 		group |= (1 << PIO_GROUP_D);
 #endif
+#ifdef ID_PIOE
+	if (id == ID_PIOE)
+		group |= (1 << PIO_GROUP_E);
+#endif
 
 	return group;
 }
@@ -139,6 +143,10 @@ static uint32_t _pio_get_periph_id(uint32_t group)
 #ifdef ID_PIOD
 	case PIO_GROUP_D:
 		return ID_PIOD;
+#endif
+#ifdef ID_PIOE
+	case PIO_GROUP_E:
+		return ID_PIOE;
 #endif
 	default:
 		trace_fatal("Invalid PIO group!");
@@ -185,6 +193,10 @@ static void _pio_handler(uint32_t source, void* user_arg)
 #ifdef ID_PIOD
 	if (group_mask & (1 << PIO_GROUP_D))
 		_pio_handle_interrupt(PIO_GROUP_D);
+#endif
+#ifdef ID_PIOE
+	if (group_mask & (1 << PIO_GROUP_E))
+		_pio_handle_interrupt(PIO_GROUP_E);
 #endif
 }
 
