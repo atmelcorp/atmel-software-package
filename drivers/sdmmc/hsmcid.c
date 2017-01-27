@@ -47,6 +47,7 @@
  *---------------------------------------------------------------------------*/
 
 #include <assert.h>
+#include <stdbool.h>
 #include <string.h>
 
 #include "board.h"
@@ -75,31 +76,21 @@
 #define MCID_ERROR  4       /**< Command error */
 
 /** Bit mask for status register errors. */
-#define STATUS_ERRORS ((uint32_t)(HSMCI_SR_UNRE  \
-					   | HSMCI_SR_OVRE \
-					   | HSMCI_SR_ACKRCVE \
-					   | HSMCI_SR_CSTOE \
-					   | HSMCI_SR_DTOE \
-					   | HSMCI_SR_DCRCE \
-					   | HSMCI_SR_RTOE \
-					   | HSMCI_SR_RENDE \
-					   | HSMCI_SR_RCRCE \
-					   | HSMCI_SR_RDIRE \
-					   | HSMCI_SR_RINDE))
+#define STATUS_ERRORS \
+	((uint32_t)(HSMCI_SR_UNRE | HSMCI_SR_OVRE | HSMCI_SR_ACKRCVE |\
+	            HSMCI_SR_CSTOE | HSMCI_SR_DTOE | HSMCI_SR_DCRCE |\
+	            HSMCI_SR_RTOE | HSMCI_SR_RENDE | HSMCI_SR_RCRCE |\
+	            HSMCI_SR_RDIRE | HSMCI_SR_RINDE))
 
 /** Bit mask for response errors */
-#define STATUS_ERRORS_RESP ((uint32_t)(HSMCI_SR_CSTOE \
-							| HSMCI_SR_RTOE \
-							| HSMCI_SR_RENDE \
-							| HSMCI_SR_RCRCE \
-							| HSMCI_SR_RDIRE \
-							| HSMCI_SR_RINDE))
+#define STATUS_ERRORS_RESP \
+	((uint32_t)(HSMCI_SR_CSTOE | HSMCI_SR_RTOE | HSMCI_SR_RENDE |\
+	            HSMCI_SR_RCRCE | HSMCI_SR_RDIRE | HSMCI_SR_RINDE))
 
 /** Bit mask for data errors */
-#define STATUS_ERRORS_DATA ((uint32_t)(HSMCI_SR_UNRE \
-							| HSMCI_SR_OVRE \
-							| HSMCI_SR_DTOE \
-							| HSMCI_SR_DCRCE))
+#define STATUS_ERRORS_DATA \
+	((uint32_t)(HSMCI_SR_UNRE | HSMCI_SR_OVRE | HSMCI_SR_DTOE |\
+	            HSMCI_SR_DCRCE))
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -107,7 +98,7 @@
 
 static uint8_t hsmci_cancel_command(struct hsmci_set *set);
 static uint8_t hsmci_release_dma(struct hsmci_set *set);
-static void hsmci_finish_cmd(struct hsmci_set *set, uint8_t bStatus);
+static void hsmci_finish_cmd(struct hsmci_set *set, uint8_t status);
 
 static void hsmci_power_device(struct hsmci_set *set, bool on)
 {
@@ -115,6 +106,7 @@ static void hsmci_power_device(struct hsmci_set *set, bool on)
 
 	if ((on && set->state != MCID_OFF) || (!on && set->state == MCID_OFF))
 		return;
+
 	if (on) {
 		trace_debug("Power the device on\r\n");
 		board_power_sdmmc_device(set->id, true);
@@ -122,17 +114,22 @@ static void hsmci_power_device(struct hsmci_set *set, bool on)
 		set->state = MCID_IDLE;
 		return;
 	}
+
 	trace_debug("Release and power the device off\r\n");
 	if (set->state == MCID_CMD)
 		hsmci_cancel_command(set);
+
 	/* Cut the power rail supplying signals to/from the device */
 	set->dev_freq = 0;
 	hsmci_disable(set->regs);
+
 	/* Reset the Mode Register */
 	hsmci_cfg_mode(set->regs, hsmci_get_mode(set->regs)
 		& (HSMCI_MR_CLKDIV_Msk | HSMCI_MR_PWSDIV_Msk));
+
 	/* Reset the Block Register */
 	hsmci_cfg_xfer(set->regs, 0, 0);
+
 	/* Reset the peripheral. This will reset almost all registers. */
 	hsmci_reset(set->regs, true);
 	board_power_sdmmc_device(set->id, false);
@@ -153,6 +150,7 @@ static uint8_t hsmci_set_speed_mode(struct hsmci_set *set, uint8_t mode)
 		hsmci_enable_hs(regs, false);
 	else
 		hsmci_enable_hs(regs, true);
+
 	set->tim_mode = mode;
 
 	return SDMMC_OK;
@@ -182,11 +180,11 @@ static void hsmci_handler(struct hsmci_set *set)
 {
 	Hsmci *regs = set->regs;
 	sSdmmcCommand *pCmd = set->cmd;
-	uint32_t dwSr, dwMaskedSr;
+	uint32_t sr, masked_sr;
 	assert(regs);
 
 	/* Do nothing if no pending command */
-	if (pCmd == NULL) {
+	if (!pCmd) {
 		if (set->state >= MCID_CMD)
 			set->state = MCID_LOCKED;
 		return;
@@ -198,38 +196,38 @@ static void hsmci_handler(struct hsmci_set *set)
 	}
 
 	/* Read status */
-	dwSr = hsmci_get_status(regs);
-	dwMaskedSr = dwSr & hsmci_get_it_mask(regs);
+	sr = hsmci_get_status(regs);
+	masked_sr = sr & hsmci_get_it_mask(regs);
 	/* Check errors */
-	if (dwMaskedSr & STATUS_ERRORS) {
-		if (dwMaskedSr & HSMCI_SR_RTOE)
+	if (masked_sr & STATUS_ERRORS) {
+		if (masked_sr & HSMCI_SR_RTOE)
 			pCmd->bStatus = SDMMC_ERROR_NORESPONSE;
 		else
 			pCmd->bStatus = SDMMC_ERR_IO;
 		set->state = MCID_ERROR;
-		trace_debug("HSMCI_SR 0x%08lx\r\n", dwSr);
+		trace_debug("HSMCI_SR 0x%08lx\r\n", sr);
 	}
 
 	/* Check command complete */
-	if (dwMaskedSr & HSMCI_SR_CMDRDY) {
+	if (masked_sr & HSMCI_SR_CMDRDY) {
 		hsmci_disable_it(regs, HSMCI_IDR_CMDRDY);
 		set->nxt_evts &= ~(uint32_t)HSMCI_IMR_CMDRDY;
 		trace_debug("CMDRDY\r\n");
 	}
 	/* Check if not busy */
-	if (dwMaskedSr & HSMCI_SR_NOTBUSY) {
+	if (masked_sr & HSMCI_SR_NOTBUSY) {
 		hsmci_disable_it(regs, HSMCI_IDR_NOTBUSY);
 		set->nxt_evts &= ~(uint32_t)HSMCI_IMR_NOTBUSY;
 		trace_debug("NOTBUSY\r\n");
 	}
 	/* Check if FIFO empty (all data sent) */
-	if (dwMaskedSr & HSMCI_SR_FIFOEMPTY) {
+	if (masked_sr & HSMCI_SR_FIFOEMPTY) {
 		hsmci_disable_it(regs, HSMCI_IDR_FIFOEMPTY);
 		set->nxt_evts &= ~(uint32_t)HSMCI_IMR_FIFOEMPTY;
 		trace_debug("FIFOEMPTY\r\n");
 	}
 	/* Check if data transfer has completed */
-	if (dwMaskedSr & HSMCI_SR_XFRDONE) {
+	if (masked_sr & HSMCI_SR_XFRDONE) {
 		hsmci_disable_it(regs, HSMCI_IDR_XFRDONE);
 		set->nxt_evts &= ~(uint32_t)HSMCI_IMR_XFRDONE;
 		trace_debug("XFRDONE\r\n");
@@ -239,16 +237,22 @@ static void hsmci_handler(struct hsmci_set *set)
 	if (set->nxt_evts == 0 || set->state == MCID_ERROR) {
 		/* Halt the DMA (if used) */
 		hsmci_release_dma(set);
+
 		/* Error reset */
-		if (set->state == MCID_ERROR)
+		if (set->state == MCID_ERROR) {
 			hsmci_reset(regs, true);
-		else {
+		} else {
 			pCmd->bStatus = SDMMC_SUCCESS;
 
 			if (pCmd->pResp) {
 				uint8_t bRspSize, i;
 				switch(pCmd->cmdOp.bmBits.respType) {
-				case 1: case 3: case 4: case 5: case 6: case 7:
+				case 1:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+				case 7:
 					bRspSize = 1;
 					break;
 				case 2:
@@ -258,12 +262,13 @@ static void hsmci_handler(struct hsmci_set *set)
 					bRspSize = 0;
 				}
 				for (i = 0; i < bRspSize; i ++)
-					pCmd->pResp[i] =
-						hsmci_get_response(regs);
+					pCmd->pResp[i] = hsmci_get_response(regs);
 			}
 		}
+
 		/* Disable interrupts */
 		hsmci_disable_it(regs, ~0ul);
+
 		/* Command is finished */
 		hsmci_finish_cmd(set, pCmd->bStatus);
 	}
@@ -284,10 +289,13 @@ static bool hsmci_is_busy(struct hsmci_set *set)
 
 	if (set->use_polling)
 		hsmci_handler(set);
+
 	if (set->state == MCID_CMD)
 		return true;
+
 	if (set->cmd)
 		return true;
+
 	return false;
 }
 
@@ -297,13 +305,16 @@ static uint8_t hsmci_cancel_command(struct hsmci_set *set)
 
 	if (set->state == MCID_IDLE)
 		return SDMMC_ERROR_STATE;
+
 	if (set->state == MCID_CMD) {
 		/* Cancel ... */
 		hsmci_release_dma(set);
 		hsmci_reset(set->regs, true);
+
 		/* Command is finished */
 		hsmci_finish_cmd(set, SDMMC_ERROR_USER_CANCEL);
 	}
+
 	return SDMMC_OK;
 }
 
@@ -332,46 +343,44 @@ static uint8_t hsmci_release_dma(struct hsmci_set *set)
 
 	if (set->dma_rx_channel == NULL || set->dma_tx_channel == NULL)
 		return SDMMC_ERROR_STATE;
+
 	rc = dma_stop_transfer(set->dma_rx_channel);
 	if (rc != 0) {
 		trace_error("Error halting DMA channel\r\n");
 		res = SDMMC_ERROR_STATE;
 	}
+
 	rc = dma_stop_transfer(set->dma_tx_channel);
 	if (rc != 0) {
 		trace_error("Error halting DMA channel\r\n");
 		res = SDMMC_ERROR_STATE;
 	}
+
 	return res;
 }
 
 /**
- * \brief Prepare a DMA channel
- * \return SDMMC_SUCCESS if the DMA channel is ready for transfer setup.
+ * \brief Prepare DMA channels
+ * \return SDMMC_SUCCESS if the DMA channels are ready for transfer setup.
  */
-static uint8_t hsmci_prepare_dma(struct hsmci_set *set, uint8_t bRd)
+static uint8_t hsmci_prepare_dma_channels(struct hsmci_set *set)
 {
-	uint32_t rc;
 	struct _callback _cb;
 
 	assert(set);
-	if (!bRd) {
-		set->dma_tx_channel = dma_allocate_channel(DMA_PERIPH_MEMORY, set->id);
-		if (!set->dma_tx_channel)
-			return SDMMC_ERROR_BUSY;
-		callback_set(&_cb, _hsmci_dma_callback_wrapper, set);
-		rc = dma_set_callback(set->dma_tx_channel, &_cb);
-	} else {
-		set->dma_rx_channel = dma_allocate_channel(set->id, DMA_PERIPH_MEMORY);
-		if (!set->dma_rx_channel)
-			return SDMMC_ERROR_BUSY;
-		callback_set(&_cb, _hsmci_dma_callback_wrapper, set);
-		rc = dma_set_callback(set->dma_rx_channel, &_cb);
-	}
-	if (rc != 0) {
-		hsmci_release_dma(set);
-		return SDMMC_ERROR_STATE;
-	}
+
+	set->dma_tx_channel = dma_allocate_channel(DMA_PERIPH_MEMORY, set->id);
+	if (!set->dma_tx_channel)
+		return SDMMC_ERROR_BUSY;
+	callback_set(&_cb, _hsmci_dma_callback_wrapper, set);
+	dma_set_callback(set->dma_tx_channel, &_cb);
+
+	set->dma_rx_channel = dma_allocate_channel(set->id, DMA_PERIPH_MEMORY);
+	if (!set->dma_rx_channel)
+		return SDMMC_ERROR_BUSY;
+	callback_set(&_cb, _hsmci_dma_callback_wrapper, set);
+	dma_set_callback(set->dma_rx_channel, &_cb);
+
 	return SDMMC_SUCCESS;
 }
 
@@ -401,12 +410,15 @@ static uint8_t hsmci_configure_dma(struct hsmci_set *set, uint8_t bRd)
 		dma_cfg.incr_saddr = true;
 		dma_cfg.incr_daddr = false;
 	}
+
 	/* Configure data count */
 	cfg.len = (cmd->wBlockSize / unit) * (uint32_t)cmd->wNbBlocks;
+
 	/* We may transfer to/from HSMCI_FIFO, however, on ATSAMV71, using
 	 * HSMCI_TDR and HSMCI_RDR registers is as fast as using HSMCI_FIFO. */
 	cfg.saddr = bRd ? (void*)&set->regs->HSMCI_RDR : cmd->pData;
 	cfg.daddr = bRd ? cmd->pData : (void*)&set->regs->HSMCI_TDR;
+
 	/* Configure a single block per master transfer, i.e. no linked list */
 	if (bRd)
 		rc = dma_configure_transfer(set->dma_rx_channel, &dma_cfg, &cfg, 1);
@@ -414,7 +426,8 @@ static uint8_t hsmci_configure_dma(struct hsmci_set *set, uint8_t bRd)
 		rc = dma_configure_transfer(set->dma_tx_channel, &dma_cfg, &cfg, 1);
 	if (rc != 0)
 		return SDMMC_ERROR_BUSY;
-	if (bRd)
+
+	if (bRd) {
 		/* Invalidate the corresponding data cache lines now, so this
 		 * buffer is protected against a global cache clean operation,
 		 * that concurrent code may trigger.
@@ -423,30 +436,33 @@ static uint8_t hsmci_configure_dma(struct hsmci_set *set, uint8_t bRd)
 		 * the same lines. If such anticipated reading had to be
 		 * supported, the data cache lines would need to be invalidated
 		 * twice: both now and upon completion of the DMA transfer. */
-		cache_invalidate_region(cmd->pData, cmd->wBlockSize
-			* (uint32_t)cmd->wNbBlocks);
-	else
-		cache_clean_region(cmd->pData, cmd->wBlockSize
-			* (uint32_t)cmd->wNbBlocks);
+		cache_invalidate_region(cmd->pData, cmd->wBlockSize * (uint32_t)cmd->wNbBlocks);
+	} else {
+		cache_clean_region(cmd->pData, cmd->wBlockSize * (uint32_t)cmd->wNbBlocks);
+	}
+
 	if (bRd)
 		rc = dma_start_transfer(set->dma_rx_channel);
 	else
 		rc = dma_start_transfer(set->dma_tx_channel);
+
 	return rc == 0 ? SDMMC_SUCCESS : SDMMC_ERROR_STATE;
 }
 
-static void hsmci_finish_cmd(struct hsmci_set *set, uint8_t bStatus)
+static void hsmci_finish_cmd(struct hsmci_set *set, uint8_t status)
 {
 	sSdmmcCommand * const cmd = set->cmd;
 
 	/* Release DMA channel (if used) */
 	hsmci_release_dma(set);
+
 	/* Release command */
 	set->cmd = NULL;
 	set->state = MCID_LOCKED;
 	if (cmd == NULL)
 		return;
-	cmd->bStatus = bStatus;
+	cmd->bStatus = status;
+
 	/* Invoke callback */
 	if (cmd->fCallback)
 		(cmd->fCallback)(cmd->bStatus, cmd->pArg);
@@ -470,10 +486,13 @@ static uint32_t hsmci_lock(void *_set, uint8_t slot)
 
 	if (slot > 0)
 		return SDMMC_ERROR_PARAM;
+
 	if (set->state >= MCID_LOCKED)
 		return SDMMC_ERROR_LOCKED;
+
 	set->state = MCID_LOCKED;
 	hsmci_set_slot(regs, slot);
+
 	return SDMMC_OK;
 }
 
@@ -490,7 +509,9 @@ static uint32_t hsmci_release(void *_set)
 
 	if (set->state >= MCID_CMD)
 		return SDMMC_ERROR_BUSY;
+
 	set->state = MCID_IDLE;
+
 	return SDMMC_OK;
 }
 
@@ -665,15 +686,18 @@ static uint32_t hsmci_send_command(void *_set, sSdmmcCommand *cmd)
 	uint8_t rc, is_read, blk_io = 0;
 	const uint8_t has_data = cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_TX
 		|| cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_RX;
+
 	if (has_data && (cmd->wBlockSize == 0 || cmd->wNbBlocks == 0
 		|| cmd->pData == NULL))
 		return SDMMC_ERROR_PARAM;
+
 	if (hsmci_is_busy(set))
 		return SDMMC_ERROR_BUSY;
 
 	trace_debug("cmd %d, op 0x%04x, %d x %d, arg 0x%08lx, status %d\r\n",
 		cmd->bCmd, cmd->cmdOp.wVal, cmd->wBlockSize, cmd->wNbBlocks,
 		cmd->dwArg, cmd->bStatus);
+
 	hsmci_disable_it(regs, ~0ul);
 	hsmci_disable(regs);
 
@@ -714,6 +738,7 @@ static uint32_t hsmci_send_command(void *_set, sSdmmcCommand *cmd)
 			SdioCmd53Arg *cmd_arg = (SdioCmd53Arg*)&cmd->dwArg;
 			blk_io = cmd_arg->blockMode;
 		}
+
 		/* Setup transfer size */
 		if (cmd->cmdOp.bmBits.sendCmd) {
 			blkr_len = cmd->cmdOp.bmBits.ioCmd && !blk_io
@@ -722,21 +747,26 @@ static uint32_t hsmci_send_command(void *_set, sSdmmcCommand *cmd)
 				? cmd->wBlockSize : cmd->wNbBlocks;
 			hsmci_cfg_xfer(regs, blkr_len, blkr_cnt);
 		}
+
 		/* Data chunks and blocks - including SDIO byte operations -
 		 * whose size is not a multiple of 4 bytes are supported with
 		 * specific handling. */
 		if (cmd->wBlockSize & 0x3)
 			mr |= HSMCI_MR_FBYTE;
+
 		/* Set block size & MR */
 		hsmci_cfg_mode(regs, mr | HSMCI_MR_WRPROOF | HSMCI_MR_RDPROOF);
 
 		is_read = (cmd->cmdOp.bmBits.xfrData == SDMMC_CMD_TX) ? 0 : 1;
+
 		if (!mutex_try_lock(&set->dma_unlocks_mutex))
 			return SDMMC_ERROR_LOCKED;
+
 		if (is_read)
 			dma_reset_channel(set->dma_rx_channel);
 		else
 			dma_reset_channel(set->dma_tx_channel);
+
 		rc = hsmci_configure_dma(set, is_read);
 		if (rc != SDMMC_SUCCESS) {
 			hsmci_enable(regs);
@@ -744,12 +774,16 @@ static uint32_t hsmci_send_command(void *_set, sSdmmcCommand *cmd)
 			trace_error("DMA error %u\r\n", rc);
 			return rc;
 		}
+
 		set->nxt_evts = HSMCI_IER_XFRDONE;
+
 		/* Let's ensure the DMA transfer has completed, before enabling
 		 * the XFRDONE interrupt that will close the request. */
 		ier = STATUS_ERRORS_RESP | STATUS_ERRORS_DATA;
 	}
+
 	hsmci_enable(regs);
+
 	if (cmd->cmdOp.wVal & (SDMMC_CMD_bmPOWERON | SDMMC_CMD_bmCOMMAND)) {
 		cmdr = cmd->bCmd;
 		if (cmd->cmdOp.bmBits.powerON)
@@ -860,26 +894,13 @@ bool hsmci_initialize(struct hsmci_set *set, uint32_t periph_id,
 	hsmci_cfg_compl_timeout(regs, HSMCI_CSTOR_CSTOCYC_Msk
 		| HSMCI_CSTOR_CSTOMUL_1048576);
 
-	if (periph_id == ID_HSMCI0) {
-		if (!set->use_polling) {
-			/* enable HSMCI0 interrupt */
-			irq_add_handler(periph_id, hsmci_irq_handler, set);
-			irq_enable(periph_id);
-		}
+	if (!set->use_polling) {
+		/* enable interrupt */
+		irq_add_handler(periph_id, hsmci_irq_handler, set);
+		irq_enable(periph_id);
 	}
-	if (periph_id == ID_HSMCI1) {
-		if (!set->use_polling) {
-			/* enable HSMCI1 interrupt */
-			irq_add_handler(periph_id, hsmci_irq_handler, set);
-			irq_enable(periph_id);
-		}
-	}
-	if (hsmci_prepare_dma(set, 1) != SDMMC_SUCCESS) {
-		trace_error("allocate DMA channel error\r\n");
-		return false;
-	}
-	if (hsmci_prepare_dma(set, 0) != SDMMC_SUCCESS) {
-		trace_error("allocate DMA channel error\r\n");
+	if (hsmci_prepare_dma_channels(set) != SDMMC_SUCCESS) {
+		trace_error("allocate DMA channels error\r\n");
 		return false;
 	}
 	return true;
