@@ -3792,7 +3792,7 @@ SDIO_Read(sSdCard * pSd,
           uint32_t size, fSdmmcCallback fCallback, void *pArg)
 {
 	uint8_t *out = NULL;
-	uint32_t addr_now, remaining, limited;
+	uint32_t addr_now, remaining, limited = 0;
 	/* TODO retrieve and cache the I/O block size negotiated for the
 	 * specified I/O Function. In case the device doesn't support block
 	 * I/O, assign 0. */
@@ -3864,7 +3864,7 @@ SDIO_Write(sSdCard * pSd,
            uint32_t size, fSdmmcCallback fCallback, void *pArg)
 {
 	uint8_t *in = NULL;
-	uint32_t addr_now, remaining, limited;
+	uint32_t addr_now, remaining, limited = 0;
 	uint16_t blk_size = 0; /* TODO retrieve and cache I/O block size */
 	uint8_t rc = SDMMC_SUCCESS, blk_rc;
 
