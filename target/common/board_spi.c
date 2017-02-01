@@ -73,50 +73,78 @@ static struct _qspiflash qspiflash;
 
 void board_cfg_spi_bus(void)
 {
-	struct _bus_iface iface;
 
-	iface.type = BUS_TYPE_SPI;
 #ifdef BOARD_SPI_BUS0
 	const struct _pin pins_spi_bus0[] = BOARD_SPI_BUS0_PINS;
+	const struct _bus_iface iface_bus0 = {
+		.type = BUS_TYPE_SPI,
+		.spi = {
+			.hw = BOARD_SPI_BUS0,
+		},
+		.transfer_mode = BOARD_SPI_BUS0_MODE,
+	};
 	pio_configure(pins_spi_bus0, ARRAY_SIZE(pins_spi_bus0));
-	iface.spi.hw = BOARD_SPI_BUS0;
-	iface.transfer_mode = BOARD_SPI_BUS0_MODE;
-	bus_configure(BUS(BUS_TYPE_SPI, 0), &iface);
+	bus_configure(BUS(BUS_TYPE_SPI, 0), &iface_bus0);
 #endif
 #ifdef BOARD_SPI_BUS1
 	const struct _pin pins_spi_bus1[] = BOARD_SPI_BUS1_PINS;
+	const struct _bus_iface iface_bus1 = {
+		.type = BUS_TYPE_SPI,
+		.spi = {
+			.hw = BOARD_SPI_BUS1,
+		},
+		.transfer_mode = BOARD_SPI_BUS1_MODE,
+	};
 	pio_configure(pins_spi_bus1, ARRAY_SIZE(pins_spi_bus1));
-	iface.spi.hw = BOARD_SPI_BUS1;
-	iface.transfer_mode = BOARD_SPI_BUS1_MODE;
-	bus_configure(BUS(BUS_TYPE_SPI, 1), &iface);
+	bus_configure(BUS(BUS_TYPE_SPI, 1), &iface_bus1);
 #endif
 #ifdef BOARD_SPI_BUS2
 	const struct _pin pins_spi_bus2[] = BOARD_SPI_BUS2_PINS;
+	const struct _bus_iface iface_bus2 = {
+		.type = BUS_TYPE_SPI,
+		.spi = {
+			.hw = BOARD_SPI_BUS2,
+		},
+		.transfer_mode = BOARD_SPI_BUS2_MODE,
+	};
 	pio_configure(pins_spi_bus2, ARRAY_SIZE(pins_spi_bus2));
-	iface.spi.hw = BOARD_SPI_BUS2;
-	iface.transfer_mode = BOARD_SPI_BUS2_MODE;
-	bus_configure(BUS(BUS_TYPE_SPI, 2), &iface);
+	bus_configure(BUS(BUS_TYPE_SPI, 2), &iface_bus2);
 #endif
 #ifdef BOARD_SPI_BUS3
 	const struct _pin pins_spi_bus3[] = BOARD_SPI_BUS3_PINS;
+	const struct _bus_iface iface_bus3 = {
+		.type = BUS_TYPE_SPI,
+		.spi = {
+			.hw = BOARD_SPI_BUS3,
+		},
+		.transfer_mode = BOARD_SPI_BUS3_MODE,
+	};
 	pio_configure(pins_spi_bus3, ARRAY_SIZE(pins_spi_bus3));
-	iface.spi.hw = BOARD_SPI_BUS3;
-	iface.transfer_mode = BOARD_SPI_BUS3_MODE;
-	bus_configure(BUS(BUS_TYPE_SPI, 3), &iface;
+	bus_configure(BUS(BUS_TYPE_SPI, 3), &iface_bus3);
 #endif
 #ifdef BOARD_SPI_BUS4
 	const struct _pin pins_spi_bus4[] = BOARD_SPI_BUS4_PINS;
+	const struct _bus_iface iface_bus4 = {
+		.type = BUS_TYPE_SPI,
+		.spi = {
+			.hw = BOARD_SPI_BUS4,
+		},
+		.transfer_mode = BOARD_SPI_BUS4_MODE,
+	};
 	pio_configure(pins_spi_bus4, ARRAY_SIZE(pins_spi_bus4));
-	iface.spi.hw = BOARD_SPI_BUS4;
-	iface.transfer_mode = BOARD_SPI_BUS4_MODE;
-	bus_configure(BUS(BUS_TYPE_SPI, 4), &iface);
+	bus_configure(BUS(BUS_TYPE_SPI, 4), &iface_bus4);
 #endif
 #ifdef BOARD_SPI_BUS5
 	const struct _pin pins_spi_bus5[] = BOARD_SPI_BUS5_PINS;
+	const struct _bus_iface iface_bus5 = {
+		.type = BUS_TYPE_SPI,
+		.spi = {
+			.hw = BOARD_SPI_BUS5,
+		},
+		.transfer_mode = BOARD_SPI_BUS5_MODE,
+	};
 	pio_configure(pins_spi_bus5, ARRAY_SIZE(pins_spi_bus5));
-	iface.spi.hw = BOARD_SPI_BUS5;
-	iface.transfer_mode = BOARD_SPI_BUS5_MODE;
-	bus_configure(BUS(BUS_TYPE_SPI, 5), &iface);
+	bus_configure(BUS(BUS_TYPE_SPI, 5), &iface_bus5);
 #endif
 }
 
@@ -143,6 +171,7 @@ struct _at25* board_get_at25(void)
 #ifdef CONFIG_HAVE_QSPI
 void board_cfg_qspiflash(void)
 {
+#ifdef BOARD_QSPIFLASH_PINS
 	struct _pin pins_qspi[] = BOARD_QSPIFLASH_PINS;
 
 	pio_configure(pins_qspi, ARRAY_SIZE(pins_qspi));
@@ -152,6 +181,7 @@ void board_cfg_qspiflash(void)
 
 	if (qspiflash_configure(&qspiflash, BOARD_QSPIFLASH_ADDR) < 0)
 		trace_fatal("qspi: not configured\r\n");
+#endif
 }
 
 struct _qspiflash* board_get_qspiflash(void)
