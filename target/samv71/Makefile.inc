@@ -43,6 +43,16 @@ iar-linker-script-y ?= $(TOP)/target/samv71/toolchain/iar/sram.icf
 iar-debug-script-y ?= $(TOP)/target/samv71/toolchain/iar/sram.mac
 endif
 
+# DDRAM variant
+ifeq ($(VARIANT),ddram)
+gnu-linker-script-y ?= $(TOP)/target/samv71/toolchain/gnu/ddram.ld
+gnu-debug-script-y ?= $(TOP)/target/samv71/toolchain/gnu/ddram.gdb
+bootstrap-linker-script-y ?= $(TOP)/target/samv71/toolchain/gnu/sram.ld
+iar-linker-script-y ?= $(TOP)/target/samv71/toolchain/iar/ddram.icf
+iar-debug-script-$(CONFIG_BOARD_SAME70_XPLAINED) ?= $(TOP)/target/samv71/toolchain/iar/ddram_same70-xplained.mac
+iar-debug-script-$(CONFIG_BOARD_SAMV71_XPLAINED) ?= $(TOP)/target/samv71/toolchain/iar/ddram_samv71-xplained.mac
+endif
+
 # FLASH variant
 ifeq ($(VARIANT),flash)
 gnu-linker-script-y ?= $(TOP)/target/samv71/toolchain/gnu/flash.ld

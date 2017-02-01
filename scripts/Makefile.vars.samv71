@@ -2,7 +2,7 @@ SAMV71_TARGETS = same70-xplained samv71-xplained
 
 ifneq ($(strip $(foreach board,$(SAMV71_TARGETS),$(if $(call eq,$(TARGET),$(board)),$(board)))),)
 
-COMPATIBLE_VARIANTS = sram flash
+COMPATIBLE_VARIANTS = sram ddram flash
 
 CONFIG_ARCH_ARMV7M = y
 CONFIG_SOC_SAMV71 = y

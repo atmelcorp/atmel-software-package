@@ -52,6 +52,36 @@ define load_in_sram
   set $pc = *0x20400004
 end
 
+define init_ddram
+
+  reset_registers
+
+  # Load bootstrap (in SRAM)
+  load target/bootstrap.elf
+
+  # Initialize VTOR
+  set *0xE000ED08 = 0x20400000
+
+  # Initialize SP and PC
+  set $sp = *0x20400000
+  set $pc = *0x20400004
+
+  continue
+end
+
+define load_in_ddram
+  reset_registers
+
+  load
+
+  # Initialize VTOR
+  set *0xE000ED08 = 0x70000000
+
+  # Initialize SP and PC
+  set $sp = *0x70000000
+  set $pc = *0x70000004
+end
+
 define load_in_flash
   reset_registers
 
