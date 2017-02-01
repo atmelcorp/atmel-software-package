@@ -31,20 +31,21 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include <assert.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "applet.h"
 #include "board.h"
 #include "chip.h"
 #include "gpio/pio.h"
-#include "peripherals/pmc.h"
-#include "spi/qspi.h"
-#include "memories/qspiflash.h"
-#include "pin_defs.h"
-#include "trace.h"
 #include "intmath.h"
-#include <assert.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <string.h>
+#include "nvm/spi-nor/qspiflash.h"
+#include "peripherals/pmc.h"
+#include "pin_defs.h"
+#include "spi/qspi.h"
+#include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Local definitions

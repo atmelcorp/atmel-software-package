@@ -31,14 +31,15 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include <assert.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "applet.h"
 #include "chip.h"
-#include "peripherals/sfc.h"
+#include "nvm/sfc.h"
 #include "trace.h"
-#include <assert.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <string.h>
 
 /*----------------------------------------------------------------------------
  *        Local definitions

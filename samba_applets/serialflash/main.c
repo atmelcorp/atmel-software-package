@@ -31,21 +31,22 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include <assert.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "applet.h"
 #include "board.h"
 #include "chip.h"
-#include "nvm/spi-nor/at25.h"
-#include "core/bus.h"
 #include "gpio/pio.h"
-#include "peripherals/pmc.h"
-#include "spi/spid.h"
-#include "pin_defs.h"
-#include "trace.h"
 #include "intmath.h"
-#include <assert.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <string.h>
+#include "nvm/spi-nor/at25.h"
+#include "peripherals/bus.h"
+#include "peripherals/pmc.h"
+#include "pin_defs.h"
+#include "spi/spid.h"
+#include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Local definitions
@@ -63,16 +64,18 @@
  *----------------------------------------------------------------------------*/
 
 static struct _at25 at25drv = {
-	.dev = {
+	.cfg = {
 		.bus = 0,
-		/* .chip_select */
-		/* .bitrate */
-		.delay = {
-			.bs = 0,
-			.bct = 0,
+		.spi_dev = {
+			/* .chip_select */
+			/* .bitrate */
+			.delay = {
+				.bs = 0,
+				.bct = 0,
+			},
+			.spi_mode = SPID_MODE_0,
 		},
-		.spi_mode = SPID_MODE_0,
-	}
+	},
 };
 
 static uint8_t *buffer;
@@ -137,14 +140,14 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	}
 
 	iface.type = BUS_TYPE_SPI;
-	iface.spi.mode = BUS_TRANSFER_MODE_DMA;
-	bus_configure(iBUS(BUS_TYPE_SPI, 0), &iface);
+	iface.transfer_mode = BUS_TRANSFER_MODE_DMA;
+	bus_configure(BUS(BUS_TYPE_SPI, 0), &iface);
 #ifdef CONFIG_HAVE_SPI_FIFO
-	bus_fifo_enable(true);
+	bus_ioctl(0, BUS_IOCTL_ENABLE_FIFO, NULL);
 #endif
 
-	at25drv.dev.bitrate = ROUND_INT_DIV(freq, 1000);
-	at25drv.dev.chip_select = chip_select;
+	at25drv.cfg.spi_dev.bitrate = ROUND_INT_DIV(freq, 1000);
+	at25drv.cfg.spi_dev.chip_select = chip_select;
 
 	trace_info_wp("Initializing SPI%u ioSet%u NPCS%u at %uHz\r\n",
 			(unsigned)instance, (unsigned)ioset,
