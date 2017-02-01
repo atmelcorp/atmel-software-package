@@ -177,6 +177,12 @@
 #  define SLOT0_TAG                   "(microSD)"
 #  define SLOT1_ID                    ID_HSMCI1
 #  define SLOT1_TAG                   "(SD/MMC)"
+#elif defined(CONFIG_BOARD_SAME70_XPLAINED)
+#  define SLOT0_ID                    ID_HSMCI0
+#  define SLOT0_TAG                   "(SD/MMC)"
+#elif defined(CONFIG_BOARD_SAMV71_XPLAINED)
+#  define SLOT0_ID                    ID_HSMCI0
+#  define SLOT0_TAG                   "(SD/MMC)"
 #endif
 
 /*----------------------------------------------------------------------------

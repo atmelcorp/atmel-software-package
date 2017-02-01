@@ -130,8 +130,8 @@ pwm                    | OK               | x                | OK         | OK  
 qspi_flash             | OK               | x                | x          | x                | x          | x          | x               | TODO
 qspi_xip               | OK               | x                | x          | x                | x          | x          | x               | TODO
 rtc                    | OK               | OK               | OK         | OK               | OK         | OK         | TODO            | TODO
-sdmmc_sdcard           | OK               | OK               | OK         | OK               | OK         | OK         | TODO            | TODO
-secumod                | OK               | x                | x          | OK               | OK         | x          | TODO            | TODO
+sdmmc_sdcard           | OK               | OK               | OK         | OK               | OK         | OK         | OK              | OK
+secumod                | OK               | x                | x          | OK               | OK         | x          | x               | x
 smc_nandflash_mlc      | OK               | OK               | OK         | OK               | OK         | OK         | TODO            | TODO
 smc_nandflash_slc      | OK               | OK               | OK         | OK               | OK         | OK         | TODO            | TODO
 spi_serialflash        | OK               | OK               | OK         | OK               | OK         | OK         | TODO            | TODO
