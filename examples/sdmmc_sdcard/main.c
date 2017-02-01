@@ -132,23 +132,9 @@
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
-/* Configure whether the on-board DDR3-SDRAM should be used */
-#define USE_EXT_RAM                   1
-
-#ifdef VARIANT_DDRAM
-#  undef USE_EXT_RAM
-#  define USE_EXT_RAM                 1
-#endif
-
-#if USE_EXT_RAM
-#  define BLOCK_CNT_MAX               256
-#  define DMADL_CNT_MAX               512u
-#else
-#  define BLOCK_CNT_MAX               24u
-#  define DMADL_CNT_MAX               4u
-#endif
-
-#define BLOCK_CNT                     3u
+#define BLOCK_CNT_MAX               256u
+#define DMADL_CNT_MAX               512u
+#define BLOCK_CNT                   3u
 
 /* Allocate 2 Timers/Counters, that are not used already by the libraries and
  * drivers this example depends on. */
@@ -216,28 +202,13 @@ static struct _hsmci_set drv1 = { 0 };
 #endif
 
 /* Library instance data (a.k.a. SDCard driver instance) */
-#if USE_EXT_RAM
-CACHE_ALIGNED_DDR
-#else
-CACHE_ALIGNED_SRAM
-#endif
-static sSdCard lib0;
-#if USE_EXT_RAM
-CACHE_ALIGNED_DDR
-#else
-CACHE_ALIGNED_SRAM
-#endif
-static sSdCard lib1;
+CACHE_ALIGNED_DDR static sSdCard lib0;
+CACHE_ALIGNED_DDR static sSdCard lib1;
 
 /* Buffer dedicated to the driver, refer to the driver API. Aligning it on
  * cache lines is optional. */
 #ifdef CONFIG_HAVE_SDMMC
-#if USE_EXT_RAM
-CACHE_ALIGNED_DDR
-#else
-CACHE_ALIGNED_SRAM
-#endif
-static uint32_t dma_table[DMADL_CNT_MAX * SDMMC_DMADL_SIZE];
+CACHE_ALIGNED_DDR static uint32_t dma_table[DMADL_CNT_MAX * SDMMC_DMADL_SIZE];
 #endif
 
 /* Read/write data buffer.
@@ -249,12 +220,7 @@ static uint32_t dma_table[DMADL_CNT_MAX * SDMMC_DMADL_SIZE];
  * invalidated.
  * Alternatively, we might consider allocating this buffer from a
  * non-cacheable memory region. */
-#if USE_EXT_RAM
-CACHE_ALIGNED_DDR
-#else
-CACHE_ALIGNED_SRAM
-#endif
-static uint8_t data_buf[BLOCK_CNT_MAX * 512ul];
+CACHE_ALIGNED_DDR static uint8_t data_buf[BLOCK_CNT_MAX * 512ul];
 
 NOT_CACHED static FATFS fs_header;
 NOT_CACHED static FIL f_header;
