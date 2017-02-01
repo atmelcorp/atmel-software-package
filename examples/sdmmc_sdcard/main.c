@@ -144,20 +144,39 @@
 #define TIMER1_CHANNEL                1u
 
 #ifdef CONFIG_BOARD_SAMA5D2_XPLAINED
+#  define SLOT0_ID                    ID_SDMMC0
 #  define SLOT0_TAG                   "(e.MMC)"
-#  define SLOT1_TAG                   "(removable card)"
-#elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
-#  define SLOT0_TAG                   "(microSD)"
+#  define SLOT1_ID                    ID_SDMMC1
 #  define SLOT1_TAG                   "(SD/MMC)"
-#elif defined(CONFIG_BOARD_SAMA5D4_EK)
-#  define SLOT0_TAG                   "(SD/MMC)"
-#  define SLOT1_TAG                   "(microSD)"
 #elif defined(CONFIG_BOARD_SAMA5D3_EK)
+#  define SLOT0_ID                    ID_HSMCI0
 #  define SLOT0_TAG                   "(SD/MMC)"
+#  define SLOT1_ID                    ID_HSMCI1
 #  define SLOT1_TAG                   "(microSD)"
-#else
-#  define SLOT0_TAG                   ""
-#  define SLOT1_TAG                   ""
+#elif defined(CONFIG_BOARD_SAMA5D3_XPLAINED)
+#  define SLOT0_ID                    ID_HSMCI0
+#  define SLOT0_TAG                   "(SD/MMC)"
+#  define SLOT1_ID                    ID_HSMCI1
+#  define SLOT1_TAG                   "(microSD)"
+#elif defined(CONFIG_BOARD_SAMA5D4_EK)
+#  define SLOT0_ID                    ID_HSMCI0
+#  define SLOT0_TAG                   "(SD/MMC)"
+#  define SLOT1_ID                    ID_HSMCI1
+#  define SLOT1_TAG                   "(microSD)"
+#elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
+#  define SLOT0_ID                    ID_HSMCI0
+#  define SLOT0_TAG                   "(microSD)"
+#  define SLOT1_ID                    ID_HSMCI1
+#  define SLOT1_TAG                   "(SD/MMC)"
+#elif defined(CONFIG_BOARD_SAM9G15_EK) ||\
+      defined(CONFIG_BOARD_SAM9G25_EK) ||\
+      defined(CONFIG_BOARD_SAM9G35_EK) ||\
+      defined(CONFIG_BOARD_SAM9X25_EK) ||\
+      defined(CONFIG_BOARD_SAM9X35_EK)
+#  define SLOT0_ID                    ID_HSMCI0
+#  define SLOT0_TAG                   "(microSD)"
+#  define SLOT1_ID                    ID_HSMCI1
+#  define SLOT1_TAG                   "(SD/MMC)"
 #endif
 
 /*----------------------------------------------------------------------------
@@ -167,16 +186,19 @@
 const char test_file_path[] = "test_data.bin";
 
 #ifdef CONFIG_HAVE_SDMMC
-#  define HOST0_ID                    ID_SDMMC0
-#  define HOST1_ID                    ID_SDMMC1
 
 /* Driver instance data (a.k.a. MCI driver instance) */
 static struct sdmmc_set drv0 = { 0 };
+#ifdef SLOT1_ID
 static struct sdmmc_set drv1 = { 0 };
+#endif
+
+/* Buffer dedicated to the driver, refer to the driver API. Aligning it on
+ * cache lines is optional. */
+CACHE_ALIGNED_DDR static uint32_t dma_table[DMADL_CNT_MAX * SDMMC_DMADL_SIZE];
+static bool use_dma = false;
 
 #elif defined(CONFIG_HAVE_HSMCI)
-#  define HOST0_ID                    ID_HSMCI0
-#  define HOST1_ID                    ID_HSMCI1
 
 /* MCI driver instance data */
 static const struct _hsmci_cfg drv0_config = {
@@ -189,6 +211,9 @@ static const struct _hsmci_cfg drv0_config = {
 	},
 };
 static struct _hsmci_set drv0 = { 0 };
+
+#ifdef SLOT1_ID
+
 static const struct _hsmci_cfg drv1_config = {
 	.periph_id = ID_HSMCI1,
 	.slot = BOARD_HSMCI1_SLOT,
@@ -199,16 +224,15 @@ static const struct _hsmci_cfg drv1_config = {
 	},
 };
 static struct _hsmci_set drv1 = { 0 };
-#endif
+
+#endif /* SLOT1_ID */
+
+#endif /* CONFIG_HAVE_HSMCI */
 
 /* Library instance data (a.k.a. SDCard driver instance) */
 CACHE_ALIGNED_DDR static sSdCard lib0;
+#ifdef SLOT1_ID
 CACHE_ALIGNED_DDR static sSdCard lib1;
-
-/* Buffer dedicated to the driver, refer to the driver API. Aligning it on
- * cache lines is optional. */
-#ifdef CONFIG_HAVE_SDMMC
-CACHE_ALIGNED_DDR static uint32_t dma_table[DMADL_CNT_MAX * SDMMC_DMADL_SIZE];
 #endif
 
 /* Read/write data buffer.
@@ -232,10 +256,6 @@ static struct _buffer sha_buf;
 #endif
 
 static uint8_t slot;
-
-#ifdef CONFIG_HAVE_SDMMC
-static bool use_dma = false;
-#endif
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -264,9 +284,11 @@ static void display_menu(void)
 {
 	printf("\n\rSD Card menu:\n\r");
 	printf("   h: Display this menu\n\r");
+#ifdef SLOT1_ID
 	printf("   t: Toggle between Slot%c0%c" SLOT0_TAG " and Slot%c1%c"
 	    SLOT1_TAG "\n\r", slot ? ' ' : '[', slot ? ' ' : ']', slot ? '[' : ' ',
 	    slot ? ']' : ' ');
+#endif
 #ifdef CONFIG_HAVE_SDMMC
 	printf("   d: Select either %cCPU programmed I/O%c or %cDMA operation%c"
 	    "\n\r", use_dma ? ' ' : '[', use_dma ? ' ' : ']',
@@ -281,25 +303,34 @@ static void display_menu(void)
 
 static void initialize(void)
 {
+#if defined(CONFIG_HAVE_SDMMC)
+
 	/* As long as we do not transfer from/to the two peripherals at the same
 	 * time, we can have the two instances sharing a single DMA buffer. */
 
-#if defined(CONFIG_HAVE_SDMMC)
-	sdmmc_initialize(&drv0, HOST0_ID,
+	sdmmc_initialize(&drv0, SLOT0_ID,
 	    TIMER0_MODULE, TIMER0_CHANNEL,
 	    use_dma ? dma_table : NULL, use_dma ? ARRAY_SIZE(dma_table) : 0, false);
-	sdmmc_initialize(&drv1, HOST1_ID,
+	SDD_InitializeSdmmcMode(&lib0, &drv0, 0);
+
+#ifdef SLOT1_ID
+	sdmmc_initialize(&drv1, SLOT1_ID,
 	    TIMER1_MODULE, TIMER1_CHANNEL,
 	    use_dma ? dma_table : NULL, use_dma ? ARRAY_SIZE(dma_table) : 0, false);
+	SDD_InitializeSdmmcMode(&lib1, &drv1, 0);
+#endif /* SLOT1_ID */
 
 #elif defined(CONFIG_HAVE_HSMCI)
 
 	hsmci_initialize(&drv0, &drv0_config);
+	SDD_InitializeSdmmcMode(&lib0, &drv0, 0);
+
+#ifdef SLOT1_ID
 	hsmci_initialize(&drv1, &drv1_config);
+	SDD_InitializeSdmmcMode(&lib1, &drv1, 0);
+#endif /* SLOT1_ID */
 
 #endif
-	SDD_InitializeSdmmcMode(&lib0, &drv0, 0);
-	SDD_InitializeSdmmcMode(&lib1, &drv1, 0);
 
 #ifdef CONFIG_HAVE_SHA
 	shad.cfg.algo = ALGO_SHA_1;
@@ -492,9 +523,11 @@ bool SD_GetInstance(uint8_t index, sSdCard **holder)
 	case 0:
 		*holder = &lib0;
 		break;
+#ifdef SLOT1_ID
 	case 1:
 		*holder = &lib1;
 		break;
+#endif /* SLOT1_ID */
 	default:
 		return false;
 	}
@@ -530,8 +563,10 @@ int main(void)
 	 * SAMA5D4x).
 	 * The SDMMC peripherals are clocked by their Peripheral Clock, the
 	 * Master Clock, and a Generated Clock (at least on SAMA5D2x). */
-	pmc_configure_peripheral(HOST0_ID, NULL, true);
-	pmc_configure_peripheral(HOST1_ID, NULL, true);
+	pmc_configure_peripheral(SLOT0_ID, NULL, true);
+#ifdef SLOT1_ID
+	pmc_configure_peripheral(SLOT1_ID, NULL, true);
+#endif
 
 #ifdef CONFIG_HAVE_SDMMC
 #ifdef SDMMC_USE_FASTEST_CLK
@@ -549,8 +584,9 @@ int main(void)
 			.div = 1,
 		},
 	};
-	pmc_configure_peripheral(HOST0_ID, &cfg, true);
+	pmc_configure_peripheral(SLOT0_ID, &cfg, true);
 
+#ifdef SLOT1_ID
 	/* On the SDMMC1 slot, target SD High Speed mode @ 50 MHz.
 	 * Use the Audio PLL and set AUDIOCORECLK frequency to
 	 * 12 * (57 + 1 + 1398101/2^22) =~ 700 MHz.
@@ -562,7 +598,8 @@ int main(void)
 	pmc_enable_audio(true, false);
 
 	cfg.gck.css = PMC_PCR_GCKCSS_AUDIO_CLK;
-	pmc_configure_peripheral(HOST1_ID, &cfg,true);
+	pmc_configure_peripheral(SLOT1_ID, &cfg,true);
+#endif /* SLOT1_ID */
 #else /* !SDMMC_USE_FASTEST_CLK */
 	/* The regular SAMA5D2-XULT board wires on the SDMMC0 slot an e.MMC
 	 * device whose fastest timing mode is High Speed DDR mode @ 52 MHz.
@@ -580,8 +617,9 @@ int main(void)
 			.div = 1,
 		},
 	};
-	pmc_configure_peripheral(HOST0_ID, &cfg, true);
+	pmc_configure_peripheral(SLOT0_ID, &cfg, true);
 
+#ifdef SLOT1_ID
 	/* The regular SAMA5D2-XULT board wires on the SDMMC1 slot a MMC/SD
 	 * connector. SD cards are the most likely devices. Since the SDMMC1
 	 * peripheral supports 3.3V signaling level only, target SD High Speed
@@ -589,22 +627,28 @@ int main(void)
 	 * The Audio PLL being optimized for SDMMC0, fall back on PLLA, since,
 	 * as of writing, PLLACK/2 is configured to run at 498 MHz. */
 	cfg.gck.css = PMC_PCR_GCKCSS_PLLA_CLK;
-	pmc_configure_peripheral(HOST1_ID, &cfg, true);
+	pmc_configure_peripheral(SLOT1_ID, &cfg, true);
+#endif /* SLOT1_ID */
 #endif /* !SDMMC_USE_FASTEST_CLK */
 #endif /* CONFIG_HAVE_SDMMC */
 
-	rc = board_cfg_sdmmc(HOST0_ID) ? 1 : 0;
-	rc &= board_cfg_sdmmc(HOST1_ID) ? 1 : 0;
+	rc = board_cfg_sdmmc(SLOT0_ID) ? 1 : 0;
+#ifdef SLOT1_ID
+	rc &= board_cfg_sdmmc(SLOT1_ID) ? 1 : 0;
+#endif
 	if (!rc)
 		trace_error("Failed to cfg cells\n\r");
 
 #ifdef CONFIG_HAVE_SDMMC
-	if (IS_CACHE_ALIGNED(&data_buf)
-	    && IS_CACHE_ALIGNED(sizeof(data_buf))
-	    && IS_CACHE_ALIGNED(&lib0.EXT)
-	    && IS_CACHE_ALIGNED(sizeof(lib0.EXT))
-	    && IS_CACHE_ALIGNED(&lib1.EXT)
-	    && IS_CACHE_ALIGNED(sizeof(lib1.EXT)) == 0) {
+	rc = IS_CACHE_ALIGNED(&data_buf);
+	rc &= IS_CACHE_ALIGNED(sizeof(data_buf));
+	rc &= IS_CACHE_ALIGNED(&lib0.EXT);
+	rc &= IS_CACHE_ALIGNED(sizeof(lib0.EXT));
+#ifdef SLOT1_ID
+	rc &= IS_CACHE_ALIGNED(&lib1.EXT);
+	rc &= IS_CACHE_ALIGNED(sizeof(lib1.EXT));
+#endif
+	if (!rc) {
 		trace_error("WARNING: buffers are not aligned on data cache "
 		    "lines. Please fix this before enabling DMA.\n\r");
 		use_dma = false;
@@ -615,7 +659,8 @@ int main(void)
 	initialize();
 
 	/* Display menu */
-	slot = 1;
+	slot = 0;
+	lib = &lib0;
 	display_menu();
 
 	while (true) {
@@ -624,10 +669,13 @@ int main(void)
 		case 'h':
 			display_menu();
 			break;
+#ifdef SLOT1_ID
 		case 't':
 			slot = slot ? 0 : 1;
+			lib = slot ? &lib1 : &lib0;
 			display_menu();
 			break;
+#endif /* SLOT1_ID */
 #ifdef CONFIG_HAVE_SDMMC
 		case 'd':
 			use_dma = !use_dma;
@@ -636,7 +684,6 @@ int main(void)
 			break;
 #endif
 		case 'i':
-			lib = slot ? &lib1 : &lib0;
 			if (SD_GetStatus(lib) == SDMMC_NOT_SUPPORTED) {
 				printf("Device not detected.\n\r");
 				break;
@@ -646,7 +693,6 @@ int main(void)
 			close_device(lib);
 			break;
 		case 'l':
-			lib = slot ? &lib1 : &lib0;
 			if (SD_GetStatus(lib) == SDMMC_NOT_SUPPORTED) {
 				printf("Device not detected.\n\r");
 				break;
@@ -655,7 +701,6 @@ int main(void)
 			unmount_volume(slot, lib);
 			break;
 		case 'r':
-			lib = slot ? &lib1 : &lib0;
 			if (SD_GetStatus(lib) == SDMMC_NOT_SUPPORTED) {
 				printf("Device not detected.\n\r");
 				break;
@@ -664,7 +709,6 @@ int main(void)
 			unmount_volume(slot, lib);
 			break;
 		case 'w':
-			lib = slot ? &lib1 : &lib0;
 			if (SD_GetStatus(lib) == SDMMC_NOT_SUPPORTED) {
 				printf("Device not detected.\n\r");
 				break;
