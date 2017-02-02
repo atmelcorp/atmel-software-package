@@ -43,7 +43,7 @@
  * same controller), and PINS_* for a list of Pin instances.
  */
 
-/** List of all DBGU pin definitions. */
+/* ========== Pio PIN definition for DBGU peripheral ========== */
 
 /** DBGU Monitor IO pin (detect any DBGU operation). */
 #define PIN_DBGU_MON { PIO_GROUP_B, PIO_PB24A_DRXD, PIO_INPUT, PIO_IT_RISE_EDGE }
@@ -53,7 +53,7 @@
 	{ PIO_GROUP_B, PIO_PB24A_DRXD | PIO_PB25A_DTXD, PIO_PERIPH_A, PIO_DEFAULT },\
 }
 
-/** List of all USART pin definitions. */
+/* ========== Pio PIN definition for USART0 peripheral ========== */
 
 /** USART0 TXD pin definition. */
 #define PIN_USART0_TXD { PIO_GROUP_D, PIO_PD13A_TXD0, PIO_PERIPH_A, PIO_DEFAULT }
@@ -79,6 +79,8 @@
 	PIN_USART0_SCK,\
 }
 
+/* ========== Pio PIN definition for USART1 peripheral ========== */
+
 /** USART1 TXD pin definition. */
 #define PIN_USART1_TXD { PIO_GROUP_D, PIO_PD17A_TXD1, PIO_PERIPH_A, PIO_DEFAULT }
 
@@ -102,6 +104,8 @@
 	PIN_USART1_CTS,\
 	PIN_USART1_SCK,\
 }
+
+/* ========== Pio PIN definition for USART2 peripheral ========== */
 
 /** USART2 TXD pin definition. */
 #define PIN_USART2_TXD { PIO_GROUP_E, PIO_PE26B_TXD2, PIO_PERIPH_B, PIO_DEFAULT }
@@ -127,6 +131,8 @@
 	PIN_USART2_SCK,\
 }
 
+/* ========== Pio PIN definition for USART3 peripheral ========== */
+
 /** USART3 TXD pin definition. */
 #define PIN_USART3_TXD { PIO_GROUP_E, PIO_PE17B_TXD3, PIO_PERIPH_B, PIO_DEFAULT }
 
@@ -150,6 +156,8 @@
 	PIN_USART3_CTS,\
 	PIN_USART3_SCK,\
 }
+
+/* ========== Pio PIN definition for USART4 peripheral ========== */
 
 /** USART4 TXD pin definition. */
 #define PIN_USART4_TXD { PIO_GROUP_E, PIO_PE27B_TXD4, PIO_PERIPH_B, PIO_DEFAULT }
@@ -175,51 +183,51 @@
 	PIN_USART4_SCK,\
 }
 
-/** PIN used for reset the smartcard */
-#define PIN_ISO7816_RSTMC { PIO_GROUP_D, PIO_PD10, PIO_OUTPUT_0, PIO_DEFAULT }
-
-/** Pins used for connect the smartcard */
-#define PINS_ISO7816 { PIN_USART1_TXD, PIN_USART1_SCK, PIN_ISO7816_RSTMC }
-
-/** List of all TWI pin definitions. */
+/* ========== Pio PIN definition for TWI0 peripheral ========== */
 
 /** TWI0 data pin */
-#define PIN_TWI_TWD0 { PIO_GROUP_A, PIO_PA30A_TWD0, PIO_PERIPH_A, PIO_DEFAULT }
+#define PIN_TWI0_TWD { PIO_GROUP_A, PIO_PA30A_TWD0, PIO_PERIPH_A, PIO_DEFAULT }
 
 /** TWI0 clock pin */
-#define PIN_TWI_TWCK0 { PIO_GROUP_A, PIO_PA31A_TWCK0, PIO_PERIPH_A, PIO_DEFAULT }
+#define PIN_TWI0_TWCK { PIO_GROUP_A, PIO_PA31A_TWCK0, PIO_PERIPH_A, PIO_DEFAULT }
 
 /** TWI0 pins */
-#define PINS_TWI0 { PIN_TWI_TWD0, PIN_TWI_TWCK0 }
+#define PINS_TWI0 { PIN_TWI0_TWD, PIN_TWI0_TWCK }
+
+/* ========== Pio PIN definition for TWI1 peripheral ========== */
 
 /** TWI1 data pin */
-#define PIN_TWI_TWD1 { PIO_GROUP_E, PIO_PE29C_TWD1, PIO_PERIPH_C, PIO_DEFAULT }
+#define PIN_TWI1_TWD { PIO_GROUP_E, PIO_PE29C_TWD1, PIO_PERIPH_C, PIO_DEFAULT }
 
 /** TWI1 clock pin */
-#define PIN_TWI_TWCK1 { PIO_GROUP_E, PIO_PE30C_TWCK1, PIO_PERIPH_C, PIO_DEFAULT }
+#define PIN_TWI1_TWCK { PIO_GROUP_E, PIO_PE30C_TWCK1, PIO_PERIPH_C, PIO_DEFAULT }
 
 /** TWI1 pins */
-#define PINS_TWI1 { PIN_TWI_TWD1, PIN_TWI_TWCK1 }
+#define PINS_TWI1 { PIN_TWI1_TWD, PIN_TWI1_TWCK }
+
+/* ========== Pio PIN definition for TWI2 peripheral ========== */
 
 /** TWI2 data pin */
-#define PIN_TWI_TWD2 { PIO_GROUP_B, PIO_PB29A_TWD2, PIO_PERIPH_A, PIO_DEFAULT }
+#define PIN_TWI2_TWD { PIO_GROUP_B, PIO_PB29A_TWD2, PIO_PERIPH_A, PIO_DEFAULT }
 
 /** TWI2 clock pin */
-#define PIN_TWI_TWCK2 { PIO_GROUP_B, PIO_PB30A_TWCK2, PIO_PERIPH_A, PIO_DEFAULT }
+#define PIN_TWI2_TWCK { PIO_GROUP_B, PIO_PB30A_TWCK2, PIO_PERIPH_A, PIO_DEFAULT }
 
 /** TWI2 pins */
-#define PINS_TWI2 { PIN_TWI_TWD2, PIN_TWI_TWCK2 }
+#define PINS_TWI2 { PIN_TWI2_TWD, PIN_TWI2_TWCK }
+
+/* ========== Pio PIN definition for TWI3 peripheral ========== */
 
 /** TWI3 data pin */
-#define PIN_TWI_TWD3 { PIO_GROUP_C, PIO_PC25B_TWD3, PIO_PERIPH_B, PIO_DEFAULT }
+#define PIN_TWI3_TWD { PIO_GROUP_C, PIO_PC25B_TWD3, PIO_PERIPH_B, PIO_DEFAULT }
 
 /** TWI3 clock pin */
-#define PIN_TWI_TWCK3 { PIO_GROUP_C, PIO_PC26B_TWCK3, PIO_PERIPH_B, PIO_DEFAULT }
+#define PIN_TWI3_TWCK { PIO_GROUP_C, PIO_PC26B_TWCK3, PIO_PERIPH_B, PIO_DEFAULT }
 
 /** TWI3 pins */
-#define PINS_TWI3 { PIN_TWI_TWD3, PIN_TWI_TWCK3 }
+#define PINS_TWI3 { PIN_TWI3_TWD, PIN_TWI3_TWCK }
 
-/** List of all SPI pin definitions. */
+/* ========== Pio PIN definition for SPI0 peripheral ========== */
 
 /** SPI0 MISO pin definition. */
 #define PIN_SPI0_MISO { PIO_GROUP_C, PIO_PC0A_SPI0_MISO, PIO_PERIPH_A, PIO_DEFAULT }
@@ -268,6 +276,8 @@
 
 /** List of SPI0 pin definitions (MISO, MOSI, SPCK & NPCS3). */
 #define PINS_SPI0_NPCS3 { PIN_SPI0_MISO, PIN_SPI0_MOSI, PIN_SPI0_SPCK, PIN_SPI0_NPCS3 }
+
+/* ========== Pio PIN definition for SPI1 peripheral ========== */
 
 /** SPI1 MISO pin definition. */
 #define PIN_SPI1_MISO { PIO_GROUP_B, PIO_PB18A_SPI1_MISO, PIO_PERIPH_A, PIO_DEFAULT }
@@ -323,6 +333,8 @@
 /** List of SPI1 pin definitions (MISO, MOSI, SPCK & NPCS2 alternate). */
 #define PINS_SPI1_NPCS3_ALT { PIN_SPI1_MISO, PIN_SPI1_MOSI, PIN_SPI1_SPCK, PIN_SPI1_NPCS3_ALT }
 
+/* ========== Pio PIN definition for SPI2 peripheral ========== */
+
 /** SPI2 MISO pin definition. */
 #define PIN_SPI2_MISO { PIO_GROUP_D, PIO_PD11B_SPI2_MISO, PIO_PERIPH_B, PIO_DEFAULT }
 
@@ -359,7 +371,7 @@
 /** List of SPI2 pin definitions (MISO, MOSI, SPCK & NPCS3). */
 #define PINS_SPI2_NPCS3 { PIN_SPI2_MISO, PIN_SPI2_MOSI, PIN_SPI2_SPCK, PIN_SPI2_NPCS3 }
 
-/** List of all SSC pin definitions. */
+/* ========== Pio PIN definition for SSC peripheral ========== */
 
 /** SSC pin Transmitter Data (TD) */
 #define PIN_SSC_TD0 { PIO_GROUP_B, PIO_PB28B_TD0, PIO_PERIPH_B, PIO_DEFAULT }
@@ -402,14 +414,20 @@
 
 #define PINS_SSC1 { PIN_SSC_TD1,  PIN_SSC_TK1, PIN_SSC_TF1, PIN_SSC_RD1, PIN_SSC_RK1, PIN_SSC_RF1 }
 
+/* ========== Pio PIN definition for LCD peripheral ========== */
+
 /** LCD pin list. */
 #define PINS_LCD_PIOA { { PIO_GROUP_A, 0x3FFEFEFE, PIO_PERIPH_A, PIO_DEFAULT } }
 
 /** LCD pin list. */
 #define PINS_LCD PINS_LCD_PIOA
 
+/* ========== Pio PIN definition for ADC peripheral ========== */
+
 /** ADC ADTRG pin (PD19). */
 #define PIN_ADTRG { PIO_GROUP_E, PIO_PE31A_ADTRG, PIO_PERIPH_A, PIO_PULLUP }
+
+/* ========== Pio PIN definition for GMAC peripheral ========== */
 
 /** GMAC0 MII pin list */
 #define PINS_GMAC0_MII  { { PIO_GROUP_B, 0x3FFFF, PIO_PERIPH_A, PIO_DEFAULT } }
@@ -422,6 +440,8 @@
 
 /** GMAC1 RMII pin list */
 #define PINS_GMAC1_RMII { { PIO_GROUP_A, 0xC0FC14, PIO_PERIPH_B, PIO_DEFAULT } }
+
+/* ========== Pio PIN definition for PMC peripheral (PCK) ========== */
 
 /** PCK0 pin */
 #define PIN_PCK0 { PIO_GROUP_A, PIO_PA24B_PCK0, PIO_PERIPH_B, PIO_DEFAULT }
@@ -447,6 +467,8 @@
 /** PCK2 pin */
 #define PIN_PCK2_ALT1 { PIO_GROUP_B, PIO_PB10B_PCK2, PIO_PERIPH_B, PIO_DEFAULT }
 
+/* ========== Pio PIN definition for NAND peripheral ========== */
+
 /* 8-bit NAND: D0-D7, NAND{WE,CS,ALE,CLE,OE,RDY} */
 #define PINS_NAND8 { { PIO_GROUP_C, 0x0007FFE0, PIO_PERIPH_A, PIO_DEFAULT } }
 
@@ -455,6 +477,8 @@
 	{ PIO_GROUP_B, 0x03FC0000, PIO_PERIPH_B, PIO_DEFAULT },\
 	{ PIO_GROUP_C, 0x0007FFE0, PIO_PERIPH_A, PIO_DEFAULT },\
 }
+
+/* ========== Pio PIN definition for ISI peripheral ========== */
 
 /** Image Sensor Interface vertical sync. */
 #define PIN_ISI_VSYNC { PIO_GROUP_B, PIO_PB3C_ISI_VSYNC, PIO_PERIPH_C, PIO_DEFAULT }
@@ -478,7 +502,7 @@
 /** Image Sensor Interface pin list (12-bit data) */
 #define PINS_ISI_12BIT { PIN_ISI_VSYNC, PIN_ISI_HSYNC, PIN_ISI_PCK, PINS_ISI_DATA_12BIT }
 
-/** List of all HSMCI pin definitions. */
+/* ========== Pio PIN definition for HSMCI0 peripheral ========== */
 
 /** HSMCI0 pin Card Command slot A (CDA) */
 #define PIN_HSMCI0_CMD_A { PIO_GROUP_C, PIO_PC5B_MCI0_CDA, PIO_PERIPH_B, PIO_DEFAULT }
@@ -503,6 +527,8 @@
 
 /** HSMCI0 pin 4-bit Data slot B (DB0-3) */
 #define PINS_HSMCI0_DATA4B_B { PIO_GROUP_E, 0x0000001E, PIO_PERIPH_B, PIO_DEFAULT }
+
+/* ========== Pio PIN definition for HSMCI1 peripheral ========== */
 
 /** HSMCI1 pin Card Command (CDA) */
 #define PIN_HSMCI1_CMD_A { PIO_GROUP_E, PIO_PE19C_MCI1_CDA, PIO_PERIPH_C, PIO_DEFAULT }
