@@ -248,9 +248,6 @@ static const uint8_t mmcTransMultipliers[16] = {
 };
 #endif
 
-#if TRACE_LEVEL == TRACE_LEVEL_SILENT
-static const char sdmmcEmptyString[] = "";
-#else
 static const char sdmmcInvalidCode[] = "!Invalid!";
 static const struct stringEntry_s sdmmcIOCtrlNames[] = {
 	{ SDMMC_IOCTL_BUSY_CHECK,	"BUSY_CHECK",		},
@@ -285,7 +282,6 @@ static const struct stringEntry_s sdmmcRCodeNames[] = {
 	{ SDMMC_ERROR_USER_CANCEL,	"ERR_USER_CANCEL",	},
 	{ SDMMC_ERROR_NOT_SUPPORT,	"ERR_NO_SUPPORT",	},
 };
-#endif
 
 /*----------------------------------------------------------------------------
  *         Local functions
@@ -4381,10 +4377,6 @@ SD_DumpSSR(const uint8_t *pSSR)
 const char *
 SD_StringifyIOCtrl(uint32_t dwCtrl)
 {
-#if TRACE_LEVEL == TRACE_LEVEL_SILENT
-	(void) dwCtrl;
-	return sdmmcEmptyString;
-#else
 	const uint8_t bound = ARRAY_SIZE(sdmmcIOCtrlNames);
 	uint8_t ix;
 
@@ -4394,7 +4386,6 @@ SD_StringifyIOCtrl(uint32_t dwCtrl)
 	}
 
 	return sdmmcInvalidCode;
-#endif
 }
 
 /**
@@ -4404,10 +4395,6 @@ SD_StringifyIOCtrl(uint32_t dwCtrl)
 const char *
 SD_StringifyRetCode(uint32_t dwRCode)
 {
-#if TRACE_LEVEL == TRACE_LEVEL_SILENT
-	(void) dwRCode;
-	return sdmmcEmptyString;
-#else
 	const uint8_t bound = ARRAY_SIZE(sdmmcRCodeNames);
 	uint8_t ix;
 
@@ -4417,7 +4404,6 @@ SD_StringifyRetCode(uint32_t dwRCode)
 	}
 
 	return sdmmcInvalidCode;
-#endif
 }
 
 uint8_t
