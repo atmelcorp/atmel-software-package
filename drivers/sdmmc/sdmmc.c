@@ -1811,20 +1811,11 @@ bool sdmmc_initialize(struct sdmmc_set *set, uint32_t periph_id,
 	else
 		regs->SDMMC_MC1R &= ~SDMMC_MC1R_FCD;
 
-	if (periph_id == ID_SDMMC0) {
-		if (!set->use_polling) {
-			/* enable SDMMC0 interrupt */
-			irq_add_handler(periph_id, sdmmc_irq_handler, set);
-			irq_enable(periph_id);
-		}
+	if (!set->use_polling) {
+		irq_add_handler(periph_id, sdmmc_irq_handler, set);
+		irq_enable(periph_id);
 	}
-	if (periph_id == ID_SDMMC1) {
-		if (!set->use_polling) {
-			/* enable SDMMC1 interrupt */
-			irq_add_handler(periph_id, sdmmc_irq_handler, set);
-			irq_enable(periph_id);
-		}
-	}
+
 	return true;
 }
 
