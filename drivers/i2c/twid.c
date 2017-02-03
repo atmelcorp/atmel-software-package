@@ -655,9 +655,7 @@ static int _twid_transfer(struct _twi_desc* desc, struct _buffer* buf,  struct _
 
 	/* If short transfer detected, use POLLING mode */
 	if (tmode != BUS_TRANSFER_MODE_POLLING) {
-		if (buf->size == 0)
-			tmode = BUS_TRANSFER_MODE_POLLING;
-		else if (buf->size < TWID_POLLING_THRESHOLD)
+		if (buf->size < TWID_POLLING_THRESHOLD)
 			tmode = BUS_TRANSFER_MODE_POLLING;
 	}
 
@@ -778,19 +776,21 @@ int twid_configure(struct _twi_desc* desc)
 		twi_fifo_enable(desc->addr, true);
 #endif
 
-	desc->dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
-	assert(desc->dma.tx.channel);
+	if (desc->transfer_mode == BUS_TRANSFER_MODE_DMA) {
+		desc->dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
+		assert(desc->dma.tx.channel);
 
-	desc->dma.rx.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
-	assert(desc->dma.rx.channel);
+		desc->dma.rx.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
+		assert(desc->dma.rx.channel);
 
-	desc->dma.rx.cfg_dma.incr_saddr = false;
-	desc->dma.rx.cfg_dma.incr_daddr = true;
-	desc->dma.rx.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
+		desc->dma.rx.cfg_dma.incr_saddr = false;
+		desc->dma.rx.cfg_dma.incr_daddr = true;
+		desc->dma.rx.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
 
-	desc->dma.tx.cfg_dma.incr_saddr = true;
-	desc->dma.tx.cfg_dma.incr_daddr = false;
-	desc->dma.tx.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
+		desc->dma.tx.cfg_dma.incr_saddr = true;
+		desc->dma.tx.cfg_dma.incr_daddr = false;
+		desc->dma.tx.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
+	}
 
 	desc->mutex = 0;
 
@@ -862,5 +862,8 @@ bool twid_is_busy(const struct _twi_desc* desc)
 
 void twid_wait_transfer(const struct _twi_desc* desc)
 {
-	while (twid_is_busy(desc));
+	while (twid_is_busy(desc)) {
+		if (desc->transfer_mode == BUS_TRANSFER_MODE_DMA)
+			dma_poll();
+	}
 }

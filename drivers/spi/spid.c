@@ -416,24 +416,26 @@ int spid_configure(struct _spi_desc* desc)
 #endif
 
 	spi_disable_it(desc->addr, ~0u);
-	irq_add_handler(id, _spid_handler, desc);
-	irq_enable(id);
 
-	desc->xfer.dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
-	assert(desc->xfer.dma.tx.channel);
+	if (desc->transfer_mode == BUS_TRANSFER_MODE_ASYNC) {
+		irq_add_handler(id, _spid_handler, desc);
+		irq_enable(id);
+	} else if (desc->transfer_mode == BUS_TRANSFER_MODE_DMA) {
+		desc->xfer.dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
+		assert(desc->xfer.dma.tx.channel);
 
-	desc->xfer.dma.rx.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
-	assert(desc->xfer.dma.rx.channel);
+		desc->xfer.dma.rx.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
+		assert(desc->xfer.dma.rx.channel);
 
-	desc->xfer.dma.rx.cfg_dma.incr_saddr = false;
-	desc->xfer.dma.rx.cfg_dma.incr_daddr = true;
-	desc->xfer.dma.rx.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
-	desc->xfer.dma.rx.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
-	desc->xfer.dma.tx.cfg_dma.incr_saddr = false;
-	desc->xfer.dma.tx.cfg_dma.incr_daddr = true;
-	desc->xfer.dma.tx.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
-	desc->xfer.dma.tx.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
-
+		desc->xfer.dma.rx.cfg_dma.incr_saddr = false;
+		desc->xfer.dma.rx.cfg_dma.incr_daddr = true;
+		desc->xfer.dma.rx.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
+		desc->xfer.dma.rx.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
+		desc->xfer.dma.tx.cfg_dma.incr_saddr = false;
+		desc->xfer.dma.tx.cfg_dma.incr_daddr = true;
+		desc->xfer.dma.tx.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
+		desc->xfer.dma.tx.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
+	}
 
 	spi_enable(desc->addr);
 

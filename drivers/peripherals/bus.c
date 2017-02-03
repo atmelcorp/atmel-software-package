@@ -34,8 +34,9 @@
 #include <string.h>
 
 #include "callback.h"
-#include "peripherals/bus.h"
+#include "dma/dma.h"
 #include "errno.h"
+#include "peripherals/bus.h"
 #ifdef CONFIG_HAVE_BUS_SPI
 #include "spi/spid.h"
 #endif
@@ -136,6 +137,13 @@ static int _bus_fifo_disable(uint8_t bus_id)
 		return -ENODEV;
 
 	switch (_bus[bus_id].type) {
+#ifdef CONFIG_HAVE_SPI_BUS
+	case BUS_TYPE_SPI:
+#ifdef CONFIG_HAVE_SPI_FIFO
+		_bus[bus_id].iface.spid.use_fifo = false;
+#endif
+		break;
+#endif
 #ifdef CONFIG_HAVE_I2C_BUS
 	case BUS_TYPE_I2C:
 #ifdef CONFIG_HAVE_TWI_FIFO
@@ -425,7 +433,10 @@ int bus_transfer(uint8_t bus_id, uint16_t remote, struct _buffer* buf, uint16_t 
 		return err;
 	}
 	if (_bus[bus_id].options & O_BLOCK)
-		while (mutex_is_locked(&_bus[bus_id].mutex.lock));
+		while (bus_is_busy(bus_id)) {
+			if (_bus[bus_id].transfer_mode == BUS_TRANSFER_MODE_DMA)
+				dma_poll();
+		}
 
 	return err;
 }
@@ -472,11 +483,16 @@ int bus_wait_transfer(uint8_t bus_id)
 		while (!timer_timeout_reached(&_to)) {
 			if (!bus_is_busy(bus_id))
 				return 0;
+			if (_bus[bus_id].transfer_mode == BUS_TRANSFER_MODE_DMA)
+				dma_poll();
 		}
 
 		return -ETIMEDOUT;
 	} else {
-		while (bus_is_busy(bus_id));
+		while (bus_is_busy(bus_id)) {
+			if (_bus[bus_id].transfer_mode == BUS_TRANSFER_MODE_DMA)
+				dma_poll();
+		}
 	}
 
 	return 0;
