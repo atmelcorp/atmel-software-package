@@ -70,19 +70,19 @@ static bool init_extram_from_preset(uint32_t preset)
 #ifdef CONFIG_HAVE_MPDDRC_DDR2
   #ifdef CONFIG_HAVE_DDR2_MT47H128M8
 	case 0:
-		trace_info_wp("Preset 0 (4 x MT47H128M8)\r\n");
+		trace_warning_wp("Preset 0 (4 x MT47H128M8)\r\n");
 		device = MT47H128M8;
 		break;
   #endif
   #ifdef CONFIG_HAVE_DDR2_MT47H64M16
 	case 1:
-		trace_info_wp("Preset 1 (MT47H64M16)\r\n");
+		trace_warning_wp("Preset 1 (MT47H64M16)\r\n");
 		device = MT47H64M16;
 		break;
   #endif
   #ifdef CONFIG_HAVE_DDR2_MT47H128M16
 	case 2:
-		trace_info_wp("Preset 2 (2 x MT47H128M16)\r\n");
+		trace_warning_wp("Preset 2 (2 x MT47H128M16)\r\n");
 		device = MT47H128M16;
 		break;
   #endif
@@ -90,7 +90,7 @@ static bool init_extram_from_preset(uint32_t preset)
 #ifdef CONFIG_HAVE_MPDDRC_LPDDR2
   #ifdef CONFIG_HAVE_LPDDR2_MT42L128M16
 	case 3:
-		trace_info_wp("Preset 3 (2 x MT42L128M16)\r\n");
+		trace_warning_wp("Preset 3 (2 x MT42L128M16)\r\n");
 		device = MT42L128M16;
 		break;
   #endif
@@ -98,7 +98,7 @@ static bool init_extram_from_preset(uint32_t preset)
 #ifdef CONFIG_HAVE_MPDDRC_DDR3
   #ifdef CONFIG_HAVE_DDR3_MT41K128M16
 	case 4:
-		trace_info_wp("Preset 4 (2 x MT41K128M16)\r\n");
+		trace_warning_wp("Preset 4 (2 x MT41K128M16)\r\n");
 		device = MT41K128M16;
 		break;
   #endif
@@ -106,7 +106,7 @@ static bool init_extram_from_preset(uint32_t preset)
 #ifdef CONFIG_HAVE_MPDDRC_LPDDR3
   #ifdef CONFIG_HAVE_LPDDR3_EDF8164A3MA
 	case 5:
-		trace_info_wp("Preset 5 (EDF8164A3MA)\r\n");
+		trace_warning_wp("Preset 5 (EDF8164A3MA)\r\n");
 		device = EDF8164A3MA;
 		break;
   #endif
@@ -114,7 +114,7 @@ static bool init_extram_from_preset(uint32_t preset)
 #ifdef CONFIG_HAVE_MPDDRC_SDRAM
   #ifdef CONFIG_HAVE_SDRAM_IS42S16100E
 	case 6:
-		trace_info_wp("Preset 6 (IS42S16100E)\r\n");
+		trace_warning_wp("Preset 6 (IS42S16100E)\r\n");
 		device = IS42S16100E;
 		break;
   #endif
@@ -140,10 +140,10 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 
 	applet_set_init_params(mbx->in.comm_type, mbx->in.trace_level);
 
-	trace_info_wp("\r\nApplet 'External RAM' from softpack " SOFTPACK_VERSION ".\r\n");
+	trace_warning_wp("\r\nApplet 'External RAM' from softpack " SOFTPACK_VERSION ".\r\n");
 
 	if (check_extram()) {
-		trace_info_wp("External RAM already configured.\r\n");
+		trace_warning_wp("External RAM already configured.\r\n");
 	} else {
 		switch (mode) {
 		case 0:
@@ -160,7 +160,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 			return APPLET_FAIL;
 		}
 
-		trace_info_wp("External RAM initialization complete.\r\n");
+		trace_warning_wp("External RAM initialization complete.\r\n");
 	}
 
 	mbx->out.buf_addr = 0;

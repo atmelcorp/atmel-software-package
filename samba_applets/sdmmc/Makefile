@@ -48,8 +48,8 @@ CONFIG_SDMMC = y
 CONFIG_LIB_SDMMC = y
 
 CFLAGS_DEFS += -DSDMMC_TRIM_SDIO
-CFLAGS_DEFS += -DSDMMC_LIB_TRACE_LEVEL=3
-CFLAGS_DEFS += -DSDMMC_DRV_TRACE_LEVEL=3
+CFLAGS_DEFS += -DSDMMC_LIB_TRACE_LEVEL=0
+CFLAGS_DEFS += -DSDMMC_DRV_TRACE_LEVEL=0
 
 obj-y += samba_applets/sdmmc/main.o
 obj-y += samba_applets/sdmmc/pin_defs_$(chip-family).o

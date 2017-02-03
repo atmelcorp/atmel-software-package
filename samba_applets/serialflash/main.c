@@ -121,19 +121,19 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 
 	applet_set_init_params(mbx->in.comm_type, mbx->in.trace_level);
 
-	trace_info_wp("\r\nApplet 'AT25/AT26 Serial Flash' from "
+	trace_warning_wp("\r\nApplet 'AT25/AT26 Serial Flash' from "
 			"softpack " SOFTPACK_VERSION ".\r\n");
 
 	uint32_t max_freq = pmc_get_peripheral_clock(ID_SPI0);
 	if (freq == 0 || freq > max_freq) {
-		trace_error_wp("Invalid configuration: frequency must be " \
+		trace_error("Invalid configuration: frequency must be " \
 				"between 1 and %uHz (requested %uHz)\r\n",
 				(unsigned)max_freq, (unsigned)freq);
 		return APPLET_FAIL;
 	}
 
 	if (!configure_instance_pio(instance, ioset, chip_select, &iface.spi.hw)) {
-		trace_error_wp("Invalid configuration: SPI%u IOSet%u NPCS%u\r\n",
+		trace_error("Invalid configuration: SPI%u IOSet%u NPCS%u\r\n",
 			(unsigned)instance, (unsigned)ioset,
 			(unsigned)chip_select);
 		return APPLET_FAIL;
@@ -149,20 +149,20 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	at25drv.cfg.spi_dev.bitrate = ROUND_INT_DIV(freq, 1000);
 	at25drv.cfg.spi_dev.chip_select = chip_select;
 
-	trace_info_wp("Initializing SPI%u ioSet%u NPCS%u at %uHz\r\n",
+	trace_warning_wp("Initializing SPI%u ioSet%u NPCS%u at %uHz\r\n",
 			(unsigned)instance, (unsigned)ioset,
 			(unsigned)chip_select, (unsigned)freq);
 
 	/* initialize the SPI and serial flash */
 	if (at25_configure(&at25drv) < 0) {
-		trace_info_wp("Error while detecting AT25 chip\r\n");
+		trace_error("Error while detecting AT25 chip\r\n");
 		return APPLET_DEV_UNKNOWN;
 	}
 
-	trace_info_wp("SPI and AT25/AT26 drivers initialized\r\n");
+	trace_warning_wp("SPI and AT25/AT26 drivers initialized\r\n");
 
 	if (!at25drv.desc) {
-		trace_info_wp("Device Unknown\r\n");
+		trace_error("Device Unknown\r\n");
 		return APPLET_DEV_UNKNOWN;
 	}
 	else {
@@ -170,25 +170,25 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 		uint32_t size = at25drv.desc->size;
 		uint32_t page_size = at25drv.desc->page_size;
 
-		trace_info_wp("Found Device %s\r\n", at25drv.desc->name);
-		trace_info_wp("Size: %u bytes\r\n", (unsigned)size);
-		trace_info_wp("Page Size: %u bytes\r\n", (unsigned)page_size);
+		trace_warning_wp("Found Device %s\r\n", at25drv.desc->name);
+		trace_warning_wp("Size: %u bytes\r\n", (unsigned)size);
+		trace_warning_wp("Page Size: %u bytes\r\n", (unsigned)page_size);
 
 		erase_support = 0;
 		if (at25drv.desc->flags & SPINOR_FLAG_ERASE_4K) {
-			trace_info_wp("Supports 4K block erase\r\n");
+			trace_warning_wp("Supports 4K block erase\r\n");
 			erase_support |= (4 * 1024) / page_size;
 		}
 		if (at25drv.desc->flags & SPINOR_FLAG_ERASE_32K) {
-			trace_info_wp("Supports 32K block erase\r\n");
+			trace_warning_wp("Supports 32K block erase\r\n");
 			erase_support |= (32 * 1024) / page_size;
 		}
 		if (at25drv.desc->flags & SPINOR_FLAG_ERASE_64K) {
-			trace_info_wp("Supports 64K block erase\r\n");
+			trace_warning_wp("Supports 64K block erase\r\n");
 			erase_support |= (64 * 1024) / page_size;
 		}
 		if (at25drv.desc->flags & SPINOR_FLAG_ERASE_256K) {
-			trace_info_wp("Supports 256K block erase\r\n");
+			trace_warning_wp("Supports 256K block erase\r\n");
 			erase_support |= (256 * 1024) / page_size;
 		}
 
@@ -206,11 +206,11 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 			buffer_size = min_u32(10 * page_size, buffer_size);
 		}
 		if (buffer_size == 0) {
-			trace_info_wp("Not enough memory for buffer\r\n");
+			trace_error("Not enough memory for buffer\r\n");
 			return APPLET_FAIL;
 		}
-		trace_info_wp("Buffer Address: 0x%08x\r\n", (unsigned)buffer);
-		trace_info_wp("Buffer Size: %u bytes\r\n",
+		trace_warning_wp("Buffer Address: 0x%08x\r\n", (unsigned)buffer);
+		trace_warning_wp("Buffer Size: %u bytes\r\n",
 				(unsigned)buffer_size);
 
 		mbx->out.buf_addr = (uint32_t)buffer;
@@ -220,7 +220,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 		mbx->out.erase_support = erase_support;
 		mbx->out.nand_header = 0;
 
-		trace_info_wp("SPI serialflash applet initialized successfully.\r\n");
+		trace_warning_wp("SPI serialflash applet initialized successfully.\r\n");
 		return APPLET_SUCCESS;
 	}
 }

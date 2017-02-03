@@ -156,29 +156,29 @@ static bool pmecc_set_header(uint32_t header)
 	uint8_t ecc_correction;
 	union _nand_header *hdr;
 
-	trace_info_wp("PMECC configuration: 0x%08x\r\n", (unsigned)header);
+	trace_warning_wp("PMECC configuration: 0x%08x\r\n", (unsigned)header);
 
 	hdr = (union _nand_header *)&header;
 
 	if (hdr->bitfield.key != NAND_HEADER_KEY) {
-		trace_error_wp("Invalid key field in PMECC configuration\r\n");
+		trace_error("Invalid key field in PMECC configuration\r\n");
 		return false;
 	}
 
 	if (!hdr->bitfield.use_pmecc) {
-		trace_info_wp("ECC disabled\r\n");
+		trace_warning_wp("ECC disabled\r\n");
 		nand_set_ecc_type(ECC_NO);
 		return true;
 	}
 
 	if (hdr->bitfield.ecc_bit_req >= ARRAY_SIZE(ecc_bit_req_2_tt)) {
-		trace_error_wp("Unsupported ECC parameter (%u)\r\n",
+		trace_error("Unsupported ECC parameter (%u)\r\n",
 				(unsigned)hdr->bitfield.ecc_bit_req);
 		return false;
 	}
 	ecc_correction = ecc_bit_req_2_tt[hdr->bitfield.ecc_bit_req];
 	if (ecc_correction > ARRAY_SIZE(PMERRLOC->PMERRLOC_EL)) {
-		trace_error_wp("Invalid ECC parameter (%u: %u bits): correction level not supported by chip (max %u bits)\r\n",
+		trace_error("Invalid ECC parameter (%u: %u bits): correction level not supported by chip (max %u bits)\r\n",
 				(unsigned)hdr->bitfield.ecc_bit_req,
 				(unsigned)ecc_correction,
 				ARRAY_SIZE(PMERRLOC->PMERRLOC_EL));
@@ -186,7 +186,7 @@ static bool pmecc_set_header(uint32_t header)
 	}
 	if (ecc_correction < nand_onfi_get_ecc_correctability() &&
 		nand_onfi_get_ecc_correctability() != 0xFF) {
-		trace_error_wp("Invalid ECC parameter (%u: %u bits): requested value incompatible with ONFI %u bits\r\n",
+		trace_error("Invalid ECC parameter (%u: %u bits): requested value incompatible with ONFI %u bits\r\n",
 				(unsigned)hdr->bitfield.ecc_bit_req,
 				(unsigned)ecc_correction,
 				nand_onfi_get_ecc_correctability());
@@ -194,26 +194,26 @@ static bool pmecc_set_header(uint32_t header)
 	}
 
 	if (hdr->bitfield.spare_size > nand_onfi_get_spare_size()) {
-		trace_error_wp("Invalid spare_size parameter (%u): ONFI spare size (%u) exceeded\r\n",
+		trace_error("Invalid spare_size parameter (%u): ONFI spare size (%u) exceeded\r\n",
 				(unsigned)hdr->bitfield.spare_size,
 				(unsigned)nand_onfi_get_spare_size());
 		return false;
 	}
 
 	if (hdr->bitfield.sector_size > 1) {
-		trace_error_wp("Invalid sector size parameter (%u): use 0 for 512 bytes, 1 for 1024 bytes per sector\r\n",
+		trace_error("Invalid sector size parameter (%u): use 0 for 512 bytes, 1 for 1024 bytes per sector\r\n",
 				(unsigned)hdr->bitfield.sector_size);
 		return false;
 	}
 	sector_size_in_byte = hdr->bitfield.sector_size == 1 ? 1024 : 512;
 	if ((page_size / sector_size_in_byte) > 8) {
-		trace_error_wp("Invalid sector size parameter (%u): unsupportted page or sector size\r\n",
+		trace_error("Invalid sector size parameter (%u): unsupportted page or sector size\r\n",
 				(unsigned)hdr->bitfield.sector_size);
 		return false;
 	}
 
 	if (hdr->bitfield.ecc_offset > hdr->bitfield.spare_size) {
-		trace_error_wp("Invalid ECC offset parameter: offset exceeds spare size\r\n");
+		trace_error("Invalid ECC offset parameter: offset exceeds spare size\r\n");
 		return false;
 	}
 
@@ -227,7 +227,7 @@ static bool pmecc_set_header(uint32_t header)
 	}
 
 	if ((hdr->bitfield.ecc_offset + ecc_size_in_byte) > hdr->bitfield.spare_size) {
-		trace_error_wp("Invalid ECC offset parameter: ECC overflows spare zone\r\n");
+		trace_error("Invalid ECC offset parameter: ECC overflows spare zone\r\n");
 		return false;
 	}
 
@@ -236,12 +236,12 @@ static bool pmecc_set_header(uint32_t header)
 					 page_size, hdr->bitfield.spare_size,
 					 hdr->bitfield.ecc_offset, 0);
 
-	trace_info_wp("PMECC enabled\r\n");
-	trace_info_wp("Sector size: %d\r\n", sector_size_in_byte);
-	trace_info_wp("Sectors per page: %d\r\n", 1 << hdr->bitfield.nb_sector_per_page);
-	trace_info_wp("Spare size: %d\r\n", hdr->bitfield.spare_size);
-	trace_info_wp("ECC bits: %d\r\n", ecc_correction);
-	trace_info_wp("ECC offset: %d\r\n", hdr->bitfield.ecc_offset);
+	trace_warning_wp("PMECC enabled\r\n");
+	trace_warning_wp("Sector size: %d\r\n", sector_size_in_byte);
+	trace_warning_wp("Sectors per page: %d\r\n", 1 << hdr->bitfield.nb_sector_per_page);
+	trace_warning_wp("Spare size: %d\r\n", hdr->bitfield.spare_size);
+	trace_warning_wp("ECC bits: %d\r\n", ecc_correction);
+	trace_warning_wp("ECC offset: %d\r\n", hdr->bitfield.ecc_offset);
 
 	return true;
 }
@@ -260,14 +260,14 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 
 	applet_set_init_params(mbx->in.comm_type, mbx->in.trace_level);
 
-	trace_info_wp("\r\nApplet 'NAND Flash' from softpack "
+	trace_warning_wp("\r\nApplet 'NAND Flash' from softpack "
 			SOFTPACK_VERSION ".\r\n");
 
-	trace_info_wp("Initializing NAND ioSet%u Bus Width %d\r\n",
+	trace_warning_wp("Initializing NAND ioSet%u Bus Width %d\r\n",
 			(unsigned)ioset, (unsigned)bus_width);
 
 	if (bus_width != 8 && bus_width != 16) {
-		trace_error_wp("Invalid NAND Bus Width %u, must be 8 or 16.\r\n",
+		trace_error("Invalid NAND Bus Width %u, must be 8 or 16.\r\n",
 			(unsigned)bus_width);
 		return APPLET_FAIL;
 	}
@@ -276,7 +276,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	smc_nand_configure(bus_width);
 
 	if (!configure_instance_pio(ioset)) {
-		trace_error_wp("Invalid configuration: NFC ioSet%u\r\n",
+		trace_error("Invalid configuration: NFC ioSet%u\r\n",
 			(unsigned)ioset);
 		return APPLET_FAIL;
 	}
@@ -284,7 +284,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	nand_initialize(&nand);
 
 	if (!nand_onfi_device_detect(&nand)) {
-		trace_error_wp("Can't detect device\r\n");
+		trace_error("Can't detect device\r\n");
 		return APPLET_FAIL;
 	}
 
@@ -334,7 +334,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	nand_onfi_disable_internal_ecc(&nand);
 
 	if (nand_raw_initialize(&nand, &model_from_onfi)) {
-		trace_error_wp("Can't initialize device\r\n");
+		trace_error("Can't initialize device\r\n");
 		return APPLET_FAIL;
 	}
 
@@ -352,12 +352,12 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 		header = pmecc_get_default_header(nand_onfi_get_page_size(),
 		                                  nand_onfi_get_spare_size(),
 		                                  correctability);
-		trace_info_wp("Using default PMECC configuration\r\n");
+		trace_warning_wp("Using default PMECC configuration\r\n");
 	}
 	if (pmecc_set_header(header)) {
 		nand_header = header;
 	} else {
-		trace_error_wp("PMECC initialization failed\r\n");
+		trace_error("PMECC initialization failed\r\n");
 		return APPLET_FAIL;
 	}
 
@@ -366,11 +366,11 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	buffer = applet_buffer;
 	buffer_size = applet_buffer_size & ~(page_size - 1);
 	if (buffer_size == 0) {
-		trace_info_wp("Not enough memory for buffer\r\n");
+		trace_error("Not enough memory for buffer\r\n");
 		return APPLET_FAIL;
 	}
-	trace_info_wp("Buffer Address: 0x%08x\r\n", (unsigned)buffer);
-	trace_info_wp("Buffer Size: %u bytes\r\n", (unsigned)buffer_size);
+	trace_warning_wp("Buffer Address: 0x%08x\r\n", (unsigned)buffer);
+	trace_warning_wp("Buffer Size: %u bytes\r\n", (unsigned)buffer_size);
 
 	mbx->out.buf_addr = (uint32_t)buffer;
 	mbx->out.buf_size = buffer_size;
@@ -379,7 +379,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	mbx->out.erase_support = block_size;
 	mbx->out.nand_header = nand_header;
 
-	trace_info_wp("NAND applet initialized successfully.\r\n");
+	trace_warning_wp("NAND applet initialized successfully.\r\n");
 	return APPLET_SUCCESS;
 }
 
@@ -415,7 +415,7 @@ static uint32_t handle_cmd_write_pages(uint32_t cmd, uint32_t *mailbox)
 
 	/* check that requested size does not overflow buffer */
 	if (mbx->in.length > buffer_size) {
-		trace_error_wp("Buffer overflow\r\n");
+		trace_error("Buffer overflow\r\n");
 		return APPLET_FAIL;
 	}
 
@@ -428,12 +428,12 @@ static uint32_t handle_cmd_write_pages(uint32_t cmd, uint32_t *mailbox)
 				(unsigned)((block * block_size + page) * page_size));
 		uint8_t status = nand_skipblock_write_page(&nand, block, page, buf, NULL);
 		if (status == NAND_ERROR_BADBLOCK) {
-			trace_error_wp("Cannot write bad block %u (page %u)\r\n",
+			trace_error("Cannot write bad block %u (page %u)\r\n",
 					block, page);
 			mbx->out.pages = i;
 			return APPLET_BAD_BLOCK;
 		} else if (status != 0) {
-			trace_error_wp("Write error at block %u, page %u\r\n",
+			trace_error("Write error at block %u, page %u\r\n",
 					block, page);
 			mbx->out.pages = 0;
 			return APPLET_WRITE_FAIL;
@@ -471,7 +471,7 @@ static uint32_t handle_cmd_read_pages(uint32_t cmd, uint32_t *mailbox)
 
 	/* check that requested size does not overflow buffer */
 	if (mbx->in.length > buffer_size) {
-		trace_error_wp("Buffer overflow\r\n");
+		trace_error("Buffer overflow\r\n");
 		return APPLET_FAIL;
 	}
 
@@ -481,11 +481,11 @@ static uint32_t handle_cmd_read_pages(uint32_t cmd, uint32_t *mailbox)
 	for (i = 0, buf = buffer; i < mbx->in.length; i++, buf += page_size) {
 		uint8_t status = nand_skipblock_read_page(&nand, block, page, buf, NULL);
 		if (status == NAND_ERROR_BADBLOCK) {
-			trace_error_wp("Cannot read bad block %u\r\n", block);
+			trace_error("Cannot read bad block %u\r\n", block);
 			mbx->out.pages = i;
 			return APPLET_BAD_BLOCK;
 		} else if (status != 0) {
-			trace_error_wp("Read error at block %u, page %u\r\n",
+			trace_error("Read error at block %u, page %u\r\n",
 					block, page);
 			mbx->out.pages = 0;
 			return APPLET_READ_FAIL;
@@ -535,11 +535,11 @@ static uint32_t handle_cmd_erase_pages(uint32_t cmd, uint32_t *mailbox)
 
 	status = nand_skipblock_erase_block(&nand, block, NORMAL_ERASE);
 	if (status == NAND_ERROR_BADBLOCK) {
-		trace_error_wp("Cannot erase bad block %u\r\n", block);
+		trace_error("Cannot erase bad block %u\r\n", block);
 		mbx->out.pages = 0;
 		return APPLET_BAD_BLOCK;
 	} else if (status != 0) {
-		trace_error_wp("Erase error at block %u\r\n", block);
+		trace_error("Erase error at block %u\r\n", block);
 		mbx->out.pages = 0;
 		return APPLET_ERASE_FAIL;
 	}

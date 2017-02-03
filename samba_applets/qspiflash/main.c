@@ -86,7 +86,7 @@ static bool configure_instance_pio(uint32_t instance, uint32_t ioset, Qspi** add
 		}
 	}
 
-	trace_error_wp("Invalid configuration: QSPI%u IOSet%u\r\n",
+	trace_error("Invalid configuration: QSPI%u IOSet%u\r\n",
 		(unsigned)instance, (unsigned)ioset);
 	return false;
 }
@@ -102,11 +102,11 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 
 	applet_set_init_params(mbx->in.comm_type, mbx->in.trace_level);
 
-	trace_info_wp("\r\nApplet 'QSPI Flash' from softpack " SOFTPACK_VERSION ".\r\n");
+	trace_warning_wp("\r\nApplet 'QSPI Flash' from softpack " SOFTPACK_VERSION ".\r\n");
 
 	uint32_t max_freq = pmc_get_peripheral_clock(ID_QSPI0);
 	if (freq == 0 || freq > max_freq) {
-		trace_error_wp("Invalid configuration: frequency must be " \
+		trace_error("Invalid configuration: frequency must be " \
 				"between 1 and %uHz (requested %uHz)\r\n",
 				(unsigned)max_freq, (unsigned)freq);
 		return APPLET_FAIL;
@@ -116,7 +116,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	if (!configure_instance_pio(instance, ioset, &addr))
 		return APPLET_FAIL;
 
-	trace_info_wp("Initializing QSPI%u IOSet%u at %uHz\r\n",
+	trace_warning_wp("Initializing QSPI%u IOSet%u at %uHz\r\n",
 			(unsigned)instance, (unsigned)ioset,
 			(unsigned)freq);
 
@@ -126,37 +126,37 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 
 	/* initialize the QSPI flash */
 	if (qspiflash_configure(&flash, addr) < 0) {
-		trace_error_wp("Error while detecting QSPI flash chip\r\n");
+		trace_error("Error while detecting QSPI flash chip\r\n");
 		return APPLET_DEV_UNKNOWN;
 	}
 
 	if (!flash.desc->jedec_id) {
-		trace_error_wp("Device Unknown\r\n");
+		trace_error("Device Unknown\r\n");
 		return APPLET_DEV_UNKNOWN;
 	}
 	else {
 		uint32_t page_size = flash.desc->page_size;
 		uint32_t mem_size = flash.desc->size;
 
-		trace_info_wp("Found Device %s\r\n", flash.desc->name);
-		trace_info_wp("Size: %u bytes\r\n", (unsigned)mem_size);
-		trace_info_wp("Page Size: %u bytes\r\n", (unsigned)page_size);
+		trace_warning_wp("Found Device %s\r\n", flash.desc->name);
+		trace_warning_wp("Size: %u bytes\r\n", (unsigned)mem_size);
+		trace_warning_wp("Page Size: %u bytes\r\n", (unsigned)page_size);
 
 		erase_support = 0;
 		if (flash.desc->flags & SPINOR_FLAG_ERASE_4K) {
-			trace_info_wp("Supports 4K block erase\r\n");
+			trace_warning_wp("Supports 4K block erase\r\n");
 			erase_support |= (4 * 1024) / page_size;
 		}
 		if (flash.desc->flags & SPINOR_FLAG_ERASE_32K) {
-			trace_info_wp("Supports 32K block erase\r\n");
+			trace_warning_wp("Supports 32K block erase\r\n");
 			erase_support |= (32 * 1024) / page_size;
 		}
 		if (flash.desc->flags & SPINOR_FLAG_ERASE_64K) {
-			trace_info_wp("Supports 64K block erase\r\n");
+			trace_warning_wp("Supports 64K block erase\r\n");
 			erase_support |= (64 * 1024) / page_size;
 		}
 		if (flash.desc->flags & SPINOR_FLAG_ERASE_256K) {
-			trace_info_wp("Supports 256K block erase\r\n");
+			trace_warning_wp("Supports 256K block erase\r\n");
 			erase_support |= (256 * 1024) / page_size;
 		}
 
@@ -165,11 +165,11 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 		buffer = applet_buffer;
 		buffer_size = applet_buffer_size & ~(page_size - 1);
 		if (buffer_size == 0) {
-			trace_info_wp("Not enough memory for buffer\r\n");
+			trace_error("Not enough memory for buffer\r\n");
 			return APPLET_FAIL;
 		}
-		trace_info_wp("Buffer Address: 0x%08x\r\n", (unsigned)buffer);
-		trace_info_wp("Buffer Size: %u bytes\r\n", (unsigned)buffer_size);
+		trace_warning_wp("Buffer Address: 0x%08x\r\n", (unsigned)buffer);
+		trace_warning_wp("Buffer Size: %u bytes\r\n", (unsigned)buffer_size);
 
 		mbx->out.buf_addr = (uint32_t)buffer;
 		mbx->out.buf_size = buffer_size;
@@ -178,7 +178,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 		mbx->out.erase_support = erase_support;
 		mbx->out.nand_header = 0;
 
-		trace_info_wp("QSPI applet initialized successfully.\r\n");
+		trace_warning_wp("QSPI applet initialized successfully.\r\n");
 
 		return APPLET_SUCCESS;
 	}
@@ -244,7 +244,7 @@ static uint32_t handle_cmd_read_pages(uint32_t cmd, uint32_t *mailbox)
 
 	/* check that requested size does not overflow buffer */
 	if (length > buffer_size) {
-		trace_warning("Buffer overflow\r\n");
+		trace_error("Buffer overflow\r\n");
 		return APPLET_FAIL;
 	}
 

@@ -90,157 +90,157 @@ union write_bootcfg_mailbox
 
 static void print_bscr(uint32_t bsc_cr)
 {
-	trace_info_wp("BSCR: 0x%08x -> ", (unsigned)bsc_cr);
+	trace_warning_wp("BSCR: 0x%08x -> ", (unsigned)bsc_cr);
 
 	if (bsc_cr & BSC_CR_BUREG_VALID)
-		trace_info_wp("BUREG_VALID");
+		trace_warning_wp("BUREG_VALID");
 
 	switch (bsc_cr & BSC_CR_BUREG_INDEX_Msk) {
 	case BSC_CR_BUREG_0:
-		trace_info_wp(" BUREG_0");
+		trace_warning_wp(" BUREG_0");
 		break;
 	case BSC_CR_BUREG_1:
-		trace_info_wp(" BUREG_1");
+		trace_warning_wp(" BUREG_1");
 		break;
 	case BSC_CR_BUREG_2:
-		trace_info_wp(" BUREG_2");
+		trace_warning_wp(" BUREG_2");
 		break;
 	case BSC_CR_BUREG_3:
-		trace_info_wp(" BUREG_3");
+		trace_warning_wp(" BUREG_3");
 		break;
 	}
 
-	trace_info_wp("\r\n");
+	trace_warning_wp("\r\n");
 }
 
 static void print_bcw(const char* name, uint32_t value)
 {
-	trace_info_wp("%s: 0x%08x ->", name, (unsigned)value);
+	trace_warning_wp("%s: 0x%08x ->", name, (unsigned)value);
 
 	switch (value & BCW_QSPI_0_Msk) {
 	case BCW_QSPI_0_IOSET_1:
-		trace_info_wp(" QSPI_0_IOSET_1");
+		trace_warning_wp(" QSPI_0_IOSET_1");
 		break;
 	case BCW_QSPI_0_IOSET_2:
-		trace_info_wp(" QSPI_0_IOSET_2*");
+		trace_warning_wp(" QSPI_0_IOSET_2*");
 		break;
 	case BCW_QSPI_0_IOSET_3:
-		trace_info_wp(" QSPI_0_IOSET_3*");
+		trace_warning_wp(" QSPI_0_IOSET_3*");
 		break;
 	}
 
 	switch (value & BCW_QSPI_1_Msk) {
 	case BCW_QSPI_1_IOSET_1:
-		trace_info_wp(" QSPI_1_IOSET_1");
+		trace_warning_wp(" QSPI_1_IOSET_1");
 		break;
 	case BCW_QSPI_1_IOSET_2:
-		trace_info_wp(" QSPI_1_IOSET_2*");
+		trace_warning_wp(" QSPI_1_IOSET_2*");
 		break;
 	case BCW_QSPI_1_IOSET_3:
-		trace_info_wp(" QSPI_1_IOSET_3*");
+		trace_warning_wp(" QSPI_1_IOSET_3*");
 		break;
 	}
 
 	switch (value & BCW_SPI_0_Msk) {
 	case BCW_SPI_0_IOSET_1:
-		trace_info_wp(" SPI_0_IOSET_1");
+		trace_warning_wp(" SPI_0_IOSET_1");
 		break;
 	case BCW_SPI_0_IOSET_2:
-		trace_info_wp(" SPI_0_IOSET_2*");
+		trace_warning_wp(" SPI_0_IOSET_2*");
 		break;
 	}
 
 	switch (value & BCW_SPI_1_Msk) {
 	case BCW_SPI_1_IOSET_1:
-		trace_info_wp(" SPI_1_IOSET_1");
+		trace_warning_wp(" SPI_1_IOSET_1");
 		break;
 	case BCW_SPI_1_IOSET_2:
-		trace_info_wp(" SPI_1_IOSET_2*");
+		trace_warning_wp(" SPI_1_IOSET_2*");
 		break;
 	case BCW_SPI_1_IOSET_3:
-		trace_info_wp(" SPI_1_IOSET_3*");
+		trace_warning_wp(" SPI_1_IOSET_3*");
 		break;
 	}
 
 	switch (value & BCW_NFC_Msk) {
 	case BCW_NFC_IOSET_1:
-		trace_info_wp(" NFC_IOSET_1");
+		trace_warning_wp(" NFC_IOSET_1");
 		break;
 	case BCW_NFC_IOSET_2:
-		trace_info_wp(" NFC_IOSET_2*");
+		trace_warning_wp(" NFC_IOSET_2*");
 		break;
 	}
 
 	if ((value & BCW_SDMMC_0_DISABLED) == 0)
-		trace_info_wp(" SDMMC_0");
+		trace_warning_wp(" SDMMC_0");
 
 	if ((value & BCW_SDMMC_1_DISABLED) == 0)
-		trace_info_wp(" SDMMC_1");
+		trace_warning_wp(" SDMMC_1");
 
 	switch (value & BCW_UART_CONSOLE_Msk) {
 	case BCW_UART_CONSOLE_UART1_IOSET_1:
-		trace_info_wp(" CONSOLE_UART1_IOSET_1");
+		trace_warning_wp(" CONSOLE_UART1_IOSET_1");
 		break;
 	case BCW_UART_CONSOLE_UART0_IOSET_1:
-		trace_info_wp(" CONSOLE_UART0_IOSET_1*");
+		trace_warning_wp(" CONSOLE_UART0_IOSET_1*");
 		break;
 	case BCW_UART_CONSOLE_UART1_IOSET_2:
-		trace_info_wp(" CONSOLE_UART1_IOSET_2*");
+		trace_warning_wp(" CONSOLE_UART1_IOSET_2*");
 		break;
 	case BCW_UART_CONSOLE_UART2_IOSET_1:
-		trace_info_wp(" CONSOLE_UART2_IOSET_1*");
+		trace_warning_wp(" CONSOLE_UART2_IOSET_1*");
 		break;
 	case BCW_UART_CONSOLE_UART2_IOSET_2:
-		trace_info_wp(" CONSOLE_UART2_IOSET_2*");
+		trace_warning_wp(" CONSOLE_UART2_IOSET_2*");
 		break;
 	case BCW_UART_CONSOLE_UART2_IOSET_3:
-		trace_info_wp(" CONSOLE_UART2_IOSET_3*");
+		trace_warning_wp(" CONSOLE_UART2_IOSET_3*");
 		break;
 	case BCW_UART_CONSOLE_UART3_IOSET_1:
-		trace_info_wp(" CONSOLE_UART3_IOSET_1*");
+		trace_warning_wp(" CONSOLE_UART3_IOSET_1*");
 		break;
 	case BCW_UART_CONSOLE_UART3_IOSET_2:
-		trace_info_wp(" CONSOLE_UART3_IOSET_2*");
+		trace_warning_wp(" CONSOLE_UART3_IOSET_2*");
 		break;
 	case BCW_UART_CONSOLE_UART3_IOSET_3:
-		trace_info_wp(" CONSOLE_UART3_IOSET_3*");
+		trace_warning_wp(" CONSOLE_UART3_IOSET_3*");
 		break;
 	case BCW_UART_CONSOLE_UART4_IOSET_1:
-		trace_info_wp(" CONSOLE_UART4_IOSET_1*");
+		trace_warning_wp(" CONSOLE_UART4_IOSET_1*");
 		break;
 	}
 
 	switch (value & BCW_JTAG_IO_SET_Msk) {
 	case BCW_JTAG_IOSET_1:
-		trace_info_wp(" JTAG_IOSET_1");
+		trace_warning_wp(" JTAG_IOSET_1");
 		break;
 	case BCW_JTAG_IOSET_2:
-		trace_info_wp(" JTAG_IOSET_2*");
+		trace_warning_wp(" JTAG_IOSET_2*");
 		break;
 	case BCW_JTAG_IOSET_3:
-		trace_info_wp(" JTAG_IOSET_3*");
+		trace_warning_wp(" JTAG_IOSET_3*");
 		break;
 	case BCW_JTAG_IOSET_4:
-		trace_info_wp(" JTAG_IOSET_4*");
+		trace_warning_wp(" JTAG_IOSET_4*");
 		break;
 	}
 
 	if (value & BCW_EXT_MEM_BOOT_ENABLE)
-		trace_info_wp(" EXT_MEM_BOOT*");
+		trace_warning_wp(" EXT_MEM_BOOT*");
 
 	if (value & BCW_QSPI_XIP_MODE)
-		trace_info_wp(" QSPI_XIP_MODE*");
+		trace_warning_wp(" QSPI_XIP_MODE*");
 
 	if (value & BCW_DISABLE_BSCR)
-		trace_info_wp(" DISABLE_BSCR*");
+		trace_warning_wp(" DISABLE_BSCR*");
 
 	if (value & BCW_DISABLE_MONITOR)
-		trace_info_wp(" DISABLE_MONITOR*");
+		trace_warning_wp(" DISABLE_MONITOR*");
 
 	if (value & BCW_SECURE_MODE)
-		trace_info_wp(" SECURE_MODE*");
+		trace_warning_wp(" SECURE_MODE*");
 
-	trace_info_wp("\r\n");
+	trace_warning_wp("\r\n");
 }
 
 static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
@@ -251,7 +251,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 
 	applet_set_init_params(mbx->in.comm_type, mbx->in.trace_level);
 
-	trace_info_wp("\r\nApplet 'BootConfig' from "
+	trace_warning_wp("\r\nApplet 'BootConfig' from "
 			"softpack " SOFTPACK_VERSION ".\r\n");
 
 	mbx->out.buf_addr = 0;
@@ -320,12 +320,12 @@ static uint32_t handle_cmd_write_bootcfg(uint32_t cmd, uint32_t *mailbox)
 
 	switch (mbx->in.index) {
 	case BOOTCFG_BSCR:
-		trace_info_wp("Writing 0x%08x to BSC CR\r\n",
+		trace_warning_wp("Writing 0x%08x to BSC CR\r\n",
 		              (unsigned)mbx->in.value);
 		BSC->BSC_CR = (mbx->in.value & ~BSC_CR_WPKEY_Msk) | BSC_CR_WPKEY;
 		break;
 	case BOOTCFG_BUREG0:
-		trace_info_wp("Writing 0x%08x to BUREG[0]\r\n",
+		trace_warning_wp("Writing 0x%08x to BUREG[0]\r\n",
 		              (unsigned)mbx->in.value);
 		SECURAM->BUREG[0] = mbx->in.value;
 		SECURAM->BUREG[1] = bureg1;
@@ -333,7 +333,7 @@ static uint32_t handle_cmd_write_bootcfg(uint32_t cmd, uint32_t *mailbox)
 		SECURAM->BUREG[3] = bureg3;
 		break;
 	case BOOTCFG_BUREG1:
-		trace_info_wp("Writing 0x%08x to BUREG[1]\r\n",
+		trace_warning_wp("Writing 0x%08x to BUREG[1]\r\n",
 		              (unsigned)mbx->in.value);
 		SECURAM->BUREG[0] = bureg0;
 		SECURAM->BUREG[1] = mbx->in.value;
@@ -341,7 +341,7 @@ static uint32_t handle_cmd_write_bootcfg(uint32_t cmd, uint32_t *mailbox)
 		SECURAM->BUREG[3] = bureg3;
 		break;
 	case BOOTCFG_BUREG2:
-		trace_info_wp("Writing 0x%08x to BUREG[2]\r\n",
+		trace_warning_wp("Writing 0x%08x to BUREG[2]\r\n",
 		              (unsigned)mbx->in.value);
 		SECURAM->BUREG[0] = bureg0;
 		SECURAM->BUREG[1] = bureg1;
@@ -349,7 +349,7 @@ static uint32_t handle_cmd_write_bootcfg(uint32_t cmd, uint32_t *mailbox)
 		SECURAM->BUREG[3] = bureg3;
 		break;
 	case BOOTCFG_BUREG3:
-		trace_info_wp("Writing 0x%08x to BUREG[3]\r\n",
+		trace_warning_wp("Writing 0x%08x to BUREG[3]\r\n",
 		              (unsigned)mbx->in.value);
 		SECURAM->BUREG[0] = bureg0;
 		SECURAM->BUREG[1] = bureg1;
@@ -357,7 +357,7 @@ static uint32_t handle_cmd_write_bootcfg(uint32_t cmd, uint32_t *mailbox)
 		SECURAM->BUREG[3] = mbx->in.value;
 		break;
 	case BOOTCFG_FUSE:
-		trace_info_wp("Writing 0x%08x to bootcfg fuse (fuse #%d)\r\n",
+		trace_warning_wp("Writing 0x%08x to bootcfg fuse (fuse #%d)\r\n",
 		              (unsigned)mbx->in.value,
 			      FUSE_BOOTCONFIG_WORD_POS);
 		sfc_enable();

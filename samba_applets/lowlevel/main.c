@@ -67,13 +67,13 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 
 	applet_set_init_params(mbx->in.comm_type, mbx->in.trace_level);
 
-	trace_info_wp("\r\nApplet 'Low-Level' from softpack " SOFTPACK_VERSION ".\r\n");
+	trace_warning_wp("\r\nApplet 'Low-Level' from softpack " SOFTPACK_VERSION ".\r\n");
 
 	pck = pmc_get_processor_clock() / 1000000;
-	trace_info_wp("Current processor clock: %d MHz\r\n", (unsigned)pck);
+	trace_warning_wp("Current processor clock: %d MHz\r\n", (unsigned)pck);
 
 	if (pck >= EXPECTED_PROC_CLOCK) {
-		trace_info_wp("Clocks are already configured.\r\n");
+		trace_warning_wp("Clocks are already configured.\r\n");
 	} else {
 		/* setup clocks */
 		board_cfg_clocks();
@@ -83,7 +83,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 
 		/* display new processor clock */
 		pck = pmc_get_processor_clock() / 1000000;
-		trace_info_wp("Current processor clock: %d MHz\r\n", (unsigned)pck);
+		trace_warning_wp("Current processor clock: %d MHz\r\n", (unsigned)pck);
 	}
 
 	mbx->out.buf_addr = 0;

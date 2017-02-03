@@ -254,20 +254,20 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 
 	applet_set_init_params(mbx->in.comm_type, mbx->in.trace_level);
 
-	trace_info_wp("\r\nApplet 'SD/MMC' from "
+	trace_warning_wp("\r\nApplet 'SD/MMC' from "
 			"softpack " SOFTPACK_VERSION ".\r\n");
 
 	config.instance = mbx->in.parameters[0];
 	instance_def = find_instance(config.instance);
 	if (!instance_def) {
-		trace_error_wp("Invalid configuration: Unknown instance %u\r\n",
+		trace_error("Invalid configuration: Unknown instance %u\r\n",
 			(unsigned)config.instance);
 		return APPLET_FAIL;
 	}
 
 	config.boot_partition = mbx->in.parameters[1];
 	if (config.boot_partition > 2) {
-		trace_error_wp("Invalid configuration: Unknown partition %u\r\n",
+		trace_error("Invalid configuration: Unknown partition %u\r\n",
 			(unsigned)config.boot_partition);
 		return APPLET_FAIL;
 	}
@@ -275,7 +275,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	config.bus_width = mbx->in.parameters[2];
 	if (config.bus_width != 0 && config.bus_width != 1 &&
 	    config.bus_width != 4 && config.bus_width != 8) {
-		trace_error_wp("Invalid configuration: Unsupported bus width %u\r\n",
+		trace_error("Invalid configuration: Unsupported bus width %u\r\n",
 			(unsigned)config.bus_width);
 		return APPLET_FAIL;
 	}
@@ -284,7 +284,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	if (!config.bus_width) {
 		config.bus_width = max_bus_width;
 	} else if (config.bus_width > max_bus_width) {
-		trace_error_wp("Invalid configuration: %s Bus Width %u\r\n",
+		trace_error("Invalid configuration: %s Bus Width %u\r\n",
 			instance_def->name, (unsigned)config.bus_width);
 		return APPLET_FAIL;
 	}
@@ -292,22 +292,22 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 #ifdef CONFIG_HAVE_SDMMC
 	config.supported_voltages = mbx->in.parameters[3];
 	if (!config.supported_voltages || (config.supported_voltages & ~SUPPORTED_VOLTAGE_MASK)) {
-		trace_error_wp("Invalid supported voltages value: 0x%x\r\n",
+		trace_error("Invalid supported voltages value: 0x%x\r\n",
 			(unsigned)config.supported_voltages);
 		return APPLET_FAIL;
 	}
 #endif
 
-	trace_info_wp("Initializing %s", instance_def->name);
+	trace_warning_wp("Initializing %s", instance_def->name);
 	if (config.boot_partition)
-		trace_info_wp(", boot partition %u", (unsigned)config.boot_partition);
+		trace_warning_wp(", boot partition %u", (unsigned)config.boot_partition);
 	else
-		trace_info_wp(", user partition");
-	trace_info_wp(", %d-bit", (unsigned)config.bus_width);
+		trace_warning_wp(", user partition");
+	trace_warning_wp(", %d-bit", (unsigned)config.bus_width);
 #if defined(CONFIG_HAVE_SDMMC)
-	trace_info_wp(", %s", get_supported_voltage_string(config.supported_voltages));
+	trace_warning_wp(", %s", get_supported_voltage_string(config.supported_voltages));
 #endif
-	trace_info_wp("\r\n");
+	trace_warning_wp("\r\n");
 
 	/* Configure PIO */
 	configure_instance_pio(instance_def, &config);
@@ -355,35 +355,37 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 
 	SDD_InitializeSdmmcMode(&lib, &drv, 0);
 	if (SD_GetStatus(&lib) == SDMMC_NOT_SUPPORTED) {
-		trace_error_wp("Device not detected.\n\r");
+		trace_error("Device not detected.\n\r");
 		return APPLET_FAIL;
 	}
 
 	rc = SD_Init(&lib);
 	if (rc != SDMMC_OK) {
-		trace_error_wp("SD/MMC device initialization failed: %d\n\r", rc);
+		trace_error("SD/MMC device initialization failed: %s\n\r",
+				SD_StringifyRetCode(rc));
 		return APPLET_FAIL;
 	}
 
 	card_type = SD_GetCardType(&lib);
 	if (!(card_type & CARD_TYPE_bmSDMMC)) {
-		trace_error_wp("Invalid card type: only SD/MMC is supported\n\r");
+		trace_error("Invalid card type: only SD/MMC is supported\n\r");
 		return APPLET_FAIL;
 	}
 
-	SD_DumpStatus(&lib);
+	if (trace_level >= TRACE_LEVEL_WARNING)
+		SD_DumpStatus(&lib);
 
 	if (config.boot_partition) {
 		/* check that card is MMC */
 		if (!(card_type & CARD_TYPE_bmMMC)) {
-			trace_error_wp("Invalid card type: boot partition in only supported on MMC\n\r");
+			trace_error("Invalid card type: boot partition in only supported on MMC\n\r");
 			return APPLET_FAIL;
 		}
 
 		/* get and check boot partition size */
 		mem_size = MMC_EXT_BOOT_SIZE_MULTI(lib.EXT) * (128 * 1024 / BLOCK_SIZE);
 		if (mem_size == 0) {
-			trace_error_wp("No boot partition available\n\r");
+			trace_error("No boot partition available\n\r");
 			return APPLET_FAIL;
 		}
 
@@ -399,7 +401,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	buffer = applet_buffer;
 	buffer_size = applet_buffer_size & ~(BLOCK_SIZE - 1);
 	if (buffer_size == 0) {
-		trace_info_wp("Not enough memory for buffer\r\n");
+		trace_error("Not enough memory for buffer\r\n");
 		return APPLET_FAIL;
 	}
 
@@ -410,11 +412,11 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	mbx->out.erase_support = 0;
 	mbx->out.nand_header = 0;
 
-	trace_info_wp("SD/MMC device initialization successful\n\r");
-	trace_info_wp("Buffer Address: 0x%lx\r\n", mbx->out.buf_addr);
-	trace_info_wp("Buffer Size: %ld bytes\r\n", mbx->out.buf_size);
-	trace_info_wp("Page Size: %ld bytes\r\n", mbx->out.page_size);
-	trace_info_wp("Memory Size: %ld pages\r\n", mbx->out.mem_size);
+	trace_warning_wp("SD/MMC device initialization successful\n\r");
+	trace_warning_wp("Buffer Address: 0x%lx\r\n", mbx->out.buf_addr);
+	trace_warning_wp("Buffer Size: %ld bytes\r\n", mbx->out.buf_size);
+	trace_warning_wp("Page Size: %ld bytes\r\n", mbx->out.page_size);
+	trace_warning_wp("Memory Size: %ld pages\r\n", mbx->out.mem_size);
 
 	return APPLET_SUCCESS;
 }
@@ -447,18 +449,18 @@ static uint32_t handle_cmd_write_pages(uint32_t cmd, uint32_t *mailbox)
 
 	/* check that requested size does not overflow buffer */
 	if ((length * BLOCK_SIZE) > buffer_size) {
-		trace_error_wp("Buffer overflow\r\n");
+		trace_error("Buffer overflow\r\n");
 		return APPLET_FAIL;
 	}
 
 	/* check that requested offset/size does not overflow memory */
 	if (offset + length > mem_size) {
-		trace_error_wp("Memory overflow\r\n");
+		trace_error("Memory overflow\r\n");
 		return APPLET_FAIL;
 	}
 
 	if (SD_Write(&lib, offset, buffer, length, NULL, NULL) != SDMMC_OK) {
-		trace_info_wp("Error while writing %u bytes at offset 0x%08x\r\n",
+		trace_error("Error while writing %u bytes at offset 0x%08x\r\n",
 				(unsigned)(mbx->in.length * BLOCK_SIZE),
 				(unsigned)(mbx->in.offset * BLOCK_SIZE));
 		mbx->out.pages = 0;
@@ -484,18 +486,18 @@ static uint32_t handle_cmd_read_pages(uint32_t cmd, uint32_t *mailbox)
 
 	/* check that requested size does not overflow buffer */
 	if ((length * BLOCK_SIZE) > buffer_size) {
-		trace_error_wp("Buffer overflow\r\n");
+		trace_error("Buffer overflow\r\n");
 		return APPLET_FAIL;
 	}
 
 	/* check that requested offset/size does not overflow memory */
 	if (offset + length > mem_size) {
-		trace_error_wp("Memory overflow\r\n");
+		trace_error("Memory overflow\r\n");
 		return APPLET_FAIL;
 	}
 
 	if (SD_Read(&lib, offset, buffer, length, NULL, NULL) != SDMMC_OK) {
-		trace_info_wp("Error while reading %u bytes at offset 0x%08x\r\n",
+		trace_error("Error while reading %u bytes at offset 0x%08x\r\n",
 				(unsigned)(mbx->in.length * BLOCK_SIZE),
 				(unsigned)(mbx->in.offset * BLOCK_SIZE));
 		mbx->out.pages = 0;
