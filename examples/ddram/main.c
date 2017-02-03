@@ -48,17 +48,16 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
-
-#include "rand.h"
-#include "trace.h"
-
-#include "mm/l1cache.h"
-#include "serial/console.h"
-
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+
+#include "board.h"
+#include "mm/l1cache.h"
+#include "rand.h"
+#include "serial/console.h"
+#include "timer.h"
+#include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Local definitions
@@ -116,6 +115,8 @@ static bool _ddram_access(uint32_t baseAddr, uint32_t size)
 static void _ddram_test_loop(uint32_t baseAddr, uint32_t size)
 {
 	int i, passed, failed;
+	uint64_t start, end;
+	bool ok;
 
 	passed = 0;
 	failed = 0;
@@ -123,12 +124,18 @@ static void _ddram_test_loop(uint32_t baseAddr, uint32_t size)
 		for (i = 0; i < BUFFER_SIZE/4; i++)
 			((uint32_t*)random_buffer)[i] = rand();
 
-		if (_ddram_access(baseAddr, size)) {
+		start = timer_get_tick();
+		ok = _ddram_access(baseAddr, size);
+		end = timer_get_tick();
+
+		if (ok) {
 			passed++;
-			printf("Test Passed (passed=%d, failed=%d)\r\n", passed, failed);
+			printf("Test Passed (passed=%d, failed=%d) (%ums)\r\n",
+					passed, failed, (unsigned)(end - start));
 		} else {
 			failed++;
-			printf("Test Failed (passed=%d, failed=%d)\r\n", passed, failed);
+			printf("Test Failed (passed=%d, failed=%d) (%ums)\r\n",
+					passed, failed, (unsigned)(end - start));
 		}
 	}
 }
