@@ -116,7 +116,7 @@
 #define USART0  ((Usart   *)0x40024000U) /**< \brief (USART0 ) Base Address */
 #define USART1  ((Usart   *)0x40028000U) /**< \brief (USART1 ) Base Address */
 #define USART2  ((Usart   *)0x4002C000U) /**< \brief (USART2 ) Base Address */
-#if defined(CONFIG_CHIP_E70) || defined(CONFIG_CHIP_V70) || defined(CONFIG_CHIP_V71)
+#if defined(CONFIG_CHIP_SAME70) || defined(CONFIG_CHIP_SAMV70) || defined(CONFIG_CHIP_SAMV71)
 #define MCAN0   ((Mcan    *)0x40030000U) /**< \brief (MCAN0  ) Base Address */
 #define MCAN1   ((Mcan    *)0x40034000U) /**< \brief (MCAN1  ) Base Address */
 #endif
@@ -126,7 +126,7 @@
 #define ACC     ((Acc     *)0x40044000U) /**< \brief (ACC    ) Base Address */
 #define ICM     ((Icm     *)0x40048000U) /**< \brief (ICM    ) Base Address */
 #define ISI     ((Isi     *)0x4004C000U) /**< \brief (ISI    ) Base Address */
-#if defined(CONFIG_CHIP_E70) || defined(CONFIG_CHIP_V71)
+#if defined(CONFIG_CHIP_SAME70) || defined(CONFIG_CHIP_SAMV71)
 #define GMAC0   ((Gmac    *)0x40050000U) /**< \brief (GMAC0  ) Base Address */
 #endif
 #define TC3     ((Tc      *)0x40054000U) /**< \brief (TC3    ) Base Address */
@@ -134,7 +134,7 @@
 #define PWM1    ((Pwm     *)0x4005C000U) /**< \brief (PWM1   ) Base Address */
 #define TWI2    ((Twi     *)0x40060000U) /**< \brief (TWI2   ) Base Address */
 #define AFEC1   ((Afec    *)0x40064000U) /**< \brief (AFEC1  ) Base Address */
-#if defined(CONFIG_CHIP_V70) || defined(CONFIG_CHIP_V71)
+#if defined(CONFIG_CHIP_SAMV70) || defined(CONFIG_CHIP_SAMV71)
 #define MLB     ((Mlb     *)0x40068000U) /**< \brief (MLB    ) Base Address */
 #endif
 #define AES     ((Aes     *)0x4006C000U) /**< \brief (AES    ) Base Address */
