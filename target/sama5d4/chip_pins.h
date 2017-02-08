@@ -79,6 +79,13 @@
 	PIN_USART0_SCK,\
 }
 
+/** USART0 pins definition (RS485) */
+#define PINS_USART0_RS485 {\
+	PIN_USART0_RXD,\
+	PIN_USART0_TXD,\
+	PIN_USART0_RTS,\
+}
+
 /* ========== Pio PIN definition for USART1 peripheral ========== */
 
 /** USART1 TXD pin definition. */
@@ -103,6 +110,13 @@
 	PIN_USART1_RTS,\
 	PIN_USART1_CTS,\
 	PIN_USART1_SCK,\
+}
+
+/** USART1 pins definition (RS485) */
+#define PINS_USART1_RS485 {\
+	PIN_USART1_RXD,\
+	PIN_USART1_TXD,\
+	PIN_USART1_RTS,\
 }
 
 /* ========== Pio PIN definition for USART2 peripheral ========== */
@@ -131,6 +145,13 @@
 	PIN_USART2_SCK,\
 }
 
+/** USART2 pins definition (RS485) */
+#define PINS_USART2_RS485 {\
+	PIN_USART2_RXD,\
+	PIN_USART2_TXD,\
+	PIN_USART2_RTS,\
+}
+
 /* ========== Pio PIN definition for USART3 peripheral ========== */
 
 /** USART3 TXD pin definition. */
@@ -157,6 +178,13 @@
 	PIN_USART3_SCK,\
 }
 
+/** USART3 pins definition (RS485) */
+#define PINS_USART3_RS485 {\
+	PIN_USART3_RXD,\
+	PIN_USART3_TXD,\
+	PIN_USART3_RTS,\
+}
+
 /* ========== Pio PIN definition for USART4 peripheral ========== */
 
 /** USART4 TXD pin definition. */
@@ -181,6 +209,13 @@
 	PIN_USART4_RTS,\
 	PIN_USART4_CTS,\
 	PIN_USART4_SCK,\
+}
+
+/** USART4 pins definition (RS485) */
+#define PINS_USART4_RS485 {\
+	PIN_USART4_RXD,\
+	PIN_USART4_TXD,\
+	PIN_USART4_RTS,\
 }
 
 /* ========== Pio PIN definition for TWI0 peripheral ========== */
