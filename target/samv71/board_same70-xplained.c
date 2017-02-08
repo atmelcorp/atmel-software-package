@@ -97,7 +97,7 @@ WEAK void board_init(void)
 
 #ifdef CONFIG_HAVE_ISI
 	/* Configure camera interface */
-	board_cfg_isI();
+	board_cfg_isi();
 #endif
 
 #ifdef CONFIG_HAVE_SSC
