@@ -145,7 +145,7 @@ usart                  | OK               | OK               | TODO       | OK  
 usart_irda             | OK               | TODO             | TODO       | OK               | OK         | OK         | TODO            | TODO
 usart_iso7816          | OK               | OK               | OK         | OK               | OK         | OK         | TODO            | TODO
 usart_lin              | OK               | x                | x          | x                | x          | x          | TODO            | TODO
-usart_rs485            | OK               | OK               | OK         | OK               | OK         | TODO       | TODO            | TODO
+usart_rs485            | OK               | OK               | OK         | OK               | OK         | TODO       | OK              | OK
 usb_audio_looprec      | OK               | OK               | OK         | OK               | OK         | TODO       | TODO            | TODO
 usb_audio_multi_channels | OK             | TODO             | TODO       | TODO             | TODO       | TODO       | TODO            | TODO
 usb_audio_speaker      | OK               | x                | OK         | x                | OK         | OK         | TODO            | TODO

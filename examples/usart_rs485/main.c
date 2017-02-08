@@ -35,11 +35,11 @@
  *
  *  \section Requirements
  *
- *  This package can be used with SAMA5Dx board. Before running, make sure to connect
+ *  This package can be used with SAMA5Dx/SAME70/SAMV71 board. Before running, make sure to connect
  *  two boards with RS485 lines. The rs485 adapt board(ADM3485ARZ) for this purpose.
  *  Match each paired pins of two boards respectively with A to A,
  *  B to B and FGND to FGND(the central pin of J3).
- *  this part is connect with Sama5Dx board and ADM3485ARZ
+ *  this part is connect with SAMA5Dx/SAME70/SAMV71 board and ADM3485ARZ
  *   - <b>Board 1                             Board 2</b>
  *   -  TXD1(XPRO_PD17 pin14) <->DI            TXD1(XPRO_PD17 pin14) <->DI
  *   -  RXD1(XPRO_PD16 pin13) <->RO            RXD1(XPRO_PD16 pin13) <->RO
@@ -149,6 +149,14 @@
 #elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
 #define USART_ADDR USART4
 #define USART_PINS PINS_USART4_RS485
+
+#elif defined(CONFIG_BOARD_SAME70_XPLAINED)
+#define USART_ADDR USART2
+#define USART_PINS PINS_USART2_RS485
+
+#elif defined(CONFIG_BOARD_SAMV71_XPLAINED)
+#define USART_ADDR USART2
+#define USART_PINS PINS_USART2_RS485
 
 #else
 #error Unsupported SoC!

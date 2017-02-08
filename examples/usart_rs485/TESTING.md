@@ -23,22 +23,22 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-### sama5dx board
+### sama5dx\same70\samv71 board
 --------------------
- *  This package can be used with SAMA5Dx board. Before running, make sure to connect
+ *  This package can be used with SAMA5Dx/SAME70/SAMV71 board. Before running, make sure to connect
  *  two boards with RS485 lines. The rs485 adapt board(ADM3485ARZ) for this purpose.
  *  Match each paired pins of two boards respectively with A to A,
  *  B to B and FGND to FGND(the central pin of J3).
  *  this part is connect with Sama5Dx board and ADM3485ARZ
- *   -  Board 1                                    Board 2
- *   -  TXD(sama5dx board) <-> DI(ADM3485ARZ)       TXD(sama5dx board) <-> DI(ADM3485ARZ)
- *   -  RXD(sama5dx board) <-> RO(ADM3485ARZ)       RXD(sama5dx board) <-> RO(ADM3485ARZ)
- *   -  RTS(sama5dx board) <-> DE(ADM3485ARZ)       RTS(sama5dx board) <-> DE(ADM3485ARZ)
+ *   -  Board 1                                                  Board 2
+ *   -  TXD(sama5dx/same70/samv71 board) <-> DI(ADM3485ARZ)      TXD(sama5dx/same70/samv71 board) <-> DI(ADM3485ARZ)
+ *   -  RXD(sama5dx/same70/samv71 board) <-> RO(ADM3485ARZ)      RXD(sama5dx/same70/samv71 board) <-> RO(ADM3485ARZ)
+ *   -  RTS(sama5dx/same70/samv71 board) <-> DE(ADM3485ARZ)      RTS(sama5dx/same70/samv71 board) <-> DE(ADM3485ARZ)
  *   -  3.3v                                   3.3v
  *   -  GND                                    GND
  *   -  2 ways to connect !RE(ADM3485ARZ)
- *   -  1. RTS(sama5dx board) <-> !RE(ADM3485ARZ)   RTS(sama5dx board) <-> !RE(ADM3485ARZ)
- *   -  2. !RE(ADM3485ARZ) <-> GND                  !RE(ADM3485ARZ) <-> GND
+ *   -  1. RTS(sama5dx/same70/samv71 board) <-> RE(ADM3485ARZ)   RTS(sama5dx/same70/samv71 board) <-> RE(ADM3485ARZ)
+ *   -  2. RE(ADM3485ARZ) <-> GND                                RE(ADM3485ARZ) <-> GND
  *  this part is connect with 2 ADM3485ARZ
  *      A              <-------------------->  A
  *      B              <-------------------->  B
