@@ -44,7 +44,8 @@
  *        Local constants
  *----------------------------------------------------------------------------*/
 
-static const struct _pin nfc[] = PINS_NAND16;
+static const struct _pin pins_nand_8b[] = PINS_NAND8;
+static const struct _pin pins_nand_16b[] = PINS_NAND16;
 
 /*----------------------------------------------------------------------------
  *        Public constants
@@ -53,8 +54,15 @@ static const struct _pin nfc[] = PINS_NAND16;
 const struct nandflash_pin_definition nandflash_pin_defs[] = {
 	{
 		.ioset = 1,
-		.num_pins = ARRAY_SIZE(nfc),
-		.pins = nfc,
+		.bus_width = 8,
+		.num_pins = ARRAY_SIZE(pins_nand_8b),
+		.pins = pins_nand_8b,
+	},
+	{
+		.ioset = 1,
+		.bus_width = 16,
+		.num_pins = ARRAY_SIZE(pins_nand_16b),
+		.pins = pins_nand_16b,
 	},
 };
 

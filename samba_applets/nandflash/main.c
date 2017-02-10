@@ -112,12 +112,12 @@ static uint8_t ecc_bit_req_2_tt[] = {
  *         Local functions
  *----------------------------------------------------------------------------*/
 
-static bool configure_instance_pio(uint32_t ioset)
+static bool configure_instance_pio(uint32_t ioset, uint8_t bus_width)
 {
 	int i;
 	for (i = 0; i < num_nandflash_pin_defs; i++) {
 		const struct nandflash_pin_definition* def = &nandflash_pin_defs[i];
-		if (def->ioset == ioset) {
+		if (def->ioset == ioset && def->bus_width == bus_width) {
 			pio_configure(def->pins, def->num_pins);
 			return true;
 		}
@@ -263,7 +263,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	trace_warning_wp("\r\nApplet 'NAND Flash' from softpack "
 			SOFTPACK_VERSION ".\r\n");
 
-	trace_warning_wp("Initializing NAND ioSet%u Bus Width %d\r\n",
+	trace_warning_wp("Initializing NAND ioSet%u Bus Width %u\r\n",
 			(unsigned)ioset, (unsigned)bus_width);
 
 	if (bus_width != 8 && bus_width != 16) {
@@ -275,9 +275,9 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	board_cfg_matrix_for_nand();
 	smc_nand_configure(bus_width);
 
-	if (!configure_instance_pio(ioset)) {
-		trace_error("Invalid configuration: NFC ioSet%u\r\n",
-			(unsigned)ioset);
+	if (!configure_instance_pio(ioset, bus_width)) {
+		trace_error("Invalid configuration: NFC ioSet%u Bus Width %u\r\n",
+			(unsigned)ioset, (unsigned)bus_width);
 		return APPLET_FAIL;
 	}
 

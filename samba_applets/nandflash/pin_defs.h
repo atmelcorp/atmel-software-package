@@ -37,6 +37,7 @@
 struct nandflash_pin_definition
 {
 	uint32_t           ioset;
+	uint32_t           bus_width;
 	uint32_t           num_pins;
 	const struct _pin *pins;
 };

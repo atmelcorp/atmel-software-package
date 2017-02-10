@@ -40,8 +40,11 @@
  *        Local constants
  *----------------------------------------------------------------------------*/
 
-static const struct _pin nfc_ioset1[] = PINS_NAND16_IOS1;
-static const struct _pin nfc_ioset2[] = PINS_NAND16_IOS2;
+static const struct _pin pins_nand_8b_ioset1[] = PINS_NAND8_IOS1;
+static const struct _pin pins_nand_8b_ioset2[] = PINS_NAND8_IOS2;
+
+static const struct _pin pins_nand_16b_ioset1[] = PINS_NAND16_IOS1;
+static const struct _pin pins_nand_16b_ioset2[] = PINS_NAND16_IOS2;
 
 /*----------------------------------------------------------------------------
  *        Public constants
@@ -50,13 +53,27 @@ static const struct _pin nfc_ioset2[] = PINS_NAND16_IOS2;
 const struct nandflash_pin_definition nandflash_pin_defs[] = {
 	{
 		.ioset = 1,
-		.num_pins = ARRAY_SIZE(nfc_ioset1),
-		.pins = nfc_ioset1,
+		.bus_width = 8,
+		.num_pins = ARRAY_SIZE(pins_nand_8b_ioset1),
+		.pins = pins_nand_8b_ioset1,
+	},
+	{
+		.ioset = 1,
+		.bus_width = 16,
+		.num_pins = ARRAY_SIZE(pins_nand_16b_ioset1),
+		.pins = pins_nand_16b_ioset1,
 	},
 	{
 		.ioset = 2,
-		.num_pins = ARRAY_SIZE(nfc_ioset2),
-		.pins = nfc_ioset2,
+		.bus_width = 8,
+		.num_pins = ARRAY_SIZE(pins_nand_8b_ioset2),
+		.pins = pins_nand_8b_ioset2,
+	},
+	{
+		.ioset = 2,
+		.bus_width = 16,
+		.num_pins = ARRAY_SIZE(pins_nand_16b_ioset2),
+		.pins = pins_nand_16b_ioset2,
 	},
 };
 
