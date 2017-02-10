@@ -110,7 +110,6 @@ typedef struct {
 #define HSMCI_SDCR_SDCBUS(value) ((HSMCI_SDCR_SDCBUS_Msk & ((value) << HSMCI_SDCR_SDCBUS_Pos)))
 #define   HSMCI_SDCR_SDCBUS_1 (0x0u << 6) /**< \brief (HSMCI_SDCR) 1 bit */
 #define   HSMCI_SDCR_SDCBUS_4 (0x2u << 6) /**< \brief (HSMCI_SDCR) 4 bits */
-#define   HSMCI_SDCR_SDCBUS_8 (0x3u << 6) /**< \brief (HSMCI_SDCR) 8 bits */
 /* -------- HSMCI_ARGR : (HSMCI Offset: 0x10) Argument Register -------- */
 #define HSMCI_ARGR_ARG_Pos 0
 #define HSMCI_ARGR_ARG_Msk (0xffffffffu << HSMCI_ARGR_ARG_Pos) /**< \brief (HSMCI_ARGR) Command Argument */
