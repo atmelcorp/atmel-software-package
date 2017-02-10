@@ -37,6 +37,7 @@
 struct sdmmc_pin_definition
 {
 	uint32_t           instance;
+	uint32_t           ioset;
 	const char*        name;
 #if defined(CONFIG_HAVE_SDMMC)
 	Sdmmc*             addr;

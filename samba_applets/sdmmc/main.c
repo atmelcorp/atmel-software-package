@@ -65,6 +65,7 @@
 
 struct _sdmmc_applet_config {
 	uint32_t instance;
+	uint32_t ioset;
 	uint32_t boot_partition;
 	uint32_t bus_width;
 #ifdef CONFIG_HAVE_SDMMC
@@ -184,11 +185,13 @@ static void unconfigure_all_data_pins(const struct sdmmc_pin_definition* def)
 	}
 }
 
-static const struct sdmmc_pin_definition* find_instance(uint32_t instance)
+static const struct sdmmc_pin_definition* find_instance(
+		struct _sdmmc_applet_config* config)
 {
 	int i;
 	for (i = 0; i < num_sdmmc_pin_defs; i++) {
-		if (sdmmc_pin_defs[i].instance == instance)
+		if (sdmmc_pin_defs[i].instance == config->instance &&
+		    sdmmc_pin_defs[i].ioset == config->ioset)
 			return &sdmmc_pin_defs[i];
 	}
 	return 0;
@@ -258,21 +261,23 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 			"softpack " SOFTPACK_VERSION ".\r\n");
 
 	config.instance = mbx->in.parameters[0];
-	instance_def = find_instance(config.instance);
+	config.ioset = mbx->in.parameters[1];
+	instance_def = find_instance(&config);
 	if (!instance_def) {
-		trace_error("Invalid configuration: Unknown instance %u\r\n",
-			(unsigned)config.instance);
+		trace_error("Invalid configuration: Instance %u I/O Set %u\r\n",
+			(unsigned)config.instance,
+			(unsigned)config.ioset);
 		return APPLET_FAIL;
 	}
 
-	config.boot_partition = mbx->in.parameters[1];
+	config.boot_partition = mbx->in.parameters[2];
 	if (config.boot_partition > 2) {
 		trace_error("Invalid configuration: Unknown partition %u\r\n",
 			(unsigned)config.boot_partition);
 		return APPLET_FAIL;
 	}
 
-	config.bus_width = mbx->in.parameters[2];
+	config.bus_width = mbx->in.parameters[3];
 	if (config.bus_width != 0 && config.bus_width != 1 &&
 	    config.bus_width != 4 && config.bus_width != 8) {
 		trace_error("Invalid configuration: Unsupported bus width %u\r\n",
@@ -290,7 +295,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	}
 
 #ifdef CONFIG_HAVE_SDMMC
-	config.supported_voltages = mbx->in.parameters[3];
+	config.supported_voltages = mbx->in.parameters[4];
 	if (!config.supported_voltages || (config.supported_voltages & ~SUPPORTED_VOLTAGE_MASK)) {
 		trace_error("Invalid supported voltages value: 0x%x\r\n",
 			(unsigned)config.supported_voltages);

@@ -57,6 +57,7 @@ static const struct _pin pins_hsmci1_data4b_a[] = { PINS_HSMCI1_DATA4B_A };
 const struct sdmmc_pin_definition sdmmc_pin_defs[] = {
 	{
 		.instance = 0,
+		.ioset = 1,
 		.name = "HSMCI0",
 		.addr = HSMCI0,
 		.slot = HSMCI_SDCR_SDCSEL_SLOTA,
@@ -71,6 +72,7 @@ const struct sdmmc_pin_definition sdmmc_pin_defs[] = {
 	},
 	{
 		.instance = 1,
+		.ioset = 1,
 		.name = "HSMCI1",
 		.addr = HSMCI1,
 		.slot = HSMCI_SDCR_SDCSEL_SLOTA,
