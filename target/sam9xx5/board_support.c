@@ -412,7 +412,7 @@ void board_cfg_matrix_for_ddr(void)
 	csa |= MATRIX_EBICSA_EBI_CS1A_DDRC;
 	csa &= ~MATRIX_EBICSA_EBI_DBPUC;
 	csa |= MATRIX_EBICSA_EBI_DBPDC;
-	csa |= MATRIX_EBICSA_EBI_DRIVE_HIGH;
+	csa &= ~MATRIX_EBICSA_EBI_DRIVE;
 	MATRIX->MATRIX_EBICSA = csa;
 }
 
@@ -420,8 +420,7 @@ void board_cfg_matrix_for_nand(void)
 {
 	uint32_t csa = MATRIX->MATRIX_EBICSA;
 	csa |= MATRIX_EBICSA_EBI_CS3A_NAND;
-	csa |= MATRIX_EBICSA_DDR_MP_EN; /* only on CM Rev. B */
-	csa |= MATRIX_EBICSA_NFD0_ON_D16; /* only on CM Rev. B */
+	csa |= MATRIX_EBICSA_NFD0_ON_D16;
 	csa &= ~MATRIX_EBICSA_EBI_DRIVE;
 	MATRIX->MATRIX_EBICSA = csa;
 }
