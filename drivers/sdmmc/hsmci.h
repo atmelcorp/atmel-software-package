@@ -27,54 +27,8 @@
  * ----------------------------------------------------------------------------
  */
 
-/** \file */
-
-/** \addtogroup hsmci_module Working with HSMCI
- *  \ingroup mcid_module
- *
- * \section Purpose
- *
- * The HSMCI driver is a C wrapper to the User Interface of the HSMCI
- * peripheral.
- *
- * \section Usage
- *
- * -# hsmci_enable(), hsmci_disable(): Enable/Disable HSMCI interface.
- * -# hsmci_reset(): Reset HSMCI interface.
- * -# hsmci_select(): HSMCI slot and buswidth selection
- *                    (\ref Hsmci::HSMCI_SDCR).
- * -# hsmci_cfg_mode(): Configure the  MCI CLKDIV in the _MR register
- *                      (\ref Hsmci::HSMCI_MR).
- * -# hsmci_enable_it(), hsmci_disable_it(), hsmci_get_it_mask(),
- *    hsmci_get_status(): HSMCI Interrupt control (\ref Hsmci::HSMCI_IER,
- *                        \ref Hsmci::HSMCI_IDR, \ref Hsmci::HSMCI_IMR,
- *                        \ref Hsmci::HSMCI_SR).
- * -# hsmci_cfg_xfer(): Setup block length and count for MCI transfer
- *                      (\ref Hsmci::HSMCI_BLKR).
- * -# hsmci_send_cmd(): Send SD/MMC command with argument
- *                     (\ref Hsmci::HSMCI_ARGR, \ref Hsmci::HSMCI_CMDR).
- * -# hsmci_get_response(): Get SD/MMC response after command finished
- *                         (\ref Hsmci::HSMCI_RSPR).
- * -# hsmci_cfg_dma(): Configure MCI DMA transfer
- *                     (\ref Hsmci::HSMCI_DMA).
- * -# hsmci_configure(): Configure the HSMCI interface (\ref Hsmci::HSMCI_CFG).
- * -# hsmci_hs_enable(), hsmci_is_hs_enabled(): High Speed control.
- *
- * For more accurate information, please look at the HSMCI section of the
- * Datasheet.
- *
- * \sa \ref mcid_module
- *
- * Related files:\n
- * \ref hsmci.h\n
- * \ref hsmci.c.\n
- */
-
-#ifndef _HSMCI_PERIPH_H_
-#define _HSMCI_PERIPH_H_
-/** \addtogroup hsmci_module
- * @{
- */
+#ifndef HSMCI_H
+#define HSMCI_H
 
 /*----------------------------------------------------------------------------
  *         Headers
@@ -82,16 +36,9 @@
 
 #include "chip.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /*----------------------------------------------------------------------------
  *         Exported functions
  *----------------------------------------------------------------------------*/
-/** \addtogroup hsmci_functions HSMCI Functions
- *      @{
- */
 
 /**
  * \brief Enable Multi-Media Interface
@@ -112,14 +59,6 @@ extern void hsmci_disable(Hsmci * regs);
  *			notably MR, SDCR, DTOR, CSTOR, DMA and CFG.
  */
 extern void hsmci_reset(Hsmci * regs, bool backup);
-
-/**
- * \brief Select slot
- * \param regs		Pointer to an Hsmci instance
- * \param bSlot		Slot ID (0~3 for A~D)
- * \param bBusWidth	Bus width: 1, 4 or 8 bits
- */
-extern void hsmci_select(Hsmci * regs, uint8_t bSlot, uint8_t bBusWidth);
 
 /**
  * \brief Set slot
@@ -356,12 +295,4 @@ extern void hsmci_cfg_wp(Hsmci * regs, uint32_t dwConfigure);
  */
 extern uint32_t hsmci_get_wp_status(const Hsmci * regs);
 
-/**      @} */
-
-#ifdef __cplusplus
-}
-#endif
-
-/** @} */
-
-#endif /* #ifndef _HSMCI_PERIPH_H_ */
+#endif /* HSMCI_H */

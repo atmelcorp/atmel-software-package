@@ -27,8 +27,7 @@
  * ----------------------------------------------------------------------------
  */
 
-/** \file
- *
+/**
  * Implementation of High Speed MultiMedia Card Interface (HSMCI) controller.
  */
 
@@ -76,23 +75,6 @@ void hsmci_reset(Hsmci * regs, bool backup)
 	}
 }
 
-void hsmci_select(Hsmci * regs, uint8_t bSlot, uint8_t bBusWidth)
-{
-	uint32_t dwSdcr;
-	dwSdcr = HSMCI_SDCR_SDCSEL_Msk & bSlot;
-	switch (bBusWidth) {
-	case 1:
-		regs->HSMCI_SDCR = dwSdcr | HSMCI_SDCR_SDCBUS_1;
-		break;
-	case 4:
-		regs->HSMCI_SDCR = dwSdcr | HSMCI_SDCR_SDCBUS_4;
-		break;
-	case 8:
-		regs->HSMCI_SDCR = dwSdcr | HSMCI_SDCR_SDCBUS_8;
-		break;
-	}
-}
-
 void hsmci_set_slot(Hsmci * regs, uint8_t bSlot)
 {
 	uint32_t dwSdcr = regs->HSMCI_SDCR & ~HSMCI_SDCR_SDCSEL_Msk;
@@ -109,9 +91,11 @@ void hsmci_set_bus_width(Hsmci * regs, uint8_t bBusWidth)
 	case 4:
 		regs->HSMCI_SDCR = dwSdcr | HSMCI_SDCR_SDCBUS_4;
 		break;
+#ifdef HSMCI_SDCR_SDCBUS_8
 	case 8:
 		regs->HSMCI_SDCR = dwSdcr | HSMCI_SDCR_SDCBUS_8;
 		break;
+#endif
 	}
 }
 
@@ -122,8 +106,10 @@ uint8_t hsmci_get_bus_width(const Hsmci * regs)
 		return 1;
 	case HSMCI_SDCR_SDCBUS_4:
 		return 4;
+#ifdef HSMCI_SDCR_SDCBUS_8
 	case HSMCI_SDCR_SDCBUS_8:
 		return 8;
+#endif
 	}
 	return 0;
 }
