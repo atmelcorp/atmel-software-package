@@ -44,7 +44,6 @@
  *   -  TXD1(XPRO_PD17 pin14) <->DI            TXD1(XPRO_PD17 pin14) <->DI
  *   -  RXD1(XPRO_PD16 pin13) <->RO            RXD1(XPRO_PD16 pin13) <->RO
  *   -  RTS1(XPRO_PD15 pin18) <->DE            RTS1(XPRO_PD15 pin18) <->DE
- *   -  CTS1(XPRO_PD14 pin10) <->RE            CTS1(XPRO_PD14 pin10) <->RE
  *   -  3.3v                                   3.3v
  *   -  GND                                    GND
  *  this part is connect with 2 ADM3485ARZ
@@ -137,19 +136,19 @@
 
 #elif defined(CONFIG_BOARD_SAMA5D3_EK)
 #define USART_ADDR USART1
-#define USART_PINS PINS_USART1
+#define USART_PINS PINS_USART1_RS485
 
 #elif defined(CONFIG_BOARD_SAMA5D3_XPLAINED)
 #define USART_ADDR USART3
-#define USART_PINS PINS_USART3
+#define USART_PINS PINS_USART3_RS485
 
 #elif defined(CONFIG_BOARD_SAMA5D4_EK)
 #define USART_ADDR USART4
-#define USART_PINS PINS_USART4
+#define USART_PINS PINS_USART4_RS485
 
 #elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
 #define USART_ADDR USART4
-#define USART_PINS PINS_USART4
+#define USART_PINS PINS_USART4_RS485
 
 #else
 #error Unsupported SoC!

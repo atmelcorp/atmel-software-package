@@ -31,12 +31,14 @@ On the computer, open and configure a terminal application
  *  B to B and FGND to FGND(the central pin of J3).
  *  this part is connect with Sama5Dx board and ADM3485ARZ
  *   -  Board 1                                    Board 2
- *   -  TXD(sama5dx board) <->DI(ADM3485ARZ)       TXD(sama5dx board) <->DI(ADM3485ARZ)
- *   -  RXD(sama5dx board) <->RO(ADM3485ARZ)       RXD(sama5dx board) <->RO(ADM3485ARZ)
- *   -  RTS(sama5dx board) <->DE(ADM3485ARZ)       RTS(sama5dx board) <->DE(ADM3485ARZ)
- *   -  CTS(sama5dx board) <->RE(ADM3485ARZ)       CTS(sama5dx board) <->RE(ADM3485ARZ)
+ *   -  TXD(sama5dx board) <-> DI(ADM3485ARZ)       TXD(sama5dx board) <-> DI(ADM3485ARZ)
+ *   -  RXD(sama5dx board) <-> RO(ADM3485ARZ)       RXD(sama5dx board) <-> RO(ADM3485ARZ)
+ *   -  RTS(sama5dx board) <-> DE(ADM3485ARZ)       RTS(sama5dx board) <-> DE(ADM3485ARZ)
  *   -  3.3v                                   3.3v
  *   -  GND                                    GND
+ *   -  2 ways to connect !RE(ADM3485ARZ)
+ *   -  1. RTS(sama5dx board) <-> !RE(ADM3485ARZ)   RTS(sama5dx board) <-> !RE(ADM3485ARZ)
+ *   -  2. !RE(ADM3485ARZ) <-> GND                  !RE(ADM3485ARZ) <-> GND
  *  this part is connect with 2 ADM3485ARZ
  *      A              <-------------------->  A
  *      B              <-------------------->  B
