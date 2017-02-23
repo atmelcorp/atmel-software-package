@@ -172,7 +172,7 @@ uint8_t get_flash_wait_states(uint32_t frequency)
 		23000000, 46000000, 69000000, 92000000, 115000000, 138000000 };
 	int i;
 	for (i = 0; i < ARRAY_SIZE(max_freq); i++)
-		if (max_freq[i] <= frequency)
+		if (max_freq[i] >= frequency)
 			break;
 	return i;
 }
