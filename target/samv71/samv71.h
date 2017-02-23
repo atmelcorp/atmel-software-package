@@ -197,22 +197,14 @@
 
 #if defined(CONFIG_FLASH_512KB)
 #define IFLASH_SIZE             (0x80000u)
-#define IFLASH_NB_OF_PAGES      (1024u)
-#define IFLASH_NB_OF_LOCK_BITS  (32u)
 #define IRAM_SIZE               (0x40000u)
 #elif defined(CONFIG_FLASH_1024KB)
 #define IFLASH_SIZE             (0x100000u)
-#define IFLASH_NB_OF_PAGES      (2048u)
-#define IFLASH_NB_OF_LOCK_BITS  (64u)
 #define IRAM_SIZE               (0x60000u)
 #elif defined(CONFIG_FLASH_2048KB)
 #define IFLASH_SIZE             (0x200000u)
-#define IFLASH_NB_OF_PAGES      (4096u)
-#define IFLASH_NB_OF_LOCK_BITS  (128u)
 #define IRAM_SIZE               (0x60000u)
 #endif
-#define IFLASH_PAGE_SIZE        (512u)
-#define IFLASH_LOCK_REGION_SIZE (16384u)
 
 #define QSPIMEM0_ADDR (0x80000000u) /**< QSPI Memory 0 base address */
 #define AXIMX_ADDR    (0xA0000000u) /**< AXI Bus Matrix base address */

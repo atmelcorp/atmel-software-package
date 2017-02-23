@@ -86,6 +86,20 @@ extern void board_cfg_console(uint32_t baudrate);
 extern void board_cfg_mpu(void);
 
 /**
+ * \brief Configure/Reconfigure internal flash region for Write operation.
+ *
+ * The region will be configured as Strongly-Ordered.
+ */
+extern void board_cfg_mpu_for_flash_write(void);
+
+/**
+ * \brief Configure/Reconfigure internal flash region for Read operation.
+ *
+ * The region will be configured as Cacheable/Write-Back.
+ */
+extern void board_cfg_mpu_for_flash_read(void);
+
+/**
  * \brief Configures the board.
  */
 extern void board_init(void);

@@ -41,8 +41,9 @@
 #include "gpio/pio.h"
 #include "irq/irq.h"
 #include "irqflags.h"
+#include "mm/cache.h"
 #include "mm/l1cache.h"
-#include "nvm/eefc.h"
+#include "nvm/flash/eefc.h"
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
 #include "serial/console.h"
@@ -267,17 +268,52 @@ void board_cfg_mpu(void)
 	if (mpu_is_enabled())
 		return;
 
-	/* disable interrupts while we configure/enable MPU */
-	arch_irq_disable();
-
 	/* Enable MPU, I-Cache and D-Cache */
 	mpu_configure(mpu_regions);
 	mpu_enable();
 	icache_enable();
 	dcache_enable();
+}
 
-	/* re-enable interrupts */
-	arch_irq_enable();
+void board_cfg_mpu_for_flash_write(void)
+{
+	const uint32_t flash_region[] = {
+		/* Internal flash, 0x400000-0x800000, 4MB=2^22 */
+		MPU_REGION(1, 0x400000),
+		MPU_REGION_SIZE(21) |
+		MPU_AP_READWRITE |
+		MPU_ATTR_STRONGLY_ORDERED |
+		MPU_ATTR_ENABLE,
+
+		/* end marker */
+		0, 0
+	};
+
+	if (!mpu_is_enabled())
+		return;
+
+	mpu_configure(flash_region);
+}
+
+void board_cfg_mpu_for_flash_read(void)
+{
+	const uint32_t flash_region[] = {
+		/* Internal flash, 0x400000-0x800000, 4MB=2^22 */
+		MPU_REGION(1, 0x400000),
+		MPU_REGION_SIZE(21) |
+		MPU_AP_READONLY |
+		MPU_ATTR_NORMAL_WB |
+		MPU_ATTR_ENABLE,
+
+		/* end marker */
+		0, 0
+	};
+
+	if (!mpu_is_enabled())
+		return;
+
+	mpu_configure(flash_region);
+	cache_invalidate_region((void*)0x400000, 1u << 22);
 }
 
 void board_cfg_matrix_for_ddr(void)
