@@ -93,6 +93,9 @@ define load_in_flash
   load
 
   # Initialize SP and PC
+  # Workaround: it seems that the first flash access fails
+  #     doing it a second times fixes the problem
+  set $sp = *0x400000
   set $sp = *0x400000
   set $pc = *0x400004
 end
