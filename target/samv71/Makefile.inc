@@ -65,6 +65,7 @@ chip-family = samv71
 
 target-y += target/samv71/chip.o
 target-y += target/samv71/board_support.o
+target-$(CONFIG_BOARD_SAMV71_GENERIC) += target/samv71/board_samv71-generic.o
 target-$(CONFIG_BOARD_SAME70_XPLAINED) += target/samv71/board_same70-xplained.o
 target-$(CONFIG_BOARD_SAMV71_XPLAINED) += target/samv71/board_samv71-xplained.o
 

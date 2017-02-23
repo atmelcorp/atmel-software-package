@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2016, Atmel Corporation
+ * Copyright (c) 2017, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,17 +27,32 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef _BOARD_HEADER_
-#define _BOARD_HEADER_
+#ifndef _BOARD_SAMV71_GENERIC_H
+#define _BOARD_SAMV71_GENERIC_H
 
-#if defined(CONFIG_BOARD_SAMV71_GENERIC)
-  #include "board_samv71-generic.h"
-#elif defined(CONFIG_BOARD_SAME70_XPLAINED)
-  #include "board_same70-xplained.h"
-#elif defined(CONFIG_BOARD_SAMV71_XPLAINED)
-  #include "board_samv71-xplained.h"
-#else
-  #error "No board defined"
-#endif
+/*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
 
-#endif /* _BOARD_HEADER_ */
+#include "chip.h"
+#include "peripherals/bus.h"
+
+#include "board_support.h"
+
+/*----------------------------------------------------------------------------
+ *        HW BOARD Definitions
+ *----------------------------------------------------------------------------*/
+
+/** Name of the board */
+#define BOARD_NAME "samv71-generic"
+
+/*----------------------------------------------------------------------------*/
+
+/** Frequency of the board main clock oscillator */
+#define BOARD_MAIN_CLOCK_EXT_OSC 12000000
+
+/** \def Board System timer */
+#define BOARD_TIMER_TC      TC1
+#define BOARD_TIMER_CHANNEL 0
+
+#endif /* _BOARD_SAMV71_GENERIC_H */

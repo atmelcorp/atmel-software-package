@@ -1,4 +1,4 @@
-SAMV71_TARGETS = same70-xplained samv71-xplained
+SAMV71_TARGETS = samv71-generic same70-xplained samv71-xplained
 
 ifneq ($(strip $(foreach board,$(SAMV71_TARGETS),$(if $(call eq,$(TARGET),$(board)),$(board)))),)
 
@@ -37,6 +37,13 @@ CONFIG_HAVE_TWI = y
 CONFIG_HAVE_UART = y
 CONFIG_HAVE_USART = y
 CONFIG_HAVE_XDMAC = y
+
+ifeq ($(TARGET),samv71-generic)
+CONFIG_CHIP_SAMV71Q21 = y
+CONFIG_BOARD_SAMV71_GENERIC = y
+CONFIG_CONSOLE_UART = y
+CONFIG_HAVE_SDRAM_IS42S16100E = y
+endif
 
 ifeq ($(TARGET),same70-xplained)
 CONFIG_CHIP_SAME70Q21 = y

@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2016, Atmel Corporation
+ * Copyright (c) 2017, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,17 +27,38 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef _BOARD_HEADER_
-#define _BOARD_HEADER_
+/*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
 
-#if defined(CONFIG_BOARD_SAMV71_GENERIC)
-  #include "board_samv71-generic.h"
-#elif defined(CONFIG_BOARD_SAME70_XPLAINED)
-  #include "board_same70-xplained.h"
-#elif defined(CONFIG_BOARD_SAMV71_XPLAINED)
-  #include "board_samv71-xplained.h"
+#include "board.h"
+#include "chip.h"
+#include "compiler.h"
+
+#include "dma/dma.h"
+
+#include "board_support.h"
+
+/*----------------------------------------------------------------------------
+ *        Exported functions
+ *----------------------------------------------------------------------------*/
+
+WEAK void board_init(void)
+{
+#ifdef VARIANT_DDRAM
+	bool ddram = false;
+	bool clocks = false;
 #else
-  #error "No board defined"
+	bool ddram = true;
+	bool clocks = true;
 #endif
 
-#endif /* _BOARD_HEADER_ */
+	/* Configure misc low-level stuff */
+	board_cfg_lowlevel(clocks, ddram, true);
+
+	/* Configure console */
+	board_cfg_console(0);
+
+	/* DMA Driver init */
+	dma_initialize(false);
+}
