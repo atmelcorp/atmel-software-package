@@ -19,14 +19,18 @@ SCRIPTS="$DIR/$TOP/scripts"
 tpl-split() {
     local template_src="$1"
     local template="$2"
-    local head="$3"
-    local tail="$4"
-    local max=`sed -n '$=' "${template_src}"`
+    local head
+    local tail
 
     echo "SPLIT $template_src"
-    sed -n "1,${head}p" "${template_src}" > "$DIR/${template}.head"
-    sed -n "`expr ${head} + 1`, `expr $max - ${tail}`p" "${template_src}" > "$DIR/${template}.body"
-    sed "1,`expr $max - ${tail}`d" "${template_src}" > "$DIR/${template}.tail"
+    head=$(sed -n "/<configuration>/=" "${template_src}" | sed -n '1p')
+    tail=$(sed -n "/<\/configuration>/=" "${template_src}" | sed -n '$p')
+    # head: from start of file to <configuration> (excluded)
+    sed -n "1,`expr ${head} - 1`p" "${template_src}" > "$DIR/${template}.head"
+    # body: from <configuration> to </configuration> (both included)
+    sed -n "${head},${tail}p" "${template_src}" > "$DIR/${template}.body"
+    # tail: from </configuration> (excluded) to end of file
+    sed -n "`expr ${tail} + 1`,\$p" "${template_src}" > "$DIR/${template}.tail"
 }
 
 helper-use-windows-path() {
@@ -234,7 +238,7 @@ generate-ewd() {
     local file="$1"
     local tpl="$DIR/${file}_$TARGET.ewd"
 
-    tpl-split "$DEBUG_TEMPLATE" iar_debug 4 3
+    tpl-split "$DEBUG_TEMPLATE" iar_debug
 
     rm -f "$DIR/$file.ewd.bodies"
     for variant in $AVAILABLE_VARIANTS; do
@@ -257,11 +261,9 @@ generate-ewd() {
     echo "GEN ${file}_$TARGET.ewd"
     cat "$DIR/iar_debug.head" > "$tpl"
     rm -f "$DIR/iar_debug.head"
-
     cat "$DIR/$file.ewd.bodies" >> "$tpl"
     rm -f "iar_debug.body"
     rm -f "$DIR/$file.ewd.bodies"
-
     cat "$DIR/iar_debug.tail" >> "$tpl"
     rm -f "$DIR/iar_debug.tail"
 }
@@ -285,7 +287,7 @@ generate-ewp() {
     local file="$1"
     local tpl="$DIR/${file}_$TARGET.ewp"
 
-    tpl-split "$PROJECT_TEMPLATE" iar_project 4 3
+    tpl-split "$PROJECT_TEMPLATE" iar_project
 
     for variant in $AVAILABLE_VARIANTS; do
         echo "GEN ${file}_$variant.ewp"
