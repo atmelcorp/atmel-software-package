@@ -9,25 +9,24 @@ TOP="$2"
 BINNAME="$3"
 TARGET="$4"
 AVAILABLE_VARIANTS="$5"
-
-### Templates
-tpl_project="iar_project.template"
-tpl_workspace="iar_workspace.template"
-tpl_debug="iar_debug.template"
+WORKSPACE_TEMPLATE="$6"
+PROJECT_TEMPLATE="$7"
+DEBUG_TEMPLATE="$8"
 
 ### Global variable
 SCRIPTS="$DIR/$TOP/scripts"
 
 tpl-split() {
-    local template="$1"
-    local head="$2"
-    local tail="$3"
-    local max=`sed -n '$=' "$SCRIPTS/${template}"`
+    local template_src="$1"
+    local template="$2"
+    local head="$3"
+    local tail="$4"
+    local max=`sed -n '$=' "${template_src}"`
 
-    echo "SPLIT $template"
-    sed -n "1,${head}p" "$SCRIPTS/${template}" > "$DIR/${template}.head"
-    sed -n "`expr ${head} + 1`, `expr $max - ${tail}`p" "$SCRIPTS/${template}" > "$DIR/${template}.body"
-    sed "1,`expr $max - ${tail}`d" "$SCRIPTS/${template}" > "$DIR/${template}.tail"
+    echo "SPLIT $template_src"
+    sed -n "1,${head}p" "${template_src}" > "$DIR/${template}.head"
+    sed -n "`expr ${head} + 1`, `expr $max - ${tail}`p" "${template_src}" > "$DIR/${template}.body"
+    sed "1,`expr $max - ${tail}`d" "${template_src}" > "$DIR/${template}.tail"
 }
 
 helper-use-windows-path() {
@@ -216,7 +215,7 @@ generate-bodies-ewd() {
 
     echo "GEN temporary file ${file}_$variant.ewd"
 
-    cat "$DIR/$tpl_debug.body" > "$tpl"
+    cat "$DIR/iar_debug.body" > "$tpl"
     local win_path=$(helper-use-windows-path "$iar_debug_script_y")
     sed -i -e "s%__REPLACE_MACFILE__%\$PROJ_DIR\$\\\\$win_path%g" "$tpl"
     sed -i -e "s%//%/%g" "$tpl"
@@ -235,7 +234,7 @@ generate-ewd() {
     local file="$1"
     local tpl="$DIR/${file}_$TARGET.ewd"
 
-    tpl-split "$tpl_debug" 4 3
+    tpl-split "$DEBUG_TEMPLATE" iar_debug 4 3
 
     rm -f "$DIR/$file.ewd.bodies"
     for variant in $AVAILABLE_VARIANTS; do
@@ -256,15 +255,15 @@ generate-ewd() {
     tpl-set-chip "$DIR/$file.ewd.bodies"
 
     echo "GEN ${file}_$TARGET.ewd"
-    cat "$DIR/$tpl_debug.head" > "$tpl"
-    rm -f "$DIR/$tpl_debug.head"
+    cat "$DIR/iar_debug.head" > "$tpl"
+    rm -f "$DIR/iar_debug.head"
 
     cat "$DIR/$file.ewd.bodies" >> "$tpl"
-    rm -f "$tpl_debug.body"
+    rm -f "iar_debug.body"
     rm -f "$DIR/$file.ewd.bodies"
 
-    cat "$DIR/$tpl_debug.tail" >> "$tpl"
-    rm -f "$DIR/$tpl_debug.tail"
+    cat "$DIR/iar_debug.tail" >> "$tpl"
+    rm -f "$DIR/iar_debug.tail"
 }
 
 generate-bodies-ewp() {
@@ -273,7 +272,7 @@ generate-bodies-ewp() {
     local tpl="$DIR/${file}_$variant.ewp"
 
     echo "GEN temporary file ${file}_$variant.ewp"
-    cat "$DIR/$tpl_project.body" > "$tpl"
+    cat "$DIR/iar_project.body" > "$tpl"
     tpl-set-defines       "$tpl"
     tpl-set-includes      "$tpl"
     tpl-set-linker-script "$tpl" "$iar_linker_script_y"
@@ -286,7 +285,7 @@ generate-ewp() {
     local file="$1"
     local tpl="$DIR/${file}_$TARGET.ewp"
 
-    tpl-split "$tpl_project" 4 3
+    tpl-split "$PROJECT_TEMPLATE" iar_project 4 3
 
     for variant in $AVAILABLE_VARIANTS; do
         echo "GEN ${file}_$variant.ewp"
@@ -304,13 +303,13 @@ generate-ewp() {
     done
 
     echo "GEN ${file}_$TARGET.ewp"
-    cat "$DIR/$tpl_project.head" > "$tpl"
-    rm -f "$DIR/$tpl_project.head"
+    cat "$DIR/iar_project.head" > "$tpl"
+    rm -f "$DIR/iar_project.head"
     cat "$DIR/$file.ewp.bodies" >> "$tpl"
-    rm -f "$DIR/$tpl_project.body"
+    rm -f "$DIR/iar_project.body"
     rm -f "$DIR/$file.ewp.bodies"
-    cat "$DIR/$tpl_project.tail" >> "$tpl"
-    rm -f "$DIR/$tpl_project.tail"
+    cat "$DIR/iar_project.tail" >> "$tpl"
+    rm -f "$DIR/iar_project.tail"
 
     tpl-set-deps      "$tpl" "target"        "$target_y"
     tpl-set-deps      "$tpl" "utils"         "$utils_y"
@@ -330,7 +329,7 @@ generate-eww() {
     local file=$1
 
     echo "GEN ${file}_$TARGET.eww"
-    sed -e "s%__REPLACE_WORKSPACE_FILE__%\$WS_DIR\$/${file}_$TARGET.ewp%g" < "$SCRIPTS/$tpl_workspace" |
+    sed -e "s%__REPLACE_WORKSPACE_FILE__%\$WS_DIR\$/${file}_$TARGET.ewp%g" < "$WORKSPACE_TEMPLATE" |
         sed -e "s%//%/%g" > "$DIR/${file}_$TARGET.eww"
 
 }

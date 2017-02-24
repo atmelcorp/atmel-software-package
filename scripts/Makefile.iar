@@ -26,13 +26,15 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-iar-project-template-y ?= $(TOP)/scripts/iar_project.template
 iar-workspace-template-y ?= $(TOP)/scripts/iar_workspace.template
+iar-project-template-y ?= $(TOP)/scripts/iar_project.template
 iar-debug-template-y ?= $(TOP)/scripts/iar_debug.template
 iar-program-entry-y ?= __iar_program_start
 
 iar:
-	+$(Q)bash $(TOP)/scripts/iar_project.sh "$(shell pwd)" "$(TOP)" "$(BINNAME)" "$(SELECTED_TARGET)" "$(ALL_VARIANTS)"
+	+$(Q)bash $(TOP)/scripts/iar_project.sh "$(shell pwd)" "$(TOP)" "$(BINNAME)" \
+		"$(SELECTED_TARGET)" "$(ALL_VARIANTS)" "$(iar-workspace-template-y)" \
+		"$(iar-project-template-y)" "$(iar-debug-template-y)"
 
 clean-env:
 	rm -f .env-$(VARIANT).sh
