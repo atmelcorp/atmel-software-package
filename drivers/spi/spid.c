@@ -138,11 +138,11 @@ static void _spid_dma_write(struct _spi_desc* desc, uint8_t *buf, uint32_t len)
 
 	cache_clean_region(buf, len);
 
-	desc->xfer.dma.tx.cfg.daddr = (void*)&desc->addr->SPI_TDR;
 	desc->xfer.dma.tx.cfg.saddr = buf;
+	desc->xfer.dma.tx.cfg.daddr = (void*)&desc->addr->SPI_TDR;
 	desc->xfer.dma.tx.cfg.len = len;
-	desc->xfer.dma.tx.cfg_dma.incr_saddr = false;
-	desc->xfer.dma.tx.cfg_dma.incr_daddr = true;
+	desc->xfer.dma.tx.cfg_dma.incr_saddr = true;
+	desc->xfer.dma.tx.cfg_dma.incr_daddr = false;
 	dma_configure_transfer(desc->xfer.dma.tx.channel, &desc->xfer.dma.tx.cfg_dma, &desc->xfer.dma.tx.cfg, 1);
 	callback_set(&_cb, &_spid_dma_tx_callback, (void*)desc);
 	dma_set_callback(desc->xfer.dma.tx.channel, &_cb);
@@ -170,8 +170,8 @@ static void _spid_dma_read(struct _spi_desc* desc, uint8_t *buf, uint32_t len)
 	memset(&desc->xfer.dma.tx.cfg, 0, sizeof(desc->xfer.dma.tx.cfg));
 
 	dma_reset_channel(desc->xfer.dma.tx.channel);
-	desc->xfer.dma.tx.cfg.daddr = (void*)&desc->addr->SPI_TDR;
 	desc->xfer.dma.tx.cfg.saddr = &_garbage;
+	desc->xfer.dma.tx.cfg.daddr = (void*)&desc->addr->SPI_TDR;
 	desc->xfer.dma.tx.cfg.len = len;
 	desc->xfer.dma.tx.cfg_dma.incr_saddr = false;
 	desc->xfer.dma.tx.cfg_dma.incr_daddr = false;
