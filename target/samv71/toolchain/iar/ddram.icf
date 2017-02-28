@@ -1,0 +1,44 @@
+define memory mem with size = 4G;
+define region RAM_region           = mem:[from 0x20400000 to 0x2045EFFF];
+define region DDRAM_region         = mem:[from 0x70000000 to 0x700FFFFF];
+define region DDRAM_NOCACHE_region = mem:[from 0x70100000 to 0x701FFFFF];
+
+define block CSTACK    with alignment = 8, size = 0x800 { };
+define block IRQ_STACK with alignment = 8, size = 0x60  { };
+define block FIQ_STACK with alignment = 8, size = 0x60  { };
+define block ABT_STACK with alignment = 8, size = 0x40  { };
+define block UND_STACK with alignment = 8, size = 0x40  { };
+define block SYS_STACK with alignment = 8, size = 0x40  { };
+define block HEAP      with alignment = 4, size = 0x200 { };
+
+define block SRAM { section .region_sram  };
+define block DDRAM { section .region_ddr };
+
+/* Please see drivers/mm/cache.h for details on the "Cache-aligned" sections */
+define block NO_CACHE { section .region_nocache };
+define block CACHE_ALIGNED with alignment = 32 { section .region_cache_aligned };
+define block CACHE_ALIGNED_CONST with alignment = 32 { section .region_cache_aligned_const };
+
+do not initialize { section .region_sram };
+do not initialize { section .region_ddr };
+do not initialize { section .region_nocache };
+do not initialize { section .region_cache_aligned };
+place in RAM_region { block SRAM };
+
+place at start of DDRAM_region { section .vectors };
+place in DDRAM_region { section .cstartup };
+place in DDRAM_region { ro };
+place in DDRAM_region { rw };
+place in DDRAM_region { block CACHE_ALIGNED_CONST };
+place in DDRAM_region { zi };
+place in DDRAM_region { block CACHE_ALIGNED };
+place in DDRAM_region { block DDRAM };
+place in DDRAM_region { block HEAP };
+place in DDRAM_region { block IRQ_STACK };
+place in DDRAM_region { block FIQ_STACK };
+place in DDRAM_region { block ABT_STACK };
+place in DDRAM_region { block UND_STACK };
+place in DDRAM_region { block SYS_STACK };
+place in DDRAM_region { block CSTACK };
+
+place in DDRAM_NOCACHE_region { block NO_CACHE };
