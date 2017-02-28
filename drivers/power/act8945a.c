@@ -631,7 +631,7 @@ bool act8945a_enable_regulator(struct _act8945a *act8945a,
 {
 	if (reg >= 1 && reg <= 3) {
 		union _ctrl1 ctrl1;
-		uint32_t iaddr = _iaddr_reg[reg - 1] + 1;
+		uint32_t iaddr = _iaddr_reg[reg - 1] + 2;
 
 		if (!_act8945a_read_reg(act8945a, iaddr, &ctrl1.u8))
 			return false;
