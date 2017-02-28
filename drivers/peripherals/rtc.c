@@ -329,13 +329,21 @@ enum _rtc_hour_mode rtc_get_hour_mode(void)
 
 void rtc_enable_it(uint32_t sources)
 {
-	assert((sources & (uint32_t) (~0x1F)) == 0);
+#ifndef RTC_IER_TDERREN
+#define RTC_IER_TDERREN 0
+#endif
+	assert((sources &  (RTC_IER_ACKEN | RTC_IER_ALREN | RTC_IER_SECEN
+			    | RTC_IER_TIMEN | RTC_IER_CALEN | RTC_IER_TDERREN)) == 0);
 	RTC->RTC_IER = sources;
 }
 
 void rtc_disable_it(uint32_t sources)
 {
-	assert((sources & (uint32_t) (~0x1F)) == 0);
+#ifndef RTC_IDR_TDERRDIS
+#define RTC_IDR_TDERRDIS 0
+#endif
+	assert((sources & (RTC_IDR_ACKDIS | RTC_IDR_ALRDIS | RTC_IDR_SECDIS
+			   | RTC_IDR_TIMDIS | RTC_IDR_CALDIS | RTC_IDR_TDERRDIS)) == 0);
 	RTC->RTC_IDR = sources;
 }
 
