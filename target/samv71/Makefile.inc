@@ -32,6 +32,7 @@ CFLAGS_INC += -I$(TOP)/target/samv71
 
 gnu-debug-lib-y ?= $(TOP)/target/samv71/toolchain/gnu/common.gdb
 gnu-cstartup-y ?= target/samv71/toolchain/cstartup.o
+
 iar-cstartup-y ?= target/samv71/toolchain/cstartup.o
 iar-program-entry-y ?= reset_handler
 
@@ -51,6 +52,8 @@ bootstrap-linker-script-y ?= $(TOP)/target/samv71/toolchain/gnu/sram.ld
 iar-linker-script-y ?= $(TOP)/target/samv71/toolchain/iar/ddram.icf
 iar-debug-script-$(CONFIG_BOARD_SAME70_XPLAINED) ?= $(TOP)/target/samv71/toolchain/iar/ddram_same70-xplained.mac
 iar-debug-script-$(CONFIG_BOARD_SAMV71_XPLAINED) ?= $(TOP)/target/samv71/toolchain/iar/ddram_samv71-xplained.mac
+iar-flashloader-script-$(CONFIG_BOARD_SAMV71_XPLAINED) ?= $(TOP)/flash_loaders/extram/samv71-xplained/samv71-xplained_ddram.board
+iar-flashloader-script-$(CONFIG_BOARD_SAME70_XPLAINED) ?= $(TOP)/flash_loaders/extram/same70-xplained/same70-xplained_ddram.board
 endif
 
 # FLASH variant

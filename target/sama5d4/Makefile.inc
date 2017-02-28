@@ -50,6 +50,8 @@ bootstrap-linker-script-y ?= $(TOP)/target/sama5d4/toolchain/gnu/sram.ld
 iar-linker-script-y ?= $(TOP)/target/sama5d4/toolchain/iar/ddram.icf
 iar-debug-script-$(CONFIG_BOARD_SAMA5D4_EK) ?= $(TOP)/target/sama5d4/toolchain/iar/ddram_sama5d4-ek.mac
 iar-debug-script-$(CONFIG_BOARD_SAMA5D4_XPLAINED) ?= $(TOP)/target/sama5d4/toolchain/iar/ddram_sama5d4-xplained.mac
+iar-flashloader-script-$(CONFIG_BOARD_SAMA5D4_EK) ?= $(TOP)/flash_loaders/extram/sama5d4-ek/sama5d4-ek_ddram.board
+iar-flashloader-script-$(CONFIG_BOARD_SAMA5D4_XPLAINED) ?= $(TOP)/flash_loaders/extram/sama5d4-xplained/sama5d4-xplained_ddram.board
 endif
 
 chip-family = sama5d4

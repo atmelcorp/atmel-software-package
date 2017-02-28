@@ -1,0 +1,24 @@
+define symbol __ICFEDIT_intvec_start__ = 0x00200000;
+
+/*-Memory Regions-*/
+define symbol __ICFEDIT_region_ROM_start__ = 0x0;
+define symbol __ICFEDIT_region_ROM_end__   = 0x0;
+define symbol __ICFEDIT_region_RAM_start__ = 0x00200000;
+define symbol __ICFEDIT_region_RAM_end__   = 0x0021FFFF;
+
+/*-Sizes-*/
+define symbol __ICFEDIT_size_cstack__   = 0x0200;
+
+define memory mem with size = 4G;
+define region RAM_region = mem:[from __ICFEDIT_region_RAM_start__ to __ICFEDIT_region_RAM_end__] ;
+
+define block CSTACK with alignment = 8, size = __ICFEDIT_size_cstack__ { } ;
+
+do not initialize { section .noinit };
+do not initialize { zi };
+
+place at address mem:__ICFEDIT_intvec_start__ { section .intvec } ;
+
+place at start of RAM_region { block RamTop with fixed order {readonly, section LOWEND} } ;
+place at end of RAM_region { block RamBottom with fixed order {section HIGHSTART, readwrite, section .init, block CSTACK} } ;
+

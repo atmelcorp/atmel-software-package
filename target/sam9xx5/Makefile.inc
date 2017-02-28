@@ -53,6 +53,13 @@ iar-debug-script-$(CONFIG_BOARD_SAM9G25_EK) ?= $(TOP)/target/sam9xx5/toolchain/i
 iar-debug-script-$(CONFIG_BOARD_SAM9G35_EK) ?= $(TOP)/target/sam9xx5/toolchain/iar/ddram_sam9xx5-ek.mac
 iar-debug-script-$(CONFIG_BOARD_SAM9X25_EK) ?= $(TOP)/target/sam9xx5/toolchain/iar/ddram_sam9xx5-ek.mac
 iar-debug-script-$(CONFIG_BOARD_SAM9X35_EK) ?= $(TOP)/target/sam9xx5/toolchain/iar/ddram_sam9xx5-ek.mac
+
+iar-flashloader-script-$(CONFIG_BOARD_SAM9G15_EK) ?= $(TOP)/flash_loaders/extram/sam9g15-ek/sam9g15-ek_ddram.board
+iar-flashloader-script-$(CONFIG_BOARD_SAM9G25_EK) ?= $(TOP)/flash_loaders/extram/sam9g25-ek/sam9g25-ek_ddram.board
+iar-flashloader-script-$(CONFIG_BOARD_SAM9G35_EK) ?= $(TOP)/flash_loaders/extram/sam9g35-ek/sam9g35-ek_ddram.board
+iar-flashloader-script-$(CONFIG_BOARD_SAM9X25_EK) ?= $(TOP)/flash_loaders/extram/sam9x25-ek/sam9x25-ek_ddram.board
+iar-flashloader-script-$(CONFIG_BOARD_SAM9X35_EK) ?= $(TOP)/flash_loaders/extram/sam9x35-ek/sam9x35-ek_ddram.board
+
 endif
 
 chip-family = sam9xx5

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<flash_board>
+  <pass>
+    <loader>$PROJ_DIR$\..\..\flash_loaders\extram\sam9x25-ek\sam9x25-ek_ddram.flash</loader>
+    <range>CODE 0x20000000 0x27ffffff</range>
+    <rel_offset>0x0</rel_offset>
+    <args>--ddram
+</args>
+  </pass>
+</flash_board>
+

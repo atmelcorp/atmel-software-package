@@ -38,6 +38,7 @@ BUILDDIR ?= ./build/$(TARGET)/$(VARIANT)
 #-------------------------------------------------------------------------------
 
 include $(TOP)/samba_applets/common/Makefile.inc
+include $(TOP)/flash_loaders/common/Makefile.inc
 include $(TOP)/scripts/Makefile.config
 include $(TOP)/arch/Makefile.inc
 include $(TOP)/utils/Makefile.inc

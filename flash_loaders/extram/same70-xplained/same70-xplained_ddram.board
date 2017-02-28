@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<flash_board>
+  <pass>
+    <loader>$PROJ_DIR$\..\..\flash_loaders\extram\same70-xplained\same70-xplained_ddram.flash</loader>
+    <range>CODE 0x70000000 0x701fffff</range>
+    <rel_offset>0x0</rel_offset>
+    <args>--ddram
+</args>
+  </pass>
+</flash_board>
+
+
