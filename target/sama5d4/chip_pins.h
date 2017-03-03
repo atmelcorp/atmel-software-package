@@ -478,48 +478,51 @@
 /** List of SPI2 pin definitions (MISO, MOSI, SPCK & NPCS3). */
 #define PINS_SPI2_NPCS3 { PIN_SPI2_MISO, PIN_SPI2_MOSI, PIN_SPI2_SPCK, PIN_SPI2_NPCS3 }
 
-/* ========== Pio PIN definition for SSC peripheral ========== */
+/* ========== Pio PIN definition for SSC0 peripheral ========== */
 
-/** SSC pin Transmitter Data (TD) */
-#define PIN_SSC_TD0 { PIO_GROUP_B, PIO_PB28B_TD0, PIO_PERIPH_B, PIO_DEFAULT }
+/** SSC0 pin Transmitter Data (TD) */
+#define PIN_SSC0_TD { PIO_GROUP_B, PIO_PB28B_TD0, PIO_PERIPH_B, PIO_DEFAULT }
 
-/** SSC pin Transmitter Clock (TK) */
-#define PIN_SSC_TK0 { PIO_GROUP_B, PIO_PB27B_TK0, PIO_PERIPH_B, PIO_DEFAULT }
+/** SSC0 pin Transmitter Clock (TK) */
+#define PIN_SSC0_TK { PIO_GROUP_B, PIO_PB27B_TK0, PIO_PERIPH_B, PIO_DEFAULT }
 
-/** SSC pin Transmitter FrameSync (TF) */
-#define PIN_SSC_TF0 { PIO_GROUP_B, PIO_PB31B_TF0, PIO_PERIPH_B, PIO_DEFAULT }
+/** SSC0 pin Transmitter FrameSync (TF) */
+#define PIN_SSC0_TF { PIO_GROUP_B, PIO_PB31B_TF0, PIO_PERIPH_B, PIO_DEFAULT }
 
-/** SSC pin RD */
-#define PIN_SSC_RD0 { PIO_GROUP_B, PIO_PB29B_RD0, PIO_PERIPH_B, PIO_DEFAULT }
+/** SSC0 pin RD */
+#define PIN_SSC0_RD { PIO_GROUP_B, PIO_PB29B_RD0, PIO_PERIPH_B, PIO_DEFAULT }
 
-/** SSC pin RK */
-#define PIN_SSC_RK0 { PIO_GROUP_B, PIO_PB26B_RK0, PIO_PERIPH_B, PIO_DEFAULT }
+/** SSC0 pin RK */
+#define PIN_SSC0_RK { PIO_GROUP_B, PIO_PB26B_RK0, PIO_PERIPH_B, PIO_DEFAULT }
 
-/** SSC pin RF */
-#define PIN_SSC_RF0 { PIO_GROUP_B, PIO_PB30B_RF0, PIO_PERIPH_B, PIO_DEFAULT }
+/** SSC0 pin RF */
+#define PIN_SSC0_RF { PIO_GROUP_B, PIO_PB30B_RF0, PIO_PERIPH_B, PIO_DEFAULT }
 
-/** SSC pin Transmitter Data (TD) */
-#define PIN_SSC_TD1 { PIO_GROUP_C, PIO_PC21, PIO_PERIPH_B, PIO_DEFAULT }
+/** SSC0 pins definition */
+#define PINS_SSC0 { PIN_SSC0_TD,  PIN_SSC0_TK, PIN_SSC0_TF, PIN_SSC0_RD, PIN_SSC0_RK, PIN_SSC0_RF }
 
-/** SSC pin Transmitter Clock (TK) */
-#define PIN_SSC_TK1 { PIO_GROUP_C, PIO_PC19, PIO_PERIPH_B, PIO_DEFAULT }
+/* ========== Pio PIN definition for SSC1 peripheral ========== */
 
-/** SSC pin Transmitter FrameSync (TF) */
-#define PIN_SSC_TF1 { PIO_GROUP_C, PIO_PC20, PIO_PERIPH_B, PIO_DEFAULT }
+/** SSC1 pin Transmitter Data (TD) */
+#define PIN_SSC1_TD { PIO_GROUP_C, PIO_PC21, PIO_PERIPH_B, PIO_DEFAULT }
 
-/** SSC pin RD */
-#define PIN_SSC_RD1 { PIO_GROUP_C, PIO_PC23, PIO_PERIPH_B, PIO_DEFAULT }
+/** SSC1 pin Transmitter Clock (TK) */
+#define PIN_SSC1_TK { PIO_GROUP_C, PIO_PC19, PIO_PERIPH_B, PIO_DEFAULT }
 
-/** SSC pin RK */
-#define PIN_SSC_RK1 { PIO_GROUP_C, PIO_PC24, PIO_PERIPH_B, PIO_DEFAULT }
+/** SSC1 pin Transmitter FrameSync (TF) */
+#define PIN_SSC1_TF { PIO_GROUP_C, PIO_PC20, PIO_PERIPH_B, PIO_DEFAULT }
 
-/** SSC pin RF */
-#define PIN_SSC_RF1 { PIO_GROUP_C, PIO_PC22, PIO_PERIPH_B, PIO_DEFAULT }
+/** SSC1 pin RD */
+#define PIN_SSC1_RD { PIO_GROUP_C, PIO_PC23, PIO_PERIPH_B, PIO_DEFAULT }
 
-/** SSC pins definition for codec. */
-#define PINS_SSC0 { PIN_SSC_TD0,  PIN_SSC_TK0, PIN_SSC_TF0, PIN_SSC_RD0, PIN_SSC_RK0, PIN_SSC_RF0 }
+/** SSC1 pin RK */
+#define PIN_SSC1_RK { PIO_GROUP_C, PIO_PC24, PIO_PERIPH_B, PIO_DEFAULT }
 
-#define PINS_SSC1 { PIN_SSC_TD1,  PIN_SSC_TK1, PIN_SSC_TF1, PIN_SSC_RD1, PIN_SSC_RK1, PIN_SSC_RF1 }
+/** SSC1 pin RF */
+#define PIN_SSC1_RF { PIO_GROUP_C, PIO_PC22, PIO_PERIPH_B, PIO_DEFAULT }
+
+/** SSC1 pins definition */
+#define PINS_SSC1 { PIN_SSC1_TD,  PIN_SSC1_TK, PIN_SSC1_TF, PIN_SSC1_RD, PIN_SSC1_RK, PIN_SSC1_RF }
 
 /* ========== Pio PIN definition for LCD peripheral ========== */
 
@@ -534,13 +537,15 @@
 /** ADC ADTRG pin (PD19). */
 #define PIN_ADTRG { PIO_GROUP_E, PIO_PE31A_ADTRG, PIO_PERIPH_A, PIO_PULLUP }
 
-/* ========== Pio PIN definition for GMAC peripheral ========== */
+/* ========== Pio PIN definition for GMAC0 peripheral ========== */
 
 /** GMAC0 MII pin list */
 #define PINS_GMAC0_MII  { { PIO_GROUP_B, 0x3FFFF, PIO_PERIPH_A, PIO_DEFAULT } }
 
 /** GMAC0 RMII pin list */
 #define PINS_GMAC0_RMII { { PIO_GROUP_B, 0x333C5, PIO_PERIPH_A, PIO_DEFAULT } }
+
+/* ========== Pio PIN definition for GMAC1 peripheral ========== */
 
 /** GMAC1 MII pin list */
 #define PINS_GMAC1_MII  { { PIO_GROUP_A, 0xFCFE7C, PIO_PERIPH_B, PIO_DEFAULT } }
