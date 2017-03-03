@@ -45,12 +45,16 @@
 
 /* ========== Pio PIN definition for DBGU peripheral ========== */
 
-/** DBGU Monitor IO pin (detect any DBGU operation). */
-#define PIN_DBGU_MON { PIO_GROUP_B, PIO_PB30A_DRXD, PIO_INPUT, PIO_IT_RISE_EDGE }
+/** DBGU TXD pin definition. */
+#define PIN_DBGU_TXD { PIO_GROUP_B, PIO_PB31A_DTXD, PIO_PERIPH_A, PIO_DEFAULT }
+
+/** DBGU RXD pin definition. */
+#define PIN_DBGU_RXD { PIO_GROUP_B, PIO_PB30A_DRXD, PIO_PERIPH_A, PIO_DEFAULT }
 
 /** DBGU pin definition. */
 #define PINS_DBGU {\
-	{ PIO_GROUP_B, PIO_PB30A_DRXD | PIO_PB31A_DTXD, PIO_PERIPH_A, PIO_DEFAULT },\
+	PIN_DBGU_TXD,\
+	PIN_DBGU_RXD,\
 }
 
 /* ========== Pio PIN definition for PMC peripheral (PCK) ========== */
