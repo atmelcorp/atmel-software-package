@@ -57,6 +57,34 @@
 	PIN_DBGU_RXD,\
 }
 
+/* ========== Pio PIN definition for UART0 peripheral ========== */
+
+/** UART0 TXD pin definition. */
+#define PIN_UART0_TXD { PIO_GROUP_E, PIO_PE30B_UTXD0, PIO_PERIPH_B, PIO_DEFAULT }
+
+/** UART0 RXD pin definition. */
+#define PIN_UART0_RXD { PIO_GROUP_E, PIO_PE29B_URXD0, PIO_PERIPH_B, PIO_DEFAULT }
+
+/** UART0 pins definition. */
+#define PINS_UART0 {\
+	PIN_UART0_TXD,\
+	PIN_UART0_RXD,\
+}
+
+/* ========== Pio PIN definition for UART1 peripheral ========== */
+
+/** UART1 TXD pin definition. */
+#define PIN_UART1_TXD { PIO_GROUP_C, PIO_PC26C_UTXD1, PIO_PERIPH_C, PIO_DEFAULT }
+
+/** UART1 RXD pin definition. */
+#define PIN_UART1_RXD { PIO_GROUP_C, PIO_PC25C_URXD1, PIO_PERIPH_C, PIO_DEFAULT }
+
+/** UART1 pins definition. */
+#define PINS_UART1 {\
+	PIN_UART1_TXD,\
+	PIN_UART1_RXD,\
+}
+
 /* ========== Pio PIN definition for USART0 peripheral ========== */
 
 /** USART0 TXD pin definition. */
