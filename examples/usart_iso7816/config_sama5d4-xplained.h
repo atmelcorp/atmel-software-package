@@ -2,10 +2,11 @@
 #define __CONFIG_SAMA5D4_XPLAINED_H__
 
 /* =================== definition for example "usart_iso7816" =================== */
+
 /** NCN4555MN usart pin definition */
 /* IO TXD bidirectionnal */
 /* SCK	*/
-#define PIN_COM2_ISO7816  {PIN_USART1_TXD, PIN_USART1_SCK}
+#define PIN_COM2_ISO7816  PINS_USART1_ISO7816
 
 /** NCN4555MN STOP pin definition */
 /* Connected to CTS */

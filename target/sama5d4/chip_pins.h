@@ -102,21 +102,29 @@
 /** USART0 SCK pin definition. */
 #define PIN_USART0_SCK { PIO_GROUP_D, PIO_PD28A_SCK0, PIO_PERIPH_A, PIO_DEFAULT }
 
-/** USART0 pins definition */
-#define PINS_USART0 {\
-	PIN_USART0_TXD,\
-	PIN_USART0_RXD,\
-	PIN_USART0_RTS,\
-	PIN_USART0_CTS,\
-	PIN_USART0_SCK,\
-}
+/** USART0 pins definition (default) */
+#define PINS_USART0 \
+	{ PIN_USART0_TXD, PIN_USART0_RXD }
+
+/** USART0 pins definition (with handshake) */
+#define PINS_USART0_HS \
+	{ PIN_USART0_TXD, PIN_USART0_RXD, PIN_USART0_RTS, PIN_USART0_CTS }
+
+/** USART0 pins definition (synchronous) */
+#define PINS_USART0_SYNC \
+	{ PIN_USART0_TXD, PIN_USART0_RXD, PIN_USART0_SCK }
+
+/** USART0 pins definition (synchronous with handshake) */
+#define PINS_USART0_SYNC_HS \
+	{ PIN_USART0_TXD, PIN_USART0_RXD, PIN_USART0_RTS, PIN_USART0_CTS, PIN_USART0_SCK }
+
+/** USART0 pins definition (ISO7816) */
+#define PINS_USART0_ISO7816 \
+	{ PIN_USART0_TXD, PIN_USART0_SCK }
 
 /** USART0 pins definition (RS485) */
-#define PINS_USART0_RS485 {\
-	PIN_USART0_RXD,\
-	PIN_USART0_TXD,\
-	PIN_USART0_RTS,\
-}
+#define PINS_USART0_RS485 \
+	{ PIN_USART0_TXD, PIN_USART0_RXD, PIN_USART0_RTS }
 
 /* ========== Pio PIN definition for USART1 peripheral ========== */
 
@@ -135,54 +143,70 @@
 /** USART1 SCK pin definition. */
 #define PIN_USART1_SCK { PIO_GROUP_D, PIO_PD29A_SCK1, PIO_PERIPH_A, PIO_DEFAULT }
 
-/** USART1 pins definition */
-#define PINS_USART1 {\
-	PIN_USART1_TXD,\
-	PIN_USART1_RXD,\
-	PIN_USART1_RTS,\
-	PIN_USART1_CTS,\
-	PIN_USART1_SCK,\
-}
+/** USART1 pins definition (default) */
+#define PINS_USART1 \
+	{ PIN_USART1_TXD, PIN_USART1_RXD }
+
+/** USART1 pins definition (with handshake) */
+#define PINS_USART1_HS \
+	{ PIN_USART1_TXD, PIN_USART1_RXD, PIN_USART1_RTS, PIN_USART1_CTS }
+
+/** USART1 pins definition (synchronous) */
+#define PINS_USART1_SYNC \
+	{ PIN_USART1_TXD, PIN_USART1_RXD, PIN_USART1_SCK }
+
+/** USART1 pins definition (synchronous with handshake) */
+#define PINS_USART1_SYNC_HS \
+	{ PIN_USART1_TXD, PIN_USART1_RXD, PIN_USART1_RTS, PIN_USART1_CTS, PIN_USART1_SCK }
+
+/** USART1 pins definition (ISO7816) */
+#define PINS_USART1_ISO7816 \
+	{ PIN_USART1_TXD, PIN_USART1_SCK }
 
 /** USART1 pins definition (RS485) */
-#define PINS_USART1_RS485 {\
-	PIN_USART1_RXD,\
-	PIN_USART1_TXD,\
-	PIN_USART1_RTS,\
-}
+#define PINS_USART1_RS485 \
+	{ PIN_USART1_TXD, PIN_USART1_RXD, PIN_USART1_RTS }
 
 /* ========== Pio PIN definition for USART2 peripheral ========== */
 
 /** USART2 TXD pin definition. */
-#define PIN_USART2_TXD { PIO_GROUP_E, PIO_PE26B_TXD2, PIO_PERIPH_B, PIO_DEFAULT }
+#define PIN_USART2_TXD { PIO_GROUP_B, PIO_PB5B_TXD2, PIO_PERIPH_B, PIO_DEFAULT }
 
 /** USART2 RXD pin definition. */
-#define PIN_USART2_RXD { PIO_GROUP_E, PIO_PE25B_RXD2, PIO_PERIPH_B, PIO_DEFAULT }
+#define PIN_USART2_RXD { PIO_GROUP_B, PIO_PB4B_RXD2, PIO_PERIPH_B, PIO_DEFAULT }
 
 /** USART2 RTS pin definition. */
-#define PIN_USART2_RTS { PIO_GROUP_E, PIO_PE24B_RTS2, PIO_PERIPH_B, PIO_DEFAULT }
+#define PIN_USART2_RTS { PIO_GROUP_B, PIO_PB11B_RTS2, PIO_PERIPH_B, PIO_DEFAULT }
 
 /** USART2 CTS pin definition. */
-#define PIN_USART2_CTS { PIO_GROUP_E, PIO_PE23B_CTS2, PIO_PERIPH_B, PIO_DEFAULT }
+#define PIN_USART2_CTS { PIO_GROUP_B, PIO_PB3B_CTS2, PIO_PERIPH_B, PIO_DEFAULT }
 
 /** USART2 SCK pin definition. */
-#define PIN_USART2_SCK { PIO_GROUP_E, PIO_PE20B_SCK2, PIO_PERIPH_B, PIO_DEFAULT }
+#define PIN_USART2_SCK { PIO_GROUP_B, PIO_PB1B_SCK2, PIO_PERIPH_B, PIO_DEFAULT }
 
-/** USART2 pins definition */
-#define PINS_USART2 {\
-	PIN_USART2_TXD,\
-	PIN_USART2_RXD,\
-	PIN_USART2_RTS,\
-	PIN_USART2_CTS,\
-	PIN_USART2_SCK,\
-}
+/** USART2 pins definition (default) */
+#define PINS_USART2 \
+	{ PIN_USART2_TXD, PIN_USART2_RXD }
+
+/** USART2 pins definition (with handshake) */
+#define PINS_USART2_HS \
+	{ PIN_USART2_TXD, PIN_USART2_RXD, PIN_USART2_RTS, PIN_USART2_CTS }
+
+/** USART2 pins definition (synchronous) */
+#define PINS_USART2_SYNC \
+	{ PIN_USART2_TXD, PIN_USART2_RXD, PIN_USART2_SCK }
+
+/** USART2 pins definition (synchronous with handshake) */
+#define PINS_USART2_SYNC_HS \
+	{ PIN_USART2_TXD, PIN_USART2_RXD, PIN_USART2_RTS, PIN_USART2_CTS, PIN_USART2_SCK }
+
+/** USART2 pins definition (ISO7816) */
+#define PINS_USART2_ISO7816 \
+	{ PIN_USART2_TXD, PIN_USART2_SCK }
 
 /** USART2 pins definition (RS485) */
-#define PINS_USART2_RS485 {\
-	PIN_USART2_RXD,\
-	PIN_USART2_TXD,\
-	PIN_USART2_RTS,\
-}
+#define PINS_USART2_RS485 \
+	{ PIN_USART2_TXD, PIN_USART2_RXD, PIN_USART2_RTS }
 
 /* ========== Pio PIN definition for USART3 peripheral ========== */
 
@@ -201,21 +225,29 @@
 /** USART3 SCK pin definition. */
 #define PIN_USART3_SCK { PIO_GROUP_E, PIO_PE15B_SCK3, PIO_PERIPH_B, PIO_DEFAULT }
 
-/** USART3 pins definition */
-#define PINS_USART3 {\
-	PIN_USART3_TXD,\
-	PIN_USART3_RXD,\
-	PIN_USART3_RTS,\
-	PIN_USART3_CTS,\
-	PIN_USART3_SCK,\
-}
+/** USART3 pins definition (default) */
+#define PINS_USART3 \
+	{ PIN_USART3_TXD, PIN_USART3_RXD }
+
+/** USART3 pins definition (with handshake) */
+#define PINS_USART3_HS \
+	{ PIN_USART3_TXD, PIN_USART3_RXD, PIN_USART3_RTS, PIN_USART3_CTS }
+
+/** USART3 pins definition (synchronous) */
+#define PINS_USART3_SYNC \
+	{ PIN_USART3_TXD, PIN_USART3_RXD, PIN_USART3_SCK }
+
+/** USART3 pins definition (synchronous with handshake) */
+#define PINS_USART3_SYNC_HS \
+	{ PIN_USART3_TXD, PIN_USART3_RXD, PIN_USART3_RTS, PIN_USART3_CTS, PIN_USART3_SCK }
+
+/** USART3 pins definition (ISO7816) */
+#define PINS_USART3_ISO7816 \
+	{ PIN_USART3_TXD, PIN_USART3_SCK }
 
 /** USART3 pins definition (RS485) */
-#define PINS_USART3_RS485 {\
-	PIN_USART3_RXD,\
-	PIN_USART3_TXD,\
-	PIN_USART3_RTS,\
-}
+#define PINS_USART3_RS485 \
+	{ PIN_USART3_TXD, PIN_USART3_RXD, PIN_USART3_RTS }
 
 /* ========== Pio PIN definition for USART4 peripheral ========== */
 
@@ -234,21 +266,29 @@
 /** USART4 SCK pin definition. */
 #define PIN_USART4_SCK { PIO_GROUP_E, PIO_PE25B_SCK4, PIO_PERIPH_B, PIO_DEFAULT }
 
-/** USART4 pins definition */
-#define PINS_USART4 {\
-	PIN_USART4_TXD,\
-	PIN_USART4_RXD,\
-	PIN_USART4_RTS,\
-	PIN_USART4_CTS,\
-	PIN_USART4_SCK,\
-}
+/** USART4 pins definition (default) */
+#define PINS_USART4 \
+	{ PIN_USART4_TXD, PIN_USART4_RXD }
+
+/** USART4 pins definition (with handshake) */
+#define PINS_USART4_HS \
+	{ PIN_USART4_TXD, PIN_USART4_RXD, PIN_USART4_RTS, PIN_USART4_CTS }
+
+/** USART4 pins definition (synchronous) */
+#define PINS_USART4_SYNC \
+	{ PIN_USART4_TXD, PIN_USART4_RXD, PIN_USART4_SCK }
+
+/** USART4 pins definition (synchronous with handshake) */
+#define PINS_USART4_SYNC_HS \
+	{ PIN_USART4_TXD, PIN_USART4_RXD, PIN_USART4_RTS, PIN_USART4_CTS, PIN_USART4_SCK }
+
+/** USART4 pins definition (ISO7816) */
+#define PINS_USART4_ISO7816 \
+	{ PIN_USART4_TXD, PIN_USART4_SCK }
 
 /** USART4 pins definition (RS485) */
-#define PINS_USART4_RS485 {\
-	PIN_USART4_RXD,\
-	PIN_USART4_TXD,\
-	PIN_USART4_RTS,\
-}
+#define PINS_USART4_RS485 \
+	{ PIN_USART4_TXD, PIN_USART4_RXD, PIN_USART4_RTS }
 
 /* ========== Pio PIN definition for TWI0 peripheral ========== */
 

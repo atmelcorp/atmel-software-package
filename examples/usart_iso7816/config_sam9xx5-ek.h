@@ -5,7 +5,7 @@
 
 /* IO TXD bidirectionnal */
 /* SCK	*/
-#define PIN_COM2_ISO7816  { PIN_USART0_TXD, PIN_USART0_SCK }
+#define PIN_COM2_ISO7816  PINS_USART0_ISO7816
 
 /** NCN4555MN STOP pin definition */
 /* Connected to CTS */
