@@ -2,10 +2,6 @@
 #define __CONFIG_SAMA5D2_XPLAINED_H__
 
 /* =================== definition for example "usart_iso7816" =================== */
-#define PINS_FLEXCOM0_USART_ISO7816_IOS1 {\
-	{ PIO_GROUP_B, PIO_PB28C_FLEXCOM0_IO0, PIO_PERIPH_C, PIO_DEFAULT },\
-	{ PIO_GROUP_B, PIO_PB30C_FLEXCOM0_IO2, PIO_PERIPH_C, PIO_DEFAULT },\
-}
 
 /** NCN4555MN usart pin definition */
 /* IO TXD bidirectionnal */
