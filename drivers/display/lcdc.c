@@ -33,17 +33,16 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
-#include "compiler.h"
-
-#include "display/lcdc.h"
-#include "gpio/pio.h"
-#include "peripherals/pmc.h"
-#include "mm/cache.h"
-
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
+
+#include "chip.h"
+#include "compiler.h"
+#include "display/lcdc.h"
+#include "gpio/pio.h"
+#include "mm/cache.h"
+#include "peripherals/pmc.h"
 
 /** \addtogroup lcdc_base
  * Implementation of LCD driver, Include LCD initialization,
@@ -137,7 +136,6 @@ static const struct _layer_info lcdc_layers[] = {
 	/* 0: LCDC_CONTROLLER */
 	{
 		.stride_supported = false,
-		.reg_enable = &LCDC->LCDC_LCDEN,
 	},
 	/* 1: LCDC_BASE */
 	{
@@ -212,6 +210,16 @@ static const struct _layer_info lcdc_layers[] = {
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
+
+/**
+ * Wait for clock domain synchronization to be complete.
+ * While synchronization is in progress, access to registers
+ * LCDC_LCDCCFG[0..6], LCDC_LCDEN and LCDC_LCDDIS has no effect.
+ */
+static void _wait_for_clock_domain_sync(void)
+{
+	while ((LCDC->LCDC_LCDSR & LCDC_LCDSR_SIPSTS));
+}
 
 /**
  * Return bits per pixel from RGB mode settings.
@@ -437,7 +445,8 @@ void lcdc_configure(const struct _lcdc_desc *desc)
 
 	/* Enable peripheral clock */
 	pmc_configure_peripheral(ID_LCDC, NULL, true);
-	pmc_enable_system_clock(PMC_SYSTEM_CLOCK_LCD);
+	if (pmc_has_system_clock(PMC_SYSTEM_CLOCK_LCD))
+		pmc_enable_system_clock(PMC_SYSTEM_CLOCK_LCD);
 
 	/* Timing Engine Configuration */
 
@@ -1217,28 +1226,45 @@ void lcdc_on(void)
 {
 	uint32_t cfg0;
 	uint32_t pixel_clock = lcdc_config.framerate;
+	uint32_t lcd_clock;
 	pixel_clock *= lcdc_config.timing_hpw + lcdc_config.timing_hbp +
 		lcdc_config.width + lcdc_config.timing_hfp;
 	pixel_clock *= lcdc_config.timing_vpw + lcdc_config.timing_vbp +
 		lcdc_config.height + lcdc_config.timing_vfp;
 
-	/* Enable peripheral clock and ISC system clock */
-	pmc_configure_peripheral(ID_LCDC, NULL, true);
-	pmc_enable_system_clock(PMC_SYSTEM_CLOCK_LCD);
-
+	/* Enable peripheral clock and LCD system clock */
+	if (pmc_has_system_clock(PMC_SYSTEM_CLOCK_LCD)) {
+		pmc_configure_peripheral(ID_LCDC, NULL, true);
+		pmc_enable_system_clock(PMC_SYSTEM_CLOCK_LCD);
+		lcd_clock = pmc_get_master_clock();
+	} else {
+#ifdef CONFIG_HAVE_PMC_GENERATED_CLOCKS
+		struct _pmc_periph_cfg cfg = {
+			.gck = {
+				.css = PMC_PCR_GCKCSS_MCK_CLK,
+				.div = 1,
+			},
+		};
+		pmc_configure_peripheral(ID_LCDC, &cfg, true);
+		lcd_clock = pmc_get_gck_clock(ID_LCDC);
+#else
+		lcd_clock = pmc_get_master_clock();
+#endif
+	}
 	/* 1. Configure LCD timing parameters, signal polarity and clock period. */
 #ifdef LCDC_LCDCFG0_CLKSEL
-	cfg0 = LCDC_LCDCFG0_CLKDIV((pmc_get_master_clock() * 2) / pixel_clock - 2) |
+	cfg0 = LCDC_LCDCFG0_CLKDIV((lcd_clock * 2) / pixel_clock - 2) |
 	       LCDC_LCDCFG0_CGDISBASE |
 	       LCDC_LCDCFG0_CGDISHEO |
 	       LCDC_LCDCFG0_CLKPWMSEL |
 	       LCDC_LCDCFG0_CLKSEL;
 #else
-	cfg0 = LCDC_LCDCFG0_CLKDIV((pmc_get_master_clock()) / pixel_clock - 2) |
+	cfg0 = LCDC_LCDCFG0_CLKDIV(lcd_clock / pixel_clock - 2) |
 	       LCDC_LCDCFG0_CGDISBASE |
 	       LCDC_LCDCFG0_CGDISHEO |
 	       LCDC_LCDCFG0_CLKPWMSEL;
 #endif
+
 #ifdef LCDC_LCDCFG0_CGDISOVR1
 	cfg0 |= LCDC_LCDCFG0_CGDISOVR1;
 #endif
@@ -1251,20 +1277,26 @@ void lcdc_on(void)
 #ifdef LCDC_LCDCFG0_CGDISPP
 	cfg0 |= LCDC_LCDCFG0_CGDISPP;
 #endif
+	_wait_for_clock_domain_sync();
 	LCDC->LCDC_LCDCFG0 = cfg0;
 
+	_wait_for_clock_domain_sync();
 	LCDC->LCDC_LCDCFG1 = LCDC_LCDCFG1_VSPW(lcdc_config.timing_vpw - 1) |
 	                     LCDC_LCDCFG1_HSPW(lcdc_config.timing_hpw - 1);
 
+	_wait_for_clock_domain_sync();
 	LCDC->LCDC_LCDCFG2 = LCDC_LCDCFG2_VBPW(lcdc_config.timing_vbp) |
 	                     LCDC_LCDCFG2_VFPW(lcdc_config.timing_vfp - 1);
 
+	_wait_for_clock_domain_sync();
 	LCDC->LCDC_LCDCFG3 = LCDC_LCDCFG3_HBPW(lcdc_config.timing_hbp - 1) |
 	                     LCDC_LCDCFG3_HFPW(lcdc_config.timing_hfp - 1);
 
+	_wait_for_clock_domain_sync();
 	LCDC->LCDC_LCDCFG4 = LCDC_LCDCFG4_RPF(lcdc_config.height - 1) |
 	                     LCDC_LCDCFG4_PPL(lcdc_config.width - 1);
 
+	_wait_for_clock_domain_sync();
 	LCDC->LCDC_LCDCFG5 = LCDC_LCDCFG5_GUARDTIME(30) |
 	                     LCDC_LCDCFG5_MODE_OUTPUT_24BPP |
 	                     LCDC_LCDCFG5_DISPDLY |
@@ -1272,12 +1304,14 @@ void lcdc_on(void)
 	                     LCDC_LCDCFG5_VSPOL |
 	                     LCDC_LCDCFG5_HSPOL;
 
+	_wait_for_clock_domain_sync();
 	LCDC->LCDC_LCDCFG6 = LCDC_LCDCFG6_PWMCVAL(0xF0) |
 	                     LCDC_LCDCFG6_PWMPOL |
-	                     LCDC_LCDCFG6_PWMPS(6);
+	                     LCDC_LCDCFG6_PWMPS(5);
 
 	/* 2. Enable the Pixel Clock by writing one to the CLKEN field of the
 	   LCDC_LCDEN register. */
+	_wait_for_clock_domain_sync();
 	LCDC->LCDC_LCDEN = LCDC_LCDEN_CLKEN;
 
 	/* 3. Poll CLKSTS field of the LCDC_LCDSR register to check that the clock
@@ -1286,6 +1320,7 @@ void lcdc_on(void)
 
 	/* 4. Enable Horizontal and Vertical Synchronization by writing one to the
 	   SYNCEN field of the LCDC_LCDEN register. */
+	_wait_for_clock_domain_sync();
 	LCDC->LCDC_LCDEN = LCDC_LCDEN_SYNCEN;
 
 	/* 5. Poll LCDSTS field of the LCDC_LCDSR register to check that the
@@ -1294,6 +1329,7 @@ void lcdc_on(void)
 
 	/* 6. Enable the display power signal writing one to the DISPEN field of the
 	   LCDC_LCDEN register. */
+	_wait_for_clock_domain_sync();
 	LCDC->LCDC_LCDEN = LCDC_LCDEN_DISPEN;
 
 	/* 7. Poll DISPSTS field of the LCDC_LCDSR register to check that the power
@@ -1301,6 +1337,7 @@ void lcdc_on(void)
 	while (!(LCDC->LCDC_LCDSR & LCDC_LCDSR_DISPSTS));
 
 	/* 8. Enable backlight */
+	_wait_for_clock_domain_sync();
 	LCDC->LCDC_LCDEN = LCDC_LCDEN_PWMEN;
 }
 
@@ -1387,8 +1424,8 @@ void lcdc_off(void)
 
 	/* Disable peripheral clock and ISC system clock */
 	pmc_disable_peripheral(ID_LCDC);
-	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_LCD);
-
+	if (pmc_has_system_clock(PMC_SYSTEM_CLOCK_LCD))
+		pmc_disable_system_clock(PMC_SYSTEM_CLOCK_LCD);
 }
 
 /**
