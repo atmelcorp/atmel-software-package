@@ -204,57 +204,57 @@ static uint8_t bBackLight = 0xF0;
 #ifdef CONFIG_HAVE_LCDC_OVR1
 
 /** OVR1 X */
-static uint16_t wOvr1X = 0;
+static uint16_t ovr1_x = 0;
 /** OVR1 Y */
-static uint16_t wOvr1Y = BOARD_LCD_HEIGHT-1;
+static uint16_t ovr1_y = BOARD_LCD_HEIGHT - 1;
 /** OVR1 W */
-static uint16_t wOvr1W = 0;
+static uint16_t orv1_w = 0;
 /** OVR1 H */
-static uint16_t wOvr1H = 0;
+static uint16_t ovr1_h = 0;
 /** OVR1 XY move direction (XY - 00 01 10 11) */
-static uint8_t bOvr1Dir = 0x01;
+static uint8_t ovr1_dir = 0x01;
 
 /** Drawing changing step */
-static uint8_t  bDrawChange = 0;
+static uint8_t  draw_changed = 0;
 /** Drawing size */
-static uint8_t  bDrawSize  =  0;
+static uint8_t  draw_size  =  0;
 /** Drawing shape */
-static uint8_t  bDrawShape =  0;
+static uint8_t  draw_shape =  0;
 /** Last drawing w, h */
-static uint16_t wLastW, wLastH;
+static uint16_t last_w, last_h;
 
 #endif /* CONFIG_HAVE_LCDC_OVR1 */
 
 #ifdef CONFIG_HAVE_LCDC_OVR2
 
 /** OVR2 X */
-static uint16_t wOvr2X = 0;
+static uint16_t ovr2_x = 0;
 /** OVR2 Y */
-static uint16_t wOvr2Y = BOARD_LCD_HEIGHT-1;
+static uint16_t ovr2_y = BOARD_LCD_HEIGHT-1;
 /** OVR2 W */
-static uint16_t wOvr2W = 0;
+static uint16_t ovr2_w = 0;
 /** OVR2 H */
-static uint16_t wOvr2H = 0;
+static uint16_t ovr2_h = 0;
 /** OVR2 XY move direction (XY - 00 01 10 11) */
-static uint8_t bOvr2Dir = 0x01;
+static uint8_t ovr2_dir = 0x01;
 
 #endif /* CONFIG_HAVE_LCDC_OVR2 */
 
 /** HEO X and Width */
-static uint16_t wHeoX = 0, wHeoW = 0;
+static uint16_t heo_x = 0, heo_w = 0;
 /** HEO Y and Height */
-static uint16_t wHeoY = BOARD_LCD_HEIGHT-1, wHeoH = 0;
+static uint16_t heo_y = BOARD_LCD_HEIGHT-1, heo_h = 0;
 /** HEO XY move direction */
-static uint8_t bHeoDir = 0x01;
+static uint8_t heo_dir = 0x01;
 /** HEO draw mode */
-static uint8_t bHeoDraw = 0;
+static uint8_t heo_draw = 0;
 /** HEO image width & height */
-static uint16_t wHeoImgW, wHeoImgH;
+static uint16_t heo_img_w, heo_img_h;
 /** HEO image bpp */
-static uint8_t bHeoBpp = 0;
+static uint8_t heo_bpp = 0;
 
 /** Global timestamp in milliseconds since start of application */
-volatile uint32_t dwTimeStamp = 0;
+volatile uint32_t time_stamp = 0;
 
 #define NB_TAB_COLOR N_BLK_HOR*N_BLK_VERT
 uint8_t ncolor = 0;
@@ -279,9 +279,9 @@ static void test_pattern_24RGB (uint8_t *lcd_base)
 			h_max, v_max, h_step, v_step);
 
 	/* WARNING: Code silently assumes 24bit/pixel */
-	for (v=0; v<v_max; ++v) {
+	for (v = 0; v < v_max; ++v) {
 		uint8_t iy = v / v_step;
-		for (h=0; h<h_max; ++h) {
+		for (h = 0; h < h_max; ++h) {
 			uint8_t ix = N_BLK_HOR * iy + (h/h_step);
 			*pix++ = (test_colors[ix]&0x0000FF) >>  0;
 			*pix++ = (test_colors[ix]&0x00FF00) >>  8;
@@ -305,41 +305,41 @@ static void _LcdOn(void)
 	lcdc_show_base(_base_buffer, 24, 0);
 
 	/* Show magnified 'F' for rotate test */
-	wHeoImgW = 20 * EXAMPLE_LCD_SCALE;
-	wHeoImgH = 24 * EXAMPLE_LCD_SCALE;
-	wHeoW = wHeoImgW * 3;
-	wHeoH = (uint16_t) (wHeoImgH * 5.5);
-	bHeoBpp = 24;
+	heo_img_w = 20 * EXAMPLE_LCD_SCALE;
+	heo_img_h = 24 * EXAMPLE_LCD_SCALE;
+	heo_w = heo_img_w * 3;
+	heo_h = (uint16_t) (heo_img_h * 5.5);
+	heo_bpp = 24;
 	/* Mask out background color */
 	lcdc_set_color_keying(LCDC_HEO, 0, COLOR_WHITE, 0xFFFFFF);
-	lcdc_create_canvas(LCDC_HEO, _heo_buffer, bHeoBpp, 0, 0,
-			   wHeoImgW, wHeoImgH);
+	lcdc_create_canvas(LCDC_HEO, _heo_buffer, heo_bpp, 0, 0,
+			   heo_img_w, heo_img_h);
 
 	lcd_fill(COLOR_WHITE);
-	lcd_draw_filled_rectangle(0, 0, wHeoImgW, 2 * EXAMPLE_LCD_SCALE,
+	lcd_draw_filled_rectangle(0, 0, heo_img_w, 2 * EXAMPLE_LCD_SCALE,
 				   COLOR_BLACK);
 	lcd_draw_filled_rectangle(0, 2 * EXAMPLE_LCD_SCALE, EXAMPLE_LCD_SCALE,
-				   wHeoImgH, COLOR_BLACK);
+				   heo_img_h, COLOR_BLACK);
 	lcd_draw_filled_rectangle(2*EXAMPLE_LCD_SCALE,
 				   10 * EXAMPLE_LCD_SCALE,
 				   13 * EXAMPLE_LCD_SCALE,
 				   13 * EXAMPLE_LCD_SCALE, COLOR_BLACK);
 
 	cache_clean_region(_heo_buffer, sizeof(_heo_buffer));
-	lcdc_put_image_rotated(LCDC_HEO, _heo_buffer, bHeoBpp, SCR_X(wHeoX),
-			      SCR_Y(wHeoY), wHeoW, wHeoH, wHeoImgW,
-			      wHeoImgH, 0);
+	lcdc_put_image_rotated(LCDC_HEO, _heo_buffer, heo_bpp, SCR_X(heo_x),
+			      SCR_Y(heo_y), heo_w, heo_h, heo_img_w,
+			      heo_img_h, 0);
 	/* It's over overlay 1 */
 	lcdc_set_priority(LCDC_HEO, 1);
 
 #ifdef CONFIG_HAVE_LCDC_OVR2
 	/* Test LCD draw */
-	wOvr2X = IMG_X(BOARD_LCD_WIDTH/4);
-	wOvr2Y = IMG_Y(BOARD_LCD_WIDTH/4);
-	wOvr2W = BOARD_LCD_WIDTH/5;
-	wOvr2H = BOARD_LCD_HEIGHT/4;
-	lcdc_create_canvas(LCDC_OVR2, _ovr2_buffer, 24, SCR_X(wOvr2X),
-			   SCR_Y(wOvr2Y), wOvr2W, wOvr2H);
+	ovr2_x = IMG_X(BOARD_LCD_WIDTH / 4);
+	ovr2_y = IMG_Y(BOARD_LCD_WIDTH / 4);
+	ovr2_w = BOARD_LCD_WIDTH / 5;
+	ovr2_h = BOARD_LCD_HEIGHT / 4;
+	lcdc_create_canvas(LCDC_OVR2, _ovr2_buffer, 24, SCR_X(ovr2_x),
+			   SCR_Y(ovr2_y), ovr2_w, ovr2_h);
 	lcd_fill_white();
 
 	/* Display message font 8x8 */
@@ -350,12 +350,12 @@ static void _LcdOn(void)
 
 #ifdef CONFIG_HAVE_LCDC_OVR1
 	/* Test LCD draw */
-	wOvr1X = IMG_X(0);
-	wOvr1Y = IMG_Y(0);
-	wOvr1W = BOARD_LCD_WIDTH/2;
-	wOvr1H = BOARD_LCD_HEIGHT/2;
-	lcdc_create_canvas(LCDC_OVR1, _ovr1_buffer, 24, SCR_X(wOvr1X),
-			   SCR_Y(wOvr1Y), wOvr1W, wOvr1H);
+	ovr1_x = IMG_X(0);
+	ovr1_y = IMG_Y(0);
+	orv1_w = BOARD_LCD_WIDTH / 2;
+	ovr1_h = BOARD_LCD_HEIGHT / 2;
+	lcdc_create_canvas(LCDC_OVR1, _ovr1_buffer, 24, SCR_X(ovr1_x),
+			   SCR_Y(ovr1_y), orv1_w, ovr1_h);
 	lcd_fill(OVR1_BG);
 	cache_clean_region(_ovr1_buffer, sizeof(_ovr1_buffer));
 #endif /* CONFIG_HAVE_LCDC_OVR1 */
@@ -365,45 +365,45 @@ static void _LcdOn(void)
 
 /**
  * Calculate X,Y and DIR for move.
- * \param pwX  Pointer to X.
- * \param pwY  Pointer to Y.
- * \param pDir Pointer to DIR.
+ * \param wx  Pointer to X.
+ * \param wy  Pointer to Y.
+ * \param dir Pointer to DIR.
  */
-static void _move_calc(uint16_t *pwX, uint16_t *pwY, uint8_t *pDir,
-	uint8_t  bXMov, uint8_t  bYMov,
-	uint16_t wXMin, uint16_t wXMax,
-	uint16_t wYMin, uint16_t wYMax)
+static void _move_calc(uint16_t *wx, uint16_t *wy, uint8_t *dir,
+	uint8_t  x_mov, uint8_t  y_mov,
+	uint16_t x_min, uint16_t x_max,
+	uint16_t y_min, uint16_t y_max)
 {
-	uint8_t x_dir = (0xF0 & *pDir);
-	uint8_t y_dir = (0x0F & *pDir);
+	uint8_t x_dir = (0xF0 & *dir);
+	uint8_t y_dir = (0x0F & *dir);
 	if (x_dir == 0x10) {
-		if ((*pwX) <= wXMin + bXMov){
-			(*pwX)   = wXMin;
-			(*pDir) &= ~0x10;
+		if ((*wx) <= x_min + x_mov){
+			(*wx)   = x_min;
+			(*dir) &= ~0x10;
 		} else {
-			(*pwX) -= bXMov;
+			(*wx) -= x_mov;
 		}
 	} else if (x_dir == 0) {
-		if ((*pwX) >= wXMax - bXMov) {
-			(*pwX)   = wXMax;
-			(*pDir) |= 0x10;
+		if ((*wx) >= x_max - x_mov) {
+			(*wx)   = x_max;
+			(*dir) |= 0x10;
 		} else {
-			(*pwX) += bXMov;
+			(*wx) += x_mov;
 		}
 	}
 	if (y_dir == 0x01) {
-		if ((*pwY) <= wYMin + bYMov){
-			(*pwY)   =  wYMin;
-			(*pDir) &= ~0x01;
+		if ((*wy) <= y_min + y_mov){
+			(*wy)   =  y_min;
+			(*dir) &= ~0x01;
 		} else {
-			(*pwY) -= bYMov;
+			(*wy) -= y_mov;
 		}
 	} else if (y_dir == 0) {
-		if ((*pwY) >= wYMax - bYMov){
-			(*pwY)   = wYMax;
-			(*pDir) |= 0x01;
+		if ((*wy) >= y_max - y_mov){
+			(*wy)   = y_max;
+			(*dir) |= 0x01;
 		} else {
-			(*pwY) += bYMov;
+			(*wy) += y_mov;
 		}
 	}
 }
@@ -413,108 +413,108 @@ static void _move_calc(uint16_t *pwX, uint16_t *pwY, uint8_t *pDir,
  */
 static void _rotates(void)
 {
-	int32_t w = wHeoW, h = wHeoH;
-	uint16_t wRotate = 0;
+	int32_t w = heo_w, h = heo_h;
+	uint16_t rotate = 0;
 
 	if (!lcdc_is_layer_on(LCDC_HEO))
 		return;
 
-	switch (bHeoDraw){
+	switch (heo_draw){
 		/* Origional size */
 		case 0:
-			bHeoDraw = 1;
-			w = wHeoImgW;
-			h = wHeoImgH;
+			heo_draw = 1;
+			w = heo_img_w;
+			h = heo_img_h;
 			break;
 		/* Mirrow (scan direction) */
 		case 1:
-			bHeoDraw = 2;
+			heo_draw = 2;
 			break;
 		case 2:
-			bHeoDraw = 3;
+			heo_draw = 3;
 			h = -h;
 			break;
 		case 3:
-			bHeoDraw = 4;
+			heo_draw = 4;
 			h = -h; w = -w;
 			break;
 		case 4:
-			bHeoDraw = 5;
+			heo_draw = 5;
 			w = -w;
 			break;
 		/* Goes Back */
 		case 5:
-			bHeoDraw = 6;
-			w = wHeoImgW;
-			h = wHeoImgH;
+			heo_draw = 6;
+			w = heo_img_w;
+			h = heo_img_h;
 			break;
 		/* Rotate (0?) */
 		case 6:
-			bHeoDraw = 7;
+			heo_draw = 7;
 			break;
 		/* Rotate (90?) */
 		case 7:
-			bHeoDraw = 8;
-			w = wHeoH;
-			h = wHeoW;
-			wHeoH = h;
-			wHeoW = w;
-			wRotate = 90;
+			heo_draw = 8;
+			w = heo_h;
+			h = heo_w;
+			heo_h = h;
+			heo_w = w;
+			rotate = 90;
 			break;
 		/* X mirror & Rotate (90?) */
 		case 8:
-			bHeoDraw = 9;
-			w = (0-wHeoW);
-			h = wHeoH;
-			wRotate = 90;
+			heo_draw = 9;
+			w = (0-heo_w);
+			h = heo_h;
+			rotate = 90;
 			break;
 		/* Rotate (180?) */
 		case 9:
-			bHeoDraw = 10;
-			w = wHeoH;
-			h = wHeoW;
-			wHeoH = h;
-			wHeoW = w;
-			wRotate = 180;
+			heo_draw = 10;
+			w = heo_h;
+			h = heo_w;
+			heo_h = h;
+			heo_w = w;
+			rotate = 180;
 			break;
 		/* Rotate (270?) */
 		case 10:
-			bHeoDraw = 11;
-			w = wHeoH;
-			h = wHeoW;
-			wHeoH = h;
-			wHeoW = w;
-			wRotate = 270;
+			heo_draw = 11;
+			w = heo_h;
+			h = heo_w;
+			heo_h = h;
+			heo_w = w;
+			rotate = 270;
 			break;
 		/* Y mirror & Rotate (270?) */
 		case 11:
-			bHeoDraw = 12;
-			w = wHeoW;
-			h = 0-wHeoH;
-			wRotate = 270;
+			heo_draw = 12;
+			w = heo_w;
+			h = 0-heo_h;
+			rotate = 270;
 			break;
 		/* Rotate (0?) */
 		case 12:
-			bHeoDraw = 0;
-			w = wHeoH;
-			h = wHeoW;
-			wHeoH = h;
-			wHeoW = w;
+			heo_draw = 0;
+			w = heo_h;
+			h = heo_w;
+			heo_h = h;
+			heo_w = w;
 			break;
 	}
-	if (SCR_X(wHeoX) + abs(w) > BOARD_LCD_WIDTH){
-		wHeoX = IMG_X(BOARD_LCD_WIDTH - abs(w));
+	if (SCR_X(heo_x) + abs(w) > BOARD_LCD_WIDTH){
+		heo_x = IMG_X(BOARD_LCD_WIDTH - abs(w));
 	}
-	if (SCR_Y(wHeoY) + abs(h) > BOARD_LCD_HEIGHT){
-		wHeoY = IMG_Y(BOARD_LCD_HEIGHT - abs(h));
+	if (SCR_Y(heo_y) + abs(h) > BOARD_LCD_HEIGHT){
+		heo_y = IMG_Y(BOARD_LCD_HEIGHT - abs(h));
 	}
 
-	printf("Show: %u,%u %d, %d %u\n\r", (unsigned)SCR_X(wHeoX),
-	       (unsigned)SCR_Y(wHeoY), (int)w, (int)h, (unsigned)wRotate);
-	lcdc_put_image_rotated(LCDC_HEO, 0, bHeoBpp, SCR_X(wHeoX), SCR_Y(wHeoY),
-			      w, h, wHeoImgW, wHeoImgH, wRotate);
+	printf("Show: %u,%u %d, %d %u\n\r", (unsigned)SCR_X(heo_x),
+	       (unsigned)SCR_Y(heo_y), (int)w, (int)h, (unsigned)rotate);
+	lcdc_put_image_rotated(LCDC_HEO, 0, heo_bpp, SCR_X(heo_x), SCR_Y(heo_y),
+			      w, h, heo_img_w, heo_img_h, rotate);
 
-	if (bHeoDraw == 0) {
+	if (heo_draw == 0) {
 		printf("\n\r");
 		printf("---------------------------------------\n\r");
 		printf(" Use 'SPACE' to change the priority HE0\n\r");
@@ -530,51 +530,51 @@ static void _draws(void)
 {
 	uint32_t x, y, w, h;
 
-	x = wOvr1W / 2;
-	y = wOvr1H / 2;
+	x = orv1_w / 2;
+	y = ovr1_h / 2;
 	if (!lcdc_is_layer_on(LCDC_OVR1))
 		return;
 
 	/* Drawing width, height */
-	if (bDrawSize == 0) {
+	if (draw_size == 0) {
 		w = h = 2;
 	} else {
-		w = wOvr1W / 10 * bDrawSize;
-		h = wOvr1H / 10 * bDrawSize;
+		w = orv1_w / 10 * draw_size;
+		h = ovr1_h / 10 * draw_size;
 	}
 
 	/* Draw circles */
-	if (bDrawShape){
+	if (draw_shape){
 		/* Remove last shape */
-		lcd_draw_circle(x, y, wLastW > wLastH ? wLastH/2 : wLastW/2, OVR1_BG);
+		lcd_draw_circle(x, y, last_w > last_h ? last_h/2 : last_w/2, OVR1_BG);
 		/* Draw new */
 		lcd_draw_circle(x, y, w > h ? h/2 : w/2, test_colors[ncolor]);
 		ncolor = (ncolor+1)%NB_TAB_COLOR;
 	} else {
 		/* Remove last shape */
-		lcd_draw_rounded_rect(x - wLastW/2, y - wLastH/2, wLastW, wLastH, wLastH/3, OVR1_BG);
+		lcd_draw_rounded_rect(x - last_w/2, y - last_h/2, last_w, last_h, last_h/3, OVR1_BG);
 		/* Draw new */
 		lcd_draw_rounded_rect(x - w/2, y - h/2, w, h, h/3, test_colors[ncolor]);
-		ncolor = (ncolor+1)%NB_TAB_COLOR;
+		ncolor = (ncolor + 1) % NB_TAB_COLOR;
 	}
-	wLastW = w;
-	wLastH = h;
+	last_w = w;
+	last_h = h;
 
 	/* Size -- */
-	if (bDrawChange) {
-		if (bDrawSize == 0) {
-			bDrawShape = !bDrawShape;
-			bDrawChange = 0;
+	if (draw_changed) {
+		if (draw_size == 0) {
+			draw_shape = !draw_shape;
+			draw_changed = 0;
 		} else {
-			bDrawSize--;
+			draw_size--;
 		}
 	}
 	/* Size ++ */
 	else {
-		if (bDrawSize == 8) {
-			bDrawChange = 1;
+		if (draw_size == 8) {
+			draw_changed = 1;
 		} else {
-			bDrawSize++;
+			draw_size++;
 		}
 	}
 
@@ -597,37 +597,37 @@ static void _moves(void)
 {
 #ifdef CONFIG_HAVE_LCDC_OVR1
 	if (lcdc_is_layer_on(LCDC_OVR1)){
-		_move_calc(&wOvr1X, &wOvr1Y, &bOvr1Dir,
+		_move_calc(&ovr1_x, &ovr1_y, &ovr1_dir,
 				1, 1,
-				0, BOARD_LCD_WIDTH - wOvr1W - 1,
-				wOvr1H, BOARD_LCD_HEIGHT - 1);
-		lcdc_set_position(LCDC_OVR1, SCR_X(wOvr1X), SCR_Y(wOvr1Y));
+				0, BOARD_LCD_WIDTH - orv1_w - 1,
+				ovr1_h, BOARD_LCD_HEIGHT - 1);
+		lcdc_set_position(LCDC_OVR1, SCR_X(ovr1_x), SCR_Y(ovr1_y));
 	}
 #endif /* CONFIG_HAVE_LCDC_OVR1 */
 
 #ifdef CONFIG_HAVE_LCDC_OVR2
 	if (lcdc_is_layer_on(LCDC_OVR2)){
-		_move_calc(&wOvr2X, &wOvr2Y, &bOvr2Dir,
+		_move_calc(&ovr2_x, &ovr2_y, &ovr2_dir,
 				1, 1,
-				0, BOARD_LCD_WIDTH - wOvr2W - 1,
-				wOvr2H, BOARD_LCD_HEIGHT - 1);
-		lcdc_set_position(LCDC_OVR2, SCR_X(wOvr2X), SCR_Y(wOvr2Y));
+				0, BOARD_LCD_WIDTH - ovr2_w - 1,
+				ovr2_h, BOARD_LCD_HEIGHT - 1);
+		lcdc_set_position(LCDC_OVR2, SCR_X(ovr2_x), SCR_Y(ovr2_y));
 	}
 #endif /* CONFIG_HAVE_LCDC_OVR2 */
 
 	if (lcdc_is_layer_on(LCDC_HEO)){
-		_move_calc(&wHeoX, &wHeoY, &bHeoDir,
+		_move_calc(&heo_x, &heo_y, &heo_dir,
 				2, 3,
-				0, BOARD_LCD_WIDTH - wHeoW - 1,
-				wHeoH, BOARD_LCD_HEIGHT - 1);
-		lcdc_set_position(LCDC_HEO, SCR_X(wHeoX), SCR_Y(wHeoY));
+				0, BOARD_LCD_WIDTH - heo_w - 1,
+				heo_h, BOARD_LCD_HEIGHT - 1);
+		lcdc_set_position(LCDC_HEO, SCR_X(heo_x), SCR_Y(heo_y));
 	}
 }
 
 /**
  * Handle DBGU events.
  */
-static void _DbgEvents(void)
+static void dbg_events(void)
 {
 	uint8_t key;
 	if (console_is_rx_ready()){
@@ -654,9 +654,9 @@ static void _DbgEvents(void)
 extern int main(void)
 {
 	uint32_t t1, t2;
-	uint32_t heoDly = 0;
+	uint32_t heo_delay = 0;
 #ifdef CONFIG_HAVE_LCDC_OVR1
-	uint32_t ovr1Dly = 0;
+	uint32_t ovr1_delay = 0;
 #endif
 
 	/* Output example information */
@@ -670,7 +670,7 @@ extern int main(void)
 	       (unsigned)_heo_buffer,
 	       (unsigned)sizeof(_heo_buffer));
 	while(1) {
-		_DbgEvents();
+		dbg_events();
 		t2 = timer_get_tick();
 		/* Move layers */
 		if ((t2 - t1) >= 10) {
@@ -678,20 +678,20 @@ extern int main(void)
 			_moves();
 #ifdef CONFIG_HAVE_LCDC_OVR1
 			/* Change OVR1  */
-			if (ovr1Dly >= 500 / 50){
-				ovr1Dly = 0;
+			if (ovr1_delay >= 500 / 50){
+				ovr1_delay = 0;
 				_draws();
-				led_toggle(LED_BLUE);
+				led_toggle(0);
 			} else {
-				ovr1Dly++;
+				ovr1_delay++;
 			}
 #endif
 			/* Change HEO display mode */
-			if (heoDly >= 4000 / 50) {
-				heoDly = 0;
+			if (heo_delay >= 4000 / 50) {
+				heo_delay = 0;
 				_rotates();
 			} else {
-				heoDly++;
+				heo_delay++;
 			}
 		}
 	}
