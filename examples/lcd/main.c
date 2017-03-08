@@ -177,8 +177,10 @@
 /** LCD BASE buffer */
 CACHE_ALIGNED_DDR static uint8_t _base_buffer[SIZE_LCD_BUFFER_BASE];
 
+#ifdef CONFIG_HAVE_LCDC_OVR1
 /** Overlay 1 buffer */
 CACHE_ALIGNED_DDR static uint8_t _ovr1_buffer[SIZE_LCD_BUFFER_OVR1];
+#endif
 
 #ifdef CONFIG_HAVE_LCDC_OVR2
 /** Overlay 2 buffer */
@@ -198,6 +200,9 @@ static uint32_t test_colors[N_BLK_HOR*N_BLK_VERT] = {
 
 /** Backlight value */
 static uint8_t bBackLight = 0xF0;
+
+#ifdef CONFIG_HAVE_LCDC_OVR1
+
 /** OVR1 X */
 static uint16_t wOvr1X = 0;
 /** OVR1 Y */
@@ -208,6 +213,17 @@ static uint16_t wOvr1W = 0;
 static uint16_t wOvr1H = 0;
 /** OVR1 XY move direction (XY - 00 01 10 11) */
 static uint8_t bOvr1Dir = 0x01;
+
+/** Drawing changing step */
+static uint8_t  bDrawChange = 0;
+/** Drawing size */
+static uint8_t  bDrawSize  =  0;
+/** Drawing shape */
+static uint8_t  bDrawShape =  0;
+/** Last drawing w, h */
+static uint16_t wLastW, wLastH;
+
+#endif /* CONFIG_HAVE_LCDC_OVR1 */
 
 #ifdef CONFIG_HAVE_LCDC_OVR2
 
@@ -236,16 +252,6 @@ static uint8_t bHeoDraw = 0;
 static uint16_t wHeoImgW, wHeoImgH;
 /** HEO image bpp */
 static uint8_t bHeoBpp = 0;
-
-/** Drawing changing step */
-static uint8_t  bDrawChange = 0;
-/** Drawing size */
-static uint8_t  bDrawSize  =  0;
-/** Drawing shape */
-static uint8_t  bDrawShape =  0;
-/** Last drawing w, h */
-static uint16_t wLastW, wLastH;
-
 
 /** Global timestamp in milliseconds since start of application */
 volatile uint32_t dwTimeStamp = 0;
@@ -342,6 +348,7 @@ static void _LcdOn(void)
 	cache_clean_region(_ovr2_buffer, sizeof(_ovr2_buffer));
 #endif /* CONFIG_HAVE_LCDC_OVR2 */
 
+#ifdef CONFIG_HAVE_LCDC_OVR1
 	/* Test LCD draw */
 	wOvr1X = IMG_X(0);
 	wOvr1Y = IMG_Y(0);
@@ -351,6 +358,7 @@ static void _LcdOn(void)
 			   SCR_Y(wOvr1Y), wOvr1W, wOvr1H);
 	lcd_fill(OVR1_BG);
 	cache_clean_region(_ovr1_buffer, sizeof(_ovr1_buffer));
+#endif /* CONFIG_HAVE_LCDC_OVR1 */
 
 	printf("- LCD ON\n\r");
 }
@@ -513,6 +521,8 @@ static void _rotates(void)
 	}
 }
 
+#ifdef CONFIG_HAVE_LCDC_OVR1
+
 /**
  * Draw on canvas
  */
@@ -578,11 +588,14 @@ static void _draws(void)
 	cache_clean_region(_ovr1_buffer, sizeof(_ovr1_buffer));
 }
 
+#endif /* CONFIG_HAVE_LCDC_OVR1 */
+
 /**
  * Move layers.
  */
 static void _moves(void)
 {
+#ifdef CONFIG_HAVE_LCDC_OVR1
 	if (lcdc_is_layer_on(LCDC_OVR1)){
 		_move_calc(&wOvr1X, &wOvr1Y, &bOvr1Dir,
 				1, 1,
@@ -590,6 +603,7 @@ static void _moves(void)
 				wOvr1H, BOARD_LCD_HEIGHT - 1);
 		lcdc_set_position(LCDC_OVR1, SCR_X(wOvr1X), SCR_Y(wOvr1Y));
 	}
+#endif /* CONFIG_HAVE_LCDC_OVR1 */
 
 #ifdef CONFIG_HAVE_LCDC_OVR2
 	if (lcdc_is_layer_on(LCDC_OVR2)){
@@ -641,7 +655,9 @@ extern int main(void)
 {
 	uint32_t t1, t2;
 	uint32_t heoDly = 0;
+#ifdef CONFIG_HAVE_LCDC_OVR1
 	uint32_t ovr1Dly = 0;
+#endif
 
 	/* Output example information */
 	console_example_info("LCD Example");
@@ -660,7 +676,7 @@ extern int main(void)
 		if ((t2 - t1) >= 10) {
 			t1 = t2;
 			_moves();
-
+#ifdef CONFIG_HAVE_LCDC_OVR1
 			/* Change OVR1  */
 			if (ovr1Dly >= 500 / 50){
 				ovr1Dly = 0;
@@ -669,7 +685,7 @@ extern int main(void)
 			} else {
 				ovr1Dly++;
 			}
-
+#endif
 			/* Change HEO display mode */
 			if (heoDly >= 4000 / 50) {
 				heoDly = 0;
