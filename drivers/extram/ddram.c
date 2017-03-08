@@ -426,11 +426,42 @@ static void _init_is42s16100e(struct _mpddrc_desc* desc)
 	desc->refresh_window = 32;
 	desc->refresh_cycles = 2048;
 }
-
 #endif /* CONFIG_HAVE_SDRAM_IS42S16100E */
 
-#endif /* CONFIG_HAVE_MPDDRC_SDRAM */
 
+#ifdef CONFIG_HAVE_SDRAM_W981216BH
+static void _init_w981216bh(struct _mpddrc_desc* desc)
+{
+	uint32_t mck = pmc_get_master_clock() / 1000000;
+
+	desc->type = MPDDRC_TYPE_SDRAM;
+
+	desc->mode = MPDDRC_MD_MD_SDRAM;
+
+	desc->control = MPDDRC_CR_NC_SDRAM_9_COL_BITS
+	              | MPDDRC_CR_NR_12_ROW_BITS
+	              | MPDDRC_CR_CAS_SDRAM_CAS3
+	              | MPDDRC_CR_NB_BANK4
+	              | MPDDRC_CR_DBW;
+
+	/* timings */
+
+	memset(&desc->timings, 0, sizeof(desc->timings));
+	desc->timings.twr   = NS2CYCLES(10, mck) + 2; // tRP+2ck (tDAL)
+	desc->timings.trc   = NS2CYCLES(65, mck);     // 65ns
+	desc->timings.trfc  = desc->timings.trc;      // same as tRC
+	desc->timings.trp   = NS2CYCLES(20, mck);     // 20ns
+	desc->timings.trcd  = NS2CYCLES(20, mck);     // 20ns
+	desc->timings.tras  = NS2CYCLES(45, mck);     // 45ns
+	desc->timings.txsrd = NS2CYCLES(3, mck) + 1;  // 3ns+1ck (tCKA)
+	desc->timings.txsnr = desc->timings.txsrd;    // same as tXSRD
+
+	desc->refresh_window = 64;
+	desc->refresh_cycles = 4096;
+}
+#endif /* CONFIG_HAVE_SDRAM_W981216BH */
+
+#endif /* CONFIG_HAVE_MPDDRC_SDRAM */
 
 void ddram_init_descriptor(struct _mpddrc_desc* desc,
 			   enum _ddram_devices device)
@@ -440,6 +471,11 @@ void ddram_init_descriptor(struct _mpddrc_desc* desc,
   #ifdef CONFIG_HAVE_SDRAM_IS42S16100E
 	case IS42S16100E:
 		_init_is42s16100e(desc);
+		break;
+  #endif
+  #ifdef CONFIG_HAVE_SDRAM_W981216BH
+	case W981216BH:
+		_init_w981216bh(desc);
 		break;
   #endif
 #endif
