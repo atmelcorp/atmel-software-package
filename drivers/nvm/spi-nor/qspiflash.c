@@ -831,7 +831,21 @@ static int _qspiflash_init_sst(struct _qspiflash *flash)
 	if (ret < 0)
 		return ret;
 
-	return _qspiflash_write_reg(flash, CMD_SST_ULBPR, NULL, 0);
+	ret = _qspiflash_write_reg(flash, CMD_SST_ULBPR, NULL, 0);
+	if (ret < 0)
+		return ret;
+
+	if (flash->desc->flags & SPINOR_FLAG_QUAD) {
+		flash->opcode_read = CMD_FAST_READ_1_4_4;
+		flash->ifr_width_read = QSPI_IFR_WIDTH_QUAD_IO;
+	}
+
+	flash->num_mode_cycles = 2;
+	flash->num_dummy_cycles = 4;
+	flash->normal_read_mode = 0x00;
+	flash->continuous_read_mode = 0xA0;
+
+	return 0;
 }
 
 
