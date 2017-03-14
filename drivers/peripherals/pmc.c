@@ -1205,60 +1205,93 @@ bool pmc_is_gck_enabled(uint32_t id)
 #ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK
 void pmc_configure_audio(const struct _pmc_audio_cfg *cfg)
 {
+#ifdef PMC_AUDIO_PLL0_PLLEN
 	/* reset audio clock */
-	PMC->PMC_AUDIO_PLL0 &= ~PMC_AUDIO_PLL0_RESETN;
+	PMC->PMC_AUDIO_PLL0 &= ~(PMC_AUDIO_PLL0_RESETN |
+	                         PMC_AUDIO_PLL0_PLLEN);
 	PMC->PMC_AUDIO_PLL0 |= PMC_AUDIO_PLL0_RESETN;
 
 	/* configure values */
-	PMC->PMC_AUDIO_PLL0 = (PMC->PMC_AUDIO_PLL0 & ~PMC_AUDIO_PLL0_PLLFLT_Msk
-	    & ~PMC_AUDIO_PLL0_ND_Msk & ~PMC_AUDIO_PLL0_QDPMC_Msk)
-	    | PMC_AUDIO_PLL0_PLLFLT_STD | PMC_AUDIO_PLL0_ND(cfg->nd)
-	    | PMC_AUDIO_PLL0_QDPMC(cfg->qdpmc);
+	PMC->PMC_AUDIO_PLL0 = PMC_AUDIO_PLL0_ND(cfg->nd)
+	                    | PMC_AUDIO_PLL0_QDPMC(cfg->qdpmc)
+	                    | PMC_AUDIO_PLL0_PLLFLT_STD
+	                    | PMC_AUDIO_PLL0_RESETN;
+	PMC->PMC_AUDIO_PLL1 = PMC_AUDIO_PLL1_FRACR(cfg->fracr)
+	                    | PMC_AUDIO_PLL1_DIV(cfg->div)
+	                    | PMC_AUDIO_PLL1_QDAUDIO(cfg->qdaudio);
+#else
+	/* reset audio clock */
+	PMC->PMC_APLLCCR &= ~(PMC_APLLCCR_RESETN |
+	                      PMC_APLLCCR_PLLEN);
+	PMC->PMC_APLLCCR |= PMC_APLLCCR_RESETN;
 
-	PMC->PMC_AUDIO_PLL1 = (PMC->PMC_AUDIO_PLL1 & ~PMC_AUDIO_PLL1_FRACR_Msk
-	    & ~PMC_AUDIO_PLL1_DIV_Msk & ~PMC_AUDIO_PLL1_QDAUDIO_Msk)
-	    | PMC_AUDIO_PLL1_FRACR(cfg->fracr) | PMC_AUDIO_PLL1_DIV(cfg->div)
-	    | PMC_AUDIO_PLL1_QDAUDIO(cfg->qdaudio);
+	/* configure values */
+	PMC->PMC_APLLCCR = PMC_APLLCCR_ND(cfg->nd)
+	                 | PMC_APLLCCR_FRACR(cfg->fracr)
+	                 | PMC_APLLCCR_RESETN;
+	PMC->PMC_APLLPCR = PMC_APLLPCR_QDAUDIO(cfg->div * cfg->qdaudio);
+	PMC->PMC_APLLICR = PMC_APLLICR_QDPMC(cfg->qdpmc);
+#endif
 }
 
 void pmc_enable_audio(bool pmc_clock, bool pad_clock)
 {
-	uint32_t bits = PMC_AUDIO_PLL0_PLLEN | PMC_AUDIO_PLL0_RESETN;
-	uint32_t nbits = 0;
+#ifdef PMC_AUDIO_PLL0_PLLEN
+	uint32_t pll0 = PMC->PMC_AUDIO_PLL0;
+	pll0 &= ~(PMC_AUDIO_PLL0_PADEN | PMC_AUDIO_PLL0_PMCEN);
+	pll0 |= PMC_AUDIO_PLL0_PLLEN;
+	if (pad_clock)
+		pll0 |= PMC_AUDIO_PLL0_PADEN;
+	if (pmc_clock)
+		pll0 |= PMC_AUDIO_PLL0_PMCEN;
+	PMC->PMC_AUDIO_PLL0 = pll0;
+#else
+	PMC->PMC_APLLCCR |= PMC_APLLCCR_PLLEN;
 
 	if (pad_clock)
-		bits |= PMC_AUDIO_PLL0_PADEN;
+		PMC->PMC_APLLPCR |= PMC_APLLPCR_PADEN;
 	else
-		nbits |= PMC_AUDIO_PLL0_PADEN;
+		PMC->PMC_APLLPCR &= ~PMC_APLLPCR_PADEN;
 
 	if (pmc_clock)
-		bits |= PMC_AUDIO_PLL0_PMCEN;
+		PMC->PMC_APLLICR |= PMC_APLLICR_PMCEN;
 	else
-		nbits |= PMC_AUDIO_PLL0_PMCEN;
-
-	PMC->PMC_AUDIO_PLL0 = (PMC->PMC_AUDIO_PLL0 & ~nbits) | bits;
+		PMC->PMC_APLLICR &= ~PMC_APLLICR_PMCEN;
+#endif
 
 	/* Wait for the Audio PLL Startup Time (tSTART = 100 usec) */
-	msleep(1);
+	usleep(100);
 }
 
 void pmc_disable_audio()
 {
-	uint32_t nbits = PMC_AUDIO_PLL0_PLLEN | PMC_AUDIO_PLL0_RESETN |
-		PMC_AUDIO_PLL0_PADEN | PMC_AUDIO_PLL0_PMCEN;
-	PMC->PMC_AUDIO_PLL0 &= ~nbits;
+#ifdef PMC_AUDIO_PLL0_PLLEN
+	PMC->PMC_AUDIO_PLL0 &= ~(PMC_AUDIO_PLL0_PLLEN | PMC_AUDIO_PLL0_PADEN | PMC_AUDIO_PLL0_PMCEN);
+#else
+	PMC->PMC_APLLPCR &= ~PMC_APLLPCR_PADEN;
+	PMC->PMC_APLLICR &= ~PMC_APLLICR_PMCEN;
+	PMC->PMC_APLLCCR &= ~PMC_APLLCCR_PLLEN;
+#endif
 }
 
 uint32_t pmc_get_audio_pmc_clock(void)
 {
+	uint32_t nd, fracr, qdpmc;
+	uint64_t clk = _pmc_main_oscillators.crystal_freq;
+
+#ifdef PMC_AUDIO_PLL0_PLLEN
 	uint32_t pll0 = PMC->PMC_AUDIO_PLL0;
 	uint32_t pll1 = PMC->PMC_AUDIO_PLL1;
+	nd = (pll0 & PMC_AUDIO_PLL0_ND_Msk) >> PMC_AUDIO_PLL0_ND_Pos;
+	fracr = (pll1 & PMC_AUDIO_PLL1_FRACR_Msk) >> PMC_AUDIO_PLL1_FRACR_Pos;
+	qdpmc = (pll0 & PMC_AUDIO_PLL0_QDPMC_Msk) >> PMC_AUDIO_PLL0_QDPMC_Pos;
+#else
+	uint32_t ccr = PMC->PMC_APLLCCR;
+	nd = (ccr & PMC_APLLCCR_ND_Msk) >> PMC_APLLCCR_ND_Pos;
+	fracr = (ccr & PMC_APLLCCR_FRACR_Msk) >> PMC_APLLCCR_FRACR_Pos;
+	qdpmc = (PMC->PMC_APLLICR & PMC_APLLICR_QDPMC_Msk) >> PMC_APLLICR_QDPMC_Pos;
+#endif
 
-	uint32_t nd = (pll0 & PMC_AUDIO_PLL0_ND_Msk) >> PMC_AUDIO_PLL0_ND_Pos;
-	uint32_t fracr = (pll1 & PMC_AUDIO_PLL1_FRACR_Msk) >> PMC_AUDIO_PLL1_FRACR_Pos;
-	uint32_t qdpmc = (pll0 & PMC_AUDIO_PLL0_QDPMC_Msk) >> PMC_AUDIO_PLL0_QDPMC_Pos;
-
-	uint64_t clk = _pmc_main_oscillators.crystal_freq;
 	clk *= ((nd + 1) << 22) + fracr;
 	clk /= 1 << 22;
 	clk /= qdpmc + 1;
@@ -1267,20 +1300,30 @@ uint32_t pmc_get_audio_pmc_clock(void)
 
 uint32_t pmc_get_audio_pad_clock(void)
 {
+	uint32_t nd, fracr, qdaudio, div;
+	uint64_t clk = _pmc_main_oscillators.crystal_freq;
+
+#ifdef PMC_AUDIO_PLL0_PLLEN
 	uint32_t pll0 = PMC->PMC_AUDIO_PLL0;
 	uint32_t pll1 = PMC->PMC_AUDIO_PLL1;
-
-	uint32_t nd = (pll0 & PMC_AUDIO_PLL0_ND_Msk) >> PMC_AUDIO_PLL0_ND_Pos;
-	uint32_t fracr = (pll1 & PMC_AUDIO_PLL1_FRACR_Msk) >> PMC_AUDIO_PLL1_FRACR_Pos;
-	uint32_t qdaudio = (pll1 & PMC_AUDIO_PLL1_QDAUDIO_Msk) >> PMC_AUDIO_PLL1_QDAUDIO_Pos;
+	nd = (pll0 & PMC_AUDIO_PLL0_ND_Msk) >> PMC_AUDIO_PLL0_ND_Pos;
+	fracr = (pll1 & PMC_AUDIO_PLL1_FRACR_Msk) >> PMC_AUDIO_PLL1_FRACR_Pos;
+	qdaudio = (pll1 & PMC_AUDIO_PLL1_QDAUDIO_Msk) >> PMC_AUDIO_PLL1_QDAUDIO_Pos;
 	if (qdaudio == 0)
 		return 0;
-
-	uint32_t div = (pll1 & PMC_AUDIO_PLL1_DIV_Msk) >> PMC_AUDIO_PLL1_DIV_Pos;
+	div = (pll1 & PMC_AUDIO_PLL1_DIV_Msk) >> PMC_AUDIO_PLL1_DIV_Pos;
 	if (div != 2 && div != 3)
 		return 0;
+#else
+	uint32_t ccr = PMC->PMC_APLLCCR;
+	nd = (ccr & PMC_APLLCCR_ND_Msk) >> PMC_APLLCCR_ND_Pos;
+	fracr = (ccr & PMC_APLLCCR_FRACR_Msk) >> PMC_APLLCCR_FRACR_Pos;
+	qdaudio = (PMC->PMC_APLLPCR & PMC_APLLPCR_QDAUDIO_Msk) >> PMC_APLLPCR_QDAUDIO_Pos;
+	if (qdaudio == 0)
+		return 0;
+	div = 1;
+#endif
 
-	uint64_t clk = _pmc_main_oscillators.crystal_freq;
 	clk *= ((nd + 1) << 22) + fracr;
 	clk /= 1 << 22;
 	clk /= div * qdaudio;
