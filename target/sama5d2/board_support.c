@@ -264,6 +264,7 @@ void board_restore_pio_reset_state(void)
 void board_save_misc_power(void)
 {
 	int i;
+	int tc_id = get_tc_id_from_addr(BOARD_TIMER_TC, BOARD_TIMER_CHANNEL);
 
 	/* disable USB clock */
 	pmc_disable_upll_clock();
@@ -287,6 +288,8 @@ void board_save_misc_power(void)
 	/* disable all peripheral clocks except PIOA for JTAG, serial debug port */
 	for (i = ID_PIT; i < ID_PERIPH_COUNT; i++) {
 		if (i == ID_PIOA)
+			continue;
+		if (i == tc_id)
 			continue;
 		pmc_disable_peripheral(i);
 	}
