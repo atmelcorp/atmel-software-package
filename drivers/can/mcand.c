@@ -863,10 +863,7 @@ static uint8_t* mcan_prepare_tx_buffer(struct _mcan_desc *desc, uint8_t buf_idx,
 		dlc = CAN_DLC_0;
 	pThisTxBuf = set->ram_array_tx + buf_idx
 		* (MCAN_RAM_BUF_HDR_SIZE + set->cfg.buf_size_tx / 4);
-	if (id & MCAN_RAM_T0_XTD)
-		*pThisTxBuf++ = MCAN_RAM_T0_XTD | MCAN_RAM_T0_XTDID(id);
-	else
-		*pThisTxBuf++ = MCAN_RAM_T0_STDID(id);
+	*pThisTxBuf++ = id;
 	val = MCAN_RAM_T1_MM(0) | MCAN_RAM_T1_DLC((uint32_t)dlc);
 	if (mode == CAN_MODE_CAN_FD_CONST_RATE)
 		val |= MCAN_RAM_T1_FDF;
@@ -895,10 +892,7 @@ static void mcan_enqueue_outgoing_msg(struct _mcan_desc *desc,
 		dlc = CAN_DLC_0;
 	pThisTxBuf = set->ram_array_tx + (uint32_t)
 		putIdx * (MCAN_RAM_BUF_HDR_SIZE + set->cfg.buf_size_tx / 4);
-	if (id & MCAN_RAM_T0_XTD)
-		*pThisTxBuf++ = MCAN_RAM_T0_XTD | MCAN_RAM_T0_XTDID(id);
-	else
-		*pThisTxBuf++ = MCAN_RAM_T0_STDID(id);
+	*pThisTxBuf++ = id;
 	val = MCAN_RAM_T1_MM(0) | MCAN_RAM_T1_DLC((uint32_t)dlc);
 	if (mode == CAN_MODE_CAN_FD_CONST_RATE)
 		val |= MCAN_RAM_T1_FDF;
