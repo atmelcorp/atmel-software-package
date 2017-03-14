@@ -116,6 +116,7 @@
 #include "board_twi.h"
 #include "chip.h"
 #include "cpuidle.h"
+#include "dma/dma.h"
 #include "extram/mpddrc.h"
 #include "gpio/pio.h"
 #include "irq/irq.h"
@@ -698,6 +699,9 @@ void board_init(void)
 
 	/* Configure console */
 	board_cfg_console(0);
+
+	/* Configure DMA with interrupt */
+	dma_initialize(false);
 
 #ifdef CONFIG_HAVE_I2C_BUS
 	/* Configure TWI bus */
