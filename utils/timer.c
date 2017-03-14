@@ -85,6 +85,18 @@ static void timer_irq_handler(uint32_t source, void* user_arg)
 
 #endif /* !CONFIG_TIMER_POLLING */
 
+static uint64_t _timer_get_tick(void)
+{
+	uint32_t upper, lower;
+
+	do {
+		upper = timer_get_upper_tick_counter();
+		COMPILER_BARRIER();
+		lower = tc_get_cv(_timer.tc, _timer.channel);
+	} while (upper != timer_get_upper_tick_counter());
+	return (((uint64_t)upper) << TC_CHANNEL_SIZE) | lower;
+}
+
 /*----------------------------------------------------------------------------
  *         Exported Functions
  *----------------------------------------------------------------------------*/
@@ -142,17 +154,7 @@ void timer_sleep(uint64_t count)
 
 uint64_t timer_get_tick(void)
 {
-	uint32_t upper, lower;
-	uint64_t tick;
-
-	do {
-		upper = timer_get_upper_tick_counter();
-		COMPILER_BARRIER();
-		lower = tc_get_cv(_timer.tc, _timer.channel);
-	} while (upper != timer_get_upper_tick_counter());
-
-	tick = (((uint64_t)upper) << TC_CHANNEL_SIZE) | lower;
-	return (tick * 1000) / _timer.channel_freq;
+	return (_timer_get_tick() * 1000) / _timer.channel_freq;
 }
 
 void sleep(uint32_t count)
@@ -167,26 +169,17 @@ void msleep(uint32_t count)
 
 void usleep(uint32_t count)
 {
-	uint32_t rc;
-	uint32_t status;
-
-	if (count < 2)
-		count = 2;
+	uint64_t deadline;
 
 	/* Disable interrupts */
 	arch_irq_disable();
 
-	/* Configure RC */
-	rc = ROUND_INT_DIV((_timer.channel_freq / 1000) * count, 1000);
-	rc += tc_get_cv(_timer.tc, _timer.channel);
-	tc_set_ra_rb_rc(_timer.tc, _timer.channel, 0, 0, &rc);
+	/* Compute deadline */
+	deadline = _timer_get_tick();
+	deadline += ROUND_INT_DIV((_timer.channel_freq / 1000) * count, 1000);
 
-	/* Wait for RC compare */
-	do {
-		status = tc_get_status(_timer.tc, _timer.channel);
-		if (status & TC_SR_COVFS)
-			_timer.upper++;
-	} while ((status & TC_SR_CPCS) == 0);
+	/* Wait for deadline to be reached */
+	while ((int64_t)(_timer_get_tick() - deadline) < 0);
 
 	/* Re-enable interrupts */
 	arch_irq_enable();
