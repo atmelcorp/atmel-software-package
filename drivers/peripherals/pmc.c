@@ -848,10 +848,14 @@ bool pmc_is_peripheral_enabled(uint32_t id)
 {
 	assert(id < ID_PERIPH_COUNT);
 
+#ifdef PMC_CSR_PID0
+	return (PMC->PMC_CSR[(id >> 5) & 3] & (1 << (id & 31))) != 0;
+#else
 	PMC->PMC_PCR = PMC_PCR_PID(id);
 	volatile uint32_t pcr = PMC->PMC_PCR;
 
 	return (pcr & PMC_PCR_EN) != 0;
+#endif
 }
 
 uint32_t pmc_get_peripheral_clock(uint32_t id)
@@ -1131,7 +1135,12 @@ void pmc_enable_gck(uint32_t id)
 	PMC->PMC_PCR = PMC_PCR_PID(id);
 	volatile uint32_t pcr = PMC->PMC_PCR;
 	PMC->PMC_PCR = pcr | PMC_PCR_CMD | PMC_PCR_GCKEN;
+
+#ifdef PMC_GCSR_PID0
+	while ((PMC->PMC_GCSR[(id >> 5) & 3] & (1 << (id & 31))) == 0);
+#else
 	while (!(PMC->PMC_SR & PMC_SR_GCKRDY));
+#endif
 }
 
 void pmc_disable_gck(uint32_t id)
