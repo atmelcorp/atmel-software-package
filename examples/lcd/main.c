@@ -275,7 +275,7 @@ static void test_pattern_24RGB (uint8_t *lcd_base)
 	uint16_t v, h;
 	uint8_t *pix = (uint8_t *)lcd_base;
 
-	printf("- Test Pattern: %d x %d [%d x %d]\n\r",
+	printf("- Test Pattern: %d x %d [%d x %d]\r\n",
 			h_max, v_max, h_step, v_step);
 
 	/* WARNING: Code silently assumes 24bit/pixel */
@@ -360,7 +360,7 @@ static void _LcdOn(void)
 	cache_clean_region(_ovr1_buffer, sizeof(_ovr1_buffer));
 #endif /* CONFIG_HAVE_LCDC_OVR1 */
 
-	printf("- LCD ON\n\r");
+	printf("- LCD ON\r\n");
 }
 
 /**
@@ -509,15 +509,16 @@ static void _rotates(void)
 		heo_y = IMG_Y(BOARD_LCD_HEIGHT - abs(h));
 	}
 
-	printf("Show: %u,%u %d, %d %u\n\r", (unsigned)SCR_X(heo_x),
+	printf("Show: %u,%u %d, %d %u\r\n", (unsigned)SCR_X(heo_x),
 	       (unsigned)SCR_Y(heo_y), (int)w, (int)h, (unsigned)rotate);
 	lcdc_put_image_rotated(LCDC_HEO, 0, heo_bpp, SCR_X(heo_x), SCR_Y(heo_y),
 			      w, h, heo_img_w, heo_img_h, rotate);
 
 	if (heo_draw == 0) {
-		printf("\n\r");
-		printf("---------------------------------------\n\r");
-		printf(" Use 'SPACE' to change the priority HE0\n\r");
+		printf("\r\n");
+		printf("------------------------------------\r\n");
+		printf(" Use 'SPACE' to change HEO priority\r\n");
+		printf("------------------------------------\r\n");
 	}
 }
 
@@ -636,7 +637,7 @@ static void dbg_events(void)
 			case ' ': /* HEO & OVR1 layout */
 				lcdc_set_priority(LCDC_HEO,
 						!lcdc_get_priority(LCDC_HEO));
-				printf("Change priority HE0 \n\r");
+				printf("Changed HEO priority\r\n");
 				break;
 		}
 	}
@@ -666,7 +667,7 @@ extern int main(void)
 	_LcdOn();
 
 	t1 = timer_get_tick();
-	printf("ADDR_LCD_BUFFER_HEO is 0x%x, size %u\n\r",
+	printf("ADDR_LCD_BUFFER_HEO is 0x%x, size %u\r\n",
 	       (unsigned)_heo_buffer,
 	       (unsigned)sizeof(_heo_buffer));
 	while(1) {
