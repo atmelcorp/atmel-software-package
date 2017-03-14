@@ -35,8 +35,8 @@
 # - chip_pins_flexcom.h.footer (included as-is)
 
 cat chip_pins_flexcom.h.header > chip_pins_flexcom.h
-for flexcom in $(seq 0 4) ; do
-	for ioset in $(seq 1 3) ; do
+for flexcom in $(seq 0 9) ; do
+	for ioset in $(seq 1 4) ; do
 		sed -e "s/FLEXCOMx/FLEXCOM$flexcom/g" \
 		    -e "s/IOSx/IOS$ioset/g" \
 		    -e "s/IOSETx/IOSET$ioset/g" \
