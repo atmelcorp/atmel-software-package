@@ -288,7 +288,9 @@ static void udphs_disable_usb_clock(void)
  */
 static void udphs_enable_bias(void)
 {
+#ifdef CONFIG_HAVE_PMC_UPLL_BIAS
 	pmc_enable_upll_bias();
+#endif
 }
 
 /**
@@ -296,7 +298,9 @@ static void udphs_enable_bias(void)
  */
 static void udphs_disable_bias(void)
 {
+#ifdef CONFIG_HAVE_PMC_UPLL_BIAS
 	pmc_disable_upll_bias();
+#endif
 }
 
 /**
