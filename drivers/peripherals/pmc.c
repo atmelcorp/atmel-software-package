@@ -142,6 +142,11 @@ static void _pmc_compute_mck(void)
 	case PMC_MCKR_PRES_CLOCK_DIV64:
 		clk >>= 6;
 		break;
+#ifdef PMC_MCKR_PRES_CLOCK_DIV3
+	case PMC_MCKR_PRES_CLOCK_DIV3:
+		clk /= 3;
+		break;
+#endif
 	default:
 		/* should never get here... */
 		break;
