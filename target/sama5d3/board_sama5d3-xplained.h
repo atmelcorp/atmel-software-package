@@ -71,10 +71,11 @@
 
 /* =================== PIN CONSOLE definition ================== */
 
-/** CONSOLE pin definition: use USART3 */
-#define BOARD_CONSOLE_PINS     PINS_DBGU
+/** CONSOLE pin definition: use DBGU */
 #define BOARD_CONSOLE_ADDR     DBGU
 #define BOARD_CONSOLE_BAUDRATE 115200
+#define BOARD_CONSOLE_TX_PIN   PIN_DBGU_TXD
+#define BOARD_CONSOLE_RX_PIN   PIN_DBGU_RXD
 
 /* =================== PIN LED definition ====================== */
 

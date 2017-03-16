@@ -46,18 +46,8 @@
 #include "nvm/flash/eefc.h"
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
-#include "serial/console.h"
 
 #include "board_support.h"
-
-/*----------------------------------------------------------------------------
- *        Local types
- *----------------------------------------------------------------------------*/
-
-struct _console_cfg {
-	void* addr;
-	const struct _pin pins[2];
-};
 
 /*----------------------------------------------------------------------------
  *        Local constants
@@ -154,27 +144,6 @@ void board_cfg_lowlevel(bool clocks, bool ddram, bool mpu)
 		/* Configure MPU */
 		board_cfg_mpu();
 	}
-}
-
-void board_cfg_console(uint32_t baudrate)
-{
-	if (!baudrate) {
-#ifdef BOARD_CONSOLE_BAUDRATE
-		baudrate = BOARD_CONSOLE_BAUDRATE;
-#else
-		baudrate = 115200;
-#endif
-	}
-
-#if defined(BOARD_CONSOLE_PINS) && defined(BOARD_CONSOLE_ADDR)
-	const struct _pin console_pins[] = BOARD_CONSOLE_PINS;
-	pio_configure(console_pins, ARRAY_SIZE(console_pins));
-	console_configure(BOARD_CONSOLE_ADDR, baudrate);
-#else
-	const struct _pin console_pins[] = PINS_UART0;
-	pio_configure(console_pins, ARRAY_SIZE(console_pins));
-	console_configure(UART0, baudrate);
-#endif
 }
 
 void board_cfg_mpu(void)

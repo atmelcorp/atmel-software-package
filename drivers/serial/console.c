@@ -32,6 +32,7 @@
 *----------------------------------------------------------------------------*/
 
 #include <stdio.h>
+#include <string.h>
 
 #include "board.h"
 #include "chip.h"
@@ -54,9 +55,18 @@ static struct _seriald console;
  *         Exported functions
  *------------------------------------------------------------------------------*/
 
-void console_configure(void* addr, uint32_t baudrate)
+void console_configure(const struct _console_cfg* config)
 {
-	seriald_configure(&console, addr, baudrate);
+	if (config && config->addr && config->baudrate)
+	{
+		if (config->tx_pin.mask)
+			pio_configure(&config->tx_pin, 1);
+		if (config->rx_pin.mask)
+			pio_configure(&config->rx_pin, 1);
+		seriald_configure(&console, config->addr, config->baudrate);
+	} else {
+		memset(&console, 0, sizeof(console));
+	}
 }
 
 void console_put_char(char c)

@@ -157,6 +157,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "board.h"
+#include "board_console.h"
 #include "chip.h"
 #include "trace.h"
 #include "compiler.h"

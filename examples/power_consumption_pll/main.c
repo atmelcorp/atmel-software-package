@@ -105,6 +105,7 @@
  */
 
 #include "board.h"
+#include "board_console.h"
 #include "chip.h"
 
 #include "peripherals/pmc.h"

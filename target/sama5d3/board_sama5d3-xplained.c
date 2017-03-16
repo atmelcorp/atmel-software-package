@@ -33,6 +33,7 @@
 
 #include "chip.h"
 #include "board.h"
+#include "board_console.h"
 #include "board_eth.h"
 #include "board_can.h"
 #include "board_lcd.h"

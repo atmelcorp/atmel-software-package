@@ -89,6 +89,7 @@
 #include <stdio.h>
 
 #include "board.h"
+#include "board_console.h"
 #include "board_spi.h"
 #include "chip.h"
 #ifdef CONFIG_HAVE_QSPI_DMA

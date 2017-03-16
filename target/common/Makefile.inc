@@ -28,6 +28,7 @@
 
 CFLAGS_INC += -I$(TOP)/target/common
 
+target-y += target/common/board_console.o
 target-y += target/common/board_timer.o
 target-y += target/common/chip_common.o
 

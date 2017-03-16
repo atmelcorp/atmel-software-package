@@ -33,7 +33,7 @@
 
 #include "chip.h"
 #include "board.h"
-
+#include "board_console.h"
 #include "board_support.h"
 
 /*----------------------------------------------------------------------------

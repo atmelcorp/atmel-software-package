@@ -53,6 +53,7 @@
 #include <string.h>
 
 #include "board.h"
+#include "board_console.h"
 #include "mm/l1cache.h"
 #include "rand.h"
 #include "serial/console.h"

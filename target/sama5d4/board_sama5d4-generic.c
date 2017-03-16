@@ -33,6 +33,7 @@
 
 #include "chip.h"
 #include "board.h"
+#include "board_console.h"
 #include "compiler.h"
 
 #include "dma/dma.h"

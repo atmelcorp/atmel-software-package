@@ -58,12 +58,6 @@ extern void board_cfg_clocks(void);
 extern void board_cfg_lowlevel(bool clocks, bool ddram, bool mmu);
 
 /**
- * \brief Configure the board console if any
- * \param baudrate Requested baudrate, or board default if 0
- */
-extern void board_cfg_console(uint32_t baudrate);
-
-/**
  * \brief Restore all IOs to default state after power-on reset.
  */
 extern void board_restore_pio_reset_state(void);

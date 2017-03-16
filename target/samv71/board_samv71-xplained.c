@@ -33,6 +33,7 @@
 
 #include "board.h"
 #include "board_audio.h"
+#include "board_console.h"
 #include "board_eth.h"
 #include "board_led.h"
 #include "board_spi.h"

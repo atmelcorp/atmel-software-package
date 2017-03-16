@@ -79,9 +79,10 @@
 
 /* =================== PIN CONSOLE definition ================== */
 
-#define BOARD_CONSOLE_PINS     PINS_USART1
 #define BOARD_CONSOLE_ADDR     USART1
 #define BOARD_CONSOLE_BAUDRATE 115200
+#define BOARD_CONSOLE_TX_PIN   PIN_USART1_TXD
+#define BOARD_CONSOLE_RX_PIN   PIN_USART1_RXD
 
 /* =================== PIN LED definition ====================== */
 

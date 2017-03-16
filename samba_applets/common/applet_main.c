@@ -32,6 +32,7 @@
 #include "applet.h"
 #include "applet_legacy.h"
 #include "board.h"
+#include "board_console.h"
 #include "board_timer.h"
 #include "chip.h"
 #include "dma/dma.h"

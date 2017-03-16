@@ -90,9 +90,10 @@
 /** CONSOLE pin definition: use UART1 IOSET1 */
 /* Note that these definitions could be omitted if the console is configured in
  * the active boot config word. */
-#define BOARD_CONSOLE_PINS     PINS_UART1_IOS1
 #define BOARD_CONSOLE_ADDR     UART1
 #define BOARD_CONSOLE_BAUDRATE 115200
+#define BOARD_CONSOLE_TX_PIN   PIN_UART1_TXD_IOS1
+#define BOARD_CONSOLE_RX_PIN   PIN_UART1_RXD_IOS1
 
 /* =================== PIN LED definition ====================== */
 

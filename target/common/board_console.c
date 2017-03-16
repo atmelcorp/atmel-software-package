@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2016, Atmel Corporation
+ * Copyright (c) 2017, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,32 +27,48 @@
  * ----------------------------------------------------------------------------
  */
 
- /*----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
+#include <string.h>
+
 #include "board.h"
 #include "board_console.h"
-#include "compiler.h"
-
-#include "board_support.h"
+#include "serial/console.h"
 
 /*----------------------------------------------------------------------------
- *        Exported functions
+ *        Public Functions
  *----------------------------------------------------------------------------*/
 
-WEAK void board_init(void)
+void board_cfg_console(uint32_t baudrate)
 {
-#ifdef VARIANT_SRAM
-	bool clocks = true;
+	struct _console_cfg console_cfg;
+
+	if (!baudrate) {
+#ifdef BOARD_CONSOLE_BAUDRATE
+		baudrate = BOARD_CONSOLE_BAUDRATE;
 #else
-	bool clocks = false;
+		baudrate = 115200;
+#endif
+	}
+
+#ifdef BOARD_CONSOLE_ADDR
+	memset(&console_cfg, 0, sizeof(console_cfg));
+	console_cfg.addr = BOARD_CONSOLE_ADDR;
+	console_cfg.baudrate = baudrate;
+#  ifdef BOARD_CONSOLE_TX_PIN
+	const struct _pin tx_pin = BOARD_CONSOLE_TX_PIN;
+	console_cfg.tx_pin = tx_pin;
+#  endif
+#  ifdef BOARD_CONSOLE_RX_PIN
+	const struct _pin rx_pin = BOARD_CONSOLE_RX_PIN;
+	console_cfg.rx_pin = rx_pin;
+#  endif
+#else
+	get_romcode_console(&console_cfg);
 #endif
 
-	/* Configure misc low-level stuff */
-	board_cfg_lowlevel(clocks, false, true);
-
-	/* Configure console */
-	board_cfg_console(0);
+	console_configure(&console_cfg);
 }
+

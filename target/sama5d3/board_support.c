@@ -54,7 +54,6 @@
 
 #include "arm/mmu_cp15.h"
 #include "mm/l1cache.h"
-#include "serial/console.h"
 
 #include "board_support.h"
 
@@ -184,29 +183,6 @@ void board_cfg_lowlevel(bool clocks, bool ddram, bool mmu)
 		/* Setup MMU */
 		board_cfg_mmu();
 	}
-}
-
-void board_cfg_console(uint32_t baudrate)
-{
-	if (!baudrate) {
-#ifdef BOARD_CONSOLE_BAUDRATE
-		baudrate = BOARD_CONSOLE_BAUDRATE;
-#else
-		baudrate = 115200;
-#endif
-	}
-
-#if defined(BOARD_CONSOLE_PINS) && defined(BOARD_CONSOLE_ADDR)
-	const struct _pin console_pins[] = BOARD_CONSOLE_PINS;
-
-	pio_configure(console_pins, ARRAY_SIZE(console_pins));
-	console_configure(BOARD_CONSOLE_ADDR, baudrate);
-#else
-	/* default console port used by ROM-code */
-	const struct _pin console_pins[] = PINS_DBGU;
-	pio_configure(console_pins, ARRAY_SIZE(console_pins));
-	console_configure(DBGU, baudrate);
-#endif
 }
 
 void board_restore_pio_reset_state(void)

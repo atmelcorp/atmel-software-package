@@ -79,9 +79,10 @@
 /** CONSOLE pin definition: use USART3 */
 /* Note that since this is the ROM-code default console, these definitions
  * could be omitted */
-#define BOARD_CONSOLE_PINS     { PIN_USART3_TXD, PIN_USART3_RXD }
 #define BOARD_CONSOLE_ADDR     USART3
 #define BOARD_CONSOLE_BAUDRATE 115200
+#define BOARD_CONSOLE_TX_PIN   PIN_USART3_TXD
+#define BOARD_CONSOLE_RX_PIN   PIN_USART3_RXD
 
 /* =================== PIN LED definition ====================== */
 

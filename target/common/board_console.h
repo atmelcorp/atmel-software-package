@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2016, Atmel Corporation
+ * Copyright (c) 2017, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,32 +27,18 @@
  * ----------------------------------------------------------------------------
  */
 
- /*----------------------------------------------------------------------------
- *        Headers
- *----------------------------------------------------------------------------*/
-
-#include "chip.h"
-#include "board.h"
-#include "board_console.h"
-#include "compiler.h"
-
-#include "board_support.h"
+#ifndef BOARD_CONSOLE_H
+#define BOARD_CONSOLE_H
 
 /*----------------------------------------------------------------------------
- *        Exported functions
+ *        Functions
  *----------------------------------------------------------------------------*/
 
-WEAK void board_init(void)
-{
-#ifdef VARIANT_SRAM
-	bool clocks = true;
-#else
-	bool clocks = false;
-#endif
+/**
+ * \brief Configure the board console if any
+ * \param baudrate Requested baudrate, or board default if 0
+ */
+extern void board_cfg_console(uint32_t baudrate);
 
-	/* Configure misc low-level stuff */
-	board_cfg_lowlevel(clocks, false, true);
 
-	/* Configure console */
-	board_cfg_console(0);
-}
+#endif /* BOARD_CONSOLE_H */

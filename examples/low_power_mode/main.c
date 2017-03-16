@@ -112,6 +112,7 @@
 #include <stdio.h>
 
 #include "board.h"
+#include "board_console.h"
 #include "board_led.h"
 #include "board_twi.h"
 #include "chip.h"

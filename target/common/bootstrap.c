@@ -28,6 +28,7 @@
  */
 
 #include "board.h"
+#include "board_console.h"
 #include "irqflags.h"
 
 #include "irq/irq.h"

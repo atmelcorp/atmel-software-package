@@ -93,14 +93,17 @@
 
 /* =================== PIN CONSOLE definition ================== */
 
-/** CONSOLE pin definition: use USART3 */
-#ifndef BOARD_CONSOLE_PINS
-#define BOARD_CONSOLE_PINS     PINS_DBGU
-#endif
+/** CONSOLE pin definition: use DBGU */
 #ifndef BOARD_CONSOLE_ADDR
 #define BOARD_CONSOLE_ADDR     DBGU
 #endif
 #define BOARD_CONSOLE_BAUDRATE 115200
+#ifndef BOARD_CONSOLE_TX_PIN
+#define BOARD_CONSOLE_TX_PIN   PIN_DBGU_TXD
+#endif
+#ifndef BOARD_CONSOLE_RX_PIN
+#define BOARD_CONSOLE_RX_PIN   PIN_DBGU_RXD
+#endif
 
 /* =================== PIN LED definition ====================== */
 

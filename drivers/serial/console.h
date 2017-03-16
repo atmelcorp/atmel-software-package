@@ -63,7 +63,7 @@ typedef void (*console_rx_handler_t)(uint8_t received_char);
  * \param addr      Peripheral address for the console (UARTx, USARTx, DBGU)
  * \param baudrate  Baudrate at which the CONSOLE should operate (in Hz).
  */
-extern void console_configure(void *addr, uint32_t baudrate);
+extern void console_configure(const struct _console_cfg* config);
 
 /**
  * \brief Outputs a character on the CONSOLE.
