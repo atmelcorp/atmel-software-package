@@ -35,11 +35,13 @@
 #include "board_console.h"
 #include "board_timer.h"
 #include "chip.h"
+#include "console_pin_defs.h"
 #include "dma/dma.h"
 #include "gpio/pio.h"
 #include "nvm/sfc.h"
 #include "peripherals/pmc.h"
 #include "serial/console.h"
+#include "serial/seriald.h"
 #include "timer.h"
 #include "trace.h"
 
@@ -53,6 +55,7 @@ extern int __buffer_start__;
 
 static bool applet_initialized = false;
 static uint32_t _comm_type;
+static struct _seriald serial_comm;
 
 uint8_t *applet_buffer;
 uint32_t applet_buffer_size;
@@ -88,20 +91,65 @@ static void debug_display_mailbox(struct applet_mailbox *mailbox)
 #endif
 }
 
+static bool get_console_config(uint32_t instance, uint32_t ioset, struct _console_cfg* cfg)
+{
+	int i;
+
+	/* if instance or ioset is 0xffffffff, return an empty config, that
+	 * will disable the console subsystem */
+	if (instance == 0xffffffffu || ioset == 0xffffffffu) {
+		memset(cfg, 0, sizeof(*cfg));
+		return true;
+	}
+
+	/* otherwise, try to find the instance/ioset tuple */
+	for (i = 0; i < num_console_pin_defs; i++) {
+		const struct console_pin_definition* def =
+			&console_pin_defs[i];
+		if (def->instance == instance && def->ioset == ioset) {
+			memset(cfg, 0, sizeof(*cfg));
+			cfg->addr = def->addr;
+			cfg->baudrate = 115200;
+			memcpy(&cfg->tx_pin, &def->tx_pin, sizeof(struct _pin));
+			return true;
+		}
+	}
+
+	return false;
+}
+
 /*----------------------------------------------------------------------------
  *         Public functions
  *----------------------------------------------------------------------------*/
 
 bool applet_set_init_params(union initialize_mailbox* mbx)
 {
+	struct _console_cfg rom_cfg;
+	struct _console_cfg cfg;
+
 	_comm_type = mbx->in.comm_type;
 
-	/* If we are communicating using the console UART, the applet */
-	/* cannot display any trace. We still need to configure the */
-	/* console subsystem to send the acknowledge byte ater command */
-	/* execution. */
-	trace_level = _comm_type == COMM_TYPE_DBGU ? 0 : mbx->in.trace_level;
-	board_cfg_console(0);
+	if (_comm_type == COMM_TYPE_DBGU) {
+		get_romcode_console(&rom_cfg);
+		/* Configure the serial driver needed to send the acknowledge
+		 * byte after command execution. */
+		if (seriald_configure(&serial_comm, rom_cfg.addr, 115200) < 0)
+			return false;
+	}
+
+	if (!get_console_config(mbx->in.console_instance, mbx->in.console_ioset, &cfg))
+		return false;
+
+	if (_comm_type == COMM_TYPE_DBGU && rom_cfg.addr == cfg.addr) {
+		/* If we are communicating using the ROM-code serial link and
+		 * the requested console is on the same peripheral, the applet
+		 * cannot display any trace. */
+		trace_level = 0;
+	} else {
+		trace_level = mbx->in.trace_level;
+		console_configure(&cfg);
+	}
+
 	return true;
 }
 
@@ -169,5 +217,5 @@ void applet_main(struct applet_mailbox *mailbox)
 
 	/* send ACK character if comm type is DBGU */
 	if (_comm_type == COMM_TYPE_DBGU)
-		console_put_char(0x06);
+		seriald_put_char(&serial_comm, 0x06);
 }

@@ -36,6 +36,7 @@ CFLAGS += -mno-unaligned-access -DDMA_SG_ITEM_POOL_SIZE=2
 
 obj-y += samba_applets/common/applet_main.o
 obj-y += samba_applets/common/applet_legacy.o
+obj-y += samba_applets/common/console_pin_defs_$(chip-family).o
 
 ifeq ($(VARIANT),sram)
 gnu-linker-script-$(CONFIG_SOC_SAM9XX5) = $(TOP)/samba_applets/common/sam9xx5/sram.ld

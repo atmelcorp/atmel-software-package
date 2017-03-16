@@ -83,6 +83,10 @@ union initialize_mailbox
 		uint32_t comm_type;
 		/** Trace level */
 		uint32_t trace_level;
+		/** Console instance */
+		uint32_t console_instance;
+		/** Console ioset */
+		uint32_t console_ioset;
 		/** Initialization parameters */
 		uint32_t parameters[4];
 	} in;
