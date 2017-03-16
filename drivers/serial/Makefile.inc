@@ -27,6 +27,7 @@
 # ----------------------------------------------------------------------------
 
 drivers-y += drivers/serial/console.o
+drivers-y += drivers/serial/seriald.o
 drivers-$(CONFIG_HAVE_DBGU) += drivers/serial/dbgu.o
 drivers-$(CONFIG_HAVE_UART) += drivers/serial/uart.o
 drivers-$(CONFIG_HAVE_USART) += drivers/serial/usart.o
