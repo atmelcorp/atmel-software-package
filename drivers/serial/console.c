@@ -27,24 +27,15 @@
  * ----------------------------------------------------------------------------
  */
 
-/**
-* \file
-*
-* Implements CONSOLE.
-*
-*/
-
 /*----------------------------------------------------------------------------
 *        Headers
 *----------------------------------------------------------------------------*/
 
+#include <stdio.h>
+
 #include "board.h"
 #include "chip.h"
-
-#include "irq/irq.h"
-#ifdef CONFIG_HAVE_DBGU
-#include "serial/dbgu.h"
-#endif
+#include "console.h"
 #ifdef CONFIG_HAVE_L1CACHE
 #include "mm/l1cache.h"
 #endif
@@ -54,106 +45,10 @@
 #ifdef CONFIG_HAVE_MMU
 #include "mm/mmu.h"
 #endif
-#include "gpio/pio.h"
 #include "peripherals/pmc.h"
-#include "serial/uart.h"
-#include "serial/usart.h"
+#include "serial/seriald.h"
 
-#include "console.h"
-
-#include <assert.h>
-#include <stdio.h>
-
-/*----------------------------------------------------------------------------
- *        Local Types
- *----------------------------------------------------------------------------*/
-
-typedef void (*init_handler_t)(void*, uint32_t, uint32_t);
-typedef void (*put_char_handler_t)(void*, uint8_t);
-typedef bool (*tx_empty_handler_t)(void*);
-typedef uint8_t (*get_char_handler_t)(void*);
-typedef bool (*rx_ready_handler_t)(void*);
-typedef void (*enable_it_handler_t)(void*, uint32_t);
-typedef void (*disable_it_handler_t)(void*, uint32_t);
-
-struct _console {
-	uint32_t             mode;
-	uint32_t             rx_int_mask;
-	init_handler_t       init;
-	put_char_handler_t   put_char;
-	tx_empty_handler_t   tx_empty;
-	get_char_handler_t   get_char;
-	rx_ready_handler_t   rx_ready;
-	enable_it_handler_t  enable_it;
-	disable_it_handler_t disable_it;
-};
-
-/*----------------------------------------------------------------------------
- *        Variables
- *----------------------------------------------------------------------------*/
-
-#ifdef CONFIG_HAVE_CONSOLE_USART
-static const struct _console console = {
-	.mode = US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT,
-	.rx_int_mask = US_IER_RXRDY,
-	.init = (init_handler_t)usart_configure,
-	.put_char = (put_char_handler_t)usart_put_char,
-	.tx_empty = (tx_empty_handler_t)usart_is_tx_empty,
-	.get_char = (get_char_handler_t)usart_get_char,
-	.rx_ready = (rx_ready_handler_t)usart_is_rx_ready,
-	.enable_it = (enable_it_handler_t)usart_enable_it,
-	.disable_it = (disable_it_handler_t)usart_disable_it,
-};
-#endif
-
-#ifdef CONFIG_HAVE_CONSOLE_UART
-static const struct _console console = {
-	.mode = UART_MR_CHMODE_NORMAL | UART_MR_PAR_NO,
-	.rx_int_mask = UART_IER_RXRDY,
-	.init = (init_handler_t)uart_configure,
-	.put_char = (put_char_handler_t)uart_put_char,
-	.tx_empty = (tx_empty_handler_t)uart_is_tx_empty,
-	.get_char = (get_char_handler_t)uart_get_char,
-	.rx_ready = (rx_ready_handler_t)uart_is_rx_ready,
-	.enable_it = (enable_it_handler_t)uart_enable_it,
-	.disable_it = (disable_it_handler_t)uart_disable_it,
-};
-#endif
-
-#ifdef CONFIG_HAVE_CONSOLE_DBGU
-static const struct _console console = {
-	.mode = DBGU_MR_CHMODE_NORM | DBGU_MR_PAR_NONE,
-	.rx_int_mask = DBGU_IER_RXRDY,
-	.init = (init_handler_t)dbgu_configure,
-	.put_char = (put_char_handler_t)dbgu_put_char,
-	.tx_empty = (tx_empty_handler_t)dbgu_is_tx_empty,
-	.get_char = (get_char_handler_t)dbgu_get_char,
-	.rx_ready = (rx_ready_handler_t)dbgu_is_rx_ready,
-	.enable_it = (enable_it_handler_t)dbgu_enable_it,
-	.disable_it = (disable_it_handler_t)dbgu_disable_it,
-};
-#endif
-
-static uint32_t console_id = 0;
-static void *console_addr = NULL;
-static bool console_initialized = false;
-static console_rx_handler_t console_rx_handler;
-
-/*------------------------------------------------------------------------------
- *         Local functions
- *------------------------------------------------------------------------------*/
-
-static void console_handler(uint32_t source, void* user_arg)
-{
-	uint8_t c;
-
-	if (!console_is_rx_ready())
-		return;
-
-	c = console_get_char();
-	if (console_rx_handler)
-		console_rx_handler(c);
-}
+static struct _seriald console;
 
 /*------------------------------------------------------------------------------
  *         Exported functions
@@ -161,87 +56,48 @@ static void console_handler(uint32_t source, void* user_arg)
 
 void console_configure(void* addr, uint32_t baudrate)
 {
-	uint32_t id = ID_PERIPH_COUNT;
-
-#ifdef CONFIG_HAVE_CONSOLE_USART
-	id = get_usart_id_from_addr((Usart*)addr);
-#endif
-#ifdef CONFIG_HAVE_CONSOLE_UART
-	id = get_uart_id_from_addr((Uart*)addr);
-#endif
-#ifdef CONFIG_HAVE_CONSOLE_DBGU
-	if (addr == DBGU)
-		id = ID_DBGU;
-#endif
-	assert(id != ID_PERIPH_COUNT);
-
-	/* Save console peripheral address and ID */
-	console_id = id;
-	console_addr = addr;
-
-	/* Initialize driver to use */
-	pmc_configure_peripheral(id, NULL, true);
-	console.init(console_addr, console.mode, baudrate);
-
-	/* Finally */
-	console_initialized = true;
+	seriald_configure(&console, addr, baudrate);
 }
 
-void console_put_char(uint8_t c)
+void console_put_char(char c)
 {
-	// if console is not initialized, do nothing
-	if (!console_initialized)
-		return;
+	seriald_put_char(&console, *(uint8_t*)&c);
+}
 
-	console.put_char(console_addr, c);
+void console_put_string(const char* str)
+{
+	seriald_put_string(&console, (const uint8_t*)str);
 }
 
 bool console_is_tx_empty(void)
 {
-	// if console is not initialized, do nothing
-	if (!console_initialized)
-		return true;
-
-	return console.tx_empty(console_addr);
+	return seriald_is_tx_empty(&console);
 }
 
-uint8_t console_get_char(void)
+char console_get_char(void)
 {
-	// if console is not initialized, fail
-	if (!console_initialized) {
-		assert(0);
-		while(1);
-	}
-
-	return console.get_char(console_addr);
+	uint8_t c = seriald_get_char(&console);
+	return *(char*)&c;
 }
 
 bool console_is_rx_ready(void)
 {
-	// if console is not initialized, rx not ready
-	if (!console_initialized)
-		return false;
-
-	return console.rx_ready(console_addr);
+	return seriald_is_rx_ready(&console);
 }
 
 void console_set_rx_handler(console_rx_handler_t handler)
 {
-	console_rx_handler = handler;
+	seriald_set_rx_handler(&console, handler);
 }
 
 void console_enable_rx_interrupt(void)
 {
-	irq_add_handler(console_id, console_handler, NULL);
-	irq_enable(console_id);
-	console.enable_it(console_addr, console.rx_int_mask);
+	seriald_enable_rx_interrupt(&console);
 }
 
 void console_disable_rx_interrupt(void)
 {
-	console.disable_it(console_addr, console.rx_int_mask);
-	irq_disable(console_id);
-	irq_remove_handler(console_id, console_handler);
+	seriald_disable_rx_interrupt(&console);
 }
 
 void console_example_info(const char *example_name)
@@ -271,7 +127,7 @@ void console_example_info(const char *example_name)
 	printf("L2-Cache is %s\r\n", l2cache_is_enabled() ? "enabled" : "disabled");
 #endif
 #endif
-	printf("\r\n");
+	console_put_string("\r\n");
 }
 
 void console_dump_frame(uint8_t *frame, uint32_t size)
@@ -280,7 +136,7 @@ void console_dump_frame(uint8_t *frame, uint32_t size)
 	for (i = 0; i < size; i++) {
 		printf("%02x ", frame[i]);
 	}
-	printf("\n\r");
+	console_put_string("\n\r");
 }
 
 void console_dump_memory(uint8_t *buffer, uint32_t size,
@@ -368,7 +224,7 @@ uint32_t console_get_integer_min_max(uint32_t * pvalue, uint32_t min,
 		       (unsigned int)min, (unsigned int)max);
 		return 0;
 	}
-	printf("\n\r");
+	console_put_string("\n\r");
 	*pvalue = value;
 	return 1;
 }
@@ -392,26 +248,25 @@ uint32_t console_get_hexa_32(uint32_t * pvalue)
 				if (key >= 'a' && key <= 'f') {
 					value = (value * 16) + (key - 'a' + 10);
 				} else {
-					printf
-					    ("\n\rIt is not a hexa character!\n\r");
+					console_put_string("\n\rIt is not a hexa character!\n\r");
 					return 0;
 				}
 			}
 		}
 	}
-	printf("\n\r");
+	console_put_string("\n\r");
 	*pvalue = value;
 	return 1;
 }
 
 void console_clear_screen(void)
 {
-	printf("\033[2J\033[0;0f");
+	console_put_string("\033[2J\033[0;0f");
 }
 
 void console_reset_cursor(void)
 {
-	printf("\033[0;0f");
+	console_put_string("\033[0;0f");
 }
 
 void console_echo(uint8_t c)
@@ -419,13 +274,13 @@ void console_echo(uint8_t c)
 	switch (c) {
 	case '\r':
 	case '\n':
-		printf("\r\n");
+		console_put_string("\r\n");
 		break;
 	case 0x7F:
-		printf("\033[1D\033[K");
+		console_put_string("\033[1D\033[K");
 		break;
 	case '\b':
-		printf("\033[1D\033[K");
+		console_put_string("\033[1D\033[K");
 		break;
 	default:
 		console_put_char(c);

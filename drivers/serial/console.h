@@ -71,7 +71,15 @@ extern void console_configure(void *addr, uint32_t baudrate);
  * \note This function is synchronous (i.e. uses polling).
  * \param c  Character to send.
  */
-extern void console_put_char(uint8_t uc);
+extern void console_put_char(char c);
+
+/**
+ * \brief Outputs a string on the CONSOLE.
+ *
+ * \note This function is synchronous (i.e. uses polling).
+ * \param str  String to send.
+ */
+extern void console_put_string(const char* str);
 
 /**
  * \brief Check if any pending TX character has been sent
@@ -84,7 +92,7 @@ extern bool console_is_tx_empty(void);
  * \note This function is synchronous
  * \return character received.
  */
-extern uint8_t console_get_char(void);
+extern char console_get_char(void);
 
 /**
  * \brief Check if there is Input from CONSOLE line.
