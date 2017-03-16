@@ -311,7 +311,6 @@ static bool _pmc_get_system_clock_bits(enum _pmc_system_clock clock,
 		break;
 #endif
 	default:
-		trace_debug("Unknown System clock: %d\r\n", clock);
 		return false;
 	}
 
@@ -849,11 +848,19 @@ void pmc_disable_plla(void)
 	PMC->CKGR_PLLAR = (PMC->CKGR_PLLAR & ~CKGR_PLLAR_MULA_Msk) | CKGR_PLLAR_MULA(0);
 }
 
+bool pmc_has_system_clock(enum _pmc_system_clock clock)
+{
+	return _pmc_get_system_clock_bits(clock, NULL, NULL, NULL);
+}
+
 void pmc_enable_system_clock(enum _pmc_system_clock clock)
 {
 	uint32_t scer, scsr;
-	if (!_pmc_get_system_clock_bits(clock, &scer, NULL, &scsr))
+
+	if (!_pmc_get_system_clock_bits(clock, &scer, NULL, &scsr)) {
+		trace_debug("Unknown System clock: %d\r\n", clock);
 		return;
+	}
 
 	PMC->PMC_SCER |= scer;
 	while (!(PMC->PMC_SCSR & scsr));
@@ -862,8 +869,11 @@ void pmc_enable_system_clock(enum _pmc_system_clock clock)
 void pmc_disable_system_clock(enum _pmc_system_clock clock)
 {
 	uint32_t scdr, scsr;
-	if (!_pmc_get_system_clock_bits(clock, NULL, &scdr, &scsr))
+
+	if (!_pmc_get_system_clock_bits(clock, NULL, &scdr, &scsr)) {
+		trace_debug("Unknown System clock: %d\r\n", clock);
 		return;
+	}
 
 	PMC->PMC_SCDR |= scdr;
 	while (PMC->PMC_SCSR & scsr);
@@ -872,8 +882,12 @@ void pmc_disable_system_clock(enum _pmc_system_clock clock)
 bool pmc_is_system_clock_enabled(enum _pmc_system_clock clock)
 {
 	uint32_t scsr;
-	if (!_pmc_get_system_clock_bits(clock, NULL, NULL, &scsr))
+
+	if (!_pmc_get_system_clock_bits(clock, NULL, NULL, &scsr)) {
+		trace_debug("Unknown System clock: %d\r\n", clock);
 		return false;
+	}
+
 	return (PMC->PMC_SCSR & scsr) == scsr;
 }
 

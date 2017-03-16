@@ -317,6 +317,12 @@ extern void pmc_set_mck_uplldiv2(bool div2);
 extern void pmc_disable_plla(void);
 
 /**
+ * \brief Check whether the device supports a given system clock
+ * \param clock system clock to check
+ */
+extern bool pmc_has_system_clock(enum _pmc_system_clock clock);
+
+/**
  * \brief Enables a system clock
  * \param clock system clock to enable
  */
