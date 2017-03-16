@@ -70,6 +70,9 @@ CONFIG_HAVE_USART_ISO7816_4 = y
 ifeq ("y",$(TARGET:%-generic="y"))
 CONFIG_CHIP_SAMA5D44 = y
 CONFIG_BOARD_SAMA5D4_GENERIC = y
+# allow choosing any supported console type at runtime
+CONFIG_CONSOLE_DBGU = y
+CONFIG_CONSOLE_UART = y
 CONFIG_CONSOLE_USART = y
 # allow choosing any supported ddram type at runtime
 CONFIG_HAVE_DDR2_MT47H128MF = y

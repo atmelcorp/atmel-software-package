@@ -44,7 +44,11 @@ CONFIG_HAVE_SHDWC = y
 ifeq ($(TARGET),sam9g15-generic)
 CONFIG_CHIP_SAM9G15 = y
 CONFIG_BOARD_SAM9G15_GENERIC = y
+# allow choosing any supported console type at runtime
 CONFIG_CONSOLE_DBGU = y
+CONFIG_CONSOLE_UART = y
+CONFIG_CONSOLE_USART = y
+# allow choosing any supported ddram type at runtime
 CONFIG_HAVE_DDR2_MT47H128M8 = y
 CONFIG_HAVE_DDR2_MT47H64M16 = y
 CONFIG_HAVE_DDR2_MT47H128M16 = y
@@ -54,7 +58,11 @@ endif
 ifeq ($(TARGET),sam9g25-generic)
 CONFIG_CHIP_SAM9G25 = y
 CONFIG_BOARD_SAM9G25_GENERIC = y
+# allow choosing any supported console type at runtime
 CONFIG_CONSOLE_DBGU = y
+CONFIG_CONSOLE_UART = y
+CONFIG_CONSOLE_USART = y
+# allow choosing any supported ddram type at runtime
 CONFIG_HAVE_DDR2_MT47H128M8 = y
 CONFIG_HAVE_DDR2_MT47H64M16 = y
 CONFIG_HAVE_DDR2_MT47H128M16 = y
@@ -64,7 +72,11 @@ endif
 ifeq ($(TARGET),sam9g35-generic)
 CONFIG_CHIP_SAM9G35 = y
 CONFIG_BOARD_SAM9G35_GENERIC = y
+# allow choosing any supported console type at runtime
 CONFIG_CONSOLE_DBGU = y
+CONFIG_CONSOLE_UART = y
+CONFIG_CONSOLE_USART = y
+# allow choosing any supported ddram type at runtime
 CONFIG_HAVE_DDR2_MT47H128M8 = y
 CONFIG_HAVE_DDR2_MT47H64M16 = y
 CONFIG_HAVE_DDR2_MT47H128M16 = y
@@ -74,7 +86,11 @@ endif
 ifeq ($(TARGET),sam9x25-generic)
 CONFIG_CHIP_SAM9X25 = y
 CONFIG_BOARD_SAM9X25_GENERIC = y
+# allow choosing any supported console type at runtime
 CONFIG_CONSOLE_DBGU = y
+CONFIG_CONSOLE_UART = y
+CONFIG_CONSOLE_USART = y
+# allow choosing any supported ddram type at runtime
 CONFIG_HAVE_DDR2_MT47H128M8 = y
 CONFIG_HAVE_DDR2_MT47H64M16 = y
 CONFIG_HAVE_DDR2_MT47H128M16 = y
@@ -84,7 +100,11 @@ endif
 ifeq ($(TARGET),sam9x35-generic)
 CONFIG_CHIP_SAM9X35 = y
 CONFIG_BOARD_SAM9X35_GENERIC = y
+# allow choosing any supported console type at runtime
 CONFIG_CONSOLE_DBGU = y
+CONFIG_CONSOLE_UART = y
+CONFIG_CONSOLE_USART = y
+# allow choosing any supported ddram type at runtime
 CONFIG_HAVE_DDR2_MT47H128M8 = y
 CONFIG_HAVE_DDR2_MT47H64M16 = y
 CONFIG_HAVE_DDR2_MT47H128M16 = y

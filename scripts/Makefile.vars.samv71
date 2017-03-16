@@ -41,7 +41,10 @@ CONFIG_HAVE_XDMAC = y
 ifeq ($(TARGET),samv71-generic)
 CONFIG_CHIP_SAMV71Q21 = y
 CONFIG_BOARD_SAMV71_GENERIC = y
+# allow choosing any supported console type at runtime
 CONFIG_CONSOLE_UART = y
+CONFIG_CONSOLE_USART = y
+# allow choosing any supported ddram type at runtime
 CONFIG_HAVE_SDRAM_IS42S16100E = y
 endif
 
