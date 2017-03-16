@@ -31,8 +31,11 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include <string.h>
+
 #include "chip.h"
 #include "compiler.h"
+#include "serial/console.h"
 
 /*----------------------------------------------------------------------------
  *        Definitions
@@ -89,6 +92,10 @@ static const struct chipid _chipid_names[] = {
 	{ CHIPID_CIDR_SAMV71J20, CHIPID_EXID_SAMV71J20, "SAMV71J20" },
 	{ CHIPID_CIDR_SAMV71J19, CHIPID_EXID_SAMV71J19, "SAMV71J19" },
 };
+
+/* default console used by ROM-code */
+static const struct _console_cfg _console_cfg =
+	{ UART0, 115200, PIN_UART0_TXD, PIN_UART0_RXD };
 
 static const struct peripheral_xdma _xdmac_peripherals[] = {
 	{ ID_HSMCI0,      0,    0 },
@@ -162,6 +169,11 @@ const char* get_chip_name(void)
 	}
 
 	return "Unknown";
+}
+
+void get_romcode_console(struct _console_cfg* config)
+{
+	memcpy(config, &_console_cfg, sizeof(*config));
 }
 
 uint8_t get_flash_wait_states(uint32_t frequency)

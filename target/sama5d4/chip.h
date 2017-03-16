@@ -36,6 +36,9 @@
 #include "sama5d44.h"
 #include "chip_common.h"
 
+/* forward declaration */
+struct _console_cfg;
+
 /* ************************************************************************** */
 /*   CHIPID DEFINITIONS FOR SAMA5D4x */
 /* ************************************************************************** */
@@ -269,6 +272,14 @@ extern "C" {
  * \return a constant string containing the chip name
  */
 extern const char* get_chip_name(void);
+
+/**
+ * \brief Return the default parameters used by the ROM-code for its console.
+ * \param config a structure into which the function will write the serial
+ * peripheral, the baudrate and the TX/RX pins. It will be all zeros if the
+ * ROM-code console is disabled.
+ */
+extern void get_romcode_console(struct _console_cfg* config);
 
 /** \brief Returns the matrix on which the given peripheral is connected
  *

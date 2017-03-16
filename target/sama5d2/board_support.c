@@ -71,7 +71,7 @@
  *        Local types
  *----------------------------------------------------------------------------*/
 
-struct _console_cfg {
+struct _rom_console_cfg {
 	void* addr;
 	const struct _pin pins[2];
 };
@@ -195,7 +195,7 @@ void board_cfg_console(uint32_t baudrate)
 	console_configure(BOARD_CONSOLE_ADDR, baudrate);
 #else
 	/* default console ports used by ROM-code */
-	const struct _console_cfg console_cfg[] = {
+	const struct _rom_console_cfg console_cfg[] = {
 		{ UART1, PINS_UART1_IOS1 },
 		{ UART0, PINS_UART0_IOS1 },
 		{ UART1, PINS_UART1_IOS2 },

@@ -31,10 +31,12 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include <string.h>
+
 #include "chip.h"
 #include "compiler.h"
-
 #include "peripherals/pmc.h"
+#include "serial/console.h"
 
 /*----------------------------------------------------------------------------
  *        Definitions
@@ -67,6 +69,10 @@ static const struct chipid _exid_names[] = {
 	{ CHIPID_EXID_SAMA5D35, "SAMA5D35" },
 	{ CHIPID_EXID_SAMA5D36, "SAMA5D36" },
 };
+
+/* default console used by ROM-code */
+static const struct _console_cfg _console_cfg =
+	{ DBGU, 115200, PIN_DBGU_TXD, PIN_DBGU_RXD };
 
 static const struct peripheral_dma _dmac0_peripherals[] = {
 	{ ID_HSMCI0,    0,  0 },
@@ -172,6 +178,11 @@ const char* get_chip_name(void)
 	}
 
 	return "Unknown";
+}
+
+void get_romcode_console(struct _console_cfg* config)
+{
+	memcpy(config, &_console_cfg, sizeof(*config));
 }
 
 uint32_t get_peripheral_clock_matrix_div(uint32_t id)

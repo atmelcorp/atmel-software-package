@@ -31,8 +31,12 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include <string.h>
+
 #include "chip.h"
 #include "compiler.h"
+#include "nvm/sfc.h"
+#include "serial/console.h"
 
 /*----------------------------------------------------------------------------
  *        Definitions
@@ -65,6 +69,20 @@ static const struct chipid _exid_names[] = {
 	{ CHIPID_EXID_SAMA5D27_CN, "SAMA5D27-CN" },
 	{ CHIPID_EXID_SAMA5D28_CU, "SAMA5D28-CU" },
 	{ CHIPID_EXID_SAMA5D28_CN, "SAMA5D28-CN" },
+};
+
+/* default console used by ROM-code */
+static const struct _console_cfg _console_cfg[] = {
+	{ UART1, 115200, PIN_UART1_TXD_IOS1, PIN_UART1_RXD_IOS1 },
+	{ UART0, 115200, PIN_UART0_TXD_IOS1, PIN_UART0_RXD_IOS1 },
+	{ UART1, 115200, PIN_UART1_TXD_IOS2, PIN_UART1_RXD_IOS2 },
+	{ UART2, 115200, PIN_UART2_TXD_IOS1, PIN_UART2_RXD_IOS1 },
+	{ UART2, 115200, PIN_UART2_TXD_IOS2, PIN_UART2_RXD_IOS2 },
+	{ UART2, 115200, PIN_UART2_TXD_IOS3, PIN_UART2_RXD_IOS3 },
+	{ UART3, 115200, PIN_UART3_TXD_IOS1, PIN_UART3_RXD_IOS1 },
+	{ UART3, 115200, PIN_UART3_TXD_IOS2, PIN_UART3_RXD_IOS2 },
+	{ UART3, 115200, PIN_UART3_TXD_IOS3, PIN_UART3_RXD_IOS3 },
+	{ UART4, 115200, PIN_UART4_TXD_IOS1, PIN_UART4_RXD_IOS1 },
 };
 
 static const uint8_t _h64_peripherals[] = {
@@ -156,6 +174,31 @@ const char* get_chip_name(void)
 	}
 
 	return "Unknown";
+}
+
+void get_romcode_console(struct _console_cfg* config)
+{
+	uint32_t bcw;
+	uint32_t console;
+
+	/* read boot config word from fuse */
+	bcw = sfc_read(16);
+
+	/* if BSCR is not disabled and BUREG index is valid, use BUREG */
+	if ((bcw & BCW_DISABLE_BSCR) == 0) {
+		uint32_t bsc_cr = BSC->BSC_CR;
+		if (bsc_cr & BSC_CR_BUREG_VALID) {
+			uint32_t index = (bsc_cr & BSC_CR_BUREG_INDEX_Msk) >> BSC_CR_BUREG_INDEX_Pos;
+			bcw = SECURAM->BUREG[index];
+		}
+	}
+
+	/* configure console */
+	console = (bcw & BCW_UART_CONSOLE_Msk) >> BCW_UART_CONSOLE_Pos;
+	if (console < ARRAY_SIZE(_console_cfg))
+		memcpy(config, &_console_cfg[console], sizeof(*config));
+	else
+		memset(config, 0, sizeof(*config));
 }
 
 Matrix* get_peripheral_matrix(uint32_t id)

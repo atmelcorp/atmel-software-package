@@ -31,8 +31,11 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include <string.h>
+
 #include "chip.h"
 #include "compiler.h"
+#include "serial/console.h"
 
 /*----------------------------------------------------------------------------
  *        Definitions
@@ -59,6 +62,10 @@ static const struct chipid _exid_names[] = {
 	{ CHIPID_EXID_SAMA5D43, "SAMA5D43" },
 	{ CHIPID_EXID_SAMA5D44, "SAMA5D44" },
 };
+
+/* default console used by ROM-code */
+static const struct _console_cfg _console_cfg =
+	{ USART3, 115200, PIN_USART3_TXD, PIN_USART3_RXD };
 
 static const uint8_t _h64_peripherals[] = {
 	ID_ARM,     /* 2: Performance Monitor Unit (ARM) */
@@ -169,6 +176,11 @@ const char* get_chip_name(void)
 	}
 
 	return "Unknown";
+}
+
+void get_romcode_console(struct _console_cfg* config)
+{
+	memcpy(config, &_console_cfg, sizeof(*config));
 }
 
 Matrix* get_peripheral_matrix(uint32_t id)

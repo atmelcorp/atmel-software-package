@@ -37,9 +37,18 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "gpio/pio.h"
+
 /*----------------------------------------------------------------------------
  *        Global Types
  *----------------------------------------------------------------------------*/
+
+struct _console_cfg {
+	void* addr;
+	uint32_t baudrate;
+	struct _pin tx_pin;
+	struct _pin rx_pin;
+};
 
 /** Handler for character reception using interrupts */
 typedef void (*console_rx_handler_t)(uint8_t received_char);
