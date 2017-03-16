@@ -65,7 +65,8 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 
 	assert(cmd == APPLET_CMD_INITIALIZE);
 
-	applet_set_init_params(mbx->in.comm_type, mbx->in.trace_level);
+	if (!applet_set_init_params(mbx))
+		return APPLET_FAIL;
 
 	trace_warning_wp("\r\nApplet 'Low-Level' from softpack " SOFTPACK_VERSION ".\r\n");
 
@@ -79,7 +80,8 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 		board_cfg_clocks();
 
 		/* re-inititialize console after clock setup */
-		applet_set_init_params(mbx->in.comm_type, mbx->in.trace_level);
+		if (!applet_set_init_params(mbx))
+			return APPLET_FAIL;
 
 		/* display new processor clock */
 		pck = pmc_get_processor_clock() / 1000000;

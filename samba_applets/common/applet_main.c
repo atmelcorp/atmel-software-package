@@ -92,16 +92,17 @@ static void debug_display_mailbox(struct applet_mailbox *mailbox)
  *         Public functions
  *----------------------------------------------------------------------------*/
 
-void applet_set_init_params(uint32_t comm, uint32_t trace)
+bool applet_set_init_params(union initialize_mailbox* mbx)
 {
-	_comm_type = comm;
+	_comm_type = mbx->in.comm_type;
 
 	/* If we are communicating using the console UART, the applet */
 	/* cannot display any trace. We still need to configure the */
 	/* console subsystem to send the acknowledge byte ater command */
 	/* execution. */
-	trace_level = _comm_type == COMM_TYPE_DBGU ? 0 : trace;
+	trace_level = _comm_type == COMM_TYPE_DBGU ? 0 : mbx->in.trace_level;
 	board_cfg_console(0);
+	return true;
 }
 
 applet_command_handler_t get_applet_command_handler(uint8_t cmd)

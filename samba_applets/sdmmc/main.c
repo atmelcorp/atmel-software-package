@@ -255,7 +255,8 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 
 	assert(cmd == APPLET_CMD_INITIALIZE);
 
-	applet_set_init_params(mbx->in.comm_type, mbx->in.trace_level);
+	if (!applet_set_init_params(mbx))
+		return APPLET_FAIL;
 
 	trace_warning_wp("\r\nApplet 'SD/MMC' from "
 			"softpack " SOFTPACK_VERSION ".\r\n");

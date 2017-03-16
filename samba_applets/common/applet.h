@@ -30,6 +30,7 @@
 #ifndef _APPLET_H_
 #define _APPLET_H_
 
+#include <stdbool.h>
 #include <stdint.h>
 
 /*----------------------------------------------------------------------------
@@ -130,7 +131,7 @@ extern uint32_t applet_buffer_size;
 
 extern const struct applet_command applet_commands[];
 
-extern void applet_set_init_params(uint32_t comm, uint32_t trace);
+extern bool applet_set_init_params(union initialize_mailbox* mbx);
 
 extern applet_command_handler_t get_applet_command_handler(uint8_t cmd);
 
