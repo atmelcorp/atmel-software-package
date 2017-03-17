@@ -19,7 +19,8 @@ place in RAM_region { block CACHE_ALIGNED };
 place in RAM_region { block BSS };
 place in RAM_region { block HEAP };
 place in RAM_region { block CSTACK };
-/* CSTACK must be the last section in RAM_region: its end marks the start of the applet buffer */
+/* applet_buffer section must be placed last in RAM_region */
+place in RAM_region { section .applet_buffer };
 
 define symbol __buffer_end__ = end(RAM_region);
 export symbol __buffer_end__;

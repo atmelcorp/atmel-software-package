@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015-2016, Atmel Corporation
+ * Copyright (c) 2015-2017, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -31,82 +31,65 @@
 //         Startup routine
 //------------------------------------------------------------------------------
 
-	MODULE  ?cstartup
+	.section    .cstartup
 
-	;; Forward declaration of sections.
-	SECTION CSTACK:DATA:NOROOT(3)
+	.align
+	.arm
 
-	SECTION .cstartup:CODE:NOROOT(2)
-	PUBLIC  entry
-	PUBLIC  __iar_program_start
-	EXTERN  __iar_data_init3
-	EXTERN  applet_main
-
-	ARM
-
-/* Main Application entry*/
-entry:
-__iar_program_start:
-?cstartup:
-	/* Branch to the init after the arguments */
-	b       init
+	/* Branch to the real entry point */
+	b       entry
 
 	/* Mailbox area where PC application stores arguments */
-mailbox:
-	DS32  32
+	.global applet_mailbox
+applet_mailbox:
+	.space 32 * 4
 
-is_initialized:
-	DCD   0
+	/* Address of the entry point */
+applet_entry_address:
+	.word entry
 
+	/* Flag to indicate is the BSS needs to be cleared on the first applet
+	 * call */
+	.global applet_first_run
+applet_first_run:
+	.word   1
+
+#ifdef CONFIG_SOC_SAM9XX5
+	/* Backup of the ROM-code stack pointer */
 romcode_sp:
-	DCD   0
+	.word   0
+#endif
 
-init:
+	.global entry
+entry:
 	/*
-	 * On older devices (SAM9), the romcode would not reset its stack
-	 * pointer correctly between applet calls.
+	 * On SAM9XX5 devices, the romcode would not reset its stack pointer
+	 * correctly between applet calls.
 	 * As a workaround, we save the first romcode SP we see and use it to
 	 * restore the stack on each applet call.
 	 */
-	ldr     r0, romcode_sp
-	cmp     r0, #0
-	bne     skip_sp_save
-	str     sp, romcode_sp
-skip_sp_save:
-	ldr     sp, =SFE(CSTACK)
-	stmdb   sp!, {r0-r4,lr}
+#ifdef CONFIG_SOC_SAM9XX5
+	mov     r0, r4
+	ldr     r4, romcode_sp
+	cmp     r4, #0
+	moveq   r4, sp
+	streq   r4, romcode_sp
+	ldr     sp, =_cstack
+	push    {r0, lr}
+#else
+	mov     r0, r4
+	mov     r4, sp
+	ldr     sp, =_cstack
+	push    {r0, lr}
+#endif
 
-	/* Clear the zero segment only the first time the applet is loaded */
-
-	/* Check the is_initialized flag  */
-
-	mov     r0, #0
-	ldr     r1, is_initialized
-	cmp     r0, r1
-	bne     run_main
-
-	/* Clear the zero segment */
-
-	FUNCALL __iar_program_start, __iar_data_init3
-	bl      __iar_data_init3
-
-	/* Update the is_initialized flag */
-
-	mov     r1, #1
-	str     r1, is_initialized
-
-	/* Branch to main */
-run_main:
-	ADR     r0, mailbox
-	ldr     r3, =applet_main
-	push    {r4}
-	blx     r3
-	pop     {r4}
+	/* Branch to applet main */
+	ldr     r0, =applet_main
+	blx     r0
 
 	/* Jump back to romcode */
 applet_end:
-	ldmfd   sp!, {r0-r4,lr}
-	ldr     sp, romcode_sp
+	mov     r0, r4
+	pop     {r4, lr}
+	mov     sp, r0
 	bx      lr
-
-	END

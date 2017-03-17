@@ -48,12 +48,30 @@
 /* define this to enable debug display of mailbox content */
 #undef APPLET_MAILBOX_DEBUG
 
-extern int __buffer_end__;
 #if defined(__GNUC__)
+
 extern int __buffer_start__;
+extern int __buffer_end__;
+
+extern int _szero, _ezero;
+extern void __libc_init_array(void);
+
+#elif defined(__ICCARM__)
+
+SECTION(".applet_buffer")
+int __buffer_start__;
+extern int __buffer_end__;
+
+extern void __iar_data_init3(void);
+
+#else
+#error Unknown compiler!
 #endif
 
-static bool applet_initialized = false;
+extern struct applet_mailbox applet_mailbox;
+extern bool applet_first_run;
+
+static bool applet_initialized;
 static uint32_t _comm_type;
 static struct _seriald serial_comm;
 
@@ -64,30 +82,42 @@ uint32_t applet_buffer_size;
  *         Local functions
  *----------------------------------------------------------------------------*/
 
+static void init_libc(void)
+{
+#if defined(__GNUC__)
+
+	/* Clear BSS */
+	uint32_t* ptr;
+	for (ptr = (uint32_t*)&_szero; ptr < (uint32_t*)&_ezero; ptr++)
+		*ptr = 0;
+
+	/* Initialize C library */
+	__libc_init_array();
+
+#elif defined(__ICCARM__)
+
+	/* Execute relocations & clear BSS */
+        __iar_data_init3();
+
+#endif
+}
+
 static void init_applet_buffer(void)
 {
-#if defined(__ICCARM__)
-	/* Rely on the fact that CSTACK is the last section in RAM region */
-	#pragma section = "CSTACK"
-	applet_buffer = __section_end("CSTACK");
-#elif defined(__GNUC__)
 	applet_buffer = (uint8_t*)&__buffer_start__;
-#else
-#error Unknown compiler!
-#endif
 	applet_buffer_size = (uint32_t)&__buffer_end__ - (uint32_t)applet_buffer;
 }
 
-static void debug_display_mailbox(struct applet_mailbox *mailbox)
+static void debug_display_mailbox(void)
 {
 #ifdef APPLET_MAILBOX_DEBUG
 	int i;
 	trace_debug_wp("--------\r\n");
 	trace_debug_wp("TICK=0x%08x\r\n", (unsigned)timer_get_tick());
-	trace_debug_wp("CMD=0x%08x\r\n", (unsigned)mailbox->command);
-	trace_debug_wp("STATUS=0x%08x\r\n", (unsigned)mailbox->status);
+	trace_debug_wp("CMD=0x%08x\r\n", (unsigned)applet_mailbox.command);
+	trace_debug_wp("STATUS=0x%08x\r\n", (unsigned)applet_mailbox.status);
 	for (i = 0; i < 16; i++)
-		trace_debug_wp("[%02d]=0x%08x%s", i, (unsigned)mailbox->data[i], (i & 3) == 3 ? "\r\n" : " ");
+		trace_debug_wp("[%02d]=0x%08x%s", i, (unsigned)applet_mailbox.data[i], (i & 3) == 3 ? "\r\n" : " ");
 #endif
 }
 
@@ -167,53 +197,54 @@ applet_command_handler_t get_applet_command_handler(uint8_t cmd)
  * executes it.
  * \param mailbox  Applet mailbox
  */
-void applet_main(struct applet_mailbox *mailbox)
+void applet_main(void)
 {
 	applet_command_handler_t handler;
 
-	if (!applet_buffer) {
-		/* Applet buffer is not set, this is the first call to the applet */
+	if (applet_first_run) {
 		/* Let's do some setup */
+		init_libc();
 		init_applet_buffer();
 		pmc_set_main_oscillator_freq(BOARD_MAIN_CLOCK_EXT_OSC);
 		board_cfg_timer();
 		dma_initialize(true);
+		applet_first_run = false;
 	}
 
 	/* display mailbox content before command processing */
-	debug_display_mailbox(mailbox);
+	debug_display_mailbox();
 
 	/* set default status */
-	mailbox->status = APPLET_FAIL;
+	applet_mailbox.status = APPLET_FAIL;
 
 	/* look for handler and call it */
-	handler = get_applet_command_handler(mailbox->command);
+	handler = get_applet_command_handler(applet_mailbox.command);
 	if (handler) {
-		if (mailbox->command == APPLET_CMD_INITIALIZE) {
-			mailbox->status = handler(mailbox->command, mailbox->data);
-			applet_initialized = (mailbox->status == APPLET_SUCCESS);
+		if (applet_mailbox.command == APPLET_CMD_INITIALIZE) {
+			applet_mailbox.status = handler(applet_mailbox.command, applet_mailbox.data);
+			applet_initialized = (applet_mailbox.status == APPLET_SUCCESS);
 		} else if (applet_initialized) {
-			mailbox->status = handler(mailbox->command, mailbox->data);
+			applet_mailbox.status = handler(applet_mailbox.command, applet_mailbox.data);
 		} else {
 			trace_error_wp("Applet not initialized!\r\n");
 		}
-	} else if (applet_is_legacy_command(mailbox->command)) {
+	} else if (applet_is_legacy_command(applet_mailbox.command)) {
 		if (applet_initialized) {
-			mailbox->status = applet_emulate_legacy_command(
-					mailbox->command, mailbox->data);
+			applet_mailbox.status = applet_emulate_legacy_command(
+					applet_mailbox.command, applet_mailbox.data);
 		} else {
 			trace_error_wp("Applet not initialized!\r\n");
 		}
 	} else {
 		trace_error_wp("Unsupported applet command 0x%08x\r\n",
-				(unsigned)mailbox->command);
+				(unsigned)applet_mailbox.command);
 	}
 
 	/* display mailbox content after command processing */
-	debug_display_mailbox(mailbox);
+	debug_display_mailbox();
 
 	/* notify the host application of the end of the command processing */
-	mailbox->command = ~(mailbox->command);
+	applet_mailbox.command = ~(applet_mailbox.command);
 
 	/* send ACK character if comm type is DBGU */
 	if (_comm_type == COMM_TYPE_DBGU)

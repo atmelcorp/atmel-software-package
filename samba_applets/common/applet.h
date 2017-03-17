@@ -139,6 +139,6 @@ extern bool applet_set_init_params(union initialize_mailbox* mbx);
 
 extern applet_command_handler_t get_applet_command_handler(uint8_t cmd);
 
-extern void applet_main(struct applet_mailbox *mailbox);
+extern void applet_main(void);
 
 #endif /* _APPLET_H_ */
