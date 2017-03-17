@@ -50,6 +50,8 @@
 #define EXPECTED_PROC_CLOCK 528
 #elif defined(CONFIG_SOC_SAMA5D4)
 #define EXPECTED_PROC_CLOCK 528
+#elif defined(CONFIG_SOC_SAMV71)
+#define EXPECTED_PROC_CLOCK 300
 #else
 #error Unsupported SoC!
 #endif
