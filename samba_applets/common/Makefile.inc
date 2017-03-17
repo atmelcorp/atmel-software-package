@@ -54,6 +54,10 @@ iar-linker-script-$(CONFIG_SOC_SAMA5D3) = $(TOP)/samba_applets/common/sama5d3/sr
 gnu-linker-script-$(CONFIG_SOC_SAMA5D4) = $(TOP)/samba_applets/common/sama5d4/sram.ld
 gnu-debug-script-$(CONFIG_SOC_SAMA5D4) = $(TOP)/samba_applets/common/sama5d4/sram.gdb
 iar-linker-script-$(CONFIG_SOC_SAMA5D4) = $(TOP)/samba_applets/common/sama5d4/sram.icf
+
+gnu-linker-script-$(CONFIG_SOC_SAMV71) = $(TOP)/samba_applets/common/samv71/sram.ld
+gnu-debug-script-$(CONFIG_SOC_SAMV71) = $(TOP)/samba_applets/common/samv71/sram.gdb
+iar-linker-script-$(CONFIG_SOC_SAMV71) = $(TOP)/samba_applets/common/samv71/sram.icf
 endif
 
 ifeq ($(VARIANT),ddram)
@@ -72,12 +76,18 @@ iar-linker-script-$(CONFIG_SOC_SAMA5D3) = $(TOP)/samba_applets/common/sama5d3/dd
 gnu-linker-script-$(CONFIG_SOC_SAMA5D4) = $(TOP)/samba_applets/common/sama5d4/ddram.ld
 gnu-debug-script-$(CONFIG_SOC_SAMA5D4) = $(TOP)/samba_applets/common/sama5d4/ddram.gdb
 iar-linker-script-$(CONFIG_SOC_SAMA5D4) = $(TOP)/samba_applets/common/sama5d4/ddram.icf
+
+gnu-linker-script-$(CONFIG_SOC_SAMV71) = $(TOP)/samba_applets/common/samv71/ddram.ld
+gnu-debug-script-$(CONFIG_SOC_SAMV71) = $(TOP)/samba_applets/common/samv71/ddram.gdb
+iar-linker-script-$(CONFIG_SOC_SAMV71) = $(TOP)/samba_applets/common/samv71/ddram.icf
 endif
 
 gnu-cstartup-$(CONFIG_ARCH_ARMV5TE) = samba_applets/common/cstartup_gnu_v5te_v7a.o
 iar-cstartup-$(CONFIG_ARCH_ARMV5TE) = samba_applets/common/cstartup_iar_v5te_v7a.o
 gnu-cstartup-$(CONFIG_ARCH_ARMV7A) = samba_applets/common/cstartup_gnu_v5te_v7a.o
 iar-cstartup-$(CONFIG_ARCH_ARMV7A) = samba_applets/common/cstartup_iar_v5te_v7a.o
+gnu-cstartup-$(CONFIG_ARCH_ARMV7M) = samba_applets/common/cstartup_gnu_v7m.o
+iar-cstartup-$(CONFIG_ARCH_ARMV7M) = samba_applets/common/cstartup_iar_v7m.o
 
 iar-debug-script-y =
 iar-flashloader-script-y =
