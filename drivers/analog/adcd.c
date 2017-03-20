@@ -51,7 +51,7 @@ volatile static bool single_transfer_ready;
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-static int _adcd_dma_callback(void *arg)
+static int _adcd_dma_callback(void *arg, void* arg2)
 {
 	struct _adcd_desc* desc = (struct _adcd_desc*)arg;
 
@@ -62,7 +62,7 @@ static int _adcd_dma_callback(void *arg)
 
 	mutex_unlock(&desc->mutex);
 
-	callback_call(&desc->xfer.callback);
+	callback_call(&desc->xfer.callback, NULL);
 
 	return 0;
 }
@@ -132,7 +132,7 @@ static void _adcd_transfer_buffer_polling(struct _adcd_desc* desc)
 
 	while(!single_transfer_ready);
 	mutex_unlock(&desc->mutex);
-	callback_call(&desc->xfer.callback);
+	callback_call(&desc->xfer.callback, NULL);
 }
 
 /**

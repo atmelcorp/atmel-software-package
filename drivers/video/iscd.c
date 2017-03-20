@@ -55,7 +55,7 @@ static struct _iscd_awb awb;
 /**
  * \brief Callback entry for histogram DMA transfer done.
  */
-static int _dma_histo_callback(void *arg)
+static int _dma_histo_callback(void *arg, void* arg2)
 {
 	struct _iscd_desc* iscd = (struct _iscd_desc*)arg;
 

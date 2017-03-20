@@ -149,7 +149,7 @@ static void console_handler(uint8_t key)
 	}
 }
 
-static int _usart_finish_rx_transfer_callback(void* user_arg)
+static int _usart_finish_rx_transfer_callback(void* arg, void* arg2)
 {
 	usartd_finish_rx_transfer(0);
 	return 0;
@@ -187,7 +187,7 @@ static void _usart_read_arg_parser(const uint8_t* buffer, uint32_t len)
 	printf("%s\r\n", read_buffer);
 }
 
-static int _usart_finish_tx_transfer_callback(void* user_arg)
+static int _usart_finish_tx_transfer_callback(void* arg, void* arg2)
 {
 	usartd_finish_tx_transfer(0);
 	return 0;

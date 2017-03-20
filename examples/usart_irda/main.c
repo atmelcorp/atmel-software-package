@@ -234,7 +234,7 @@ static void irda_interface_init(void)
 	irq_enable(id);
 }
 
-static int irda_finish_tx_transfer_callback(void* arg)
+static int irda_finish_tx_transfer_callback(void* arg, void* arg2)
 {
 	usartd_finish_tx_transfer(0);
 	return 0;

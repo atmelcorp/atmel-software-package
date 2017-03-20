@@ -88,7 +88,7 @@ static void _spid_wait_tx_fifo_not_full(struct _spi_desc* desc)
 /* forward declaration */
 static void _spid_transfer_next_buffer(struct _spi_desc* desc);
 
-static int _spid_dma_rx_callback(void* arg)
+static int _spid_dma_rx_callback(void* arg, void* arg2)
 {
 	struct _spi_desc* desc = (struct _spi_desc*)arg;
 
@@ -102,7 +102,7 @@ static int _spid_dma_rx_callback(void* arg)
 	return 0;
 }
 
-static int _spid_dma_tx_callback(void* arg)
+static int _spid_dma_tx_callback(void* arg, void* arg2)
 {
 	struct _spi_desc* desc = (struct _spi_desc*)arg;
 
@@ -114,7 +114,7 @@ static int _spid_dma_tx_callback(void* arg)
 	return 0;
 }
 
-static int _spid_dma_rx_free_callback(void* arg)
+static int _spid_dma_rx_free_callback(void* arg, void* arg2)
 {
 	struct _spi_desc* desc = (struct _spi_desc*)arg;
 
@@ -123,7 +123,7 @@ static int _spid_dma_rx_free_callback(void* arg)
 	return 0;
 }
 
-static int _spid_dma_tx_free_callback(void* arg)
+static int _spid_dma_tx_free_callback(void* arg, void* arg2)
 {
 	struct _spi_desc* desc = (struct _spi_desc*)arg;
 
@@ -343,7 +343,7 @@ static void _spid_transfer_next_buffer(struct _spi_desc* desc)
 
 		desc->xfer.current = NULL;
 		mutex_unlock(&desc->mutex);
-		callback_call(&desc->xfer.callback);
+		callback_call(&desc->xfer.callback, NULL);
 	}
 }
 

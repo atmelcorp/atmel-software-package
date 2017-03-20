@@ -195,7 +195,7 @@ static void _play_stop(void)
 /**
  *  \brief DMA TX callback
  */
-static int _audio_play_finish_callback(void* arg)
+static int _audio_play_finish_callback(void* arg, void* arg2)
 {
 	mutex_unlock(&mutex.tx);
 	_play_stop();
@@ -207,7 +207,7 @@ static int _audio_play_finish_callback(void* arg)
 /**
  *  \brief DMA RX callback
  */
-static int _audio_record_finish_callback(void* arg)
+static int _audio_record_finish_callback(void* arg, void* arg2)
 {
 	mutex_unlock(&mutex.rx);
 	_record_stop();

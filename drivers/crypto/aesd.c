@@ -49,7 +49,7 @@
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-static int _aesd_dma_read_callback(void* arg)
+static int _aesd_dma_read_callback(void* arg, void* arg2)
 {
 	struct _aesd_desc* desc = (struct _aesd_desc*)arg;
 
@@ -59,7 +59,7 @@ static int _aesd_dma_read_callback(void* arg)
 
 	mutex_unlock(&desc->mutex);
 
-	return callback_call(&desc->xfer.callback);
+	return callback_call(&desc->xfer.callback, NULL);
 }
 
 /* Operation Mode Chunk Size Data Transfer Type
@@ -177,7 +177,7 @@ static void _aesd_transfer_buffer_polling(struct _aesd_desc* desc)
 	}
 	mutex_unlock(&desc->mutex);
 
-	callback_call(&desc->xfer.callback);
+	callback_call(&desc->xfer.callback, NULL);
 }
 
 /*----------------------------------------------------------------------------

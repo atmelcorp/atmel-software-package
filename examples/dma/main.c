@@ -206,7 +206,7 @@ static void _display_menu(void)
 /**
  * \brief Callback function called when DMA transfer is completed
  */
-static int _dma_callback(void* arg)
+static int _dma_callback(void* arg, void* arg2)
 {
 	struct _dma_channel* channel = (struct _dma_channel*)arg;
 	dma_reset_channel(channel);

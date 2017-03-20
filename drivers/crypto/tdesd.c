@@ -49,7 +49,7 @@
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-static int _tdesd_dma_rx_callback(void* arg)
+static int _tdesd_dma_rx_callback(void* arg, void* arg2)
 {
 	struct _tdesd_desc* desc = (struct _tdesd_desc*)arg;
 
@@ -60,7 +60,7 @@ static int _tdesd_dma_rx_callback(void* arg)
 				desc->xfer.bufout->size);
 	mutex_unlock(&desc->mutex);
 
-	return callback_call(&desc->xfer.callback);
+	return callback_call(&desc->xfer.callback, NULL);
 }
 
 /* Operation Mode Chunk Size Destination/Source Data Transfer Type
@@ -162,7 +162,7 @@ static void _tdesd_transfer_buffer_polling(struct _tdesd_desc* desc)
 			tdes_get_output((uint32_t *)((desc->xfer.bufout->data) + i), NULL);
 	}
 	mutex_unlock(&desc->mutex);
-	callback_call(&desc->xfer.callback);
+	callback_call(&desc->xfer.callback, NULL);
 }
 
 /*----------------------------------------------------------------------------

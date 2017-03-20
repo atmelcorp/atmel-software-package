@@ -50,7 +50,7 @@
  *----------------------------------------------------------------------------*/
 
 #ifdef CONFIG_HAVE_TC_DMA_MODE
-static int _tcd_dma_transfer_callback(void* args)
+static int _tcd_dma_transfer_callback(void* args, void* arg2)
 {
 	struct _tcd_desc* desc = (struct _tcd_desc *)args;
 
@@ -59,7 +59,7 @@ static int _tcd_dma_transfer_callback(void* args)
 	dma_reset_channel(desc->capture.dma.channel);
 	mutex_unlock(&desc->mutex);
 
-	return callback_call(&desc->callback);
+	return callback_call(&desc->callback, NULL);
 }
 #endif
 
@@ -73,7 +73,7 @@ static void _tcd_counter_handler(uint32_t source, void* user_arg)
 
 	if (desc->mode == TCD_MODE_COUNTER)
 		if ((status & TC_SR_CPCS) == TC_SR_CPCS)
-			callback_call(&desc->callback);
+			callback_call(&desc->callback, NULL);
 }
 
 #ifdef CONFIG_HAVE_TC_DMA_MODE
@@ -121,7 +121,7 @@ static int _tcd_capture_polling(struct _tcd_desc* desc)
 
 	mutex_unlock(&desc->mutex);
 
-	return callback_call(&desc->callback);
+	return callback_call(&desc->callback, NULL);
 }
 
 /*----------------------------------------------------------------------------

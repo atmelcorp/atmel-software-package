@@ -60,7 +60,7 @@ static volatile bool transfer_complete = false;
 /**
  * \brief Callback function called when DMA transfer is completed
  */
-static int _nand_dma_callback(void* arg)
+static int _nand_dma_callback(void* arg, void* arg2)
 {
 	transfer_complete = true;
 

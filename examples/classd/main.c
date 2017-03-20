@@ -182,7 +182,7 @@ static void _playback_stop(void)
 	classd_volume_mute(&classd_desc, true, true);
 }
 
-static int _classd_transfer_callback(void* arg)
+static int _classd_transfer_callback(void* arg, void* arg2)
 {
 	_playback_stop();
 

@@ -210,7 +210,7 @@ static const struct _pin button_pins[] = PINS_PUSHBUTTONS;
 /**
  *  \brief Audio TX callback
  */
-static int _audio_transfer_callback(void* arg)
+static int _audio_transfer_callback(void* arg, void* arg2)
 {
 	struct _audio_desc* desc = (struct _audio_desc*)arg;
 	struct _callback _cb;

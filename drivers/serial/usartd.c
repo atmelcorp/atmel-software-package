@@ -63,7 +63,7 @@ static struct _usart_desc *_serial[USART_IFACE_COUNT];
  *        Internal functions
  *----------------------------------------------------------------------------*/
 
-static int _usartd_dma_write_callback(void* arg)
+static int _usartd_dma_write_callback(void* arg, void* arg2)
 {
 	uint8_t iface = (uint32_t)arg;
 	assert(iface < USART_IFACE_COUNT);
@@ -72,12 +72,12 @@ static int _usartd_dma_write_callback(void* arg)
 
 	mutex_unlock(&_serial[iface]->tx.mutex);
 
-	callback_call(&_serial[iface]->tx.callback);
+	callback_call(&_serial[iface]->tx.callback, NULL);
 
 	return 0;
 }
 
-static int _usartd_dma_read_callback(void* arg)
+static int _usartd_dma_read_callback(void* arg, void* arg2)
 {
 	uint8_t iface = (uint32_t)arg;
 	assert(iface < USART_IFACE_COUNT);
@@ -103,7 +103,7 @@ static int _usartd_dma_read_callback(void* arg)
 
 	mutex_unlock(&desc->rx.mutex);
 
-	callback_call(&desc->rx.callback);
+	callback_call(&desc->rx.callback, NULL);
 
 	return 0;
 }
@@ -203,7 +203,7 @@ static void _usartd_handler(uint32_t source, void* user_arg)
 			usart_disable_it(addr, US_IDR_TIMEOUT);
 			break;
 		case USARTD_MODE_DMA:
-			_usartd_dma_read_callback((void *)iface);
+			_usartd_dma_read_callback((void *)iface, NULL);
 			break;
 		}
 
@@ -359,7 +359,7 @@ uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf, struct _callback* c
 				if (desc->tx.transferred >= desc->tx.buffer.size) {
 					desc->tx.buffer.size = 0;
 					mutex_unlock(&desc->tx.mutex);
-					callback_call(&desc->tx.callback);
+					callback_call(&desc->tx.callback, NULL);
 				}
 			}
 			if (i < desc->rx.buffer.size) {
@@ -401,7 +401,7 @@ uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf, struct _callback* c
 				if (desc->rx.transferred >= desc->rx.buffer.size) {
 					desc->rx.buffer.size = 0;
 					mutex_unlock(&desc->rx.mutex);
-					callback_call(&desc->rx.callback);
+					callback_call(&desc->rx.callback, NULL);
 				}
 			}
 		}

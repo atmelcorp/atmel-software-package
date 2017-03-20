@@ -231,7 +231,7 @@ static void _display_menu(void)
 	printf("  h: Display menu \r\n\r\n");
 }
 
-static int _spi_slave_transfer_callback(void* args)
+static int _spi_slave_transfer_callback(void* arg, void* arg2)
 {
 	printf("Slave transfer complete\r\n");
 	return 0;

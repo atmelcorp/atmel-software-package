@@ -558,7 +558,7 @@ static void rtc_handler(uint32_t source, void* user_arg)
 /**
  *  Interrupt handler for TC0 interrupt. resets wdt at different period depending on user input
  */
-static int calibration_tc_handler(void* user_arg)
+static int calibration_tc_handler(void* arg, void* arg2)
 {
 	 // Recalibrate at every 1 minute
 	if (count_down_timer >= 60) {

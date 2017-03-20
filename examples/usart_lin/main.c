@@ -291,7 +291,7 @@ static void _console_handler(uint8_t k)
  * \brief Interrupt handler for TC. Record the number of bytes received,
  * and then restart a read transfer on the USART if the transfer was stopped.
  */
-static int _tc_handler(void* user_arg)
+static int _tc_handler(void* arg, void* arg2)
 {
 	if (lin_msg_master.lin_cmd == PUBLISH)
 		lin_send_cmd(LIN_MASTER_NODE_NUM, LIN_FRAME_ID_12, sizeof(lin_data_master));
@@ -315,7 +315,7 @@ static void _start_tc(void)
 /**
  *  \brief Interrupt handler for Usart COM2 master node.
  */
-static void _com2_master_handler(uint32_t source, void* user_arg)
+static void _com2_master_handler(uint32_t source, void* arg)
 {
 	lin_master_usart_handler(LIN_MASTER_NODE_NUM);
 }

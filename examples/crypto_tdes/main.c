@@ -178,7 +178,7 @@ static struct _tdesd_desc tdesd;
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-static int _tdes_callback(void* arg)
+static int _tdes_callback(void* arg, void* arg2)
 {
 	printf("-I- transfer completed\r\n");
 	return 0;

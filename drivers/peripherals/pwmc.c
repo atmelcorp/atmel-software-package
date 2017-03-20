@@ -300,13 +300,13 @@ void pwmc_set_sync_channels_update_period_update(Pwm *pwm, uint8_t period)
 #endif /* CONFIG_HAVE_PWMC_SYNC_MODE */
 
 #ifdef CONFIG_HAVE_PWMC_DMA
-static int _pwm_dma_callback_wrapper(void* arg)
+static int _pwm_dma_callback_wrapper(void* arg, void* arg2)
 {
 	struct _dma_channel* dma_channel = (struct _dma_channel*)arg;
 
 	if (dma_is_transfer_done(dma_channel)) {
 		dma_free_channel(dma_channel);
-		callback_call(&pwmc_cb);
+		callback_call(&pwmc_cb, NULL);
 	}
 
 	return 0;

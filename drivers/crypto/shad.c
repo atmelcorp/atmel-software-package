@@ -133,10 +133,10 @@ static void _shad_finish(struct _shad_desc* desc)
 
 	/* Release mutex and execute callback function */
 	mutex_unlock(&desc->mutex);
-	callback_call(&desc->xfer.callback);
+	callback_call(&desc->xfer.callback, NULL);
 }
 
-static int _shad_dma_update_callback(void *arg)
+static int _shad_dma_update_callback(void *arg, void* arg2)
 {
 	struct _shad_desc* desc = (struct _shad_desc*)arg;
 
@@ -147,7 +147,7 @@ static int _shad_dma_update_callback(void *arg)
 
 	/* Release mutex and execute callback function */
 	mutex_unlock(&desc->mutex);
-	callback_call(&desc->xfer.callback);
+	callback_call(&desc->xfer.callback, NULL);
 
 	return 0;
 }
@@ -199,7 +199,7 @@ static void _shad_update_dma(struct _shad_desc* desc, const uint8_t* data, uint3
 			/* Data will be processed on next shad_update or
 			 * shad_finish call, consider processing done */
 			mutex_unlock(&desc->mutex);
-			callback_call(&desc->xfer.callback);
+			callback_call(&desc->xfer.callback, NULL);
 			return;
 		}
 	}
@@ -221,7 +221,7 @@ static void _shad_update_dma(struct _shad_desc* desc, const uint8_t* data, uint3
 	if (sg_count == 0) {
 		/* No more data, consider processing done */
 		mutex_unlock(&desc->mutex);
-		callback_call(&desc->xfer.callback);
+		callback_call(&desc->xfer.callback, NULL);
 	} else {
 		/* Configure & start DMA transfer */
 		dma_configure_transfer(desc->dma_channel, &cfg_dma, cfg, sg_count);
@@ -229,7 +229,7 @@ static void _shad_update_dma(struct _shad_desc* desc, const uint8_t* data, uint3
 	}
 }
 
-static int _shad_dma_finish_callback(void *arg)
+static int _shad_dma_finish_callback(void *arg, void* arg2)
 {
 	struct _shad_desc* desc = (struct _shad_desc*)arg;
 
@@ -307,7 +307,7 @@ static void _shad_update_polling(struct _shad_desc* desc, const uint8_t* data, u
 			/* Data will be processed on next shad_update or
 			 * shad_finish call, consider processing done */
 			mutex_unlock(&desc->mutex);
-			callback_call(&desc->xfer.callback);
+			callback_call(&desc->xfer.callback, NULL);
 			return;
 		}
 	}
@@ -324,7 +324,7 @@ static void _shad_update_polling(struct _shad_desc* desc, const uint8_t* data, u
 
 	/* Release mutex and execute callback function */
 	mutex_unlock(&desc->mutex);
-	callback_call(&desc->xfer.callback);
+	callback_call(&desc->xfer.callback, NULL);
 }
 
 /*----------------------------------------------------------------------------

@@ -318,7 +318,7 @@ static uint8_t hsmci_cancel_command(struct _hsmci_set *set)
 	return SDMMC_OK;
 }
 
-static int _hsmci_dma_callback_wrapper(void *arg)
+static int _hsmci_dma_callback_wrapper(void *arg, void* arg2)
 {
 	struct _hsmci_set* set = (struct _hsmci_set*) arg;
 

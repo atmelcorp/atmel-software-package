@@ -330,7 +330,7 @@ static void _configure_tc_trigger(void)
 	/* Configure TC for a 10Hz frequency and trigger on RC compare. */
 	pmc_configure_peripheral(ID_TC0, NULL, true);
 	tcclks = tc_find_best_clock_source(TC0, 0, 10);
-	tc_configure(TC0, 0, tcclks | TC_CMR_WAVE | TC_CMR_ACPA_SET 
+	tc_configure(TC0, 0, tcclks | TC_CMR_WAVE | TC_CMR_ACPA_SET
 				| TC_CMR_ACPC_CLEAR | TC_CMR_CPCTRG);
 	rc = tc_get_available_freq(TC0, 0, tcclks) / 10;
 	ra = 50 * rc / 100;
@@ -339,7 +339,7 @@ static void _configure_tc_trigger(void)
 
 #endif /* ADC_TRIG_TIOA0 */
 
-static int _adc_callback(void* args)
+static int _adc_callback(void* args, void* arg2)
 {
 	int i, j, chan, value;
 

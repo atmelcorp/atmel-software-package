@@ -160,7 +160,7 @@ static void _wdt_handler(uint32_t source, void* user_arg)
  * Callback for TC
  * Resets WDT at different periods depending on user input
  */
-static int _tc_handler(void* user_arg)
+static int _tc_handler(void* arg, void* arg2)
 {
 	if (_countdown_timer > (16000 / 250) && _change_period == 0) {
 		printf("WDT has been Reset after 16s\n\r");

@@ -74,16 +74,10 @@ void callback_copy(struct _callback* cb, struct _callback* orig)
 	}
 }
 
-/**
- * \brief Call a callback
- *
- * \param cb     Pointer to a callback object
- * \return Error code from the callback, -ENOSYS if \cb or \cb.method is NULL
- */
-int callback_call(struct _callback* cb)
+int callback_call(struct _callback* cb, void* arg2)
 {
 	if (cb && cb->method)
-		return cb->method(cb->arg);
+		return cb->method(cb->arg, arg2);
 	else
 		return -ENOSYS;
 }

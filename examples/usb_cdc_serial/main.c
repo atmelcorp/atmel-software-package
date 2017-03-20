@@ -196,7 +196,7 @@
 #elif defined(CONFIG_BOARD_SAM9X35_EK)
 #define USART_ADDR USART0
 #define USART_PINS PINS_USART0
-	
+
 #else
 #error Unsupported SoC!
 #endif
@@ -253,7 +253,7 @@ static void usart_irq_handler(uint32_t source, void* user_arg)
 	assert(source == get_usart_id_from_addr(usart_desc.addr));
 
 	Usart* p_us = usart_desc.addr;
-	
+
 	/* If USB device is not configured, do nothing */
 	if (!is_cdc_serial_on) {
 		usart_disable_it(p_us, 0xFFFFFFFF);
@@ -291,7 +291,7 @@ void usbd_callbacks_request_received(const USBGenericRequest *request)
  *         Internal functions
  *----------------------------------------------------------------------------*/
 
-static int _usart_finish_tx_transfer_callback(void* arg)
+static int _usart_finish_tx_transfer_callback(void* arg, void* arg2)
 {
 	usartd_finish_tx_transfer(0);
 	return 0;
@@ -485,7 +485,7 @@ int main(void)
 		} else if (is_cdc_serial_on) {
 			is_cdc_serial_on = 0;
 		}
-		
+
 		if (console_is_rx_ready()) {
 			uint8_t key = console_get_char();
 			/* ESC: CDC Echo ON/OFF */

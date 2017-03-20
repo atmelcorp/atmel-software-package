@@ -81,7 +81,7 @@
  *       Local functions
  *----------------------------------------------------------------------------*/
 
-static int _ssc_dma_rx_callback(void* arg)
+static int _ssc_dma_rx_callback(void* arg, void* arg2)
 {
 	struct _ssc_desc* desc = (struct _ssc_desc*)arg;
 
@@ -91,7 +91,7 @@ static int _ssc_dma_rx_callback(void* arg)
 
 	mutex_unlock(&desc->rx.mutex);
 
-	return callback_call(&desc->rx.callback);
+	return callback_call(&desc->rx.callback, NULL);
 }
 
 static void _ssc_dma_rx_transfer(struct _ssc_desc* desc, struct _buffer* buffer)
@@ -120,7 +120,7 @@ static void _ssc_dma_rx_transfer(struct _ssc_desc* desc, struct _buffer* buffer)
 	dma_start_transfer(desc->rx.dma.channel);
 }
 
-static int _ssc_dma_tx_callback(void* arg)
+static int _ssc_dma_tx_callback(void* arg, void* arg2)
 {
 	struct _ssc_desc* desc = (struct _ssc_desc*)arg;
 
@@ -128,7 +128,7 @@ static int _ssc_dma_tx_callback(void* arg)
 
 	mutex_unlock(&desc->tx.mutex);
 
-	return callback_call(&desc->tx.callback);
+	return callback_call(&desc->tx.callback, NULL);
 }
 
 static void _ssc_dma_tx_transfer(struct _ssc_desc* desc, struct _buffer* buffer)

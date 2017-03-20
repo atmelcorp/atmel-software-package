@@ -191,7 +191,7 @@ static void _display_menu(void)
 /**
  *  \brief Audio RX callback
  */
-static int _ssc_tx_transfer_callback(void* arg)
+static int _ssc_tx_transfer_callback(void* arg, void* arg2)
 {
 	struct _ssc_desc* desc = (struct _ssc_desc*)arg;
 	struct _callback _cb;
@@ -221,7 +221,7 @@ static int _ssc_tx_transfer_callback(void* arg)
 /**
  *  \brief Audio RX callback
  */
-static int _ssc_rx_transfer_callback(void* arg)
+static int _ssc_rx_transfer_callback(void* arg, void* arg2)
 {
 	struct _ssc_desc* desc = (struct _ssc_desc*)arg;
 	struct _callback _cb;
@@ -233,7 +233,7 @@ static int _ssc_rx_transfer_callback(void* arg)
 	if (!_audio_ctx.playing && (_audio_ctx.circ.count > _audio_ctx.threshold)) {
 		_audio_ctx.playing = true;
 		ssc_enable_transmitter(&ssc_dev_desc);
-		_ssc_tx_transfer_callback(desc);
+		_ssc_tx_transfer_callback(desc, NULL);
 	}
 
 	struct _buffer _rx = {

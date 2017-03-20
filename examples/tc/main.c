@@ -225,14 +225,14 @@ static uint32_t _tick = 0;
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-static int _tc_capture_callback(void* arg)
+static int _tc_capture_callback(void* arg, void* arg2)
 {
 	tcd_stop(&tc_capture);
 	printf("TC: Waveform captured...\r\n");
 	return 0;
 }
 
-static int _tc_counter_callback(void* arg)
+static int _tc_counter_callback(void* arg, void* arg2)
 {
 	_tick++;
 

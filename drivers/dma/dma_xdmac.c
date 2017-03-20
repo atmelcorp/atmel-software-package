@@ -203,6 +203,6 @@ void dma_irq_handler(uint32_t source, void* user_arg)
 
 		/* Execute callback */
 		if (exec)
-			callback_call(&channel->callback);
+			callback_call(&channel->callback, NULL);
 	}
 }

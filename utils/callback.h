@@ -37,7 +37,7 @@
 /**
  * \brief Define a callback method type
  */
-typedef int (*callback_method_t)(void*);
+typedef int (*callback_method_t)(void*, void*);
 
 /**
  * \brief Define a generic callback type
@@ -72,8 +72,9 @@ extern void callback_copy(struct _callback* cb, struct _callback* orig);
  * \brief Call a callback
  *
  * \param cb     Pointer to a callback object
+ * \param arg2    Pointer to the second generic argument
  * \return Error code from the callback, -ENOSYS if \cb or \cb.method is NULL
  */
-extern int callback_call(struct _callback* cb);
+extern int callback_call(struct _callback* cb, void* arg2);
 
 #endif /* _CALLBACK_H */

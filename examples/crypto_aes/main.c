@@ -169,7 +169,7 @@ static volatile bool dma_rd_complete = false;
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
-static int _aes_callback(void* args)
+static int _aes_callback(void* args, void* arg2)
 {
 	printf("-I- transfer completed\r\n");
 	return 0;

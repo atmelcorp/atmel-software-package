@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         SAM Software Package License 
+ *         SAM Software Package License
  * ----------------------------------------------------------------------------
  * Copyright (c) 2016, Atmel Corporation
  *
@@ -187,7 +187,7 @@ uint8_t palette[BUFFER_SIZE]=
 static struct _usart_desc usart_desc = {
 	.addr           = USART_ADDR,
 	.baudrate       = 115200,
-	.mode           = US_MR_USART_MODE_RS485 | US_MR_CHMODE_NORMAL 
+	.mode           = US_MR_USART_MODE_RS485 | US_MR_CHMODE_NORMAL
 					| US_MR_PAR_NO | US_MR_NBSTOP_1_BIT | US_MR_CHRL_8_BIT,
 	.transfer_mode  = USARTD_MODE_DMA,
 };
@@ -198,7 +198,7 @@ static const struct _pin usart_pins[] = USART_PINS;
  *         Local functions
  *----------------------------------------------------------------------------*/
 
-static int _usart_finish_tx_transfer_callback(void* arg)
+static int _usart_finish_tx_transfer_callback(void* arg, void* arg2)
 {
 	usartd_finish_tx_transfer(0);
 	return 0;
@@ -224,7 +224,7 @@ static void _usart_dma_tx(const uint8_t* buffer, uint32_t len )
 
 }
 
-static int _usart_finish_rx_transfer_callback(void* arg)
+static int _usart_finish_rx_transfer_callback(void* arg, void* arg2)
 {
 	usartd_finish_rx_transfer(0);
 	return 0;

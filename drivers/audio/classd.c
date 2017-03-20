@@ -195,7 +195,7 @@ static bool _set_mono_bits(bool mono, enum _classd_mono mono_mode, volatile uint
 	return true;
 }
 
-static int _classd_dma_transfer_callback(void* arg)
+static int _classd_dma_transfer_callback(void* arg, void* arg2)
 {
 	struct _classd_desc* desc = (struct _classd_desc*)arg;
 
@@ -203,7 +203,7 @@ static int _classd_dma_transfer_callback(void* arg)
 
 	mutex_unlock(&desc->tx.mutex);
 
-	return callback_call(&desc->tx.callback);
+	return callback_call(&desc->tx.callback, NULL);
 }
 
 static void _classd_dma_transfer(struct _classd_desc* desc, struct _buffer* buffer)
@@ -252,7 +252,7 @@ static void _classd_polling_transfer(struct _classd_desc* desc, struct _buffer* 
 
 	mutex_unlock(&desc->tx.mutex);
 
-	callback_call(&desc->tx.callback);
+	callback_call(&desc->tx.callback, NULL);
 }
 
 /*----------------------------------------------------------------------------

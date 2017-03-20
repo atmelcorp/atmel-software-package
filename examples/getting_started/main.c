@@ -222,7 +222,7 @@ static void configure_buttons(void)
 /**
  *  Interrupt handler for TC interrupt. Toggles the state of all LEDs except 0
  */
-static int _tc_handler(void* user_arg)
+static int _tc_handler(void* arg, void* arg2)
 {
 	int i;
 

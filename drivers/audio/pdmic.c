@@ -48,7 +48,7 @@
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-static int _pdmic_dma_transfer_callback(void* arg)
+static int _pdmic_dma_transfer_callback(void* arg, void* arg2)
 {
 	struct _pdmic_desc* desc = (struct _pdmic_desc*)arg;
 
@@ -58,7 +58,7 @@ static int _pdmic_dma_transfer_callback(void* arg)
 
 	mutex_unlock(&desc->rx.mutex);
 
-	return callback_call(&desc->rx.callback);
+	return callback_call(&desc->rx.callback, NULL);
 }
 
 static void _pdmic_dma_transfer(struct _pdmic_desc* desc, struct _buffer* buffer)
@@ -100,7 +100,7 @@ static void _pdmic_polling_transfer(struct _pdmic_desc* desc, struct _buffer* bu
 
 	mutex_unlock(&desc->rx.mutex);
 
-	callback_call(&desc->rx.callback);
+	callback_call(&desc->rx.callback, NULL);
 }
 
 /*----------------------------------------------------------------------------

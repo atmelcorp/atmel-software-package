@@ -173,7 +173,7 @@ static int _twid_wait_twi_transfer(struct _twi_desc* desc)
 	return 0;
 }
 
-static int _twid_dma_read_callback(void* arg)
+static int _twid_dma_read_callback(void* arg, void* arg2)
 {
 	struct _twi_desc* desc = (struct _twi_desc *)arg;
 
@@ -205,7 +205,7 @@ static int _twid_dma_read_callback(void* arg)
 
 	mutex_unlock(&desc->mutex);
 
-	callback_call(&desc->callback);
+	callback_call(&desc->callback, NULL);
 
 	return 0;
 }
@@ -247,7 +247,7 @@ static void _twid_dma_read(struct _twi_desc* desc, struct _buffer* buffer)
 		twi_send_start_condition(desc->addr);
 }
 
-static int _twid_dma_write_callback(void* arg)
+static int _twid_dma_write_callback(void* arg, void* arg2)
 {
 	struct _twi_desc* desc = (struct _twi_desc *)arg;
 
@@ -268,7 +268,7 @@ static int _twid_dma_write_callback(void* arg)
 
 	mutex_unlock(&desc->mutex);
 
-	callback_call(&desc->callback);
+	callback_call(&desc->callback, NULL);
 
 	return 0;
 }
@@ -414,7 +414,7 @@ static void _twid_handler(uint32_t source, void* user_arg)
 		twi_disable_it(addr, TWI_IDR_TXCOMP);
 		adesc->twi_id = 0;
 		mutex_unlock(&adesc->twi_desc->mutex);
-		callback_call(&adesc->twi_desc->callback);
+		callback_call(&adesc->twi_desc->callback, NULL);
 	}
 }
 
@@ -731,7 +731,7 @@ static int _twid_transfer(struct _twi_desc* desc, struct _buffer* buf,  struct _
 			err = _twid_poll_read(desc, buf);
 
 		if (err == 0)
-			callback_call(&desc->callback);
+			callback_call(&desc->callback, NULL);
 		mutex_unlock(&desc->mutex);
 		break;
 

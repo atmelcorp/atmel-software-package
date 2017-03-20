@@ -88,7 +88,7 @@ static struct _bus_desc _bus[BUS_COUNT];
  *         Local functions
  *----------------------------------------------------------------------------*/
 
-static int _bus_callback(void* arg)
+static int _bus_callback(void* arg, void* arg2)
 {
 	uint32_t bus_id = (uint32_t)arg;
 
@@ -97,7 +97,7 @@ static int _bus_callback(void* arg)
 
 	mutex_unlock(&_bus[bus_id].mutex.lock);
 
-	return callback_call(&_bus[bus_id].callback);
+	return callback_call(&_bus[bus_id].callback, NULL);
 }
 
 static int _bus_fifo_enable(uint8_t bus_id)
