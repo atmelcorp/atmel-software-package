@@ -41,9 +41,9 @@ CONFIG_HAVE_XDMAC = y
 ifeq ($(TARGET),samv71-generic)
 CONFIG_CHIP_SAMV71Q21 = y
 CONFIG_BOARD_SAMV71_GENERIC = y
-# allow choosing any supported console type at runtime
-CONFIG_CONSOLE_UART = y
-CONFIG_CONSOLE_USART = y
+# allow choosing any supported serial driver at runtime
+CONFIG_SERIALD_UART = y
+CONFIG_SERIALD_USART = y
 # allow choosing any supported ddram type at runtime
 CONFIG_HAVE_SDRAM_IS42S16100E = y
 endif
@@ -51,7 +51,7 @@ endif
 ifeq ($(TARGET),same70-xplained)
 CONFIG_CHIP_SAME70Q21 = y
 CONFIG_BOARD_SAME70_XPLAINED = y
-CONFIG_CONSOLE_USART = y
+CONFIG_SERIALD_USART = y
 CONFIG_HAVE_TWI_AT24 = y
 CONFIG_HAVE_LED = y
 CONFIG_HAVE_SDRAM_IS42S16100E = y
@@ -60,7 +60,7 @@ endif
 ifeq ($(TARGET),samv71-xplained)
 CONFIG_CHIP_SAMV71Q21 = y
 CONFIG_BOARD_SAMV71_XPLAINED = y
-CONFIG_CONSOLE_USART = y
+CONFIG_SERIALD_USART = y
 CONFIG_HAVE_TWI_AT24 = y
 CONFIG_HAVE_LED = y
 CONFIG_HAVE_SDRAM_IS42S16100E = y

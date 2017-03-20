@@ -44,10 +44,10 @@ CONFIG_HAVE_SHDWC = y
 ifeq ($(TARGET),sam9g15-generic)
 CONFIG_CHIP_SAM9G15 = y
 CONFIG_BOARD_SAM9G15_GENERIC = y
-# allow choosing any supported console type at runtime
-CONFIG_CONSOLE_DBGU = y
-CONFIG_CONSOLE_UART = y
-CONFIG_CONSOLE_USART = y
+# allow choosing any supported serial driver at runtime
+CONFIG_SERIALD_DBGU = y
+CONFIG_SERIALD_UART = y
+CONFIG_SERIALD_USART = y
 # allow choosing any supported ddram type at runtime
 CONFIG_HAVE_DDR2_MT47H128M8 = y
 CONFIG_HAVE_DDR2_MT47H64M16 = y
@@ -58,10 +58,10 @@ endif
 ifeq ($(TARGET),sam9g25-generic)
 CONFIG_CHIP_SAM9G25 = y
 CONFIG_BOARD_SAM9G25_GENERIC = y
-# allow choosing any supported console type at runtime
-CONFIG_CONSOLE_DBGU = y
-CONFIG_CONSOLE_UART = y
-CONFIG_CONSOLE_USART = y
+# allow choosing any supported serial driver at runtime
+CONFIG_SERIALD_DBGU = y
+CONFIG_SERIALD_UART = y
+CONFIG_SERIALD_USART = y
 # allow choosing any supported ddram type at runtime
 CONFIG_HAVE_DDR2_MT47H128M8 = y
 CONFIG_HAVE_DDR2_MT47H64M16 = y
@@ -72,10 +72,10 @@ endif
 ifeq ($(TARGET),sam9g35-generic)
 CONFIG_CHIP_SAM9G35 = y
 CONFIG_BOARD_SAM9G35_GENERIC = y
-# allow choosing any supported console type at runtime
-CONFIG_CONSOLE_DBGU = y
-CONFIG_CONSOLE_UART = y
-CONFIG_CONSOLE_USART = y
+# allow choosing any supported serial driver at runtime
+CONFIG_SERIALD_DBGU = y
+CONFIG_SERIALD_UART = y
+CONFIG_SERIALD_USART = y
 # allow choosing any supported ddram type at runtime
 CONFIG_HAVE_DDR2_MT47H128M8 = y
 CONFIG_HAVE_DDR2_MT47H64M16 = y
@@ -86,10 +86,10 @@ endif
 ifeq ($(TARGET),sam9x25-generic)
 CONFIG_CHIP_SAM9X25 = y
 CONFIG_BOARD_SAM9X25_GENERIC = y
-# allow choosing any supported console type at runtime
-CONFIG_CONSOLE_DBGU = y
-CONFIG_CONSOLE_UART = y
-CONFIG_CONSOLE_USART = y
+# allow choosing any supported serial driver at runtime
+CONFIG_SERIALD_DBGU = y
+CONFIG_SERIALD_UART = y
+CONFIG_SERIALD_USART = y
 # allow choosing any supported ddram type at runtime
 CONFIG_HAVE_DDR2_MT47H128M8 = y
 CONFIG_HAVE_DDR2_MT47H64M16 = y
@@ -100,10 +100,10 @@ endif
 ifeq ($(TARGET),sam9x35-generic)
 CONFIG_CHIP_SAM9X35 = y
 CONFIG_BOARD_SAM9X35_GENERIC = y
-# allow choosing any supported console type at runtime
-CONFIG_CONSOLE_DBGU = y
-CONFIG_CONSOLE_UART = y
-CONFIG_CONSOLE_USART = y
+# allow choosing any supported serial driver at runtime
+CONFIG_SERIALD_DBGU = y
+CONFIG_SERIALD_UART = y
+CONFIG_SERIALD_USART = y
 # allow choosing any supported ddram type at runtime
 CONFIG_HAVE_DDR2_MT47H128M8 = y
 CONFIG_HAVE_DDR2_MT47H64M16 = y
@@ -115,7 +115,7 @@ ifeq ($(TARGET),sam9g15-ek)
 CONFIG_CHIP_SAM9G15 = y
 CONFIG_BOARD_SAM9G15_EK = y
 CONFIG_HAVE_LED = y
-CONFIG_CONSOLE_DBGU = y
+CONFIG_SERIALD_DBGU = y
 CONFIG_HAVE_DDR2_MT47H64M16 = y
 CONFIG_HAVE_SPI_AT25 = y
 CONFIG_HAVE_TWI_AT24 = y
@@ -126,7 +126,7 @@ ifeq ($(TARGET),sam9g25-ek)
 CONFIG_CHIP_SAM9G25 = y
 CONFIG_BOARD_SAM9G25_EK = y
 CONFIG_HAVE_LED = y
-CONFIG_CONSOLE_DBGU = y
+CONFIG_SERIALD_DBGU = y
 CONFIG_HAVE_DDR2_MT47H64M16 = y
 CONFIG_HAVE_SPI_AT25 = y
 CONFIG_HAVE_TWI_AT24 = y
@@ -138,7 +138,7 @@ ifeq ($(TARGET),sam9g35-ek)
 CONFIG_CHIP_SAM9G35 = y
 CONFIG_BOARD_SAM9G35_EK = y
 CONFIG_HAVE_LED = y
-CONFIG_CONSOLE_DBGU = y
+CONFIG_SERIALD_DBGU = y
 CONFIG_HAVE_DDR2_MT47H64M16 = y
 CONFIG_HAVE_SPI_AT25 = y
 CONFIG_HAVE_TWI_AT24 = y
@@ -153,9 +153,9 @@ ifeq ($(CONFIG_CAN),y)
 	CFLAGS_DEFS += -DBOARD_CONSOLE_TX_PIN=PIN_USART0_TXD
 	CFLAGS_DEFS += -DBOARD_CONSOLE_RX_PIN=PIN_USART0_RXD
 	CFLAGS_DEFS += -DBOARD_CONSOLE_ADDR=USART0
-	CONFIG_CONSOLE_USART = y
+	CONFIG_SERIALD_USART = y
 else
-	CONFIG_CONSOLE_DBGU = y
+	CONFIG_SERIALD_DBGU = y
 endif
 CONFIG_HAVE_DDR2_MT47H64M16 = y
 CONFIG_HAVE_SPI_AT25 = y
@@ -171,9 +171,9 @@ ifeq ($(CONFIG_CAN),y)
 	CFLAGS_DEFS += -DBOARD_CONSOLE_TX_PIN=PIN_USART0_TXD
 	CFLAGS_DEFS += -DBOARD_CONSOLE_RX_PIN=PIN_USART0_RXD
 	CFLAGS_DEFS += -DBOARD_CONSOLE_ADDR=USART0
-	CONFIG_CONSOLE_USART = y
+	CONFIG_SERIALD_USART = y
 else
-	CONFIG_CONSOLE_DBGU = y
+	CONFIG_SERIALD_DBGU = y
 endif
 CONFIG_HAVE_DDR2_MT47H64M16 = y
 CONFIG_HAVE_SPI_AT25 = y

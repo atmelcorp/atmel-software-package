@@ -87,7 +87,7 @@ struct _seriald_ops {
  *        Variables
  *----------------------------------------------------------------------------*/
 
-#ifdef CONFIG_HAVE_CONSOLE_USART
+#ifdef CONFIG_HAVE_SERIALD_USART
 static const struct _seriald_ops seriald_ops_usart = {
 	.mode = US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT,
 	.rx_int_mask = US_IER_RXRDY,
@@ -101,7 +101,7 @@ static const struct _seriald_ops seriald_ops_usart = {
 };
 #endif
 
-#ifdef CONFIG_HAVE_CONSOLE_UART
+#ifdef CONFIG_HAVE_SERIALD_UART
 static const struct _seriald_ops seriald_ops_uart = {
 	.mode = UART_MR_CHMODE_NORMAL | UART_MR_PAR_NO,
 	.rx_int_mask = UART_IER_RXRDY,
@@ -115,7 +115,7 @@ static const struct _seriald_ops seriald_ops_uart = {
 };
 #endif
 
-#ifdef CONFIG_HAVE_CONSOLE_DBGU
+#ifdef CONFIG_HAVE_SERIALD_DBGU
 static const struct _seriald_ops seriald_ops_dbgu = {
 	.mode = DBGU_MR_CHMODE_NORM | DBGU_MR_PAR_NONE,
 	.rx_int_mask = DBGU_IER_RXRDY,
@@ -158,7 +158,7 @@ int seriald_configure(struct _seriald* serial, void* addr, uint32_t baudrate)
 	if (!serial)
 		return -EINVAL;
 
-#ifdef CONFIG_HAVE_CONSOLE_USART
+#ifdef CONFIG_HAVE_SERIALD_USART
 	id = get_usart_id_from_addr((Usart*)addr);
 	if (id != ID_PERIPH_COUNT) {
 		ops = &seriald_ops_usart;
@@ -169,14 +169,14 @@ int seriald_configure(struct _seriald* serial, void* addr, uint32_t baudrate)
 #endif
 	}
 #endif
-#ifdef CONFIG_HAVE_CONSOLE_UART
+#ifdef CONFIG_HAVE_SERIALD_UART
 	if (!ops) {
 		id = get_uart_id_from_addr((Uart*)addr);
 		if (id != ID_PERIPH_COUNT)
 			ops = &seriald_ops_uart;
 	}
 #endif
-#ifdef CONFIG_HAVE_CONSOLE_DBGU
+#ifdef CONFIG_HAVE_SERIALD_DBGU
 	if (!ops) {
 		if (addr == DBGU) {
 			id = ID_DBGU;
