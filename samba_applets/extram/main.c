@@ -118,9 +118,15 @@ static bool init_extram_from_preset(uint32_t preset)
 		device = IS42S16100E;
 		break;
   #endif
+  #ifdef CONFIG_HAVE_SDRAM_W981216BH
+	case 7:
+		trace_warning_wp("Preset 7 (W981216BH)\r\n");
+		device = W981216BH;
+		break;
+  #endif
 #endif
 	default:
-		trace_error("Unsupported DDRAM preset (%u).\r\n",
+		trace_error("Unsupported DRAM preset (%u).\r\n",
 				(unsigned)preset);
 		return false;
 	}
