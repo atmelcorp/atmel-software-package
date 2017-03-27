@@ -63,7 +63,8 @@ mon reg r12_usr = 0
 mon reg sp_usr = 0
 mon reg lr_usr = 0
 
-# Initialize PC
+# Initialize SP & PC
+mon reg sp = 0x320000
 mon reg pc = 0x300000
 
 # Set breakpoint at end of applet execution

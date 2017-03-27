@@ -34,7 +34,7 @@ set $r12 = 0
 set $sp = 0
 set $lr = 0
 
-# Initialize PC
+# Initialize SP & PC
 set $sp=0x20401000
 set $pc=0x20401000
 
