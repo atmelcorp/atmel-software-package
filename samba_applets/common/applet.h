@@ -107,6 +107,32 @@ union initialize_mailbox
 	} out;
 };
 
+/** Mailbox content for the 'read boot config' command. */
+union read_bootcfg_mailbox
+{
+	struct {
+		/** Configuration index to read */
+		uint32_t index;
+	} in;
+
+	struct {
+		/** Configuration value */
+		uint32_t value;
+	} out;
+};
+
+/** Mailbox content for the 'write boot config' command. */
+union write_bootcfg_mailbox
+{
+	struct {
+		/** Configuration index to read */
+		uint32_t index;
+
+		/** Configuration value */
+		uint32_t value;
+	} in;
+};
+
 /** Mailbox content for the 'read/write/erase pages' commands. */
 union read_write_erase_pages_mailbox {
 	struct {

@@ -42,5 +42,6 @@ CONFIG_SAMBA_APPLET = y
 CONFIG_TIMER_POLLING = y
 
 obj-y += samba_applets/bootconfig/main.o
+obj-y += samba_applets/bootconfig/bootconfig_$(chip-family).o
 
 include $(TOP)/scripts/Makefile.rules
