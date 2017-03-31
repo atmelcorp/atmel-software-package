@@ -123,7 +123,8 @@ static int _bus_fifo_enable(uint8_t bus_id)
 		break;
 #endif
 	default:
-		return -EINVAL;
+		err = -EINVAL;
+		break;
 	}
 
 	return err;
@@ -152,7 +153,8 @@ static int _bus_fifo_disable(uint8_t bus_id)
 		break;
 #endif
 	default:
-		return -EINVAL;
+		err = -EINVAL;
+		break;
 	}
 
 	return err;
@@ -181,7 +183,8 @@ static int _bus_fifo_is_enabled(uint8_t bus_id)
 		break;
 #endif
 	default:
-		return -EINVAL;
+		err = -EINVAL;
+		break;
 	}
 
 	return err;
@@ -189,6 +192,8 @@ static int _bus_fifo_is_enabled(uint8_t bus_id)
 
 static int _bus_enable(uint8_t bus_id)
 {
+	int err = 0;
+
 	if (bus_id >= BUS_COUNT)
 		return -ENODEV;
 
@@ -202,14 +207,17 @@ static int _bus_enable(uint8_t bus_id)
 		break;
 #endif
 	default:
-		return -EINVAL;
+		err = -EINVAL;
+		break;
 	}
 
-	return 0;
+	return err;
 }
 
 static int _bus_disable(uint8_t bus_id)
 {
+	int err = 0;
+
 	if (bus_id >= BUS_COUNT)
 		return -ENODEV;
 
@@ -223,14 +231,17 @@ static int _bus_disable(uint8_t bus_id)
 		break;
 #endif
 	default:
-		return -EINVAL;
+		err = -EINVAL;
+		break;
 	}
 
-	return 0;
+	return err;
 }
 
 static int _bus_get_transfer_mode(uint8_t bus_id)
 {
+	int err = 0;
+
 	if (bus_id >= BUS_COUNT)
 		return -ENODEV;
 
@@ -244,14 +255,17 @@ static int _bus_get_transfer_mode(uint8_t bus_id)
 		return _bus[bus_id].iface.twid.transfer_mode;
 #endif
 	default:
-		return -EINVAL;
+		err = -EINVAL;
+		break;
 	}
 
-	return 0;
+	return err;
 }
 
 static int _bus_set_transfer_mode(uint8_t bus_id, enum _bus_transfer_mode mode)
 {
+	int err = 0;
+
 	if (bus_id >= BUS_COUNT)
 		return -ENODEV;
 
@@ -267,10 +281,11 @@ static int _bus_set_transfer_mode(uint8_t bus_id, enum _bus_transfer_mode mode)
 		break;
 #endif
 	default:
-		return -EINVAL;
+		err = -EINVAL;
+		break;
 	}
 
-	return 0;
+	return err;
 }
 
 /*----------------------------------------------------------------------------
@@ -279,6 +294,8 @@ static int _bus_set_transfer_mode(uint8_t bus_id, enum _bus_transfer_mode mode)
 
 int bus_configure(uint8_t bus_id, const struct _bus_iface* iface)
 {
+	int err = 0;
+
 	if (bus_id >= BUS_COUNT)
 		return -ENODEV;
 
@@ -307,16 +324,19 @@ int bus_configure(uint8_t bus_id, const struct _bus_iface* iface)
 		break;
 #endif
 	default:
-		return -EINVAL;
+		err = -EINVAL;
+		break;
 	}
 
 	bus_ioctl(bus_id, BUS_IOCTL_ENABLE, NULL);
 
-	return 0;
+	return err;
 }
 
 int bus_configure_slave(uint8_t bus_id, const struct _bus_dev_cfg* cfg)
 {
+	int err = 0;
+
 	if (bus_id >= BUS_COUNT)
 		return -ENODEV;
 
@@ -336,10 +356,11 @@ int bus_configure_slave(uint8_t bus_id, const struct _bus_dev_cfg* cfg)
 		break;
 #endif
 	default:
-		return -EINVAL;
+		err = -EINVAL;
+		break;
 	}
 
-	return 0;
+	return err;
 }
 
 int bus_ioctl(uint8_t bus_id, int req, void* arg)
@@ -382,7 +403,8 @@ int bus_ioctl(uint8_t bus_id, int req, void* arg)
 		break;
 
 	default:
-		return -EINVAL;
+		err = -EINVAL;
+		break;
 	}
 
 	return err;
@@ -390,7 +412,7 @@ int bus_ioctl(uint8_t bus_id, int req, void* arg)
 
 int bus_transfer(uint8_t bus_id, uint16_t remote, struct _buffer* buf, uint16_t buffers, struct _callback* cb)
 {
-	int err;
+	int err = 0;
 	struct _callback _cb;
 
 	if (bus_id >= BUS_COUNT)
@@ -425,7 +447,8 @@ int bus_transfer(uint8_t bus_id, uint16_t remote, struct _buffer* buf, uint16_t 
 		break;
 #endif
 	default:
-		return -EINVAL;
+		err = -EINVAL;
+		break;
 	}
 
 	if (err < 0) {
@@ -500,21 +523,26 @@ int bus_wait_transfer(uint8_t bus_id)
 
 int bus_suspend(uint8_t bus_id)
 {
+	int err = -ENOTSUP;
+
 	if (bus_id >= BUS_COUNT)
 		return -ENODEV;
 
 	switch (_bus[bus_id].type) {
 #ifdef CONFIG_HAVE_SPI_BUS
 	case BUS_TYPE_SPI:
+		err = 0;
 		break;
 #endif
 #ifdef CONFIG_HAVE_I2C_BUS
 	case BUS_TYPE_I2C:
+		err = 0;
 		break;
 #endif
 	default:
-		return -EINVAL;
+		err = -EINVAL;
+		break;
 	}
 
-	return -ENOTSUP;
+	return err;
 }
