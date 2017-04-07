@@ -53,6 +53,18 @@ C6 (Vpp)   |
 C4 (RFU)   |
 C8 (RFU)   |
 
+ - Connect the smart card to the board (Cont.)
+Smart Card | Board     | SAMV71-XPLAINED  |
+-----------|-----------|------------------|
+C1 (Vcc)   | 7816_3V5V | PB0 (EXT1 pin 13)|
+C2 (Reset) | 7816_RST  | PB3 (EXT1 pin 5) |
+C3 (Clock) | 7816_CLK  | PB13(ADCH pin 5) |
+C5 (GND)   | GND       | GND              |
+C7 (I/O)   | 7816_IO   | PB1 (EXT1 pin 14)|
+C6 (Vpp)   |
+C4 (RFU)   |
+C8 (RFU)   |
+
 If necessary, another pin can be connected on the card reader for detecting the
 insertion and removal: 7816_IRQ.
 

@@ -124,8 +124,8 @@
 /** Delay for pushbutton debouncing (in milliseconds). */
 #define DEBOUNCE_TIME       500
 
-/** Maximum number of handled led */
-#define MAX_LEDS            3
+/** Num lock LED index. */
+#define LED_NUMLOCK  0
 
 /** Maximum uc_size in bytes of the smartcard answer to a uc_command. */
 #define MAX_ANSWER_SIZE         10
@@ -161,6 +161,12 @@
 #include "config_sam9xx5-ek.h"
 #elif defined(CONFIG_BOARD_SAM9X35_EK)
 #include "config_sam9xx5-ek.h"
+#elif defined(CONFIG_BOARD_SAMV71_XPLAINED)
+#include "config_samv71-xplained.h"
+#elif defined(CONFIG_BOARD_SAMU70_XPLAINED)
+#include "config_samu70-xplained.h"
+#elif defined(CONFIG_BOARD_SAMV72_XPLAINED)
+#include "config_samv72-xplained.h"
 #else
 #error Unsupported board!
 #endif
@@ -173,8 +179,6 @@
 /** Pushbutton \#1 pin instance. */
 static const struct _pin button_pins[] = PINS_PUSHBUTTONS;
 #endif
-
-volatile bool led_status[MAX_LEDS];
 
 /*------------------------------------------------------------------------------
  *         Internal variables ISO7816
@@ -383,10 +387,9 @@ extern int main( void )
 	/* Output example information */
 	console_example_info("USART ISO7816 Example");
 
-	led_set(LED_BLUE);
+	led_set(LED_NUMLOCK);
 	msleep(500);
-	led_clear(LED_BLUE);
-	led_status[LED_BLUE] = 1;
+	led_clear(LED_NUMLOCK);
 
 #ifdef PINS_PUSHBUTTONS
 	/* PIO configuration for Button, use to simulate card detection. */
