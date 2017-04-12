@@ -432,7 +432,6 @@ static void _mcand_tx_buffer_handler(struct _mcan_desc *desc)
 	struct _cand_ram_item *ram_item;
 	uint32_t *tx_buf;
 
-	uint32_t id;
 	uint32_t buf_count = desc->set.cfg.item_count[MCAN_RAM_TX_BUFFER];
 	uint32_t ram_idx =	desc->set.cfg.ram_index[MCAN_RAM_TX_BUFFER];
 	Mcan *mcan = desc->addr;
@@ -788,7 +787,7 @@ static void _mcan_handler(uint32_t source, void* user_arg)
  * \brief Calculate and configure the baudrate
  * \return 0 in success
  */
-static uint8_t mcand_set_baudrate(Mcan *mcan, uint32_t freq, uint32_t freq_fd)
+static int mcand_set_baudrate(Mcan *mcan, uint32_t freq, uint32_t freq_fd)
 {
 	uint32_t id;
 	uint32_t clk;
@@ -956,7 +955,7 @@ static int mcand_tx(struct _mcan_desc *desc, struct _buffer *buf,
 	return 0;
 }
 
-static uint32_t mcand_rx(struct _mcan_desc *desc, struct _buffer *buf,
+static int mcand_rx(struct _mcan_desc *desc, struct _buffer *buf,
 			mcand_callback_t cb, void* user_args)
 {
 	struct _cand_ram_item * ram_item;

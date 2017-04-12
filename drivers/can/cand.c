@@ -266,7 +266,7 @@ static void _can_handler(uint32_t source, void* user_arg)
  *                 allowed: 100000, 800000, 500000, 250000, 125000, 50000, 25000, 10000
  * \return 0 on success, otherwise return errno.
  */
-static uint8_t cand_set_baudrate(Can* can, uint32_t baudrate)
+static int cand_set_baudrate(Can* can, uint32_t baudrate)
 {
 	uint32_t brp, propag, phase1, phase2, sjw;
 	uint8_t  tq;
