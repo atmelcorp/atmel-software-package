@@ -100,7 +100,7 @@ extern int can_bus_loopback(uint8_t bus_id, bool loop_back);
 
 extern int can_bus_transfer(uint8_t bus_id,
 	uint32_t identifier, uint32_t mask, struct _buffer *buf,
-	void *call_back, void *user_args);
+	struct _callback* cb);
 
 extern bool can_bus_wait_transfer_done(struct _buffer *buf, uint32_t wait_ms);
 

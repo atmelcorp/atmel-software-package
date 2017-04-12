@@ -114,7 +114,7 @@ int can_bus_loopback(uint8_t bus_id, bool loop_back)
 
 int can_bus_transfer(uint8_t bus_id,
 	uint32_t identifier, uint32_t mask, struct _buffer *buf,
-	void *call_back, void *user_args)
+	struct _callback* cb)
 {
 	uint32_t status;
 
@@ -137,11 +137,9 @@ int can_bus_transfer(uint8_t bus_id,
 	buf->attr &= ~CAND_BUF_ATTR_TRANSFER_MSK;
 
 #if defined(CONFIG_HAVE_CAN)
-	status = cand_transfer(_can_bus[bus_id].cand, buf,
-			(cand_callback_t)call_back, user_args);
+	status = cand_transfer(_can_bus[bus_id].cand, buf, cb);
 #elif defined(CONFIG_HAVE_MCAN)
-	status = mcand_transfer(_can_bus[bus_id].mcand, buf,
-			(mcand_callback_t)call_back, user_args);
+	status = mcand_transfer(_can_bus[bus_id].mcand, buf, cb);
 #endif
 
 	mutex_unlock(&_can_bus[bus_id].mutex);

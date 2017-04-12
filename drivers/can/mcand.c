@@ -462,8 +462,7 @@ static void _mcand_tx_buffer_handler(struct _mcan_desc *desc)
 			else
 				mcand_release_ram(desc, MCAN_RAM_TX_BUFFER, buf_idx);
 
-			if (ram_item->callback)
-				ram_item->callback(ram_item->cb_args);
+			callback_copy(&ram_item->cb, NULL);
 		}
 	}
 }
@@ -521,8 +520,7 @@ static void _mcand_tx_fifo_handler(struct _mcan_desc *desc)
 
 		mcand_release_ram(desc, MCAN_RAM_TX_FIFO, fifo_idx - fifo_start);
 
-		if (ram_item->callback)
-			ram_item->callback(ram_item->cb_args);
+		callback_copy(&ram_item->cb, NULL);
 	}
 }
 
@@ -594,8 +592,7 @@ static void _mcand_rx_proc(struct _mcan_desc *desc, enum _mcan_ram ram, uint32_t
 	if (0 == (ram_item->buf->attr & CAND_BUF_ATTR_RX_OVERWRITE))
 		mcand_release_ram(desc, ram, buf_idx);
 
-	if (ram_item->callback)
-		ram_item->callback(ram_item->cb_args);
+	callback_copy(&ram_item->cb, NULL);
 }
 
 static void _mcand_rx_buffer_handler(struct _mcan_desc *desc)
@@ -909,7 +906,7 @@ static void mcan_enqueue_outgoing_msg(struct _mcan_desc *desc,
 }
 
 static int mcand_tx(struct _mcan_desc *desc, struct _buffer *buf,
-			mcand_callback_t cb, void* user_args)
+			struct _callback* cb)
 {
 	int status = 0;
 	struct _cand_ram_item * ram_item;
@@ -923,8 +920,7 @@ static int mcand_tx(struct _mcan_desc *desc, struct _buffer *buf,
 			return status;
 		ram_item = &desc->ram_item[desc->set.cfg.ram_index[MCAN_RAM_TX_FIFO] + buf_idx];
 		ram_item->buf = buf;
-		ram_item->callback = cb;
-		ram_item->cb_args = user_args;
+		callback_copy(&ram_item->cb, cb);
 		ram_item->state = 0;
 
 		mcan_enqueue_outgoing_msg(desc, buf_idx + desc->set.cfg.item_count[MCAN_RAM_TX_BUFFER], id, buf->size, buf->data);
@@ -937,8 +933,7 @@ static int mcand_tx(struct _mcan_desc *desc, struct _buffer *buf,
 
 		ram_item = &desc->ram_item[desc->set.cfg.ram_index[MCAN_RAM_TX_BUFFER] + buf_idx];
 		ram_item->buf = buf;
-		ram_item->callback = cb;
-		ram_item->cb_args = user_args;
+		callback_copy(&ram_item->cb, cb);
 		ram_item->state = 0;
 
 		/* Send standard ID from a dedicated buffer */
@@ -956,7 +951,7 @@ static int mcand_tx(struct _mcan_desc *desc, struct _buffer *buf,
 }
 
 static int mcand_rx(struct _mcan_desc *desc, struct _buffer *buf,
-			mcand_callback_t cb, void* user_args)
+			struct _callback* cb)
 {
 	struct _cand_ram_item * ram_item;
 	struct mcan_set *set = &desc->set;
@@ -1053,8 +1048,7 @@ static int mcand_rx(struct _mcan_desc *desc, struct _buffer *buf,
 
 	// rx buffer configuration
 	ram_item->buf = buf;
-	ram_item->callback = cb;
-	ram_item->cb_args = user_args;
+	callback_copy(&ram_item->cb, cb);
 	ram_item->state = 0;
 
 	mcan_enable_it(desc->addr, it);
@@ -1147,11 +1141,11 @@ int mcand_configure(struct _mcan_desc* desc)
 }
 
 int mcand_transfer(struct _mcan_desc *desc, struct _buffer *buf,
-			mcand_callback_t cb, void* user_args)
+			struct _callback* cb)
 {
 	if (buf->attr & CAND_BUF_ATTR_TX)
-		return mcand_tx(desc, buf, cb, user_args);
+		return mcand_tx(desc, buf, cb);
 	else if (buf->attr & CAND_BUF_ATTR_RX)
-		return mcand_rx(desc, buf, cb, user_args);
+		return mcand_rx(desc, buf, cb);
 	return -EINVAL;
 }

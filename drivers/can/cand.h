@@ -34,6 +34,7 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include "callback.h"
 #include "can/can.h"
 
 /*----------------------------------------------------------------------------
@@ -47,12 +48,9 @@
  *        Types
  *----------------------------------------------------------------------------*/
 
-typedef void (*cand_callback_t)(void *args);
-
 struct _cand_mailbox {
 	struct _buffer *buf;
-	cand_callback_t callback;
-	void *cb_args;
+	struct _callback cb;
 	uint8_t state;
 };
 
@@ -81,10 +79,9 @@ extern bool cand_is_enabled(struct _can_desc* desc);
  * Configure the CAN Mailbox for message transfer.
  * \param desc Pointer to CAN Driver descriptor instance.
  * \param buf  Pointer to buffer to transfer.
- * \param cb   Pointer to call back function.
- * \param user_args parameter of the call back function.
+ * \param cb   Pointer to call back structure.
  */
 extern int cand_transfer(struct _can_desc* desc, struct _buffer* buf,
-			cand_callback_t cb, void* user_args);
+			struct _callback* cb);
 
 #endif /* CAND_H_ */

@@ -214,8 +214,7 @@ static void cand_message_handler(struct _can_desc* desc)
 
 		*buf = NULL;
 		desc->mailboxes[mailbox].state = CAND_XFR_IDLE;
-		if (desc->mailboxes[mailbox].callback)
-			desc->mailboxes[mailbox].callback(desc->mailboxes[mailbox].cb_args);
+		callback_call(&desc->mailboxes[mailbox].cb, NULL);
 	}
 
 	/* All transfer finished ? */
@@ -393,7 +392,7 @@ bool cand_is_enabled(struct _can_desc* desc)
 }
 
 int cand_transfer(struct _can_desc* desc, struct _buffer* buf,
-		cand_callback_t cb, void* user_args)
+		struct _callback* cb)
 {
 	uint32_t type;
 	uint32_t mask;
@@ -408,8 +407,7 @@ int cand_transfer(struct _can_desc* desc, struct _buffer* buf,
 		return -ENOMEM;
 
 	mb = &desc->mailboxes[mailbox];
-	mb->callback = cb;
-	mb->cb_args = user_args;
+	callback_copy(&mb->cb, cb);
 
 	if (buf->attr & CAND_BUF_ATTR_RX)
 		type = CAN_MMR_MOT_MB_RX;

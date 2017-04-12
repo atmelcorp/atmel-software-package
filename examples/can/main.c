@@ -225,8 +225,8 @@ static void test_message(uint8_t bus)
 			.size = sizeof(msg1),
 			.attr = CAND_BUF_ATTR_STANDARD | CAND_BUF_ATTR_TX,
 		};
-	can_bus_transfer(bus_rx, 0x31, 0x7FF, &buf_rx_standard, NULL, NULL);
-	can_bus_transfer(bus, 0x31, 0, &buf1, NULL, NULL);
+	can_bus_transfer(bus_rx, 0x31, 0x7FF, &buf_rx_standard, NULL);
+	can_bus_transfer(bus, 0x31, 0, &buf1, NULL);
 	if (can_bus_wait_transfer_done(&buf1, CAN_TO) == 0) {
 		trace_error("CAN%d: Simple test TX error\r\n", bus);
 	}
@@ -241,9 +241,9 @@ static void test_message(uint8_t bus)
 			.size = sizeof(msg3),
 			.attr = CAND_BUF_ATTR_STANDARD | CAND_BUF_ATTR_TX,
 		};
-	can_bus_transfer(bus, 0x32, 0x7FF, &buf_rx_discard, NULL, NULL);
-	can_bus_transfer(bus, 0x32, 0, &buf21, NULL, NULL);
-	can_bus_transfer(bus, 0x32, 0, &buf20, NULL, NULL);
+	can_bus_transfer(bus, 0x32, 0x7FF, &buf_rx_discard, NULL);
+	can_bus_transfer(bus, 0x32, 0, &buf21, NULL);
+	can_bus_transfer(bus, 0x32, 0, &buf20, NULL);
 	if (!can_bus_wait_transfer_done(&buf21, CAN_TO)
 		|| !can_bus_wait_transfer_done(&buf20, CAN_TO)) {
 		trace_error("CAN%d: Discard test TX error\r\n", bus);
@@ -260,9 +260,9 @@ static void test_message(uint8_t bus)
 			.size = sizeof(msg5),
 			.attr = CAND_BUF_ATTR_STANDARD | CAND_BUF_ATTR_TX,
 		};
-	if (0 == can_bus_transfer(bus_rx, 0x40, 0x7FE, &buf_rx_overwr, NULL, NULL)) {
-		can_bus_transfer(bus, 0x40, 0, &buf30, NULL, NULL);
-		can_bus_transfer(bus, 0x41, 0, &buf31, NULL, NULL);
+	if (0 == can_bus_transfer(bus_rx, 0x40, 0x7FE, &buf_rx_overwr,  NULL)) {
+		can_bus_transfer(bus, 0x40, 0, &buf30, NULL);
+		can_bus_transfer(bus, 0x41, 0, &buf31, NULL);
 		if (!can_bus_wait_transfer_done(&buf30, CAN_TO)
 			|| !can_bus_wait_transfer_done(&buf31, CAN_TO)) {
 			trace_error("CAN%d: Overwrite test TX error\r\n", bus);
@@ -306,8 +306,8 @@ static void test_message(uint8_t bus)
 			.size = sizeof(rx_buffers[_RX_BUFF_CONSUMER]),
 			.attr = CAND_BUF_ATTR_STANDARD | CAND_BUF_ATTR_CONSUMER,
 		};
-	if (0 == can_bus_transfer(bus_rx, 0x34, 0, &buf_producer, NULL, NULL)) {
-		can_bus_transfer(bus, 0x34, 0x7FF, &buf_consumer, NULL, NULL);
+	if (0 == can_bus_transfer(bus_rx, 0x34, 0, &buf_producer, NULL)) {
+		can_bus_transfer(bus, 0x34, 0x7FF, &buf_consumer, NULL);
 		if (!can_bus_wait_transfer_done(&buf_consumer, CAN_TO)) {
 			trace_error("CAN%d: Ask for data fail\r\n", bus);
 			return;
@@ -345,9 +345,9 @@ static void send_message(uint8_t bus)
 			.attr = CAND_BUF_ATTR_STANDARD | CAND_BUF_ATTR_RX | CAND_BUF_ATTR_USING_FIFO,
 		};
 
-	can_bus_transfer(bus_rx, id[0], 0x7FF, &buf_rx_simple_std, NULL, NULL);
-	can_bus_transfer(bus_rx, id[1], 0x1FFFFFFF, &buf_rx_simple_ext, NULL, NULL);
-	can_bus_transfer(bus_rx, id[2], 0x7FF, &buf_rx_simple_fifo, NULL, NULL);
+	can_bus_transfer(bus_rx, id[0], 0x7FF, &buf_rx_simple_std, NULL);
+	can_bus_transfer(bus_rx, id[1], 0x1FFFFFFF, &buf_rx_simple_ext, NULL);
+	can_bus_transfer(bus_rx, id[2], 0x7FF, &buf_rx_simple_fifo, NULL);
 
 	PRINT_SPLIT;
 	static struct _buffer buf_tx_msg0 = {
@@ -361,7 +361,7 @@ static void send_message(uint8_t bus)
 	buf_rx_simple_std.attr &= ~CAND_BUF_ATTR_TRANSFER_DONE;
 	buf_rx_simple_std.size = sizeof(rx_buffers[0]);
 
-	can_bus_transfer(bus, id[0], 0, tx_buf, NULL, NULL);
+	can_bus_transfer(bus, id[0], 0, tx_buf, NULL);
 	if (!can_bus_wait_transfer_done(tx_buf, CAN_TO)) {
 		trace_error("TX failed!\r\n");
 		return;
@@ -392,7 +392,7 @@ static void send_message(uint8_t bus)
 	buf_rx_simple_ext.attr &= ~CAND_BUF_ATTR_TRANSFER_DONE;
 	buf_rx_simple_ext.size = sizeof(rx_buffers[0]);
 
-	can_bus_transfer(bus, id[1], 0, tx_buf, NULL, NULL);
+	can_bus_transfer(bus, id[1], 0, tx_buf, NULL);
 	if (!can_bus_wait_transfer_done(tx_buf, CAN_TO)) {
 		trace_error("TX failed!\r\n");
 		return;
@@ -422,7 +422,7 @@ static void send_message(uint8_t bus)
 
 	buf_rx_simple_fifo.attr &= ~CAND_BUF_ATTR_TRANSFER_DONE;
 	buf_rx_simple_fifo.size = sizeof(rx_buffers[0]);
-	can_bus_transfer(bus, id[2], 0, tx_buf, NULL, NULL);
+	can_bus_transfer(bus, id[2], 0, tx_buf, NULL);
 	if (!can_bus_wait_transfer_done(tx_buf, CAN_TO)) {
 		trace_error("TX failed!\r\n");
 		return;
@@ -552,7 +552,7 @@ int main(void)
 				trace_error("Failed to enable CAN/MCAN.\r\n");
 				break;
 			}
-			can_bus_transfer(1, 0x222, 0x7FF, &buf_rx, NULL, NULL);
+			can_bus_transfer(1, 0x222, 0x7FF, &buf_rx, NULL);
 			if (!can_bus_wait_transfer_done(&buf_rx, 10 * CAN_TO)) {
 				trace_warning("RX failed!\r\n");
 			} else {
@@ -574,7 +574,7 @@ int main(void)
 			trace_info("CAN1 TX, ID 0x222, len %u:", (unsigned)buf_tx.size);
 			print_buffer(buf_tx.size, buf_tx.data);
 
-			can_bus_transfer(1, 0x222, 0, &buf_tx, NULL, NULL);
+			can_bus_transfer(1, 0x222, 0, &buf_tx, NULL);
 			if (!can_bus_wait_transfer_done(&buf_tx, CAN_TO))
 				trace_error("TX failed!\r\n");
 			else
