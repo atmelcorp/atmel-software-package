@@ -751,6 +751,12 @@ static int _qspiflash_init_spansion(struct _qspiflash *flash)
 
 static int _qspiflash_init_sst(struct _qspiflash *flash)
 {
+	int ret;
+
+	ret = _qspiflash_write_enable(flash);
+	if (ret < 0)
+		return ret;
+
 	return _qspiflash_write_reg(flash, CMD_SST_ULBPR, NULL, 0);
 }
 
