@@ -123,7 +123,7 @@ void board_cfg_clocks(void)
 	};
 	pmc_switch_mck_to_main();
 	pmc_disable_plla();
-	pmc_select_external_osc();
+	pmc_select_external_osc(false);
 	pmc_configure_plla(&plla_config);
 	pmc_set_mck_divider(PMC_MCKR_MDIV_PCK_DIV3);
 	pmc_set_mck_plladiv2(true);

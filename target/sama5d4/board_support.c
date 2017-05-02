@@ -149,7 +149,7 @@ void board_cfg_clocks(void)
 		.div = 1,
 		.count = 0x3f,
 	};
-	pmc_select_external_osc();
+	pmc_select_external_osc(false);
 	pmc_switch_mck_to_main();
 	pmc_set_mck_h32mxdiv(true);
 	pmc_set_mck_plladiv2(true);

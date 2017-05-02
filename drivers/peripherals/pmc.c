@@ -67,12 +67,14 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include <assert.h>
+#include <errno.h>
+
 #include "chip.h"
 #include "timer.h"
 #include "peripherals/pmc.h"
 #include "peripherals/slowclock.h"
 #include "trace.h"
-#include <assert.h>
 
 /*----------------------------------------------------------------------------
  *        Types
@@ -82,6 +84,11 @@ struct _pmc_main_osc {
 	uint32_t rc_freq;
 	uint32_t crystal_freq;
 };
+
+#define OSC_STARTUP_TIME	0xFFu
+#define MAINFRDY_TIMEOUT	32u
+#define MOSCXTS_TIMEOUT		((OSC_STARTUP_TIME * 8) + 8)
+#define MOSCSELS_TIMEOUT	32u
 
 /*----------------------------------------------------------------------------
  *        Variables
@@ -363,20 +370,107 @@ static void _pmc_configure_peripheral_div(uint32_t id, uint32_t div)
 }
 #endif
 
+static uint16_t _pmc_measure_main_osc_freq(bool external_xt)
+{
+	volatile uint32_t timeout = MAINFRDY_TIMEOUT;
+
+#ifdef CKGR_MCFR_CCSS
+	PMC->CKGR_MCFR = external_xt ? CKGR_MCFR_CCSS : 0;
+#endif
+
+#ifdef CKGR_MCFR_RCMEAS
+	PMC->CKGR_MCFR |= CKGR_MCFR_RCMEAS;
+#endif
+	timeout = MAINFRDY_TIMEOUT;
+	while (!(PMC->CKGR_MCFR & CKGR_MCFR_MAINFRDY) && --timeout > 0);
+
+	return (timeout ?
+		((PMC->CKGR_MCFR & CKGR_MCFR_MAINF_Msk) >> CKGR_MCFR_MAINF_Pos) :
+		0u);
+}
+
 /*----------------------------------------------------------------------------
  *        Exported functions (General)
  *----------------------------------------------------------------------------*/
 
-void pmc_set_main_oscillator_freq(uint32_t freq)
+uint32_t pmc_set_main_oscillator_freq(uint32_t freq)
 {
+	uint32_t mor, mckr, mckr_mask;
+	uint16_t mainf_rc, mainf_xt = 0;
+
 	_pmc_main_oscillators.crystal_freq = freq;
+	if (freq > 0)
+		return freq;
+
+	/*
+	 * Save the current value of the CKGR_MCKR register then swith to
+	 * the slow clock.
+	 */
+	mckr = PMC->PMC_MCKR;
+	pmc_switch_mck_to_slck();
+	mckr_mask = PMC_MCKR_MDIV_Msk | PMC_MCKR_PRES_Msk;
+	PMC->PMC_MCKR &= ~mckr_mask;
+
+	/* Save the current value of the CKGR_MOR register. */
+	mor = PMC->CKGR_MOR;
+
+	/* Measure the 12MHz RC frequency. */
+	pmc_select_internal_osc();
+	mainf_rc = _pmc_measure_main_osc_freq(false);
+
+	/* Measure the crystal or by-pass frequency. */
+
+	/* Try by-pass first. */
+	if (pmc_select_external_osc(true) == 0)
+		mainf_xt = _pmc_measure_main_osc_freq(true);
+
+	/* Then try external crytal if no by-pass. */
+	if (!mainf_xt) {
+		if (pmc_select_external_osc(false) == 0)
+			mainf_xt = _pmc_measure_main_osc_freq(true);
+	}
+
+	/* Switch back to internal 12MHz RC if it was selected initially */
+	if (!(mor & CKGR_MOR_MOSCSEL))
+		pmc_select_internal_osc();
+
+#ifdef CKGR_MOR_MOSCRCEN
+	/* Disable internal oscillator if it wasn't enabled initially */
+	if (!(mor & CKGR_MOR_MOSCRCEN))
+		pmc_disable_internal_osc();
+#endif
+
+	/* Switch back to the former MCK source. */
+	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~mckr_mask) | (mckr & mckr_mask);
+	pmc_switch_mck_to_new_source(mckr & PMC_MCKR_CSS_Msk);
+
+	/* Guess the external crystal frequency, if available. */
+	if (mainf_rc && mainf_xt) {
+		uint32_t ratio = (mainf_xt * 1000) / mainf_rc;
+
+		// Use 10% low and high margins
+		if (1800 <= ratio && ratio <= 2200) {
+			// 24/12 => ratio = 2000
+			_pmc_main_oscillators.crystal_freq = 24000000u;
+		} else if (1200 <= ratio && ratio <= 1467) {
+			// 16/12 => ratio = 1333
+			_pmc_main_oscillators.crystal_freq = 16000000u;
+		} else if (900 <= ratio && ratio <= 1100) {
+			// 12/12 => ratio = 1000
+			_pmc_main_oscillators.crystal_freq = 12000000u;
+		} else if (600 <= ratio && ratio <= 733) {
+			// 8/12 => ratio = 667
+			_pmc_main_oscillators.crystal_freq = 8000000u;
+		}
+	}
+
+	return _pmc_main_oscillators.crystal_freq;
 }
 
 uint32_t pmc_get_master_clock(void)
 {
-	if (!_pmc_mck) {
+	if (!_pmc_mck)
 		_pmc_compute_mck();
-	}
 	return _pmc_mck;
 }
 
@@ -471,11 +565,17 @@ void pmc_select_internal_crystal(void)
 		pmc_switch_mck_to_slck();
 }
 
-void pmc_select_external_osc(void)
+int pmc_select_external_osc(bool bypass)
 {
-	/* Return if external osc had been selected */
-	if ((PMC->CKGR_MOR & CKGR_MOR_MOSCSEL) == CKGR_MOR_MOSCSEL)
-		return;
+	int err;
+	volatile uint32_t timeout;
+
+	/* Return if external oscillator had been selected */
+	if ((PMC->CKGR_MOR & CKGR_MOR_MOSCSEL) == CKGR_MOR_MOSCSEL) {
+		uint32_t mask = bypass ? CKGR_MOR_MOSCXTBY : CKGR_MOR_MOSCXTEN;
+		if ((PMC->CKGR_MOR & mask) == mask)
+			return 0;
+	}
 
 	/*
 	 * When switching the source of the main clock between the RC oscillator and the crystal
@@ -483,63 +583,106 @@ void pmc_select_external_osc(void)
 	 * unused oscillator can be disabled.
 	 */
 	pmc_enable_internal_osc();
-	pmc_enable_external_osc();
+	err = pmc_enable_external_osc(bypass);
+	if (err < 0)
+		return err;
 
-	/* switch MAIN clock to external OSC 12 MHz */
+	/* switch MAIN clock to external oscillator */
 	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_KEY_Msk) | CKGR_MOR_MOSCSEL
 	    | CKGR_MOR_KEY_PASSWD;
+
 	/* wait for the command to be taken into account */
 	while ((PMC->CKGR_MOR & CKGR_MOR_MOSCSEL) != CKGR_MOR_MOSCSEL);
 
-	/* wait MAIN clock status change for external OSC 12 MHz selection */
-	while (!(PMC->PMC_SR & PMC_SR_MOSCSELS));
+	/* wait MAIN clock status change for external oscillator selection */
+	timeout = MOSCSELS_TIMEOUT;
+	while (!(PMC->PMC_SR & PMC_SR_MOSCSELS) && --timeout > 0);
+	if (!timeout) {
+		PMC->CKGR_MOR &= ~CKGR_MOR_MOSCSEL;
+		return -ETIMEDOUT;
+	}
 
 	/* in case where MCK is running on MAIN CLK */
 	if ((PMC->PMC_MCKR & PMC_MCKR_CSS_PLLA_CLK) || (PMC->PMC_MCKR & PMC_MCKR_CSS_MAIN_CLK))
 		while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
 
-	/* disable internal RC 12 MHz to save power */
+	/* disable internal 12MHz RC to save power */
 	pmc_disable_internal_osc();
+
+	return 0;
 }
 
-void pmc_enable_external_osc(void)
+int pmc_enable_external_osc(bool bypass)
 {
 	uint32_t cgmor = PMC->CKGR_MOR;
+	uint32_t mask = CKGR_MOR_MOSCXTEN;
+	volatile uint32_t timeout;
 
-#ifdef CKGR_MOR_MOSCRCEN
-	/* Enable external osc 12 MHz when needed */
-	if ((cgmor & CKGR_MOR_MOSCXTEN) != CKGR_MOR_MOSCXTEN) {
-		cgmor = (cgmor & ~CKGR_MOR_MOSCXTST_Msk & ~CKGR_MOR_KEY_Msk)
-		    | CKGR_MOR_MOSCXTST(18) | CKGR_MOR_MOSCRCEN | CKGR_MOR_MOSCXTEN | CKGR_MOR_KEY_PASSWD;
-		PMC->CKGR_MOR = cgmor;
+	if (bypass)
+		mask = CKGR_MOR_MOSCXTBY;
+
+	/* Enable Crystal Oscillator if needed */
+	if ((cgmor & mask) != mask) {
+		cgmor &= ~CKGR_MOR_KEY_Msk;
+		cgmor |= CKGR_MOR_KEY_PASSWD;
+
+		if (bypass) {
+			/* Disable Crystal Oscillator */
+			cgmor &= ~CKGR_MOR_MOSCXTEN;
+			PMC->CKGR_MOR = cgmor;
+
+			/* Wait Main Oscillator not ready */
+			while (PMC->PMC_SR & PMC_SR_MOSCXTS);
+
+			/* Enable Crystal Oscillator Bypass */
+			cgmor |= CKGR_MOR_MOSCXTBY;
+			PMC->CKGR_MOR = cgmor;
+		} else {
+			/* Disable Crystal Oscillator Bypass */
+			cgmor &= ~CKGR_MOR_MOSCXTBY;
+			PMC->CKGR_MOR = cgmor;
+
+			/* Wait Main Oscillator not ready */
+			while (PMC->PMC_SR & PMC_SR_MOSCXTS);
+
+			/* Set Oscillator Startup Time */
+			cgmor &= ~CKGR_MOR_MOSCXTST_Msk;
+			cgmor |= CKGR_MOR_MOSCXTST(18);
+			PMC->CKGR_MOR = cgmor;
+
+			/* Enable Crystal Oscillator */
+			cgmor |= CKGR_MOR_MOSCXTEN;
+			PMC->CKGR_MOR = cgmor;
+		}
+
 		/* Wait Main Oscillator ready */
-		while(!(PMC->PMC_SR & PMC_SR_MOSCXTS));
+		timeout = MOSCXTS_TIMEOUT;
+		while (!(PMC->PMC_SR & PMC_SR_MOSCXTS) && --timeout > 0);
+
+		/* Return true if oscillator ready before timeout */
+		return timeout == 0 ? -ETIMEDOUT : 0;
+	} else {
+		/* Crystal Oscillator already selected, just check if ready */
+		if (PMC->PMC_SR & PMC_SR_MOSCXTS)
+			return 0;
+		else
+			return -ENOTSUP;
 	}
-#else
-	/* Enable external osc 12 MHz when needed */
-	if ((cgmor & CKGR_MOR_MOSCXTEN) != CKGR_MOR_MOSCXTEN) {
-		cgmor = (cgmor & ~CKGR_MOR_MOSCXTST_Msk & ~CKGR_MOR_KEY_Msk)
-		    | CKGR_MOR_MOSCXTST(18) | CKGR_MOR_MOSCXTEN | CKGR_MOR_KEY_PASSWD;
-		PMC->CKGR_MOR = cgmor;
-		/* Wait Main Oscillator ready */
-		while(!(PMC->PMC_SR & PMC_SR_MOSCXTS));
-	}
-#endif
 }
 
 void pmc_disable_external_osc(void)
 {
-	/* disable external OSC 12 MHz   */
-	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_MOSCXTEN & ~CKGR_MOR_KEY_Msk) | CKGR_MOR_KEY_PASSWD;
-	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_MOSCSEL) | CKGR_MOR_KEY_PASSWD;
+	/* disable external OSC */
+	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~(CKGR_MOR_MOSCSEL | CKGR_MOR_KEY_Msk)) | CKGR_MOR_KEY_PASSWD;
+	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~(CKGR_MOR_MOSCXTEN | CKGR_MOR_MOSCXTBY | CKGR_MOR_KEY_Msk)) | CKGR_MOR_KEY_PASSWD;
 }
 
 void pmc_select_internal_osc(void)
 {
 	pmc_enable_internal_osc();
 
-	/* switch MAIN clock to internal RC 12 MHz */
-	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_MOSCSEL & ~CKGR_MOR_KEY_Msk) | CKGR_MOR_KEY_PASSWD;
+	/* switch MAIN clock to internal 12MHz RC */
+	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~(CKGR_MOR_MOSCSEL | CKGR_MOR_KEY_Msk)) | CKGR_MOR_KEY_PASSWD;
 
 	/* in case where MCK is running on MAIN CLK */
 	if ((PMC->PMC_MCKR & PMC_MCKR_CSS_PLLA_CLK) || (PMC->PMC_MCKR & PMC_MCKR_CSS_MAIN_CLK))
@@ -552,10 +695,10 @@ void pmc_select_internal_osc(void)
 void pmc_enable_internal_osc(void)
 {
 #ifdef CKGR_MOR_MOSCRCEN
-	/* Enable internal RC 12 MHz when needed */
+	/* Enable internal 12MHz RC when needed */
 	if ((PMC->CKGR_MOR & CKGR_MOR_MOSCRCEN) != CKGR_MOR_MOSCRCEN) {
 		PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_KEY_Msk) | CKGR_MOR_MOSCRCEN | CKGR_MOR_KEY_PASSWD;
-		/* Wait internal 12 MHz RC Startup Time for clock stabilization */
+		/* Wait internal 12MHz RC Startup Time for clock stabilization */
 		while (!(PMC->PMC_SR & PMC_SR_MOSCRCS));
 	}
 #endif
@@ -564,7 +707,7 @@ void pmc_enable_internal_osc(void)
 void pmc_disable_internal_osc(void)
 {
 #ifdef CKGR_MOR_MOSCRCEN
-	/* disable internal RC 12 MHz   */
+	/* disable internal 12MHz RC */
 	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_MOSCRCEN & ~CKGR_MOR_KEY_Msk) | CKGR_MOR_KEY_PASSWD;
 #endif
 }
@@ -752,7 +895,7 @@ void pmc_set_custom_pck_mck(const struct pck_mck_cfg *cfg)
 	pmc_switch_mck_to_slck();
 
 	if (cfg->ext12m)
-		pmc_select_external_osc();
+		pmc_select_external_osc(cfg->ext_bypass);
 	else
 		pmc_select_internal_osc();
 

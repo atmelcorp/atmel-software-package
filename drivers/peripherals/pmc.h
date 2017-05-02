@@ -65,6 +65,9 @@ struct pck_mck_cfg {
 	/** RC12M (false) or EXT12M (true) */
 	bool ext12m;
 
+	/** Use BYPASS */
+	bool ext_bypass;
+
 	/** RC32K (false) or EXT32K (true) */
 	bool ext32k;
 
@@ -160,8 +163,9 @@ extern "C" {
 
 /**
  * \brief Set the external oscillator frequency (in Hz)
+ * \return Main oscillator frequency (0 if not detected)
  */
-extern void pmc_set_main_oscillator_freq(uint32_t freq);
+extern uint32_t pmc_set_main_oscillator_freq(uint32_t freq);
 
 /**
  * \brief Configure PCK and MCK with custom setting
@@ -210,13 +214,15 @@ extern void pmc_select_internal_crystal(void);
 
 /**
  * \brief Select external 12M OSC.
+ * \return 0 on success, negative error otherwise
  */
-extern void pmc_select_external_osc(void);
+extern int pmc_select_external_osc(bool bypass);
 
 /**
  * \brief Enable external 12M OSC.
+ * \return 0 on success, negative error otherwise
  */
-extern void pmc_enable_external_osc(void);
+extern int pmc_enable_external_osc(bool bypass);
 
 /**
  * \brief Disable external 12M OSC.

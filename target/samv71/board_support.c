@@ -103,7 +103,7 @@ void board_cfg_clocks(void)
 	eefc_set_flash_wait_states(EEFC, get_flash_wait_states(300000000));
 	pmc_switch_mck_to_slck();
 	pmc_disable_plla();
-	pmc_select_external_osc();
+	pmc_select_external_osc(false);
 	pmc_configure_plla(&plla_config);
 	pmc_set_mck_prescaler(PMC_MCKR_PRES_CLOCK_DIV2);
 	pmc_set_mck_divider(PMC_MCKR_MDIV_PCK_DIV2);
