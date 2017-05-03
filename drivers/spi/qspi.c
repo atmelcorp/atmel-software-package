@@ -232,6 +232,77 @@ bool qspi_perform_command(Qspi *qspi, const struct _qspi_cmd *cmd)
 			ifr |= QSPI_IFR_CRM_ENABLED;
 	}
 
+#ifdef QSPI_VERBOSE_DEBUG
+	{
+		uint32_t i, len;
+
+		switch (cmd->ifr_width & QSPI_IFR_WIDTH_Msk) {
+		case QSPI_IFR_WIDTH_SINGLE_BIT_SPI:
+			printf("SPI 1-1-1 ");
+			break;
+
+		case QSPI_IFR_WIDTH_DUAL_OUTPUT:
+			printf("SPI 1-1-2 ");
+			break;
+
+		case QSPI_IFR_WIDTH_QUAD_OUTPUT:
+			printf("SPI 1-1-4 ");
+			break;
+
+		case QSPI_IFR_WIDTH_DUAL_IO:
+			printf("SPI 1-2-2 ");
+			break;
+
+		case QSPI_IFR_WIDTH_QUAD_IO:
+			printf("SPI 1-4-4 ");
+			break;
+
+		case QSPI_IFR_WIDTH_DUAL_CMD:
+			printf("SPI 2-2-2 ");
+			break;
+
+		case QSPI_IFR_WIDTH_QUAD_CMD:
+			printf("SPI 4-4-4 ");
+			break;
+		}
+
+		if (cmd->enable.instruction)
+			printf("opcode=%02Xh ", cmd->instruction);
+
+		if (cmd->enable.address == 4)
+			printf("address=0x%08X (4-bytes) ", (unsigned int)cmd->address);
+		else if (cmd->enable.address == 3)
+			printf("address=0x%06X (3-bytes) ", (unsigned int)cmd->address);
+
+		if (cmd->enable.mode && cmd->num_mode_cycles)
+			printf("mode=%u (%02Xh)",
+				    cmd->num_mode_cycles, cmd->mode);
+
+		if (cmd->enable.dummy)
+			printf("dummy=%u ", cmd->num_dummy_cycles);
+
+		len = cmd->buffer_len;
+		if (len > 4)
+			len = 4;
+		if (len) {
+			if (cmd->rx_buffer)
+				goto next;
+
+			if (cmd->tx_buffer) {
+				printf("TX (%u bytes): ", (unsigned int)cmd->buffer_len);
+				for (i = 0; i < len; i++)
+					printf("0x%02X ", ((uint8_t *)cmd->tx_buffer)[i]);
+			}
+
+			if (len != cmd->buffer_len)
+				printf("... ");
+		}
+
+		printf("\r\n");
+	}
+next:
+#endif /* QSPI_VERBOSE_DEBUG */
+
 	/* Set QSPI Instruction Frame registers */
 	qspi->QSPI_IAR = iar;
 	qspi->QSPI_ICR = icr;
@@ -301,6 +372,26 @@ no_data:
 			return false;
 		}
 	}
+
+#ifdef QSPI_VERBOSE_DEBUG
+	{
+		uint32_t i, len;
+
+		len = cmd->buffer_len;
+		if (len > 4)
+			len = 4;
+		if (len && cmd->rx_buffer) {
+			printf("RX (%u bytes): ", (unsigned int)cmd->buffer_len);
+			for (i = 0; i < len; i++)
+				printf("0x%02X ", ((uint8_t *)cmd->rx_buffer)[i]);
+
+			if (len != cmd->buffer_len)
+				printf("... ");
+
+			printf("\r\n");
+		}
+	}
+#endif /* QSPI_VERBOSE_DEBUG */
 
 	return true;
 }
