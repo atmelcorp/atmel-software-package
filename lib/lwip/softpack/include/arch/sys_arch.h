@@ -35,6 +35,6 @@
 
 
 
-u32_t sys_now(void);
+unsigned int sys_now(void);
 
 #endif

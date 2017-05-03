@@ -2,7 +2,7 @@
 #include "arch/sys_arch.h"
 #include "timer.h"
 
-u32_t sys_now(void)
+unsigned int sys_now(void)
 {
 	return timer_get_tick();
 }
