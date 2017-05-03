@@ -569,6 +569,19 @@ void pmc_disable_internal_osc(void)
 #endif
 }
 
+void pmc_switch_mck_to_new_source(uint32_t mckr_css)
+{
+	uint32_t mckr = PMC->PMC_MCKR;
+	uint32_t mask = PMC_MCKR_CSS_Msk;
+
+	if ((mckr ^ mckr_css) & mask) {
+		PMC->PMC_MCKR = (mckr & ~mask) | (mckr_css & mask);
+		while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
+	}
+
+	_pmc_mck = 0;
+}
+
 void pmc_switch_mck_to_pll(void)
 {
 	/* Select PLL as input clock for PCK and MCK */

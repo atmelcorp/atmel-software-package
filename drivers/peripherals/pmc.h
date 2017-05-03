@@ -239,6 +239,11 @@ extern void pmc_enable_internal_osc(void);
 extern void pmc_disable_internal_osc(void);
 
 /**
+ * \brief Switch MCK to new source.
+ */
+extern void pmc_switch_mck_to_new_source(uint32_t mckr_css);
+
+/**
  * \brief Switch PMC from MCK to PLL clock.
  */
 extern void pmc_switch_mck_to_pll(void);
