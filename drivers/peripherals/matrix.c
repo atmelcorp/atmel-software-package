@@ -75,15 +75,15 @@ void matrix_set_slave_region_size(Matrix* mtx, uint8_t slave_id,
 #endif
 }
 
-uint8_t matrix_is_peripheral_secured(Matrix* mtx, uint32_t periph_id)
+bool matrix_is_peripheral_secured(Matrix* mtx, uint32_t periph_id)
 {
 #ifdef CONFIG_HAVE_SECURE_MATRIX
 	if (mtx->MATRIX_SPSELR[periph_id / 32] & (1 << (periph_id % 32))) {
-		return 0;
+		return false;
 	} else
 #endif
 	{
-		return 1;
+		return true;
 	}
 }
 

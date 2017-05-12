@@ -30,9 +30,13 @@
 #ifndef MATRIX_HEADER_
 #define MATRIX_HEADER_
 
-#include "chip.h"
+/*----------------------------------------------------------------------------
+ *        Definitions
+ *----------------------------------------------------------------------------*/
+
 #include <stdint.h>
 
+#include "chip.h"
 
 /*----------------------------------------------------------------------------
  *        Definitions
@@ -73,7 +77,7 @@ extern void matrix_set_slave_split_addr(Matrix* mtx, uint8_t slave_id,
 extern void matrix_set_slave_region_size(Matrix* mtx, uint8_t slave_id,
 					 uint8_t area, uint8_t mask);
 
-extern uint8_t matrix_is_peripheral_secured(Matrix* mtx, uint32_t periph_id);
+extern bool matrix_is_peripheral_secured(Matrix* mtx, uint32_t periph_id);
 
 extern void matrix_remove_write_protection(Matrix* mtx);
 
