@@ -77,8 +77,8 @@
 
 /*----------------------------------------------------------------------------*/
 
-/** Frequency of the board main clock oscillator */
-#define BOARD_MAIN_CLOCK_EXT_OSC 12000000
+/** Frequency of the board main clock oscillator (autodetect) */
+#define BOARD_MAIN_CLOCK_EXT_OSC 0
 
 /** \def Board System timer */
 #define BOARD_TIMER_TC      TC1
