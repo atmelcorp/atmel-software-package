@@ -167,7 +167,7 @@ void dma_irq_handler(uint32_t source, void* user_arg)
 	Xdmac* xdmac = ctrl->hw;
 
 	gis = xdmac_get_global_isr(xdmac);
-	if ((gis & 0xFFFF) == 0)
+	if ((gis & ((1ull << DMA_CHANNELS) - 1)) == 0)
 		return;
 
 	gcs = xdmac_get_global_channel_status(xdmac);
