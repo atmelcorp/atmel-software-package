@@ -31,10 +31,11 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
 #include "board.h"
 #include "board_console.h"
 #include "board_support.h"
+#include "chip.h"
+#include "dma/dma.h"
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -53,4 +54,7 @@ WEAK void board_init(void)
 
 	/* Configure console */
 	board_cfg_console(0);
+
+	/* DMA Driver init */
+	dma_initialize(false);
 }
