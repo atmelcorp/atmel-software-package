@@ -1223,6 +1223,11 @@ void pmc_disable_upll_clock(void)
 	PMC->CKGR_UCKR &= ~CKGR_UCKR_UPLLEN;
 }
 
+bool pmc_is_upll_clock_enabled(void)
+{
+	return (PMC->PMC_SR & PMC_SR_LOCKU) != 0;
+}
+
 uint32_t pmc_get_upll_clock(void)
 {
 	uint32_t upllclk;
@@ -1278,6 +1283,35 @@ void pmc_disable_upll_bias(void)
 	PMC->CKGR_UCKR &= ~CKGR_UCKR_BIASEN;
 }
 #endif /* CONFIG_HAVE_PMC_UPLL_BIAS */
+
+uint32_t pmc_get_utmi_clock_trim(void)
+{
+#if defined(SFR_UTMICKTRIM_FREQ_Msk)
+	uint32_t clktrim = SFR->SFR_UTMICKTRIM & SFR_UTMICKTRIM_FREQ_Msk;
+	switch (clktrim) {
+#ifdef SFR_UTMICKTRIM_FREQ_48
+		case SFR_UTMICKTRIM_FREQ_48:
+			return 48000000;
+#endif
+		case SFR_UTMICKTRIM_FREQ_24:
+			return 24000000;
+		case SFR_UTMICKTRIM_FREQ_16:
+			return 16000000;
+		default:
+			return 12000000;
+	}
+#elif defined(UTMI_CKTRIM_FREQ_Msk)
+	uint32_t clktrim = UTMI->UTMI_CKTRIM & UTMI_CKTRIM_FREQ_Msk;
+	switch (clktrim) {
+		case UTMI_CKTRIM_FREQ_XTAL16:
+			return 16000000;
+		default:
+			return 12000000;
+	}
+#else
+	return 12000000;
+#endif
+}
 
 /*----------------------------------------------------------------------------
  *        Exported functions (Generated clocks)

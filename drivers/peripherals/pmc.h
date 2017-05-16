@@ -440,6 +440,12 @@ extern void pmc_enable_upll_clock(void);
 extern void pmc_disable_upll_clock(void);
 
 /**
+ * \brief Get the UPLL clock status
+ * \return true if the UPLL clock is enabled, false otherwise
+ */
+extern bool pmc_is_upll_clock_enabled(void);
+
+/**
  * \brief Get the frequency of the UPLL clock
  * \return UPLL clock frequency in Hz
  */
@@ -456,6 +462,12 @@ extern void pmc_enable_upll_bias(void);
  */
 extern void pmc_disable_upll_bias(void);
 #endif /* CONFIG_HAVE_PMC_UPLL_BIAS */
+
+/**
+ * \brief Get the configured frequency of the UTMI clock trim
+ * \return UTMI clock trim frequency
+ */
+extern uint32_t pmc_get_utmi_clock_trim(void);
 
 #ifdef CONFIG_HAVE_PMC_GENERATED_CLOCKS
 /**
