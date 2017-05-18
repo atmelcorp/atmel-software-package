@@ -43,8 +43,8 @@
  *----------------------------------------------------------------------------*/
 
 #define AT24_SERIAL_LENGTH 16
-#define AT24_EUI48_LENGTH  6
-#define AT24_EUI64_LENGTH  8
+#define EUI48_LENGTH  6
+#define EUI64_LENGTH  8
 
 enum _at24_model {
 	AT24C01,
@@ -66,6 +66,10 @@ enum _at24_model {
 	AT24CS08,
 	AT24MAC402,
 	AT24MAC602,
+	MCP24AA02E48,
+	MCP24AA02E64,
+	MCP24AA025E48,
+	MCP24AA025E64,
 };
 
 enum _at24_family {
@@ -73,6 +77,8 @@ enum _at24_family {
 	AT24CS,
 	AT24MAC4,
 	AT24MAC6,
+	MCP24AAE4,
+	MCP24AAE6,
 };
 
 struct _at24_desc {
@@ -81,6 +87,11 @@ struct _at24_desc {
 	uint8_t family;     /* from enum _at24_family */
 	uint8_t size;       /* total size, in power-of-2 bytes (8 => 2**8 = 256 bytes) */
 	uint16_t page_size; /* write page size, in bytes */
+	struct {
+		uint8_t addr_offset;
+		uint8_t offset;
+		uint8_t len;
+	} eui;
 };
 
 struct _at24_config {

@@ -342,10 +342,10 @@ static void _eeprom_query_arg_parser(const uint8_t* buffer, uint32_t len)
 	}
 
 	if (!strncmp((char*)buffer, "eui48", 5)) {
-		uint8_t eui48[AT24_EUI48_LENGTH];
+		uint8_t eui48[EUI48_LENGTH];
 		if (at24_read_eui48(at24, eui48)) {
 			printf("EUI48: ");
-			for (i = 0; i < AT24_EUI48_LENGTH; i++) {
+			for (i = 0; i < EUI48_LENGTH; i++) {
 				if (i > 0)
 					printf(":");
 				printf("%02x", (unsigned)eui48[i]);
@@ -358,10 +358,10 @@ static void _eeprom_query_arg_parser(const uint8_t* buffer, uint32_t len)
 	}
 
 	if (!strncmp((char*)buffer, "eui64", 5)) {
-		uint8_t eui64[AT24_EUI64_LENGTH];
+		uint8_t eui64[EUI64_LENGTH];
 		if (at24_read_eui64(at24, eui64)) {
 			printf("EUI64: ");
-			for (i = 0; i < AT24_EUI64_LENGTH; i++) {
+			for (i = 0; i < EUI64_LENGTH; i++) {
 				if (i > 0)
 					printf(":");
 				printf("%02x", (unsigned)eui64[i]);

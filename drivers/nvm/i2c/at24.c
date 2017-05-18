@@ -49,44 +49,53 @@
  *         Local definitions
  *----------------------------------------------------------------------------*/
 
-#define AT24_EEPROM_ADDR        0x50 /*< AT24 EEPROM I2C address */
+#define AT24_EEPROM_ADDR           0x50 /*< AT24 EEPROM I2C address */
 
-#define AT24_SERIAL_ADDR_OFFSET 8    /*< Offset between EEPROM and serial I2C addresses */
-#define AT24_SERIAL_OFFSET      0x80 /*< Read offset for serial number */
-#define AT24_SERIAL_LENGTH      16   /*< Length of serial number data in bytes */
+#define AT24_SERIAL_ADDR_OFFSET    8    /*< Offset between EEPROM and serial I2C addresses */
+#define AT24_SERIAL_OFFSET         0x80 /*< Read offset for serial number */
+#define AT24_SERIAL_LENGTH         16   /*< Length of serial number data in bytes */
 
-#define AT24_EUI48_ADDR_OFFSET  8    /*< Offset between EEPROM and EUI48 I2C addresses */
-#define AT24_EUI48_OFFSET       0x9a /*< Read offset for EUI48 */
-#define AT24_EUI48_LENGTH       6    /*< Length of EUI48 data in bytes */
+#define AT24_EUI48_ADDR_OFFSET     8    /*< Offset between EEPROM and EUI48 I2C addresses */
+#define AT24_EUI48_OFFSET          0x9a /*< Read offset for EUI48 */
 
-#define AT24_EUI64_ADDR_OFFSET  8    /*< Offset between EEPROM and EUI64 I2C addresses */
-#define AT24_EUI64_OFFSET       0x98 /*< Read offset for EUI64 */
-#define AT24_EUI64_LENGTH       8    /*< Length of EUI64 data in bytes */
+#define AT24_EUI64_ADDR_OFFSET     8    /*< Offset between EEPROM and EUI64 I2C addresses */
+#define AT24_EUI64_OFFSET          0x98 /*< Read offset for EUI64 */
+
+#define MCP24AA_EUI48_ADDR_OFFSET  0    /*< Offset between EEPROM and EUI48 I2C addresses */
+#define MCP24AA_EUI48_OFFSET       0xfa /*< Read offset for EUI48 */
+
+#define MCP24AA_EUI64_ADDR_OFFSET  0    /*< Offset between EEPROM and EUI64 I2C addresses */
+#define MCP24AA_EUI64_OFFSET       0xf8 /*< Read offset for EUI64 */
+
 
 /*------------------------------------------------------------------------------
  *         Local constants
  *----------------------------------------------------------------------------*/
 
 static const struct _at24_desc _at24_devices[] = {
-	{ AT24C01,    "AT24C01",    AT24C,     7,   8, },
-	{ AT24C02,    "AT24C02",    AT24C,     8,   8, },
-	{ AT24C04,    "AT24C04",    AT24C,     9,   8, },
-	{ AT24C08,    "AT24C08",    AT24C,    10,   8, },
-	{ AT24C16,    "AT24C16",    AT24C,    11,  16, },
-	{ AT24C32,    "AT24C32",    AT24C,    12,  32, },
-	{ AT24C64,    "AT24C64",    AT24C,    13,  32, },
-	{ AT24C128,   "AT24C128",   AT24C,    14,  64, },
-	{ AT24C256,   "AT24C256",   AT24C,    15,  64, },
-	{ AT24C512,   "AT24C512",   AT24C,    16, 128, },
-	{ AT24C1024,  "AT24C1024",  AT24C,    17, 256, },
-	{ AT24CM01,   "AT24CM01",   AT24C,    17, 256, },
-	{ AT24CM02,   "AT24CM02",   AT24C,    18, 256, },
-	{ AT24CS01,   "AT24CS01",   AT24CS,    7,   8, },
-	{ AT24CS02,   "AT24CS02",   AT24CS,    8,   8, },
-	{ AT24CS04,   "AT24CS04",   AT24CS,    9,  16, },
-	{ AT24CS08,   "AT24CS08",   AT24CS,   10,  16, },
-	{ AT24MAC402, "AT24MAC402", AT24MAC4,  8,  16, },
-	{ AT24MAC602, "AT24MAC602", AT24MAC6,  8,  16, },
+	{ AT24C01,       "AT24C01",    AT24C,      7,   8, },
+	{ AT24C02,       "AT24C02",    AT24C,      8,   8, },
+	{ AT24C04,       "AT24C04",    AT24C,      9,   8, },
+	{ AT24C08,       "AT24C08",    AT24C,     10,   8, },
+	{ AT24C16,       "AT24C16",    AT24C,     11,  16, },
+	{ AT24C32,       "AT24C32",    AT24C,     12,  32, },
+	{ AT24C64,       "AT24C64",    AT24C,     13,  32, },
+	{ AT24C128,      "AT24C128",   AT24C,     14,  64, },
+	{ AT24C256,      "AT24C256",   AT24C,     15,  64, },
+	{ AT24C512,      "AT24C512",   AT24C,     16, 128, },
+	{ AT24C1024,     "AT24C1024",  AT24C,     17, 256, },
+	{ AT24CM01,      "AT24CM01",   AT24C,     17, 256, },
+	{ AT24CM02,      "AT24CM02",   AT24C,     18, 256, },
+	{ AT24CS01,      "AT24CS01",   AT24CS,     7,   8, },
+	{ AT24CS02,      "AT24CS02",   AT24CS,     8,   8, },
+	{ AT24CS04,      "AT24CS04",   AT24CS,     9,  16, },
+	{ AT24CS08,      "AT24CS08",   AT24CS,    10,  16, },
+	{ AT24MAC402,    "AT24MAC402", AT24MAC4,   8,  16, .eui = { AT24_EUI48_ADDR_OFFSET, AT24_EUI48_OFFSET, EUI48_LENGTH }, },
+	{ AT24MAC602,    "AT24MAC602", AT24MAC6,   8,  16, .eui = { AT24_EUI64_ADDR_OFFSET, AT24_EUI64_OFFSET, EUI64_LENGTH }, },
+	{ MCP24AA02E48,  "MCP24AA02",  MCP24AAE4,  7,   8, .eui = { MCP24AA_EUI48_ADDR_OFFSET, MCP24AA_EUI48_OFFSET, EUI48_LENGTH }, },
+	{ MCP24AA02E64,  "MCP24AA02",  MCP24AAE6,  7,   8, .eui = { MCP24AA_EUI64_ADDR_OFFSET, MCP24AA_EUI64_OFFSET, EUI64_LENGTH }, },
+	{ MCP24AA025E48, "MCP24AA025", MCP24AAE4,  7,  16, .eui = { MCP24AA_EUI48_ADDR_OFFSET, MCP24AA_EUI48_OFFSET, EUI48_LENGTH }, },
+	{ MCP24AA025E64, "MCP24AA025", MCP24AAE6,  7,  16, .eui = { MCP24AA_EUI64_ADDR_OFFSET, MCP24AA_EUI64_OFFSET, EUI64_LENGTH }, },
 };
 
 /*------------------------------------------------------------------------------
@@ -289,12 +298,12 @@ bool at24_read_serial(const struct _at24* at24, uint8_t* serial)
 
 bool at24_has_eui48(const struct _at24* at24)
 {
-	return at24->desc->family == AT24MAC4;
+	return (at24->desc->eui.len == EUI48_LENGTH);
 }
 
 bool at24_read_eui48(const struct _at24* at24, uint8_t* eui48)
 {
-	uint8_t offset = AT24_EUI48_OFFSET;
+	uint8_t offset = at24->desc->eui.offset;
 	struct _buffer buf[2] = {
 		{
 			.data = &offset,
@@ -303,21 +312,21 @@ bool at24_read_eui48(const struct _at24* at24, uint8_t* eui48)
 		},
 		{
 			.data = _at24_buffer,
-			.size = AT24_EUI48_LENGTH,
+			.size = at24->desc->eui.len,
 			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_RX | BUS_I2C_BUF_ATTR_STOP,
 		},
 	};
 
-	assert(sizeof(_at24_buffer) >= AT24_EUI48_LENGTH);
+	assert(sizeof(_at24_buffer) >= at24->desc->eui.len);
 
 	if (!at24_has_eui48(at24)) {
 		trace_warning("at24: device has no EUI48\r\n");
 		return false;
 	}
 
-	if (_at24_twi_read(at24, AT24_EUI48_ADDR_OFFSET, buf) == 0) {
+	if (_at24_twi_read(at24, at24->desc->eui.addr_offset, buf) == 0) {
 		/* copy EUI48 to user buffer */
-		memcpy(eui48, _at24_buffer, AT24_EUI48_LENGTH);
+		memcpy(eui48, _at24_buffer, at24->desc->eui.len);
 		return true;
 	}
 
@@ -326,12 +335,12 @@ bool at24_read_eui48(const struct _at24* at24, uint8_t* eui48)
 
 bool at24_has_eui64(const struct _at24* at24)
 {
-	return at24->desc->family == AT24MAC6;
+	return (at24->desc->eui.len == EUI64_LENGTH);
 }
 
 bool at24_read_eui64(const struct _at24* at24, uint8_t* eui64)
 {
-	uint8_t offset = AT24_EUI64_OFFSET;
+	uint8_t offset = at24->desc->eui.offset;
 	struct _buffer buf[2] = {
 		{
 			.data = &offset,
@@ -340,21 +349,21 @@ bool at24_read_eui64(const struct _at24* at24, uint8_t* eui64)
 		},
 		{
 			.data = _at24_buffer,
-			.size = AT24_EUI64_LENGTH,
+			.size = at24->desc->eui.len,
 			.attr = BUS_I2C_BUF_ATTR_START | BUS_BUF_ATTR_RX | BUS_I2C_BUF_ATTR_STOP,
 		},
 	};
 
-	assert(sizeof(_at24_buffer) >= AT24_EUI64_LENGTH);
+	assert(sizeof(_at24_buffer) >= at24->desc->eui.len);
 
 	if (!at24_has_eui64(at24)) {
 		trace_warning("at24: device has no EUI64\r\n");
 		return false;
 	}
 
-	if (_at24_twi_read(at24, AT24_EUI64_ADDR_OFFSET, buf) == 0) {
+	if (_at24_twi_read(at24, at24->desc->eui.addr_offset, buf) == 0) {
 		/* copy EUI64 to user buffer */
-		memcpy(eui64, _at24_buffer, AT24_EUI64_LENGTH);
+		memcpy(eui64, _at24_buffer, at24->desc->eui.len);
 		return true;
 	}
 
