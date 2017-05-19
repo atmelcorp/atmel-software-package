@@ -104,10 +104,16 @@ static void init_libc(void)
 
 static void applet_chip_init(void)
 {
+	uint32_t main_freq = 0;
+
 #ifdef CONFIG_SOC_SAMV71
 	/* select PB4 / PB5 function instead of TDI/TDO */
 	MATRIX->CCFG_SYSIO |= CCFG_SYSIO_SYSIO4 | CCFG_SYSIO_SYSIO5;
 #endif
+
+	if (pmc_is_upll_clock_enabled())
+		main_freq = pmc_get_utmi_clock_trim();
+	pmc_set_main_oscillator_freq(main_freq);
 }
 
 static void init_applet_buffer(void)
@@ -214,7 +220,6 @@ void applet_main(void)
 		init_libc();
 		applet_chip_init();
 		init_applet_buffer();
-		pmc_set_main_oscillator_freq(BOARD_MAIN_CLOCK_EXT_OSC);
 		board_cfg_timer();
 		dma_initialize(true);
 		applet_first_run = false;
