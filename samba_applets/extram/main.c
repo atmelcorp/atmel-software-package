@@ -127,6 +127,12 @@ static bool init_extram_from_preset(uint32_t preset)
 		device = W972GG6KB;
 		break;
 #endif
+#ifdef CONFIG_HAVE_SDRAM_AS4C16M16SA
+	case 10:
+		trace_warning_wp("Preset 10 (AS4C16M16SA)\r\n");
+		device = AS4C16M16SA;
+		break;
+#endif
 	default:
 		trace_error("Unsupported DRAM preset (%u).\r\n",
 				(unsigned)preset);

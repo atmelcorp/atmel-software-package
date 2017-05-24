@@ -36,6 +36,9 @@
 
 enum _ddram_devices {
 #ifdef CONFIG_HAVE_MPDDRC_SDRAM
+  #ifdef CONFIG_HAVE_SDRAM_AS4C16M16SA
+	AS4C16M16SA,   /* SDRAM 32MB */
+  #endif
   #ifdef CONFIG_HAVE_SDRAM_IS42S16100E
 	IS42S16100E,   /* SDRAM 2MB */
   #endif

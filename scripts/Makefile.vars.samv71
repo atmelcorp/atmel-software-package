@@ -46,6 +46,7 @@ CONFIG_SERIALD_UART = y
 CONFIG_SERIALD_USART = y
 # allow choosing any supported ddram type at runtime
 CONFIG_HAVE_SDRAM_IS42S16100E = y
+CONFIG_HAVE_SDRAM_AS4C16M16SA = y
 endif
 
 ifeq ($(TARGET),same70-xplained)
