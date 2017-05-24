@@ -68,6 +68,9 @@ static void _set_ddr_timings(struct _mpddrc_desc* desc)
 	    | MPDDRC_CR_TRAS(desc->timings.tras)
 	    | MPDDRC_CR_TXSR(txsr);
 	MPDDRC->MPDDRC_CR = cr;
+#ifdef MPDDRC_CFR1_UNAL_SUPPORTED
+	MPDDRC->MPDDRC_CFR1 |= MPDDRC_CFR1_UNAL_SUPPORTED;
+#endif
 #else /* !CONFIG_HAVE_MPDDRC_SDRAM */
 	MPDDRC->MPDDRC_TPR0 = MPDDRC_TPR0_TMRD(desc->timings.tmrd)
 	                    | MPDDRC_TPR0_TWTR(desc->timings.twtr)
@@ -377,8 +380,6 @@ static void _configure_sdram(struct _mpddrc_desc* desc)
 
 	/* Timings */
 	_set_ddr_timings(desc);
-
-	MPDDRC->MPDDRC_CFR1 |= MPDDRC_CFR1_UNAL;
 
 	/* Step 4: A pause of at least 200μs must be observed before issuing a
 	 * Reset command. */
