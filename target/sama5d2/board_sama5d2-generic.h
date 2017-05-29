@@ -70,6 +70,10 @@
 /** Frequency of the board main clock oscillator (autodetect) */
 #define BOARD_MAIN_CLOCK_EXT_OSC 0
 
+/** PMC PLLA configuration */
+#define BOARD_PMC_PLLA_MUL 82
+#define BOARD_PMC_PLLA_DIV 1
+
 /** \def Board System timer */
 #define BOARD_TIMER_TC      TC1
 #define BOARD_TIMER_CHANNEL 0

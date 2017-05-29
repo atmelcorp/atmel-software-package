@@ -75,6 +75,10 @@
 /** Frequency of the board main clock oscillator */
 #define BOARD_MAIN_CLOCK_EXT_OSC 12000000
 
+/** PMC PLLA configuration */
+#define BOARD_PMC_PLLA_MUL 82
+#define BOARD_PMC_PLLA_DIV 1
+
 /** /def Definition of DDRAM's type */
 #define BOARD_DDRAM_TYPE         MT41K128M16
 

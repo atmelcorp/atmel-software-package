@@ -117,8 +117,8 @@ const char* get_board_name(void)
 void board_cfg_clocks(void)
 {
 	struct _pmc_plla_cfg plla_config = {
-		.mul = 82,
-		.div = 1,
+		.mul = BOARD_PMC_PLLA_MUL,
+		.div = BOARD_PMC_PLLA_DIV,
 		.count = 0x3f,
 	};
 	pmc_switch_mck_to_slck();
