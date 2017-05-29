@@ -49,9 +49,10 @@ gnu-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/ddram.gdb
 bootstrap-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/sram.ld
 iar-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/ddram.icf
 iar-debug-script-$(CONFIG_BOARD_SAMA5D2_PTC_ENGI) ?= $(TOP)/target/sama5d2/toolchain/iar/ddram_sama5d2-xplained.mac
-iar-debug-script-$(CONFIG_BOARD_SAMA5D2_XPLAINED_PROTO) ?= $(TOP)/target/sama5d2/toolchain/iar/ddram_sama5d2-xplained.mac
 iar-debug-script-$(CONFIG_BOARD_SAMA5D2_XPLAINED) ?= $(TOP)/target/sama5d2/toolchain/iar/ddram_sama5d2-xplained.mac
 iar-flashloader-script-$(CONFIG_BOARD_SAMA5D2_XPLAINED) ?= $(TOP)/flash_loaders/extram/sama5d2-xplained/sama5d2-xplained_ddram.board
+iar-flashloader-script-$(CONFIG_BOARD_SAMA5D27_SOM1_EK) ?= $(TOP)/flash_loaders/extram/sama5d27-som1-ek/sama5d27-som1-ek_ddram.board
+iar-flashloader-script-$(CONFIG_BOARD_SAMA5D2_PTC_EK) ?= $(TOP)/flash_loaders/extram/sama5d2-ptc-ek/sama5d2-ptc-ek_ddram.board
 endif
 
 # QSPI0 variant
@@ -79,5 +80,7 @@ target-$(CONFIG_BOARD_SAMA5D2_PTC_ENGI) += target/sama5d2/board_sama5d2-ptc-engi
 target-$(CONFIG_BOARD_SAMA5D2_VB_BGA196) += target/sama5d2/board_sama5d2-vb-bga196.o
 target-$(CONFIG_BOARD_SAMA5D2_VB_BGA289) += target/sama5d2/board_sama5d2-vb-bga289.o
 target-$(CONFIG_BOARD_SAMA5D2_XPLAINED) += target/sama5d2/board_sama5d2-xplained.o
+target-$(CONFIG_BOARD_SAMA5D27_SOM1_EK) += target/sama5d2/board_sama5d27-som1-ek.o
+target-$(CONFIG_BOARD_SAMA5D2_PTC_EK) += target/sama5d2/board_sama5d2-ptc-ek.o
 
 endif

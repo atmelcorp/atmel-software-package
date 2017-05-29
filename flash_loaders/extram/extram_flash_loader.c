@@ -53,114 +53,36 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "board.h"
-#include "irqflags.h"
-
-#include "irq/irq.h"
-
-#include "serial/console.h"
-#include "flash_loader.h"
-#include "flash_loader_extra.h"
-
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "board.h"
+#include "flash_loader.h"
+#include "flash_loader_extra.h"
+#include "irqflags.h"
+#include "irq/irq.h"
 #include "peripherals/pmc.h"
+#include "serial/console.h"
+
 /*----------------------------------------------------------------------------
  *        Local definitions
  *----------------------------------------------------------------------------*/
+
 /* Debug enable/disable */
 #define DEBUG
 
 /*----------------------------------------------------------------------------
  *        Local Varible
  *----------------------------------------------------------------------------*/
+
 static char message[80];
 
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
-#if 0
-void board_cfg_clocks(void)
-{
-	const struct _pmc_plla_cfg plla_config = {
-		.mul = 49,
-		.div = 1,
-		.count = 0x3f,
-	};
-    
-     sprintf(message, "plla_config %x",plla_config.mul );
-	cSpyMessageLog(message);
-    
-	eefc_set_flash_wait_states(get_flash_wait_states(6));
-	pmc_select_external_osc();
-	pmc_configure_plla(&plla_config);
-	 sprintf(message, "plla_config %x", PMC->CKGR_PLLAR);
-	cSpyMessageLog(message);
-    
-	pmc_set_mck_prescaler(PMC_MCKR_PRES_CLOCK_DIV2);
-	pmc_set_mck_divider(PMC_MCKR_MDIV_PCK_DIV2);
-	pmc_switch_mck_to_pll();
-}
 
-void board_cfg_lowlevel(bool clocks, bool ddram, bool mpu)
-{
-	/* Disable Watchdog */
-	wdt_disable();
-
-	/* Configure PB4/PB5 as PIO instead of JTAG */
-	MATRIX->CCFG_SYSIO |= CCFG_SYSIO_SYSIO4 | CCFG_SYSIO_SYSIO5;
-
-	/* Disable all PIO interrupts */
-	pio_reset_all_it();
-
-	/* Set external oscillator frequency */
-	pmc_set_main_oscillator_freq(BOARD_MAIN_CLOCK_EXT_OSC);
-
-	if (clocks) {
-		/* Configure system clocks */
-		board_cfg_clocks();
-	}
-
-	/* Setup default interrupt handlers */
-	irq_initialize();
-
-	/* Configure system timer */
-	board_cfg_timer();
-
-	if (ddram) {
-		/* Configure DDRAM */
-		
-		board_cfg_ddram();
-		sprintf(message, "board_cfg_ddram %x", MPDDRC->MPDDRC_RTR);
-		cSpyMessageLog(message);
-		
-		*((uint32_t*)0x70000000) = 0xaa445566;
-		*((uint32_t*)0x70000004) = 0x11223344;
-		
-		sprintf(message, "test %x", *((uint32_t*)0x70000000));
-		cSpyMessageLog(message);
-		sprintf(message, "test2 %x", *((uint32_t*)0x70000004));
-		cSpyMessageLog(message);
-
-	}
-	
-	if (mpu) {
-		/* Configure MPU */
-		board_cfg_mpu();
-	}
-	
-	*((uint32_t*)0x70000000) = 0xaaaaaa;
-		*((uint32_t*)0x70000004) = 0xbbbbbbb;
-		
-		sprintf(message, "test %x", *((uint32_t*)0x70000000));
-		cSpyMessageLog(message);
-		sprintf(message, "test2 %x", *((uint32_t*)0x70000004));
-		cSpyMessageLog(message);
-		
-}
-#endif
 /* override default board init */
 void board_init(void)
 {
@@ -184,11 +106,11 @@ void board_init(void)
  * \return 0 if successful; otherwise returns an error code.
  */
 uint32_t FlashInit(void *base_of_flash,
-				   uint32_t image_size,
-				   uint32_t link_address,
-				   uint32_t flags,
-				   int argc,
-				   char const *argv[])
+		   uint32_t image_size,
+		   uint32_t link_address,
+		   uint32_t flags,
+		   int argc,
+		   char const *argv[])
 
 {
 	uint32_t i;
@@ -204,12 +126,10 @@ uint32_t FlashInit(void *base_of_flash,
 	cSpyMessageLog(message);
 #endif
 
-	if(!findOption( "--ddram", 0, argc, argv )){
+	if (!findOption( "--ddram", 0, argc, argv ))
 		return RESULT_ERROR;
-	}
 
 	board_init();
-
 
 	return RESULT_OK;
 }
@@ -223,7 +143,6 @@ uint32_t FlashInit(void *base_of_flash,
  * \param buffer Points to the buffer containing the bytes to write.
  * \return 0 if successful; otherwise returns an error code.
  */
-
 uint32_t FlashWrite(void *block_start, uint32_t offset_into_block, uint32_t count, char const *buffer)
 {
 	uint32_t i;
@@ -233,16 +152,14 @@ uint32_t FlashWrite(void *block_start, uint32_t offset_into_block, uint32_t coun
 	sprintf(message, "-I- Write arguments: address 0x%08x,  offset 0x%x of 0x%x Bytes", (unsigned int)block_start, offset_into_block,count );
 	cSpyMessageLog(message);
 #endif
- 
-		
+
+
 //	memcpy((uint8_t*)((uint32_t)block_start + offset_into_block), buffer, count);
-p1=(uint8_t*)((uint32_t)block_start + offset_into_block);
-p2= (uint8_t*)buffer;
-for (i= 0; i< count;i++)
-{
-	*p1++= *p2++;
-}
-	
+	p1 = (uint8_t*)((uint32_t)block_start + offset_into_block);
+	p2 = (uint8_t*)buffer;
+	for (i = 0; i < count; i++)
+		*p1++ = *p2++;
+
 	//if (FLASHD_Write((unsigned int)block_start + offset_into_block, buffer, count) != 0) {
 	sprintf(message, "-I- Write Done!");
 	cSpyMessageLog(message);
@@ -258,9 +175,6 @@ for (i= 0; i< count;i++)
  */
 uint32_t FlashErase(void *block_start, uint32_t block_size)
 {
-	
-	 
-		
 #ifdef DEBUG
 	sprintf(message, "-I- Erase arguments: address 0x%08x of 0x%x Bytes", (unsigned int)block_start, block_size);
 	cSpyMessageLog(message);
@@ -272,8 +186,7 @@ uint32_t FlashErase(void *block_start, uint32_t block_size)
  * \brief  UThis is an optional function. You can implement it if you need to perform
  * some cleanup after flash loading has finished.
  */
-uint32_t FlashSignoff()
+uint32_t FlashSignoff(void)
 {
 	return RESULT_OK;
 }
-

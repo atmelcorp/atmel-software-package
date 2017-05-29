@@ -1,4 +1,7 @@
-ifeq ("y",$(TARGET:sama5d2-%="y"))
+SAMA5D2_TARGETS = sama5d2-generic sama5d2-xplained sama5d2-vb-bga196 sama5d2-vb-bga289 \
+                  sama5d2-ptc-engi sama5d27-som1-ek sama5d2-ptc-ek
+
+ifneq ($(strip $(foreach board,$(SAMA5D2_TARGETS),$(if $(call eq,$(TARGET),$(board)),$(board)))),)
 
 COMPATIBLE_VARIANTS = sram ddram qspi0 qspi1
 
@@ -89,7 +92,7 @@ CONFIG_HAVE_RTC_MODE_UTC = y
 CONFIG_HAVE_RTC_TAMPER = y
 CONFIG_HAVE_SHDWC = y
 
-ifeq ("y",$(TARGET:%-generic="y"))
+ifeq ($(TARGET),sama5d2-generic)
 CONFIG_CHIP_SAMA5D27 = y
 CONFIG_BOARD_SAMA5D2_GENERIC = y
 # allow choosing any supported serial driver at runtime
@@ -104,7 +107,7 @@ CONFIG_HAVE_DDR3_MT41K128M16 = y
 CONFIG_HAVE_LPDDR3_EDF8164A3MA = y
 endif
 
-ifeq ("y",$(TARGET:%-xplained="y"))
+ifeq ($(TARGET),sama5d2-xplained)
 CONFIG_CHIP_SAMA5D27 = y
 CONFIG_BOARD_SAMA5D2_XPLAINED = y
 CONFIG_HAVE_LED = y
@@ -120,19 +123,19 @@ CONFIG_HAVE_TWI_AT24 = y
 CONFIG_HAVE_IMAGE_SENSOR = y
 endif
 
-ifeq ("y",$(TARGET:%-vb-bga196="y"))
+ifeq ($(TARGET),sama5d2-vb-bga196)
 CONFIG_CHIP_SAMA5D21 = y
 CONFIG_BOARD_SAMA5D2_VB_BGA196 = y
 CONFIG_SERIALD_UART = y
 endif
 
-ifeq ("y",$(TARGET:%-vb-bga289="y"))
+ifeq ($(TARGET),sama5d2-vb-bga289)
 CONFIG_CHIP_SAMA5D27 = y
 CONFIG_BOARD_SAMA5D2_VB_BGA289 = y
 CONFIG_SERIALD_UART = y
 endif
 
-ifeq ("y",$(TARGET:%-ptc-engi="y"))
+ifeq ($(TARGET),sama5d2-ptc-engi)
 CONFIG_CHIP_SAMA5D27 = y
 CONFIG_BOARD_SAMA5D2_PTC_ENGI = y
 CONFIG_HAVE_LED = y
@@ -142,6 +145,24 @@ CONFIG_HAVE_PMIC_ACT8945A = y
 CONFIG_HAVE_SPI_AT25 = y
 CONFIG_HAVE_TWI_AT24 = y
 CONFIG_HAVE_NAND_FLASH = y
+endif
+
+ifeq ($(TARGET),sama5d27-som1-ek)
+CONFIG_CHIP_SAMA5D27 = y
+CONFIG_BOARD_SAMA5D27_SOM1_EK = y
+CONFIG_HAVE_LED = y
+CONFIG_SERIALD_UART = y
+CONFIG_HAVE_TWI_AT24 = y
+CONFIG_HAVE_DDR2_W971G16SG = y
+endif
+
+ifeq ($(TARGET),sama5d2-ptc-ek)
+CONFIG_CHIP_SAMA5D27 = y
+CONFIG_BOARD_SAMA5D2_PTC_EK = y
+CONFIG_HAVE_LED = y
+CONFIG_SERIALD_UART = y
+CONFIG_HAVE_TWI_AT24 = y
+CONFIG_HAVE_DDR2_W972GG6KB = y
 endif
 
 ifeq ($(CONFIG_CHIP_SAMA5D21),y)
