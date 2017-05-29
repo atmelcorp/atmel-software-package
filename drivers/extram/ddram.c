@@ -176,6 +176,116 @@ static void _init_edf8164a3ma(struct _mpddrc_desc* desc)
 
 #ifdef CONFIG_HAVE_MPDDRC_DDR2
 
+#ifdef CONFIG_HAVE_DDR2_W971G16SG
+static void _init_w971g16sg(struct _mpddrc_desc* desc)
+{
+	uint32_t mck = pmc_get_master_clock() / 1000000;
+
+	desc->type = MPDDRC_TYPE_DDR2;
+
+	desc->mode = MPDDRC_MD_MD_DDR2_SDRAM
+	           | MPDDRC_MD_DBW_DBW_16_BITS;
+
+#ifdef CONFIG_HAVE_MPDDRC_DATA_PATH
+	desc->data_path = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_ONE_CYCLE;
+#endif
+
+	desc->control = MPDDRC_CR_NR_13_ROW_BITS
+	              | MPDDRC_CR_NC_DDR_10_COL_BITS
+	              | MPDDRC_CR_CAS_DDR_CAS3
+	              | MPDDRC_CR_NB_8_BANKS
+	              | MPDDRC_CR_NDQS_DISABLED
+	              | MPDDRC_CR_UNAL_SUPPORTED;
+
+#ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
+	desc->io_calibr = MPDDRC_IO_CALIBR_CALCODEP(7)
+	                | MPDDRC_IO_CALIBR_CALCODEN(8)
+	                | MPDDRC_IO_CALIBR_RDIV(4)
+	                | MPDDRC_IO_CALIBR_TZQIO(81)
+	                | MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION;
+#endif
+
+	/* timings */
+
+	memset(&desc->timings, 0, sizeof(desc->timings));
+	desc->timings.tras   = NS2CYCLES(40, mck);  // 40ns
+	desc->timings.trcd   = NS2CYCLES(13, mck);  // 12.5ns
+	desc->timings.twr    = NS2CYCLES(15, mck);  // 15ns
+	desc->timings.trc    = NS2CYCLES(53, mck);  // 52.5ns
+	desc->timings.trp    = NS2CYCLES(13, mck);  // 12.5ns
+	desc->timings.trrd   = NS2CYCLES(10, mck);  // 10ns
+	desc->timings.twtr   = NS2CYCLES(8, mck);   // 7.5ns
+	desc->timings.tmrd   = 2;                   // 2ck
+	desc->timings.trfc   = NS2CYCLES(128, mck); // 127.5ns
+	desc->timings.txsnr  = NS2CYCLES(138, mck); // tRFC+10ns
+	desc->timings.txsrd  = 200;                 // 200ck
+	desc->timings.txp    = 2;                   // 2ck
+	desc->timings.txard  = 2;                   // 2ck
+	desc->timings.txards = 8;                   // 8ck
+	desc->timings.trpa   = NS2CYCLES(20, mck);  // 20ns
+	desc->timings.trtp   = NS2CYCLES(8, mck);   // 7.5ns
+	desc->timings.tfaw   = NS2CYCLES(45, mck);  // 45ns
+
+	desc->refresh_window = 64;
+	desc->refresh_cycles = 8192;
+}
+#endif /* CONFIG_HAVE_DDR2_W971G16SG */
+
+#ifdef CONFIG_HAVE_DDR2_W972GG6KB
+static void _init_w972gg6kb(struct _mpddrc_desc* desc)
+{
+	uint32_t mck = pmc_get_master_clock() / 1000000;
+
+	desc->type = MPDDRC_TYPE_DDR2;
+
+	desc->mode = MPDDRC_MD_MD_DDR2_SDRAM
+	           | MPDDRC_MD_DBW_DBW_32_BITS;
+
+#ifdef CONFIG_HAVE_MPDDRC_DATA_PATH
+	desc->data_path = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_ONE_CYCLE;
+#endif
+
+	desc->control = MPDDRC_CR_NR_14_ROW_BITS
+	              | MPDDRC_CR_NC_DDR_10_COL_BITS
+	              | MPDDRC_CR_CAS_DDR_CAS3
+	              | MPDDRC_CR_NB_8_BANKS
+	              | MPDDRC_CR_NDQS_DISABLED
+	              | MPDDRC_CR_UNAL_SUPPORTED;
+
+#ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
+	desc->io_calibr = MPDDRC_IO_CALIBR_CALCODEP(7)
+	                | MPDDRC_IO_CALIBR_CALCODEN(8)
+	                | MPDDRC_IO_CALIBR_RDIV(4)
+	                | MPDDRC_IO_CALIBR_TZQIO(81)
+	                | MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION;
+#endif
+
+	/* timings */
+
+	memset(&desc->timings, 0, sizeof(desc->timings));
+	desc->timings.tras   = NS2CYCLES(45, mck);  // 45ns
+	desc->timings.trcd   = NS2CYCLES(13, mck);  // 13ns
+	desc->timings.twr    = NS2CYCLES(15, mck);  // 15ns
+	desc->timings.trc    = NS2CYCLES(58, mck);  // 58ns
+	desc->timings.trp    = NS2CYCLES(13, mck);  // 13ns
+	desc->timings.trrd   = NS2CYCLES(10, mck);  // 10ns
+	desc->timings.twtr   = NS2CYCLES(8, mck);   // 8ns
+	desc->timings.tmrd   = 2;                   // 2ck
+	desc->timings.trfc   = NS2CYCLES(195, mck); // 195ns
+	desc->timings.txsnr  = NS2CYCLES(205, mck); // tRFC+10ns
+	desc->timings.txsrd  = 200;                 // 200ck
+	desc->timings.txp    = 2;                   // 2ck
+	desc->timings.txard  = 2;                   // 2ck
+	desc->timings.txards = 8;                   // 8ck
+	desc->timings.trpa   = NS2CYCLES(21, mck);  // 21ns
+	desc->timings.trtp   = NS2CYCLES(8, mck);   // 8ns
+	desc->timings.tfaw   = NS2CYCLES(45, mck);  // 45ns
+
+	desc->refresh_window = 64;
+	desc->refresh_cycles = 8192;
+}
+#endif /* CONFIG_HAVE_DDR2_W972GG6KB */
+
 #ifdef CONFIG_HAVE_DDR2_MT47H128M8
 static void _init_mt47h128m8(struct _mpddrc_desc* desc)
 {
@@ -493,6 +603,16 @@ void ddram_init_descriptor(struct _mpddrc_desc* desc,
   #ifdef CONFIG_HAVE_DDR2_MT47H128M16
 	case MT47H128M16:
 		_init_mt47h128m16(desc);
+		break;
+  #endif
+  #ifdef CONFIG_HAVE_DDR2_W971G16SG
+	case W971G16SG:
+		_init_w971g16sg(desc);
+		break;
+  #endif
+  #ifdef CONFIG_HAVE_DDR2_W972GG6KB
+	case W972GG6KB:
+		_init_w972gg6kb(desc);
 		break;
   #endif
 #endif

@@ -67,63 +67,65 @@ static bool init_extram_from_preset(uint32_t preset)
 	struct _mpddrc_desc desc;
 
 	switch (preset) {
-#ifdef CONFIG_HAVE_MPDDRC_DDR2
-  #ifdef CONFIG_HAVE_DDR2_MT47H128M8
+#ifdef CONFIG_HAVE_DDR2_MT47H128M8
 	case 0:
 		trace_warning_wp("Preset 0 (4 x MT47H128M8)\r\n");
 		device = MT47H128M8;
 		break;
-  #endif
-  #ifdef CONFIG_HAVE_DDR2_MT47H64M16
+#endif
+#ifdef CONFIG_HAVE_DDR2_MT47H64M16
 	case 1:
 		trace_warning_wp("Preset 1 (MT47H64M16)\r\n");
 		device = MT47H64M16;
 		break;
-  #endif
-  #ifdef CONFIG_HAVE_DDR2_MT47H128M16
+#endif
+#ifdef CONFIG_HAVE_DDR2_MT47H128M16
 	case 2:
 		trace_warning_wp("Preset 2 (2 x MT47H128M16)\r\n");
 		device = MT47H128M16;
 		break;
-  #endif
 #endif
-#ifdef CONFIG_HAVE_MPDDRC_LPDDR2
-  #ifdef CONFIG_HAVE_LPDDR2_MT42L128M16
+#ifdef CONFIG_HAVE_LPDDR2_MT42L128M16
 	case 3:
 		trace_warning_wp("Preset 3 (2 x MT42L128M16)\r\n");
 		device = MT42L128M16;
 		break;
-  #endif
 #endif
-#ifdef CONFIG_HAVE_MPDDRC_DDR3
-  #ifdef CONFIG_HAVE_DDR3_MT41K128M16
+#ifdef CONFIG_HAVE_DDR3_MT41K128M16
 	case 4:
 		trace_warning_wp("Preset 4 (2 x MT41K128M16)\r\n");
 		device = MT41K128M16;
 		break;
-  #endif
 #endif
-#ifdef CONFIG_HAVE_MPDDRC_LPDDR3
-  #ifdef CONFIG_HAVE_LPDDR3_EDF8164A3MA
+#ifdef CONFIG_HAVE_LPDDR3_EDF8164A3MA
 	case 5:
 		trace_warning_wp("Preset 5 (EDF8164A3MA)\r\n");
 		device = EDF8164A3MA;
 		break;
-  #endif
 #endif
-#ifdef CONFIG_HAVE_MPDDRC_SDRAM
-  #ifdef CONFIG_HAVE_SDRAM_IS42S16100E
+#ifdef CONFIG_HAVE_SDRAM_IS42S16100E
 	case 6:
 		trace_warning_wp("Preset 6 (IS42S16100E)\r\n");
 		device = IS42S16100E;
 		break;
-  #endif
-  #ifdef CONFIG_HAVE_SDRAM_W981216BH
+#endif
+#ifdef CONFIG_HAVE_SDRAM_W981216BH
 	case 7:
 		trace_warning_wp("Preset 7 (W981216BH)\r\n");
 		device = W981216BH;
 		break;
-  #endif
+#endif
+#ifdef CONFIG_HAVE_DDR2_W971G16SG
+	case 8:
+		trace_warning_wp("Preset 8 (W971G16SG)\r\n");
+		device = W971G16SG;
+		break;
+#endif
+#ifdef CONFIG_HAVE_DDR2_W972GG6KB
+	case 9:
+		trace_warning_wp("Preset 9 (W972GG6KB)\r\n");
+		device = W972GG6KB;
+		break;
 #endif
 	default:
 		trace_error("Unsupported DRAM preset (%u).\r\n",
