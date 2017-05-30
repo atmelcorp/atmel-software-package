@@ -127,6 +127,8 @@ static bool configure_instance_pio(uint32_t ioset, uint8_t bus_width)
 
 static int pmecc_get_ecc_bit_req(uint8_t ecc_correctability) {
 	int i;
+	if (ecc_correctability > ARRAY_SIZE(PMERRLOC->PMERRLOC_EL))
+		ecc_correctability = ARRAY_SIZE(PMERRLOC->PMERRLOC_EL);
 	for (i = 0; i < ARRAY_SIZE(ecc_bit_req_2_tt); i++) {
 		if (ecc_bit_req_2_tt[i] >= ecc_correctability)
 			return i;
@@ -308,9 +310,6 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 		if (correctability != 0xFF) {
 			/* ONFI correctability is number of ECC bits per 512 bytes of data */
 			correctability = correctability * nand_onfi_get_page_size() / 512;
-		} else {
-			/* force maximum correctability */
-			correctability = 32;
 		}
 
 		switch (nand_onfi_get_page_size()) {
