@@ -26,7 +26,11 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-# Makefile for compiling the Getting Started example
+# Makefile for compiling the ADC example
+AVAILABLE_TARGETS = sama5d2-xplained \
+                    sama5d3-ek sama5d3-xplained \
+                    sama5d4-ek sama5d4-xplained \
+                    sam9g15-ek sam9g25-ek sam9g35-ek sam9x25-ek sam9x35-ek
 
 TOP := ../..
 
