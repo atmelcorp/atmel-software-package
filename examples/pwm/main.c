@@ -462,7 +462,7 @@ static void _pwm_demo_asynchronous_channel(bool init, uint8_t channel, uint32_t 
 /**
  * \brief PWM call-back routine for DMA operations
  */
-static int _pwmc_callback(void* arg)
+static int _pwmc_callback(void* arg1, void* arg2)
 {
 	trace_debug("PWM DMA Transfer Finished\r\n");
 	return 0;

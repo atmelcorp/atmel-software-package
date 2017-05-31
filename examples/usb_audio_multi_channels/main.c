@@ -191,9 +191,9 @@ static struct _audio_ctx {
 /**
  *  \brief Audio TX callback
  */
-static int _audio_transfer_callback(void* arg)
+static int _audio_transfer_callback(void* arg1, void* arg2)
 {
-	struct _audio_desc* desc = (struct _audio_desc*)arg;
+	struct _audio_desc* desc = (struct _audio_desc*)arg1;
 	struct _callback _cb;
 
 	if (_audio_ctx.circ.count > 0) {

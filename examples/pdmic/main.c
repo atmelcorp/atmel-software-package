@@ -271,7 +271,7 @@ static void _play_stop(void)
 /**
  *  \brief DMA callback
  */
-static int _pdmic_transfer_callback(void *arg)
+static int _pdmic_transfer_callback(void *arg1, void* arg2)
 {
 	_record_stop();
 
