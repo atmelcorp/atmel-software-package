@@ -154,10 +154,12 @@
  *        Local variables
  *----------------------------------------------------------------------------*/
 
+#ifdef CONFIG_HAVE_RTC_CALIBRATION
 static struct _tcd_desc calibration_tc = {
         .addr = TC0,
         .channel = 0,
 };
+#endif
 
 volatile uint16_t temperature = 0;
 volatile uint32_t count_down_timer = 0;
