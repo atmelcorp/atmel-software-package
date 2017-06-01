@@ -810,6 +810,12 @@ int twid_slave_configure(struct _twi_slave_desc *desc, struct _twi_slave_ops* op
 	async_desc[adesc_index].twi_id = twi_id;
 	async_desc[adesc_index].twi_slave_desc = desc;
 
+#ifdef CONFIG_HAVE_FLEXCOM
+	Flexcom* flexcom = get_flexcom_addr_from_id(get_twi_id_from_addr(desc->twi));
+	if (flexcom)
+		flexcom_select(flexcom, FLEX_MR_OPMODE_TWI);
+#endif
+
 	/* Configure TWI slave */
 	pmc_configure_peripheral(twi_id, NULL, true);
 	twi_configure_slave(desc->twi, desc->addr);
