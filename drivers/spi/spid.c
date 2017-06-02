@@ -308,7 +308,7 @@ static void _spid_transfer_current_buffer_polling(struct _spi_desc* desc)
 
 static void _spid_transfer_current_buffer(struct _spi_desc* desc)
 {
-	enum _bus_transfer_mode tmode = desc->transfer_mode;
+	enum _bus_transfer_mode tmode = (enum _bus_transfer_mode)desc->transfer_mode;
 
 	if (desc->xfer.current->size < SPID_POLLING_THRESHOLD)
 		tmode = BUS_TRANSFER_MODE_POLLING;
