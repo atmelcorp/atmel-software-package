@@ -28,4 +28,5 @@
 
 drivers-$(CONFIG_HAVE_ADC) += drivers/analog/adc.o
 drivers-$(CONFIG_HAVE_ADC) += drivers/analog/adcd.o
+drivers-$(CONFIG_HAVE_ANALOG_I2C_PAC1720) += drivers/analog/i2c/pac1720.o
 drivers-$(CONFIG_HAVE_ANALOG_SPI_MCP3208) += drivers/analog/spi/mcp3208.o
