@@ -706,7 +706,7 @@ int dma_configure_transfer(struct _dma_channel* channel,
 	if (list_size == 0)
 		return -EINVAL;
 
-	if (list_size == 1)
+	if ((list_size == 1) && (!cfg_dma->loop))
 		return _dma_configure_transfer(channel, cfg_dma, list);
 	else
 		return _dma_sg_configure_transfer(channel, cfg_dma, list, list_size);
