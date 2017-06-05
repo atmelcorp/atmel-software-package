@@ -160,6 +160,7 @@ uint8_t isid_pipe_start(struct _isid_desc* desc)
 		isi_set_matrix_rgb2yuv(desc->pipe.rgb2yuv_matrix);
 
 	_isid_configure_dma(desc);
+	isi_disable_interrupt(-1);
 
 	/* Configure DMA for preview path. */
 	if (desc->pipe.pipe != ISID_PIPE_CODEC) {
@@ -179,7 +180,6 @@ uint8_t isid_pipe_start(struct _isid_desc* desc)
 		isi_enable_interrupt(ISI_IER_CXFR_DONE);
 	}
 
-	isi_disable_interrupt(-1);
 	isi_enable();
 	isid->pipe.frame_idx = 0;
 	irq_add_handler(ID_ISI, _isi_handler, NULL);
