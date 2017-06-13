@@ -40,7 +40,7 @@
 #include "usb/device/usbd.h"
 #include "usb/device/usbd_hal.h"
 #include "usb/device/uvc/uvc_function.h"
-
+#include "timer.h"
 #include <string.h>
 
 /** Probe & Commit Controls */
@@ -306,7 +306,7 @@ void uvc_function_payload_sent(void *arg, uint8_t state,
 		header->bmHeaderInfo.bm.EoF = 0;
 	}
 	header->bmHeaderInfo.bm.EOH =  1;
-
+	usleep(500);
 	usbd_hal_write_with_header(VIDCAMD_IsoInEndpointNum, header,
 		header->bHeaderLength, uncompressed_stream, dma_transfer_size);
 }
