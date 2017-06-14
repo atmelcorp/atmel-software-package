@@ -74,15 +74,15 @@ struct _spi_desc {
 	struct {
 		struct _buffer*  current;     /*< Current buffer */
 		struct _buffer*  last;        /*< Last buffer */
-		uint32_t         transferred; /*< Number of bytes transferred for current buffer */
 		struct _callback callback;
 
 		struct {
-			struct {
-				struct _dma_channel *channel;
-				struct _dma_cfg cfg_dma;
-				struct _dma_transfer_cfg cfg;
-			} rx, tx;
+			uint32_t rx, tx; /*< index of next byte to receive/transmit for current buffer */
+		} async;
+
+		struct {
+			struct _dma_channel* rx_channel;
+			struct _dma_channel* tx_channel;
 		} dma;
 	} xfer;
 };

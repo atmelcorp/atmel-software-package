@@ -60,7 +60,8 @@
  *        Local variables
  *----------------------------------------------------------------------------*/
 
-static uint32_t _garbage = ~0u;
+CACHE_ALIGNED
+static uint32_t _garbage = UINT32_MAX;
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -92,9 +93,10 @@ static int _spid_dma_rx_callback(void* arg, void* arg2)
 {
 	struct _spi_desc* desc = (struct _spi_desc*)arg;
 
-	cache_invalidate_region(desc->xfer.dma.rx.cfg.daddr, desc->xfer.dma.rx.cfg.len);
+	if (desc->xfer.current->attr & BUS_BUF_ATTR_RX)
+		cache_invalidate_region(desc->xfer.current->data, desc->xfer.current->size);
 
-	dma_reset_channel(desc->xfer.dma.rx.channel);
+	dma_reset_channel(desc->xfer.dma.rx_channel);
 
 	/* process next buffer */
 	_spid_transfer_next_buffer(desc);
@@ -106,102 +108,76 @@ static int _spid_dma_tx_callback(void* arg, void* arg2)
 {
 	struct _spi_desc* desc = (struct _spi_desc*)arg;
 
-	dma_reset_channel(desc->xfer.dma.tx.channel);
-
-	/* process next buffer */
-	_spid_transfer_next_buffer(desc);
+	dma_reset_channel(desc->xfer.dma.tx_channel);
 
 	return 0;
 }
 
-static int _spid_dma_rx_free_callback(void* arg, void* arg2)
+static void _spid_transfer_current_buffer_dma(struct _spi_desc* desc)
 {
-	struct _spi_desc* desc = (struct _spi_desc*)arg;
-
-	dma_reset_channel(desc->xfer.dma.rx.channel);
-
-	return 0;
-}
-
-static int _spid_dma_tx_free_callback(void* arg, void* arg2)
-{
-	struct _spi_desc* desc = (struct _spi_desc*)arg;
-
-	dma_reset_channel(desc->xfer.dma.tx.channel);
-
-	return 0;
-}
-
-static void _spid_dma_write(struct _spi_desc* desc, uint8_t *buf, uint32_t len)
-{
+	uint32_t id = get_spi_id_from_addr(desc->addr);
 	struct _callback _cb;
+	struct _dma_transfer_cfg rx_cfg = {
+		.saddr = (void*)&desc->addr->SPI_RDR,
+		.daddr = &_garbage,
+		.len = desc->xfer.current->size,
+	};
+	struct _dma_transfer_cfg tx_cfg = {
+		.saddr = &_garbage,
+		.daddr = (void*)&desc->addr->SPI_TDR,
+		.len = desc->xfer.current->size,
+	};
+	struct _dma_cfg rx_cfg_dma = {
+		.incr_saddr = false,
+		.incr_daddr = false,
+		.data_width = DMA_DATA_WIDTH_BYTE,
+		.chunk_size = DMA_CHUNK_SIZE_1,
+	};
+	struct _dma_cfg tx_cfg_dma = {
+		.incr_saddr = false,
+		.incr_daddr = false,
+		.data_width = DMA_DATA_WIDTH_BYTE,
+		.chunk_size = DMA_CHUNK_SIZE_1,
+	};
 
-	cache_clean_region(buf, len);
+	if (desc->xfer.current->attr & BUS_BUF_ATTR_TX) {
+		cache_clean_region(desc->xfer.current->data, desc->xfer.current->size);
+		tx_cfg.saddr = desc->xfer.current->data;
+		tx_cfg_dma.incr_saddr = true;
+	}
 
-	desc->xfer.dma.tx.cfg.saddr = buf;
-	desc->xfer.dma.tx.cfg.daddr = (void*)&desc->addr->SPI_TDR;
-	desc->xfer.dma.tx.cfg.len = len;
-	desc->xfer.dma.tx.cfg_dma.incr_saddr = true;
-	desc->xfer.dma.tx.cfg_dma.incr_daddr = false;
-	dma_configure_transfer(desc->xfer.dma.tx.channel, &desc->xfer.dma.tx.cfg_dma, &desc->xfer.dma.tx.cfg, 1);
-	callback_set(&_cb, &_spid_dma_tx_callback, (void*)desc);
-	dma_set_callback(desc->xfer.dma.tx.channel, &_cb);
+	if (desc->xfer.current->attr & BUS_BUF_ATTR_RX) {
+		rx_cfg.daddr = desc->xfer.current->data;
+		rx_cfg_dma.incr_daddr = true;
+	}
 
-	memset(&desc->xfer.dma.rx.cfg, 0, sizeof(desc->xfer.dma.rx.cfg));
+	if (!desc->xfer.dma.tx_channel)
+		desc->xfer.dma.tx_channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
+	if (!desc->xfer.dma.rx_channel)
+		desc->xfer.dma.rx_channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
 
-	desc->xfer.dma.rx.cfg.saddr = (void*)&desc->addr->SPI_RDR;
-	desc->xfer.dma.rx.cfg.daddr = &_garbage;
-	desc->xfer.dma.rx.cfg.len = len;
-	desc->xfer.dma.rx.cfg_dma.incr_saddr = false;
-	desc->xfer.dma.rx.cfg_dma.incr_daddr = false;
-	dma_configure_transfer(desc->xfer.dma.rx.channel, &desc->xfer.dma.rx.cfg_dma, &desc->xfer.dma.rx.cfg, 1);
+	dma_reset_channel(desc->xfer.dma.tx_channel);
+	dma_configure_transfer(desc->xfer.dma.tx_channel, &tx_cfg_dma, &tx_cfg, 1);
+	callback_set(&_cb, _spid_dma_tx_callback, (void*)desc);
+	dma_set_callback(desc->xfer.dma.tx_channel, &_cb);
 
-	callback_set(&_cb, _spid_dma_rx_free_callback, (void*)desc);
-	dma_set_callback(desc->xfer.dma.rx.channel, &_cb);
-
-	dma_start_transfer(desc->xfer.dma.rx.channel);
-	dma_start_transfer(desc->xfer.dma.tx.channel);
-}
-
-static void _spid_dma_read(struct _spi_desc* desc, uint8_t *buf, uint32_t len)
-{
-	struct _callback _cb;
-
-	memset(&desc->xfer.dma.tx.cfg, 0, sizeof(desc->xfer.dma.tx.cfg));
-
-	dma_reset_channel(desc->xfer.dma.tx.channel);
-	desc->xfer.dma.tx.cfg.saddr = &_garbage;
-	desc->xfer.dma.tx.cfg.daddr = (void*)&desc->addr->SPI_TDR;
-	desc->xfer.dma.tx.cfg.len = len;
-	desc->xfer.dma.tx.cfg_dma.incr_saddr = false;
-	desc->xfer.dma.tx.cfg_dma.incr_daddr = false;
-	dma_configure_transfer(desc->xfer.dma.tx.channel, &desc->xfer.dma.tx.cfg_dma, &desc->xfer.dma.tx.cfg, 1);
-	callback_set(&_cb, _spid_dma_tx_free_callback, (void*)desc);
-	dma_set_callback(desc->xfer.dma.tx.channel, &_cb);
-
-	memset(&desc->xfer.dma.rx.cfg, 0, sizeof(desc->xfer.dma.rx.cfg));
-
-	dma_reset_channel(desc->xfer.dma.rx.channel);
-	desc->xfer.dma.rx.cfg.saddr = (void*)&desc->addr->SPI_RDR;
-	desc->xfer.dma.rx.cfg.daddr = buf;
-	desc->xfer.dma.rx.cfg.len = len;
-	desc->xfer.dma.rx.cfg_dma.incr_saddr = false;
-	desc->xfer.dma.rx.cfg_dma.incr_daddr = true;
-	dma_configure_transfer(desc->xfer.dma.rx.channel, &desc->xfer.dma.rx.cfg_dma, &desc->xfer.dma.rx.cfg, 1);
+	dma_reset_channel(desc->xfer.dma.rx_channel);
+	dma_configure_transfer(desc->xfer.dma.rx_channel, &rx_cfg_dma, &rx_cfg, 1);
 	callback_set(&_cb, _spid_dma_rx_callback, (void*)desc);
-	dma_set_callback(desc->xfer.dma.rx.channel, &_cb);
+	dma_set_callback(desc->xfer.dma.rx_channel, &_cb);
 
-	dma_start_transfer(desc->xfer.dma.rx.channel);
-	dma_start_transfer(desc->xfer.dma.tx.channel);
+	dma_start_transfer(desc->xfer.dma.rx_channel);
+	dma_start_transfer(desc->xfer.dma.tx_channel);
 }
 
 static void _spid_handler(uint32_t source, void* user_arg)
 {
+	uint8_t data;
 	uint32_t status = 0;
 	Spi* addr = get_spi_addr_from_id(source);
 	struct _spi_desc *desc = (struct _spi_desc*)user_arg;
 
-	if (!desc->xfer.current) {
+	if (!desc->xfer.current || addr != desc->addr) {
 		/* async descriptor not found, disable interrupt */
 		spi_disable_it(addr, SPI_IDR_RDRF | SPI_IDR_TDRE | SPI_IDR_TXEMPTY);
 		return;
@@ -209,101 +185,83 @@ static void _spid_handler(uint32_t source, void* user_arg)
 
 	status = spi_get_masked_status(addr);
 
-	if (SPI_STATUS_RDRF(status)) {
+	if (SPI_STATUS_TDRE(status)) {
 #ifdef CONFIG_HAVE_SPI_FIFO
 		_spid_wait_tx_fifo_not_full(desc);
 #endif /* CONFIG_HAVE_SPI_FIFO */
 
-		desc->xfer.current->data[desc->xfer.transferred] = spi_read(addr);
-		desc->xfer.transferred++;
+		if (desc->xfer.current->attr & BUS_BUF_ATTR_TX)
+			data = desc->xfer.current->data[desc->xfer.async.tx];
+		else
+			data = 0xff;
 
-		if (desc->xfer.transferred >= desc->xfer.current->size) {
-			/* current buffer transfer complete */
+		spi_write(desc->addr, data);
+
+		desc->xfer.async.tx++;
+
+		if (desc->xfer.async.tx >= desc->xfer.current->size) {
+			/* current buffer TX complete */
+			spi_disable_it(addr, SPI_IDR_TDRE);
+		}
+	}
+
+	if (SPI_STATUS_RDRF(status)) {
+		data = spi_read(desc->addr);
+
+		if (desc->xfer.current->attr & BUS_BUF_ATTR_RX)
+			desc->xfer.current->data[desc->xfer.async.rx] = data;
+
+		desc->xfer.async.rx++;
+
+		if (desc->xfer.async.rx >= desc->xfer.current->size) {
+			/* current buffer RX complete */
 			spi_disable_it(addr, SPI_IDR_RDRF);
 			spi_enable_it(addr, SPI_IER_TXEMPTY);
-		} else {
-			/* still some bytes to read */
-			/* Dummy write to trigger the read */
-			spi_write(addr, 0xffff);
 		}
+	}
 
-	} else if (SPI_STATUS_TDRE(status)) {
-#ifdef CONFIG_HAVE_SPI_FIFO
-		_spid_wait_tx_fifo_not_full(desc);
-#endif /* CONFIG_HAVE_SPI_FIFO */
-
-		spi_transfer(addr, desc->xfer.current->data[desc->xfer.transferred]);
-		desc->xfer.transferred++;
-
-		if (desc->xfer.transferred >= desc->xfer.current->size) {
-			/* current buffer transfer complete */
-			spi_disable_it(addr, SPI_IDR_TDRE);
-			spi_enable_it(addr, SPI_IER_TXEMPTY);
-		}
-
-	} else if (SPI_STATUS_TXEMPTY(status)) {
+	if (SPI_STATUS_TXEMPTY(status)) {
 		spi_disable_it(addr, SPI_IDR_TXEMPTY);
 		_spid_transfer_next_buffer(desc);
 	}
 }
 
-static void _spid_poll_write(struct _spi_desc* desc, struct _buffer* buffer)
+static void _spid_transfer_current_buffer_polling(struct _spi_desc* desc)
 {
 	int i;
+	uint8_t data;
 
-	for (i = 0; i < buffer->size; ++i) {
+	for (i = 0; i < desc->xfer.current->size; ++i) {
 #ifdef CONFIG_HAVE_SPI_FIFO
 		_spid_wait_tx_fifo_not_full(desc);
 #endif /* CONFIG_HAVE_SPI_FIFO */
-		spi_transfer(desc->addr, buffer->data[i]);
-	}
-}
 
-static void _spid_poll_read(struct _spi_desc* desc, struct _buffer* buffer)
-{
-	int i;
+		if (desc->xfer.current->attr & BUS_BUF_ATTR_TX)
+			data = desc->xfer.current->data[i];
+		else
+			data = 0xff;
 
-	for (i = 0; i < buffer->size; ++i) {
-#ifdef CONFIG_HAVE_SPI_FIFO
-		_spid_wait_tx_fifo_not_full(desc);
-#endif /* CONFIG_HAVE_SPI_FIFO */
-		buffer->data[i] = spi_transfer(desc->addr, 0xff);
+		data = spi_transfer(desc->addr, data);
+
+		if (desc->xfer.current->attr & BUS_BUF_ATTR_RX)
+			desc->xfer.current->data[i] = data;
 	}
+
+	_spid_transfer_next_buffer(desc);
 }
 
 static void _spid_transfer_current_buffer_async(struct _spi_desc* desc)
 {
-	desc->xfer.transferred = 0;
+	uint32_t id = get_spi_id_from_addr(desc->addr);
 
-	if (desc->xfer.current->attr & BUS_BUF_ATTR_TX) {
-		spi_enable_it(desc->addr, SPI_IER_TDRE);
-	} else {
-		spi_enable_it(desc->addr, SPI_IER_RDRF);
-		spi_get_status(desc->addr);
-		spi_write(desc->addr, 0xffff);
-	}
-}
+	desc->xfer.async.rx = 0;
+	desc->xfer.async.tx = 0;
 
-static void _spid_transfer_current_buffer_dma(struct _spi_desc* desc)
-{
-	if (desc->xfer.current->attr & BUS_BUF_ATTR_TX) {
-		_spid_dma_write(desc, desc->xfer.current->data, desc->xfer.current->size);
-	} else {
-		_spid_dma_read(desc, desc->xfer.current->data, desc->xfer.current->size);
-	}
-}
+	spi_disable_it(desc->addr, ~0u);
+	irq_add_handler(id, _spid_handler, desc);
+	irq_enable(id);
 
-static void _spid_transfer_current_buffer_polling(struct _spi_desc* desc)
-{
-	if (desc->xfer.current->attr & BUS_BUF_ATTR_TX) {
-		_spid_poll_write(desc, desc->xfer.current);
-	} else {
-		_spid_poll_read(desc, desc->xfer.current);
-	}
-
-	while (!spi_is_tx_finished(desc->addr));
-
-	_spid_transfer_next_buffer(desc);
+	spi_enable_it(desc->addr, SPI_IER_RDRF | SPI_IER_TDRE);
 }
 
 static void _spid_transfer_current_buffer(struct _spi_desc* desc)
@@ -363,9 +321,6 @@ int spid_transfer(struct _spi_desc* desc,
 	for (i = 0 ; i < buffer_count ; i++) {
 		if ((buffers[i].attr & (BUS_BUF_ATTR_TX | BUS_BUF_ATTR_RX)) == 0)
 			return -EINVAL;
-
-		if ((buffers[i].attr & (BUS_BUF_ATTR_TX | BUS_BUF_ATTR_RX)) == (BUS_BUF_ATTR_TX | BUS_BUF_ATTR_RX))
-			return -EINVAL;
 	}
 
 	if (!mutex_try_lock(&desc->mutex)) {
@@ -416,26 +371,8 @@ int spid_configure(struct _spi_desc* desc)
 #endif
 
 	spi_disable_it(desc->addr, ~0u);
-
-	if (desc->transfer_mode == BUS_TRANSFER_MODE_ASYNC) {
-		irq_add_handler(id, _spid_handler, desc);
-		irq_enable(id);
-	} else if (desc->transfer_mode == BUS_TRANSFER_MODE_DMA) {
-		desc->xfer.dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
-		assert(desc->xfer.dma.tx.channel);
-
-		desc->xfer.dma.rx.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
-		assert(desc->xfer.dma.rx.channel);
-
-		desc->xfer.dma.rx.cfg_dma.incr_saddr = false;
-		desc->xfer.dma.rx.cfg_dma.incr_daddr = true;
-		desc->xfer.dma.rx.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
-		desc->xfer.dma.rx.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
-		desc->xfer.dma.tx.cfg_dma.incr_saddr = false;
-		desc->xfer.dma.tx.cfg_dma.incr_daddr = true;
-		desc->xfer.dma.tx.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
-		desc->xfer.dma.tx.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
-	}
+	desc->xfer.dma.tx_channel = 0;
+	desc->xfer.dma.rx_channel = 0;
 
 	spi_enable(desc->addr);
 
