@@ -28,3 +28,4 @@
 
 drivers-$(CONFIG_HAVE_PIO3) += drivers/gpio/pio3.o
 drivers-$(CONFIG_HAVE_PIO4) += drivers/gpio/pio4.o
+drivers-$(CONFIG_HAVE_SECUMOD) += drivers/gpio/piobu.o
