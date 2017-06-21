@@ -196,6 +196,7 @@ static struct _tcd_desc tc_capture = {
 	.channel = EXAMPLE_TC_CHANNEL_CAPTURE_IN,
 	.cfg = {
 		.capture = {
+			.use_ext_clk = false,
 			.transfer_mode = TCD_TRANSFER_MODE_POLLING,
 		},
 	},

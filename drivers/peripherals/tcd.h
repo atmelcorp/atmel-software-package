@@ -76,6 +76,8 @@ struct _tcd_desc {
 			uint32_t duty_cycle;
 		} waveform;
 		struct {
+			bool use_ext_clk;
+			uint32_t ext_clk_sel;
 			uint32_t frequency;
 			enum _tcd_transfer_mode transfer_mode;
 		} capture;

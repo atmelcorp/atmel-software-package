@@ -170,7 +170,7 @@ int tcd_configure_waveform(struct _tcd_desc* desc, uint32_t min_timer_freq, uint
 	desc->cfg.waveform.min_timer_freq = min_timer_freq;
 	desc->cfg.waveform.frequency = frequency;
 	desc->cfg.waveform.duty_cycle = duty_cycle;
-
+	
 	if (!pmc_is_peripheral_enabled(tc_id))
 		pmc_configure_peripheral(tc_id, NULL, true);
 
@@ -210,12 +210,19 @@ int tcd_configure_capture(struct _tcd_desc* desc, uint32_t frequency, struct _bu
 
 	if (!pmc_is_peripheral_enabled(tc_id))
 		pmc_configure_peripheral(tc_id, NULL, true);
-
-	tc_clks = tc_find_best_clock_source(desc->addr, desc->channel, frequency);
-	config = tc_clks | TC_CMR_LDRA_RISING | TC_CMR_LDRB_FALLING | TC_CMR_ABETRG | TC_CMR_ETRGEDG_FALLING;
+	if (desc->cfg.capture.use_ext_clk) {
+		config = desc->cfg.capture.ext_clk_sel | TC_CMR_LDRA_RISING |
+		         TC_CMR_LDRB_FALLING | TC_CMR_ABETRG | TC_CMR_ETRGEDG_FALLING;
+	}
+	else {
+		tc_clks = tc_find_best_clock_source(desc->addr, desc->channel, frequency);
+		config = tc_clks | TC_CMR_LDRA_RISING | TC_CMR_LDRB_FALLING | TC_CMR_ABETRG | TC_CMR_ETRGEDG_FALLING;
+	}
 	tc_configure(desc->addr, desc->channel, config);
-	chan_freq = tc_get_channel_freq(desc->addr, desc->channel);
-
+	if (desc->cfg.capture.use_ext_clk)
+		chan_freq = frequency;
+	else
+		chan_freq = tc_get_channel_freq(desc->addr, desc->channel);
 	return chan_freq;
 }
 
