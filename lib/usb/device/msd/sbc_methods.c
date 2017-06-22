@@ -1205,7 +1205,7 @@ bool sbc_get_command_information(void *command_ptr, uint32_t *length,
 		break;
 
 	default:
-		trace_warning("sbc_get_command_information: unknown command 0x%x\r\n",
+		LIBUSB_TRACE("sbc_get_command_information: unknown command 0x%x\r\n",
 				(unsigned)command->bOperationCode);
 		command_supported = false;
 	}

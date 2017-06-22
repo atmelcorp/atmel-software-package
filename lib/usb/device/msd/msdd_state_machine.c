@@ -176,14 +176,12 @@ static bool msdd_preprocess_command(MSDDriver *driver)
 		} else if (host_type == MSDD_HOST_TO_DEVICE) {
 			if (device_type == MSDD_NO_TRANSFER) {
 				/* Case 9  (Ho > Dn) */
-				trace_warning("msdd_preprocess_command: Case 9\n\r");
 				command_state->postprocess = MSDD_CASE_STALL_OUT;
 				command_state->length = 0;
 				csw->dCSWDataResidue = host_length;
 				csw->bCSWStatus = MSD_CSW_COMMAND_FAILED;
 			} else if (device_type == MSDD_DEVICE_TO_HOST) {
 				/* Case 10 (Ho <> Di) */
-				trace_warning("msdd_preprocess_command: Case 10\n\r");
 				command_state->postprocess = MSDD_CASE_STALL_OUT;
 				command_state->length = 0;
 				csw->dCSWDataResidue = host_length;
@@ -191,7 +189,6 @@ static bool msdd_preprocess_command(MSDDriver *driver)
 			} else {
 				if (host_length > device_length) {
 					/* Case 11 (Ho > Do) */
-					trace_warning("msdd_preprocess_command: Case 11\n\r");
 					command_state->postprocess = MSDD_CASE_STALL_OUT;
 					command_state->length = 0;
 					csw->dCSWDataResidue = device_length;
@@ -201,7 +198,6 @@ static bool msdd_preprocess_command(MSDDriver *driver)
 					command_state->length = device_length;
 				} else {
 					/* Case 13 (Ho < Do) */
-					trace_warning("msdd_preprocess_command: Case 13\n\r");
 					command_state->postprocess = MSDD_CASE_STALL_OUT;
 					command_state->length = host_length;
 					csw->bCSWStatus = MSD_CSW_COMMAND_FAILED;
@@ -284,7 +280,7 @@ static unsigned char msdd_process_command(MSDDriver * driver)
 	/* Check command result code */
 	switch (status) {
 	case MSDD_STATUS_PARAMETER:
-		trace_warning("msdd_process_command: Unknown cmd 0x%02X\n\r",
+		LIBUSB_TRACE("msdd_process_command: Unknown cmd 0x%02X\n\r",
 			cbw->pCommand[0]);
 
 		/* Update sense data */
@@ -310,7 +306,7 @@ static unsigned char msdd_process_command(MSDDriver * driver)
 		break;
 
 	case MSDD_STATUS_ERROR:
-		trace_warning("MSD_ProcessCommand: Cmd %x fail\n\r",
+		LIBUSB_TRACE("MSD_ProcessCommand: Cmd %x fail\n\r",
 				   (unsigned)command_state->cbw.pCommand[0]);
 
 		/* Update sense data */
@@ -441,7 +437,7 @@ void msdd_state_machine(MSDDriver * driver)
 			/* Check that the CBW is 31 bytes long and check CBW Signature */
 			if ((transfer->transferred != MSD_CBW_SIZE) ||
 					(cbw->dCBWSignature != MSD_CBW_SIGNATURE)) {
-				trace_warning("msdd_state_machine: Invalid CBW (len %d) (signature 0x%08x)\n\r",
+				LIBUSB_TRACE("msdd_state_machine: Invalid CBW (len %d) (signature 0x%08x)\n\r",
 					(int)transfer->transferred, (unsigned)cbw->dCBWSignature);
 
 				/* Wait for a reset recovery */

@@ -114,10 +114,10 @@ void hid_msdd_driver_request_handler(const USBGenericRequest *request)
 {
 	LIBUSB_TRACE("NewReq ");
 
-	if (hidd_keyboard_request_handler(request) == USBRC_SUCCESS)
+	if (msd_function_request_handler(request) == USBRC_SUCCESS)
 		return;
 
-	if (msd_function_request_handler(request) == USBRC_SUCCESS)
+	if (hidd_keyboard_request_handler(request) == USBRC_SUCCESS)
 		return;
 
 	usbd_driver_request_handler(request);
