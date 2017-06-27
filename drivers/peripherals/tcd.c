@@ -112,12 +112,12 @@ static int _tcd_capture_polling(struct _tcd_desc* desc)
 	uint32_t i;
 	uint32_t* rab_data = (uint32_t*)desc->capture.buffer.data;
 
+	tc_start(desc->addr, desc->channel);
 	for (i = 0; i < desc->capture.buffer.size / sizeof(uint32_t); i += 2) {
-		tc_start(desc->addr, desc->channel);
 		while ((tc_get_status(desc->addr, desc->channel) & TC_SR_LDRBS) != TC_SR_LDRBS);
 		tc_get_ra_rb_rc(desc->addr, desc->channel, &rab_data[i], &rab_data[i + 1], 0);
-		tc_stop(desc->addr, desc->channel);
 	}
+	tc_stop(desc->addr, desc->channel);
 
 	mutex_unlock(&desc->mutex);
 
