@@ -336,17 +336,21 @@ int main( void )
 
 		/* Update the status of LEDs */
 		if (update && (0x80 & led_stat)) {
+#ifdef LED_RED
 			/* LED1 */
 			if (led_stat & 0x01)
 				led_set(LED_RED);
 			else
 				led_clear(LED_RED);
+#endif
 
+#ifdef LED_BLUE
 			/* LED2 */
 			if (led_stat & 0x02)
 				led_set(LED_BLUE);
 			else
 				led_clear(LED_BLUE);
+#endif
 		}
 		
 		/* Update the status of the buttons */
