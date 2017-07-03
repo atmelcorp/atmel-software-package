@@ -193,16 +193,17 @@ static void _init_w971g16sg(struct _mpddrc_desc* desc)
 	desc->control = MPDDRC_CR_NR_13_ROW_BITS
 	              | MPDDRC_CR_NC_DDR_10_COL_BITS
 	              | MPDDRC_CR_CAS_DDR_CAS3
+	              | MPDDRC_CR_DIC_DS_DDR2_WEAKSTRENGTH
 	              | MPDDRC_CR_NB_8_BANKS
 	              | MPDDRC_CR_NDQS_DISABLED
+	              | MPDDRC_CR_DECOD_INTERLEAVED
 	              | MPDDRC_CR_UNAL_SUPPORTED;
 
 #ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
 	desc->io_calibr = MPDDRC_IO_CALIBR_CALCODEP(7)
 	                | MPDDRC_IO_CALIBR_CALCODEN(8)
 	                | MPDDRC_IO_CALIBR_RDIV(4)
-	                | MPDDRC_IO_CALIBR_TZQIO(81)
-	                | MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION;
+	                | MPDDRC_IO_CALIBR_TZQIO(101);
 #endif
 
 	/* timings */
@@ -213,8 +214,8 @@ static void _init_w971g16sg(struct _mpddrc_desc* desc)
 	desc->timings.twr    = NS2CYCLES(15, mck);  // 15ns
 	desc->timings.trc    = NS2CYCLES(53, mck);  // 52.5ns
 	desc->timings.trp    = NS2CYCLES(13, mck);  // 12.5ns
-	desc->timings.trrd   = NS2CYCLES(10, mck);  // 10ns
-	desc->timings.twtr   = NS2CYCLES(8, mck);   // 7.5ns
+	desc->timings.trrd   = NS2CYCLES(2, mck);   // 2ns
+	desc->timings.twtr   = NS2CYCLES(2, mck);   // 2ns
 	desc->timings.tmrd   = 2;                   // 2ck
 	desc->timings.trfc   = NS2CYCLES(128, mck); // 127.5ns
 	desc->timings.txsnr  = NS2CYCLES(138, mck); // tRFC+10ns
@@ -222,7 +223,7 @@ static void _init_w971g16sg(struct _mpddrc_desc* desc)
 	desc->timings.txp    = 2;                   // 2ck
 	desc->timings.txard  = 2;                   // 2ck
 	desc->timings.txards = 8;                   // 8ck
-	desc->timings.trpa   = NS2CYCLES(20, mck);  // 20ns
+	desc->timings.trpa   = NS2CYCLES(19, mck);  // 19ns
 	desc->timings.trtp   = NS2CYCLES(8, mck);   // 7.5ns
 	desc->timings.tfaw   = NS2CYCLES(45, mck);  // 45ns
 
