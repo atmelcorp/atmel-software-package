@@ -61,6 +61,22 @@
 /* Number of buffer for TX */
 #define ETH_TX_BUFFERS  8
 
+#ifndef BOARD_ETH0_PHY_IDLE_TIMEOUT
+#define BOARD_ETH0_PHY_IDLE_TIMEOUT PHY_DEFAULT_TIMEOUT_IDLE
+#endif
+
+#ifndef BOARD_ETH0_PHY_AUTONEG_TIMEOUT
+#define BOARD_ETH0_PHY_AUTONEG_TIMEOUT PHY_DEFAULT_TIMEOUT_AUTONEG
+#endif
+
+#ifndef BOARD_ETH1_PHY_IDLE_TIMEOUT
+#define BOARD_ETH1_PHY_IDLE_TIMEOUT PHY_DEFAULT_TIMEOUT_IDLE
+#endif
+
+#ifndef BOARD_ETH1_PHY_AUTONEG_TIMEOUT
+#define BOARD_ETH1_PHY_AUTONEG_TIMEOUT PHY_DEFAULT_TIMEOUT_AUTONEG
+#endif
+
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
@@ -73,15 +89,21 @@ static const struct _phy_desc _phy_desc[] = {
 	{
 		.addr = BOARD_ETH0_ADDR,
 		.phy_if = BOARD_ETH0_PHY_IF,
-		.retries = BOARD_ETH0_PHY_RETRIES,
-		.phy_addr = BOARD_ETH0_PHY_ADDR
+		.phy_addr = BOARD_ETH0_PHY_ADDR,
+		.timeout = {
+			.idle = BOARD_ETH0_PHY_IDLE_TIMEOUT,
+			.autoneg = BOARD_ETH0_PHY_AUTONEG_TIMEOUT,
+		},
 	},
 #if defined(BOARD_ETH1_ADDR) && (ETH_IFACE_COUNT > 1)
 	{
 		.addr = BOARD_ETH1_ADDR,
 		.phy_if = BOARD_ETH1_PHY_IF,
-		.retries = BOARD_ETH1_PHY_RETRIES,
-		.phy_addr = BOARD_ETH1_PHY_ADDR
+		.phy_addr = BOARD_ETH1_PHY_ADDR,
+		.timeout = {
+			.idle = BOARD_ETH1_PHY_IDLE_TIMEOUT,
+			.autoneg = BOARD_ETH1_PHY_AUTONEG_TIMEOUT,
+		},
 	},
 #endif
 };
@@ -129,7 +151,7 @@ static void _eth_rx_callback(uint8_t queue, uint32_t status)
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-void board_cfg_net(uint8_t iface)
+void board_cfg_net(uint8_t iface, uint8_t* mac_addr)
 {
 #ifdef CONFIG_HAVE_ETH
 	uint8_t _eth_mac_addr[6];
@@ -142,19 +164,21 @@ void board_cfg_net(uint8_t iface)
 
 		pio_configure(eth_pins, ARRAY_SIZE(eth_pins));
 		ethd_configure(&_ethd[iface], BOARD_ETH0_TYPE, BOARD_ETH0_ADDR, 1, 0);
-#ifdef BOARD_ETH0_MAC_ADDR
-		uint8_t _mac_addr[] = BOARD_ETH0_MAC_ADDR;
-		memcpy(_eth_mac_addr, _mac_addr, sizeof(_eth_mac_addr));
+		if (mac_addr) {
+			memcpy(_eth_mac_addr, mac_addr, sizeof(_eth_mac_addr));
+		} else {
+#if defined(BOARD_ETH0_MAC_ADDR)
+			uint8_t _mac_addr[] = BOARD_ETH0_MAC_ADDR;
+			memcpy(_eth_mac_addr, _mac_addr, sizeof(_eth_mac_addr));
+#elif defined(BOARD_AT24_TWI_BUS)
+			if (at24_has_eui48(board_get_at24()))
+				at24_read_eui48(board_get_at24(), _eth_mac_addr);
+			else
+				trace_error("eth0: no MAC address found");
 #else
-#ifdef BOARD_AT24_TWI_BUS
-		if (at24_has_eui48(board_get_at24()))
-			at24_read_eui48(board_get_at24(), _eth_mac_addr);
-		else
-			trace_error("eth%d: no MAC address found", iface);
-#else
-#error "Define a MAC address for ETH0"
+			trace_error("eth0: no MAC address");
 #endif
-#endif
+		}
 	}
 	break;
 
@@ -165,19 +189,21 @@ void board_cfg_net(uint8_t iface)
 
 		pio_configure(eth_pins, ARRAY_SIZE(eth_pins));
 		ethd_configure(&_ethd[iface], BOARD_ETH1_TYPE, BOARD_ETH1_ADDR, 1, 0);
-#ifdef BOARD_ETH1_MAC_ADDR
-		uint8_t _mac_addr[] = BOARD_ETH1_MAC_ADDR;
-		memcpy(_eth_mac_addr, _mac_addr, sizeof(_eth_mac_addr));
+		if (mac_addr) {
+			memcpy(_eth_mac_addr, mac_addr, sizeof(_eth_mac_addr));
+		} else {
+#if defined(BOARD_ETH1_MAC_ADDR)
+			uint8_t _mac_addr[] = BOARD_ETH1_MAC_ADDR;
+			memcpy(_eth_mac_addr, _mac_addr, sizeof(_eth_mac_addr));
+#elif defined(BOARD_AT24_TWI_BUS)
+			if (at24_has_eui48(board_get_at24()))
+				at24_read_eui48(board_get_at24(), _eth_mac_addr);
+			else
+				trace_error("eth1: no MAC address found");
 #else
-#ifdef BOARD_AT24_TWI_BUS
-		if (at24_has_eui48(board_get_at24()))
-			at24_read_eui48(board_get_at24(), _eth_mac_addr);
-		else
-			trace_error("eth%d: no MAC address found", iface);
-#else
-#error "Define a MAC address for ETH1"
-#endif /* BOARD_AT24_TWI_BUS */
+			trace_error("eth1: no MAC address");
 #endif
+		}
 	}
 	break;
 #endif /* BOARD_ETH1_ADDR */
@@ -191,7 +217,7 @@ void board_cfg_net(uint8_t iface)
 
 	/* Init PHY */
 	phy_configure(&_phy[iface]);
-	phy_auto_negotiate(&_phy[iface], 5000);
+	phy_auto_negotiate(&_phy[iface]);
 #endif /* CONFIG_HAVE_ETH */
 }
 
@@ -200,6 +226,16 @@ struct _ethd * board_get_eth(uint8_t iface)
 #ifdef CONFIG_HAVE_ETH
 	if (iface < ETH_IFACE_COUNT)
 		return &_ethd[iface];
+#endif /* CONFIG_HAVE_ETH */
+
+	return NULL;
+}
+
+struct _phy * board_get_phy(uint8_t iface)
+{
+#ifdef CONFIG_HAVE_ETH
+	if (iface < ETH_IFACE_COUNT)
+		return &_phy[iface];
 #endif /* CONFIG_HAVE_ETH */
 
 	return NULL;

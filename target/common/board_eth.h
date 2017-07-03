@@ -34,13 +34,21 @@
 
 /**
  * \brief Configures the eth<iface> for the board
+ * \param iface the network interface number (0/1)
+ * \param mac_addr a MAC address to use. If NULL, the board default MAC address
+ *                 will be used if possible.
  */
-extern void board_cfg_net(uint8_t iface);
+extern void board_cfg_net(uint8_t iface, uint8_t* mac_addr);
 
 /**
- * \brief Get the eth<iface> configuration for the board
+ * \brief Get the Ethernet driver structure for an interface
  */
 extern struct _ethd * board_get_eth(uint8_t iface);
+
+/**
+ * \brief Get the PHY driver structure for an interface
+ */
+extern struct _phy * board_get_phy(uint8_t iface);
 
 #endif /* CONFIG_HAVE_ETH */
 

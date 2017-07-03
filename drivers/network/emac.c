@@ -38,13 +38,15 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
-#include "trace.h"
-#include "network/emac.h"
-#include "peripherals/pmc.h"
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
+
+#include "chip.h"
+#include "network/emac.h"
+#include "peripherals/pmc.h"
+#include "timer.h"
+#include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -80,15 +82,15 @@ static bool _emac_configure_mdc_clock(Emac *emac)
 	return true;
 }
 
-static bool _emac_phy_wait_idle(Emac* emac, uint32_t retries)
+static bool _emac_phy_wait_idle(Emac* emac, uint32_t idle_timeout)
 {
-	uint32_t count = 0;
+	struct _timeout timeout;
+	timer_start_timeout(&timeout, idle_timeout);
 	while ((emac->EMAC_NSR & EMAC_NSR_IDLE) == 0) {
-		if (retries > 0 && count > retries) {
+		if (timer_timeout_reached(&timeout)) {
 			trace_debug("Timeout reached while waiting for PHY management logic to become idle");
 			return false;
 		}
-		count++;
 	}
 	return true;
 }
@@ -196,11 +198,11 @@ void emac_disable_mdio(Emac* emac)
 	emac->EMAC_NCR |= (EMAC_NCR_RE | EMAC_NCR_TE);
 }
 
-bool emac_phy_read(Emac* emac, uint8_t phy_addr, uint8_t reg_addr, uint16_t* data, uint32_t retries)
+int emac_phy_read(Emac* emac, uint8_t phy_addr, uint8_t reg_addr, uint16_t* data, uint32_t idle_timeout)
 {
 	/* Wait until idle */
-	if (!_emac_phy_wait_idle(emac, retries))
-		return false;
+	if (!_emac_phy_wait_idle(emac, idle_timeout))
+		return -EBUSY;
 
 	/* Write maintenance register */
 	emac->EMAC_MAN = EMAC_MAN_SOF(0x1) |
@@ -210,19 +212,20 @@ bool emac_phy_read(Emac* emac, uint8_t phy_addr, uint8_t reg_addr, uint16_t* dat
 		EMAC_MAN_REGA(reg_addr);
 
 	/* Wait until idle */
-	if (!_emac_phy_wait_idle(emac, retries))
-		return false;
+	if (!_emac_phy_wait_idle(emac, idle_timeout))
+		return -EBUSY;
 
 	*data = (emac->EMAC_MAN & EMAC_MAN_DATA_Msk) >> EMAC_MAN_DATA_Pos;
-	return true;
+
+	return 0;
 }
 
-bool emac_phy_write(Emac* emac, uint8_t phy_addr, uint8_t reg_addr, uint16_t data,
-		uint32_t retries)
+int emac_phy_write(Emac* emac, uint8_t phy_addr, uint8_t reg_addr, uint16_t data,
+		uint32_t idle_timeout)
 {
 	/* Wait until idle */
-	if (!_emac_phy_wait_idle(emac, retries))
-		return false;
+	if (!_emac_phy_wait_idle(emac, idle_timeout))
+		return -EBUSY;
 
 	/* Write maintenance register */
 	emac->EMAC_MAN = EMAC_MAN_SOF(0x1) |
@@ -233,7 +236,10 @@ bool emac_phy_write(Emac* emac, uint8_t phy_addr, uint8_t reg_addr, uint16_t dat
 		EMAC_MAN_DATA(data);
 
 	/* Wait until idle */
-	return _emac_phy_wait_idle(emac, retries);
+	if (!_emac_phy_wait_idle(emac, idle_timeout))
+		return -EBUSY;
+
+	return 0;
 }
 
 void emac_enable_rmii(Emac* emac, enum _eth_speed speed, enum _eth_duplex duplex)

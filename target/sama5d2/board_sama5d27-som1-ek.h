@@ -244,7 +244,6 @@
 #define BOARD_ETH0_ADDR        GMAC0
 #define BOARD_ETH0_PHY_ADDR    0
 #define BOARD_ETH0_PHY_IF      PHY_IF_GMAC
-#define BOARD_ETH0_PHY_RETRIES PHY_DEFAULT_RETRIES
 #define BOARD_ETH0_PHY_IRQ_PIN PIN_PHY_IRQ
 
 /* ======================== LCD definition ======================== */

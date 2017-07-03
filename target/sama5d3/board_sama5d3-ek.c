@@ -102,8 +102,8 @@ WEAK void board_init(void)
 #endif
 
 #ifdef CONFIG_HAVE_ETH
-	board_cfg_net(0);
-	board_cfg_net(1);
+	board_cfg_net(0, NULL);
+	board_cfg_net(1, NULL);
 #endif
 
 #ifdef CONFIG_HAVE_LCDC

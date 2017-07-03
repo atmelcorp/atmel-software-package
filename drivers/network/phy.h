@@ -66,8 +66,9 @@
  *         Definitions
  *---------------------------------------------------------------------------*/
 
-/** Default max retry count */
-#define PHY_DEFAULT_RETRIES 300000
+/** Default timeouts */
+#define PHY_DEFAULT_TIMEOUT_IDLE    500
+#define PHY_DEFAULT_TIMEOUT_AUTONEG 5000
 
 enum _phy_if_eth {
 	PHY_IF_EMAC,
@@ -81,16 +82,19 @@ enum _phy_if_eth {
 struct _phy_desc {
 	void* addr;       /**< ETH instance (GMAC/EMAC) */
 	enum _phy_if_eth phy_if;
-	uint32_t retries; /**< max retries / timeout */
 	uint8_t phy_addr; /**< PHY address (configured) */
+	struct {
+		uint32_t idle;    /**< idle timeout */
+		uint32_t autoneg; /**< auto-negociation timeout */
+	} timeout;
 };
 
 typedef void (*eth_enable_mdio)(void* eth);
 typedef void (*eth_disable_mdio)(void* eth);
-typedef bool (*eth_phy_read)(void* eth, uint8_t phy_addr, uint8_t reg_addr,
-		uint16_t* data, uint32_t retries);
-typedef bool (*eth_phy_write)(void* eth, uint8_t phy_addr, uint8_t reg_addr,
-		uint16_t data, uint32_t retries);
+typedef int (*eth_phy_read)(void* eth, uint8_t phy_addr, uint8_t reg_addr,
+		uint16_t* data, uint32_t idle_timeout);
+typedef int (*eth_phy_write)(void* eth, uint8_t phy_addr, uint8_t reg_addr,
+		uint16_t data, uint32_t idle_timeout);
 typedef void (*eth_enable_rmii)(void* eth, enum _eth_speed speed, enum _eth_duplex duplex);
 
 struct _eth_phy_op {
@@ -116,15 +120,17 @@ struct _phy {
 extern "C" {
 #endif
 
-extern bool phy_configure(struct _phy* phy);
+extern int phy_configure(struct _phy* phy);
 
-extern bool phy_get_id(const struct _phy* phy, uint16_t* id1, uint16_t* id2);
+extern int phy_get_id(const struct _phy* phy, uint16_t* id1, uint16_t* id2);
 
-extern bool phy_reset(const struct _phy* phy);
+extern int phy_reset(const struct _phy* phy);
 
-extern bool phy_reset_omsor(const struct _phy* phy);
+extern int phy_powerdown(const struct _phy* phy);
 
-extern bool phy_auto_negotiate(const struct _phy* phy, uint32_t time_out);
+extern int phy_auto_negotiate(const struct _phy* phy);
+
+extern int phy_set_speed_duplex(const struct _phy* phy, enum _eth_speed speed, enum _eth_duplex duplex);
 
 extern void phy_dump_registers(const struct _phy* phy);
 

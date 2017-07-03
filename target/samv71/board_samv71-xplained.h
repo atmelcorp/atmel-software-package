@@ -139,7 +139,6 @@
 #define BOARD_ETH0_ADDR        GMAC0
 #define BOARD_ETH0_PHY_ADDR    1
 #define BOARD_ETH0_PHY_IF      PHY_IF_GMAC
-#define BOARD_ETH0_PHY_RETRIES PHY_DEFAULT_RETRIES
 #define BOARD_ETH0_PHY_IRQ_PIN { PIO_GROUP_A, PIO_PA19, PIO_INPUT, PIO_PULLUP }
 
 /* =================== HSMCI device definition ==================== */

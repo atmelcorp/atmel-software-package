@@ -136,13 +136,13 @@ extern void emac_disable_mdio(Emac* emac);
 /**
  *  \brief Execute PHY read command
  */
-extern bool emac_phy_read(Emac* emac, uint8_t phy_addr, uint8_t reg_addr,
+extern int emac_phy_read(Emac* emac, uint8_t phy_addr, uint8_t reg_addr,
 		uint16_t* data, uint32_t retries);
 
 /**
  *  \brief Execute PHY write command
  */
-extern bool emac_phy_write(Emac* emac, uint8_t phy_addr, uint8_t reg_addr,
+extern int emac_phy_write(Emac* emac, uint8_t phy_addr, uint8_t reg_addr,
 		uint16_t data, uint32_t retries);
 
 /**

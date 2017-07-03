@@ -151,14 +151,14 @@ extern void gmac_disable_mdio(Gmac* gmac);
 /**
  *  \brief Execute PHY read command
  */
-extern bool gmac_phy_read(Gmac* gmac, uint8_t phy_addr, uint8_t reg_addr,
-		uint16_t* data, uint32_t retries);
+extern int gmac_phy_read(Gmac* gmac, uint8_t phy_addr, uint8_t reg_addr,
+		uint16_t* data, uint32_t idle_timeout);
 
 /**
  *  \brief Execute PHY write command
  */
-extern bool gmac_phy_write(Gmac* gmac, uint8_t phy_addr, uint8_t reg_addr,
-		uint16_t data, uint32_t retries);
+extern int gmac_phy_write(Gmac* gmac, uint8_t phy_addr, uint8_t reg_addr,
+		uint16_t data, uint32_t idle_timeout);
 
 /**
  *  \brief Enable MII mode for GMAC, called once after autonegotiate

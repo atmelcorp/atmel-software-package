@@ -31,13 +31,16 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
-#include "trace.h"
-#include "network/gmac.h"
-#include "peripherals/pmc.h"
+#include <assert.h>
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
+
+#include "chip.h"
+#include "network/gmac.h"
+#include "peripherals/pmc.h"
+#include "timer.h"
+#include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Local definitions
@@ -91,15 +94,15 @@ static bool _gmac_configure_mdc_clock(Gmac *gmac)
 	return true;
 }
 
-static bool _gmac_phy_wait_idle(Gmac* gmac, uint32_t retries)
+static bool _gmac_phy_wait_idle(Gmac* gmac, uint32_t idle_timeout)
 {
-	uint32_t count = 0;
+	struct _timeout timeout;
+	timer_start_timeout(&timeout, idle_timeout);
 	while ((gmac->GMAC_NSR & GMAC_NSR_IDLE) == 0) {
-		if (retries > 0 && count > retries) {
+		if (timer_timeout_reached(&timeout)) {
 			trace_debug("Timeout reached while waiting for PHY management logic to become idle");
 			return false;
 		}
-		count++;
 	}
 	return true;
 }
@@ -223,12 +226,12 @@ void gmac_disable_mdio(Gmac* gmac)
 	gmac->GMAC_NCR |= (GMAC_NCR_RXEN | GMAC_NCR_TXEN);
 }
 
-bool gmac_phy_read(Gmac* gmac, uint8_t phy_addr, uint8_t reg_addr, uint16_t* data,
-		uint32_t retries)
+int gmac_phy_read(Gmac* gmac, uint8_t phy_addr, uint8_t reg_addr, uint16_t* data,
+		uint32_t idle_timeout)
 {
 	/* Wait until idle */
-	if (!_gmac_phy_wait_idle(gmac, retries))
-		return false;
+	if (!_gmac_phy_wait_idle(gmac, idle_timeout))
+		return -EBUSY;
 
 	/* Write maintenance register */
 	gmac->GMAC_MAN = GMAC_MAN_CLTTO |
@@ -238,19 +241,20 @@ bool gmac_phy_read(Gmac* gmac, uint8_t phy_addr, uint8_t reg_addr, uint16_t* dat
 		GMAC_MAN_REGA(reg_addr);
 
 	/* Wait until idle */
-	if (!_gmac_phy_wait_idle(gmac, retries))
-		return false;
+	if (!_gmac_phy_wait_idle(gmac, idle_timeout))
+		return -EBUSY;
 
 	*data = (gmac->GMAC_MAN & GMAC_MAN_DATA_Msk) >> GMAC_MAN_DATA_Pos;
-	return true;
+
+	return 0;
 }
 
-bool gmac_phy_write(Gmac* gmac, uint8_t phy_addr, uint8_t reg_addr, uint16_t data,
-		uint32_t retries)
+int gmac_phy_write(Gmac* gmac, uint8_t phy_addr, uint8_t reg_addr, uint16_t data,
+		uint32_t idle_timeout)
 {
 	/* Wait until idle */
-	if (!_gmac_phy_wait_idle(gmac, retries))
-		return false;
+	if (!_gmac_phy_wait_idle(gmac, idle_timeout))
+		return -EBUSY;
 
 	/* Write maintenance register */
 	gmac->GMAC_MAN = GMAC_MAN_CLTTO |
@@ -261,7 +265,10 @@ bool gmac_phy_write(Gmac* gmac, uint8_t phy_addr, uint8_t reg_addr, uint16_t dat
 		GMAC_MAN_DATA(data);
 
 	/* Wait until idle */
-	return _gmac_phy_wait_idle(gmac, retries);
+	if (!_gmac_phy_wait_idle(gmac, idle_timeout))
+		return -EBUSY;
+
+	return 0;
 }
 
 void gmac_enable_mii(Gmac* gmac)
