@@ -37,8 +37,9 @@
  * \param iface the network interface number (0/1)
  * \param mac_addr a MAC address to use. If NULL, the board default MAC address
  *                 will be used if possible.
+ * \param block Block if true, non blocking interface otherwise
  */
-extern void board_cfg_net(uint8_t iface, uint8_t* mac_addr);
+extern void board_cfg_net(uint8_t iface, uint8_t* mac_addr, bool block);
 
 /**
  * \brief Get the Ethernet driver structure for an interface

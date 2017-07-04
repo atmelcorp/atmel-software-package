@@ -128,7 +128,9 @@ extern int phy_reset(const struct _phy* phy);
 
 extern int phy_powerdown(const struct _phy* phy);
 
-extern int phy_auto_negotiate(const struct _phy* phy);
+extern int phy_auto_negotiate(const struct _phy* phy, bool block);
+
+extern int phy_auto_negotiate_wait_for_completion(const struct _phy* phy);
 
 extern int phy_set_speed_duplex(const struct _phy* phy, enum _eth_speed speed, enum _eth_duplex duplex);
 

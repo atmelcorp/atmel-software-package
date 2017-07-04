@@ -339,7 +339,7 @@ void phy_dump_registers(const struct _phy* phy)
 	phy->op->disable_mido(phy->desc->addr);
 }
 
-int phy_auto_negotiate(const struct _phy* phy)
+int phy_auto_negotiate_wait_for_completion(const struct _phy* phy)
 {
 	int err = 0;
 	uint16_t value;
@@ -347,85 +347,16 @@ int phy_auto_negotiate(const struct _phy* phy)
 
 	uint16_t base_tc, base_ts;
 
-	phy->op->enable_mido(phy->desc->addr);
-
-	if (phy->dev->model == PHY_KSZ9021 || phy->dev->model == PHY_KSZ9031) {
-		value = GMII_RCCPSR | 0x8000;
-		err = phy->op->phy_write(phy->desc->addr, phy->desc->phy_addr,
-				GMII_ERCR, value, phy->desc->timeout.idle);
-		if (err < 0)
-			goto exit;
-
-		value = 0xF2F4;
-		err = phy->op->phy_write(phy->desc->addr, phy->desc->phy_addr,
-				GMII_ERDWR, value, phy->desc->timeout.idle);
-
-		value = GMII_RRDPSR | 0x8000;
-		err = phy->op->phy_write(phy->desc->addr, phy->desc->phy_addr,
-				GMII_ERCR, value, phy->desc->timeout.idle);
-		if (err < 0)
-			goto exit;
-
-		value = 0x2222;
-		err = phy->op->phy_write(phy->desc->addr, phy->desc->phy_addr,
-				GMII_ERDWR, value, phy->desc->timeout.idle);
-		if (err < 0)
-			goto exit;
-
-		value = 0xFF00;
-		err = phy->op->phy_write(phy->desc->addr, phy->desc->phy_addr,
-				GMII_ICSR, value, phy->desc->timeout.idle);
-		if (err < 0)
-			goto exit;
-
-		err = phy->op->phy_read(phy->desc->addr, phy->desc->phy_addr,
+	err = phy->op->phy_read(phy->desc->addr, phy->desc->phy_addr,
 				GMII_1000BTCR, &base_tc, phy->desc->timeout.idle);
-		if (err < 0)
-			goto exit;
-
-		base_tc |= GMII_1000BTCR_1000BASET_HD | GMII_1000BTCR_1000BASET_FD;
-		err = phy->op->phy_write(phy->desc->addr, phy->desc->phy_addr,
-				GMII_1000BTCR, base_tc, phy->desc->timeout.idle);
-		if (err < 0)
-			goto exit;
-	}
-
-	/* Set the Auto_negotiation Advertisement Register, MII advertising for
-	 * Next page, 100BaseTxFD and HD, 10BaseTFD and HD, IEEE 802.3 */
-	value = 0;
-	err = phy->op->phy_read(phy->desc->addr, phy->desc->phy_addr, GMII_ANAR,
-			&value, phy->desc->timeout.idle);
-	if (err < 0) {
-		trace_error("Error reading PHY ANAR\r\n");
+	if (err < 0)
 		goto exit;
-	}
 
-	value = GMII_ANAR_100BASETX_FD | GMII_ANAR_100BASETX_HD |
-		GMII_ANAR_10BASET_FD | GMII_ANAR_10BASET_HD | GMII_ANAR_SEL_IEEE_8023;
-	err = phy->op->phy_write(phy->desc->addr, phy->desc->phy_addr, GMII_ANAR,
-			value, phy->desc->timeout.idle);
-	if (err < 0) {
-		trace_error("Error writing PHY ANAR\r\n");
+	base_tc |= GMII_1000BTCR_1000BASET_HD | GMII_1000BTCR_1000BASET_FD;
+	err = phy->op->phy_write(phy->desc->addr, phy->desc->phy_addr,
+				 GMII_1000BTCR, base_tc, phy->desc->timeout.idle);
+	if (err < 0)
 		goto exit;
-	}
-
-	/* Read & modify control register */
-	value = 0;
-	err = phy->op->phy_read(phy->desc->addr, phy->desc->phy_addr, GMII_BMCR,
-			&value, phy->desc->timeout.idle);
-	if (err < 0) {
-		trace_error("Error reading PHY BMCR\r\n");
-		goto exit;
-	}
-
-	/* Restart AutoNegotiation */
-	value |= GMII_BMCR_AUTONEG | GMII_BMCR_RESTART_AUTONEG;
-	err = phy->op->phy_write(phy->desc->addr, phy->desc->phy_addr, GMII_BMCR,
-			value, phy->desc->timeout.idle);
-	if (err < 0) {
-		trace_error("Error writing PHY BMCR\r\n");
-		goto exit;
-	}
 
 	/* Wait for auto-negotiation completion */
 	tick_start = timer_get_tick();
@@ -510,6 +441,105 @@ int phy_auto_negotiate(const struct _phy* phy)
 		       }
 		}
 	}
+
+exit:
+	if (err < 0)
+		trace_debug("PHY Auto-Negotiation failed!\r\n");
+	phy->op->disable_mido(phy->desc->addr);
+	return err;
+}
+
+int phy_auto_negotiate(const struct _phy* phy, bool block)
+{
+	int err = 0;
+	uint16_t value;
+
+	uint16_t base_tc;
+
+	phy->op->enable_mido(phy->desc->addr);
+
+	if (phy->dev->model == PHY_KSZ9021 || phy->dev->model == PHY_KSZ9031) {
+		value = GMII_RCCPSR | 0x8000;
+		err = phy->op->phy_write(phy->desc->addr, phy->desc->phy_addr,
+				GMII_ERCR, value, phy->desc->timeout.idle);
+		if (err < 0)
+			goto exit;
+
+		value = 0xF2F4;
+		err = phy->op->phy_write(phy->desc->addr, phy->desc->phy_addr,
+				GMII_ERDWR, value, phy->desc->timeout.idle);
+
+		value = GMII_RRDPSR | 0x8000;
+		err = phy->op->phy_write(phy->desc->addr, phy->desc->phy_addr,
+				GMII_ERCR, value, phy->desc->timeout.idle);
+		if (err < 0)
+			goto exit;
+
+		value = 0x2222;
+		err = phy->op->phy_write(phy->desc->addr, phy->desc->phy_addr,
+				GMII_ERDWR, value, phy->desc->timeout.idle);
+		if (err < 0)
+			goto exit;
+
+		value = 0xFF00;
+		err = phy->op->phy_write(phy->desc->addr, phy->desc->phy_addr,
+				GMII_ICSR, value, phy->desc->timeout.idle);
+		if (err < 0)
+			goto exit;
+
+		err = phy->op->phy_read(phy->desc->addr, phy->desc->phy_addr,
+				GMII_1000BTCR, &base_tc, phy->desc->timeout.idle);
+		if (err < 0)
+			goto exit;
+
+		base_tc |= GMII_1000BTCR_1000BASET_HD | GMII_1000BTCR_1000BASET_FD;
+		err = phy->op->phy_write(phy->desc->addr, phy->desc->phy_addr,
+				GMII_1000BTCR, base_tc, phy->desc->timeout.idle);
+		if (err < 0)
+			goto exit;
+	}
+
+	/* Set the Auto_negotiation Advertisement Register, MII advertising for
+	 * Next page, 100BaseTxFD and HD, 10BaseTFD and HD, IEEE 802.3 */
+	value = 0;
+	err = phy->op->phy_read(phy->desc->addr, phy->desc->phy_addr, GMII_ANAR,
+			&value, phy->desc->timeout.idle);
+	if (err < 0) {
+		trace_error("Error reading PHY ANAR\r\n");
+		goto exit;
+	}
+
+	value = GMII_ANAR_100BASETX_FD | GMII_ANAR_100BASETX_HD |
+		GMII_ANAR_10BASET_FD | GMII_ANAR_10BASET_HD | GMII_ANAR_SEL_IEEE_8023;
+	err = phy->op->phy_write(phy->desc->addr, phy->desc->phy_addr, GMII_ANAR,
+			value, phy->desc->timeout.idle);
+	if (err < 0) {
+		trace_error("Error writing PHY ANAR\r\n");
+		goto exit;
+	}
+
+	/* Read & modify control register */
+	value = 0;
+	err = phy->op->phy_read(phy->desc->addr, phy->desc->phy_addr, GMII_BMCR,
+			&value, phy->desc->timeout.idle);
+	if (err < 0) {
+		trace_error("Error reading PHY BMCR\r\n");
+		goto exit;
+	}
+
+	/* Restart AutoNegotiation */
+	value |= GMII_BMCR_AUTONEG | GMII_BMCR_RESTART_AUTONEG;
+	err = phy->op->phy_write(phy->desc->addr, phy->desc->phy_addr, GMII_BMCR,
+			value, phy->desc->timeout.idle);
+	if (err < 0) {
+		trace_error("Error writing PHY BMCR\r\n");
+		goto exit;
+	}
+
+	if (!block)
+		return -EAGAIN;
+
+	return phy_auto_negotiate_wait_for_completion(phy);
 
 exit:
 	if (err < 0)

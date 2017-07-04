@@ -151,7 +151,7 @@ static void _eth_rx_callback(uint8_t queue, uint32_t status)
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-void board_cfg_net(uint8_t iface, uint8_t* mac_addr)
+void board_cfg_net(uint8_t iface, uint8_t* mac_addr, bool block)
 {
 #ifdef CONFIG_HAVE_ETH
 	uint8_t _eth_mac_addr[6];
@@ -217,7 +217,7 @@ void board_cfg_net(uint8_t iface, uint8_t* mac_addr)
 
 	/* Init PHY */
 	phy_configure(&_phy[iface]);
-	phy_auto_negotiate(&_phy[iface]);
+	phy_auto_negotiate(&_phy[iface], block);
 #endif /* CONFIG_HAVE_ETH */
 }
 

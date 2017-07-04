@@ -102,7 +102,7 @@ WEAK void board_init(void)
 #endif
 
 #ifdef CONFIG_HAVE_ETH
-	board_cfg_net(0, NULL);
+	board_cfg_net(0, NULL, true);
 #endif
 
 #ifdef CONFIG_HAVE_NAND_FLASH
