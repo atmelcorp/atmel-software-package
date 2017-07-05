@@ -102,6 +102,7 @@
 #define SR_SPANSION_BP0     (1 << 2) /* Block Protect */
 #define SR_SPANSION_BP1     (1 << 3) /* Block Protect */
 #define SR_SPANSION_BP2     (1 << 4) /* Block Protect */
+#define SR_SST_QUAD_EN      (1 << 1) /* Quad-IO Enable */
 
 /* QSPI Configuration Register bits */
 #define CR_SPANSION_QUAD (1 << 1) /* Puts the device into Quad I/O mode */
@@ -749,9 +750,82 @@ static int _qspiflash_init_spansion(struct _qspiflash *flash)
  *        Local Functions (SST/Microchip support)
  *----------------------------------------------------------------------------*/
 
+static int _sst_quad_enable(struct _qspiflash *flash)
+{
+	int ret;
+	uint8_t sr_cr[2];
+
+	/* Read status */
+	ret = qspiflash_read_status(flash, &sr_cr[0]);
+	if (ret < 0)
+		return ret;
+
+	/* Read the Configuration Register and check it. */
+	ret = _qspiflash_read_reg(flash, CMD_READ_CONFIG, &sr_cr[1], 1);
+	if (ret < 0)
+		return ret;
+
+	if (sr_cr[1] & SR_SST_QUAD_EN) {
+		trace_debug("QSPI Flash: SST Quad mode already enabled\r\n");
+		return 0;
+	}
+
+	trace_debug("QSPI Flash: SST Quad mode disabled, will enable it\r\n");
+
+	ret = _qspiflash_write_enable(flash);
+	if (ret < 0)
+		return ret;
+
+	sr_cr[1] |= SR_SST_QUAD_EN;
+	ret = _qspiflash_write_reg(flash, CMD_WRITE_STATUS, &sr_cr, 2);
+	if (ret < 0)
+		return ret;
+
+	ret = qspiflash_wait_ready(flash, TIMEOUT_DEFAULT);
+	if (ret < 0)
+		return ret;
+
+	ret = _qspiflash_read_reg(flash, CMD_READ_CONFIG, &sr_cr[1], 1);
+	if (ret < 0)
+		return ret;
+
+	if ((sr_cr[1] & SR_SST_QUAD_EN) == 0)
+		return -EIO;
+
+	return 0;
+}
+
 static int _qspiflash_init_sst(struct _qspiflash *flash)
 {
 	int ret;
+
+	if (flash->desc->flags & SPINOR_FLAG_QUAD) {
+		/*
+		 * In QPI mode, only the Fast Read 1-4-4 (0xeb) op code is supported.
+		 * In SPI mode, both the Fast Read 1-1-4 (0x6b) and Fast Read 1-4-4
+		 * (0xeb) op codes are supported but we'd rather use the Fast Read 1-4-4
+		 * command as it is the only one which allows us to enter/leave the
+		 * peformance enhance (continuous read) mode required by XIP operations.
+		 */
+		flash->opcode_read = CMD_FAST_READ_1_4_4;
+		flash->num_mode_cycles = 2;
+		flash->num_dummy_cycles = 4;
+		flash->normal_read_mode = 0x00;
+		flash->continuous_read_mode = 0xA0;
+
+		/*
+		 * Check whether the QPI mode is enabled: if it is then we know that
+		 * the Quad Enabled (QE) non-volatile bit is already set. Otherwise,
+		 * we MUST set the QE bit before using any Quad SPI command.
+		 */
+		if (flash->ifr_width_read != QSPI_IFR_WIDTH_QUAD_CMD) {
+			ret = _sst_quad_enable(flash);
+			if (ret < 0)
+				return ret;
+
+			flash->ifr_width_read = QSPI_IFR_WIDTH_QUAD_IO;
+		}
+	}
 
 	ret = _qspiflash_write_enable(flash);
 	if (ret < 0)
