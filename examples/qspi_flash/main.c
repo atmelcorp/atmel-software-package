@@ -59,7 +59,7 @@ int main(void)
 	console_example_info("QSPI Example");
 
 	printf("erasing block at 0x%08x\r\n", (int)start);
-	rc = qspiflash_erase_block(flash, start, 64 * 1024);
+	rc = qspiflash_erase_block(flash, start, 4 * 1024);
 	printf("erase returns %d\r\n", rc);
 
 	printf("reading %d bytes at 0x%08x\r\n", sizeof(buf), (int)start);
