@@ -418,7 +418,6 @@ static void _build_color_lut1(volatile uint32_t *clut)
 void lcdc_configure(const struct _lcdc_desc *desc)
 {
 	lcdc_config = *desc;
-	lcdc_off();
 
 	/* Reset layer information */
 	lcdc_base.bpp = 0;
@@ -442,6 +441,9 @@ void lcdc_configure(const struct _lcdc_desc *desc)
 
 	/* No canvas selected */
 	lcdc_canvas.buffer = NULL;
+
+	/* Disable LCD controller */
+	lcdc_off();
 
 	/* Enable peripheral clock */
 	pmc_configure_peripheral(ID_LCDC, NULL, true);
