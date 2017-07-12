@@ -117,10 +117,28 @@ const char* get_board_name(void)
 void board_cfg_clocks(void)
 {
 	struct _pmc_plla_cfg plla_config = {
-		.mul = BOARD_PMC_PLLA_MUL,
-		.div = BOARD_PMC_PLLA_DIV,
 		.count = 0x3f,
 	};
+
+#if defined(BOARD_PMC_PLLA_MUL) && defined(BOARD_PMC_PLLA_DIV)
+	plla_config.mul = BOARD_PMC_PLLA_MUL;
+	plla_config.div = BOARD_PMC_PLLA_DIV;
+#else
+	switch (pmc_get_main_oscillator_freq()) {
+	case 24000000:
+		plla_config.mul = 40;
+		plla_config.div = 1;
+		break;
+	case 16000000:
+		plla_config.mul = 61;
+		plla_config.div = 1;
+		break;
+	case 12000000:
+		plla_config.mul = 82;
+		plla_config.div = 1;
+		break;
+	}
+#endif
 	pmc_switch_mck_to_slck();
 	pmc_set_mck_h32mxdiv(true);
 	pmc_set_mck_plladiv2(true);
