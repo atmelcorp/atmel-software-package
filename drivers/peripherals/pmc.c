@@ -466,6 +466,14 @@ uint32_t pmc_set_main_oscillator_freq(uint32_t freq)
 	return _pmc_main_oscillators.crystal_freq;
 }
 
+uint32_t pmc_get_main_oscillator_freq(void)
+{
+	if (_pmc_main_oscillators.crystal_freq > 0)
+		return _pmc_main_oscillators.crystal_freq;
+	else
+		return pmc_set_main_oscillator_freq(0);
+}
+
 uint32_t pmc_get_master_clock(void)
 {
 	if (!_pmc_mck)

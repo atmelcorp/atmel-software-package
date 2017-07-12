@@ -168,6 +168,12 @@ extern "C" {
 extern uint32_t pmc_set_main_oscillator_freq(uint32_t freq);
 
 /**
+ * \brief Get the external oscillator frequency (in Hz)
+ * \return Main oscillator frequency (0 if not detected)
+ */
+extern uint32_t pmc_get_main_oscillator_freq(void);
+
+/**
  * \brief Configure PCK and MCK with custom setting
  */
 extern void pmc_set_custom_pck_mck(const struct pck_mck_cfg *cfg);
