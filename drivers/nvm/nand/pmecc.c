@@ -393,6 +393,9 @@ void pmecc_reset(void)
 	PMECC->PMECC_SAREA = pmecc_desc.ecc_start + pmecc_desc.ecc_size - 1;
 	PMECC->PMECC_SADDR = pmecc_desc.ecc_start;
 	PMECC->PMECC_EADDR = pmecc_desc.ecc_start + pmecc_desc.ecc_size - 1;
+#ifdef PMECC_CLK_CLKCTRL
+	PMECC->PMECC_CLK = PMECC_CLK_CLKCTRL(2);
+#endif
 
 	/* Disable all interrupts */
 	PMECC->PMECC_IDR = ~0u;
