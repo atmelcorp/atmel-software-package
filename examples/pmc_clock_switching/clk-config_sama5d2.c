@@ -26,19 +26,18 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ----------------------------------------------------------------------------
  */
-
+#include "board.h"
 #include "clk-config.h"
 
 struct pck_mck_cfg clock_test_setting[4] = {
-	/* PLLA = 12*83/2 = 498 Mhz, PCK = PLLA = 498 Mhz, MCK = PCK/3 = 166 MHz */
-	/* EXT12M EXT32K */
+	/* PLLA = BOARD_OSC*(BOARD_PMC_PLLA_MUL+1)/2, PCK = PLLA, MCK = PCK/3 */
 	{
 		.pck_input = PMC_MCKR_CSS_PLLA_CLK,
 		.ext12m = true,
 		.ext32k = true,
 		.plla = {
-			.mul = 82,
-			.div = 1,
+			.mul = BOARD_PMC_PLLA_MUL,
+			.div = BOARD_PMC_PLLA_DIV,
 			.count = 0x3f,
 		},
 		.pck_pres = PMC_MCKR_PRES_CLOCK,
@@ -47,7 +46,6 @@ struct pck_mck_cfg clock_test_setting[4] = {
 		.h32mx_div2 = true,
 	},
 	/* UPLL = 480 Mhz, PCK = UPLL = 480Mhz, MCK = PCK/3 = 160 Mhz */
-	/* EXT12M EXT32K */
 	{
 		.pck_input = PMC_MCKR_CSS_UPLL_CLK,
 		.ext12m = true,
@@ -60,8 +58,7 @@ struct pck_mck_cfg clock_test_setting[4] = {
 		.plla_div2 = false,
 		.h32mx_div2 = true,
 	},
-	/* PCK = MCK = 12 MHz (main clock) */
-	/* EXT12M EXT32K */
+	/* PCK = MCK = BOARD_OSC (main clock) */
 	{
 		.pck_input = PMC_MCKR_CSS_MAIN_CLK,
 		.ext12m = true,
@@ -75,7 +72,6 @@ struct pck_mck_cfg clock_test_setting[4] = {
 		.h32mx_div2 = false,
 	},
 	/* PCK = MCK = 32 kHz (slow clock) */
-	/* EXT12M EXT32K */
 	{
 		.pck_input = PMC_MCKR_CSS_SLOW_CLK,
 		.ext12m = true,
