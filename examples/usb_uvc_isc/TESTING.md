@@ -17,6 +17,10 @@ format.
 
 # Test
 ------
+## Supported targets
+--------------------
+* SAMA5D2-XPLAINED
+* SAMA5D27-SOM1-EK
 
 ## Setup
 --------
@@ -27,10 +31,14 @@ On the computer, open and configure a terminal application
  - No parity
  - 1 stop bit
  - No flow control
-
+ 
+--- SAMA5D2-XPLAINED
 Connect image sensor with on board J18 ISC.
 
-## Start the application (SAMA5D2-XPLAINED)
+--- SAMA5D27-SOM1-EK
+Connect image sensor with on board J27 ISC. (it requires cross-wire D0-D11 shift to D0-D4)
+
+## Start the application
 --------
 
 Image Sensor Selection:
