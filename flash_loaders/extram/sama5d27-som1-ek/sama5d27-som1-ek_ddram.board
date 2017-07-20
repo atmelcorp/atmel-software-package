@@ -2,7 +2,7 @@
 
 <flash_board>
   <pass>
-    <loader>$PROJ_DIR$\..\flash_loaders\extram\sama5d27-som1-ek\sama5d27-som1-ek_ddram.flash</loader>
+    <loader>$PROJ_DIR$\..\..\flash_loaders\extram\sama5d27-som1-ek\sama5d27-som1-ek_ddram.flash</loader>
     <range>CODE 0x20000000 0x27ffffff</range>
     <rel_offset>0x0</rel_offset>
     <args>--ddram
