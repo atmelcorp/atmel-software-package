@@ -105,11 +105,12 @@ static void _tdesd_transfer_buffer_dma(struct _tdesd_desc* desc)
 	cfg.len = desc->xfer.bufin->size / DMA_DATA_WIDTH_IN_BYTE(cfg_dma.data_width);
 	dma_configure_transfer(desc->xfer.dma.tx.channel, &cfg_dma, &cfg, 1);
 
+	memset(&cfg, 0, sizeof(cfg));
 	cfg_dma.incr_saddr = false;
 	cfg_dma.incr_daddr = true;
 
-	cfg.saddr = (void*)desc->xfer.bufout->data;
-	cfg.daddr = (void*)TDES->TDES_ODATAR;
+	cfg.saddr = (void*)TDES->TDES_ODATAR;
+	cfg.daddr = (void*)desc->xfer.bufout->data;
 	cfg.len = desc->xfer.bufout->size / DMA_DATA_WIDTH_IN_BYTE(cfg_dma.data_width);
 	dma_configure_transfer(desc->xfer.dma.rx.channel, &cfg_dma, &cfg, 1);
 
