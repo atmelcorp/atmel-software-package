@@ -17,6 +17,10 @@ format and 10 bits raw Bayer format.
 
 # Test
 ------
+## Supported targets
+--------------------
+* SAMA5D2-XPLAINED
+* SAMA5D27-SOM1-EK
 
 ## Setup
 --------
@@ -28,10 +32,15 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-Connect OV7740 image sensor with on board J18 ISC.
+-- SAMA5D2-XPLAINED
+Connect image sensor with on board J18 ISC.
 Connect LCD with on board J2 LCD interface.
 
-## Start the application (SAMA5D2-XPLAINED)
+--- SAMA5D27-SOM1-EK
+Connect image sensor with on board J27 ISC. (it requires cross-wire D0-D11 shift to D0-D4)
+Connect LCD with on board J26 LCD interface.
+
+## Start the application
 --------
 
 Tested with IAR and GCC (ddram configration)
