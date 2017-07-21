@@ -214,8 +214,8 @@ static void _init_w971g16sg(struct _mpddrc_desc* desc)
 	desc->timings.twr    = NS2CYCLES(15, mck);  // 15ns
 	desc->timings.trc    = NS2CYCLES(53, mck);  // 52.5ns
 	desc->timings.trp    = NS2CYCLES(13, mck);  // 12.5ns
-	desc->timings.trrd   = NS2CYCLES(2, mck);   // 2ns
-	desc->timings.twtr   = NS2CYCLES(2, mck);   // 2ns
+	desc->timings.trrd   = NS2CYCLES(10, mck);  // 10ns
+	desc->timings.twtr   = NS2CYCLES(8, mck);   // 7.5ns
 	desc->timings.tmrd   = 2;                   // 2ck
 	desc->timings.trfc   = NS2CYCLES(128, mck); // 127.5ns
 	desc->timings.txsnr  = NS2CYCLES(138, mck); // tRFC+10ns
@@ -223,11 +223,11 @@ static void _init_w971g16sg(struct _mpddrc_desc* desc)
 	desc->timings.txp    = 2;                   // 2ck
 	desc->timings.txard  = 2;                   // 2ck
 	desc->timings.txards = 8;                   // 8ck
-	desc->timings.trpa   = NS2CYCLES(19, mck);  // 19ns
+	desc->timings.trpa   = desc->timings.trp + 1; // tRP+1ck
 	desc->timings.trtp   = NS2CYCLES(8, mck);   // 7.5ns
 	desc->timings.tfaw   = NS2CYCLES(45, mck);  // 45ns
 
-	desc->refresh_window = 64;
+	desc->refresh_window = 32;
 	desc->refresh_cycles = 8192;
 }
 #endif /* CONFIG_HAVE_DDR2_W971G16SG */
