@@ -13,6 +13,17 @@ This example demonstrates how to generate random data with TRNG peripheral.
 
 # Test
 ------
+## Supported targets
+--------------------
+* SAMA5D2-XPLAINED
+* SAMA5D27-SOM1-EK
+* SAMA5D2-PTC-EK
+* SAMA5D3-EK
+* SAMA5D3-XPLAINED
+* SAMA5D4-EK
+* SAMA5D4-XPLAINED
+* SAME70-XPLAINED
+* SAMV71-XPLAINED
 
 ## Setup
 --------
@@ -34,7 +45,8 @@ Step needed to set up the example.
  -- SAMxxxxx-xx
  -- Compiled: xxx xx xxxx xx:xx:xx --
 ```
-## Start the application (SAMA5D2-XPLAINED,SAMA5D3-XPLAINED,SAMA5D3-EK,SAMA5D4-XPLAINED,SAMA5D4-EK)
+## Start the application
+------------------------
 
 Tested with IAR and GCC (sram and ddram configurations)
 
