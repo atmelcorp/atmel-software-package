@@ -12,6 +12,18 @@ DMA multiple buffers transfer can be switched by the corresponding options.
 
 # Test
 ------
+## Supported targets
+--------------------
+* SAM9XX5-EK
+* SAMA5D2-XPLAINED
+* SAMA5D27-SOM1-EK
+* SAMA5D2-PTC-EK
+* SAMA5D3-EK
+* SAMA5D3-XPLAINED
+* SAMA5D4-EK
+* SAMA5D4-XPLAINED
+* SAME70-XPLAINED
+* SAMV71-XPLAINED
 
 ## Setup
 --------
@@ -23,9 +35,8 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D2-XPLAINED,SAMA5D4-XPLAINED,SAMA5D4-EK 
-	SAMA5d3-EK, SAMA5D3-XPLAINED,SAM9XX5-EK)
--------------------------------------------
+## Start the application
+------------------------
 
 DMA Menu :
 Channel Configuration
