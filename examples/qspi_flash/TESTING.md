@@ -13,6 +13,10 @@ This example demonstrates how to using QSPI flash.
 
 # Test
 ------
+## Supported targets
+--------------------
+* SAMA5D2-XPLAINED
+* SAMA5D27-SOM1-EK
 
 ## Setup
 --------
@@ -26,11 +30,14 @@ Step needed to set up the example.
 	- No parity
 	- 1 stop bit
 	- No flow control
-* Start the application (SAMA5D2-XPLAINED)
+
+* Start the application
+-----------------------
+
 * In the terminal window, the following text should appear (values depend on the
  board and chip used):
 ```
- -- QSPI test xxx --
+ -- QSPI exmaple xxx --
  -- SAMxxxxx-xx
  -- Compiled: xxx xx xxxx xx:xx:xx --
 ```

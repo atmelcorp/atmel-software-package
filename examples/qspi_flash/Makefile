@@ -27,7 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the QSPI Flash example
-AVAILABLE_TARGETS = sama5d2-xplained
+AVAILABLE_TARGETS = sama5d2-xplained sama5d27-som1-ek
 
 TOP := ../..
 
