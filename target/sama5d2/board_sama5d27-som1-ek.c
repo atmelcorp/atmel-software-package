@@ -37,6 +37,7 @@
 #include "board_can.h"
 #include "board_console.h"
 #include "board_eth.h"
+#include "board_isc.h"
 #include "board_lcd.h"
 #include "board_led.h"
 #include "board_spi.h"
@@ -108,6 +109,11 @@ WEAK void board_init(void)
 #ifdef CONFIG_HAVE_LCDC
 	/* Configure LCD controller/display */
 	board_cfg_lcd();
+#endif
+
+#ifdef CONFIG_HAVE_ISC
+	/* Configure camera interface */
+	board_cfg_isc();
 #endif
 
 #ifdef CONFIG_HAVE_CAN_BUS
