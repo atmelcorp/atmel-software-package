@@ -15,6 +15,18 @@ instead.
 
 # Test
 ------
+## Supported targets
+--------------------
+* SAM9XX5-EK
+* SAMA5D2-XPLAINED
+* SAMA5D27-SOM1-EK
+* SAMA5D2-PTC-EK
+* SAMA5D3-EK
+* SAMA5D3-XPLAINED
+* SAMA5D4-EK
+* SAMA5D4-XPLAINED
+* SAME70-XPLAINED
+* SAMV71-XPLAINED
 
 ## Setup
 --------
@@ -26,8 +38,9 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D2-XPLAINED,SAMA5D3-XPLAINED,SAMA5D3-EK,SAMA5D4-EK,SAMA5D4-XPLAINED)
---------
+## Start the application
+------------------------
+
 Two/three LEDs should start blinking on the board. In the terminal window, "0 1 2 0 1 2 ..."
 
 Tested with IAR and GCC (sram and ddram configuration)
