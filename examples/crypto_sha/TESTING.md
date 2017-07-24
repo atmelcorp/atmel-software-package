@@ -14,6 +14,15 @@ DMA.
 
 # Test
 ------
+## Supported targets
+--------------------
+* SAMA5D2-XPLAINED
+* SAMA5D27-SOM1-EK
+* SAMA5D2-PTC-EK
+* SAMA5D3-EK
+* SAMA5D3-XPLAINED
+* SAMA5D4-EK
+* SAMA5D4-XPLAINED
 
 ## Setup
 --------
@@ -25,7 +34,7 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D2-XPLAINED,SAMA5D3-XPLAINED,SAMA5D3-EK,SAMA5D4-XPLAINED,SAMA5D4-EK)
+## Start the application
 ------------------------
 
 Tested with IAR and GCC (sram and ddram configuration)
