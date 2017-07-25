@@ -41,7 +41,7 @@
 #include "chip.h"
 #include "gpio/pio.h"
 #include "intmath.h"
-#include "nvm/spi-nor/qspiflash.h"
+#include "nvm/spi-nor/spi-nor.h"
 #include "peripherals/pmc.h"
 #include "pin_defs.h"
 #include "spi/qspi.h"
@@ -63,7 +63,12 @@
  *         Local variables
  *----------------------------------------------------------------------------*/
 
-static struct _qspiflash flash;
+static struct spi_flash_cfg _flash_cfg = {
+	.type = SPI_FLASH_TYPE_QSPI,
+	.mode = SPI_FLASH_MODE0,
+};
+
+static struct spi_flash flash;
 
 static uint8_t *buffer;
 static uint32_t buffer_size;
@@ -122,67 +127,43 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 			(unsigned)freq);
 
 	/* initialize the QSPI */
-	qspi_initialize(addr);
-	qspi_set_baudrate(addr, freq);
-
-	/* initialize the QSPI flash */
-	if (qspiflash_configure(&flash, addr) < 0) {
+	_flash_cfg.qspi.addr = addr;
+	_flash_cfg.baudrate = freq;
+	if (spi_nor_configure(&flash, &_flash_cfg) < 0) {
 		trace_error("Error while detecting QSPI flash chip\r\n");
 		return APPLET_DEV_UNKNOWN;
 	}
 
-	if (!flash.desc->jedec_id) {
-		trace_error("Device Unknown\r\n");
-		return APPLET_DEV_UNKNOWN;
+	uint32_t page_size = flash.page_size;
+	uint32_t mem_size = flash.size;
+
+	trace_warning_wp("Found Device %s\r\n", flash.name);
+	trace_warning_wp("Size: %u bytes\r\n", (unsigned)mem_size);
+	trace_warning_wp("Page Size: %u bytes\r\n", (unsigned)page_size);
+
+	erase_support = spi_flash_get_uniform_erase_map(&flash);
+
+	/* round buffer size to a multiple of page size and check if
+	 * it's big enough for at least one page */
+	buffer = applet_buffer;
+	buffer_size = applet_buffer_size & ~(page_size - 1);
+	if (buffer_size == 0) {
+		trace_error("Not enough memory for buffer\r\n");
+		return APPLET_FAIL;
 	}
-	else {
-		uint32_t page_size = flash.desc->page_size;
-		uint32_t mem_size = flash.desc->size;
+	trace_warning_wp("Buffer Address: 0x%08x\r\n", (unsigned)buffer);
+	trace_warning_wp("Buffer Size: %u bytes\r\n", (unsigned)buffer_size);
 
-		trace_warning_wp("Found Device %s\r\n", flash.desc->name);
-		trace_warning_wp("Size: %u bytes\r\n", (unsigned)mem_size);
-		trace_warning_wp("Page Size: %u bytes\r\n", (unsigned)page_size);
+	mbx->out.buf_addr = (uint32_t)buffer;
+	mbx->out.buf_size = buffer_size;
+	mbx->out.page_size = page_size;
+	mbx->out.mem_size = mem_size / page_size;
+	mbx->out.erase_support = erase_support;
+	mbx->out.nand_header = 0;
 
-		erase_support = 0;
-		if (flash.desc->flags & SPINOR_FLAG_ERASE_4K) {
-			trace_warning_wp("Supports 4K block erase\r\n");
-			erase_support |= (4 * 1024) / page_size;
-		}
-		if (flash.desc->flags & SPINOR_FLAG_ERASE_32K) {
-			trace_warning_wp("Supports 32K block erase\r\n");
-			erase_support |= (32 * 1024) / page_size;
-		}
-		if (flash.desc->flags & SPINOR_FLAG_ERASE_64K) {
-			trace_warning_wp("Supports 64K block erase\r\n");
-			erase_support |= (64 * 1024) / page_size;
-		}
-		if (flash.desc->flags & SPINOR_FLAG_ERASE_256K) {
-			trace_warning_wp("Supports 256K block erase\r\n");
-			erase_support |= (256 * 1024) / page_size;
-		}
+	trace_warning_wp("QSPI applet initialized successfully.\r\n");
 
-		/* round buffer size to a multiple of page size and check if
-		 * it's big enough for at least one page */
-		buffer = applet_buffer;
-		buffer_size = applet_buffer_size & ~(page_size - 1);
-		if (buffer_size == 0) {
-			trace_error("Not enough memory for buffer\r\n");
-			return APPLET_FAIL;
-		}
-		trace_warning_wp("Buffer Address: 0x%08x\r\n", (unsigned)buffer);
-		trace_warning_wp("Buffer Size: %u bytes\r\n", (unsigned)buffer_size);
-
-		mbx->out.buf_addr = (uint32_t)buffer;
-		mbx->out.buf_size = buffer_size;
-		mbx->out.page_size = page_size;
-		mbx->out.mem_size = mem_size / page_size;
-		mbx->out.erase_support = erase_support;
-		mbx->out.nand_header = 0;
-
-		trace_warning_wp("QSPI applet initialized successfully.\r\n");
-
-		return APPLET_SUCCESS;
-	}
+	return APPLET_SUCCESS;
 }
 
 static uint32_t handle_cmd_read_info(uint32_t cmd, uint32_t *mailbox)
@@ -194,8 +175,8 @@ static uint32_t handle_cmd_read_info(uint32_t cmd, uint32_t *mailbox)
 
 	mbx->out.buf_addr = (uint32_t)buffer;
 	mbx->out.buf_size = buffer_size;
-	mbx->out.page_size = flash.desc->page_size;
-	mbx->out.mem_size = flash.desc->size / flash.desc->page_size;
+	mbx->out.page_size = flash.page_size;
+	mbx->out.mem_size = flash.size / flash.page_size;
 	mbx->out.erase_support = erase_support;
 	mbx->out.nand_header = 0;
 
@@ -207,8 +188,8 @@ static uint32_t handle_cmd_write_pages(uint32_t cmd, uint32_t *mailbox)
 	union read_write_erase_pages_mailbox *mbx =
 		(union read_write_erase_pages_mailbox*)mailbox;
 
-	uint32_t offset = mbx->in.offset * flash.desc->page_size;
-	uint32_t length = mbx->in.length * flash.desc->page_size;
+	uint32_t offset = mbx->in.offset * flash.page_size;
+	uint32_t length = mbx->in.length * flash.page_size;
 
 	assert(cmd == APPLET_CMD_WRITE_PAGES);
 
@@ -219,7 +200,7 @@ static uint32_t handle_cmd_write_pages(uint32_t cmd, uint32_t *mailbox)
 	}
 
 	/* perform the write operation */
-	if (qspiflash_write(&flash, offset, buffer, length) < 0) {
+	if (spi_nor_write(&flash, offset, buffer, length) < 0) {
 		trace_error("Write error\r\n");
 		mbx->out.pages = 0;
 		return APPLET_WRITE_FAIL;
@@ -238,8 +219,8 @@ static uint32_t handle_cmd_read_pages(uint32_t cmd, uint32_t *mailbox)
 	union read_write_erase_pages_mailbox *mbx =
 		(union read_write_erase_pages_mailbox*)mailbox;
 
-	uint32_t offset = mbx->in.offset * flash.desc->page_size;
-	uint32_t length = mbx->in.length * flash.desc->page_size;
+	uint32_t offset = mbx->in.offset * flash.page_size;
+	uint32_t length = mbx->in.length * flash.page_size;
 
 	assert(cmd == APPLET_CMD_READ_PAGES);
 
@@ -250,7 +231,7 @@ static uint32_t handle_cmd_read_pages(uint32_t cmd, uint32_t *mailbox)
 	}
 
 	/* perform the read operation */
-	if (qspiflash_read(&flash, offset, buffer, length) < 0) {
+	if (spi_nor_read(&flash, offset, buffer, length) < 0) {
 		trace_error("Read error\r\n");
 		mbx->out.pages = 0;
 		return APPLET_READ_FAIL;
@@ -269,20 +250,12 @@ static uint32_t handle_cmd_erase_pages(uint32_t cmd, uint32_t *mailbox)
 	union read_write_erase_pages_mailbox *mbx =
 		(union read_write_erase_pages_mailbox*)mailbox;
 
-	uint32_t offset = mbx->in.offset * flash.desc->page_size;
-	uint32_t length = mbx->in.length * flash.desc->page_size;
+	uint32_t offset = mbx->in.offset * flash.page_size;
+	uint32_t length = mbx->in.length * flash.page_size;
 
 	assert(cmd == APPLET_CMD_ERASE_PAGES);
 
-	if ((flash.desc->flags & SPINOR_FLAG_ERASE_4K)
-			&& length == 4 * 1024) {
-	} else if ((flash.desc->flags & SPINOR_FLAG_ERASE_32K)
-			&& length == 32 * 1024) {
-	} else if ((flash.desc->flags & SPINOR_FLAG_ERASE_64K)
-			&& length == 64 * 1024) {
-	} else if ((flash.desc->flags & SPINOR_FLAG_ERASE_256K)
-			&& length == 256 * 1024) {
-	} else {
+	if ((erase_support & (length / flash.page_size)) == 0) {
 		trace_error("Memory does not support requested erase size "
 				"%u bytes\r\n", (unsigned)length);
 		return APPLET_FAIL;
@@ -295,7 +268,7 @@ static uint32_t handle_cmd_erase_pages(uint32_t cmd, uint32_t *mailbox)
 		return APPLET_FAIL;
 	}
 
-	if (qspiflash_erase_block(&flash, offset, length) < 0) {
+	if (spi_nor_erase(&flash, offset, length) < 0) {
 		trace_error("Erase failed at offset 0x%lx\r\n", offset);
 		return APPLET_ERASE_FAIL;
 	}

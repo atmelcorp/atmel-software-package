@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
- *         SAM Software Package License
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
- * Copyright (c) 2016, Atmel Corporation
+ * Copyright (c) 2017, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -24,61 +24,102 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
  */
 
-#ifndef _SPINOR_H
-#define _SPINOR_H
-
-//------------------------------------------------------------------------------
-//         Headers
-//------------------------------------------------------------------------------
-
-#include <stdint.h>
+#ifndef __SPI_NOR_H__
+#define __SPI_NOR_H__
 
 /*----------------------------------------------------------------------------
- *        Definitions
+ *        Headers
  *----------------------------------------------------------------------------*/
 
-#define SPINOR_JEDEC_MANUF(jedec_id)   (((jedec_id) & 0x0000FFu) >> 0)
-#define SPINOR_JEDEC_DENSITY(jedec_id) (((jedec_id) & 0x001F00u) >> 8)
-#define SPINOR_JEDEC_FAMILY(jedec_id)  (((jedec_id) & 0x00E000u) >> 13)
-#define SPINOR_JEDEC_VERSION(jedec_id) (((jedec_id) & 0x1F0000u) >> 16)
-#define SPINOR_JEDEC_SUBCODE(jedec_id) (((jedec_id) & 0xE00000u) >> 21)
+#include "nvm/spi-nor/spi-flash.h"
+#include "nvm/spi-nor/sfdp.h"
+#include "peripherals/bus.h"
 
-#define SPINOR_MANUF_SPANSION       (0x01u)
-#define SPINOR_MANUF_ATMEL          (0x1fu)
-#define SPINOR_MANUF_MICRON         (0x20u)
-#define SPINOR_MANUF_SST            (0xbfu)
-#define SPINOR_MANUF_MACRONIX       (0xc2u)
-#define SPINOR_MANUF_WINBOND        (0xefu)
+/*----------------------------------------------------------------------------
+ *        Constants
+ *----------------------------------------------------------------------------*/
 
-#define SPINOR_FLAG_ERASE_4K        (0x00000001u)
-#define SPINOR_FLAG_ERASE_32K       (0x00000002u)
-#define SPINOR_FLAG_ERASE_64K       (0x00000004u)
-#define SPINOR_FLAG_ERASE_256K      (0x00000008u)
-#define SPINOR_FLAG_QUAD            (0x00000010u)
-#define SPINOR_FLAG_QPP             (0x00000020u) /* Quad Page Programming */
-#define SPINOR_FLAG_FSR             (0x00000040u) /* Device has FLAG STATUS REGUSTER */
-#define SPINOR_FLAG_ENTER_4B_MODE   (0x00000080u) /* Put device in 4-byte mode */
+#define SNOR_SECT_4K		(0x1UL << 0)
+#define SNOR_NO_FR		(0x1UL << 1)
+#define SNOR_HAS_FSR		(0x1UL << 2)
+#define SNOR_NO_4BAIS		(0x1UL << 3)
+#define SNOR_SKIP_SFDP		(0x1UL << 4)
+#define SNOR_SECT_4K_ONLY	(0x1UL << 5)
+#define SNOR_SST_ULBPR		(0x1UL << 6)
+#define SNOR_SECT_32K		(0x1UL << 7)
 
-/** Describes SPI NOR flash device parameters */
-struct _spi_nor_desc {
-	const char *name;    /*< Device name */
-	uint32_t jedec_id;   /*< JEDEC ID */
-	uint32_t page_size;  /*< Page size in bytes */
-	uint32_t size;       /*< Total size in bytes */
-	uint32_t flags;      /*< Feature flags */
+/*----------------------------------------------------------------------------
+ *        Exported Types
+ *----------------------------------------------------------------------------*/
+
+struct spi_flash_cfg {
+	enum {
+		SPI_FLASH_TYPE_NONE = 0,
+#ifdef CONFIG_HAVE_SPI_BUS
+		SPI_FLASH_TYPE_SPI,
+#endif
+#ifdef CONFIG_HAVE_QSPI
+		SPI_FLASH_TYPE_QSPI,
+#endif
+	} type;
+	uint32_t baudrate;
+	enum {
+		SPI_FLASH_MODE0 = 0,
+		SPI_FLASH_MODE1,
+		SPI_FLASH_MODE2,
+		SPI_FLASH_MODE3,
+	} mode;
+	union {
+#ifdef CONFIG_HAVE_QSPI
+		struct {
+			Qspi* addr;
+		} qspi;
+#endif
+#ifdef CONFIG_HAVE_SPI_BUS
+		struct {
+			struct _bus_dev_cfg bus_cfg;
+		} spi;
+#endif
+	};
 };
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+struct spi_nor_info {
+	const char		*name;
 
-extern const struct _spi_nor_desc *spi_nor_find(uint32_t jedec_id);
+	uint8_t			id[SFLASH_MAX_ID_LEN];
+	uint8_t			id_len;
 
-#ifdef __cplusplus
-}
-#endif
+	uint32_t		sector_size;
+	uint16_t		n_sectors;
+	uint16_t		page_size;
+	uint16_t		addr_len;
+	uint16_t		flags;
 
-#endif /* _SPINOR_H */
+	const struct spi_flash_parameters	*params;
+};
+
+/*----------------------------------------------------------------------------
+ *        Exported Variables
+ *----------------------------------------------------------------------------*/
+
+extern const struct spi_nor_info spi_nor_ids[];
+
+/*----------------------------------------------------------------------------
+ *        Exported Functions
+ *----------------------------------------------------------------------------*/
+
+int spi_nor_configure(struct spi_flash *flash, const struct spi_flash_cfg *cfg);
+int spi_nor_read(struct spi_flash *flash, size_t from, uint8_t* buf, size_t len);
+int spi_nor_write(struct spi_flash *flash, size_t to, const uint8_t* buf, size_t len);
+int spi_nor_erase(struct spi_flash *flash, size_t offset, size_t len);
+
+int spansion_new_quad_enable(struct spi_flash *flash);
+int spansion_quad_enable(struct spi_flash *flash);
+int macronix_quad_enable(struct spi_flash *flash);
+int sr2_bit7_quad_enable(struct spi_flash *flash);
+int micron_enable_0_4_4(struct spi_flash *flash, bool enable);
+int at25_set_protection(struct spi_flash *flash, bool protect);
+
+#endif /* __SPI_NOR_H__ */

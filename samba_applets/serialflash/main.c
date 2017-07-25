@@ -41,7 +41,7 @@
 #include "chip.h"
 #include "gpio/pio.h"
 #include "intmath.h"
-#include "nvm/spi-nor/at25.h"
+#include "nvm/spi-nor/spi-nor.h"
 #include "peripherals/bus.h"
 #include "peripherals/pmc.h"
 #include "pin_defs.h"
@@ -63,20 +63,17 @@
  *         Local variables
  *----------------------------------------------------------------------------*/
 
-static struct _at25 at25drv = {
-	.cfg = {
-		.bus = 0,
-		.spi_dev = {
-			/* .chip_select */
-			/* .bitrate */
-			.delay = {
-				.bs = 0,
-				.bct = 0,
-			},
-			.spi_mode = SPID_MODE_0,
+static struct spi_flash_cfg _flash_cfg = {
+	.type = SPI_FLASH_TYPE_SPI,
+	.mode = SPI_FLASH_MODE0,
+	.spi = {
+		.bus_cfg = {
+			.bus = 0,
 		},
 	},
 };
+
+static struct spi_flash flash;
 
 static uint8_t *buffer;
 static uint32_t buffer_size;
@@ -142,88 +139,62 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 
 	iface.type = BUS_TYPE_SPI;
 	iface.transfer_mode = BUS_TRANSFER_MODE_DMA;
-	bus_configure(BUS(BUS_TYPE_SPI, 0), &iface);
+	bus_configure(BUS(BUS_TYPE_SPI, _flash_cfg.spi.bus_cfg.bus), &iface);
 #ifdef CONFIG_HAVE_SPI_FIFO
-	bus_ioctl(0, BUS_IOCTL_ENABLE_FIFO, NULL);
+	bus_ioctl(_flash_cfg.spi.bus_cfg.bus, BUS_IOCTL_ENABLE_FIFO, NULL);
 #endif
 
-	at25drv.cfg.spi_dev.bitrate = ROUND_INT_DIV(freq, 1000);
-	at25drv.cfg.spi_dev.chip_select = chip_select;
+	_flash_cfg.baudrate = ROUND_INT_DIV(freq, 1000);
+	_flash_cfg.spi.bus_cfg.spi_dev.chip_select = chip_select;
 
 	trace_warning_wp("Initializing SPI%u ioSet%u NPCS%u at %uHz\r\n",
 			(unsigned)instance, (unsigned)ioset,
 			(unsigned)chip_select, (unsigned)freq);
 
 	/* initialize the SPI and serial flash */
-	if (at25_configure(&at25drv) < 0) {
+	if (spi_nor_configure(&flash, &_flash_cfg) < 0) {
 		trace_error("Error while detecting AT25 chip\r\n");
 		return APPLET_DEV_UNKNOWN;
 	}
 
 	trace_warning_wp("SPI and AT25/AT26 drivers initialized\r\n");
 
-	if (!at25drv.desc) {
-		trace_error("Device Unknown\r\n");
-		return APPLET_DEV_UNKNOWN;
+	/* Get device parameters */
+	uint32_t size = flash.size;
+	uint32_t page_size = flash.page_size;
+
+	trace_warning_wp("Found Device %s\r\n", flash.name);
+	trace_warning_wp("Size: %u bytes\r\n", (unsigned)size);
+	trace_warning_wp("Page Size: %u bytes\r\n", (unsigned)page_size);
+
+	erase_support = spi_flash_get_uniform_erase_map(&flash);
+
+	/* round buffer size to a multiple of page size and check if
+	 * it's big enough for at least one page */
+	buffer = applet_buffer;
+	buffer_size = applet_buffer_size & ~(page_size - 1);
+	/* SST Flash write is slow, reduce buffer size to avoid
+	 * timeouts */
+	if (flash.id[0] == SFLASH_MFR_SST)
+		buffer_size = min_u32(10 * page_size, buffer_size);
+
+	if (buffer_size == 0) {
+		trace_error("Not enough memory for buffer\r\n");
+		return APPLET_FAIL;
 	}
-	else {
-		/* Get device parameters */
-		uint32_t size = at25drv.desc->size;
-		uint32_t page_size = at25drv.desc->page_size;
+	trace_warning_wp("Buffer Address: 0x%08x\r\n", (unsigned)buffer);
+	trace_warning_wp("Buffer Size: %u bytes\r\n",
+			 (unsigned)buffer_size);
 
-		trace_warning_wp("Found Device %s\r\n", at25drv.desc->name);
-		trace_warning_wp("Size: %u bytes\r\n", (unsigned)size);
-		trace_warning_wp("Page Size: %u bytes\r\n", (unsigned)page_size);
+	mbx->out.buf_addr = (uint32_t)buffer;
+	mbx->out.buf_size = buffer_size;
+	mbx->out.page_size = page_size;
+	mbx->out.mem_size = size / page_size;
+	mbx->out.erase_support = erase_support;
+	mbx->out.nand_header = 0;
 
-		erase_support = 0;
-		if (at25drv.desc->flags & SPINOR_FLAG_ERASE_4K) {
-			trace_warning_wp("Supports 4K block erase\r\n");
-			erase_support |= (4 * 1024) / page_size;
-		}
-		if (at25drv.desc->flags & SPINOR_FLAG_ERASE_32K) {
-			trace_warning_wp("Supports 32K block erase\r\n");
-			erase_support |= (32 * 1024) / page_size;
-		}
-		if (at25drv.desc->flags & SPINOR_FLAG_ERASE_64K) {
-			trace_warning_wp("Supports 64K block erase\r\n");
-			erase_support |= (64 * 1024) / page_size;
-		}
-		if (at25drv.desc->flags & SPINOR_FLAG_ERASE_256K) {
-			trace_warning_wp("Supports 256K block erase\r\n");
-			erase_support |= (256 * 1024) / page_size;
-		}
-
-		if (at25_set_protection(&at25drv, false) < 0) {
-			return APPLET_UNPROTECT_FAIL;
-		}
-
-		/* round buffer size to a multiple of page size and check if
-		 * it's big enough for at least one page */
-		buffer = applet_buffer;
-		buffer_size = applet_buffer_size & ~(page_size - 1);
-		/* SST Flash write is slow, reduce buffer size to avoid
-		 * timeouts */
-		if (SPINOR_JEDEC_MANUF(at25drv.desc->jedec_id) == SPINOR_MANUF_SST) {
-			buffer_size = min_u32(10 * page_size, buffer_size);
-		}
-		if (buffer_size == 0) {
-			trace_error("Not enough memory for buffer\r\n");
-			return APPLET_FAIL;
-		}
-		trace_warning_wp("Buffer Address: 0x%08x\r\n", (unsigned)buffer);
-		trace_warning_wp("Buffer Size: %u bytes\r\n",
-				(unsigned)buffer_size);
-
-		mbx->out.buf_addr = (uint32_t)buffer;
-		mbx->out.buf_size = buffer_size;
-		mbx->out.page_size = page_size;
-		mbx->out.mem_size = size / page_size;
-		mbx->out.erase_support = erase_support;
-		mbx->out.nand_header = 0;
-
-		trace_warning_wp("SPI serialflash applet initialized successfully.\r\n");
-		return APPLET_SUCCESS;
-	}
+	trace_warning_wp("SPI serialflash applet initialized successfully.\r\n");
+	return APPLET_SUCCESS;
 }
 
 static uint32_t handle_cmd_read_info(uint32_t cmd, uint32_t *mailbox)
@@ -235,8 +206,8 @@ static uint32_t handle_cmd_read_info(uint32_t cmd, uint32_t *mailbox)
 
 	mbx->out.buf_addr = (uint32_t)buffer;
 	mbx->out.buf_size = buffer_size;
-	mbx->out.page_size = at25drv.desc->page_size;
-	mbx->out.mem_size = at25drv.desc->size / at25drv.desc->page_size;
+	mbx->out.page_size = flash.page_size;
+	mbx->out.mem_size = flash.size / flash.page_size;
 	mbx->out.erase_support = erase_support;
 	mbx->out.nand_header = 0;
 
@@ -247,8 +218,8 @@ static uint32_t handle_cmd_write_pages(uint32_t cmd, uint32_t *mailbox)
 {
 	union read_write_erase_pages_mailbox *mbx =
 		(union read_write_erase_pages_mailbox*)mailbox;
-	uint32_t offset = mbx->in.offset * at25drv.desc->page_size;
-	uint32_t length = mbx->in.length * at25drv.desc->page_size;
+	uint32_t offset = mbx->in.offset * flash.page_size;
+	uint32_t length = mbx->in.length * flash.page_size;
 
 	assert(cmd == APPLET_CMD_WRITE_PAGES);
 
@@ -259,12 +230,11 @@ static uint32_t handle_cmd_write_pages(uint32_t cmd, uint32_t *mailbox)
 	}
 
 	/* perform the write operation */
-	if (at25_write(&at25drv, offset, buffer, length) < 0) {
+	if (spi_nor_write(&flash, offset, buffer, length) < 0) {
 		trace_error("Write error\r\n");
 		mbx->out.pages = 0;
 		return APPLET_WRITE_FAIL;
 	}
-	at25_wait(&at25drv);
 
 	trace_info_wp("Wrote %u bytes at 0x%08x\r\n",
 			(unsigned)length, (unsigned)offset);
@@ -278,8 +248,8 @@ static uint32_t handle_cmd_read_pages(uint32_t cmd, uint32_t *mailbox)
 {
 	union read_write_erase_pages_mailbox *mbx =
 		(union read_write_erase_pages_mailbox*)mailbox;
-	uint32_t offset = mbx->in.offset * at25drv.desc->page_size;
-	uint32_t length = mbx->in.length * at25drv.desc->page_size;
+	uint32_t offset = mbx->in.offset * flash.page_size;
+	uint32_t length = mbx->in.length * flash.page_size;
 
 	assert(cmd == APPLET_CMD_READ_PAGES);
 
@@ -290,7 +260,7 @@ static uint32_t handle_cmd_read_pages(uint32_t cmd, uint32_t *mailbox)
 	}
 
 	/* perform the read operation */
-	if (at25_read(&at25drv, offset, buffer, length) < 0) {
+	if (spi_nor_read(&flash, offset, buffer, length) < 0) {
 		trace_error("Read error\r\n");
 		mbx->out.pages = 0;
 		return APPLET_READ_FAIL;
@@ -308,20 +278,12 @@ static uint32_t handle_cmd_erase_pages(uint32_t cmd, uint32_t *mailbox)
 {
 	union read_write_erase_pages_mailbox *mbx =
 		(union read_write_erase_pages_mailbox*)mailbox;
-	uint32_t offset = mbx->in.offset * at25drv.desc->page_size;
-	uint32_t length = mbx->in.length * at25drv.desc->page_size;
+	uint32_t offset = mbx->in.offset * flash.page_size;
+	uint32_t length = mbx->in.length * flash.page_size;
 
 	assert(cmd == APPLET_CMD_ERASE_PAGES);
 
-	if ((at25drv.desc->flags & SPINOR_FLAG_ERASE_4K)
-			&& length == 4 * 1024) {
-	} else if ((at25drv.desc->flags & SPINOR_FLAG_ERASE_32K)
-			&& length == 32 * 1024) {
-	} else if ((at25drv.desc->flags & SPINOR_FLAG_ERASE_64K)
-			&& length == 64 * 1024) {
-	} else if ((at25drv.desc->flags & SPINOR_FLAG_ERASE_256K)
-			&& length == 256 * 1024) {
-	} else {
+	if ((erase_support & (length / flash.page_size)) == 0) {
 		trace_error("Memory does not support requested erase size "
 				"%u bytes\r\n", (unsigned)length);
 		return APPLET_FAIL;
@@ -334,12 +296,11 @@ static uint32_t handle_cmd_erase_pages(uint32_t cmd, uint32_t *mailbox)
 		return APPLET_FAIL;
 	}
 
-	if (at25_erase_block(&at25drv, offset, length) < 0) {
+	if (spi_nor_erase(&flash, offset, length) < 0) {
 		trace_error("Erase failed at offset 0x%08x\r\n",
 				(unsigned)offset);
 		return APPLET_ERASE_FAIL;
 	}
-	at25_wait(&at25drv);
 
 	trace_info_wp("Erased %u bytes at 0x%08x\r\n",
 			(unsigned)length, (unsigned)offset);

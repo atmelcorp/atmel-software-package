@@ -26,6 +26,7 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-drivers-$(CONFIG_DRV_AT25) += drivers/nvm/spi-nor/at25.o
-drivers-$(CONFIG_HAVE_QSPI) += drivers/nvm/spi-nor/qspiflash.o
-drivers-y += drivers/nvm/spi-nor/spi-nor.o
+drivers-$(CONFIG_HAVE_SPI_NOR) += drivers/nvm/spi-nor/spi-nor.o
+drivers-$(CONFIG_HAVE_SPI_NOR) += drivers/nvm/spi-nor/spi-flash.o
+drivers-$(CONFIG_HAVE_SPI_NOR) += drivers/nvm/spi-nor/sfdp.o
+drivers-$(CONFIG_HAVE_SPI_NOR) += drivers/nvm/spi-nor/spi-nor-ids.o

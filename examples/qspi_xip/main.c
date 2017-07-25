@@ -27,60 +27,6 @@
  * ----------------------------------------------------------------------------
  */
 
-/**
- * \page qspi_xip QSPI XIP Example
- *
- * \section Purpose
- *
- * This example demonstrates how to setup the QSPI Flash in XIP mode to execute
- * code from QSPI flash.
- *
- * \section Requirements
- *
- * This package can be used on SAMA5D2x Xplained board.
- *
- * \section Description
- *
- * This example writes the getting-started code into flash via SPI and enables
- * quad mode spi to read code and to execute from it.
- *
- * \section Usage
- *
- *  -# Build the program and download it inside the evaluation board. Please
- *     refer to the
- *     <a href="http://www.atmel.com/dyn/resources/prod_documents/6421B.pdf">
- *     SAM-BA User Guide</a>, the
- *     <a href="http://www.atmel.com/dyn/resources/prod_documents/doc6310.pdf">
- *     GNU-Based Software Development</a>
- *     application note or to the
- *     <a href="ftp://ftp.iar.se/WWWfiles/arm/Guides/EWARM_UserGuide.ENU.pdf">
- *     IAR EWARM User Guide</a>,
- *     depending on your chosen solution.
- *  -# On the computer, open and configure a terminal application (e.g.
- *     HyperTerminal on Microsoft Windows) with these settings:
- *        - 115200 bauds
- *        - 8 data bits
- *        - No parity
- *        - 1 stop bit
- *        - No flow control
- *  -# Start the application. The following traces shall appear on the terminal:
- *     \code
- *      -- QSPI XIP Example xxx --
- *      -- SAMxxxxx-xx
- *      -- Compiled: xxx xx xxxx xx:xx:xx --
- *      QSPI drivers initialized
- *    \endcode
- * \section References
- * - qspi_xip/main.c
- * - qspiflash.c
- */
-
-/**
- * \file
- *
- * This file contains all the specific code for the qspi_xip example.
- */
-
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
@@ -99,7 +45,7 @@
 #include "irqflags.h"
 #include "mm/cache.h"
 #include "mm/mmu.h"
-#include "nvm/spi-nor/qspiflash.h"
+#include "nvm/spi-nor/spi-nor.h"
 #include "serial/console.h"
 #include "spi/qspi.h"
 #include "trace.h"
@@ -109,6 +55,12 @@
 #elif defined(CONFIG_BOARD_SAMA5D27_SOM1_EK)
 #include "getting-started_sama5d27-som1-ek_qspi1.h"
 #endif
+
+/*----------------------------------------------------------------------------
+ *        Constants
+ *----------------------------------------------------------------------------*/
+
+#define BOARD_SPI_FLASH_QSPI0 0
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -148,7 +100,8 @@ void board_init()
 	dma_initialize(false);
 #endif
 
-	board_cfg_qspiflash();
+	/* Configure SPI NOR flash memory */
+	board_cfg_spi_flash();
 }
 
 /**
@@ -161,14 +114,14 @@ int main(void)
 	uint32_t idx;
 	uint32_t buffer[4];
 	uint8_t *ptr, cmd;
-	struct _qspiflash* flash = board_get_qspiflash();
-	void* qspi_mem_addr = get_qspi_mem_from_addr(flash->qspi);
+	struct spi_flash* flash = board_get_spi_flash(BOARD_SPI_FLASH_QSPI0);
+	void* qspi_mem_addr = get_qspi_mem_from_addr(flash->priv.qspi.addr);
 
 	/* Output example information */
 	console_example_info("QSPI XIP Example");
 
 	/* get the code at the beginning of QSPI, run the code directly if it's valid */
-	if (qspiflash_read(flash, 0, buffer, sizeof(buffer)) < 0)
+	if (spi_nor_read(flash, 0, (uint8_t*)buffer, sizeof(buffer)) < 0)
 		trace_fatal("Read the code from QSPI Flash failed!\n\r");
 
 	printf("Data at the beginning of QSPI: %08x %08x %08x %08x\n\r",
@@ -177,10 +130,10 @@ int main(void)
 
 	/* check whether or not there's a valid application in QSPI */
 	if ((((buffer[0] & 0xFF000000) == 0xE5000000) ||
-				((buffer[0] & 0xFF000000) == 0xEA000000)) &&
-			((buffer[0] & 0xFF000000) == (buffer[1] & 0xFF000000)) &&
-			((buffer[0] & 0xFF000000) == (buffer[2] & 0xFF000000)) &&
-			((buffer[0] & 0xFF000000) == (buffer[3] & 0xFF000000)) ) {
+	     ((buffer[0] & 0xFF000000) == 0xEA000000)) &&
+	    ((buffer[0] & 0xFF000000) == (buffer[1] & 0xFF000000)) &&
+	    ((buffer[0] & 0xFF000000) == (buffer[2] & 0xFF000000)) &&
+	    ((buffer[0] & 0xFF000000) == (buffer[3] & 0xFF000000)) ) {
 		printf("Valid application already in QSPI, will run it using QSPI XIP\n\r");
 
 		printf("\r\nDo you want to Run it or Flash a new one (R/F): ");
@@ -191,7 +144,7 @@ int main(void)
 
 		if (cmd == 'R' || cmd == 'r') {
 			printf("Starting continuous read mode to enter in XIP mode\n\r");
-			if (qspiflash_read(flash, 0, NULL, 0) < 0)
+			if (qspi_xip(flash, qspi_mem_addr) < 0)
 				trace_fatal("Read the code from QSPI Flash failed!\n\r");
 			run_xip_program(qspi_mem_addr);
 		}
@@ -201,22 +154,22 @@ int main(void)
 
 	printf("Erasing beginning of memory...\n\r");
 	for (idx = 0; idx * 4096 < sizeof(xip_program); idx++)
-		if (qspiflash_erase_block(flash, idx * 4096, 4096) < 0)
+		if (spi_nor_erase(flash, idx * 4096, 4096) < 0)
 			trace_fatal("QSPI Flash block erase failed!\n\r");
 	printf("Erase done (%u bytes).\n\r", (unsigned)(idx * 4096));
 
 	/* Flash the code to QSPI flash */
 	printf("Writing to QSPI...\n\r");
-	if (qspiflash_write(flash, 0, xip_program, sizeof(xip_program)) < 0)
+	if (spi_nor_write(flash, 0, xip_program, sizeof(xip_program)) < 0)
 		trace_fatal("QSPI Flash writing failed!\n\r");
 	printf("Example code written to memory (%d bytes).\n\r", sizeof(xip_program));
 	printf("Verifying...\n\r");
 
-	/* Start continuous read mode to enter in XIP mode*/
 	printf("Starting continuous read mode to enter in XIP mode\n\r");
-	if (qspiflash_read(flash, 0, NULL, 0) < 0)
+	if (qspi_xip(flash, qspi_mem_addr) < 0)
 		trace_fatal("QSPI Flash read failed!\n\r");
 
+	/* Start continuous read mode to enter in XIP mode*/
 	ptr = (uint8_t*)qspi_mem_addr;
 	for (idx = 0; idx < sizeof(xip_program); idx++, ptr++)
 		if (*ptr != xip_program[idx])

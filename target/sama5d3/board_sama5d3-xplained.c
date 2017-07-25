@@ -81,10 +81,11 @@ WEAK void board_init(void)
 #ifdef CONFIG_HAVE_SPI_BUS
 	/* Configure SPI bus */
 	board_cfg_spi_bus();
-
-#ifdef CONFIG_HAVE_SPI_AT25
-	board_cfg_at25();
 #endif
+
+#ifdef CONFIG_HAVE_SPI_NOR
+	/* Configure SPI NOR flash memory */
+	board_cfg_spi_flash();
 #endif
 
 #ifdef CONFIG_HAVE_I2C_BUS

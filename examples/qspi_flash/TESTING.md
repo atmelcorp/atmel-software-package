@@ -3,7 +3,7 @@ QSPI_FLASH EXAMPLE
 
 # Objectives
 ------------
-This example aims to test QSPI.
+This example aims to test SPI-NOR memories.
 
 
 # Example Description

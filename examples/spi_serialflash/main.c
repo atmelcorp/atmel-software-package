@@ -33,33 +33,40 @@
  * to memory to be effectively connected (Boot_Disable jumper removed).
  */
 
+/*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
+
+#include <errno.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "board.h"
 #include "board_spi.h"
 #include "chip.h"
+#include "compiler.h"
 #include "cpuidle.h"
-
-#include "peripherals/bus.h"
-
-#include "peripherals/pmc.h"
 #include "gpio/pio.h"
+#include "mm/cache.h"
+#include "nvm/spi-nor/spi-nor.h"
+#include "peripherals/bus.h"
+#include "peripherals/pmc.h"
+#include "serial/console.h"
 #include "spi/spid.h"
 
-#include "serial/console.h"
-#include "mm/cache.h"
-
-#include "nvm/spi-nor/at25.h"
-
-#include "compiler.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
+/*----------------------------------------------------------------------------
+ *        Constants
+ *----------------------------------------------------------------------------*/
 
 #define CMD_BUFFER_SIZE   (1024)
 #define READ_BUFFER_SIZE  (4 * 1024)
+#define BOARD_SPI_FLASH_SPI0 0
+
+/*----------------------------------------------------------------------------
+ *        Local variables
+ *----------------------------------------------------------------------------*/
 
 CACHE_ALIGNED static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
 CACHE_ALIGNED static uint8_t read_buffer[READ_BUFFER_SIZE];
@@ -70,7 +77,11 @@ static _parser _cmd_parser;
 static volatile uint32_t cmd_length = 0;
 static volatile bool cmd_complete = false;
 
-static struct _at25* at25drv;
+static struct spi_flash* flash;
+
+/*----------------------------------------------------------------------------
+ *        Constants
+ *----------------------------------------------------------------------------*/
 
 static void console_handler(uint8_t key)
 {
@@ -128,7 +139,7 @@ static void _flash_read_arg_parser(const uint8_t* buffer, uint32_t len)
 		int rc;
 		int chunk_size = length < READ_BUFFER_SIZE ? length : READ_BUFFER_SIZE;
 
-		rc = at25_read(at25drv, addr+offset, read_buffer, chunk_size);
+		rc = spi_nor_read(flash, addr + offset, read_buffer, chunk_size);
 		if (rc < 0) {
 			printf("Read failed (errno=%d)\r\n", rc);
 			/* Read failed, no need to dump anything */
@@ -159,26 +170,9 @@ static void _flash_write_arg_parser(const uint8_t* buffer, uint32_t len)
 
 	len -= (end_addr+1) - (char*)buffer;
 
-	rc = at25_write(at25drv, addr, (uint8_t*)end_addr+1, len);
+	rc = spi_nor_write(flash, addr, (uint8_t *)end_addr + 1, len);
 	if (rc < 0)
 		printf("Write failed (errno=%d)\r\n", rc);
-}
-
-static void _flash_query_arg_parser(const uint8_t* buffer, uint32_t len)
-{
-	if (!strncmp((char*)buffer, "device", 6)) {
-		if (at25drv->desc) {
-			at25_print_device_info(at25drv);
-		} else {
-			printf("No device detected!\r\n");
-		}
-	} else if (!strncmp((char*)buffer, "status", 6)) {
-		if (at25drv->desc) {
-			at25_print_device_status(at25drv);
-		} else {
-			printf("No device detected!\r\n");
-		}
-	}
 }
 
 static void _flash_delete_arg_parser(const uint8_t* buffer, uint32_t len)
@@ -188,13 +182,9 @@ static void _flash_delete_arg_parser(const uint8_t* buffer, uint32_t len)
 	char* erase_type_str = NULL;
 	unsigned long addr = strtoul((char*)buffer, &end_addr, 0);
 	if (end_addr == (char*)buffer) {
-		if (!strncmp((char*)buffer, "all", 3)) {
-			at25_erase_chip(at25drv);
-		} else {
-			printf("Args: %s\r\n"
-			       "Invalid address\r\n",
-			       buffer);
-		}
+		printf("Args: %s\r\n"
+		       "Invalid address\r\n",
+		       buffer);
 		return;
 	}
 
@@ -220,7 +210,7 @@ static void _flash_delete_arg_parser(const uint8_t* buffer, uint32_t len)
 		return;
 	}
 
-	rc = at25_erase_block(at25drv, addr, erase_length);
+	rc = spi_nor_erase(flash, addr, erase_length);
 	if (rc < 0)
 		printf("Erase failed (errno=%d)\r\n", rc);
 }
@@ -243,7 +233,7 @@ static void _flash_mode_arg_parser(const uint8_t* buffer, uint32_t len)
 		return;
 	}
 
-	bus_ioctl(at25drv->cfg.bus, BUS_IOCTL_SET_TRANSFER_MODE, &mode);
+	bus_ioctl(flash->priv.spi.bus, BUS_IOCTL_SET_TRANSFER_MODE, &mode);
 }
 
 #ifdef CONFIG_HAVE_SPI_FIFO
@@ -252,12 +242,12 @@ static void _flash_feature_arg_parser(const uint8_t* buffer, uint32_t len)
 	if (!strncmp((char*)buffer, "fifo", 4)) {
 		bool _enabled;
 
-		bus_ioctl(at25drv->cfg.bus, BUS_IOCTL_GET_FIFO_STATUS, &_enabled);
+		bus_ioctl(flash->priv.spi.bus, BUS_IOCTL_GET_FIFO_STATUS, &_enabled);
 		if (!_enabled) {
-			bus_ioctl(at25drv->cfg.bus, BUS_IOCTL_ENABLE_FIFO, NULL);
+			bus_ioctl(flash->priv.spi.bus, BUS_IOCTL_ENABLE_FIFO, NULL);
 			printf("Enable FIFO\r\n");
 		} else {
-			bus_ioctl(at25drv->cfg.bus, BUS_IOCTL_DISABLE_FIFO, NULL);
+			bus_ioctl(flash->priv.spi.bus, BUS_IOCTL_DISABLE_FIFO, NULL);
 			printf("Disable FIFO\r\n");
 		}
 	}
@@ -273,9 +263,7 @@ static void print_menu(void)
 
 	printf("|=============== SPI SerialFlash Example ===============|\r\n");
 
-	printf("| Device: %-46s|\r\n", at25drv->desc ? at25drv->desc->name : "N/A");
-
-	bus_ioctl(at25drv->cfg.bus, BUS_IOCTL_GET_TRANSFER_MODE, &mode);
+	bus_ioctl(flash->priv.spi.bus, BUS_IOCTL_GET_TRANSFER_MODE, &mode);
 	switch (mode) {
 	case BUS_TRANSFER_MODE_POLLING:
 		mode_str = "polling";
@@ -295,11 +283,12 @@ static void print_menu(void)
 	{
 		bool _enabled;
 
-		bus_ioctl(at25drv->cfg.bus, BUS_IOCTL_GET_FIFO_STATUS, &_enabled);
+		bus_ioctl(flash->priv.spi.bus, BUS_IOCTL_GET_FIFO_STATUS, &_enabled);
 		printf("| FIFO: %-48s|\r\n", _enabled ? "enabled" : "disabled");
 	}
 #endif
-
+	printf("|==================== SERIAL FLASH =====================|\r\n");
+	printf("| Device: %s\t\t\t\t\t|\r\n", flash->name);
 	printf("|====================== Commands =======================|\r\n"
 	       "| m polling                                             |\r\n"
 	       "| m async                                               |\r\n"
@@ -343,9 +332,6 @@ static void _flash_cmd_parser(const uint8_t* buffer, uint32_t len)
 	case 'w':
 		_flash_write_arg_parser(buffer+2, len-2);
 		break;
-	case 'a':
-		_flash_query_arg_parser(buffer+2, len-2);
-		break;
 	case 'd':
 		_flash_delete_arg_parser(buffer+2, len-2);
 		break;
@@ -373,7 +359,7 @@ int main (void)
 	console_example_info("SPI Flash Example");
 
 	/* retrieve pointer to AT25 device structure */
-	at25drv = board_get_at25();
+	flash = board_get_spi_flash(BOARD_SPI_FLASH_SPI0);
 
 	print_menu();
 

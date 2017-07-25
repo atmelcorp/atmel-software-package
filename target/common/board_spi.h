@@ -35,14 +35,9 @@
  *----------------------------------------------------------------------------*/
 
 #include "board.h"
+#include "nvm/spi-nor/spi-nor.h"
 
 #include <stdint.h>
-
-/*----------------------------------------------------------------------------
- *        Types
- *----------------------------------------------------------------------------*/
-
-struct _at25;
 
 /*----------------------------------------------------------------------------
  *        Functions
@@ -53,28 +48,8 @@ struct _at25;
  */
 extern void board_cfg_spi_bus(void);
 
-#ifdef BOARD_AT25_BUS
-/**
- * \brief Configures the eth<iface> for the board
- */
-extern void board_cfg_at25(void);
+extern void board_cfg_spi_flash(void);
 
-/**
- * \brief Get the at25 configuration for the board
- */
-extern struct _at25* board_get_at25(void);
-#endif /* BOARD_AT25_BUS */
-
-#ifdef CONFIG_HAVE_QSPI
-/**
- * \brief Configure the QSPI flash if available
- */
-extern void board_cfg_qspiflash(void);
-
-/**
- * \brief Get the qspi configuration for the board
- */
-extern struct _qspiflash* board_get_qspiflash(void);
-#endif /* CONFIG_HAVE_QSPI */
+extern struct spi_flash * board_get_spi_flash(uint8_t idx);
 
 #endif /* BOARD_SPI_H */

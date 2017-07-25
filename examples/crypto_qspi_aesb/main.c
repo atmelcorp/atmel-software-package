@@ -27,62 +27,6 @@
  * ----------------------------------------------------------------------------
  */
 
-/**
- * \page crypto_qspi_aesb Crypto QSPI AESB Example
- *
- * \section Purpose
- *
- * This example aims to protect electronic data with Advanced Encryption Standard
- * Bridge (AESB).
- *
- * \section Requirements
- *
- * This package can be used on SAMA5D2x Xplained board.
- *
- * \section Description
- *
- * This example shows how to configure AESB to protect electronic data. The
- * Automatic Bridge mode, when the AESB block is connected between the system bus
- * and QSPI, provides automatic encryption/decryption to/from QSPI without
- * any action on the part of the user.
- *
- * \section Usage
- *
- *  -# Build the program and download it inside the evaluation board. Please
- *     refer to the
- *     <a href="http://www.atmel.com/dyn/resources/prod_documents/6421B.pdf">
- *     SAM-BA User Guide</a>, the
- *     <a href="http://www.atmel.com/dyn/resources/prod_documents/doc6310.pdf">
- *     GNU-Based Software Development</a>
- *     application note or to the
- *     <a href="ftp://ftp.iar.se/WWWfiles/arm/Guides/EWARM_UserGuide.ENU.pdf">
- *     IAR EWARM User Guide</a>,
- *     depending on your chosen solution.
- *  -# On the computer, open and configure a terminal application (e.g.
- *     HyperTerminal on Microsoft Windows) with these settings:
- *        - 115200 bauds
- *        - 8 data bits
- *        - No parity
- *        - 1 stop bit
- *        - No flow control
- *  -# Start the application. The following traces shall appear on the terminal:
- *     \code
- *      -- Crypto QSPI AESB Example xxx --
- *      -- SAMxxxxx-xx
- *      -- Compiled: xxx xx xxxx xx:xx:xx --
- *      QSPI drivers initialized
- *    \endcode
- * \section References
- * - crypto_qspi_aesb/main.c
- * - qspiflash.c
- */
-
-/**
- * \file
- *
- * This file contains all the specific code for the qspi_xip example.
- */
-
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
@@ -97,11 +41,17 @@
 #include "compiler.h"
 #include "crypto/aesb.h"
 #include "gpio/pio.h"
-#include "nvm/spi-nor/qspiflash.h"
+#include "nvm/spi-nor/spi-flash.h"
 #include "peripherals/pmc.h"
 #include "serial/console.h"
 #include "spi/qspi.h"
 #include "trace.h"
+
+/*----------------------------------------------------------------------------
+ *        Constants
+ *----------------------------------------------------------------------------*/
+
+#define BOARD_SPI_FLASH_QSPI0 0
 
 /*----------------------------------------------------------------------------
  *        Local variables
@@ -123,7 +73,7 @@ int main(void)
 {
 	bool verify_failed = 0;
 	uint32_t idx;
-	struct _qspiflash* flash = board_get_qspiflash();
+	struct spi_flash* flash = board_get_spi_flash(BOARD_SPI_FLASH_QSPI0);
 
 	/* Output example information */
 	console_example_info("QSPI AESB Example");
@@ -140,27 +90,23 @@ int main(void)
 	               AESB_MR_SMOD_AUTO_START | AESB_MR_OPMOD_CTR | AESB_MR_CKEY_PASSWD);
 
 	printf("-I- Enable QSPI AESB IP scope (0x900000000-0x980000000)\n\r");
-	qspiflash_use_aesb(flash, true);
+	spi_flash_use_aesb(flash, true);
 
 	/* Write 64 word buffer with walking bit pattern (0x01, 0x02, ...) */
-	for (idx = 0; idx < ARRAY_SIZE(buffer); idx++){
+	for (idx = 0; idx < ARRAY_SIZE(buffer); idx++)
 		buffer[idx] = 1 << (idx % 8);
-	}
 
-	if (qspiflash_erase_block(flash, 0, 4096) < 0) {
+	if (spi_flash_erase(flash, 0, 4096) < 0)
 		trace_fatal("QSPI Flash block erase failed!\n\r");
-	}
 
 	printf("-I- Writing to address of QSPI AESB IP scope, the data is encrypted automatically\n\r");
-	if (qspiflash_write(flash, 0, buffer, ARRAY_SIZE(buffer)) < 0) {
+	if (spi_flash_write(flash, 0, buffer, ARRAY_SIZE(buffer)) < 0)
 		trace_fatal("QSPI Flash writing failed!\n\r");
-	}
 
 	printf("-I- Read from address of QSPI AESB IP scope\n\r");
 	memset(buffer_read, 0, ARRAY_SIZE(buffer_read));
-	if (qspiflash_read(flash, 0, buffer_read, ARRAY_SIZE(buffer_read)) < 0) {
+	if (spi_flash_read(flash, 0, buffer_read, ARRAY_SIZE(buffer_read)) < 0)
 			trace_fatal("Read the code from QSPI Flash failed!\n\r");
-	}
 	verify_failed = false;
 	printf("-I- Read and verify data from address of AESB IP scope\r\n");
 	for (idx = 0; idx < ARRAY_SIZE(buffer_read); idx++) {
@@ -171,19 +117,16 @@ int main(void)
 			break;
 		}
 	}
-	if (!verify_failed) {
+	if (!verify_failed)
 		printf("\r\n-I- As expected, it automatically decrypts the data read from the target slave before putting it on the system bus\r\n");
-	}
-
 	printf("\r\n-I- Read data from address outside of AESB IP scope. This test is expeted to fail.\r\n");
 
-	qspiflash_use_aesb(flash, false);
+	spi_flash_use_aesb(flash, false);
 
 	printf("-I- Read buffer without using AESB IP scope\n\r");
 	memset(buffer_read, 0, ARRAY_SIZE(buffer_read));
-	if (qspiflash_read(flash, 0, buffer_read, ARRAY_SIZE(buffer_read)) < 0) {
+	if (spi_flash_read(flash, 0, buffer_read, ARRAY_SIZE(buffer_read)) < 0)
 			trace_fatal("Read the code from QSPI Flash failed!\n\r");
-	}
 
 	verify_failed = false;
 	printf("-I- Read and verify data from address 0xD00000000 \r\n");
@@ -195,8 +138,8 @@ int main(void)
 			break;
 		}
 	}
-	if (verify_failed) {
+	if (verify_failed)
 		printf("\r\n-I- As expected, data cannot be decrypted from address outside of AESB IP scope\r\n");
-	}
+
 	while (1);
 }

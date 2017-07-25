@@ -34,11 +34,7 @@
 #include "board_spi.h"
 #include "errno.h"
 #include "gpio/pio.h"
-#include "nvm/spi-nor/at25.h"
-#ifdef CONFIG_HAVE_QSPI
-#include "nvm/spi-nor/qspiflash.h"
-#include "spi/qspi.h"
-#endif
+#include "nvm/spi-nor/spi-nor.h"
 #include "peripherals/bus.h"
 #include "trace.h"
 
@@ -46,26 +42,44 @@
  *        Local variables
  *----------------------------------------------------------------------------*/
 
-#ifdef CONFIG_HAVE_SPI_AT25
-static struct _at25 at25 = {
-	.cfg = {
-		.bus = BOARD_AT25_BUS,
-		.spi_dev = {
-			.chip_select = BOARD_AT25_CHIP_SELECT,
-			.bitrate = BOARD_AT25_BITRATE,
-			.delay = {
-				.bs = BOARD_AT25_DLYBS,
-				.bct = BOARD_AT25_DLYBCT,
-			},
-			.spi_mode = BOARD_AT25_SPI_MODE,
-		},
-	},
-};
+#if defined(CONFIG_HAVE_SPI_AT25) && defined(CONFIG_HAVE_QSPI)
+static struct spi_flash _spi_flash[2];
+#else
+static struct spi_flash _spi_flash[1];
 #endif
 
+static const struct spi_flash_cfg _spi_flash_cfg[] = {
 #ifdef CONFIG_HAVE_QSPI
-static struct _qspiflash qspiflash;
+	{
+		.type = SPI_FLASH_TYPE_QSPI,
+		.baudrate = BOARD_QSPIFLASH_BAUDRATE,
+		.mode = SPI_FLASH_MODE0,
+		.qspi = {
+			.addr = BOARD_QSPIFLASH_ADDR,
+		},
+	},
 #endif
+#ifdef BOARD_AT25_BUS
+	{
+		.type = SPI_FLASH_TYPE_SPI,
+		.baudrate = BOARD_AT25_BITRATE,
+		.mode = BOARD_AT25_SPI_MODE,
+		.spi = {
+			.bus_cfg = {
+				.bus = BOARD_AT25_BUS,
+				.spi_dev = {
+					.chip_select = BOARD_AT25_CHIP_SELECT,
+					.delay = {
+						.bs = BOARD_AT25_DLYBS,
+						.bct = BOARD_AT25_DLYBCT,
+					},
+				},
+			},
+		},
+	},
+#endif
+	{ 0 },
+};
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -73,7 +87,6 @@ static struct _qspiflash qspiflash;
 
 void board_cfg_spi_bus(void)
 {
-
 #ifdef BOARD_SPI_BUS0
 	const struct _pin pins_spi_bus0[] = BOARD_SPI_BUS0_PINS;
 	const struct _bus_iface iface_bus0 = {
@@ -148,44 +161,28 @@ void board_cfg_spi_bus(void)
 #endif
 }
 
-#ifdef CONFIG_HAVE_SPI_AT25
-void board_cfg_at25(void)
-{
-	/* Open serial flash device */
-	int rc = at25_configure(&at25);
-	if (rc == -ENODEV)
-		trace_error("AT25: Device not supported!\r\n");
-	else if (rc < 0)
-		trace_error("AT25: Initialization error!\r\n");
-
-	if (at25_set_protection(&at25, false) < 0)
-		trace_error("AT25: Protection desactivation failed!\r\n");
-}
-
-struct _at25* board_get_at25(void)
-{
-	return &at25;
-}
-#endif /* CONFIG_HAVE_SPI_AT25 */
-
-#ifdef CONFIG_HAVE_QSPI
-void board_cfg_qspiflash(void)
+void board_cfg_spi_flash(void)
 {
 #ifdef BOARD_QSPIFLASH_PINS
 	struct _pin pins_qspi[] = BOARD_QSPIFLASH_PINS;
 
 	pio_configure(pins_qspi, ARRAY_SIZE(pins_qspi));
+#endif
 
-	qspi_initialize(BOARD_QSPIFLASH_ADDR);
-	qspi_set_baudrate(BOARD_QSPIFLASH_ADDR, BOARD_QSPIFLASH_BAUDRATE);
+#if defined(BOARD_AT25_BUS) || defined(CONFIG_HAVE_QSPI)
+	int i;
 
-	if (qspiflash_configure(&qspiflash, BOARD_QSPIFLASH_ADDR) < 0)
-		trace_fatal("qspi: not configured\r\n");
+	for (i = 0; i < ARRAY_SIZE(_spi_flash) && _spi_flash_cfg[i].type != 0; i++) {
+		if (spi_nor_configure(&_spi_flash[i], &_spi_flash_cfg[i]) < 0)
+			trace_fatal("spi-nor: device%d: not configured\r\n", i);
+	}
 #endif
 }
 
-struct _qspiflash* board_get_qspiflash(void)
+struct spi_flash * board_get_spi_flash(uint8_t idx)
 {
-	return &qspiflash;
+	if (idx < ARRAY_SIZE(_spi_flash))
+		return &_spi_flash[idx];
+
+	return NULL;
 }
-#endif /* CONFIG_HAVE_QSPI */

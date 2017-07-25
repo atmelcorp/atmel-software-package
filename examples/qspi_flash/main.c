@@ -13,7 +13,7 @@
 #include "crypto/trng.h"
 #include "gpio/pio.h"
 #include "mm/cache.h"
-#include "nvm/spi-nor/qspiflash.h"
+#include "nvm/spi-nor/spi-nor.h"
 #include "peripherals/pmc.h"
 #include "serial/console.h"
 #include "spi/qspi.h"
@@ -46,10 +46,12 @@ static void _display_buf(uint8_t *buffer, uint32_t size)
  *        Global functions
  *----------------------------------------------------------------------------*/
 
+#define BOARD_SPI_FLASH_QSPI0 0
+
 int main(void)
 {
 	uint32_t start = 0x280000;
-	struct _qspiflash* flash = board_get_qspiflash();
+	struct spi_flash* flash = board_get_spi_flash(BOARD_SPI_FLASH_QSPI0);
 	int rc;
 
 	/* Initialize TRNG */
@@ -59,12 +61,12 @@ int main(void)
 	console_example_info("QSPI Example");
 
 	printf("erasing block at 0x%08x\r\n", (int)start);
-	rc = qspiflash_erase_block(flash, start, 4 * 1024);
+	rc = spi_nor_erase(flash, start, 4 * 1024);
 	printf("erase returns %d\r\n", rc);
 
 	printf("reading %d bytes at 0x%08x\r\n", sizeof(buf), (int)start);
 	memset(buf, 0, sizeof(buf));
-	rc = qspiflash_read(flash, start, buf, sizeof(buf));
+	rc = spi_nor_read(flash, start, buf, sizeof(buf));
 	printf("read returns %d\r\n", rc);
 	_display_buf(buf, sizeof(buf));
 
@@ -78,12 +80,12 @@ int main(void)
 	_display_buf(buf, sizeof(buf));
 
 	printf("writing %d bytes at 0x%08x\r\n", sizeof(buf), (int)start);
-	rc = qspiflash_write(flash, start, buf, sizeof(buf));
+	rc = spi_nor_write(flash, start, buf, sizeof(buf));
 	printf("write returns %d\r\n", rc);
 
 	printf("reading %d bytes at 0x%08x\r\n", sizeof(buf), (int)start);
 	memset(buf, 0, sizeof(buf));
-	rc = qspiflash_read(flash, start, buf, sizeof(buf));
+	rc = spi_nor_read(flash, start, buf, sizeof(buf));
 	printf("read returns %d\r\n", rc);
 	_display_buf(buf, sizeof(buf));
 
