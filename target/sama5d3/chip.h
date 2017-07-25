@@ -216,6 +216,9 @@ struct _console_cfg;
 #define ETH_QUEUE_COUNT (EMAC_QUEUE_COUNT + GMAC_QUEUE_COUNT)
 #endif
 
+/** MPDDRC I/O Calibration Delay (in nanoseconds) */
+#define MPDDRC_TZQIO_DELAY (20)
+
 /** Endpoints max paxcket size */
 #define CHIP_USB_ENDPOINT_MAXPACKETSIZE(ep) \
    ((ep) == 0 ? 64 : 1024)

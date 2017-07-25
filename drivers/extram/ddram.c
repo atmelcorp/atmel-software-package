@@ -56,6 +56,8 @@
 /* Convert nanoseconds to clock cycles for given master clock in MHz */
 #define NS2CYCLES(ns, clk) ((((ns) * (clk)) + 999) / 1000)
 
+#define TZQIO_CYCLES(clk) (NS2CYCLES(MPDDRC_TZQIO_DELAY, mck) + 1)
+
 /* For compatibility with older DDR controller IP */
 #ifndef MPDDRC_CR_NDQS_DISABLED
 #define MPDDRC_CR_NDQS_DISABLED 0
@@ -95,7 +97,7 @@ static void _init_mt41k128m16(struct _mpddrc_desc* desc)
 
 #ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
 	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV(4)
-	                | MPDDRC_IO_CALIBR_TZQIO(100);
+	                | MPDDRC_IO_CALIBR_TZQIO(TZQIO_CYCLES(mck));
 #endif
 
 	/* timings */
@@ -200,10 +202,8 @@ static void _init_w971g16sg(struct _mpddrc_desc* desc)
 	              | MPDDRC_CR_UNAL_SUPPORTED;
 
 #ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
-	desc->io_calibr = MPDDRC_IO_CALIBR_CALCODEP(7)
-	                | MPDDRC_IO_CALIBR_CALCODEN(8)
-	                | MPDDRC_IO_CALIBR_RDIV(4)
-	                | MPDDRC_IO_CALIBR_TZQIO(101);
+	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV(4)
+	                | MPDDRC_IO_CALIBR_TZQIO(TZQIO_CYCLES(mck));
 #endif
 
 	/* timings */
@@ -254,10 +254,8 @@ static void _init_w972gg6kb(struct _mpddrc_desc* desc)
 	              | MPDDRC_CR_UNAL_SUPPORTED;
 
 #ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
-	desc->io_calibr = MPDDRC_IO_CALIBR_CALCODEP(7)
-	                | MPDDRC_IO_CALIBR_CALCODEN(8)
-	                | MPDDRC_IO_CALIBR_RDIV(4)
-	                | MPDDRC_IO_CALIBR_TZQIO(81)
+	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV(4)
+	                | MPDDRC_IO_CALIBR_TZQIO(TZQIO_CYCLES(mck))
 	                | MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION;
 #endif
 
@@ -309,10 +307,8 @@ static void _init_mt47h128m8(struct _mpddrc_desc* desc)
 	              | MPDDRC_CR_UNAL_SUPPORTED;
 
 #ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
-	desc->io_calibr = MPDDRC_IO_CALIBR_CALCODEP(7)
-	                | MPDDRC_IO_CALIBR_CALCODEN(8)
-	                | MPDDRC_IO_CALIBR_RDIV(4)
-	                | MPDDRC_IO_CALIBR_TZQIO(5)
+	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV(4)
+	                | MPDDRC_IO_CALIBR_TZQIO(TZQIO_CYCLES(mck))
 	                | MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION;
 #endif
 
@@ -365,10 +361,8 @@ static void _init_mt47h64m16(struct _mpddrc_desc* desc)
 	              | MPDDRC_CR_UNAL_SUPPORTED;
 
 #ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
-	desc->io_calibr = MPDDRC_IO_CALIBR_CALCODEP(7)
-	                | MPDDRC_IO_CALIBR_CALCODEN(8)
-	                | MPDDRC_IO_CALIBR_RDIV(4)
-	                | MPDDRC_IO_CALIBR_TZQIO(5)
+	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV(4)
+	                | MPDDRC_IO_CALIBR_TZQIO(TZQIO_CYCLES(mck))
 	                | MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION;
 #endif
 
@@ -420,10 +414,8 @@ static void _init_mt47h128m16(struct _mpddrc_desc* desc)
 	              | MPDDRC_CR_UNAL_SUPPORTED;
 
 #ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
-	desc->io_calibr = MPDDRC_IO_CALIBR_CALCODEP(7)
-	                | MPDDRC_IO_CALIBR_CALCODEN(8)
-	                | MPDDRC_IO_CALIBR_RDIV(4)
-	                | MPDDRC_IO_CALIBR_TZQIO(5)
+	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV(4)
+	                | MPDDRC_IO_CALIBR_TZQIO(TZQIO_CYCLES(mck))
 	                | MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION;
 #endif
 

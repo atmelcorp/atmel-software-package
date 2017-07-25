@@ -244,6 +244,9 @@ struct _console_cfg;
 /** AIC redirection unlock key */
 #define AICREDIR_KEY 0x2fb3d881u
 
+/** MPDDRC I/O Calibration Delay (in nanoseconds) */
+#define MPDDRC_TZQIO_DELAY (20)
+
 /** Endpoints max paxcket size */
 #define CHIP_USB_ENDPOINT_MAXPACKETSIZE(ep) \
    ((ep) == 0 ? 64 : 1024)
