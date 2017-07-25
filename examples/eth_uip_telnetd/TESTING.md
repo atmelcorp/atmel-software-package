@@ -17,6 +17,15 @@ stack and the telnetd example.
 # Test
 ------
 
+## Supported targets
+--------------------
+* SAMA5D2-XPLAINED
+* SAMA5D27-SOM1-EK
+* SAMA5D3-EK
+* SAMA5D3-XPLAINED
+* SAMA5D4-EK
+* SAMA5D4-XPLAINED
+
 ## Setup
 --------
  - On the computer, open and configure a terminal application
@@ -33,8 +42,9 @@ stack and the telnetd example.
      - The board may be connected directly to a computer; in this case,make sure to use a cross/twisted wired cable such as the one provided with the board.
      - Make sure the IP adress of the computer is in the same network as the device (192.168.1.0/24, the board is at 192.168.1.3).
 
-## Start the application (SAMA5D2-XPLAINED/SAMA5D3-EK/SAMA5D3-XPLAINED/SAMA5D4-EK/SAMA5D4-XPLAINED)
---------
+## Start the application
+------------------------
+
 Tested with IAR and GCC (sram and ddram configuration)
 In order to test this example, the process is the following:
 
@@ -42,12 +52,3 @@ Step | Description | Expected Result | Result
 -----|-------------|-----------------|-------
 Connect to the device IP address using telnet on port 23: `` telnet 192.168.1.3 23`` | A telnet terminal will appear: ``uIP command shell`` `` Type '?' and return for help`` `` uIP 1.0>`` | PASSED | PASSED
 
-# Log
-------
-
-## Current version
---------
- - v1.3
-
-## History
---------
