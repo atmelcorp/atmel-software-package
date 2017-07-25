@@ -148,6 +148,11 @@
 #  define SLOT0_TAG                   "(e.MMC)"
 #  define SLOT1_ID                    ID_SDMMC1
 #  define SLOT1_TAG                   "(SD/MMC)"
+#elif defined(CONFIG_BOARD_SAMA5D27_SOM1_EK)
+#  define SLOT0_ID                    ID_SDMMC0
+#  define SLOT0_TAG                   "(SD/MMC)"
+#  define SLOT1_ID                    ID_SDMMC1
+#  define SLOT1_TAG                   "(SD/MMC)"
 #elif defined(CONFIG_BOARD_SAMA5D3_EK)
 #  define SLOT0_ID                    ID_HSMCI0
 #  define SLOT0_TAG                   "(SD/MMC)"

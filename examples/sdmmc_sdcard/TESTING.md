@@ -32,6 +32,15 @@ dumped on the console.
 # Test
 ------
 
+## Supported targets
+--------------------
+* SAMA5D2-XPLAINED
+* SAMA5D27-SOM1-EK
+* SAMA5D3-EK
+* SAMA5D3-XPLAINED
+* SAMA5D4-EK
+* SAMA5D4-XPLAINED
+
 ## Setup
 --------
 Build the example in release mode, with extra traces disabled, e.g.:
@@ -61,6 +70,9 @@ Boot the board and run the example.
 Note that if the card is inserted before booting, the bootloader may search
 for a bootable file on it, which may prevent running the example.
 Expect the example menu to appear on the console.
+
+## Start the application
+------------------------
 
 Follow the test steps listed hereafter.
 
