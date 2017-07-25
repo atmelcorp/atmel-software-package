@@ -12,6 +12,16 @@ transfer/receive data to/from USART each other with polling mode, using IRQs, or
 
 # Test
 ------
+## Supported targets
+--------------------
+* SAMA5D2-XPLAINED
+* SAMA5D27-SOM1-EK
+* SAMA5D3-EK
+* SAMA5D3-XPLAINED
+* SAMA5D4-EK
+* SAMA5D4-XPLAINED
+* SAME70-XPLAINED
+* SAMV71-XPLAINED
 
 ## Setup
 --------
@@ -26,6 +36,10 @@ On the computer, open and configure a terminal application
 ### sama5d2-xplained
 --------------------
 Connect USART0 (RX on J22:3, TX on J22:4)
+
+### sama5d27-som1-ek
+--------------------
+Connect FLEXUSART3 (RX on ISC:28, TX on ISC:29)
 
 ### sama5d4-xplained
 --------------------
