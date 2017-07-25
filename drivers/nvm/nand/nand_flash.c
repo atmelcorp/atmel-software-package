@@ -150,22 +150,6 @@ bool nand_is_using_pmecc(void)
 }
 
 /**
- * \brief Return true if NAND work with software enabled.
- */
-bool nand_is_using_software_ecc(void)
-{
-	return nand_cfg.ecc_type == ECC_SOFTWARE;
-}
-
-/**
- * \brief Return true if NAND work with ECC_HSIAO enabled.
- */
-bool nand_is_using_hsiao_ecc(void)
-{
-	return nand_cfg.ecc_type == ECC_HSIAO;
-}
-
-/**
  * \brief Return true if NAND work without ECC enabled.
  */
 bool nand_is_using_no_ecc(void)

@@ -32,7 +32,6 @@ lib-y += utils/utils.a
 
 utils-y += utils/callback.o
 utils-y += utils/intmath.o
-utils-$(CONFIG_HAVE_NAND_FLASH) += utils/hamming.o
 utils-y += utils/rand.o
 utils-y += utils/trace.o
 utils-y += utils/syscalls.o

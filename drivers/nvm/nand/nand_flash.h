@@ -56,8 +56,6 @@
 enum {
 	ECC_NO = 0,   /** No ecc, raw data only */
 	ECC_PMECC,    /** Error correction with PMECC BCH algorithm */
-	ECC_SOFTWARE, /** Error correction with Hamming algorithm */
-	ECC_HSIAO     /** Error correction with HSIAO (sama5d3) algorithm */
 };
 
 /** Describes a physical NandFlash chip connected to the SAM micro-controller. */
@@ -100,10 +98,6 @@ extern uint16_t nand_read_data16(const struct _nand_flash *nand);
 extern void nand_set_ecc_type(uint8_t ecc_type);
 
 extern bool nand_is_using_pmecc(void);
-
-extern bool nand_is_using_software_ecc(void);
-
-extern bool nand_is_using_hsiao_ecc(void);
 
 extern bool nand_is_using_no_ecc(void);
 
