@@ -383,7 +383,7 @@ static int mcand_get_ram(struct _mcan_desc *desc,
 	}
 
 	for (i = 0; i < cnt; i ++) {
-		if (0 == (status[i / 32] & (1 << (i & 0x1F)))) {
+		if ((status[i / 32] & (1 << (i & 0x1F))) == 0) {
 			status[i / 32] |= (1 << (i & 0x1F));
 			*index = i;
 			return 0;
@@ -586,10 +586,10 @@ static void _mcand_rx_proc(struct _mcan_desc *desc, enum _mcan_ram ram, uint32_t
 			trace_warning("Total %d filters, item %d is invalid!\n\r",
 				filter_cnt, filter_idx);
 		else
-			if (0 == (ram_item->buf->attr & CAND_BUF_ATTR_RX_OVERWRITE))
+			if ((ram_item->buf->attr & CAND_BUF_ATTR_RX_OVERWRITE) == 0)
 				mcand_release_ram(desc, filter, filter_idx);
 	}
-	if (0 == (ram_item->buf->attr & CAND_BUF_ATTR_RX_OVERWRITE))
+	if ((ram_item->buf->attr & CAND_BUF_ATTR_RX_OVERWRITE) == 0)
 		mcand_release_ram(desc, ram, buf_idx);
 
 	callback_copy(&ram_item->cb, NULL);
@@ -848,7 +848,7 @@ static uint8_t* mcan_prepare_tx_buffer(struct _mcan_desc *desc, uint8_t buf_idx,
 	assert(len <= set->cfg.buf_size_tx);
 
 	Mcan *mcan = desc->addr;
-	uint32_t *pThisTxBuf = 0;
+	uint32_t *tx_buf = 0;
 	uint32_t val;
 	const enum can_mode mode = mcan_get_mode(mcan);
 	enum mcan_dlc dlc;
@@ -857,19 +857,22 @@ static uint8_t* mcan_prepare_tx_buffer(struct _mcan_desc *desc, uint8_t buf_idx,
 		return NULL;
 	if (!mcan_get_length_code(len, &dlc))
 		dlc = CAN_DLC_0;
-	pThisTxBuf = set->ram_array_tx + buf_idx
+	tx_buf = set->ram_array_tx + buf_idx
 		* (MCAN_RAM_BUF_HDR_SIZE + set->cfg.buf_size_tx / 4);
-	*pThisTxBuf++ = id;
+	if (id & MCAN_RAM_T0_XTD)
+		*tx_buf++ = MCAN_RAM_T0_XTD | MCAN_RAM_T0_XTDID(id);
+	else
+		*tx_buf++ = MCAN_RAM_T0_STDID(id);
 	val = MCAN_RAM_T1_MM(0) | MCAN_RAM_T1_DLC((uint32_t)dlc);
 	if (mode == CAN_MODE_CAN_FD_CONST_RATE)
 		val |= MCAN_RAM_T1_FDF;
 	else if (mode == CAN_MODE_CAN_FD_DUAL_RATE)
 		val |= MCAN_RAM_T1_FDF | MCAN_RAM_T1_BRS;
-	*pThisTxBuf++ = val;
+	*tx_buf++ = val;
 	/* enable transmit from buffer to set TC interrupt bit in IR,
 	 * but interrupt will not happen unless TC interrupt is enabled */
 	mcan->MCAN_TXBTIE = (1 << buf_idx);
-	return (uint8_t *)pThisTxBuf;   /* now it points to the data field */
+	return (uint8_t *)tx_buf;   /* now it points to the data field */
 }
 
 static void mcan_enqueue_outgoing_msg(struct _mcan_desc *desc,
@@ -880,22 +883,25 @@ static void mcan_enqueue_outgoing_msg(struct _mcan_desc *desc,
 
 	Mcan *mcan = desc->addr;
 	uint32_t val;
-	uint32_t *pThisTxBuf = 0;
+	uint32_t *tx_buf = 0;
 	const enum can_mode mode = mcan_get_mode(mcan);
 	enum mcan_dlc dlc;
 
 	if (!mcan_get_length_code(len, &dlc))
 		dlc = CAN_DLC_0;
-	pThisTxBuf = set->ram_array_tx + (uint32_t)
+	tx_buf = set->ram_array_tx + (uint32_t)
 		putIdx * (MCAN_RAM_BUF_HDR_SIZE + set->cfg.buf_size_tx / 4);
-	*pThisTxBuf++ = id;
+	if (id & MCAN_RAM_T0_XTD)
+		*tx_buf++ = MCAN_RAM_T0_XTD | MCAN_RAM_T0_XTDID(id);
+	else
+		*tx_buf++ = MCAN_RAM_T0_STDID(id);
 	val = MCAN_RAM_T1_MM(0) | MCAN_RAM_T1_DLC((uint32_t)dlc);
 	if (mode == CAN_MODE_CAN_FD_CONST_RATE)
 		val |= MCAN_RAM_T1_FDF;
 	else if (mode == CAN_MODE_CAN_FD_DUAL_RATE)
 		val |= MCAN_RAM_T1_FDF | MCAN_RAM_T1_BRS;
-	*pThisTxBuf++ = val;
-	memcpy(pThisTxBuf, data, len);
+	*tx_buf++ = val;
+	memcpy(tx_buf, data, len);
 	dsb();
 	/* enable transmit from buffer to set TC interrupt bit in IR,
 	 * but interrupt will not happen unless TC interrupt is enabled
@@ -913,7 +919,7 @@ static int mcand_tx(struct _mcan_desc *desc, struct _buffer *buf,
 	uint8_t buf_idx;
 	uint32_t id = (buf->attr & CAND_BUF_ATTR_EXTENDED) ?
 			MCAN_RAM_T0_XTD | MCAN_RAM_T0_XTDID(desc->identifier) :
-			MCAN_RAM_T0_STDID(desc->identifier);
+			desc->identifier;
 	if (buf->attr & CAND_BUF_ATTR_USING_FIFO) {
 		status = mcand_get_ram(desc, MCAN_RAM_TX_FIFO, &buf_idx);
 		if (status < 0)
