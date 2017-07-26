@@ -16,6 +16,15 @@ the host.
 
 # Test
 ------
+## Supported targets
+--------------------
+* SAM9XX5-EK
+* SAMA5D2-XPLAINED
+* SAMA5D27-SOM1-EK
+* SAMA5D3-EK
+* SAMA5D3-XPLAINED
+* SAMA5D4-EK
+* SAMA5D4-XPLAINED
 
 ## Setup
 --------
@@ -27,8 +36,9 @@ on Microsoft Windows) with these settings:
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D2-XPLAINED)
---------
+## Start the application
+------------------------
+
 When connecting USB cable to host, the new "HID Mouse Device" appears in the
 hardware device list. Once the device is connected and configured, pressing the
 'I J K L' key to move the cursor.
