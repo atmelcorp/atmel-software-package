@@ -300,13 +300,3 @@ bool nand_model_has_small_blocks(const struct _nand_flash_model *model)
 {
 	return model->page_size_in_bytes <= 512 ? 1 : 0;
 }
-
-/**
- * \brief Returns 1 if the device supports the copy-back operation. Otherwise
- * returns 0.
- * \param model  Pointer to a _nand_flash_model instance.
-*/
-bool nand_model_supports_copy_back(const struct _nand_flash_model *model)
-{
-	return (model->options & NANDFLASHMODEL_COPYBACK) != 0;
-}

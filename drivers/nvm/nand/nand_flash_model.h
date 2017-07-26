@@ -77,7 +77,6 @@
  * \section Options
  * - NANDFLASHMODEL_DATABUS8
  * - NANDFLASHMODEL_DATABUS16
- * - NANDFLASHMODEL_COPYBACK
  */
 
 /** Indicates the NANDFLASH uses an 8-bit data bus. */
@@ -85,9 +84,6 @@
 
 /** Indicates the NANDFLASH uses a 16-bit data bus. */
 #define NANDFLASHMODEL_DATABUS16    (1 << 0)
-
-/** The NANDFLASH supports the copy-back function (internal page-to-page copy). */
-#define NANDFLASHMODEL_COPYBACK     (1 << 1)
 
 /** @}*/
 
@@ -165,9 +161,6 @@ extern uint8_t nand_model_get_data_bus(
 		const struct _nand_flash_model *model);
 
 extern bool nand_model_has_small_blocks(
-		const struct _nand_flash_model *model);
-
-extern bool nand_model_supports_copy_back(
 		const struct _nand_flash_model *model);
 
 /**@}*/
