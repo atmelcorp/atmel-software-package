@@ -26,6 +26,7 @@ The demonstration program transmits several different CAN/MCAN messages. The
 * SAMA5D27-SOM1-EK
 * SAMA5D3-EK
 * SAMA5D3-XPLAINED
+* SAME70-XPLAINED
 * SAMV71-XPLAINED
 
 ## Setup
@@ -65,6 +66,7 @@ Tested with IAR and GCC
  - SAM9: sram configration
  - SAMA5D2: ddram configration
  - SAMA5D3: sram ddram configration
+ - SAME70: sram ddram configration
  - SAMV71: sram ddram configration
 
 To test transfer between two boards, the can cables should be connected correctly before doing the tests.
