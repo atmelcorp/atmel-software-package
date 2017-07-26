@@ -28,7 +28,7 @@
 
 # Makefile for compiling the USB CDC Serial example
 AVAILABLE_TARGETS = sam9g15-ek sam9g25-ek sam9g35-ek sam9x25-ek sam9x35-ek \
-		    sama5d2-xplained \
+		    sama5d2-xplained sama5d27-som1-ek\
 		    sama5d3-ek sama5d3-xplained \
 		    sama5d4-ek sama5d4-xplained
 

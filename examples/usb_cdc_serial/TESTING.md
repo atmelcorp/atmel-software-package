@@ -16,6 +16,16 @@ to the board, and forward to USART port of board.
 
 # Test
 ------
+## Supported targets
+--------------------
+* SAM9XX5-EK
+* SAMA5D2-XPLAINED
+* SAMA5D27-SOM1-EK
+* SAMA5D2-PTC-EK
+* SAMA5D3-EK
+* SAMA5D3-XPLAINED
+* SAMA5D4-EK
+* SAMA5D4-XPLAINED
 
 ## Setup
 --------
@@ -27,8 +37,9 @@ on Microsoft Windows) with these settings:
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D2-XPLAINED)
---------
+## Start the application
+------------------------
+
 When connecting USB cable to host, the host reports a new USB device
 attachment, then new "AT91 USB to Serial Converter (COMx)" appears in the
 hardware device list. Run host serial communication software to send data to
