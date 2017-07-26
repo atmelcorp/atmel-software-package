@@ -141,6 +141,8 @@
 
 #if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
 #include "config_sama5d2-xplained.h"
+#elif defined(CONFIG_BOARD_SAMA5D27_SOM1_EK)
+#include "config_sama5d27-som1-ek.h"
 #elif defined(CONFIG_BOARD_SAMA5D3_EK)
 #include "config_sama5d3-ek.h"
 #elif defined(CONFIG_BOARD_SAMA5D3_XPLAINED)
