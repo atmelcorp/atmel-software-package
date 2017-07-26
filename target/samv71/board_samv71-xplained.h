@@ -126,6 +126,20 @@
 #define BOARD_AT24_ADDR    0x57
 #define BOARD_AT24_MODEL   AT24MAC402
 
+/* ================== CAN bus definition ====================== */
+
+#define BOARD_CAN_BUS0         MCAN0
+#define BOARD_CAN_BUS0_PINS    PINS_CAN0
+#define BOARD_CAN_BUS0_FREQ    1000000
+#define BOARD_CAN_BUS0_FREQ_FD 2000000
+
+#ifdef MCAN1
+#define BOARD_CAN_BUS1         MCAN1
+#define BOARD_CAN_BUS1_PINS    PINS_CAN1_IOS0
+#define BOARD_CAN_BUS1_FREQ    1000000
+#define BOARD_CAN_BUS1_FREQ_FD 2000000
+#endif
+
 /* =================== QSPI serial flashdevice definition ======= */
 
 #define BOARD_QSPIFLASH_PINS     PINS_QSPI0

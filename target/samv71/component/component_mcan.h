@@ -192,17 +192,17 @@ typedef struct {
 #define MCAN_CCCR_FDBS (0x1u << 13) /**< \brief (MCAN_CCCR) CAN FD Bit Rate Switching (read-only) */
 #define MCAN_CCCR_TXP (0x1u << 14) /**< \brief (MCAN_CCCR) Transmit Pause (read/write, write protection) */
 /* -------- MCAN_BTP : (MCAN Offset: 0x1C) Bit Timing and Prescaler Register -------- */
-#define MCAN_BTP_SJW_Pos 0
-#define MCAN_BTP_SJW_Msk (0xfu << MCAN_BTP_SJW_Pos) /**< \brief (MCAN_BTP) (Re) Synchronization Jump Width */
+#define MCAN_BTP_SJW_Pos 25
+#define MCAN_BTP_SJW_Msk (0x3fu << MCAN_BTP_SJW_Pos) /**< \brief (MCAN_BTP) (Re) Synchronization Jump Width */
 #define MCAN_BTP_SJW(value) ((MCAN_BTP_SJW_Msk & ((value) << MCAN_BTP_SJW_Pos)))
-#define MCAN_BTP_TSEG2_Pos 4
-#define MCAN_BTP_TSEG2_Msk (0xfu << MCAN_BTP_TSEG2_Pos) /**< \brief (MCAN_BTP) Time Segment After Sample Point */
+#define MCAN_BTP_TSEG2_Pos 0
+#define MCAN_BTP_TSEG2_Msk (0x3fu << MCAN_BTP_TSEG2_Pos) /**< \brief (MCAN_BTP) Time Segment After Sample Point */
 #define MCAN_BTP_TSEG2(value) ((MCAN_BTP_TSEG2_Msk & ((value) << MCAN_BTP_TSEG2_Pos)))
 #define MCAN_BTP_TSEG1_Pos 8
 #define MCAN_BTP_TSEG1_Msk (0x3fu << MCAN_BTP_TSEG1_Pos) /**< \brief (MCAN_BTP) Time Segment Before Sample Point */
 #define MCAN_BTP_TSEG1(value) ((MCAN_BTP_TSEG1_Msk & ((value) << MCAN_BTP_TSEG1_Pos)))
 #define MCAN_BTP_BRP_Pos 16
-#define MCAN_BTP_BRP_Msk (0x3ffu << MCAN_BTP_BRP_Pos) /**< \brief (MCAN_BTP) Baud Rate Prescaler */
+#define MCAN_BTP_BRP_Msk (0x1ffu << MCAN_BTP_BRP_Pos) /**< \brief (MCAN_BTP) Baud Rate Prescaler */
 #define MCAN_BTP_BRP(value) ((MCAN_BTP_BRP_Msk & ((value) << MCAN_BTP_BRP_Pos)))
 /* -------- MCAN_TSCC : (MCAN Offset: 0x20) Timestamp Counter Configuration Register -------- */
 #define MCAN_TSCC_TSS_Pos 0

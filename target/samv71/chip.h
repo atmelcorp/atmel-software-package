@@ -287,6 +287,9 @@ struct _console_cfg;
 /** Frequency of the on-chip main clock oscillator */
 #define MAIN_CLOCK_INT_OSC 12000000
 
+/** Clock Assignment: PCK5 - CAN */
+#define PMC_PCK_CAN 5
+
 /** Endpoints max paxcket size */
 #define CHIP_USB_ENDPOINT_MAXPACKETSIZE(ep) \
    ((ep) == 0 ? 64 : 1024)

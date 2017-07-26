@@ -464,6 +464,24 @@
 	PIN_QSPI0_SCK,\
 }
 
+/* ========== Pio PIN definition for CAN0 peripheral ========== */
+
+#define PINS_CAN0 {\
+	{ PIO_GROUP_B, PIO_PB2A_CANTX0 | PIO_PB3A_CANRX0, PIO_PERIPH_A, PIO_DEFAULT },\
+}
+
+/* ========== Pio PIN definition for CAN1 peripheral ========== */
+
+#ifdef MCAN1
+#define PINS_CAN1_IOS0 {\
+	{ PIO_GROUP_C, PIO_PC14C_CANTX1 | PIO_PC12C_CANRX1, PIO_PERIPH_C, PIO_DEFAULT },\
+}
+
+#define PINS_CAN1_IOS1 {\
+	{ PIO_GROUP_D, PIO_PD12B_CANTX1 | PIO_PD28B_CANRX1, PIO_PERIPH_B, PIO_DEFAULT },\
+}
+#endif
+
 /* ========== Pio PIN definition for HSMCI0 peripheral ========== */
 
 /** HSMCI0 pin Card Command slot A (CDA) */
