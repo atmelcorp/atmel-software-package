@@ -754,9 +754,14 @@ uint8_t nand_raw_initialize(struct _nand_flash *nand,
 			trace_error("nand_raw_initialize: Could not autodetect chip.\r\n");
 			return NAND_ERROR_UNKNOWNMODEL;
 		}
-	} else
+	} else {
 		/* Copy provided model */
 		nand->model = *model;
+	}
+
+	nand->badblock_marker_pos = 0;
+	if (nand_model_has_small_blocks(&nand->model))
+		nand->badblock_marker_pos = 5;
 
 	return 0;
 }

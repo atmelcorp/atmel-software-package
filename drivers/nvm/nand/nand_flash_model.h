@@ -67,12 +67,6 @@
  */
 
 /*---------------------------------------------------------------------- */
-/*         Forward declarations                                          */
-/*---------------------------------------------------------------------- */
-
-struct _nand_spare_scheme;
-
-/*---------------------------------------------------------------------- */
 /*         Definitions                                                   */
 /*---------------------------------------------------------------------- */
 
@@ -120,9 +114,6 @@ struct _nand_flash_model {
 
 	/** Size of one block in kilobytes. */
 	uint16_t block_size_in_kbytes;
-
-	/** Spare area placement scheme */
-	const struct _nand_spare_scheme *scheme;
 };
 
 /*---------------------------------------------------------------------- */
@@ -142,9 +133,6 @@ extern uint8_t nand_model_translate_access(
 		uint16_t *block,
 		uint16_t *page,
 		uint16_t *offset);
-
-extern const struct _nand_spare_scheme *nand_model_get_scheme(
-		const struct _nand_flash_model *model);
 
 extern uint8_t nand_model_get_device_id(
 		const struct _nand_flash_model *model);

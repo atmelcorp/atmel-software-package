@@ -110,7 +110,6 @@
 #include "nvm/nand/pmecc.h"
 #include "nvm/nand/nand_flash.h"
 #include "nvm/nand/nand_flash_skip_block.h"
-#include "nvm/nand/nand_flash_spare_scheme.h"
 #include "nvm/nand/nand_flash_model_list.h"
 #include "nvm/nand/nand_flash_model.h"
 #include "nvm/nand/nand_flash_ecc.h"
@@ -566,23 +565,6 @@ int main(void)
 		onfi_ecc_correctability =
 			onfi_ecc_correctability == 0xFF ? 32 : onfi_ecc_correctability;
 
-		switch (nand_onfi_get_page_size()) {
-		case 256:
-			model_from_onfi.scheme = &nand_spare_scheme256;
-			break;
-		case 512:
-			model_from_onfi.scheme = &nand_spare_scheme512;
-			break;
-		case 2048:
-			model_from_onfi.scheme = &nand_spare_scheme2048;
-			break;
-		case 4096:
-			model_from_onfi.scheme = &nand_spare_scheme4096;
-			break;
-		case 8192:
-			model_from_onfi.scheme = &nand_spare_scheme8192;
-			break;
-		}
 		onficompatible = true;
 	}
 

@@ -37,7 +37,6 @@
 #include "trace.h"
 
 #include "nand_flash_skip_block.h"
-#include "nand_flash_spare_scheme.h"
 #include "nand_flash_raw.h"
 #include "nand_flash_ecc.h"
 #include "mm/cache.h"
@@ -68,10 +67,6 @@ uint8_t nand_skipblock_check_block(const struct _nand_flash *nand,
 {
 	uint8_t error;
 	uint8_t marker;
-	const struct _nand_spare_scheme *scheme;
-
-	/* Retrieve model scheme */
-	scheme = nand_model_get_scheme(&nand->model);
 
 	/* Read spare area of first page of block */
 	error = nand_raw_read_page(nand, block, 0, NULL, spare_buf);
@@ -80,7 +75,7 @@ uint8_t nand_skipblock_check_block(const struct _nand_flash *nand,
 				"Cannot read page #0 of block #%d\r\n", block);
 		return error;
 	}
-	nand_spare_scheme_read_bad_block_marker(scheme, spare_buf, &marker);
+	marker = spare_buf[nand->badblock_marker_pos];
 	if (marker != 0xff)
 		return BADBLOCK;
 
@@ -91,7 +86,7 @@ uint8_t nand_skipblock_check_block(const struct _nand_flash *nand,
 				"Cannot read page #1 of block #%d\r\n", block);
 		return error;
 	}
-	nand_spare_scheme_read_bad_block_marker(scheme, spare_buf, &marker);
+	marker = spare_buf[nand->badblock_marker_pos];
 	if (marker != 0xff)
 		return BADBLOCK;
 
@@ -109,7 +104,6 @@ uint8_t nand_skipblock_erase_block(struct _nand_flash *nand,
 		uint16_t block, uint32_t erase_type)
 {
 	uint8_t error;
-	const struct _nand_spare_scheme *scheme;
 
 	if (erase_type != SCRUB_ERASE) {
 		/* Check block status */
@@ -125,11 +119,8 @@ uint8_t nand_skipblock_erase_block(struct _nand_flash *nand,
 		/* Try to mark the block as BAD */
 		trace_error("nand_skipblock_erase_block: Cannot erase block, try to mark it BAD\r\n");
 
-		/* Retrieve model scheme */
-		scheme = nand_model_get_scheme(&nand->model);
-
 		memset(spare_buf, 0xff, sizeof(spare_buf));
-		nand_spare_scheme_write_bad_block_marker(scheme, spare_buf, NANDBLOCK_STATUS_BAD);
+		spare_buf[nand->badblock_marker_pos] = NANDBLOCK_STATUS_BAD;
 		return nand_raw_write_page(nand, block, 0, 0, spare_buf);
 	}
 

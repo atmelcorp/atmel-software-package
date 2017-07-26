@@ -41,7 +41,6 @@
 
 #include "nand_flash.h"
 #include "nand_flash_common.h"
-#include "nand_flash_spare_scheme.h"
 #include "nand_flash_ecc.h"
 
 #include "trace.h"

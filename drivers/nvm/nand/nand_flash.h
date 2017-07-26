@@ -63,6 +63,9 @@ struct _nand_flash {
 	/** Model describing this NandFlash characteristics. */
 	struct _nand_flash_model model;
 
+	/** Bad block marker position */
+	uint16_t badblock_marker_pos;
+
 	/** Address for sending data to the NandFlash. */
 	uint32_t data_addr;
 };

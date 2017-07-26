@@ -33,7 +33,6 @@ drivers-$(CONFIG_HAVE_NAND_FLASH) += drivers/nvm/nand/nand_flash_skip_block.o
 drivers-$(CONFIG_HAVE_NAND_FLASH) += drivers/nvm/nand/nand_flash_onfi.o
 drivers-$(CONFIG_HAVE_NAND_FLASH) += drivers/nvm/nand/nand_flash_model.o
 drivers-$(CONFIG_HAVE_NAND_FLASH) += drivers/nvm/nand/nand_flash_model_list.o
-drivers-$(CONFIG_HAVE_NAND_FLASH) += drivers/nvm/nand/nand_flash_spare_scheme.o
 drivers-$(CONFIG_HAVE_NAND_FLASH) += drivers/nvm/nand/nand_flash_dma.o
 drivers-$(CONFIG_HAVE_NFC) += drivers/nvm/nand/nfc.o
 drivers-$(CONFIG_HAVE_PMECC) += drivers/nvm/nand/pmecc.o

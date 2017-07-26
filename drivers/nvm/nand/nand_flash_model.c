@@ -186,17 +186,6 @@ uint8_t nand_model_translate_access(const struct _nand_flash_model *model,
 }
 
 /**
- * \brief Returns the spare area placement scheme used by a particular NANDFLASH
- * model.
- * \param model  Pointer to a _nand_flash_model instance.
- */
-const struct _nand_spare_scheme *nand_model_get_scheme(
-		const struct _nand_flash_model *model)
-{
-	return model->scheme;
-}
-
-/**
  * \brief Returns the device ID of a particular NANDFLASH model.
  * \param model  Pointer to a _nand_flash_model instance.
  */
