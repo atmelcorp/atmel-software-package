@@ -132,6 +132,14 @@ static int _at24_twi_read(const struct _at24* at24, uint8_t addr_offset, struct 
 {
 	int err;
 
+	/* 24AAE4/E6 devices expect the bus to be idle for some time before
+	 * starting a transfer */
+	if (at24->desc->family == MCP24AAE4 ||
+	    at24->desc->family == MCP24AAE6 ||
+		at24->desc->family == AT24MAC4) {
+		usleep(150);
+	}
+
 	/* start a TWI bus transaction */
 	bus_start_transaction(at24->bus);
 
