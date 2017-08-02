@@ -250,7 +250,7 @@ bool nand_onfi_enable_internal_ecc(const struct _nand_flash *nand)
 				 onfi_parameter.onfi_device_model == '2' ||
 				 onfi_parameter.onfi_device_model == '4')) {
 			/* then activate the internal ECC controller */
-			nand_write_command(nand, NAND_CMD_SET_FEATURE);
+			nand_write_command(nand, NAND_CMD_SET_FEATURES);
 			nand_write_address(nand, 0x90);
 			nand_write_data(nand, 0x08);
 			nand_write_data(nand, 0x00);
@@ -281,7 +281,7 @@ bool nand_onfi_disable_internal_ecc(const struct _nand_flash *nand)
 				 onfi_parameter.onfi_device_model == '2' ||
 				 onfi_parameter.onfi_device_model == '4')) {
 			/* then activate the internal ECC controller */
-			nand_write_command(nand, NAND_CMD_SET_FEATURE);
+			nand_write_command(nand, NAND_CMD_SET_FEATURES);
 			nand_write_address(nand, 0x90);
 			nand_write_data(nand, 0x00);
 			nand_write_data(nand, 0x00);

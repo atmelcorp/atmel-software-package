@@ -60,7 +60,8 @@
 #define NAND_CMD_ERASE_2            0xD0
 #define NAND_CMD_STATUS             0x70
 #define NAND_CMD_READ_PARAM_PAGE    0xEC
-#define NAND_CMD_SET_FEATURE        0xEF
+#define NAND_CMD_GET_FEATURES       0xEE
+#define NAND_CMD_SET_FEATURES       0xEF
 #define NAND_CMD_RESET              0xFF
 
 /** NANDFLASH status bit mask */
