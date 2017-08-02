@@ -758,8 +758,8 @@ int main(void)
 		printf("\tOpen NAND Flash Interface (ONFI)-compliant\n\r");
 		model_from_onfi.device_id =
 			nand_onfi_get_manufacturer_id();
-		model_from_onfi.options =
-			nand_onfi_get_bus_width() ? NANDFLASHMODEL_DATABUS16 : NANDFLASHMODEL_DATABUS8;
+		model_from_onfi.data_bus_width =
+			nand_onfi_get_bus_width() ? 16 : 8;
 		model_from_onfi.page_size_in_bytes =
 			nand_onfi_get_page_size();
 		model_from_onfi.spare_size_in_bytes =

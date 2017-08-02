@@ -92,11 +92,11 @@ static void _write_column_address(const struct _nand_flash *nand,
 	uint16_t data_size = nand_model_get_page_data_size(&nand->model);
 
 	/* Check the data bus width of the NandFlash */
-	if (nand_model_get_data_bus(&nand->model) == 16)
+	if (nand_model_get_data_bus_width(&nand->model) == 16)
 		column_address >>= 1; /* addr div 2 is because of 16-bit addressing */
 
 	while (data_size > 2) {
-		if (nand_model_get_data_bus(&nand->model) == 16)
+		if (nand_model_get_data_bus_width(&nand->model) == 16)
 			nand_write_address16(nand, column_address & 0xFF);
 		else
 			nand_write_address(nand, column_address & 0xFF);
@@ -116,7 +116,7 @@ static void _write_row_address(const struct _nand_flash *nand,
 	uint32_t num_pages = nand_model_get_device_size_in_pages(&nand->model);
 
 	while (num_pages > 0) {
-		if (nand_model_get_data_bus(&nand->model) == 16)
+		if (nand_model_get_data_bus_width(&nand->model) == 16)
 			nand_write_address16(nand, row_address & 0xFF);
 		else
 			nand_write_address(nand, row_address & 0xFF);
@@ -149,7 +149,7 @@ static uint32_t _nfc_translate_address(const struct _nand_flash *nand,
 	uint8_t num_cycles = 0;
 
 	/* Check the data bus width of the NandFlash */
-	if (nand_model_get_data_bus(&nand->model) == 16) {
+	if (nand_model_get_data_bus_width(&nand->model) == 16) {
 		/* Div 2 is because we address in word and not in byte */
 		col_address >>= 1;
 	}
@@ -264,7 +264,7 @@ static void _data_array_in(const struct _nand_flash *nand, bool nfc_sram,
 	if (nand_is_dma_enabled()) {
 		nand_dma_read(address, (uint32_t)buffer, size);
 	} else {
-		uint32_t bus_width = nand_model_get_data_bus(&nand->model);
+		uint8_t bus_width = nand_model_get_data_bus_width(&nand->model);
 
 		/* Check the data bus width of the NandFlash */
 		if (bus_width == 16 && !nfc_sram) {
@@ -310,7 +310,7 @@ static void _data_array_out(const struct _nand_flash *nand, bool nfc_sram,
 	if (nand_is_dma_enabled()) {
 		nand_dma_write((uint32_t)buffer, address, size);
 	} else {
-		uint32_t bus_width = nand_model_get_data_bus(&nand->model);
+		uint8_t bus_width = nand_model_get_data_bus_width(&nand->model);
 
 		/* Check the data bus width of the NandFlash */
 		if (bus_width == 16 && !nfc_sram) {

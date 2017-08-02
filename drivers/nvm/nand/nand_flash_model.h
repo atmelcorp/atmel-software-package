@@ -47,9 +47,8 @@
  *    - nand_model_get_block_size_in_bytes
  *    - nand_model_get_page_data_size
  *    - nand_model_get_page_spare_size
- *    - nand_model_get_data_bus
- *    - NandFlashModel_UsesSmallBlocksRead
- *    - NandFlashModel_UsesSmallBlocksWrite
+ *    - nand_model_get_data_bus_width
+ *    - nand_model_has_small_blocks
  */
 
 #ifndef NAND_FLASH_MODEL_H
@@ -62,31 +61,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-/** \addtogroup nand_model
- *@{
- */
-
-/*---------------------------------------------------------------------- */
-/*         Definitions                                                   */
-/*---------------------------------------------------------------------- */
-
-/** \addtogroup nand_model_option _nand_flash_model options
- *  @{
- * This page lists the possible options for a NandFlash chip.
- *
- * \section Options
- * - NANDFLASHMODEL_DATABUS8
- * - NANDFLASHMODEL_DATABUS16
- */
-
-/** Indicates the NANDFLASH uses an 8-bit data bus. */
-#define NANDFLASHMODEL_DATABUS8     (0 << 0)
-
-/** Indicates the NANDFLASH uses a 16-bit data bus. */
-#define NANDFLASHMODEL_DATABUS16    (1 << 0)
-
-/** @}*/
-
 /*---------------------------------------------------------------------- */
 /*         Types                                                         */
 /*---------------------------------------------------------------------- */
@@ -96,8 +70,8 @@ struct _nand_flash_model {
 	/** Identifier for the device. */
 	uint8_t device_id;
 
-	/** Special options for the NandFlash. */
-	uint8_t options;
+	/** Data Bus Width (8/16) */
+	uint8_t data_bus_width;
 
 	/** Size of the data area of a page, in bytes. */
 	uint16_t page_size_in_bytes;
@@ -157,7 +131,7 @@ extern uint32_t nand_model_get_page_data_size(
 extern uint16_t nand_model_get_page_spare_size(
 		const struct _nand_flash_model *model);
 
-extern uint8_t nand_model_get_data_bus(
+extern uint8_t nand_model_get_data_bus_width(
 		const struct _nand_flash_model *model);
 
 extern bool nand_model_has_small_blocks(

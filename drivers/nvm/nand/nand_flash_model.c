@@ -127,8 +127,8 @@ uint8_t nand_model_find(const struct _nand_flash_model *list, uint32_t list_size
 					model->block_size_in_kbytes);
 			NAND_TRACE(" * pageSizeInBytes = %d\r\n",
 					model->page_size_in_bytes);
-			NAND_TRACE(" * options = 0x%02X\r\n",
-					model->options);
+			NAND_TRACE(" * data_bus_width = %d bits\r\n",
+					model->data_bus_width);
 			break;
 		}
 	}
@@ -286,9 +286,9 @@ uint16_t nand_model_get_page_spare_size(const struct _nand_flash_model *model)
  * \brief Returns the number of bits used by the data bus of a NandFlash device.
  * \param model  Pointer to a _nand_flash_model instance.
 */
-uint8_t nand_model_get_data_bus(const struct _nand_flash_model *model)
+uint8_t nand_model_get_data_bus_width(const struct _nand_flash_model *model)
 {
-	return model->options & NANDFLASHMODEL_DATABUS16 ? 16 : 8;
+	return model->data_bus_width;
 }
 
 /**
