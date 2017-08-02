@@ -15,6 +15,15 @@ on the disk.
 
 # Test
 ------
+## Supported targets
+--------------------
+* SAM9XX5-EK
+* SAMA5D2-XPLAINED
+* SAMA5D27-SOM1-EK
+* SAMA5D3-EK
+* SAMA5D3-XPLAINED
+* SAMA5D4-EK
+* SAMA5D4-XPLAINED
 
 ## Setup
 --------
@@ -26,8 +35,9 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D2-XPLAINED, SAMA5D3-EK, SAMA5D3-XPLAINED, SAMA5D4-EK, SAMA5D4-XPLAINED, SAM9G25-EK)
--------------------------------------------
+## Start the application
+------------------------
+
 When connecting USB cable to windows, the host reports a new USB device
 attachment and Disk installation. Then new "USB Mass Storage Device" and "ATMEL
 Mass Storage MSD USB Device" and "Generic volume" appear in hardware device

@@ -144,8 +144,39 @@
 #define TIMER1_MODULE                 ID_TC0
 #define TIMER1_CHANNEL                1u
 
-/** Total number of SDMMC interface */
-#define BOARD_NUM_SDMMC           (2)
+
+#ifdef CONFIG_BOARD_SAMA5D2_XPLAINED
+#  define SLOT0_ID                    ID_SDMMC0
+#  define SLOT0_TAG                   "(e.MMC)"
+#  define SLOT1_ID                    ID_SDMMC1
+#  define SLOT1_TAG                   "(SD/MMC)"
+#  define BOARD_NUM_SDMMC             (2)
+#elif CONFIG_BOARD_SAMA5D27_SOM1_EK
+#  define SLOT0_ID                    ID_SDMMC0
+#  define SLOT0_TAG                   "(SD/MMC)"
+#  define SLOT1_ID                    ID_SDMMC1
+#  define SLOT1_TAG                   "(SD/MMC)"
+#  define BOARD_NUM_SDMMC             (2)
+#elif defined(CONFIG_BOARD_SAMA5D3_EK) ||\
+	  defined(CONFIG_BOARD_SAMA5D3_XPLAINED) ||\
+	  defined(CONFIG_BOARD_SAMA5D4_EK)
+#  define SLOT0_ID                    ID_HSMCI0
+#  define SLOT0_TAG                   "(SD/MMC)"
+#  define SLOT1_ID                    ID_HSMCI1
+#  define SLOT1_TAG                   "(microSD)"
+#  define BOARD_NUM_SDMMC             (2)
+#elif defined(CONFIG_BOARD_SAM9G15_EK) ||\
+	  defined(CONFIG_BOARD_SAM9G25_EK) ||\
+	  defined(CONFIG_BOARD_SAM9G35_EK) ||\
+	  defined(CONFIG_BOARD_SAM9X25_EK) ||\
+	  defined(CONFIG_BOARD_SAM9X35_EK) ||\
+	  defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
+#  define SLOT0_ID                    ID_HSMCI0
+#  define SLOT0_TAG                   "(microSD)"
+#  define SLOT1_ID                    ID_HSMCI1
+#  define SLOT1_TAG                   "(SD/MMC)"
+#  define BOARD_NUM_SDMMC             (2)
+#endif
 
 /** Maximum number of LUNs which can be defined. */
 #define MAX_LUNS            (BOARD_NUM_SDMMC+1)
@@ -203,6 +234,7 @@ static const struct _hsmci_cfg sd_drv_config[BOARD_NUM_SDMMC] = {
 			.set_card_power = board_set_hsmci_card_power,
 		},
 	},
+#ifdef SLOT1_ID
 	{
 		.periph_id = ID_HSMCI1,
 		.slot = BOARD_HSMCI1_SLOT,
@@ -212,6 +244,7 @@ static const struct _hsmci_cfg sd_drv_config[BOARD_NUM_SDMMC] = {
 			.set_card_power = board_set_hsmci_card_power,
 		},
 	}
+#endif
 };
 /* MCI driver instance data (a.k.a. SDCard driver instance) */
 static struct _hsmci_set sd_drv[BOARD_NUM_SDMMC];
@@ -219,8 +252,12 @@ static struct _hsmci_set sd_drv[BOARD_NUM_SDMMC];
 
 /* Library instance data (a.k.a. SDCard library instance) */
 CACHE_ALIGNED_DDR static sSdCard sd_lib0;
+#ifdef SLOT1_ID
 CACHE_ALIGNED_DDR static sSdCard sd_lib1;
 static sSdCard * sd_lib[BOARD_NUM_SDMMC] = { &sd_lib0, &sd_lib1 };
+#else
+static sSdCard * sd_lib[BOARD_NUM_SDMMC] = { &sd_lib0 };
+#endif
 
 /** Device LUNs. */
 static MSDLun luns[MAX_LUNS];
@@ -230,14 +267,20 @@ CACHE_ALIGNED_DDR static uint8_t ram_buffer[MSD_BUFFER_SIZE];
 
 /** LUN read/write buffer. */
 CACHE_ALIGNED_DDR static uint8_t sd_buffer0[MSD_BUFFER_SIZE];
+#ifdef SLOT1_ID
 CACHE_ALIGNED_DDR static uint8_t sd_buffer1[MSD_BUFFER_SIZE];
 static uint8_t * sd_buffer[BOARD_NUM_SDMMC] = { sd_buffer0, sd_buffer1 };
+#else
+static uint8_t * sd_buffer[BOARD_NUM_SDMMC] = { sd_buffer0};
+#endif
 
 /* Buffers dedicated to the SDMMC Driver, refer to sdmmc_initialize(). Aligning
  * them on cache lines is optional. */
 #ifdef CONFIG_HAVE_SDMMC
 CACHE_ALIGNED_DDR static uint32_t sd_dma_table0[DMADL_CNT_MAX * SDMMC_DMADL_SIZE];
+#ifdef SLOT1_ID
 CACHE_ALIGNED_DDR static uint32_t sd_dma_table1[DMADL_CNT_MAX * SDMMC_DMADL_SIZE];
+#endif
 #endif
 
 /** Total data write to disk */
@@ -299,6 +342,15 @@ static void msd_callbacks_data(uint8_t flow_direction, uint32_t data_length,
  */
 static void sd_driver_configure(void)
 {
+	uint8_t rc;
+
+	rc = board_cfg_sdmmc(SLOT0_ID) ? 1 : 0;
+#ifdef SLOT1_ID
+	rc &= board_cfg_sdmmc(SLOT1_ID) ? 1 : 0;
+#endif
+	if (!rc)
+		trace_error("Failed to cfg cells\n\r");
+
 #ifdef CONFIG_HAVE_SDMMC
 	struct _pmc_audio_cfg audio_pll_cfg = {
 		.fracr = 0,
@@ -306,7 +358,6 @@ static void sd_driver_configure(void)
 		.qdaudio = 24,
 	};
 #endif
-	uint8_t rc;
 
 	pmc_configure_peripheral(TIMER0_MODULE, NULL, true);
 #if TIMER1_MODULE != TIMER0_MODULE
@@ -317,8 +368,10 @@ static void sd_driver_configure(void)
 	 * SAMA5D4x).
 	 * The SDMMC peripherals are clocked by their Peripheral Clock, the
 	 * Master Clock, and a Generated Clock (at least on SAMA5D2x). */
-	pmc_configure_peripheral(HOST0_ID, NULL, true);
-	pmc_configure_peripheral(HOST1_ID, NULL, true);
+	pmc_configure_peripheral(SLOT0_ID, NULL, true);
+#ifdef SLOT1_ID
+	pmc_configure_peripheral(SLOT1_ID, NULL, true);
+#endif
 
 #ifdef CONFIG_HAVE_SDMMC
 	/* The regular SAMA5D2-XULT board wires on the SDMMC0 slot an e.MMC
@@ -336,7 +389,8 @@ static void sd_driver_configure(void)
 			.div = 1,
 		},
 	};
-	pmc_configure_peripheral(HOST0_ID, &cfg, true);
+	pmc_configure_peripheral(SLOT0_ID, &cfg, true);
+#ifdef SLOT1_ID
 	/* The regular SAMA5D2-XULT board wires on the SDMMC1 slot a MMC/SD
 	 * connector. SD cards are the most likely devices. Since the SDMMC1
 	 * peripheral supports 3.3V signaling level only, target SD High Speed
@@ -344,27 +398,29 @@ static void sd_driver_configure(void)
 	 * The Audio PLL being optimized for SDMMC0, fall back on PLLA, since,
 	 * as of writing, PLLACK/2 is configured to run at 498 MHz. */
 	cfg.gck.css = PMC_PCR_GCKCSS_PLLA_CLK;
-	pmc_configure_peripheral(HOST1_ID, &cfg, true);
+	pmc_configure_peripheral(SLOT1_ID, &cfg, true);
+#endif
 #endif
 
-	rc = board_cfg_sdmmc(HOST0_ID) ? 1 : 0;
-	rc &= board_cfg_sdmmc(HOST1_ID) ? 1 : 0;
-	if (!rc)
-		trace_error("Failed to cfg cells\n\r");
-
 #ifdef CONFIG_HAVE_SDMMC
-	sdmmc_initialize(&sd_drv[0], HOST0_ID, TIMER0_MODULE,
+	sdmmc_initialize(&sd_drv[0], SLOT0_ID, TIMER0_MODULE,
 	    TIMER0_CHANNEL, sd_dma_table0, ARRAY_SIZE(sd_dma_table0), false);
-	sdmmc_initialize(&sd_drv[1], HOST1_ID, TIMER1_MODULE,
+#ifdef SLOT1_ID
+	sdmmc_initialize(&sd_drv[1], SLOT1_ID, TIMER1_MODULE,
 	    TIMER1_CHANNEL, sd_dma_table1, ARRAY_SIZE(sd_dma_table1), false);
+#endif
 #elif defined(CONFIG_HAVE_HSMCI)
 	hsmci_initialize(&sd_drv[0], &sd_drv_config[0]);
+#ifdef SLOT1_ID
 	hsmci_initialize(&sd_drv[1], &sd_drv_config[1]);
+#endif
 #endif
 
 	/* As of writing, libsdmmc ignores the slot number */
 	SDD_InitializeSdmmcMode(&sd_lib0, &sd_drv[0], 0);
+#ifdef SLOT1_ID
 	SDD_InitializeSdmmcMode(&sd_lib1, &sd_drv[1], 0);
+#endif
 }
 
 /**
@@ -413,30 +469,24 @@ static bool card_init(uint8_t num)
  */
 static void sddisk_init(void)
 {
-	uint8_t rc, i, sd_connected[BOARD_NUM_SDMMC];
+	uint8_t rc, i;
 	sSdCard *pSd;
-	/* Infinite loop */
-	for (i = 0; i < BOARD_NUM_SDMMC; i ++) sd_connected[i]=0;
-	for (i = 0; i < BOARD_NUM_SDMMC; i ++) {
 
-	if (SD_GetStatus(sd_lib[i]) != SDMMC_NOT_SUPPORTED) {
-		if (sd_connected[i] == 0) {
-				sd_connected[i] = 1;
-				trace_info("Connecting to slot %x \n\r",i);
-				rc = card_init(i);
-				if(rc) {
-					pSd = sd_lib[i];
-					media_sdusb_initialize(&medias[current_lun_num], pSd);
-					lun_init(&(luns[current_lun_num]), &(medias[current_lun_num]),
-								sd_buffer[i], MSD_BUFFER_SIZE, 0, 0, 0, 0,
-								msd_callbacks_data);
-					current_lun_num++;
-				}
+	/* Infinite loop */
+	for (i = 0; i < BOARD_NUM_SDMMC; i ++) {
+		if (SD_GetStatus(sd_lib[i]) != SDMMC_NOT_SUPPORTED) {
+			trace_info("Connecting to slot %x \n\r", i);
+			rc = card_init(i);
+			if (rc) {
+				pSd = sd_lib[i];
+				media_sdusb_initialize(&medias[current_lun_num], pSd);
+				lun_init(&(luns[current_lun_num]), &(medias[current_lun_num]),
+						sd_buffer[i], MSD_BUFFER_SIZE, 0, 0, 0, 0,
+						msd_callbacks_data);
+				current_lun_num++;
 			}
-		} else {
-				sd_connected[i] = 0;
-				trace_info("** Card %d Disconnected\n\r",i);
-		}
+		} else
+			trace_info("** Card %d Disconnected\n\r",i);
 	}
 
 }
@@ -446,7 +496,7 @@ static void sddisk_init(void)
  */
 static void _MemoriesInitialize(void)
 {
-	int i;
+	uint8_t i;
 
 	/* Reset all LUNs */
 	for (i = 0; i < MAX_LUNS; i++)
