@@ -15,6 +15,15 @@ another input.
 
 # Test
 ------
+## Supported targets
+--------------------
+* SAM9XX5-EK
+* SAMA5D2-XPLAINED
+* SAMA5D27-SOM1-EK
+* SAMA5D3-EK
+* SAMA5D3-XPLAINED
+* SAMA5D4-EK
+* SAMA5D4-XPLAINED
 
 ## Setup
 --------
@@ -26,8 +35,9 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D2-XPLAINED)
--------------------------------------------
+## Start the application 
+------------------------
+
 In the terminal window, the following text should appear (values depend on the
 board and chip used):
 ```
@@ -44,13 +54,3 @@ Step | Description | Expected Result | Result
 Open one serial | open one serial through host software, print 'SerialPort0 ON' | PASSED | PASSED
 Open another serial | open another serial through host software, print 'SerialPort1 ON' | PASSED | PASSED
 Communicate with each other | input letter in one serial, another would display, vice-versa | PASSED | PASSED
-
-# Log
------
-
-## Current version
-------------------
- - v1.3
-
-## History
-----------
