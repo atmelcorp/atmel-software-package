@@ -68,7 +68,37 @@ void mcan_reconfigure(Mcan *mcan)
 
 bool mcan_set_mode(Mcan *mcan, enum can_mode mode)
 {
-	uint32_t val = mcan->MCAN_CCCR & ~(MCAN_CCCR_BRSE | MCAN_CCCR_FDOE);
+	uint32_t val;
+
+#ifdef MCAN_CCCR_CMR
+	val = mcan->MCAN_CCCR & ~MCAN_CCCR_CME_Msk;
+	switch (mode) {
+	case CAN_MODE_CAN:
+		if (val != MCAN_CCCR_CME_ISO11898_1) {
+			val &= ~MCAN_CCCR_CMR_Msk;
+			mcan->MCAN_CCCR = val | MCAN_CCCR_CMR_ISO11898_1;
+			while ((mcan->MCAN_CCCR &
+				(MCAN_CCCR_CMR_Msk | MCAN_CCCR_FDBS | MCAN_CCCR_FDO)) != 0)
+				{ /* wait */ }
+		}
+		break;
+	case CAN_MODE_CAN_FD_CONST_RATE:
+		if (val != MCAN_CCCR_CME_FD) {
+			val &= ~MCAN_CCCR_CMR_Msk;
+			mcan->MCAN_CCCR = val | MCAN_CCCR_CME_FD | MCAN_CCCR_CMR_FD;
+		}
+		break;
+	case CAN_MODE_CAN_FD_DUAL_RATE:
+		if ((val == MCAN_CCCR_CME_ISO11898_1) || (val == MCAN_CCCR_CME_FD)) {
+			val &= ~MCAN_CCCR_CMR_Msk;
+			mcan->MCAN_CCCR = val | MCAN_CCCR_CME(2) | MCAN_CCCR_CMR_FD_BITRATE_SWITCH;
+		}
+		break;
+	default:
+		return false;
+	}
+#else
+	val = mcan->MCAN_CCCR & ~(MCAN_CCCR_BRSE | MCAN_CCCR_FDOE);
 
 	switch (mode) {
 	case CAN_MODE_CAN:
@@ -83,6 +113,7 @@ bool mcan_set_mode(Mcan *mcan, enum can_mode mode)
 	default:
 		return false;
 	}
+#endif
 	return true;
 }
 
@@ -90,10 +121,17 @@ enum can_mode mcan_get_mode(Mcan *mcan)
 {
 	const uint32_t cccr = mcan->MCAN_CCCR;
 
+#ifdef CONFIG_SOC_SAMV71
+	if ((cccr & MCAN_CCCR_CME_Msk) == MCAN_CCCR_CME_ISO11898_1)
+		return CAN_MODE_CAN;
+	if ((cccr & MCAN_CCCR_CME_Msk) == MCAN_CCCR_CME_FD)
+		return CAN_MODE_CAN_FD_CONST_RATE;
+#else
 	if ((cccr & MCAN_CCCR_FDOE) == MCAN_CCCR_FDOE_DISABLED)
 		return CAN_MODE_CAN;
 	if ((cccr & MCAN_CCCR_BRSE) == MCAN_CCCR_BRSE_DISABLED)
 		return CAN_MODE_CAN_FD_CONST_RATE;
+#endif
 	return CAN_MODE_CAN_FD_DUAL_RATE;
 }
 

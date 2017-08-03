@@ -348,9 +348,14 @@ static int mcan_initialize(struct _mcan_desc* desc, const struct mcan_config *cf
 	mcan->MCAN_NDAT1 = 0xFFFFFFFF;   /* clear new (rx) data flags */
 	mcan->MCAN_NDAT2 = 0xFFFFFFFF;   /* clear new (rx) data flags */
 
+#ifdef MCAN_CCCR_CME
+	uint32_t reg = mcan->MCAN_CCCR & ~(MCAN_CCCR_CME_Msk | MCAN_CCCR_CMR_Msk);
+	mcan->MCAN_CCCR = reg | MCAN_CCCR_CME_ISO11898_1;
+	mcan->MCAN_CCCR = reg | (MCAN_CCCR_CMR_ISO11898_1 | MCAN_CCCR_CME_ISO11898_1);
+#else
 	mcan->MCAN_CCCR = (mcan->MCAN_CCCR & ~(MCAN_CCCR_BRSE | MCAN_CCCR_FDOE)) |
 			MCAN_CCCR_PXHD | MCAN_CCCR_BRSE_DISABLED | MCAN_CCCR_FDOE_DISABLED;
-
+#endif
 	mcan_enable_it(mcan, MCAN_IE_BOE);
 
 	return 0;
@@ -780,18 +785,54 @@ static void _mcan_handler(uint32_t source, void* user_arg)
 		mcan_clear_status(mcan, MCAN_IR_WDI);
 		trace_info("Message RAM Watchdog event due to missing READY\n\r");
 	}
+#ifdef MCAN_IR_PEA
 	if (status & MCAN_IR_PEA) {
 		mcan_clear_status(mcan, MCAN_IR_PEA);
 		trace_info("Protocol Error in Arbitration Phase\n\r");
 	}
+#endif
+#ifdef MCAN_IR_PED
 	if (status & MCAN_IR_PED) {
 		mcan_clear_status(mcan, MCAN_IR_PED);
 		trace_info("Protocol Error in Data Phase\n\r");
 	}
+#endif
+#ifdef MCAN_IR_CRCE
+	if (status & MCAN_IR_CRCE) {
+		mcan_clear_status(mcan, MCAN_IR_CRCE);
+		trace_info("CRC Error\n\r");
+	}
+#endif
+#ifdef MCAN_IR_BE
+	if (status & MCAN_IR_BE) {
+		mcan_clear_status(mcan, MCAN_IR_BE);
+		trace_info("Bit Error\n\r");
+	}
+#endif
+#ifdef MCAN_IR_ARA
 	if (status & MCAN_IR_ARA) {
 		mcan_clear_status(mcan, MCAN_IR_ARA);
 		trace_info("Access to Reserved Address\n\r");
 	}
+#endif
+#ifdef MCAN_IR_ACKE
+	if (status & MCAN_IR_ACKE) {
+		mcan_clear_status(mcan, MCAN_IR_ACKE);
+		trace_info("Acknowledge Error\n\r");
+	}
+#endif
+#ifdef MCAN_IR_FOE
+	if (status & MCAN_IR_FOE) {
+		mcan_clear_status(mcan, MCAN_IR_FOE);
+		trace_info("Format Error\n\r");
+	}
+#endif
+#ifdef MCAN_IR_STE
+	if (status & MCAN_IR_STE) {
+		mcan_clear_status(mcan, MCAN_IR_STE);
+		trace_info("Stuff Error\n\r");
+	}
+#endif
 }
 
 /**
@@ -818,8 +859,12 @@ static int mcand_set_baudrate(Mcan *mcan, uint32_t freq, uint32_t freq_fd)
 	id = get_mcan_id_from_addr(mcan, 0);
 	assert(id < ID_PERIPH_COUNT);
 
+#ifdef CONFIG_HAVE_PMC_GENERATED_CLOCKS
 	/* Retrieve the frequency of the CAN core clock i.e. the Generated Clock */
 	clk = pmc_get_gck_clock(id);
+#else
+	clk = pmc_get_peripheral_clock(id);
+#endif
 
 	/* Configure CAN bit timing */
 	if (freq == 0 || quanta.before_sp < 3 || quanta.before_sp > 257
@@ -830,12 +875,19 @@ static int mcand_set_baudrate(Mcan *mcan, uint32_t freq, uint32_t freq_fd)
 	val = ROUND_INT_DIV(clk, freq * (quanta.before_sp + quanta.after_sp));
 	if (val < 1 || val > 512)
 		return -EINVAL;
+#ifdef MCAN_NBTP_NBRP
 	/* Apply bit timing configuration */
 	mcan->MCAN_NBTP = MCAN_NBTP_NBRP(val - 1)
 		| MCAN_NBTP_NTSEG1(quanta.before_sp - 1 - 1)
 		| MCAN_NBTP_NTSEG2(quanta.after_sp - 1)
 		| MCAN_NBTP_NSJW(quanta.sync_jump - 1);
-
+#endif
+#ifdef MCAN_BTP_BRP
+	mcan->MCAN_BTP = MCAN_BTP_BRP(val - 1)
+		| MCAN_BTP_TSEG1(quanta.before_sp - 1 - 1)
+		| MCAN_BTP_TSEG2(quanta.after_sp - 1)
+		| MCAN_BTP_SJW(quanta.sync_jump - 1);
+#endif
 	/* Configure fast CAN FD bit timing */
 	if (freq_fd < freq || quanta_fd.before_sp < 3 || quanta_fd.before_sp > 33
 		|| quanta_fd.after_sp < 1 || quanta_fd.after_sp > 16
@@ -847,11 +899,18 @@ static int mcand_set_baudrate(Mcan *mcan, uint32_t freq, uint32_t freq_fd)
 	if (val < 1 || val > 32)
 		return -EINVAL;
 	/* Apply bit timing configuration */
+#ifdef MCAN_DBTP_DBRP
 	mcan->MCAN_DBTP = MCAN_DBTP_DBRP(val - 1)
 		| MCAN_DBTP_DTSEG1(quanta_fd.before_sp - 1 - 1)
 		| MCAN_DBTP_DTSEG2(quanta_fd.after_sp - 1)
 		| MCAN_DBTP_DSJW(quanta_fd.sync_jump - 1);
-
+#endif
+#ifdef MCAN_FBTP_FBRP
+	mcan->MCAN_FBTP = MCAN_FBTP_FBRP(val - 1)
+		| MCAN_FBTP_FTSEG1(quanta_fd.before_sp - 1 - 1)
+		| MCAN_FBTP_FTSEG2(quanta_fd.after_sp - 1)
+		| MCAN_FBTP_FSJW(quanta_fd.sync_jump - 1);
+#endif
 	return 0;
 }
 
@@ -1094,6 +1153,7 @@ int mcand_configure(struct _mcan_desc* desc)
 	assert(id0 < ID_PERIPH_COUNT);
 	assert(id1 < ID_PERIPH_COUNT);
 
+#ifdef PMC_PCR_GCKCSS
 	/* The MCAN peripheral is clocked by both its Peripheral Clock
 	 * and Generated Clock (at least on SAMA5D2x). */
 	/* Configure GCLK = <Master clock> divided by 1
@@ -1106,6 +1166,11 @@ int mcand_configure(struct _mcan_desc* desc)
 		},
 	};
 	pmc_configure_peripheral(id0, &cfg, true);
+#else
+	pmc_configure_pck(PMC_PCK_CAN, PMC_PCK_CSS_MCK, 0);
+	pmc_enable_pck(PMC_PCK_CAN);
+	pmc_configure_peripheral(id0, NULL, true);
+#endif
 
 	mcan_cfg.msg_ram[0] = mcan_msg_ram0[mcan_get_index(mcan)];
 	mcan_cfg.ram_size[0] = ARRAY_SIZE(mcan_msg_ram0);

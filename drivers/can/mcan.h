@@ -231,14 +231,31 @@ struct mcan_msg_info
 static inline void mcan_set_base_addr_msb16(Mcan *mcan, uint32_t base_addr)
 {
 	/* Configure the MSB of the Message RAM Base Address */
-	uint32_t val = SFR->SFR_CAN;
+	uint32_t val;
 
+#if defined(MATRIX)
+	if (MCAN0 ==  mcan) {
+		MATRIX->CCFG_CAN0 = base_addr & 0xFFFF0000;
+	} else if (MCAN1 ==  mcan) {
+		val = MATRIX->CCFG_SYSIO & 0x0000FFFF;
+		MATRIX->CCFG_SYSIO = val | (base_addr & 0xFFFF0000);
+	}
+#elif defined(SFR)
+#ifdef SFR_CAN_EXT_MEM_ADDR
+	val = (MCAN0 ==  mcan) ? 0 : 1;
+	SFR->SFR_CAN[val] = SFR_CAN_EXT_MEM_ADDR(base_addr >> 16);
+#else
+	val = SFR->SFR_CAN;
 	if (MCAN0 == mcan)
 		SFR->SFR_CAN = (val & ~SFR_CAN_EXT_MEM_CAN0_ADDR_Msk)
 			| SFR_CAN_EXT_MEM_CAN0_ADDR(base_addr >> 16);
 	else
 		SFR->SFR_CAN = (val & ~SFR_CAN_EXT_MEM_CAN1_ADDR_Msk)
 			| SFR_CAN_EXT_MEM_CAN1_ADDR(base_addr >> 16);
+#endif
+#else
+	#error Could not set MSB address of message RAM for MCAN
+#endif
 }
 
 static inline uint32_t mcan_get_status(Mcan *mcan)
