@@ -96,6 +96,20 @@ static const USBDeviceDescriptor deviceDescriptor = {
 	1 /* Device has 1 possible configuration */
 };
 
+/** Device qualifier descriptor (to pass USB test). */
+static const USBDeviceQualifierDescriptor qualifierDescriptor = {
+
+	sizeof(USBDeviceQualifierDescriptor),
+	USBGenericDescriptor_DEVICEQUALIFIER,
+	USBDeviceDescriptor_USB2_00,
+	CDCDeviceDescriptor_CLASS,
+	CDCDeviceDescriptor_SUBCLASS,
+	CDCDeviceDescriptor_PROTOCOL,
+	CHIP_USB_ENDPOINT_MAXPACKETSIZE(0),
+	0, // Device has no other speed configuration.
+	0x00
+};
+
 /** USB configuration descriptors for the composite device driver */
 static const DualCdcDriverConfigurationDescriptors configurationDescriptorsFS =
 {
@@ -197,7 +211,7 @@ static const DualCdcDriverConfigurationDescriptors configurationDescriptorsFS =
 										CDCD_Descriptors_DATAOUT0),
 		USBEndpointDescriptor_BULK,
 		MIN(CHIP_USB_ENDPOINT_MAXPACKETSIZE(CDCD_Descriptors_DATAOUT0),
-			USBEndpointDescriptor_MAXBULKSIZE_FS),
+			USBEndpointDescriptor_MAXBULKSIZE_HS),
 		0 /* Must be 0 for full-speed bulk endpoints */
 	},
 	/* Bulk-IN endpoint descriptor */
@@ -208,7 +222,7 @@ static const DualCdcDriverConfigurationDescriptors configurationDescriptorsFS =
 										CDCD_Descriptors_DATAIN0),
 		USBEndpointDescriptor_BULK,
 		MIN(CHIP_USB_ENDPOINT_MAXPACKETSIZE(CDCD_Descriptors_DATAIN0),
-			USBEndpointDescriptor_MAXBULKSIZE_FS),
+			USBEndpointDescriptor_MAXBULKSIZE_HS),
 		0 /* Must be 0 for full-speed bulk endpoints */
 	},
 
@@ -384,7 +398,12 @@ const USBDDriverDescriptors dual_cdcd_driver_descriptors = {
 
 	&deviceDescriptor,
 	(const USBConfigurationDescriptor *) &configurationDescriptorsFS,
-	0, 0, 0, 0, 0, 0,
+	&qualifierDescriptor,
+	0, /* No full-speed other speed configuration */
+	0, /* No high-speed device descriptor (uses FS one) */
+	0, /* No high-speed configuration descriptor (uses FS one) */
+	&qualifierDescriptor,
+	0, /* No high-speed other speed configuration descriptor */
 	stringDescriptors,
 	4 /*  Number of string descriptors */
 };

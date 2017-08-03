@@ -87,8 +87,22 @@ static const USBDeviceDescriptor deviceDescriptor = {
 	CDCMSDDDriverDescriptors_RELEASE,
 	0, /* No string descriptor for manufacturer */
 	1, /* Index of product string descriptor is #1 */
-	0, /* No string descriptor for serial number */
+	3, /* No string descriptor for serial number */
 	1  /* Device has 1 possible configuration */
+};
+
+/** Device qualifier descriptor (to pass USB test). */
+static const USBDeviceQualifierDescriptor qualifierDescriptor = {
+
+	sizeof(USBDeviceQualifierDescriptor),
+	USBGenericDescriptor_DEVICEQUALIFIER,
+	USBDeviceDescriptor_USB2_00,
+	CDCDeviceDescriptor_CLASS,
+	CDCDeviceDescriptor_SUBCLASS,
+	CDCDeviceDescriptor_PROTOCOL,
+	CHIP_USB_ENDPOINT_MAXPACKETSIZE(0),
+	0, // Device has no other speed configuration.
+	0x00
 };
 
 /** USB configuration descriptors for the CDCMSD device driver */
@@ -191,7 +205,7 @@ static const CDCMSDDriverConfigurationDescriptors configurationDescriptorsFS = {
 		CDCD_Descriptors_DATAOUT0),
 		USBEndpointDescriptor_BULK,
 		MIN(CHIP_USB_ENDPOINT_MAXPACKETSIZE(CDCD_Descriptors_DATAOUT0),
-		USBEndpointDescriptor_MAXBULKSIZE_FS),
+		USBEndpointDescriptor_MAXBULKSIZE_HS),
 		0 /* Must be 0 for full-speed bulk endpoints */
 	},
 	/* Bulk-IN endpoint descriptor */
@@ -202,7 +216,7 @@ static const CDCMSDDriverConfigurationDescriptors configurationDescriptorsFS = {
 		CDCD_Descriptors_DATAIN0),
 		USBEndpointDescriptor_BULK,
 		MIN(CHIP_USB_ENDPOINT_MAXPACKETSIZE(CDCD_Descriptors_DATAIN0),
-		USBEndpointDescriptor_MAXBULKSIZE_FS),
+		USBEndpointDescriptor_MAXBULKSIZE_HS),
 		0 /* Must be 0 for full-speed bulk endpoints */
 	},
 
@@ -289,12 +303,20 @@ static const unsigned char productDescriptor[] = {
 /** Product serial number. */
 static const unsigned char serialNumberDescriptor[] = {
 
-	USBStringDescriptor_LENGTH(4),
+	USBStringDescriptor_LENGTH(12),
 	USBGenericDescriptor_STRING,
 	USBStringDescriptor_UNICODE('0'),
 	USBStringDescriptor_UNICODE('1'),
 	USBStringDescriptor_UNICODE('2'),
-	USBStringDescriptor_UNICODE('3')
+	USBStringDescriptor_UNICODE('3'),
+	USBStringDescriptor_UNICODE('4'),
+	USBStringDescriptor_UNICODE('5'),
+	USBStringDescriptor_UNICODE('6'),
+	USBStringDescriptor_UNICODE('7'),
+	USBStringDescriptor_UNICODE('8'),
+	USBStringDescriptor_UNICODE('9'),
+	USBStringDescriptor_UNICODE('A'),
+	USBStringDescriptor_UNICODE('B')
 };
 
 /** Array of pointers to the four string descriptors. */
@@ -315,7 +337,12 @@ const USBDDriverDescriptors cdc_msdd_driver_descriptors = {
 
 	&deviceDescriptor,
 	(const USBConfigurationDescriptor *) &configurationDescriptorsFS,
-	0, 0, 0, 0, 0, 0,
+	&qualifierDescriptor,
+	0, /* No full-speed other speed configuration */
+	0, /* No high-speed device descriptor (uses FS one) */
+	0, /* No high-speed configuration descriptor (uses FS one) */
+	&qualifierDescriptor,
+	0, /* No high-speed other speed configuration descriptor */
 	stringDescriptors,
 	4 /* Number of string descriptors */
 };

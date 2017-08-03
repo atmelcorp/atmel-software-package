@@ -80,7 +80,7 @@ static const USBDeviceQualifierDescriptor qualifierDescriptor = {
 	VIDDeviceDescriptor_SUBCLASS,
 	VIDDeviceDescriptor_PROTOCOL,
 	CHIP_USB_ENDPOINT_MAXPACKETSIZE(0),
-    1, // Device has one possible configuration.
+	0, // Device has no other speed configuration
 	0x00
 };
 
@@ -297,7 +297,8 @@ const struct UsbVideoCamConfigurationDescriptors configurationDescriptorsFS =
 		sizeof(USBEndpointDescriptor),
 		USBGenericDescriptor_ENDPOINT,
 		0x80 | VIDCAMD_IsoInEndpointNum, /* EP2, IN */
-		(USBEndpointDescriptor_ISOCHRONOUS),
+		(USBEndpointDescriptor_ISOCHRONOUS
+		| USBEndpointDescriptor_Asynchronous_ISOCHRONOUS),
 		//|USBEndpointDescriptor_Asynchronous_ISOCHRONOUS),
 		FRAME_PACKET_SIZE_FS,
 		1
@@ -517,8 +518,8 @@ const struct UsbVideoCamConfigurationDescriptors configurationDescriptorsHS =
 		sizeof(USBEndpointDescriptor),
 		USBGenericDescriptor_ENDPOINT,
 		0x80 | VIDCAMD_IsoInEndpointNum, /* EP2, IN */
-		(USBEndpointDescriptor_ISOCHRONOUS ),
-		//|USBEndpointDescriptor_Asynchronous_ISOCHRONOUS),
+		(USBEndpointDescriptor_ISOCHRONOUS
+		| USBEndpointDescriptor_Asynchronous_ISOCHRONOUS),
 		VIDCAMD_EpDesc_MaxPacketSize,
 		1
 	}
