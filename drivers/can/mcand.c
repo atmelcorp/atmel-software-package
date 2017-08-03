@@ -242,6 +242,14 @@ static int mcan_get_index(Mcan *mcan)
 	if (MCAN1 == mcan)
 		return 1;
 #endif
+#ifdef MCAN2
+	if (MCAN2 == mcan)
+		return 2;
+#endif
+#ifdef MCAN3
+	if (MCAN3 == mcan)
+		return 3;
+#endif
 	trace_error("failed when getting the index of MCAN\r\n");
 	return 0;
 }
@@ -677,6 +685,14 @@ static void _mcan_handler(uint32_t source, void* user_arg)
 #ifdef MCAN1
 	else if ((ID_MCAN1_INT0 == source) || (ID_MCAN1_INT1 == source))
 		mcan_if = 1;
+#endif
+#ifdef MCAN2
+	else if ((ID_MCAN2_INT0 == source) || (ID_MCAN2_INT1 == source))
+		mcan_if = 2;
+#endif
+#ifdef MCAN3
+	else if ((ID_MCAN3_INT0 == source) || (ID_MCAN3_INT1 == source))
+		mcan_if = 3;
 #endif
 	else {
 		trace_fatal("MCAN handler error!");

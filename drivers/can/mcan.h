@@ -242,7 +242,8 @@ static inline void mcan_set_base_addr_msb16(Mcan *mcan, uint32_t base_addr)
 	}
 #elif defined(SFR)
 #ifdef SFR_CAN_EXT_MEM_ADDR
-	val = (MCAN0 ==  mcan) ? 0 : 1;
+	val = (MCAN0 ==  mcan) ? 0 : (
+		(MCAN1 ==  mcan) ? 1 : ((MCAN2 ==  mcan) ? 2 : 3));
 	SFR->SFR_CAN[val] = SFR_CAN_EXT_MEM_ADDR(base_addr >> 16);
 #else
 	val = SFR->SFR_CAN;

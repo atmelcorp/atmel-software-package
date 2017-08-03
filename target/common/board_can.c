@@ -67,4 +67,14 @@ void board_cfg_can_bus(void)
 	pio_configure(pins_can_bus1, ARRAY_SIZE(pins_can_bus1));
 	can_bus_configure(1, BOARD_CAN_BUS1, BOARD_CAN_BUS1_FREQ, BOARD_CAN_BUS1_FREQ_FD);
 #endif
+#ifdef BOARD_CAN_BUS2
+	const struct _pin pins_can_bus2[] = BOARD_CAN_BUS2_PINS;
+	pio_configure(pins_can_bus2, ARRAY_SIZE(pins_can_bus2));
+	can_bus_configure(2, BOARD_CAN_BUS2, BOARD_CAN_BUS2_FREQ, BOARD_CAN_BUS2_FREQ_FD);
+#endif
+#ifdef BOARD_CAN_BUS3
+	const struct _pin pins_can_bus3[] = BOARD_CAN_BUS3_PINS;
+	pio_configure(pins_can_bus3, ARRAY_SIZE(pins_can_bus3));
+	can_bus_configure(3, BOARD_CAN_BUS3, BOARD_CAN_BUS3_FREQ, BOARD_CAN_BUS3_FREQ_FD);
+#endif
 }
