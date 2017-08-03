@@ -14,6 +14,15 @@ host.
 
 # Test
 ------
+## Supported targets
+--------------------
+* SAM9XX5-EK
+* SAMA5D2-XPLAINED
+* SAMA5D27-SOM1-EK
+* SAMA5D3-EK
+* SAMA5D3-XPLAINED
+* SAMA5D4-EK
+* SAMA5D4-XPLAINED
 
 ## Setup
 --------
@@ -25,8 +34,9 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D2-XPLAINED)
--------------------------------------------
+## Start the application
+------------------------
+
 When this program runs connected to a host (PC for example), with USB cable,
 the board appears as a "USB Human Interface Device" for the host. Use the
 client application to read/write on it.
@@ -49,14 +59,3 @@ Read/Write data | Press the read or write button in hidTest.exe to read or write
 Get/Set Report | Press the get or set report in hidTest.exe to read or write report | PASSED | PASSED
 Get/Set Feature | Press the get or set feature in hidTest.exe to read or write feature | PASSED | PASSED
 Monitor buttons | Press the monitor button in hidTest.exe to display the status of monitor button | PASSED | PASSED
-
-
-# Log
------
-
-## Current version
-------------------
- - v1.3
-
-## History
-----------
