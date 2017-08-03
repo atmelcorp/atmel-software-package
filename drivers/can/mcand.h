@@ -116,7 +116,7 @@ struct _mcan_desc {
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-extern struct _mcan_desc* mcand_get_desc(uint8_t mcan_if);
+extern struct _mcan_desc* mcand_get_desc(Mcan * mcan_if);
 extern int mcand_configure(struct _mcan_desc* desc);
 
 /**

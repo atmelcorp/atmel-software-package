@@ -62,7 +62,7 @@ int can_bus_configure(uint8_t bus_id, void *iface, uint32_t freq, uint32_t freq_
 	_can_bus[bus_id].cand->freq = freq;
 	cand_configure(_can_bus[bus_id].cand);
 #elif defined(CONFIG_HAVE_MCAN)
-	_can_bus[bus_id].mcand = mcand_get_desc(bus_id);
+	_can_bus[bus_id].mcand = mcand_get_desc(iface);
 	memset(_can_bus[bus_id].mcand, 0, sizeof(struct _mcan_desc));
 	_can_bus[bus_id].mcand->addr = (Mcan *)iface;
 	_can_bus[bus_id].mcand->freq = freq;

@@ -234,6 +234,18 @@ static int configure_ram(struct mcan_set *set, const struct mcan_config *cfg)
 	return 0;
 }
 
+static int mcan_get_index(Mcan *mcan)
+{
+	if (MCAN0 == mcan)
+		return 0;
+#ifdef MCAN1
+	if (MCAN1 == mcan)
+		return 1;
+#endif
+	trace_error("failed when getting the index of MCAN\r\n");
+	return 0;
+}
+
 /**
  * \brief Initialize the MCAN hardware for the given peripheral.
  * Default: Non-FD, ISO 11898-1 CAN mode; mixed mode TX Buffer + FIFO.
@@ -261,7 +273,7 @@ static int mcan_initialize(struct _mcan_desc* desc, const struct mcan_config *cf
 	set->cfg = *cfg;
 
 	/* Configure the MSB of the Message RAM Base Address */
-	mcan_set_base_addr_msb16(mcan, (uint32_t)cfg->msg_ram[(MCAN0 == mcan) ? 0 : 1]);
+	mcan_set_base_addr_msb16(mcan, (uint32_t)cfg->msg_ram[0]);
 
 	/* Reset the CC Control Register */
 	mcan->MCAN_CCCR = 0 | MCAN_CCCR_INIT_ENABLED;
@@ -657,8 +669,10 @@ static void _mcan_handler(uint32_t source, void* user_arg)
 
 	if ((ID_MCAN0_INT0 == source) || (ID_MCAN0_INT1 == source))
 		mcan_if = 0;
+#ifdef MCAN1
 	else if ((ID_MCAN1_INT0 == source) || (ID_MCAN1_INT1 == source))
 		mcan_if = 1;
+#endif
 	else {
 		trace_fatal("MCAN handler error!");
 	}
@@ -1065,10 +1079,9 @@ static int mcand_rx(struct _mcan_desc *desc, struct _buffer *buf,
  *        Exported Functions
  *----------------------------------------------------------------------------*/
 
-struct _mcan_desc* mcand_get_desc(uint8_t mcan_if)
+struct _mcan_desc* mcand_get_desc(Mcan * mcan_if)
 {
-	assert(mcan_if < CAN_IFACE_COUNT);
-	return &mcan_desc[mcan_if];
+	return &mcan_desc[mcan_get_index(mcan_if)];
 }
 
 int mcand_configure(struct _mcan_desc* desc)
@@ -1094,11 +1107,11 @@ int mcand_configure(struct _mcan_desc* desc)
 	};
 	pmc_configure_peripheral(id0, &cfg, true);
 
-	mcan_cfg.msg_ram[0] = mcan_msg_ram0[(MCAN0 == mcan) ? 0 : 1];
+	mcan_cfg.msg_ram[0] = mcan_msg_ram0[mcan_get_index(mcan)];
 	mcan_cfg.ram_size[0] = ARRAY_SIZE(mcan_msg_ram0);
 	memset(mcan_cfg.msg_ram[0], 0, mcan_cfg.ram_size[0]);
 
-	mcan_cfg.msg_ram[1] = mcan_msg_ram1[(MCAN0 == mcan) ? 0 : 1];
+	mcan_cfg.msg_ram[1] = mcan_msg_ram1[mcan_get_index(mcan)];
 	mcan_cfg.ram_size[1] = ARRAY_SIZE(mcan_msg_ram1);
 	memset(mcan_cfg.msg_ram[1], 0, mcan_cfg.ram_size[1]);
 
