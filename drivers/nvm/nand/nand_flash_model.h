@@ -74,16 +74,16 @@ struct _nand_flash_model {
 	uint8_t data_bus_width;
 
 	/** Size of the data area of a page, in bytes. */
-	uint16_t page_size_in_bytes;
+	uint16_t page_size;
 
 	/** Size of the spare area of a page, in bytes. */
-	uint16_t spare_size_in_bytes;
+	uint16_t spare_size;
 
 	/** Size of the device in MB. */
-	uint16_t device_size_in_mega_bytes;
+	uint16_t device_size;
 
-	/** Size of one block in kilobytes. */
-	uint16_t block_size_in_kbytes;
+	/** Size of one block, in bytes. */
+	uint32_t block_size;
 };
 
 /*---------------------------------------------------------------------- */

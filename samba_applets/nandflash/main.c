@@ -291,19 +291,13 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	}
 
 	if (nand_onfi_check_compatibility(&nand)) {
-		model_from_onfi.device_id =
-			nand_onfi_get_manufacturer_id();
-		model_from_onfi.data_bus_width =
-			nand_onfi_get_bus_width() ? 16 : 8;
-		model_from_onfi.page_size_in_bytes =
-			nand_onfi_get_page_size();
-		model_from_onfi.spare_size_in_bytes =
-			nand_onfi_get_spare_size();
-		model_from_onfi.device_size_in_mega_bytes =
-			((nand_onfi_get_pages_per_block() * nand_onfi_get_blocks_per_lun()) / 1024) *
-			nand_onfi_get_page_size() / 1024;
-		model_from_onfi.block_size_in_kbytes =
-			(nand_onfi_get_pages_per_block() * nand_onfi_get_page_size()) / 1024;
+		model_from_onfi.device_id = nand_onfi_get_manufacturer_id();
+		model_from_onfi.data_bus_width = nand_onfi_get_bus_width() ? 16 : 8;
+		model_from_onfi.page_size = nand_onfi_get_page_size();
+		model_from_onfi.spare_size = nand_onfi_get_spare_size();
+		model_from_onfi.block_size = nand_onfi_get_pages_per_block() * nand_onfi_get_page_size();
+		model_from_onfi.device_size =
+			((model_from_onfi.block_size / 1024) * nand_onfi_get_blocks_per_lun()) / 1024;
 
 		correctability = nand_onfi_get_ecc_correctability();
 		if (correctability != 0xFF) {

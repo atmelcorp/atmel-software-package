@@ -73,8 +73,7 @@ uint8_t nand_model_find(const struct _nand_flash_model *list, uint32_t list_size
 			found = true;
 			if (model) {
 				memcpy(model, &list[i], sizeof(*model));
-				if (model->block_size_in_kbytes == 0 ||
-					model->page_size_in_bytes == 0) {
+				if (model->page_size == 0) {
 					NAND_TRACE("Fetch from ID4(0x%.2x):\r\n", id4);
 
 					/*
@@ -88,45 +87,52 @@ uint8_t nand_model_find(const struct _nand_flash_model *list, uint32_t list_size
 
 					switch(id4 & 0x03) {
 					case 0x00:
-						model->page_size_in_bytes = 1024;
+						model->page_size = 1024;
 						break;
 					case 0x01:
-						model->page_size_in_bytes = 2048;
+						model->page_size = 2048;
 						break;
 					case 0x02:
-						model->page_size_in_bytes = 4096;
+						model->page_size = 4096;
 						break;
 					case 0x03:
-						model->page_size_in_bytes = 8192;
+						model->page_size = 8192;
 						break;
 					}
 
 					switch(id4 & 0x30) {
 					case 0x00:
-						model->block_size_in_kbytes = 64;
+						model->block_size = 64 * 1024;
 						break;
 					case 0x10:
-						model->block_size_in_kbytes = 128;
+						model->block_size = 128 * 1024;
 						break;
 					case 0x20:
-						model->block_size_in_kbytes = 256;
+						model->block_size = 256 * 1024;
 						break;
 					case 0x30:
-						model->block_size_in_kbytes = 512;
+						model->block_size = 512 * 1024;
 						break;
 					}
+				}
+
+				if (model->spare_size == 0) {
+					/* Spare size is 16/512 of data size */
+					model->spare_size = model->page_size >> 5;
 				}
 			}
 
 			NAND_TRACE("NAND Model found:\r\n");
-			NAND_TRACE(" * deviceId = 0x%02X\r\n",
+			NAND_TRACE(" * device_id = 0x%02x\r\n",
 					model->device_id);
-			NAND_TRACE(" * deviceSizeInMegaBytes = %d\r\n",
-					model->device_size_in_mega_bytes);
-			NAND_TRACE(" * blockSizeInkBytes = %d\r\n",
-					model->block_size_in_kbytes);
-			NAND_TRACE(" * pageSizeInBytes = %d\r\n",
-					model->page_size_in_bytes);
+			NAND_TRACE(" * device_size = %d MB\r\n",
+					model->device_size);
+			NAND_TRACE(" * block_size = %d bytes\r\n",
+					model->block_size);
+			NAND_TRACE(" * page_size = %d bytes\r\n",
+					model->page_size);
+			NAND_TRACE(" * spare_size = %d bytes\r\n",
+					model->spare_size);
 			NAND_TRACE(" * data_bus_width = %d bits\r\n",
 					model->data_bus_width);
 			break;
@@ -201,8 +207,7 @@ uint8_t nand_model_get_device_id(const struct _nand_flash_model *model)
 uint16_t nand_model_get_device_size_in_blocks(
 		const struct _nand_flash_model *model)
 {
-	return (1024 * model->device_size_in_mega_bytes)
-		/ model->block_size_in_kbytes;
+	return (model->device_size * 1024) / (model->block_size / 1024);
 }
 
 /**
@@ -212,8 +217,8 @@ uint16_t nand_model_get_device_size_in_blocks(
 uint32_t nand_model_get_device_size_in_pages(
 		const struct _nand_flash_model *model)
 {
-	return (uint32_t)nand_model_get_device_size_in_blocks(model)
-		* nand_model_get_block_size_in_pages(model);
+	return nand_model_get_device_size_in_bytes(model)
+		/ model->page_size;
 }
 
 /**
@@ -224,7 +229,7 @@ uint32_t nand_model_get_device_size_in_pages(
 uint64_t nand_model_get_device_size_in_bytes(
 		const struct _nand_flash_model *model)
 {
-	return ((uint64_t)model->device_size_in_mega_bytes) << 20;
+	return ((uint64_t)model->device_size) << 20;
 }
 
 /**
@@ -235,7 +240,7 @@ uint64_t nand_model_get_device_size_in_bytes(
 uint32_t nand_model_get_device_size_in_mbytes(
 		const struct _nand_flash_model *model)
 {
-	return model->device_size_in_mega_bytes;
+	return model->device_size;
 }
 
 /**
@@ -245,7 +250,7 @@ uint32_t nand_model_get_device_size_in_mbytes(
 uint16_t nand_model_get_block_size_in_pages(
 		const struct _nand_flash_model *model)
 {
-	return model->block_size_in_kbytes * 1024 / model->page_size_in_bytes;
+	return model->block_size / model->page_size;
 }
 
 /**
@@ -256,7 +261,7 @@ uint16_t nand_model_get_block_size_in_pages(
 uint32_t nand_model_get_block_size_in_bytes(
 		const struct _nand_flash_model *model)
 {
-	return model->block_size_in_kbytes * 1024;
+	return model->block_size;
 }
 
 /**
@@ -265,7 +270,7 @@ uint32_t nand_model_get_block_size_in_bytes(
 */
 uint32_t nand_model_get_page_data_size(const struct _nand_flash_model *model)
 {
-	return model->page_size_in_bytes;
+	return model->page_size;
 }
 
 /**
@@ -274,12 +279,7 @@ uint32_t nand_model_get_page_data_size(const struct _nand_flash_model *model)
 */
 uint16_t nand_model_get_page_spare_size(const struct _nand_flash_model *model)
 {
-	if (model->spare_size_in_bytes) {
-		return model->spare_size_in_bytes;
-	} else {
-		/* Spare size is 16/512 of data size */
-		return model->page_size_in_bytes >> 5;
-	}
+	return model->spare_size;
 }
 
 /**
@@ -298,5 +298,5 @@ uint8_t nand_model_get_data_bus_width(const struct _nand_flash_model *model)
 */
 bool nand_model_has_small_blocks(const struct _nand_flash_model *model)
 {
-	return model->page_size_in_bytes <= 512 ? 1 : 0;
+	return model->page_size <= 512 ? 1 : 0;
 }

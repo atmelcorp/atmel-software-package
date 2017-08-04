@@ -540,31 +540,14 @@ int main(void)
 
 	if (nand_onfi_check_compatibility(&nand)) {
 		printf("\tOpen NAND Flash Interface (ONFI)-compliant\n\r");
-
-		model_from_onfi.device_id =
-			nand_onfi_get_manufacturer_id();
-
-		model_from_onfi.data_bus_width =
-			nand_onfi_get_bus_width() ? 16 : 8;
-
-		model_from_onfi.page_size_in_bytes =
-			nand_onfi_get_page_size();
-
-		model_from_onfi.spare_size_in_bytes =
-			nand_onfi_get_spare_size();
-
-		model_from_onfi.device_size_in_mega_bytes =
-			((nand_onfi_get_pages_per_block() * nand_onfi_get_blocks_per_lun()) / 1024) *
-			nand_onfi_get_page_size() / 1024;
-
-		model_from_onfi.block_size_in_kbytes =
-			(nand_onfi_get_pages_per_block() * nand_onfi_get_page_size()) / 1024;
-
-		onfi_ecc_correctability =
-			nand_onfi_get_ecc_correctability();
-		onfi_ecc_correctability =
-			onfi_ecc_correctability == 0xFF ? 32 : onfi_ecc_correctability;
-
+		model_from_onfi.device_id = nand_onfi_get_manufacturer_id();
+		model_from_onfi.data_bus_width = nand_onfi_get_bus_width() ? 16 : 8;
+		model_from_onfi.page_size = nand_onfi_get_page_size();
+		model_from_onfi.spare_size = nand_onfi_get_spare_size();
+		model_from_onfi.device_size = ((model_from_onfi.block_size / 1024) * nand_onfi_get_blocks_per_lun()) / 1024;
+		model_from_onfi.block_size = nand_onfi_get_pages_per_block() * nand_onfi_get_page_size();
+		onfi_ecc_correctability = nand_onfi_get_ecc_correctability();
+		onfi_ecc_correctability = onfi_ecc_correctability == 0xFF ? 32 : onfi_ecc_correctability;
 		onficompatible = true;
 	}
 
