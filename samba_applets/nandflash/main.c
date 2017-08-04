@@ -101,6 +101,7 @@ static uint32_t buffer_size;
 static uint32_t nand_header;
 static struct _nand_flash nand;
 static uint32_t page_size;
+static uint32_t spare_size;
 static uint32_t block_size;
 
 static uint8_t ecc_bit_req_2_tt[] = {
@@ -135,25 +136,33 @@ static int pmecc_get_ecc_bit_req(uint8_t ecc_correctability) {
 	return ARRAY_SIZE(ecc_bit_req_2_tt) - 1;
 }
 
-static uint32_t pmecc_get_default_header(uint32_t data_size, uint32_t spare_size,
-                                         uint32_t min_correctability)
+static uint32_t pmecc_get_ecc_size(uint32_t ecc_bits, uint32_t sector_size_in_byte,
+                                   uint32_t nb_sector_per_page)
 {
+	uint32_t mm = sector_size_in_byte == 512 ? 13 : 14;
+	return ROUND_INT_DIV(mm * ecc_bits, 8) * nb_sector_per_page;
+}
+
+static uint32_t pmecc_get_default_header(uint32_t min_correctability)
+{
+	unsigned ecc_size;
 	union _nand_header hdr;
 	hdr.bitfield.use_pmecc = 1;
-	hdr.bitfield.nb_sector_per_page = 31 - CLZ(data_size >> 9); /* 512-byte sectors */
+	hdr.bitfield.nb_sector_per_page = 31 - CLZ(page_size >> 9); /* 512-byte sectors */
 	hdr.bitfield.spare_size = spare_size;
 	hdr.bitfield.ecc_bit_req = pmecc_get_ecc_bit_req(min_correctability);
 	hdr.bitfield.sector_size = 0; // 512 bytes
-	hdr.bitfield.ecc_offset = PMECC_ECC_DEFAULT_START_ADDR;
+	ecc_size = pmecc_get_ecc_size(ecc_bit_req_2_tt[hdr.bitfield.ecc_bit_req],
+	                              512, 1 << hdr.bitfield.nb_sector_per_page);
+	hdr.bitfield.ecc_offset = spare_size - ecc_size;
 	hdr.bitfield.reserved = 0;
 	hdr.bitfield.key = NAND_HEADER_KEY;
-	return *(uint32_t*)&hdr;
+	return hdr.uint32_value;
 }
 
-static bool pmecc_set_header(uint32_t header)
+static bool pmecc_set_header(uint32_t header, uint8_t correctability)
 {
-	uint16_t sector_size_in_byte, ecc_size_in_byte;
-	uint8_t mm;
+	uint16_t sector_size_in_byte, nb_sector_per_page, ecc_size_in_byte;
 	uint8_t ecc_correction;
 	union _nand_header *hdr;
 
@@ -177,28 +186,38 @@ static bool pmecc_set_header(uint32_t header)
 				(unsigned)hdr->bitfield.ecc_bit_req);
 		return false;
 	}
+
 	ecc_correction = ecc_bit_req_2_tt[hdr->bitfield.ecc_bit_req];
+
 	if (ecc_correction > ARRAY_SIZE(PMERRLOC->PMERRLOC_EL)) {
-		trace_error("Invalid ECC parameter (%u: %u bits): correction level not supported by chip (max %u bits)\r\n",
+		trace_error("Invalid ECC parameter (%u: %u bits): correction level not supported by device (max %u bits)\r\n",
 				(unsigned)hdr->bitfield.ecc_bit_req,
 				(unsigned)ecc_correction,
 				ARRAY_SIZE(PMERRLOC->PMERRLOC_EL));
 		return false;
 	}
-	if (ecc_correction < nand_onfi_get_ecc_correctability() &&
-		nand_onfi_get_ecc_correctability() != 0xFF) {
-		trace_error("Invalid ECC parameter (%u: %u bits): requested value incompatible with ONFI %u bits\r\n",
+
+	if (ecc_correction < correctability && correctability != 0xFF) {
+		trace_warning_wp("Warning: Invalid ECC parameter (%u: %u bits): NAND requires at least %u bits\r\n",
 				(unsigned)hdr->bitfield.ecc_bit_req,
 				(unsigned)ecc_correction,
-				nand_onfi_get_ecc_correctability());
-		return false;
+				correctability);
 	}
 
-	if (hdr->bitfield.spare_size > nand_onfi_get_spare_size()) {
-		trace_error("Invalid spare_size parameter (%u): ONFI spare size (%u) exceeded\r\n",
+	sector_size_in_byte = hdr->bitfield.sector_size == 1 ? 1024 : 512;
+	nb_sector_per_page = 1 << hdr->bitfield.nb_sector_per_page;
+	ecc_size_in_byte = pmecc_get_ecc_size(ecc_correction, sector_size_in_byte, nb_sector_per_page);
+	trace_warning_wp("Sector size: %d\r\n", sector_size_in_byte);
+	trace_warning_wp("Sectors per page: %d\r\n", nb_sector_per_page);
+	trace_warning_wp("Spare size: %d\r\n", hdr->bitfield.spare_size);
+	trace_warning_wp("ECC bits: %d\r\n", ecc_correction);
+	trace_warning_wp("ECC offset: %d\r\n", hdr->bitfield.ecc_offset);
+	trace_warning_wp("ECC size: %d\r\n", ecc_size_in_byte);
+
+	if (hdr->bitfield.spare_size > spare_size) {
+		trace_warning_wp("Warning: Invalid spare_size parameter (%u): NAND spare size (%u) exceeded\r\n",
 				(unsigned)hdr->bitfield.spare_size,
-				(unsigned)nand_onfi_get_spare_size());
-		return false;
+				(unsigned)spare_size);
 	}
 
 	if (hdr->bitfield.sector_size > 1) {
@@ -206,30 +225,20 @@ static bool pmecc_set_header(uint32_t header)
 				(unsigned)hdr->bitfield.sector_size);
 		return false;
 	}
-	sector_size_in_byte = hdr->bitfield.sector_size == 1 ? 1024 : 512;
-	if ((page_size / sector_size_in_byte) > 8) {
-		trace_error("Invalid sector size parameter (%u): unsupportted page or sector size\r\n",
-				(unsigned)hdr->bitfield.sector_size);
-		return false;
+
+	if ((page_size / sector_size_in_byte) != nb_sector_per_page) {
+		trace_warning_wp("Warning: Invalid sector size (%u) or number of sectors per page (%u): does not match page size (%u)\r\n",
+				(unsigned)sector_size_in_byte,
+				(unsigned)nb_sector_per_page,
+				(unsigned)page_size);
 	}
 
 	if (hdr->bitfield.ecc_offset > hdr->bitfield.spare_size) {
-		trace_error("Invalid ECC offset parameter: offset exceeds spare size\r\n");
-		return false;
-	}
-
-	mm = hdr->bitfield.sector_size == 0 ? 13 : 14;
-	if (((mm * ecc_correction) % 8 ) == 0) {
-		ecc_size_in_byte = ((mm * ecc_correction) / 8) *
-			(page_size / sector_size_in_byte);
-	} else {
-		ecc_size_in_byte = (((mm * ecc_correction) / 8 ) + 1) *
-			(page_size / sector_size_in_byte);
+		trace_warning_wp("Warning: Invalid ECC offset parameter: offset exceeds spare size\r\n");
 	}
 
 	if ((hdr->bitfield.ecc_offset + ecc_size_in_byte) > hdr->bitfield.spare_size) {
-		trace_error("Invalid ECC offset parameter: ECC overflows spare zone\r\n");
-		return false;
+		trace_warning_wp("Warning: Invalid ECC offset parameter: ECC overflows spare zone\r\n");
 	}
 
 	nand_set_ecc_type(ECC_PMECC);
@@ -238,11 +247,6 @@ static bool pmecc_set_header(uint32_t header)
 					 hdr->bitfield.ecc_offset, 0);
 
 	trace_warning_wp("PMECC enabled\r\n");
-	trace_warning_wp("Sector size: %d\r\n", sector_size_in_byte);
-	trace_warning_wp("Sectors per page: %d\r\n", 1 << hdr->bitfield.nb_sector_per_page);
-	trace_warning_wp("Spare size: %d\r\n", hdr->bitfield.spare_size);
-	trace_warning_wp("ECC bits: %d\r\n", ecc_correction);
-	trace_warning_wp("ECC offset: %d\r\n", hdr->bitfield.ecc_offset);
 
 	return true;
 }
@@ -254,8 +258,8 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	uint32_t ioset = mbx->in.parameters[0];
 	uint32_t bus_width = mbx->in.parameters[1];
 	uint32_t header = mbx->in.parameters[2];
-	struct _nand_flash_model model_from_onfi;
-	uint8_t correctability = 0;
+	struct _nand_flash_model *model, model_from_onfi;
+	uint8_t correctability;
 
 	assert(cmd == APPLET_CMD_INITIALIZE);
 
@@ -285,28 +289,30 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 
 	nand_initialize(&nand);
 
-	if (!nand_onfi_device_detect(&nand)) {
-		trace_error("Can't detect device\r\n");
-		return APPLET_FAIL;
-	}
+	/* defaults: use hardcoded NAND model table, no minimum ECC */
+	model = NULL;
+	correctability = 0;
 
-	if (nand_onfi_check_compatibility(&nand)) {
+	/* try reading ONFI data */
+	if (nand_onfi_device_detect(&nand) && nand_onfi_check_compatibility(&nand)) {
 		nand_onfi_disable_internal_ecc(&nand);
 		nand_onfi_get_model(&model_from_onfi);
+		model = &model_from_onfi;
 		correctability = nand_onfi_get_ecc_correctability();
-		if (correctability != 0xFF) {
+		if (correctability != 0xff) {
 			/* ONFI correctability is number of ECC bits per 512 bytes of data */
-			correctability = correctability * nand_onfi_get_page_size() / 512;
+			correctability *= nand_onfi_get_page_size() / 512;
 		}
 	}
 
-	if (nand_raw_initialize(&nand, &model_from_onfi)) {
+	if (nand_raw_initialize(&nand, model)) {
 		trace_error("Can't initialize device\r\n");
 		return APPLET_FAIL;
 	}
 
 	/* Get device parameters */
 	page_size = nand_model_get_page_data_size(&nand.model);
+	spare_size = nand_model_get_page_spare_size(&nand.model);
 	block_size = nand_model_get_block_size_in_pages(&nand.model);
 	nand_set_dma_enabled(false);
 #ifdef CONFIG_HAVE_NFC
@@ -316,12 +322,10 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 
 	/* Initialize PMECC */
 	if (header == 0) {
-		header = pmecc_get_default_header(nand_onfi_get_page_size(),
-		                                  nand_onfi_get_spare_size(),
-		                                  correctability);
+		header = pmecc_get_default_header(correctability);
 		trace_warning_wp("Using default PMECC configuration\r\n");
 	}
-	if (pmecc_set_header(header)) {
+	if (pmecc_set_header(header, correctability)) {
 		nand_header = header;
 	} else {
 		trace_error("PMECC initialization failed\r\n");
