@@ -49,11 +49,11 @@
 #include "nand_flash_model.h"
 
 /*---------------------------------------------------------------------- */
-/*         Exported variables                                            */
+/*         Exported functions                                            */
 /*---------------------------------------------------------------------- */
 
-extern const struct _nand_flash_model nand_flash_model_list[];
-
-extern const int nand_flash_model_list_size;
+extern uint8_t nand_model_list_find(
+		uint32_t id,
+		struct _nand_flash_model *model);
 
 #endif /* NAND_FLASH_MODEL_LIST_H */

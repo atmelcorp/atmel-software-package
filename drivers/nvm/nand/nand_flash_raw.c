@@ -748,9 +748,7 @@ uint8_t nand_raw_initialize(struct _nand_flash *nand,
 	/* If model is not provided, autodetect it */
 	if (!model) {
 		NAND_TRACE("No model provided, trying autodetection ...\r\n");
-		if (nand_model_find(nand_flash_model_list,
-					nand_flash_model_list_size,
-					nand_raw_read_id(nand), &nand->model)) {
+		if (nand_model_list_find(nand_raw_read_id(nand), &nand->model)) {
 			trace_error("nand_raw_initialize: Could not autodetect chip.\r\n");
 			return NAND_ERROR_UNKNOWNMODEL;
 		}

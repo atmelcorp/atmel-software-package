@@ -90,12 +90,6 @@ struct _nand_flash_model {
 /*         Exported functions                                            */
 /*---------------------------------------------------------------------- */
 
-extern uint8_t nand_model_find(
-		const struct _nand_flash_model *list,
-		uint32_t list_size,
-		uint32_t id,
-		struct _nand_flash_model *model);
-
 extern uint8_t nand_model_get_device_id(
 		const struct _nand_flash_model *model);
 

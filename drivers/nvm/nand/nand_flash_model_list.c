@@ -33,19 +33,20 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "chip.h"
-#include "compiler.h"
-
-#include "nand_flash_model_list.h"
-
 #include <string.h>
 
+#include "chip.h"
+#include "compiler.h"
+#include "trace.h"
+#include "nand_flash_common.h"
+#include "nand_flash_model_list.h"
+
 /*----------------------------------------------------------------------------
- *        Exported variables
+ *        Local constants
  *----------------------------------------------------------------------------*/
 
 /** List of NandFlash models which can be recognized by the software. */
-const struct _nand_flash_model nand_flash_model_list[] = {
+static const struct _nand_flash_model nand_flash_model_list[] = {
 /*	|  ID  | Bus Width   | Page  |spare  | Mo  | Block */
 	{0x6e, 8, 256, 0, 1, 4},
 	{0x64, 8, 256, 0, 2, 4},
@@ -122,4 +123,104 @@ const struct _nand_flash_model nand_flash_model_list[] = {
 	{0x38, 8, 0, 0, 1024, 0},
 };
 
-const int nand_flash_model_list_size = ARRAY_SIZE(nand_flash_model_list);
+/*----------------------------------------------------------------------------
+ *        Exported functions
+ *----------------------------------------------------------------------------*/
+
+/**
+ * \brief Looks for a _nand_flash_model corresponding to the given ID inside a list of
+ * model. If found, the model variable is filled with the correct values.
+ * \param chip_id  Identifier returned by the NANDFLASH(id1|(id2<<8)|(id3<<16)|(id4<<24)).
+ * \param model  _nand_flash_model instance to update with the model parameters.
+ * \return 0 if a matching model has been found; otherwise it
+ * returns NAND_ERROR_UNKNOWNMODEL.
+*/
+uint8_t nand_model_list_find(uint32_t chip_id, struct _nand_flash_model *model)
+{
+	bool found = false;
+	uint8_t id2, id4;
+	int i;
+
+	id2 = (chip_id >> 8) & 0xff;
+	id4 = (chip_id >> 24) & 0xff;
+
+	trace_info_wp("Nandflash ID is 0x%08X\r\n", (unsigned int)chip_id);
+
+	for (i = 0; i < ARRAY_SIZE(nand_flash_model_list); i++) {
+		if (nand_flash_model_list[i].device_id == id2) {
+			found = true;
+			if (model) {
+				memcpy(model, &nand_flash_model_list[i], sizeof(*model));
+				if (model->page_size == 0) {
+					NAND_TRACE("Fetch from ID4(0x%.2x):\r\n", id4);
+
+					/*
+					 * Fetch from the extended ID4
+					 * ID4 D5  D4 BlockSize || D1  D0  PageSize
+					 *     0   0   64K      || 0   0   1K
+					 *     0   1   128K     || 0   1   2K
+					 *     1   0   256K     || 1   0   4K
+					 *     1   1   512K     || 1   1   8k
+					 */
+
+					switch(id4 & 0x03) {
+					case 0x00:
+						model->page_size = 1024;
+						break;
+					case 0x01:
+						model->page_size = 2048;
+						break;
+					case 0x02:
+						model->page_size = 4096;
+						break;
+					case 0x03:
+						model->page_size = 8192;
+						break;
+					}
+
+					switch(id4 & 0x30) {
+					case 0x00:
+						model->block_size = 64 * 1024;
+						break;
+					case 0x10:
+						model->block_size = 128 * 1024;
+						break;
+					case 0x20:
+						model->block_size = 256 * 1024;
+						break;
+					case 0x30:
+						model->block_size = 512 * 1024;
+						break;
+					}
+				}
+
+				if (model->spare_size == 0) {
+					/* Spare size is 16/512 of data size */
+					model->spare_size = model->page_size >> 5;
+				}
+			}
+
+			NAND_TRACE("NAND Model found:\r\n");
+			NAND_TRACE(" * device_id = 0x%02x\r\n",
+					model->device_id);
+			NAND_TRACE(" * device_size = %d MB\r\n",
+					model->device_size);
+			NAND_TRACE(" * block_size = %d bytes\r\n",
+					model->block_size);
+			NAND_TRACE(" * page_size = %d bytes\r\n",
+					model->page_size);
+			NAND_TRACE(" * spare_size = %d bytes\r\n",
+					model->spare_size);
+			NAND_TRACE(" * data_bus_width = %d bits\r\n",
+					model->data_bus_width);
+			break;
+		}
+	}
+
+	// check if chip has been detected
+	if (found)
+		return 0;
+	else
+		return NAND_ERROR_UNKNOWNMODEL;
+}
+
