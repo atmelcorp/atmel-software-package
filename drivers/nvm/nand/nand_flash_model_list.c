@@ -27,8 +27,6 @@
  * ----------------------------------------------------------------------------
  */
 
-/** \file */
-
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
@@ -37,95 +35,164 @@
 
 #include "chip.h"
 #include "compiler.h"
-#include "trace.h"
 #include "nand_flash_common.h"
 #include "nand_flash_model_list.h"
+#include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Local constants
  *----------------------------------------------------------------------------*/
 
-/** List of NandFlash models which can be recognized by the software. */
+#define LEGACY_NAND(id, bus_width, size, erase_size) \
+	{\
+		.device_id = (id),\
+		.data_bus_width = (bus_width),\
+		.device_size = (size),\
+		.page_size = 512,\
+		.spare_size = 16,\
+		.block_size = (erase_size),\
+	}
+
+#define NEWER_NAND(id, bus_width, size) \
+	{\
+		.device_id = (id),\
+		.data_bus_width = (bus_width),\
+		.device_size = (size),\
+		.page_size = 0,\
+		.spare_size = 0,\
+		.block_size = 0,\
+	}
+
+/** List of known NAND models */
 static const struct _nand_flash_model nand_flash_model_list[] = {
-/*	|  ID  | Bus Width   | Page  |spare  | Mo  | Block */
-	{0x6e, 8, 256, 0, 1, 4},
-	{0x64, 8, 256, 0, 2, 4},
-	{0x68, 8, 4096, 0, 224, 1024},
-	{0x6b, 8, 512, 0, 4, 8},
-	{0xe8, 8, 256, 0, 1, 4},
-	{0xec, 8, 256, 0, 1, 4},
-	{0xea, 8, 256, 0, 2, 4},
-	{0xd5, 8, 512, 0, 4, 8},
-	{0xe3, 8, 512, 0, 4, 8},
-	{0xe5, 8, 512, 0, 4, 8},
-	{0xd6, 8, 512, 0, 8, 8},
+	/* 1 MB */
+	LEGACY_NAND(0x6e,  8, 1, 4096),
+	LEGACY_NAND(0xe8,  8, 1, 4096),
+	LEGACY_NAND(0xec,  8, 1, 4096),
 
-	{0x39, 8, 512, 0, 8, 8},
-	{0xe6, 8, 512, 0, 8, 8},
-	{0x49, 16, 512, 0, 8, 8},
-	{0x59, 16, 512, 0, 8, 8},
+	/* 2 MB */
+	LEGACY_NAND(0x64,  8, 2, 4096),
+	LEGACY_NAND(0xea,  8, 2, 4096),
 
-	{0x33, 8, 512, 0, 16, 16},
-	{0x73, 8, 512, 0, 16, 16},
-	{0x43, 16, 512, 0, 16, 16},
-	{0x53, 16, 512, 0, 16, 16},
+	/* 4 MB */
+	LEGACY_NAND(0x6b,  8, 4, 8192),
+	LEGACY_NAND(0xe3,  8, 4, 8192),
+	LEGACY_NAND(0xe5,  8, 4, 8192),
 
-	{0x35, 8, 512, 0, 32, 16},
-	{0x75, 8, 512, 0, 32, 16},
-	{0x45, 16, 512, 0, 32, 16},
-	{0x55, 16, 512, 0, 32, 16},
+	/* 8MB */
+	LEGACY_NAND(0xd6,  8, 8, 8192),
+	LEGACY_NAND(0xe6,  8, 8, 8192),
 
-	{0x36, 8, 512, 0, 64, 16},
-	{0x76, 8, 512, 0, 64, 16},
-	{0x46, 16, 512, 0, 64, 16},
-	{0x56, 16, 512, 0, 64, 16},
+	/* 16 MB */
+	LEGACY_NAND(0x33,  8, 16, 16384),
+	LEGACY_NAND(0x43, 16, 16, 16384),
+	LEGACY_NAND(0x53, 16, 16, 16384),
+	LEGACY_NAND(0x73,  8, 16, 16384),
 
-	{0x78, 8, 512, 0, 128, 16},
-	{0x39, 8, 512, 0, 128, 16},
-	{0x79, 8, 512, 0, 128, 16},
-	{0x72, 16, 512, 0, 128, 16},
-	{0x49, 16, 512, 0, 128, 16},
-	{0x74, 16, 512, 0, 128, 16},
-	{0x59, 16, 512, 0, 128, 16},
+	/* 32 MB */
+	LEGACY_NAND(0x35,  8, 32, 16384),
+	LEGACY_NAND(0x45, 16, 32, 16384),
+	LEGACY_NAND(0x55, 16, 32, 16384),
+	LEGACY_NAND(0x75,  8, 32, 16384),
 
-	{0x71, 8, 512, 0, 256, 16},
+	/* 64 MB */
+	LEGACY_NAND(0x36,  8, 64, 16384),
+	LEGACY_NAND(0x46, 16, 64, 16384),
+	LEGACY_NAND(0x56, 16, 64, 16384),
+	LEGACY_NAND(0x76,  8, 64, 16384),
 
-	/* Large blocks devices. Parameters must be fetched from the extended I */
+	/* 128 MB */
+	LEGACY_NAND(0x39,  8, 128, 16384),
+	LEGACY_NAND(0x49, 16, 128, 16384),
+	LEGACY_NAND(0x59, 16, 128, 16384),
+	LEGACY_NAND(0x72, 16, 128, 16384),
+	LEGACY_NAND(0x74, 16, 128, 16384),
+	LEGACY_NAND(0x78,  8, 128, 16384),
+	LEGACY_NAND(0x79,  8, 128, 16384),
 
-	{0xA2, 8, 0, 0, 64, 0},
-	{0xF2, 8, 0, 0, 64, 0},
-	{0xB2, 16, 0, 0, 64, 0},
-	{0xC2, 16, 0, 0, 64, 0},
+	/* 256 MB */
+	LEGACY_NAND(0x71,  8, 256, 16384),
 
-	{0xA1, 8, 0, 0, 128, 0},
-	{0xF1, 8, 0, 0, 128, 0},
-	{0xB1, 16, 0, 0, 128, 0},
-	{0xC1, 16, 0, 0, 128, 0},
+	/* Newer devices */
+	/* Page size is 0: all parameters will be fetched from ID4 */
 
-	{0xAA, 8, 0, 0, 256, 0},
-	{0xDA, 8, 0, 0, 256, 0},
-	{0xBA, 16, 0, 0, 256, 0},
-	{0xCA, 16, 0, 0, 256, 0},
+	/* 64 MB */
+	NEWER_NAND(0xa0,  8, 64),
+	NEWER_NAND(0xa2,  8, 64),
+	NEWER_NAND(0xb0, 16, 64),
+	NEWER_NAND(0xb2, 16, 64),
+	NEWER_NAND(0xc0, 16, 64),
+	NEWER_NAND(0xc2, 16, 64),
+	NEWER_NAND(0xd0,  8, 64),
+	NEWER_NAND(0xf0,  8, 64),
+	NEWER_NAND(0xf2,  8, 64),
 
-	{0xAC, 8, 0, 0, 512, 0},
-	{0xDC, 8, 0, 0, 512, 0},
-	{0xBC, 16, 0, 0, 512, 0},
-	{0xCC, 16, 0, 0, 512, 0},
+	/* 128 MB */
+	NEWER_NAND(0xa1,  8, 128),
+	NEWER_NAND(0xad, 16, 128),
+	NEWER_NAND(0xb1, 16, 128),
+	NEWER_NAND(0xc1, 16, 128),
+	NEWER_NAND(0xd1,  8, 128),
+	NEWER_NAND(0xf1,  8, 128),
 
-	{0xA3, 8, 0, 0, 1024, 0},
-	{0xD3, 8, 0, 0, 1024, 0},
-	{0xB3, 16, 0, 0, 1024, 0},
-	{0xC3, 16, 0, 0, 1024, 0},
-	{0xA5, 8, 0, 0, 2048, 0},
-	{0xD5, 8, 0, 0, 2048, 0},
-	{0xB5, 16, 0, 0, 2048, 0},
-	{0xC5, 16, 0, 0, 2048, 0},
-	{0x38, 8, 0, 0, 1024, 0},
+	/* 256 MB */
+	NEWER_NAND(0xaa,  8, 256),
+	NEWER_NAND(0xba, 16, 256),
+	NEWER_NAND(0xca, 16, 256),
+	NEWER_NAND(0xda,  8, 256),
+
+	/* 512 MB */
+	NEWER_NAND(0xac,  8, 512),
+	NEWER_NAND(0xbc, 16, 512),
+	NEWER_NAND(0xcc, 16, 512),
+	NEWER_NAND(0xdc,  8, 512),
+
+	/* 1 GB */
+	NEWER_NAND(0xa3,  8, 1024),
+	NEWER_NAND(0xb3, 16, 1024),
+	NEWER_NAND(0xc3, 16, 1024),
+	NEWER_NAND(0xd3,  8, 1024),
+
+	/* 2 GB */
+	NEWER_NAND(0xa5,  8, 2048),
+	NEWER_NAND(0xb5, 16, 2048),
+	NEWER_NAND(0xc5, 16, 2048),
+	NEWER_NAND(0xd5,  8, 2048),
+
+	/* 4 GB */
+	NEWER_NAND(0xa7,  8, 4096),
+	NEWER_NAND(0xb7, 16, 4096),
+	NEWER_NAND(0xc7, 16, 4096),
+	NEWER_NAND(0xd7,  8, 4096),
+
+	/* 8 GB */
+	NEWER_NAND(0xae,  8, 8192),
+	NEWER_NAND(0xbe, 16, 8192),
+	NEWER_NAND(0xce, 16, 8192),
+	NEWER_NAND(0xde,  8, 8192),
+
+	/* 16 GB */
+	NEWER_NAND(0x1a,  8, 16384),
+	NEWER_NAND(0x2a, 16, 16384),
+	NEWER_NAND(0x3a,  8, 16384),
+	NEWER_NAND(0x4a, 16, 16384),
+
+	/* 32 GB */
+	NEWER_NAND(0x1c,  8, 32768),
+	NEWER_NAND(0x2c, 16, 32768),
+	NEWER_NAND(0x3c,  8, 32768),
+	NEWER_NAND(0x4c, 16, 32768),
+
+	/* 64 GB */
+	NEWER_NAND(0x1e,  8, 65536),
+	NEWER_NAND(0x2e, 16, 65536),
+	NEWER_NAND(0x3e,  8, 65536),
+	NEWER_NAND(0x4e, 16, 65536),
 };
 
-/*----------------------------------------------------------------------------
- *        Exported functions
- *----------------------------------------------------------------------------*/
+/*-----------------------------------------------------------------------*/
+/*                 Exported functions                                    */
+/*-----------------------------------------------------------------------*/
 
 /**
  * \brief Looks for a _nand_flash_model corresponding to the given ID inside a list of
@@ -152,15 +219,13 @@ uint8_t nand_model_list_find(uint32_t chip_id, struct _nand_flash_model *model)
 			if (model) {
 				memcpy(model, &nand_flash_model_list[i], sizeof(*model));
 				if (model->page_size == 0) {
-					NAND_TRACE("Fetch from ID4(0x%.2x):\r\n", id4);
-
 					/*
 					 * Fetch from the extended ID4
-					 * ID4 D5  D4 BlockSize || D1  D0  PageSize
-					 *     0   0   64K      || 0   0   1K
-					 *     0   1   128K     || 0   1   2K
-					 *     1   0   256K     || 1   0   4K
-					 *     1   1   512K     || 1   1   8k
+					 * ID4 D5  D4 BlockSize || D2  SpareSize || D1  D0  PageSize
+					 *     0   0   64K      || 0   8/512     || 0   0   1K
+					 *     0   1   128K     || 1   16/512    || 0   1   2K
+					 *     1   0   256K     ||               || 1   0   4K
+					 *     1   1   512K     ||               || 1   1   8k
 					 */
 
 					switch(id4 & 0x03) {
@@ -168,15 +233,20 @@ uint8_t nand_model_list_find(uint32_t chip_id, struct _nand_flash_model *model)
 						model->page_size = 1024;
 						break;
 					case 0x01:
-						model->page_size = 2048;
+						model->page_size = 2 * 1024;
 						break;
 					case 0x02:
-						model->page_size = 4096;
+						model->page_size = 4 * 1024;
 						break;
 					case 0x03:
-						model->page_size = 8192;
+						model->page_size = 8 * 1024;
 						break;
 					}
+
+					if (id4 & 0x04)
+						model->spare_size = 16 * (model->page_size / 512);
+					else
+						model->spare_size = 8 * (model->page_size / 512);
 
 					switch(id4 & 0x30) {
 					case 0x00:
@@ -193,25 +263,20 @@ uint8_t nand_model_list_find(uint32_t chip_id, struct _nand_flash_model *model)
 						break;
 					}
 				}
-
-				if (model->spare_size == 0) {
-					/* Spare size is 16/512 of data size */
-					model->spare_size = model->page_size >> 5;
-				}
 			}
 
-			NAND_TRACE("NAND Model found:\r\n");
-			NAND_TRACE(" * device_id = 0x%02x\r\n",
+			trace_info_wp("NAND Model found:\r\n");
+			trace_info_wp(" * device_id = 0x%02x\r\n",
 					model->device_id);
-			NAND_TRACE(" * device_size = %d MB\r\n",
+			trace_info_wp(" * device_size = %lu MB\r\n",
 					model->device_size);
-			NAND_TRACE(" * block_size = %d bytes\r\n",
+			trace_info_wp(" * block_size = %lu bytes\r\n",
 					model->block_size);
-			NAND_TRACE(" * page_size = %d bytes\r\n",
+			trace_info_wp(" * page_size = %u bytes\r\n",
 					model->page_size);
-			NAND_TRACE(" * spare_size = %d bytes\r\n",
+			trace_info_wp(" * spare_size = %u bytes\r\n",
 					model->spare_size);
-			NAND_TRACE(" * data_bus_width = %d bits\r\n",
+			trace_info_wp(" * data_bus_width = %u bits\r\n",
 					model->data_bus_width);
 			break;
 		}
@@ -223,4 +288,3 @@ uint8_t nand_model_list_find(uint32_t chip_id, struct _nand_flash_model *model)
 	else
 		return NAND_ERROR_UNKNOWNMODEL;
 }
-
