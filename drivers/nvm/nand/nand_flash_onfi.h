@@ -52,31 +52,34 @@ struct _onfi_page_param {
 	bool onfi_compatible;
 
 	/** JEDEC manufacturer ID */
-	uint8_t manufacturer_id;
+	uint8_t manuf_id;
 
-	/** Bus width */
-	uint8_t onfi_bus_width;
-
-	/** Number of data bytes per page. */
-	uint32_t onfi_page_size;
-
-	/** Number of spare bytes per page. */
-	uint16_t onfi_spare_size;
-
-	/** Number of pages per block. */
-	uint16_t onfi_pages_per_block;
-
-	/** Number of blocks per logical unit (LUN). */
-	uint16_t onfi_blocks_per_lun;
-
-	/** Number of logical units. */
-	uint8_t onfi_logical_units;
-
-	/** Number of bits of ECC correction */
-	uint8_t onfi_ecc_correctability;
+	/** Manufacturer Name */
+	char manufacturer[13];
 
 	/** Device model */
-	uint8_t onfi_device_model;
+	char device_model[21];
+
+	/** Bus width */
+	uint8_t bus_width;
+
+	/** Number of data bytes per page. */
+	uint32_t page_size;
+
+	/** Number of spare bytes per page. */
+	uint16_t spare_size;
+
+	/** Number of pages per block. */
+	uint16_t pages_per_block;
+
+	/** Number of blocks per logical unit (LUN). */
+	uint16_t blocks_per_lun;
+
+	/** Number of logical units. */
+	uint8_t logical_units;
+
+	/** Number of bits of ECC correction */
+	uint8_t ecc_correctability;
 };
 
 /*--------------------------------------------------------------------- */
@@ -106,5 +109,7 @@ extern uint16_t nand_onfi_get_pages_per_block(void);
 extern uint16_t nand_onfi_get_blocks_per_lun(void);
 
 extern uint8_t nand_onfi_get_ecc_correctability(void);
+
+extern bool nand_onfi_get_model(struct _nand_flash_model *model);
 
 #endif /* NAND_FLASH_ONFI_H */

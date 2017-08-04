@@ -33,6 +33,8 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include <string.h>
+
 #include "chip.h"
 #include "trace.h"
 
@@ -105,11 +107,9 @@ static bool nand_onfi_retrieve_param(const struct _nand_flash *nand)
 	uint8_t i;
 	uint8_t onfi_param_table[ONFI_PARAM_TABLE_SIZE];
 
+	onfi_parameter.onfi_compatible = false;
+
 	if (nand_onfi_check_compatibility(nand)) {
-		onfi_parameter.onfi_compatible = true;
-		for (i = 0; i < ONFI_PARAM_TABLE_SIZE; i++) {
-			onfi_param_table[i] = 0xFF;
-		}
 		/* Perform Read Parameter Page command */
 		nand_write_command(nand, NAND_CMD_READ_PARAM_PAGE);
 		nand_write_address(nand, 0x0);
@@ -121,47 +121,58 @@ static bool nand_onfi_retrieve_param(const struct _nand_flash *nand)
 		nand_write_command(nand, NAND_CMD_READ_1);
 
 		/* Read the parameter table */
-		for (i = 0; i < ONFI_PARAM_TABLE_SIZE; i++) {
+		for (i = 0; i < ONFI_PARAM_TABLE_SIZE; i++)
 			onfi_param_table[i] = nand_read_data(nand);
-		}
-		for (i = 0; i < ONFI_PARAM_TABLE_SIZE; i++) {
+
+		/* Check table (full 0xFF -> failure) */
+		for (i = 0; i < ONFI_PARAM_TABLE_SIZE; i++)
 			if (onfi_param_table[i] != 0xFF)
 				break;
-		}
-		if (i == ONFI_PARAM_TABLE_SIZE) {
-			onfi_parameter.onfi_compatible = false;
+		if (i == ONFI_PARAM_TABLE_SIZE)
 			return false;
-		}
 
+		onfi_parameter.onfi_compatible = true;
 		/* Bus width */
-		onfi_parameter.onfi_bus_width = (*(uint8_t*)(onfi_param_table + 6)) & 0x01;
+		onfi_parameter.bus_width = (onfi_param_table[6] & 0x01) ? 16 : 8;
+		/* Manufacturer */
+		memcpy(onfi_parameter.manufacturer, &onfi_param_table[32], 12);
+		onfi_parameter.manufacturer[12] = 0;
 		/* Device model */
-		onfi_parameter.onfi_device_model= *(uint8_t*)(onfi_param_table + 49);
+		memcpy(onfi_parameter.device_model, &onfi_param_table[44], 20);
+		onfi_parameter.device_model[20] = 0;
 		/* JEDEC manufacturer ID */
-		onfi_parameter.manufacturer_id = *(uint8_t*)(onfi_param_table + 64);
+		onfi_parameter.manuf_id = onfi_param_table[64];
 		/* Get number of data bytes per page (bytes 80-83 in the param table) */
-		onfi_parameter.onfi_page_size =  *(uint32_t*)(onfi_param_table + 80);
+		memcpy(&onfi_parameter.page_size, &onfi_param_table[80], 4);
 		/* Get number of spare bytes per page (bytes 84-85 in the param table) */
-		onfi_parameter.onfi_spare_size =  *(uint16_t*)(onfi_param_table + 84);
+		memcpy(&onfi_parameter.spare_size, &onfi_param_table[84], 2);
 		/* Number of pages per block. */
-		onfi_parameter.onfi_pages_per_block = *(uint32_t*)(onfi_param_table + 92);
+		memcpy(&onfi_parameter.pages_per_block, &onfi_param_table[92], 4);
 		/* Number of blocks per logical unit (LUN). */
-		onfi_parameter.onfi_blocks_per_lun = *(uint32_t*)(onfi_param_table + 96);
+		memcpy(&onfi_parameter.blocks_per_lun, &onfi_param_table[96], 4);
 		/* Number of logical units. */
-		onfi_parameter.onfi_logical_units = *(uint8_t*)(onfi_param_table + 100);
+		onfi_parameter.logical_units = onfi_param_table[100];
 		/* Number of bits of ECC correction */
-		onfi_parameter.onfi_ecc_correctability = *(uint8_t*)(onfi_param_table + 112);
+		onfi_parameter.ecc_correctability = onfi_param_table[112];
 
-		trace_info_wp("ONFI manufacturerId %x\r\n",
-				onfi_parameter.manufacturer_id);
-		trace_info_wp("ONFI onfiPageSize %x\r\n",
-				(unsigned)onfi_parameter.onfi_page_size);
-		trace_info_wp("ONFI onfiSpareSize %x\r\n",
-				(unsigned)onfi_parameter.onfi_spare_size);
-		trace_info_wp("ONFI onfiPagesPerBlock %x\r\n",
-				(unsigned)onfi_parameter.onfi_pages_per_block);
-		trace_info_wp("ONFI onfiEccCorrectability %x\r\n",
-				onfi_parameter.onfi_ecc_correctability);
+		trace_info_wp("ONFI manuf_id 0x%02x\r\n",
+				onfi_parameter.manuf_id);
+		trace_info_wp("ONFI manufacturer %s\r\n",
+				onfi_parameter.manufacturer);
+		trace_info_wp("ONFI device_model %s\r\n",
+				onfi_parameter.device_model);
+		trace_info_wp("ONFI page_size %d\r\n",
+				(unsigned)onfi_parameter.page_size);
+		trace_info_wp("ONFI spare_size %d\r\n",
+				(unsigned)onfi_parameter.spare_size);
+		trace_info_wp("ONFI pages_per_block %d\r\n",
+				(unsigned)onfi_parameter.pages_per_block);
+		trace_info_wp("ONFI blocks_per_lun %d\r\n",
+				(unsigned)onfi_parameter.blocks_per_lun);
+		trace_info_wp("ONFI logical_units %d\r\n",
+				(unsigned)onfi_parameter.logical_units);
+		trace_info_wp("ONFI ecc_correctability %d\r\n",
+				onfi_parameter.ecc_correctability);
 		return true;
 	}
 
@@ -199,37 +210,37 @@ bool nand_onfi_is_compatible(void)
 
 uint8_t nand_onfi_get_manufacturer_id(void)
 {
-	return onfi_parameter.manufacturer_id;
+	return onfi_parameter.manuf_id;
 }
 
 uint8_t nand_onfi_get_bus_width(void)
 {
-	return onfi_parameter.onfi_bus_width;
+	return onfi_parameter.bus_width;
 }
 
 uint32_t nand_onfi_get_page_size(void)
 {
-	return onfi_parameter.onfi_page_size;
+	return onfi_parameter.page_size;
 }
 
 uint16_t nand_onfi_get_spare_size(void)
 {
-	return onfi_parameter.onfi_spare_size;
+	return onfi_parameter.spare_size;
 }
 
 uint16_t nand_onfi_get_pages_per_block(void)
 {
-	return onfi_parameter.onfi_pages_per_block;
+	return onfi_parameter.pages_per_block;
 }
 
 uint16_t nand_onfi_get_blocks_per_lun(void)
 {
-	return onfi_parameter.onfi_blocks_per_lun;
+	return onfi_parameter.blocks_per_lun;
 }
 
 uint8_t nand_onfi_get_ecc_correctability(void)
 {
-	return onfi_parameter.onfi_ecc_correctability;
+	return onfi_parameter.ecc_correctability;
 }
 
 /**
@@ -244,12 +255,12 @@ bool nand_onfi_enable_internal_ecc(const struct _nand_flash *nand)
 		   - Manufacturer ID = 2Ch (Micron)
 		   - Number of bits ECC = 04h (4-bit ECC means process 34nm)
 		   - device size = 1Gb or 2Gb or 4Gb */
-		if ((onfi_parameter.manufacturer_id & NAND_MFR_MICRON) == NAND_MFR_MICRON &&
-				onfi_parameter.onfi_ecc_correctability == 0x4 &&
-				(onfi_parameter.onfi_device_model == '1' ||
-				 onfi_parameter.onfi_device_model == '2' ||
-				 onfi_parameter.onfi_device_model == '4')) {
-			/* then activate the internal ECC controller */
+		if (onfi_parameter.manuf_id == NAND_MFR_MICRON &&
+		    onfi_parameter.ecc_correctability == 0x4 &&
+		    (onfi_parameter.device_model[5] == '1' ||
+		     onfi_parameter.device_model[5] == '2' ||
+		     onfi_parameter.device_model[5] == '4')) {
+			/* enable the internal ECC controller */
 			nand_write_command(nand, NAND_CMD_SET_FEATURES);
 			nand_write_address(nand, 0x90);
 			nand_write_data(nand, 0x08);
@@ -275,12 +286,12 @@ bool nand_onfi_disable_internal_ecc(const struct _nand_flash *nand)
 		   - Manufacturer ID = 2Ch (Micron)
 		   - Number of bits ECC = 04h (4-bit ECC means process 34nm)
 		   - device size = 1Gb or 2Gb or 4Gb */
-		if ((onfi_parameter.manufacturer_id & NAND_MFR_MICRON) == NAND_MFR_MICRON &&
-				onfi_parameter.onfi_ecc_correctability == 0x4 &&
-				(onfi_parameter.onfi_device_model == '1' ||
-				 onfi_parameter.onfi_device_model == '2' ||
-				 onfi_parameter.onfi_device_model == '4')) {
-			/* then activate the internal ECC controller */
+		if (onfi_parameter.manuf_id == NAND_MFR_MICRON &&
+		    onfi_parameter.ecc_correctability == 0x4 &&
+		    (onfi_parameter.device_model[5] == '1' ||
+		     onfi_parameter.device_model[5] == '2' ||
+		     onfi_parameter.device_model[5] == '4')) {
+			/* disable the internal ECC controller */
 			nand_write_command(nand, NAND_CMD_SET_FEATURES);
 			nand_write_address(nand, 0x90);
 			nand_write_data(nand, 0x00);
@@ -299,29 +310,29 @@ bool nand_onfi_disable_internal_ecc(const struct _nand_flash *nand)
 
 bool nand_onfi_device_detect(const struct _nand_flash *nand)
 {
-	uint8_t rc;
-	uint8_t id[4];
-
 	/* Send Reset command */
 	nand_write_command(nand, NAND_CMD_RESET);
 
 	/* If a NANDFLASH is connected, it should answer to a read status command */
 	for (;;) {
-		rc = onfi_read_status(nand);
-		if (rc == NAND_IO_RC_PASS) {
-			nand_write_command(nand, NAND_CMD_READID);
-			nand_write_address(nand, 0);
-			id[0] = nand_read_data(nand);
-			id[1] = nand_read_data(nand);
-			id[2] = nand_read_data(nand);
-			id[3] = nand_read_data(nand);
-			(void)id;
-			NAND_TRACE("NANDFLASH ID = <%x,%x,%x,%x>\r\n",
-					id[0], id[1], id[2], id[3]);
+		uint8_t rc = onfi_read_status(nand);
+		if (rc == NAND_IO_RC_PASS)
 			break;
-		}
 	}
 
 	return nand_onfi_retrieve_param(nand);
 }
 
+bool nand_onfi_get_model(struct _nand_flash_model *model)
+{
+	if (onfi_parameter.onfi_compatible) {
+		model->device_id = nand_onfi_get_manufacturer_id();
+		model->data_bus_width = nand_onfi_get_bus_width() ? 16 : 8;
+		model->page_size = nand_onfi_get_page_size();
+		model->spare_size = nand_onfi_get_spare_size();
+		model->block_size = nand_onfi_get_pages_per_block() * nand_onfi_get_page_size();
+		model->device_size = ((model->block_size / 1024) * nand_onfi_get_blocks_per_lun()) / 1024;
+		return true;
+	}
+	return false;
+}
