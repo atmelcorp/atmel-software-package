@@ -96,14 +96,6 @@ extern uint8_t nand_model_find(
 		uint32_t id,
 		struct _nand_flash_model *model);
 
-extern uint8_t nand_model_translate_access(
-		const struct _nand_flash_model *model,
-		uint32_t address,
-		uint32_t size,
-		uint16_t *block,
-		uint16_t *page,
-		uint16_t *offset);
-
 extern uint8_t nand_model_get_device_id(
 		const struct _nand_flash_model *model);
 

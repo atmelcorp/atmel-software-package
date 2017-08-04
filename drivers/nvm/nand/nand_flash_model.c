@@ -147,51 +147,6 @@ uint8_t nand_model_find(const struct _nand_flash_model *list, uint32_t list_size
 }
 
 /**
- * \brief Translates address/size access of a _nand_flash_model to block, page and
- * offset values. The values are stored in the provided variables if their
- * pointer is not 0.
- * \param model  Pointer to a _nand_flash_model instance.
- * \param address  Access address.
- * \param size  Access size in bytes.
- * \param block  Stores the first accessed block number.
- * \param page  Stores the first accessed page number inside the first block.
- * \param offset  Stores the byte offset inside the first accessed page.
- * \return 0 if the access is correct; otherwise returns
- * NAND_ERROR_OUTOFBOUNDS.
-*/
-uint8_t nand_model_translate_access(const struct _nand_flash_model *model,
-	uint32_t address, uint32_t size,
-	uint16_t *block, uint16_t *page, uint16_t *offset)
-{
-	/* Get Nand info */
-	uint32_t block_size = nand_model_get_block_size_in_bytes(model);
-	uint32_t page_size = nand_model_get_page_data_size(model);
-
-	/* Translate address */
-	uint16_t tmp_block = address / block_size;
-	address -= tmp_block * block_size;
-	uint16_t tmp_page = address / page_size;
-	address -= tmp_page * page_size;
-	uint16_t tmp_offset = address;
-
-	 /* Check that access is not too big */
-	if ((address + size) > nand_model_get_device_size_in_bytes(model)) {
-		NAND_TRACE("nand_model_translate_access: out-of-bounds access.\r\n");
-		return NAND_ERROR_OUTOFBOUNDS;
-	}
-
-	// Save results
-	if (block)
-		*block = tmp_block;
-	if (page)
-		*page = tmp_page;
-	if (offset)
-		*offset = tmp_offset;
-
-	return 0;
-}
-
-/**
  * \brief Returns the device ID of a particular NANDFLASH model.
  * \param model  Pointer to a _nand_flash_model instance.
  */
