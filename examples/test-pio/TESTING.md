@@ -12,6 +12,17 @@ This example does automatic test of the PIO features.
 
 # Test
 ------
+## Supported targets
+--------------------
+* SAM9XX5-EK
+* SAMA5D2-XPLAINED
+* SAMA5D27-SOM1-EK
+* SAMA5D3-EK
+* SAMA5D3-XPLAINED
+* SAMA5D4-EK
+* SAMA5D4-XPLAINED
+* SAME70-XPLAINED
+* SAMV71-XPLAINED
 
 The test output follows a JUnit XML format for traces.
 
@@ -30,8 +41,15 @@ Step needed to set up the example.
 * Start the application.
 * Record the traces
 
+
+## Start the application
+------------------------
+
 __Pins for SAMA5D2 Xplained Ultra:__
 Connect CANTX0 (PC10 / pin 8 on J9) to CANRX0 PC11/pin 7 on J9)
+
+__Pins for SAMA5D27_SOM1_EK:__
+Connect PD6 (pin 5 on ISC) to PD7 (pin 6 on ISC)
 
 __Pins for SAMA5D3 Xplained Ultra:__
 Connect CANTX0 (PD15 / pin 8 on J21) to CANRX0 PD14/pin 7 on J21)
