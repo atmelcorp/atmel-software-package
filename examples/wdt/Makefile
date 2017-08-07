@@ -26,8 +26,8 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-# Makefile for compiling the Getting Started example
-AVAILABLE_TARGETS = sama5d2-xplained \
+# Makefile for compiling the WDT example
+AVAILABLE_TARGETS = sama5d2-xplained sama5d27-som1-ek\
                     sama5d4-ek sama5d4-xplained \
                     same70-xplained samv71-xplained
 
