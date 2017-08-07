@@ -13,6 +13,12 @@ mode spi to read code and to execute from it.
 
 # Test
 ------
+
+## Supported targets
+--------------------
+* SAMA5D2-XPLAINED
+* SAMA5D27-SOM1-EK
+
 ## Setup
 --------
 On the computer, open and configure a terminal application
@@ -25,8 +31,8 @@ On the computer, open and configure a terminal application
 
 This package can be used with SAMA5D2-XPLAINED with QSPI memory onboard.
 
-## Start the application (SAMA5D2-XPLAINED)
--------------------------------------------
+## Start the application
+------------------------
 
 ### First run
 
