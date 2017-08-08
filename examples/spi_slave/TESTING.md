@@ -15,6 +15,14 @@ waiting for SPI slave & DBGU input.
 
 # Test
 ------
+## Supported targets
+--------------------
+* SAM9XX5-EK
+* SAMA5D2-XPLAINED
+* SAMA5D27-SOM1-EK
+* SAMA5D3-EK
+* SAMA5D4-EK
+* SAMA5D4-XPLAINED
 
 ## Setup
 --------
@@ -43,6 +51,10 @@ Step needed to set up the example.
    s: Perform SPI transfer start
    h: Display menu
 ```
+
+## Start the application
+------------------------
+
 ### Connection
 connect the SPI pins on the board before running the example.
 
@@ -54,6 +66,15 @@ SPI0_MOSI (EXP_PA15 on J17 pin 5) | SPI1_MOSI  (EXP/XPRO_PD26 on J20 pin 4)
 SPI0_MISO (EXP_PA16 on J8 pin 1)  | SPI1_MISO  (EXP/XPRO_PD27 on J20 pin 5)
 SPI0_SPCK (EXP_PA14 on J17 pin 4) | SPI1_SPCK  (EXP/XPRO_PD25 on J20 pin 6)
 SPI0_NPCS2 (EXP_PA19 on J9 pin 1) | SPI1_NPCS0 (EXP/XPRO_PD28 on J20 pin 3)
+
+__Connection for SAMA5D27_SOM1_EK:__
+
+MASTER (FLEXSPI4 IOSET1)          | SLAVE (FLEXSPI3 IOSET2)
+--------------------------------- | ---------------------------------------
+FLEXSPI4_MOSI (PC28 on J24 pin 6) | SPI1_MOSI  (PC20 on J20 pin 4)
+FLEXSPI4_MISO (PC29 on J24 pin 5) | SPI1_MISO  (PC19 on J20 pin 2)
+FLEXSPI4_SPCK (PC30 on J24 pin 4) | SPI1_SPCK  (PC18 on J23 pin 1)
+FLEXSPI4_NPCS2 (PD0 on J24 pin 3) | SPI1_NPCS0 (PC21 on J20 pin 6)
 
 __Connection for SAMA5D3 EK:__
 
