@@ -391,7 +391,7 @@ int main(void)
 			printf("PLLA = 408 MHz\r\n");
 
 			plla_config.div = 1;
-			plla_config.mul = 33;
+			plla_config.mul = (408 * 1000000 / BOARD_MAIN_CLOCK_EXT_OSC) - 1;
 			pmc_configure_plla(&plla_config);
 
 			MenuChoice = 0;
@@ -402,7 +402,7 @@ int main(void)
 			printf("PLLA = 600 MHz\r\n");
 
 			plla_config.div = 1;
-			plla_config.mul = 49;
+			plla_config.mul = (600 * 1000000 / BOARD_MAIN_CLOCK_EXT_OSC) - 1;
 			pmc_configure_plla(&plla_config);
 
 			MenuChoice = 0;
@@ -414,7 +414,7 @@ int main(void)
 			printf("PLLA = 792 MHz\r\n");
 
 			plla_config.div = 1;
-			plla_config.mul = 65;
+			plla_config.mul = (792 * 1000000 / BOARD_MAIN_CLOCK_EXT_OSC) - 1;
 			pmc_configure_plla(&plla_config);
 
 			MenuChoice = 0;
@@ -426,7 +426,7 @@ int main(void)
 			printf("PLLA = 996 MHz\r\n");
 
 			plla_config.div = 1;
-			plla_config.mul = 82;
+			plla_config.mul = (996 * 1000000 / BOARD_MAIN_CLOCK_EXT_OSC) - 1;
 			pmc_configure_plla(&plla_config);
 
 			MenuChoice = 0;
@@ -438,7 +438,7 @@ int main(void)
 			printf("PLLA = 1200 MHz\r\n");
 
 			plla_config.div = 1;
-			plla_config.mul = 99;
+			plla_config.mul = (1200 * 1000000 / BOARD_MAIN_CLOCK_EXT_OSC) - 1;
 			pmc_configure_plla(&plla_config);
 
 			MenuChoice = 0;
