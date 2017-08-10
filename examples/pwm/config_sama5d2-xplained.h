@@ -11,6 +11,9 @@
 /** define PWM pin to output PWM signal */
 #define PIN_PWM PIN_PWM_LED_0
 
+/** define capture tc */
+#define TC_CAPTURE TC0
+
 /** define TC channel to output the waveform */
 #define CHANNEL_TC_CAPTURE_IN 2
 

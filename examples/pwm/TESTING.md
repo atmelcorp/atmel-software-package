@@ -13,6 +13,17 @@ This example demonstrates how to use PWM module.
 
 # Test
 ------
+## Supported targets
+--------------------
+* SAM9XX5-EK
+* SAMA5D2-XPLAINED
+* SAMA5D27-SOM1-EK
+* SAMA5D3-EK
+* SAMA5D3-XPLAINED
+* SAMA5D4-EK
+* SAMA5D4-XPLAINED
+* SAME70-XPLAINED
+* SAMV71-XPLAINED
 
 ## Setup
 --------
@@ -27,10 +38,16 @@ Step needed to set up the example.
 	- 1 stop bit
 	- No flow control
 
+## Start the application
+------------------------
 
 ### SAMA5D2-XPLAINED 
 ----------------
 Connect EXP/XPRO_PB5 (J20 pin 2) and EXP_PB22 (J22 pin 6) on the board.
+
+### SAMA5D27-SOM1-EK
+----------------
+Connect PWM_mBUS1_PB1 (J25 pin 1) and PC9(ISC pin 18) on the board.
 
 ### SAMA5D3-EK
 ----------------

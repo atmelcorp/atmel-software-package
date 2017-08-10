@@ -12,6 +12,9 @@
 #define PIN_PWM \
 	{ PIO_GROUP_A, PIO_PA25B_PWM0_H2, PIO_PERIPH_B, PIO_DEFAULT}
 
+/** define capture tc */
+#define TC_CAPTURE TC0
+
 /** define TC channel to output the waveform */
 #define CHANNEL_TC_CAPTURE_IN 0
 

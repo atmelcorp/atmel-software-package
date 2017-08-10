@@ -42,6 +42,10 @@
  * Connect EXP/XPRO_PB5 (J20 pin 2) and EXP_PB22 (J22 pin 6) on the board to
  * capture the PWM output using TC.
  *
+ * Requirements before running this example on SAMA5D27-SOM1-EK:
+ * Connect PWM_mBUS1_PB1 (J25 pin 1) and PC9(ISC pin 18) on the board to
+ * capture the PWM output using TC.
+ *
  * Requirements before running this example on SAMA5D4-EK:
  * Connect EXP_PB28 (J19A pin 19) and USBC_EN5V_PE12 (J19C pin 44).
  *
@@ -148,6 +152,8 @@ struct _tc_desc {
 
 #if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
 	#include "config_sama5d2-xplained.h"
+#elif defined(CONFIG_BOARD_SAMA5D27_SOM1_EK)
+	#include "config_sama5d27-som1-ek.h"
 #elif defined(CONFIG_BOARD_SAMA5D4_EK)
 	#include "config_sama5d4-ek.h"
 #elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
@@ -198,7 +204,7 @@ static const struct _pin pins_tc_capture[] = { PIN_TC_CAPTURE_IN };
 
 /** define Timer Counter descriptor for capture */
 static const struct _tc_desc tc_capture = {
-	.addr = TC0,
+	.addr = TC_CAPTURE,
 	.channel = CHANNEL_TC_CAPTURE_IN,
 };
 
@@ -287,12 +293,6 @@ static void _tc_capture_initialize(void)
 	              | TC_CMR_ETRGEDG_FALLING;
 
 	pmc_configure_peripheral(tc_id, NULL, true);
-
-	/* disable all channels to avoid spurious interrupts */
-	tc_stop(tc_capture.addr, 0);
-	tc_stop(tc_capture.addr, 1);
-	tc_stop(tc_capture.addr, 2);
-
 	tc_configure(tc_capture.addr, tc_capture.channel, mode);
 	irq_add_handler(tc_id, _tc_capture_handler, NULL);
 	irq_enable(tc_id);
@@ -358,7 +358,6 @@ static void _tc_fault_handler(uint32_t source, void* user_arg)
 	if ((status & TC_SR_CPCS) == TC_SR_CPCS)
 		printf("TC fault triggered, press 'F' to clear fault\r\n");
 }
-
 
 /**
  * \brief Configure a TC channel to trigger faults
@@ -438,8 +437,9 @@ static void _pwm_demo_asynchronous_channel(bool init, uint8_t channel, uint32_t 
 	}
 	printf("-- PWM Channel %u Duty cycle: %lu%% Signal Period: %lu ms--\n\r",
 			(unsigned)channel,
-			(unsigned)(duty_cycle*100)/cprd,
-			(unsigned)((2*cprd*1024*32))/(pmc_get_peripheral_clock(id)/1000));
+			(unsigned)(duty_cycle * 100) / cprd,
+			(unsigned)((2 * cprd * 1024 * 32)) / (pmc_get_peripheral_clock(id)
+			/ 1000));
 
 	pwmc_set_duty_cycle(PWM_ADDR, channel, duty_cycle);
 	msleep(50);
@@ -542,7 +542,7 @@ int main(void)
 	pwmc_configure_clocks(PWM_ADDR, PWM_CLK_PREB_CLK_DIV1024 | PWM_CLK_DIVB(32) |
 	                           PWM_CLK_PREA_CLK_DIV1024 | PWM_CLK_DIVA(32));
 	printf("-- PWM Peripheral Clock: %u MHz --\n\r",
-			(unsigned)(pmc_get_peripheral_clock(id)/1000000));
+			(unsigned)(pmc_get_peripheral_clock(id) / 1000000));
 
 	cprd = 26;
 

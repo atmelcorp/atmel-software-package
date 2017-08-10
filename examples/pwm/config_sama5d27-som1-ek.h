@@ -1,25 +1,23 @@
-#ifndef __CONFIG_SAMV71_XPLAINED_H__
-#define __CONFIG_SAMV71_XPLAINED_H__
+#ifndef __CONFIG_SAMA5D27_SOM1_EK_H__
+#define __CONFIG_SAMA5D27_SOM1_EK_H__
 
 /* =================== definition for example "pwm" =================== */
 
 #define PWM_ADDR PWM0
 
 /** define PWM channel to output PWM signal */
-#define CHANNEL_PWM 2
+#define CHANNEL_PWM PWM_LED_CH_1
 
 /** define PWM pin to output PWM signal */
-#define PIN_PWM \
-	{ PIO_GROUP_C, PIO_PC19B_PWM0_H2, PIO_PERIPH_B, PIO_DEFAULT}
+#define PIN_PWM PIN_PWM_LED_1
 
 /** define capture tc */
-#define TC_CAPTURE TC0
+#define TC_CAPTURE TC1
 
 /** define TC channel to output the waveform */
-#define CHANNEL_TC_CAPTURE_IN 0
+#define CHANNEL_TC_CAPTURE_IN 1
 
 /** define TC pin to capture the waveform */
 #define PIN_TC_CAPTURE_IN \
-	{ PIO_GROUP_A, PIO_PA0B_TIOA0, PIO_PERIPH_B, PIO_DEFAULT }
-
+	 { PIO_GROUP_C, PIO_PC9D_TIOA4,  PIO_PERIPH_D, PIO_DEFAULT }
 #endif
