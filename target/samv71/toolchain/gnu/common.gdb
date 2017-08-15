@@ -59,9 +59,6 @@ define init_ddram
   # Load bootstrap (in SRAM)
   load target/bootstrap.elf
 
-  # Initialize VTOR
-  set *0xE000ED08 = 0x20400000
-
   # Initialize SP and PC
   set $sp = *0x20400000
   set $pc = *0x20400004
