@@ -621,7 +621,7 @@ __REPLACE_DEFINES__
       <archiveVersion>1</archiveVersion>
       <data>
         <prebuild></prebuild>
-        <postbuild>cmd /c "copy /Y "$PROJ_DIR$\build\__REPLACE_TARGET__\__REPLACE_CONF__\Exe\__REPLACE_BIN_NAME__.out" "$PROJ_DIR$\__REPLACE_TARGET__\__REPLACE_BIN_NAME__.out"</postbuild>
+        <postbuild>cmd /c "copy /Y "$PROJ_DIR$\build\__REPLACE_TARGET__\__REPLACE_CONF__\Exe\__REPLACE_BIN_NAME__.out" "$PROJ_DIR$\..\..\__REPLACE_TARGET__\__REPLACE_BIN_NAME__.out"</postbuild>
       </data>
     </settings>
     <settings>
