@@ -48,10 +48,9 @@ gnu-linker-script-y ?= $(TOP)/target/sama5d3/toolchain/gnu/ddram.ld
 gnu-debug-script-y ?= $(TOP)/target/sama5d3/toolchain/gnu/ddram.gdb
 bootstrap-linker-script-y ?= $(TOP)/target/sama5d3/toolchain/gnu/sram.ld
 iar-linker-script-y ?= $(TOP)/target/sama5d3/toolchain/iar/ddram.icf
-iar-debug-script-$(CONFIG_BOARD_SAMA5D3_EK) ?= $(TOP)/target/sama5d3/toolchain/iar/ddram_sama5d3-ek.mac
-iar-debug-script-$(CONFIG_BOARD_SAMA5D3_XPLAINED) ?= $(TOP)/target/sama5d3/toolchain/iar/ddram_sama5d3-xplained.mac
-iar-flashloader-script-$(CONFIG_BOARD_SAMA5D3_EK) ?= $(TOP)/flash_loaders/extram/sama5d3-ek/sama5d3-ek_ddram.board
-iar-flashloader-script-$(CONFIG_BOARD_SAMA5D3_XPLAINED) ?= $(TOP)/flash_loaders/extram/sama5d3-xplained/sama5d3-xplained_ddram.board
+iar-debug-script-y ?= $(TOP)/target/sama5d3/toolchain/iar/ddram.mac
+iar-flashloader-script-$(CONFIG_BOARD_SAMA5D3_EK) ?= $(TOP)/flash_loaders/sama5d3-generic/sama5d3-ek.board
+iar-flashloader-script-$(CONFIG_BOARD_SAMA5D3_XPLAINED) ?= $(TOP)/flash_loaders/sama5d3-generic/sama5d3-xplained.board
 endif
 
 chip-family = sama5d3
