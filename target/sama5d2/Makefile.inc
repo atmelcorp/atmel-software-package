@@ -48,11 +48,11 @@ gnu-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/ddram.ld
 gnu-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/ddram.gdb
 bootstrap-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/sram.ld
 iar-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/ddram.icf
-iar-debug-script-$(CONFIG_BOARD_SAMA5D2_PTC_ENGI) ?= $(TOP)/target/sama5d2/toolchain/iar/ddram_sama5d2-xplained.mac
-iar-debug-script-$(CONFIG_BOARD_SAMA5D2_XPLAINED) ?= $(TOP)/target/sama5d2/toolchain/iar/ddram_sama5d2-xplained.mac
-iar-flashloader-script-$(CONFIG_BOARD_SAMA5D2_XPLAINED) ?= $(TOP)/flash_loaders/extram/sama5d2-xplained/sama5d2-xplained_ddram.board
-iar-flashloader-script-$(CONFIG_BOARD_SAMA5D27_SOM1_EK) ?= $(TOP)/flash_loaders/extram/sama5d27-som1-ek/sama5d27-som1-ek_ddram.board
-iar-flashloader-script-$(CONFIG_BOARD_SAMA5D2_PTC_EK) ?= $(TOP)/flash_loaders/extram/sama5d2-ptc-ek/sama5d2-ptc-ek_ddram.board
+iar-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/ddram.mac
+iar-flashloader-script-$(CONFIG_BOARD_SAMA5D2_XPLAINED) ?= $(TOP)/flash_loaders/sama5d2-generic/sama5d2-xplained.board
+iar-flashloader-script-$(CONFIG_BOARD_SAMA5D27_SOM1_EK) ?= $(TOP)/flash_loaders/sama5d2-generic/sama5d27-som1-ek.board
+iar-flashloader-script-$(CONFIG_BOARD_SAMA5D2_PTC_EK) ?= $(TOP)/flash_loaders/sama5d2-generic/sama5d2-ptc-ek.board
+iar-flashloader-script-$(CONFIG_BOARD_SAMA5D2_PTC_ENGI) ?= $(TOP)/flash_loaders/sama5d2-generic/sama5d2-ptc-engi.board
 endif
 
 # QSPI0 variant
@@ -60,7 +60,10 @@ ifeq ($(VARIANT),qspi0)
 gnu-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/qspi0.ld
 iar-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/qspi0.icf
 iar-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/qspi.mac
-iar-flashloader-script-y ?= $(TOP)/flash_loaders/qspiflash/sama5d2-xplained/sama5d2-xplained_qspi0.board
+iar-flashloader-script-$(CONFIG_BOARD_SAMA5D2_XPLAINED) ?= $(TOP)/flash_loaders/sama5d2-generic/sama5d2-xplained.board
+iar-flashloader-script-$(CONFIG_BOARD_SAMA5D27_SOM1_EK) ?= $(TOP)/flash_loaders/sama5d2-generic/sama5d27-som1-ek.board
+iar-flashloader-script-$(CONFIG_BOARD_SAMA5D2_PTC_EK) ?= $(TOP)/flash_loaders/sama5d2-generic/sama5d2-ptc-ek.board
+iar-flashloader-script-$(CONFIG_BOARD_SAMA5D2_PTC_ENGI) ?= $(TOP)/flash_loaders/sama5d2-generic/sama5d2-ptc-engi.board
 endif
 
 # QSPI1 variant
@@ -68,7 +71,10 @@ ifeq ($(VARIANT),qspi1)
 gnu-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/qspi1.ld
 iar-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/qspi1.icf
 iar-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/qspi.mac
-iar-flashloader-script-y ?= $(TOP)/flash_loaders/qspiflash/sama5d2-xplained/sama5d2-xplained_qspi1.board
+iar-flashloader-script-$(CONFIG_BOARD_SAMA5D2_XPLAINED) ?= $(TOP)/flash_loaders/sama5d2-generic/sama5d2-xplained.board
+iar-flashloader-script-$(CONFIG_BOARD_SAMA5D27_SOM1_EK) ?= $(TOP)/flash_loaders/sama5d2-generic/sama5d27-som1-ek.board
+iar-flashloader-script-$(CONFIG_BOARD_SAMA5D2_PTC_EK) ?= $(TOP)/flash_loaders/sama5d2-generic/sama5d2-ptc-ek.board
+iar-flashloader-script-$(CONFIG_BOARD_SAMA5D2_PTC_ENGI) ?= $(TOP)/flash_loaders/sama5d2-generic/sama5d2-ptc-engi.board
 endif
 
 chip-family = sama5d2
