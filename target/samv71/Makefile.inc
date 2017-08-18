@@ -50,10 +50,9 @@ gnu-linker-script-y ?= $(TOP)/target/samv71/toolchain/gnu/ddram.ld
 gnu-debug-script-y ?= $(TOP)/target/samv71/toolchain/gnu/ddram.gdb
 bootstrap-linker-script-y ?= $(TOP)/target/samv71/toolchain/gnu/sram.ld
 iar-linker-script-y ?= $(TOP)/target/samv71/toolchain/iar/ddram.icf
-iar-debug-script-$(CONFIG_BOARD_SAME70_XPLAINED) ?= $(TOP)/target/samv71/toolchain/iar/ddram_same70-xplained.mac
-iar-debug-script-$(CONFIG_BOARD_SAMV71_XPLAINED) ?= $(TOP)/target/samv71/toolchain/iar/ddram_samv71-xplained.mac
-iar-flashloader-script-$(CONFIG_BOARD_SAMV71_XPLAINED) ?= $(TOP)/flash_loaders/extram/samv71-xplained/samv71-xplained_ddram.board
-iar-flashloader-script-$(CONFIG_BOARD_SAME70_XPLAINED) ?= $(TOP)/flash_loaders/extram/same70-xplained/same70-xplained_ddram.board
+iar-debug-script-y ?= $(TOP)/target/samv71/toolchain/iar/ddram.mac
+iar-flashloader-script-$(CONFIG_BOARD_SAMV71_XPLAINED) ?= $(TOP)/flash_loaders/samv71-generic/samv71-xplained.board
+iar-flashloader-script-$(CONFIG_BOARD_SAME70_XPLAINED) ?= $(TOP)/flash_loaders/samv71-generic/same70-xplained.board
 endif
 
 # FLASH variant
