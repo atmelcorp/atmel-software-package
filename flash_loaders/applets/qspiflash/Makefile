@@ -27,13 +27,13 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the qpsi initialization flash loader
-AVAILABLE_TARGETS = sama5d2-xplained
+AVAILABLE_TARGETS = sama5d2-generic
 
 AVAILABLE_VARIANTS = sram
 
 VARIANT = sram
 
-TOP := ../..
+TOP := ../../..
 
 BINNAME = flash_loader-qspi
 
@@ -42,7 +42,7 @@ CONFIG_TIMER_POLLING = y
 CONFIG_QSPI = y
 CONFIG_HAVE_QSPI_DMA = n
 
-obj-y += flash_loaders/qspiflash/qspi_flash_loader.o
-obj-y += flash_loaders/qspiflash/pin_defs_sama5d2.o
+obj-y += flash_loaders/applets/qspiflash/qspi_flash_loader.o
+obj-y += flash_loaders/applets/qspiflash/pin_defs_sama5d2.o
 
 include $(TOP)/scripts/Makefile.rules

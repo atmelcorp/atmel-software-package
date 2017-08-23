@@ -58,13 +58,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "board.h"
+#include <board.h>
+#include "board_console.h"
+#include "extram/ddram.h"
 #include "flash_loader.h"
 #include "flash_loader_extra.h"
+#include "gpio/pio.h"
+#include "interface.h"
 #include "irqflags.h"
 #include "irq/irq.h"
 #include "peripherals/pmc.h"
-#include "serial/console.h"
+#include "trace.h"
 
 /*----------------------------------------------------------------------------
  *        Local definitions
@@ -86,7 +90,7 @@ static char message[80];
 /* override default board init */
 void board_init(void)
 {
-	board_cfg_lowlevel(true, true, false);
+	board_cfg_lowlevel(true, false, false);
 	board_cfg_console(0);
 }
 
@@ -111,9 +115,11 @@ uint32_t FlashInit(void *base_of_flash,
 		   uint32_t flags,
 		   int argc,
 		   char const *argv[])
-
 {
-	uint32_t i;
+	enum _ddram_devices device;
+	struct _mpddrc_desc desc;
+	const char *arg;
+	uint32_t preset;
 
 	/* stop warning */
 	base_of_flash = base_of_flash;
@@ -126,11 +132,94 @@ uint32_t FlashInit(void *base_of_flash,
 	cSpyMessageLog(message);
 #endif
 
-	if (!findOption( "--ddram", 0, argc, argv ))
-		return RESULT_ERROR;
+	arg = findOption("--preset", 1, argc, argv);
+	preset = strtoul(arg, 0, 0);
 
 	board_init();
 
+	switch (preset) {
+#ifdef CONFIG_HAVE_DDR2_MT47H128M8
+	case 0:
+		trace_warning_wp("Preset 0 (4 x MT47H128M8)\r\n");
+		device = MT47H128M8;
+		break;
+#endif
+#ifdef CONFIG_HAVE_DDR2_MT47H64M16
+	case 1:
+		trace_warning_wp("Preset 1 (MT47H64M16)\r\n");
+		device = MT47H64M16;
+		break;
+#endif
+#ifdef CONFIG_HAVE_DDR2_MT47H128M16
+	case 2:
+		trace_warning_wp("Preset 2 (2 x MT47H128M16)\r\n");
+		device = MT47H128M16;
+		break;
+#endif
+#ifdef CONFIG_HAVE_LPDDR2_MT42L128M16
+	case 3:
+		trace_warning_wp("Preset 3 (2 x MT42L128M16)\r\n");
+		device = MT42L128M16;
+		break;
+#endif
+#ifdef CONFIG_HAVE_DDR3_MT41K128M16
+	case 4:
+		trace_warning_wp("Preset 4 (2 x MT41K128M16)\r\n");
+		device = MT41K128M16;
+		break;
+#endif
+#ifdef CONFIG_HAVE_LPDDR3_EDF8164A3MA
+	case 5:
+		trace_warning_wp("Preset 5 (EDF8164A3MA)\r\n");
+		device = EDF8164A3MA;
+		break;
+#endif
+#ifdef CONFIG_HAVE_SDRAM_IS42S16100E
+	case 6:
+		trace_warning_wp("Preset 6 (IS42S16100E)\r\n");
+
+		sprintf(message, "%s", "Preset 6 (IS42S16100E)\r\n");
+	cSpyMessageLog(message);
+
+		device = IS42S16100E;
+		break;
+#endif
+#ifdef CONFIG_HAVE_SDRAM_W981216BH
+	case 7:
+		trace_warning_wp("Preset 7 (W981216BH)\r\n");
+		device = W981216BH;
+		break;
+#endif
+#ifdef CONFIG_HAVE_DDR2_W971G16SG
+	case 8:
+		trace_warning_wp("Preset 8 (W971G16SG)\r\n");
+		device = W971G16SG;
+		break;
+#endif
+#ifdef CONFIG_HAVE_DDR2_W972GG6KB
+	case 9:
+		trace_warning_wp("Preset 9 (W972GG6KB)\r\n");
+		device = W972GG6KB;
+		break;
+#endif
+#ifdef CONFIG_HAVE_SDRAM_AS4C16M16SA
+	case 10:
+		printf("Preset 10 (AS4C16M16SA)\r\n");
+		device = AS4C16M16SA;
+		break;
+#endif
+	default:
+		trace_warning_wp("Unsupported DRAM preset (%u).\r\n",
+				(unsigned)preset);
+		return false;
+	}
+#ifdef BOARD_DDRAM_PINS
+	const struct _pin ddram_pins[] = BOARD_DDRAM_PINS;
+	pio_configure(ddram_pins, ARRAY_SIZE(ddram_pins));
+#endif
+	board_cfg_matrix_for_ddr();
+	ddram_init_descriptor(&desc, device);
+	ddram_configure(&desc);
 	return RESULT_OK;
 }
 
@@ -153,14 +242,11 @@ uint32_t FlashWrite(void *block_start, uint32_t offset_into_block, uint32_t coun
 	cSpyMessageLog(message);
 #endif
 
-
-//	memcpy((uint8_t*)((uint32_t)block_start + offset_into_block), buffer, count);
 	p1 = (uint8_t*)((uint32_t)block_start + offset_into_block);
 	p2 = (uint8_t*)buffer;
 	for (i = 0; i < count; i++)
 		*p1++ = *p2++;
 
-	//if (FLASHD_Write((unsigned int)block_start + offset_into_block, buffer, count) != 0) {
 	sprintf(message, "-I- Write Done!");
 	cSpyMessageLog(message);
 	return RESULT_OK;

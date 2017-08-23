@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2016, Atmel Corporation
+# Copyright (c) 2017, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -26,19 +26,28 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-# Makefile for compiling the External RAM initialization flash loader
+ifeq ($(CONFIG_FLASH_LOADER),y)
 
-AVAILABLE_VARIANTS = sram
+CFLAGS_INC += -I$(TOP)/flash_loaders/applets/common
+CFLAGS_INC += -I$(TOP)/flash_loaders/applets/common/framework2
 
-VARIANT = sram
+CFLAGS += -mno-unaligned-access -DDMA_SG_ITEM_POOL_SIZE=2
 
-TOP := ../..
+obj-y += flash_loaders/applets/common/framework2/flash_loader_asm.o
+obj-y += flash_loaders/applets/common/framework2/flash_loader.o
+obj-y += flash_loaders/applets/common/interface.o
 
-BINNAME = flash_loader-extram
+iar-linker-script-$(CONFIG_SOC_SAM9XX5) = $(TOP)/flash_loaders/applets/common/sam9xx5/sram.icf
+iar-linker-script-$(CONFIG_SOC_SAMA5D2) = $(TOP)/flash_loaders/applets/common/sama5d2/sram.icf
+iar-linker-script-$(CONFIG_SOC_SAMA5D3) = $(TOP)/flash_loaders/applets/common/sama5d3/sram.icf
+iar-linker-script-$(CONFIG_SOC_SAMA5D4) = $(TOP)/flash_loaders/applets/common/sama5d4/sram.icf
+iar-linker-script-$(CONFIG_SOC_SAMV71) = $(TOP)/flash_loaders/applets/common/samv71/sram.icf
 
-CONFIG_FLASH_LOADER = y
-CONFIG_TIMER_POLLING = y
+iar-program-entry-y = FlashInitEntry
+iar-debug-script-y =
+iar-flash_loader-script-y =
+iar-cstartup-y =
+iar-project-template-y = $(TOP)/scripts/iar_flash_loader_project.template
+CONFIG_BOOTSTRAP=n
 
-obj-y += flash_loaders/extram/extram_flash_loader.o
-
-include $(TOP)/scripts/Makefile.rules
+endif
