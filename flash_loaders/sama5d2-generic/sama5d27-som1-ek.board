@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<flash_board>
+  <pass>
+    <loader>$PROJ_DIR$\..\..\flash_loaders\sama5d2-generic\sama5d2-generic_ddram.flash</loader>
+    <range>CODE 0x20000000 0x27ffffff</range>
+    <rel_offset>0x0</rel_offset>
+    <args>--preset 
+8
+    </args>
+  </pass>
+  <pass>
+    <loader>$PROJ_DIR$\..\..\flash_loaders\sama5d2-generic\sama5d2-generic_qspi0.flash</loader>
+    <range>CODE 0xd0000000 0xd01fffff</range>
+    <rel_offset>0x0</rel_offset>
+    <args>--instance 
+0 
+--ioset 
+2 
+--freq 
+66
+    </args>
+  </pass>
+  <pass>
+    <loader>$PROJ_DIR$\..\..\flash_loaders\sama5d2-generic\sama5d2-generic_qspi1.flash</loader>
+    <range>CODE 0xd8000000 0xd81fffff</range>
+    <rel_offset>0x0</rel_offset>
+    <args>--instance 
+1
+--ioset 
+2 
+--freq 
+66
+    </args>
+  </pass>
+</flash_board>
+
+

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<flash_device>
+  <exe>$PROJ_DIR$\..\..\flash_loaders\sama5d2-generic\flash_loader-qspi.out</exe>
+   <flash_base>0xD8000000</flash_base>
+  <page>4096</page>
+  <block>512 1000</block>
+  <args_doc>[--qspi] specifies the flash loader to program the qspi flash.
+[--instance {0|1}] specifies the qpsi instance, 0 for qspi0, 1 for qspi1.
+[--ioset {0|1|2}] index of qspi io set.
+[--freq x] frequency of qspi clock, default is 66.
+</args_doc>
+</flash_device>
