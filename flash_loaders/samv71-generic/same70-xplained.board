@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<flash_board>
+  <pass>
+    <loader>$PROJ_DIR$\..\..\flash_loaders\samv71-generic\samv71-generic_ddram.flash</loader>
+    <range>CODE 0x70000000 0x701fffff</range>
+    <rel_offset>0x0</rel_offset>
+    <args>--preset 
+6 
+</args>
+  </pass>
+</flash_board>
+
+
