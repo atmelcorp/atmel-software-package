@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<flash_board>
+  <pass>
+    <loader>$PROJ_DIR$\..\..\flash_loaders\sama5d4-generic\sama5d4-generic_ddram.flash</loader>
+    <range>CODE 0x20000000 0x27ffffff</range>
+    <rel_offset>0x0</rel_offset>
+    <args>--preset 
+2
+</args>  </pass>
+</flash_board>
+
+
