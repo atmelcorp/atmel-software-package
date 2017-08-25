@@ -25,6 +25,8 @@ access data on a AT24 device.
 * SAMA5D4-XPLAINED
 * SAMA5D4-EK
 * SAM9XX5-EK
+* SAME70-XPLAINED
+* SAMV71-XPLAINED
 
 ## Setup
 --------
@@ -113,6 +115,16 @@ __Pins for SAM9xx5 EK:__
 Master SCL                  | Master SDA                 | Slave SCL                   | Slave SDA
 --------------------------- | -------------------------- | --------------------------- | --------------------------
 TWCK0 on J21 pin 7          | TWD0 on J21 pin 8          | TWCK1/PC1 on J2 pin 7       | TWD1/PC0 on J2 pin 5
+
+__Pins for SAME70 Xplained:__
+Master SCL                  | Master SDA                 | Slave SCL                   | Slave SDA
+--------------------------- | -------------------------- | --------------------------- | --------------------------
+A4 TWCK0 on EXT1 pin 12     | PA3 TWD0 on EXT1 pin 11    | PD28 TWCK2 on J400 pin 27   | PD27 TWD2 on J400 pin 26
+
+__Pins for SAMV71 Xplained Ultra:__
+Master SCL                  | Master SDA                 | Slave SCL                   | Slave SDA
+--------------------------- | -------------------------- | --------------------------- | --------------------------
+PA04 TWCK0 on J500 pin 10   | PA03 TWD0 on J500 pin 9    | PD28 TWCK2 on J505 pin 1    | PD27 TWD2 on J505 pin 2
 
 Tested with IAR and GCC (sram and ddram configurations)
 

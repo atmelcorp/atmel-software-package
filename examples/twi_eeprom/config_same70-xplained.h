@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2016, Atmel Corporation
+ * Copyright (c) 2017, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -26,37 +26,17 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ----------------------------------------------------------------------------
  */
-#ifndef TWI_EEPROM_CONFIG_H_
-#define TWI_EEPROM_CONFIG_H_
 
-#if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
-#include "config_sama5d2-xplained.h"
-#elif defined(CONFIG_BOARD_SAMA5D27_SOM1_EK)
-#include "config_sama5d27-som1-ek.h"
-#elif defined(CONFIG_BOARD_SAMA5D3_EK)
-#include "config_sama5d3-ek.h"
-#elif defined(CONFIG_BOARD_SAMA5D3_XPLAINED)
-#include "config_sama5d3-xplained.h"
-#elif defined(CONFIG_BOARD_SAMA5D4_EK)
-#include "config_sama5d4-ek.h"
-#elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
-#include "config_sama5d4-xplained.h"
-#elif defined(CONFIG_BOARD_SAM9G15_EK)
-#include "config_sam9xx5-ek.h"
-#elif defined(CONFIG_BOARD_SAM9G25_EK)
-#include "config_sam9xx5-ek.h"
-#elif defined(CONFIG_BOARD_SAM9G35_EK)
-#include "config_sam9xx5-ek.h"
-#elif defined(CONFIG_BOARD_SAM9X25_EK)
-#include "config_sam9xx5-ek.h"
-#elif defined(CONFIG_BOARD_SAM9X35_EK)
-#include "config_sam9xx5-ek.h"
-#elif defined(CONFIG_BOARD_SAME70_XPLAINED)
-#include "config_same70-xplained.h"
-#elif defined(CONFIG_BOARD_SAMV71_XPLAINED)
-#include "config_samv71-xplained.h"
-#else
-#error Unsupported board...
-#endif
+#ifndef CONFIG_SAME70_XPLAINED_H_
+#define CONFIG_SAME70_XPLAINED_H_
 
-#endif /* TWI_EEPROM_CONFIG_H_ */
+/** TWI master bus used to communicate with emulator */
+#define AT24_EMU_MASTER_BUS BUS(BUS_TYPE_I2C, 0)
+/** TWI slave AT24 address */
+#define AT24_EMU_ADDR 0x53
+/** TWI slave pins definition **/
+#define AT24_EMU_PINS PINS_TWI2
+/** TWI slave device definition */
+#define AT24_EMU_DEV TWI2
+
+#endif /* CONFIG_SAME70_XPLAINED_H_ */
