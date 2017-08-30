@@ -28,6 +28,7 @@
 
 # Makefile for compiling the qspi_xip example
 AVAILABLE_TARGETS = sama5d2-xplained sama5d27-som1-ek
+AVAILABLE_VARIANTS = sram ddram
 
 TOP := ../..
 
