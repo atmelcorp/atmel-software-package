@@ -37,8 +37,8 @@
 /** TWI slave AT24 address */
 #define AT24_EMU_ADDR 0x53
 /** TWI slave pins definition **/
-#define AT24_EMU_PINS PINS_FLEXCOM1_TWI_IOS1
+#define AT24_EMU_PINS PINS_FLEXCOM3_TWI_IOS2
 /** TWI slave device definition */
-#define AT24_EMU_DEV FLEXTWI1
+#define AT24_EMU_DEV FLEXTWI3
 
 #endif /* CONFIG_SAMA5D27_SOM1_EK_H_ */

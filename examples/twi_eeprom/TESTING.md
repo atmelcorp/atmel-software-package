@@ -19,6 +19,7 @@ access data on a AT24 device.
 --------------------
 
 * SAMA5D2-XPLAINED
+* SAMA5D27-SOM1-EK
 * SAMA5D3-XPLAINED
 * SAMA5D3-EK
 * SAMA5D4-XPLAINED
@@ -76,7 +77,12 @@ Step needed to set up the example.
 __Pins for SAMA5D2 Xplained Ultra:__
 Master SCL                 | Master SDA                | Slave SCL                         | Slave SDA
 -------------------------- | ------------------------- | --------------------------------- | ---------------------------------
-EXP_TWCK1_PD5 on J22 pin 8 | EXP_TWD1_PD4 on J22 pin 7 |  ISC_D6/EXP/XPRO_PC0 on J20 pin 10| ISC_D5/EXP/XPRO_PB31 on J20 pin 9
+EXP_TWCK1_PD5 on J22 pin 8 | EXP_TWD1_PD4 on J22 pin 7 | ISC_D6/EXP/XPRO_PC0 on J20 pin 10 | ISC_D5/EXP/XPRO_PB31 on J20 pin 9
+
+__Pins for SAMA5D27 SOM1 EK:__
+Master SCL                   | Master SDA                  | Slave SCL                           | Slave SDA
+---------------------------- | --------------------------- | ----------------------------------- | -----------------------------------
+TWCK_mBUS1 PA23 on J25 pin 5 | TWD_mBUS1 PA24 on J25 pin 6 | Flexcom3_IO1_MISO PC19 on J20 pin 2 | Flexcom3_IO0_MOSI PC20 on J20 pin 4
 
 __Pins for SAMA5D3 EK:__
 Master SCL            | Master SDA           | Slave SCL              | Slave SDA

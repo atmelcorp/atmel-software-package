@@ -37,8 +37,8 @@
  *
  * \section Requirements
  *
- * This package can be used with SAMA5D2-XPLAINED, SAMA5D3-EK, SAMA5D3-XPLAINED,
- * SAMA5D4-EK, SAMA5D4-XPLAINED and SAM9xx5-EK.
+ * This package can be used with SAMA5D2-XPLAINED, SAMA5D27-SOM1-EK, SAMA5D3-EK,
+ * SAMA5D3-XPLAINED, SAMA5D4-EK, SAMA5D4-XPLAINED and SAM9xx5-EK.
  *
  * \section Descriptions
  *
