@@ -83,13 +83,13 @@
 #define LED_BLUE  2
 
 /** LED #0 pin definition (Red). */
-#define PIN_LED_0 { PIO_GROUP_A, PIO_PA27, PIO_OUTPUT_1, PIO_OPENDRAIN }
+#define PIN_LED_0 { PIO_GROUP_A, PIO_PA10, PIO_OUTPUT_1, PIO_DEFAULT }
 
 /** LED #1 pin definition (Green). */
-#define PIN_LED_1 { PIO_GROUP_B, PIO_PB1, PIO_OUTPUT_1, PIO_OPENDRAIN }
+#define PIN_LED_1 { PIO_GROUP_B, PIO_PB1, PIO_OUTPUT_1, PIO_DEFAULT }
 
 /** LED #2 pin definition (Blue). */
-#define PIN_LED_2 { PIO_GROUP_A, PIO_PA31, PIO_OUTPUT_1, PIO_OPENDRAIN }
+#define PIN_LED_2 { PIO_GROUP_A, PIO_PA31, PIO_OUTPUT_1, PIO_DEFAULT }
 
 /** List of all LEDs definitions. */
 #define PINS_LEDS { PIN_LED_0, PIN_LED_1, PIN_LED_2 }
