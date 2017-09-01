@@ -27,3 +27,4 @@
 # ----------------------------------------------------------------------------
 
 drivers-$(CONFIG_HAVE_UDPHS) += drivers/usb/usbd_udphs.o
+drivers-$(CONFIG_HAVE_USBHS) += drivers/usb/usbd_usbhs.o
