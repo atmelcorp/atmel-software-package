@@ -113,4 +113,6 @@ static inline int fixed_mod(int a, int b)
 	return rem;
 }
 
+extern int fls(int value);
+
 #endif /* _INTMATH_H_ */
