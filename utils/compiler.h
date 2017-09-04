@@ -68,6 +68,8 @@
 	#define NULL ((void*)0)
 #endif
 
+#define IS_POWER_OF_TWO(n) ((n) && !((n) & ((n) - 1)))
+
 #define ROUND_UP_MULT(x,m) (((x) + ((m)-1)) & ~((m)-1))
 
 #define ROUND_INT_DIV(n,d) (((n) + ((d)-1)) / (d))
