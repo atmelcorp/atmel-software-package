@@ -39,9 +39,17 @@
  * \section Requirements
  *
  * This package is compatible with the evaluation boards listed below:
+ * - SAM9X25-EK
+ * - SAM9X35-EK
  * - SAMA5D2-VB
- * - SAMA5D2-XULT
  * - SAMA5D3-EK
+ * - SAMA5D2-XPLAINED
+ * - SAMA5D27-SOM1-EK
+ * - SAMA5D3-EK
+ * - SAMA5D3-XPLAINED
+ *
+ * A FIELDBUS-SHIELD-XULT board is needed when there are no CAN transceivers on
+ * the board.
  *
  * \section Description
  *
@@ -82,8 +90,14 @@
  *
  *     CAN menu:
  *     Press [c|f|s] to set CAN or CAN FD mode
+ *        c: [X] ISO 11898-1 CAN
+ *        f: [ ] ISO 11898-7 CAN FD, 64-byte data
+ *        s: [ ] ISO 11898-7 CAN FD, 64-byte data, 2 Mbps data bit rate
  *     Press [l] to toggle the integrated MCAN loop-back on/off
+ *        l: [x] Integrated CANTX->CANRX loop-back
  *        p: Send sample messages
+ *        r: Receive a specified message
+ *        t: Send out a specified message
  *        h: Display this menu
  *     \endcode
  * -# Input command according to the menu.

@@ -17,6 +17,16 @@ The demonstration program transmits several different CAN/MCAN messages. The
 # Test
 ------
 
+## Supported targets
+--------------------
+
+* SAM9X25-EK
+* SAM9X35-EK
+* SAMA5D2-XPLAINED
+* SAMA5D27-SOM1-EK
+* SAMA5D3-EK
+* SAMA5D3-XPLAINED
+
 ## Setup
 --------
 Step needed to set up the example.
@@ -47,8 +57,8 @@ Press [l] to toggle the integrated MCAN loop-back on/off
    t: Send out a specified message
    h: Display this menu
 ```
-## Start the application (SAM9X25-EK, SAM9X35-EK, SAMA5D2-XPLAINED, SAMA5D3-EK, SAMA5D3-XPLAINED)
---------
+
+## Start the application
 
 Tested with IAR and GCC
  - SAM9: sram configration
@@ -64,8 +74,8 @@ Step | Description | Expected Result | Result
 Press 'c'.'p' | ISO 11898-1 CAN,| PASSED | PASSED
 Press 'f'.'p' | ISO 11898-7 CAN FD, 64-byte data| PASSED | PASSED
 Press 's'.'p' | ISO 11898-7 CAN FD, 64-byte data, 2 Mbps data bit| PASSED | PASSED
-Press 'l'.'p' | toggle the integrated MCAN loop-back off| FAILED | PASSED
-Press 'r' on one board | prepare to receive the specified message | FAILED | PASSED
-Press 't' on the other board | send out the specified message| FAILED | PASSED
+Press 'l'.'p' | toggle the integrated MCAN loop-back off| PASSED | PASSED
+Press 'r' on one board | prepare to receive the specified message | PASSED | PASSED
+Press 't' on the other board | send out the specified message| PASSED | PASSED
 Press 'l' | toggle the integrated MCAN loop-back on| PASSED | PASSED
 
