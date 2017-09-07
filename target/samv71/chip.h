@@ -287,6 +287,22 @@ struct _console_cfg;
 /** Frequency of the on-chip main clock oscillator */
 #define MAIN_CLOCK_INT_OSC 12000000
 
+/** Endpoints max paxcket size */
+#define CHIP_USB_ENDPOINT_MAXPACKETSIZE(ep) \
+   ((ep) == 0 ? 64 : 1024)
+
+/** Endpoints Number of Bank */
+#define CHIP_USB_ENDPOINT_BANKS(ep) \
+   ((ep) == 0 ? 1 : ((ep) < 3 ? 3 : 2))
+
+/** Endpoints DMA support */
+#define CHIP_USB_ENDPOINT_HAS_DMA(ep) \
+    ((ep) > 0 && ((ep) <= 7))
+
+/** Endpoints High Band Width support */
+#define CHIP_USB_ENDPOINT_IS_HBW(ep) \
+    ((ep) > 0 && ((ep) <= 9))
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -206,18 +206,19 @@
 #define IRAM_SIZE               (0x60000u)
 #endif
 
-#define QSPIMEM0_ADDR (0x80000000u) /**< QSPI Memory 0 base address */
-#define AXIMX_ADDR    (0xA0000000u) /**< AXI Bus Matrix base address */
-#define ITCM_ADDR     (0x00000000u) /**< Instruction Tightly Coupled Memory base address */
-#define IFLASH_ADDR   (0x00400000u) /**< Internal Flash base address */
-#define IROM_ADDR     (0x00800000u) /**< Internal ROM base address */
-#define DTCM_ADDR     (0x20000000u) /**< Data Tightly Coupled Memory base address */
-#define IRAM_ADDR     (0x20400000u) /**< Internal RAM base address */
-#define EBI_CS0_ADDR  (0x60000000u) /**< EBI Chip Select 0 base address */
-#define EBI_CS1_ADDR  (0x61000000u) /**< EBI Chip Select 1 base address */
-#define EBI_CS2_ADDR  (0x62000000u) /**< EBI Chip Select 2 base address */
-#define EBI_CS3_ADDR  (0x63000000u) /**< EBI Chip Select 3 base address */
-#define DDR_CS_ADDR   (0x70000000u) /**< DDR Chip Select base address */
+#define QSPIMEM0_ADDR  (0x80000000u) /**< QSPI Memory 0 base address */
+#define AXIMX_ADDR     (0xA0000000u) /**< AXI Bus Matrix base address */
+#define ITCM_ADDR      (0x00000000u) /**< Instruction Tightly Coupled Memory base address */
+#define IFLASH_ADDR    (0x00400000u) /**< Internal Flash base address */
+#define IROM_ADDR      (0x00800000u) /**< Internal ROM base address */
+#define DTCM_ADDR      (0x20000000u) /**< Data Tightly Coupled Memory base address */
+#define IRAM_ADDR      (0x20400000u) /**< Internal RAM base address */
+#define EBI_CS0_ADDR   (0x60000000u) /**< EBI Chip Select 0 base address */
+#define EBI_CS1_ADDR   (0x61000000u) /**< EBI Chip Select 1 base address */
+#define EBI_CS2_ADDR   (0x62000000u) /**< EBI Chip Select 2 base address */
+#define EBI_CS3_ADDR   (0x63000000u) /**< EBI Chip Select 3 base address */
+#define DDR_CS_ADDR    (0x70000000u) /**< DDR Chip Select base address */
+#define USBHS_RAM_ADDR (0xA0100000u) /**< USB RAM base address */
 
 #ifdef __cplusplus
 }
