@@ -146,4 +146,14 @@
 /** HSMCI0 slot definition */
 #define BOARD_HSMCI0_SLOT 0
 
+/**
+ * USB attributes configuration descriptor (bus or self powered,
+ * remote wakeup)
+ */
+#define BOARD_USB_BMATTRIBUTES \
+	USBConfigurationDescriptor_SELFPOWERED_NORWAKEUP
+
+/** USB VBus monitoring pin definition. */
+#define PIN_USB_VBUS { PIO_GROUP_C, PIO_PC16, PIO_INPUT, PIO_DEFAULT }
+
 #endif /* _BOARD_SAME70_XPLAINED_H */
