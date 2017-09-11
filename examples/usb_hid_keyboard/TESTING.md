@@ -25,6 +25,8 @@ host. It also can emulate the status of NumLock key.
 * SAMA5D3-XPLAINED
 * SAMA5D4-EK
 * SAMA5D4-XPLAINED
+* SAME70-XPLAINED
+* SAMV71-XPLAINED
 
 ## Setup
 --------
@@ -59,13 +61,3 @@ Press any character except '1' and '2' | The character input print in console | 
 Press '1' and then again| Print `Key 0 pressed uuuuuuuu` then Print `Key 0 released` | PASSED | PASSED
 Press '2' and then again| Print ` _ _ _ Key 1 pressed` or ` N _ _ Key 1 pressed` then Print `Key 1 released` | PASSED | PASSED
 
-
-# Log
------
-
-## Current version
-------------------
- - v1.3
-
-## History
-----------

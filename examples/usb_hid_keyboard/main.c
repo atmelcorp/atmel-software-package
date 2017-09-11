@@ -132,7 +132,9 @@
 #include "peripherals/tc.h"
 
 #include "serial/console.h"
+#ifdef CONFIG_HAVE_LED
 #include "led/led.h"
+#endif
 
 #include "usb/device/hid/hidd_keyboard_driver.h"
 #include "usb/device/usbd.h"
@@ -151,9 +153,10 @@
 /** Number of keys used in the example. */
 #define NUM_KEYS     (3)
 
+#ifdef CONFIG_HAVE_LED
 /** Num lock LED index. */
-#define LED_NUMLOCK  LED_BLUE
-
+#define LED_NUMLOCK  0
+#endif
 /*---------------------------------------------------------------------------
  *       External variables
  *---------------------------------------------------------------------------*/
@@ -219,13 +222,14 @@ void hidd_keyboard_callbacks_leds_changed(
 		num_lock_status ? 'N':'_',
 		caps_lock_status ? 'C':'_',
 		scroll_lock_status ? 'S':'_');
-
+#ifdef CONFIG_HAVE_LED
 	/* Num. lock */
 	if (num_lock_status) {
 		led_set(LED_NUMLOCK);
 	} else {
 		led_clear(LED_NUMLOCK);
 	}
+#endif
 }
 
 /*----------------------------------------------------------------------------
