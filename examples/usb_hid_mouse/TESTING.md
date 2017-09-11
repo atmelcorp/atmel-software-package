@@ -25,6 +25,8 @@ the host.
 * SAMA5D3-XPLAINED
 * SAMA5D4-EK
 * SAMA5D4-XPLAINED
+* SAME70-XPLAINED
+* SAMV71-XPLAINED
 
 ## Setup
 --------
@@ -62,13 +64,3 @@ Press 'J' | Cursor move to left | PASSED | PASSED
 Press 'K' | Cursor move down | PASSED | PASSED
 Press 'L' | Cursor move to right | PASSED | PASSED
 
-
-# Log
------
-
-## Current version
-------------------
- - v1.3
-
-## History
-----------
