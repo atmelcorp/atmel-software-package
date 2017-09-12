@@ -138,13 +138,9 @@
 /*----------------------------------------------------------------------------
  *         Local Definitions
  *----------------------------------------------------------------------------*/
-
 /** Delay for pushbutton debouncing (ms) */
 #define DEBOUNCE_TIME      10
 #define NO_PUSHBUTTON
-
-/** Maximum number of handled led */
-#define MAX_LEDS            3
 
 /**  Size of buffer in bytes. */
 #define BUFFER_SIZE   (64)
@@ -336,20 +332,20 @@ int main( void )
 
 		/* Update the status of LEDs */
 		if (update && (0x80 & led_stat)) {
-#ifdef LED_RED
+#if NUM_LEDS > 0 
 			/* LED1 */
 			if (led_stat & 0x01)
-				led_set(LED_RED);
+				led_set(0);
 			else
-				led_clear(LED_RED);
+				led_clear(0);
 #endif
 
-#ifdef LED_BLUE
+#if NUM_LEDS > 1 
 			/* LED2 */
 			if (led_stat & 0x02)
-				led_set(LED_BLUE);
+				led_set(1);
 			else
-				led_clear(LED_BLUE);
+				led_clear(1);
 #endif
 		}
 		
