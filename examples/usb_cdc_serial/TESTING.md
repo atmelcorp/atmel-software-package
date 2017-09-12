@@ -26,6 +26,8 @@ to the board, and forward to USART port of board.
 * SAMA5D3-XPLAINED
 * SAMA5D4-EK
 * SAMA5D4-XPLAINED
+* SAME70-XPLAINED
+* SAMV71-XPLAINED
 
 ## Setup
 --------
@@ -69,13 +71,3 @@ Write any character in serial | Print same character in USART | PASSED | PASSED
 Write any character in USART | Print same character in serial | PASSED | PASSED
 Print ESC button in console | Open or close cdc eco function | PASSED | PASSED
 
-
-# Log
------
-
-## Current version
-------------------
- - v1.3
-
-## History
-----------

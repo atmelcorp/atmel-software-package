@@ -201,6 +201,14 @@
 #define USART_ADDR USART0
 #define USART_PINS PINS_USART0
 
+#elif defined(CONFIG_BOARD_SAME70_XPLAINED)
+#define USART_ADDR USART2
+#define USART_PINS PINS_USART2
+
+#elif defined(CONFIG_BOARD_SAMV71_XPLAINED)
+#define USART_ADDR USART2
+#define USART_PINS PINS_USART2
+
 #else
 #error Unsupported SoC!
 #endif
