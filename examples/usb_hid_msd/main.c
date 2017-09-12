@@ -184,7 +184,7 @@
 #define NUM_KEYS            3
 
 /** Num lock LED index. */
-#define LED_NUMLOCK         LED_BLUE
+#define LED_NUMLOCK         0
 
 
 /** Maximum number of LUNs which can be defined. */
@@ -200,8 +200,12 @@
 /** Size of the MSD IO buffer in bytes (6K, more the better). */
 #define MSD_BUFFER_SIZE     (128*BLOCK_SIZE)
 
-/** Ramdisk size: 20K (WinXP can not format the disk if lower than 20K) */
-#define RAMDISK_SIZE        (8*1024*1024)
+/** Ramdisk size: at least 20K (Windows can not format the disk if lower than 20K) */
+#if defined(CONFIG_BOARD_SAME70_XPLAINED) || defined(CONFIG_BOARD_SAMV71_XPLAINED)
+  #define RAMDISK_SIZE        (32*1024)
+#else
+  #define RAMDISK_SIZE        (8*1024*1024)
+#endif
 
 /** Size of the reserved DDRAM (32M) */
 #define DDRAM_RESERVE_SIZE  (32*1024*1024)
