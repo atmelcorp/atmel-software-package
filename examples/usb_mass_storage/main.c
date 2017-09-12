@@ -99,6 +99,7 @@
  *----------------------------------------------------------------------------*/
 
 #include "board.h"
+#include "timer.h"
 #include "trace.h"
 #include "serial/console.h"
 #include "mm/cache.h"
@@ -471,10 +472,16 @@ static void sddisk_init(void)
 {
 	uint8_t rc, i;
 	sSdCard *pSd;
+	uint32_t status;
 
 	/* Infinite loop */
 	for (i = 0; i < BOARD_NUM_SDMMC; i ++) {
-		if (SD_GetStatus(sd_lib[i]) != SDMMC_NOT_SUPPORTED) {
+		struct _timeout timeout;
+		timer_start_timeout(&timeout, 1000);
+		do {
+			status = SD_GetStatus(sd_lib[i]);
+		} while (status == SDMMC_NOT_SUPPORTED && !timer_timeout_reached(&timeout));
+		if (status != SDMMC_NOT_SUPPORTED) {
 			trace_info("Connecting to slot %x \n\r", i);
 			rc = card_init(i);
 			if (rc) {
@@ -488,7 +495,6 @@ static void sddisk_init(void)
 		} else
 			trace_info("** Card %d Disconnected\n\r",i);
 	}
-
 }
 
 /**
