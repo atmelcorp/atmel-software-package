@@ -58,6 +58,7 @@
 
 #include "chip.h"
 #include "mutex.h"
+#include "gpio/pio.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -80,6 +81,7 @@ struct _hsmci_ops {
 struct _hsmci_cfg {
 	uint32_t periph_id;    /* HSMCI peripheral ID (ID_HSMCIx) */
 	uint8_t slot;          /* HSMCI slot ID (0..3 for A..D) */
+	struct _pin wp_pin;    /* HSMCI write protection pin */
 	bool use_polling;      /* Use interrupts if false, otherwise only use polling */
 	struct _hsmci_ops ops; /* Function pointers for power control and card detect */
 };
@@ -88,6 +90,7 @@ struct _hsmci_cfg {
  * Allocate it but ignore its members. */
 struct _hsmci_set {
 	uint32_t id;                  /* HSMCI peripheral ID (ID_HSMCIx) */
+	struct _pin wp_pin;           /* HSMCI write protection pin */
 	Hsmci *regs;                  /* set of HSMCI hardware registers */
 	struct _hsmci_ops ops;
 	struct _dma_channel *dma_tx_channel;

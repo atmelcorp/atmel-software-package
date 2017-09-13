@@ -548,6 +548,19 @@ static uint32_t hsmci_control(void *_set, uint32_t bCtl, uint32_t param)
 			*param_u32 = 1; /* assume card is always present */
 		break;
 
+	case SDMMC_IOCTL_GET_WP:
+		if (!param)
+			return SDMMC_ERROR_PARAM;
+		if (set->wp_pin.mask) {
+			if (pio_get(&(set->wp_pin)))
+				*param_u32 = 1;
+			else
+				*param_u32 = 0;
+		} else {
+			*param_u32 = 1;
+		}
+		break;
+
 	case SDMMC_IOCTL_POWER:
 		if (!param)
 			return SDMMC_ERROR_PARAM;
@@ -867,6 +880,7 @@ bool hsmci_initialize(struct _hsmci_set* set, const struct _hsmci_cfg* config)
 
 	memset(set, 0, sizeof(*set));
 	set->id = config->periph_id;
+	set->wp_pin = config->wp_pin;
 	set->regs = regs;
 
 	set->use_polling = config->use_polling;

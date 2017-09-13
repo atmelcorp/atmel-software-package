@@ -1266,6 +1266,17 @@ static uint32_t sdmmc_control(void *_set, uint32_t bCtl, uint32_t param)
 			    ? 1 : 0;
 		break;
 
+	case SDMMC_IOCTL_GET_WP:
+		if (!param)
+			return SDMMC_ERROR_PARAM;
+		if ((set->regs->SDMMC_CA0R & SDMMC_CA0R_SLTYPE_Msk)
+		    == SDMMC_CA0R_SLTYPE_EMBEDDED)
+			*param_u32 = 1;
+		else
+			*param_u32 = set->regs->SDMMC_PSR & SDMMC_PSR_WRPPL
+			    ? 1 : 0;
+		break;
+
 	case SDMMC_IOCTL_POWER:
 		if (!param)
 			return SDMMC_ERROR_PARAM;
