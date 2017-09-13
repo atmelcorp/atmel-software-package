@@ -3460,6 +3460,32 @@ SD_GetStatus(const sSdCard * pSd)
 	return pSd->bStatus == SDMMC_NOT_SUPPORTED ? SDMMC_ERR : pSd->bStatus;
 }
 
+
+/**
+ * Query whether the card is writeprotected or not by mechanical 
+ write protect switch.
+ * \param pSd Pointer to \ref sSdCard instance.
+ * \return an \ref sdmmc_rc "error code", as follows:
+ * - SDMMC_LOCKED if the device has been mechanical write protected.
+ * - SDMMC_OK if the card is not write-protected.
+ */
+uint8_t
+SD_GetWpStatus(const sSdCard * pSd)
+{
+	uint32_t rc, drv_param = 0;
+
+	assert(pSd != NULL);
+
+	rc = pSd->pHalf->fIOCtrl(pSd->pDrv, SDMMC_IOCTL_GET_WP,
+	    (uint32_t)&drv_param);
+	if (rc != SDMMC_OK)
+		return SDMMC_NOT_SUPPORTED;
+    if (!drv_param) 
+		return SDMMC_LOCKED;
+	else
+		return SDMMC_OK;
+}
+
 /**
  * Return type of the card.
  * \param pSd Pointer to \ref sSdCard instance.

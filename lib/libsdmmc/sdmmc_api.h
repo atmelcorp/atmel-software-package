@@ -634,6 +634,7 @@ extern uint8_t SD_SetupBusMode(sSdCard * pSd, uint8_t bMode);
 extern uint8_t SD_SetupHSMode(sSdCard * pSd, uint8_t bMode);
 
 extern uint8_t SD_GetStatus(const sSdCard * pSd);
+extern uint8_t SD_GetWpStatus(const sSdCard * pSd);
 extern uint8_t SD_GetCardType(const sSdCard * pSd);
 extern uint32_t SD_GetNumberBlocks(const sSdCard * pSd);
 extern uint32_t SD_GetBlockSize(const sSdCard * pSd);

@@ -265,6 +265,9 @@ typedef enum {
 /** SD/MMC Low Level IO Control: Query whether a device is detected in this slot
     IOCtrl(pSd, SDMMC_IOCTL_GET_DEVICE, (uint32_t*)pODetected) */
 #define SDMMC_IOCTL_GET_DEVICE    0x26
+/** SD/MMC Low Level IO Control: Query whether the card is writeprotected
+or not by mechanical write protect switch */
+#define SDMMC_IOCTL_GET_WP        0x27
 /**     @}*/
 
 /** \ingroup sdmmc_hal_def
