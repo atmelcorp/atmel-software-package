@@ -215,6 +215,11 @@ static bool use_dma = false;
 static const struct _hsmci_cfg drv0_config = {
 	.periph_id = ID_HSMCI0,
 	.slot = BOARD_HSMCI0_SLOT,
+#ifdef BOARD_HSMCI0_WP_PIN
+	.wp_pin = BOARD_HSMCI0_WP_PIN,
+#else
+	.wp_pin = 0,
+#endif
 	.use_polling = false,
 	.ops = {
 		.get_card_detect_status = board_get_hsmci_card_detect_status,
@@ -228,6 +233,11 @@ static struct _hsmci_set drv0 = { 0 };
 static const struct _hsmci_cfg drv1_config = {
 	.periph_id = ID_HSMCI1,
 	.slot = BOARD_HSMCI1_SLOT,
+#ifdef BOARD_HSMCI0_WP_PIN
+	.wp_pin = BOARD_HSMCI0_WP_PIN,
+#else
+	.wp_pin = 0,
+#endif
 	.use_polling = false,
 	.ops = {
 		.get_card_detect_status = board_get_hsmci_card_detect_status,
@@ -722,6 +732,10 @@ int main(void)
 		case 'w':
 			if (SD_GetStatus(lib) == SDMMC_NOT_SUPPORTED) {
 				printf("Device not detected.\n\r");
+				break;
+			}
+			if (SD_GetWpStatus(lib) == SDMMC_LOCKED) {
+				printf("Device is write protected.\n\r");
 				break;
 			}
 			if (open_device(lib)) {
