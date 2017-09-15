@@ -297,6 +297,38 @@
 	PIN_SPI1_NPCS3_ALT,\
 }
 
+/* ========== Pio PIN definition for PMC peripheral (PCK) ========== */
+
+/** PCK0 pin */
+#define PIN_PCK0 { PIO_GROUP_A, PIO_PA6B_PCK0, PIO_PERIPH_B, PIO_DEFAULT }
+
+/** PCK0 pin */
+#define PIN_PCK0_ALT1 { PIO_GROUP_B, PIO_PB12D_PCK0, PIO_PERIPH_D, PIO_DEFAULT }
+
+/** PCK0 pin */
+#define PIN_PCK0_ALT2 { PIO_GROUP_B, PIO_PB13B_PCK0, PIO_PERIPH_B, PIO_DEFAULT }
+
+/** PCK1 pin */
+#define PIN_PCK1 { PIO_GROUP_A, PIO_PA17B_PCK1, PIO_PERIPH_B, PIO_DEFAULT }
+
+/** PCK1 pin */
+#define PIN_PCK1_ALT1 { PIO_GROUP_A, PIO_PA21B_PCK1, PIO_PERIPH_B, PIO_DEFAULT }
+
+/** PCK2 pin */
+#define PIN_PCK2 { PIO_GROUP_A, PIO_PA3C_PCK2, PIO_PERIPH_C, PIO_DEFAULT }
+
+/** PCK2 pin */
+#define PIN_PCK2_ALT1 { PIO_GROUP_A, PIO_PA18B_PCK2, PIO_PERIPH_B, PIO_DEFAULT }
+
+/** PCK2 pin */
+#define PIN_PCK2_ALT2 { PIO_GROUP_A, PIO_PA31B_PCK2, PIO_PERIPH_B, PIO_DEFAULT }
+
+/** PCK2 pin */
+#define PIN_PCK2_ALT3 { PIO_GROUP_B, PIO_PB3B_PCK2, PIO_PERIPH_B, PIO_DEFAULT }
+
+/** PCK2 pin */
+#define PIN_PCK2_ALT4 { PIO_GROUP_D, PIO_PD31C_PCK2, PIO_PERIPH_C, PIO_DEFAULT }
+
 /* ========== Pio PIN definition for TWI0 peripheral ========== */
 
 #define PIN_TWI0_TWD { PIO_GROUP_A, PIO_PA3A_TWD0, PIO_PERIPH_A, PIO_DEFAULT }
@@ -445,6 +477,52 @@
 
 /** HSMCI0 pin 4-bit Data slot A (DA0-3) */
 #define PIN_HSMCI0_DATA4B_A { PIO_GROUP_A, 0xCC000000, PIO_PERIPH_C, PIO_DEFAULT }
+
+//=============================================================================
+
+/* ========== Pio PIN definition for ISI peripheral ========== */
+
+/** Image Sensor Data pins */
+#define PIN_ISI_D0 { PIO_GROUP_D, PIO_PD22D_ISI_D0, PIO_PERIPH_D, PIO_DEFAULT }
+#define PIN_ISI_D1 { PIO_GROUP_D, PIO_PD21D_ISI_D1, PIO_PERIPH_D, PIO_DEFAULT }
+#define PIN_ISI_D2 { PIO_GROUP_B, PIO_PB3D_ISI_D2,  PIO_PERIPH_D, PIO_DEFAULT }
+#define PIN_ISI_D3 { PIO_GROUP_A, PIO_PA9B_ISI_D3,  PIO_PERIPH_B, PIO_DEFAULT }
+#define PIN_ISI_D4 { PIO_GROUP_A, PIO_PA5B_ISI_D4,  PIO_PERIPH_B, PIO_DEFAULT }
+#define PIN_ISI_D5 { PIO_GROUP_D, PIO_PD11D_ISI_D5, PIO_PERIPH_D, PIO_DEFAULT }
+#define PIN_ISI_D6 { PIO_GROUP_D, PIO_PD12D_ISI_D6, PIO_PERIPH_D, PIO_DEFAULT }
+#define PIN_ISI_D7 { PIO_GROUP_A, PIO_PA27D_ISI_D7, PIO_PERIPH_D, PIO_DEFAULT }
+#define PIN_ISI_D8 { PIO_GROUP_D, PIO_PD27D_ISI_D8, PIO_PERIPH_D, PIO_DEFAULT }
+#define PIN_ISI_D9 { PIO_GROUP_D, PIO_PD28D_ISI_D9, PIO_PERIPH_D, PIO_DEFAULT }
+#define PIN_ISI_D10 { PIO_GROUP_D, PIO_PD30D_ISI_D10, PIO_PERIPH_D, PIO_DEFAULT }
+#define PIN_ISI_D11 { PIO_GROUP_D, PIO_PD31D_ISI_D11, PIO_PERIPH_D, PIO_DEFAULT }
+
+/** Image Sensor Interface vertical sync. */
+#define PIN_ISI_VSYNC { PIO_GROUP_D, PIO_PD25D_ISI_VSYNC, PIO_PERIPH_D, PIO_DEFAULT }
+
+/** Image Sensor Interface horizontal sync. */
+#define PIN_ISI_HSYNC { PIO_GROUP_D, PIO_PD24D_ISI_HSYNC, PIO_PERIPH_D, PIO_DEFAULT }
+
+/** Image Sensor Interface data clock. */
+#define PIN_ISI_PCK { PIO_GROUP_D, PIO_PA24D_ISI_PCK, PIO_PERIPH_D, PIO_DEFAULT }
+
+/** Image Sensor Interface data pins (8-bit) */
+#define PINS_ISI_DATA_8BIT PIN_ISI_D0, PIN_ISI_D1, PIN_ISI_D2, PIN_ISI_D3,\
+                             PIN_ISI_D4, PIN_ISI_D5, PIN_ISI_D6, PIN_ISI_D7
+
+/** Image Sensor Interface data pins (10-bit) */
+#define PINS_ISI_DATA_10BIT PINS_ISI_DATA_8BIT, PIN_ISI_D8, PIN_ISI_D9
+
+/** Image Sensor Interface data pins (10-bit) */
+#define PINS_ISI_DATA_12BIT PINS_ISI_DATA_10BIT, PIN_ISI_D10, PIN_ISI_D11
+
+/** Image Sensor Interface pin list (8-bit data) */
+#define PINS_ISI_8BIT { PIN_ISI_VSYNC, PIN_ISI_HSYNC, PIN_ISI_PCK, PINS_ISI_DATA_8BIT }
+
+/** Image Sensor Interface pin list (10-bit data) */
+#define PINS_ISI_10BIT { PIN_ISI_VSYNC, PIN_ISI_HSYNC, PIN_ISI_PCK, PINS_ISI_DATA_10BIT }
+
+/** Image Sensor Interface pin list (12-bit data) */
+#define PINS_ISI_12BIT { PIN_ISI_VSYNC, PIN_ISI_HSYNC, PIN_ISI_PCK, PINS_ISI_DATA_12BIT }
 
 //=============================================================================
 
