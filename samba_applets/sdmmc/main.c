@@ -401,7 +401,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 		                              EMMC_BOOT_ACK);
 		mmc_configure_boot_bus(&lib, 0);
 	} else {
-		mem_size = SD_GetTotalSizeKB(&lib) * 1024 / BLOCK_SIZE;
+		mem_size = (uint32_t)(((uint64_t)SD_GetTotalSizeKB(&lib) * 1024ull) / BLOCK_SIZE);
 	}
 
 	buffer = applet_buffer;
