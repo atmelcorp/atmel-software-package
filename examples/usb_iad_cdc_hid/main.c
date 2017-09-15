@@ -172,8 +172,10 @@
 /** Number of keys used in the example. */
 #define NUM_KEYS       (3)
 
+#ifdef CONFIG_HAVE_LED
 /** Num lock LED index. */
-#define LED_NUMLOCK    LED_RED
+#define LED_NUMLOCK    0
+#endif
 
 /** Size in bytes of the packet used for reading data from USB */
 #define DATAPACKETSIZE \
@@ -268,6 +270,7 @@ void hidd_keyboard_callbacks_leds_changed(
 {
 	caps_lock_status = caps_lock_status;
 	scroll_lock_status = scroll_lock_status;
+#ifdef CONFIG_HAVE_LED
 	/* Num. lock */
 	if (num_lock_status) {
 		led_set(LED_NUMLOCK);
@@ -275,6 +278,7 @@ void hidd_keyboard_callbacks_leds_changed(
 	else {
 		led_clear(LED_NUMLOCK);
 	}
+#endif
 }
 
 /*---------------------------------------------------------------------------
