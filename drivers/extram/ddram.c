@@ -197,7 +197,6 @@ static void _init_w971g16sg(struct _mpddrc_desc* desc)
 	              | MPDDRC_CR_CAS_DDR_CAS3
 	              | MPDDRC_CR_DIC_DS_DDR2_WEAKSTRENGTH
 	              | MPDDRC_CR_NB_8_BANKS
-	              | MPDDRC_CR_NDQS_DISABLED
 	              | MPDDRC_CR_DECOD_INTERLEAVED
 	              | MPDDRC_CR_UNAL_SUPPORTED;
 
@@ -227,7 +226,7 @@ static void _init_w971g16sg(struct _mpddrc_desc* desc)
 	desc->timings.trtp   = NS2CYCLES(8, mck);   // 7.5ns
 	desc->timings.tfaw   = NS2CYCLES(45, mck);  // 45ns
 
-	desc->refresh_window = 32;
+	desc->refresh_window = 64;
 	desc->refresh_cycles = 8192;
 }
 #endif /* CONFIG_HAVE_DDR2_W971G16SG */
@@ -250,7 +249,6 @@ static void _init_w972gg6kb(struct _mpddrc_desc* desc)
 	              | MPDDRC_CR_NC_DDR_10_COL_BITS
 	              | MPDDRC_CR_CAS_DDR_CAS3
 	              | MPDDRC_CR_NB_8_BANKS
-	              | MPDDRC_CR_NDQS_DISABLED
 	              | MPDDRC_CR_UNAL_SUPPORTED;
 
 #ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
