@@ -177,6 +177,11 @@
 #  define SLOT1_ID                    ID_HSMCI1
 #  define SLOT1_TAG                   "(SD/MMC)"
 #  define BOARD_NUM_SDMMC             (2)
+#elif defined(CONFIG_BOARD_SAME70_XPLAINED) ||\
+	  defined(CONFIG_BOARD_SAMV71_XPLAINED)
+#  define SLOT0_ID                    ID_HSMCI0
+#  define SLOT0_TAG                   "(SD/MMC)"
+#  define BOARD_NUM_SDMMC             (1)
 #endif
 
 /** Maximum number of LUNs which can be defined. */
@@ -191,8 +196,12 @@
 #define DRV_SDMMC_CARD      2    /**< SD card */
 
 
-/** RamDisk size (WinXP can not format the disk if lower than 20K) */
-#define RAMDISK_SIZE (8 * 1024 * 1024)
+/** Ramdisk size: at least 20K (Windows can not format the disk if lower than 20K) */
+#if defined(CONFIG_BOARD_SAME70_XPLAINED) || defined(CONFIG_BOARD_SAMV71_XPLAINED)
+  #define RAMDISK_SIZE        (32*1024)
+#else
+  #define RAMDISK_SIZE        (8*1024*1024)
+#endif
 
 /** Size of the MSD IO buffer in bytes (more the better). */
 #define MSD_BUFFER_SIZE (128 * BLOCK_SIZE)
