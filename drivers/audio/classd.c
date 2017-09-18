@@ -364,6 +364,7 @@ int classd_configure(struct _classd_desc *desc)
 
 	desc->tx.dma.cfg_dma.incr_saddr = true;
 	desc->tx.dma.cfg_dma.incr_daddr = false;
+	desc->tx.dma.cfg_dma.loop = false;
 	desc->tx.dma.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
 
 	desc->tx.mutex = 0;

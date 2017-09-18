@@ -403,6 +403,7 @@ static uint8_t hsmci_configure_dma(struct _hsmci_set *set, uint8_t bRd)
 
 	dma_cfg.chunk_size = DMA_CHUNK_SIZE_1;
 	dma_cfg.data_width = (unit == 1) ? DMA_DATA_WIDTH_BYTE : DMA_DATA_WIDTH_WORD;
+	dma_cfg.loop = false;
 	if (bRd) {
 		dma_cfg.incr_saddr = false;
 		dma_cfg.incr_daddr = true;

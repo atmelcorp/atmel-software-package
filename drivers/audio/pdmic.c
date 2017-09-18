@@ -238,6 +238,7 @@ int pdmic_configure(struct _pdmic_desc *desc)
 
 	desc->rx.dma.cfg_dma.incr_saddr = false;
 	desc->rx.dma.cfg_dma.incr_daddr = true;
+	desc->rx.dma.cfg_dma.loop = false;
 	desc->rx.dma.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
 
 	/* write configuration */

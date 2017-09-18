@@ -80,6 +80,7 @@ static void _iscd_dma_read_histogram(uint32_t buf)
 	cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
 	cfg_dma.incr_saddr = true;
 	cfg_dma.incr_daddr = true;
+	cfg_dma.loop = false;
 
 	cfg.saddr = (uint32_t*)&ISC->ISC_HIS_ENTRY[0];
 	cfg.daddr = (uint32_t*)buf;

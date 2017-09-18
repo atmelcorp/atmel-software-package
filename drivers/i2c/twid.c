@@ -785,10 +785,12 @@ int twid_configure(struct _twi_desc* desc)
 
 		desc->dma.rx.cfg_dma.incr_saddr = false;
 		desc->dma.rx.cfg_dma.incr_daddr = true;
+		desc->dma.rx.cfg_dma.loop = false;
 		desc->dma.rx.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
 
 		desc->dma.tx.cfg_dma.incr_saddr = true;
 		desc->dma.tx.cfg_dma.incr_daddr = false;
+		desc->dma.tx.cfg_dma.loop = false;
 		desc->dma.tx.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
 	}
 

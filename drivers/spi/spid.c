@@ -130,12 +130,14 @@ static void _spid_transfer_current_buffer_dma(struct _spi_desc* desc)
 	struct _dma_cfg rx_cfg_dma = {
 		.incr_saddr = false,
 		.incr_daddr = false,
+		.loop = false,
 		.data_width = DMA_DATA_WIDTH_BYTE,
 		.chunk_size = DMA_CHUNK_SIZE_1,
 	};
 	struct _dma_cfg tx_cfg_dma = {
 		.incr_saddr = false,
 		.incr_daddr = false,
+		.loop = false,
 		.data_width = DMA_DATA_WIDTH_BYTE,
 		.chunk_size = DMA_CHUNK_SIZE_1,
 	};

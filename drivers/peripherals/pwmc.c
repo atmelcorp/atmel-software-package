@@ -336,6 +336,7 @@ void pwmc_dma_duty_cycle(Pwm* pwm, uint16_t *duty, uint32_t size)
 	cfg.len = size;
 	dma_cfg.incr_saddr = true;
 	dma_cfg.incr_daddr = false;
+	dma_cfg.loop = false;
 	dma_cfg.data_width = DMA_DATA_WIDTH_HALF_WORD;
 	dma_cfg.chunk_size = DMA_CHUNK_SIZE_1;
 	dma_reset_channel(pwm_dma_channel);

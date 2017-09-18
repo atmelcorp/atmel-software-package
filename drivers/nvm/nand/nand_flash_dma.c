@@ -118,6 +118,7 @@ uint8_t nand_dma_write(uint32_t src_address, uint32_t dest_address,
 	cfg.len = size;
 	cfg_dma.incr_saddr = true;
 	cfg_dma.incr_daddr = true;
+	cfg_dma.loop = false;
 	cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
 	cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
 
@@ -156,6 +157,7 @@ uint8_t nand_dma_read(uint32_t src_address, uint32_t dest_address,
 
 	cfg_dma.incr_saddr = true;
 	cfg_dma.incr_daddr = true;
+	cfg_dma.loop = false;
 	cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
 	cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
 

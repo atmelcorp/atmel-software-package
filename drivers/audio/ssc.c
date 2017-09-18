@@ -232,9 +232,11 @@ void ssc_configure(struct _ssc_desc* desc)
 
 	desc->rx.dma.cfg_dma.incr_saddr = false;
 	desc->rx.dma.cfg_dma.incr_daddr = true;
+	desc->rx.dma.cfg_dma.loop = false;
 	desc->rx.dma.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
 	desc->tx.dma.cfg_dma.incr_saddr = true;
 	desc->tx.dma.cfg_dma.incr_daddr = false;
+	desc->tx.dma.cfg_dma.loop = false;
 	desc->tx.dma.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
 
 	desc->tx.dma.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);

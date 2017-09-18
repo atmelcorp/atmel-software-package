@@ -263,11 +263,13 @@ void usartd_configure(uint8_t iface, struct _usart_desc* config)
 
 	config->dma.rx.cfg_dma.incr_saddr = false;
 	config->dma.rx.cfg_dma.incr_daddr = true;
+	config->dma.rx.cfg_dma.loop = false;
 	config->dma.rx.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
 	config->dma.rx.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
 
 	config->dma.tx.cfg_dma.incr_saddr = true;
 	config->dma.tx.cfg_dma.incr_daddr = false;
+	config->dma.tx.cfg_dma.loop = false;
 	config->dma.tx.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
 	config->dma.tx.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
 

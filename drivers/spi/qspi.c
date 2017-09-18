@@ -50,6 +50,7 @@ static struct _dma_channel *dma_ch = NULL;
 static struct _dma_cfg dma_cfg = {
 	.incr_saddr = true,
 	.incr_daddr = true,
+	.loop = false,
 	.data_width = DMA_DATA_WIDTH_BYTE,
 	.chunk_size = DMA_CHUNK_SIZE_1,
 };

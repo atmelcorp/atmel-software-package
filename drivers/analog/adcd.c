@@ -148,6 +148,7 @@ static void adcd_configure(struct _adcd_desc* desc)
 
 	desc->xfer.dma.cfg_dma.incr_saddr = false;
 	desc->xfer.dma.cfg_dma.incr_daddr = true;
+	desc->xfer.dma.cfg_dma.loop = false;
 	desc->xfer.dma.cfg_dma.data_width = DMA_DATA_WIDTH_HALF_WORD;
 	desc->xfer.dma.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
 
