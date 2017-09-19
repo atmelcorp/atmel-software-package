@@ -248,9 +248,11 @@ uint8_t lin_init(struct _lin_desc* lin_desc, uint8_t node)
 	/* Configure usart mode */
 	usart_configure(lin_desc->addr, lin_desc->mode, lin_desc->baudrate);
 
+#ifdef CONFIG_HAVE_USART_FIFO
 	/* Mode fifo */
 	usart_fifo_configure(lin_desc->addr, 16, 16, 16);
-
+	usart_fifo_enable(lin_desc->addr);
+#endif
 	return 0;
 }
 
