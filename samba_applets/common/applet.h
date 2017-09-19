@@ -38,6 +38,8 @@
  *----------------------------------------------------------------------------*/
 
 #define APPLET_CMD_INITIALIZE        0x00 /* Initialization */
+#define APPLET_CMD_LEGACY_WRITE      0x02 /* Write (legacy) */
+#define APPLET_CMD_LEGACY_READ       0x03 /* Read (legacy) */
 #define APPLET_CMD_READ_INFO         0x30 /* Read Info */
 #define APPLET_CMD_ERASE_PAGES       0x31 /* Erase pages */
 #define APPLET_CMD_READ_PAGES        0x32 /* Read pages */

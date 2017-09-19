@@ -27,65 +27,41 @@
  * ----------------------------------------------------------------------------
  */
 
+#include <string.h>
+
 #include "applet.h"
 #include "applet_legacy.h"
 #include "trace.h"
-#include "intmath.h"
-
-#include <string.h>
 
 /*----------------------------------------------------------------------------
  *         Local definitions
  *----------------------------------------------------------------------------*/
-
-#define APPLET_CMD_LEGACY_WRITE        0x02 /* Write (legacy) */
-#define APPLET_CMD_LEGACY_READ         0x03 /* Read (legacy) */
-#define APPLET_CMD_LEGACY_BATCH_ERASE  0x14 /* Batch Erase (legacy) */
 
 /** Mailbox content for the legacy commands. */
 union legacy_mailbox {
 	struct {
 		/** Buffer address */
 		uint32_t buf_addr;
-		/** Buffer size (in bytes) */
-		uint32_t buf_size;
+		/** Read/Write Length (in bytes) */
+		uint32_t length;
 		/** Read/Write offset (in bytes) */
 		uint32_t offset;
-	} rw_in;
+	} in;
 
 	struct {
-		/** Erase offset (in bytes) */
-		uint32_t offset;
-	} erase_in;
-
-	struct {
-		/** Bytes read/written/erased */
+		/** Bytes read/written */
 		uint32_t bytes;
 	} out;
 };
 
 /*----------------------------------------------------------------------------
- *         Local functions
+ *         Local constants
  *----------------------------------------------------------------------------*/
 
-static bool get_applet_info(uint32_t *buf_addr, uint32_t *buf_size,
-		uint32_t *page_size, uint32_t *erase_support)
-{
-	union initialize_mailbox mbx;
-	applet_command_handler_t handler;
-
-	handler = get_applet_command_handler(APPLET_CMD_READ_INFO);
-	if (!handler)
-		return false;
-	if (handler(APPLET_CMD_READ_INFO, (uint32_t*)&mbx) != APPLET_SUCCESS)
-		return false;
-
-	*buf_addr = mbx.out.buf_addr;
-	*buf_size = mbx.out.buf_size;
-	*page_size = mbx.out.page_size;
-	*erase_support = mbx.out.erase_support;
-	return true;
-}
+#ifdef CONFIG_SOC_SAMA5D3
+/* ROM Code version string */
+static const char* sama5d3_rom_version = (const char*)0x310000;
+#endif
 
 /*----------------------------------------------------------------------------
  *         Public functions
@@ -93,88 +69,36 @@ static bool get_applet_info(uint32_t *buf_addr, uint32_t *buf_size,
 
 bool applet_is_legacy_command(uint32_t cmd)
 {
-	return (cmd == APPLET_CMD_LEGACY_WRITE)
-		|| (cmd == APPLET_CMD_LEGACY_READ)
-		|| (cmd == APPLET_CMD_LEGACY_BATCH_ERASE);
+	return (cmd == APPLET_CMD_LEGACY_WRITE ||
+	        cmd == APPLET_CMD_LEGACY_READ);
 }
 
+/* Dummy implementations of the legacy READ/WRITE commands */
 uint32_t applet_emulate_legacy_command(uint32_t cmd, uint32_t *args)
 {
-	uint32_t buf_addr, buf_size, page_size, erase_support;
-	uint32_t length, new_cmd, status;
 	union legacy_mailbox *mbx = (union legacy_mailbox*)args;
-	union read_write_erase_pages_mailbox new_mbx;
-	applet_command_handler_t handler;
 
-	if (!applet_is_legacy_command(cmd))
-		return APPLET_FAIL;
-
-	if (!get_applet_info(&buf_addr, &buf_size,
-				&page_size, &erase_support))
-		return APPLET_FAIL;
-
-	if (cmd == APPLET_CMD_LEGACY_WRITE ||
-			cmd == APPLET_CMD_LEGACY_READ) {
-
-		if (mbx->rw_in.buf_addr != buf_addr) {
-			trace_error("Invalid buffer address\r\n");
+	if (cmd == APPLET_CMD_LEGACY_READ) {
+#ifdef CONFIG_SOC_SAMA5D3
+		/* SAMA5D3 ROM-code versions 2.0/2.1 cannot properly support the READ command */
+		if (!strncmp(sama5d3_rom_version, "v2.0", 4) ||
+		    !strncmp(sama5d3_rom_version, "v2.1", 4)) {
+			trace_error_wp("SAMA5D3 ROM-Code 2.0 or 2.1 detected, READ command disabled.\r\n");
 			return APPLET_FAIL;
 		}
-
-		if (mbx->rw_in.buf_size > buf_size) {
-			trace_error("Invalid buffer size\r\n");
-			return APPLET_FAIL;
+#endif
+		/* only move existing data inside the applet buffer */
+		if (mbx->in.offset && mbx->in.offset < applet_buffer_size) {
+			memmove(applet_buffer,
+				applet_buffer + mbx->in.offset,
+				applet_buffer_size - mbx->in.offset);
 		}
 
-		if (mbx->rw_in.offset & (page_size - 1)) {
-			trace_error("Un-aligned offset\r\n");
-			return APPLET_FAIL;
-		}
-
-		length = ROUND_UP_MULT(mbx->rw_in.buf_size, page_size);
-		/* if buffer size was rounded up, fill the padding with 0xFF */
-		if (length != mbx->rw_in.buf_size)
-			memset((uint8_t*)buf_addr + mbx->rw_in.buf_size, 0xff,
-					length - mbx->rw_in.buf_size);
-
-		if (cmd == APPLET_CMD_LEGACY_WRITE)
-			new_cmd = APPLET_CMD_WRITE_PAGES;
-		else if (cmd == APPLET_CMD_LEGACY_READ)
-			new_cmd = APPLET_CMD_READ_PAGES;
-		new_mbx.in.offset = mbx->rw_in.offset / page_size;
-		new_mbx.in.length = length / page_size;
-
-		length = mbx->rw_in.buf_size;
-	} else if (cmd == APPLET_CMD_LEGACY_BATCH_ERASE) {
-		if (!erase_support) {
-			trace_error("Applet does not support any erase size\r\n");
-			return APPLET_FAIL;
-		}
-
-		/* get maximum supported erase size */
-		length = 1 << (31 - CLZ(erase_support));
-
-		if (mbx->erase_in.offset & (page_size - 1)) {
-			trace_error("Un-aligned offset\r\n");
-			return APPLET_FAIL;
-		}
-
-		new_cmd = APPLET_CMD_ERASE_PAGES;
-		new_mbx.in.offset = mbx->erase_in.offset / page_size;
-		new_mbx.in.length = length;
-
-		length = new_mbx.in.length * page_size;
-	} else {
-		return APPLET_FAIL;
+		return APPLET_SUCCESS;
+	} else if (cmd == APPLET_CMD_LEGACY_WRITE) {
+		/* do nothing */
+		return APPLET_SUCCESS;
 	}
 
-	handler = get_applet_command_handler(new_cmd);
-	if (!handler) {
-		trace_error_wp("Unsupported applet command 0x%08x\r\n",
-				(unsigned)cmd);
-		return APPLET_FAIL;
-	}
-	status = handler(new_cmd, (uint32_t*)&new_mbx);
-	mbx->out.bytes = min_u32(length, new_mbx.out.pages * page_size);
-	return status;
+	return APPLET_FAIL;
 }
