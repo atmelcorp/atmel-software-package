@@ -36,6 +36,7 @@
 #include "trace.h"
 
 #include "irq/nvic.h"
+#include "irqflags.h"
 
 #include <assert.h>
 #include <errno.h>
@@ -56,11 +57,18 @@ static nvic_handler_t nvic_vectors[16 + ID_PERIPH_COUNT];
 void nvic_initialize(nvic_handler_t irq_handler)
 {
 	int i;
+
+	/* Disable interrupts at core level */
+	arch_irq_disable();
+
 	memcpy(nvic_vectors, (void*)SCB->SCB_VTOR, 16 * 4);
 	for (i = 0; i < ID_PERIPH_COUNT; i++)
 		nvic_vectors[16 + i] = irq_handler;
 	SCB->SCB_VTOR = (uint32_t)nvic_vectors;
 	dsb();
+
+	/* Enable interrupts at core level */
+	arch_irq_enable();
 }
 
 void nvic_set_source_vector(uint32_t source, nvic_handler_t handler)
