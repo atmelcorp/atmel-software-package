@@ -2,6 +2,43 @@
 
 The Atmel Softpack can be found on [GitHub](https://github.com/atmelcorp/atmel-software-package).
 
+## Version 2.9 - 2017-09
+
+### New drivers/examples
+
+- Add support for SAMA5D27 SOM1 EK board (examples listed in softpack.md).
+- Add more drivers/examples for SAME70 XPLAINED, SAMV71 XPLAINED boards.
+- Add support for SST26VF032B, S25FL064P QSPI flash memory.
+- Add USBHS support for USB examples of Cortex-M7 MCUs.
+- Add support for newer QSPI peripheral.
+- Add SFDP for serial flash memories.
+
+### Enhancements
+
+- Enhance support for at24 series memories by adjusting the timings.
+- Improve the DDR settings for higher performance.
+- Re-factor drivers for CAN/MCAN.
+- Improve the video stream for USB video devices.
+- Add write-protection support for SD/MMC.
+- Update the pin definitions for FLEXCOM.
+- Rework the drivers for NAND flash memories.
+- Upgrade the applets for SAM-BA.
+- Update USB drivers/examples for compliance tests in USB20CV.
+- Update the flash loaders.
+- Update drivers for SPI NOR flash memories.
+
+### Fixes
+
+- Fix TDES transfers in DMA mode.
+- Fix timings for DDRAM.
+- Fix RTC assert conditions.
+- Fix the IRQ for Cortex-M7 MCUs while running examples in DDRAM using GCC.
+- Fix DMA unstable issue caused by the loop field in the configuration not
+  initialized before be used.
+- Fix bootstrap halt issue while running examples in DDRAM using GCC.
+- Fix SAM-BA applets support for >4G eMMC.
+
+
 ## Version 2.8 - 2017-01
 
 ### New drivers/examples

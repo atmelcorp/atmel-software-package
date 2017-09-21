@@ -21,6 +21,7 @@ The Atmel Softpack support multiple devices and multiple targets.
 
 * SAM9xx5 EVALUATION KIT (sam9g15-ek, sam9g25-ek, sam9g35-ek, sam9x25-ek, sam9x35-ek)
 * SAMA5D2 XPLAINED ULTRA (sama5d2-xplained)
+* SAMA5D27 SOM1 EK (sama5d27-som1-ek)
 * SAMA5D3 XPLAINED (sama5d3-xplained)
 * SAMA5D3 EVALUATION KIT (sama5d3-ek)
 * SAMA5D4 XPLAINED ULTRA (sama5d4-xplained)
