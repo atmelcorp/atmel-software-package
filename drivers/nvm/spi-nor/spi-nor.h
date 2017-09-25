@@ -72,6 +72,7 @@ struct spi_flash_cfg {
 		SPI_FLASH_MODE3,
 	} mode;
 	union {
+		uint32_t dummy; /* ensure that union is never empty to avoid error on IAR */
 #ifdef CONFIG_HAVE_QSPI
 		struct {
 			Qspi* addr;
