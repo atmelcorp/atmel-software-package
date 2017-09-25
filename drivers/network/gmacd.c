@@ -402,16 +402,15 @@ void gmacd_configure(struct _ethd * gmacd,
 
 	gmac_configure(gmac);
 
-	uint32_t id = get_gmac_id_from_addr(gmac);
 	for (i = 0; i < ARRAY_SIZE(_gmacd_irq_handlers); i++) {
 		if (_gmacd_irq_handlers[i].addr == gmac) {
 			_gmacd_irq_handlers[i].gmacd = gmacd;
 			irq_add_handler(_gmacd_irq_handlers[i].irq,
 					_gmacd_gmac_irq_handler,
 					&_gmacd_irq_handlers[i]);
+			irq_enable(_gmacd_irq_handlers[i].irq);
 		}
 	}
-	irq_enable(id);
 
 	/* Enable the copy of data into the buffers
 	   ignore broadcasts, and don't copy FCS. */
