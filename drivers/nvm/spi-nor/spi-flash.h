@@ -39,7 +39,9 @@
 #include "compiler.h"
 #include "intmath.h"
 #include "peripherals/bus.h"
+#ifdef CONFIG_HAVE_QSPI
 #include "spi/qspi.h"
+#endif
 #include "spi/spid.h"
 
 /*----------------------------------------------------------------------------
@@ -340,7 +342,9 @@ struct spi_ops {
 };
 
 union spi_flash_priv {
+#ifdef CONFIG_HAVE_QSPI
 	struct qspi_priv qspi;
+#endif
 	struct _bus_dev_cfg spi;
 };
 
