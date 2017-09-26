@@ -320,17 +320,31 @@ static void menu_pck_mck(void)
 	if (use_clock_setting >= ARRAY_SIZE(clock_test_setting))
 		use_clock_setting = 0;
 	switch (use_clock_setting) {
-	case 0:
-		printf("PCK = 498, MCK = 166MHz\n\r");
+	case 0: {
+		uint32_t pck = BOARD_MAIN_CLOCK_EXT_OSC / 1000000 *
+						(clock_test_setting[0].plla.mul + 1);
+#ifdef CONFIG_HAVE_PMC_PLLADIV2
+		if (clock_test_setting[0].plla_div2)
+			pck /= 2;
+#endif
+		printf("PCK = %dMHz, MCK = %dMHz\n\r", pck,
+			pck / ((clock_test_setting[0].mck_div >> PMC_MCKR_MDIV_Pos) + 1));
 		break;
+	}
 	case 1:
-		printf("PCK = MCK = Crystal 12MHz\n\r");
+		printf("PCK = MCK = Crystal %dMHz\n\r",
+			BOARD_MAIN_CLOCK_EXT_OSC / 1000000);
 		break;
 	case 2:
-		printf("PCK = MCK = Crystal 12MHz/16 = 750k Hz\n\r");
+		printf("PCK = MCK = Crystal %dMHz/16 = %dk Hz\n\r",
+			BOARD_MAIN_CLOCK_EXT_OSC / 1000000,
+			BOARD_MAIN_CLOCK_EXT_OSC / 16000);
 		break;
 	case 3:
-		printf("PCK = MCK = Crystal 12MHz/64 = 187.5k Hz\n\r");
+		printf("PCK = MCK = Crystal %dMHz/64 = %d.%dk Hz\n\r",
+			BOARD_MAIN_CLOCK_EXT_OSC / 1000000,
+			BOARD_MAIN_CLOCK_EXT_OSC / 1000 / 64,
+			(BOARD_MAIN_CLOCK_EXT_OSC / 100 / 64) % 10);
 		break;
 	case 4:
 		printf("PCK = MCK = Crystal 32k Hz\n\r");
@@ -342,7 +356,9 @@ static void menu_pck_mck(void)
 		printf("PCK = MCK = RC 12MHz\n\r");
 		break;
 	case 7:
-		printf("PCK = 396, MCK = 132MHz\n\r");
+		printf("PCK = %dMHz, MCK = %dMHz\n\r",
+			BOARD_MAIN_CLOCK_EXT_OSC / 1000000 * 66 / 2,
+			BOARD_MAIN_CLOCK_EXT_OSC / 1000000 * 66 / 2 / 3);
 		break;
 	}
 }
