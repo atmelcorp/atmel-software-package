@@ -72,7 +72,7 @@ static int _is31fl3728_write_reg(struct _is31fl3728* is31fl3728, uint8_t iaddr, 
 		},
 	};
 
-	bus_start_transaction(act8865a->bus);
+	bus_start_transaction(is31fl3728->twi.bus);
 	err = bus_transfer(is31fl3728->twi.bus, is31fl3728->twi.addr, buf, 1, NULL);
 	bus_stop_transaction(is31fl3728->twi.bus);
 
@@ -116,7 +116,7 @@ void is31fl3728_refresh(struct _is31fl3728 *is31fl3728)
 
 int is31fl3728_configure(struct _is31fl3728 *is31fl3728, uint8_t addr, uint8_t *fb)
 {
-	is31fl3728->addr = addr;
+	is31fl3728->twi.addr = addr;
 
 	is31fl3728->fb = fb;
 
