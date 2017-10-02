@@ -390,9 +390,7 @@ static void _adc_start_transfer(void)
 	};
 	callback_set(&_cb, _adc_callback, &adcd);
 	adcd_transfer(&adcd, &buf, &_cb);
-
-	while (adcd_is_busy(&adcd));
-
+	adcd_wait_transfer(&adcd);
 }
 
 /*----------------------------------------------------------------------------
