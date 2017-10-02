@@ -66,8 +66,8 @@ static const struct spi_nor_info *spi_nor_read_id(struct spi_flash *flash)
 	char id_str[8], *p;
 	int i, ret;
 
-#ifdef SPI_NOR_VEROSE_DEBUG
-	trace_debug("spi-nor: cmd: 0x02x\r\n", SFLASH_INST_READ_ID);
+#ifdef SPI_NOR_VERBOSE_DEBUG
+	trace_debug("spi-nor: cmd: 0x%02x\r\n", SFLASH_INST_READ_ID);
 #endif
 	ret = spi_flash_read_reg(flash, SFLASH_INST_READ_ID, flash->id, sizeof(flash->id));
 	if (ret < 0)
