@@ -49,7 +49,7 @@ static struct spi_flash _spi_flash[1];
 #endif
 
 static const struct spi_flash_cfg _spi_flash_cfg[] = {
-#ifdef CONFIG_HAVE_QSPI
+#if defined(CONFIG_HAVE_QSPI) && defined(BOARD_QSPIFLASH_ADDR)
 	{
 		.type = SPI_FLASH_TYPE_QSPI,
 		.baudrate = BOARD_QSPIFLASH_BAUDRATE,
@@ -163,20 +163,18 @@ void board_cfg_spi_bus(void)
 
 void board_cfg_spi_flash(void)
 {
+	int i;
+
 #ifdef BOARD_QSPIFLASH_PINS
 	struct _pin pins_qspi[] = BOARD_QSPIFLASH_PINS;
 
 	pio_configure(pins_qspi, ARRAY_SIZE(pins_qspi));
 #endif
 
-#if defined(BOARD_AT25_BUS) || defined(CONFIG_HAVE_QSPI)
-	int i;
-
 	for (i = 0; i < ARRAY_SIZE(_spi_flash) && _spi_flash_cfg[i].type != 0; i++) {
 		if (spi_nor_configure(&_spi_flash[i], &_spi_flash_cfg[i]) < 0)
 			trace_fatal("spi-nor: device%d: not configured\r\n", i);
 	}
-#endif
 }
 
 struct spi_flash * board_get_spi_flash(uint8_t idx)
