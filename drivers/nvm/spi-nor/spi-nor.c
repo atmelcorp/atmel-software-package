@@ -64,13 +64,13 @@ static const struct spi_nor_info *spi_nor_read_id(struct spi_flash *flash)
 {
 	const struct spi_nor_info *info;
 	char id_str[8], *p;
-	int i, ret;
+	int i, rc;
 
 #ifdef SPI_NOR_VERBOSE_DEBUG
 	trace_debug("spi-nor: cmd: 0x%02x\r\n", SFLASH_INST_READ_ID);
 #endif
-	ret = spi_flash_read_reg(flash, SFLASH_INST_READ_ID, flash->id, sizeof(flash->id));
-	if (ret < 0)
+	rc = spi_flash_read_reg(flash, SFLASH_INST_READ_ID, flash->id, sizeof(flash->id));
+	if (rc < 0)
 		return NULL;
 
 	p = id_str;
@@ -255,18 +255,18 @@ static int sst26_unlock_block_protection(struct spi_flash *flash)
 	int rc;
 
 	rc = spi_flash_write_enable(flash);
-	rc = rc ? rc : spi_flash_write_reg(flash, SFLASH_INST_ULBPR, NULL, 0);
-	return rc ? rc : spi_flash_wait_till_ready(flash);
+	rc = rc < 0 ? rc : spi_flash_write_reg(flash, SFLASH_INST_ULBPR, NULL, 0);
+	return rc < 0 ? rc : spi_flash_wait_till_ready(flash);
 }
 
 static int spi_nor_probe(struct spi_flash *flash)
 {
 	const struct spi_nor_info *info;
-	int ret;
+	int rc;
 
 	/* Check minimum requirement. */
 	if (!flash->ops)
-		return -1;
+		return -EINVAL;
 
 	/*
 	 * Reset the SPI flash memory:
@@ -307,9 +307,9 @@ static int spi_nor_probe(struct spi_flash *flash)
 
 	/* Parse the Serial Flash Discoverable Parameter tables. */
 init_params:
-	ret = spi_nor_init_params(flash, info, &params);
-	if (ret < 0)
-		return ret;
+	rc = spi_nor_init_params(flash, info, &params);
+	if (rc < 0)
+		return rc;
 
 	if (params.size == 0)
 		return -ENODEV;
@@ -325,9 +325,9 @@ init_params:
 	 * - set the SPI protocols for register and memory accesses.
 	 * - set the Quad Enable bit if needed (required by SPI x-y-4 protos).
 	 */
-	ret = spi_flash_setup(flash, &params);
-	if (ret < 0)
-		return ret;
+	rc = spi_flash_setup(flash, &params);
+	if (rc < 0)
+		return rc;
 
 	if (info && info->addr_len) {
 		flash->addr_len = info->addr_len;
@@ -368,7 +368,7 @@ static int _bus_set_mode(union spi_flash_priv* priv, uint8_t mode)
 
 static int _bus_exec(union spi_flash_priv* priv, const struct spi_flash_command *cmd)
 {
-	int ret;
+	int rc;
 	uint8_t buffers = 2;
 	uint8_t *data = _spi_flash_hdr;
 
@@ -443,11 +443,11 @@ static int _bus_exec(union spi_flash_priv* priv, const struct spi_flash_command 
 #endif
 
 	bus_start_transaction(priv->spi.bus);
-	ret = bus_transfer(priv->spi.bus, priv->spi.spi_dev.chip_select, _bus_exec_buffer, buffers, NULL);
+	rc = bus_transfer(priv->spi.bus, priv->spi.spi_dev.chip_select, _bus_exec_buffer, buffers, NULL);
 	bus_wait_transfer(priv->spi.bus);
 	bus_stop_transaction(priv->spi.bus);
 
-	return ret;
+	return rc;
 }
 
 static const struct spi_ops _spi_bus_ops = {
@@ -469,14 +469,14 @@ int spansion_quad_enable(struct spi_flash *flash)
 
 	/* Keep the current value of the Status Register. */
 	rc = spi_flash_read_sr(flash, &sr[0]);
-	if (rc)
+	if (rc < 0)
 		return rc;
 
 	/* Set the Status and Control/Status 2 Registers. */
 	sr[1] = CR_QE_SPAN;
 	rc = spi_flash_write_enable(flash);
-	rc = rc ? rc : spi_flash_write_reg(flash, SFLASH_INST_WRITE_SR, sr, 2);
-	return rc ? rc : spi_flash_wait_till_ready(flash);
+	rc = rc < 0 ? rc : spi_flash_write_reg(flash, SFLASH_INST_WRITE_SR, sr, 2);
+	return rc < 0 ? rc : spi_flash_wait_till_ready(flash);
 }
 
 int spansion_new_quad_enable(struct spi_flash *flash)
@@ -486,7 +486,7 @@ int spansion_new_quad_enable(struct spi_flash *flash)
 
 	/* Check the current Quand Enable bit value. */
 	rc = spi_flash_read_reg(flash, SFLASH_INST_READ_CR, &sr[1], 1);
-	if (rc)
+	if (rc < 0)
 		return rc;
 
 	if (sr[1] & CR_QE_SPAN)
@@ -494,20 +494,20 @@ int spansion_new_quad_enable(struct spi_flash *flash)
 
 	/* Keep the current value of the Status Register. */
 	rc = spi_flash_read_sr(flash, &sr[0]);
-	if (rc)
+	if (rc < 0)
 		return rc;
 
 	/* Set the Status and Control/Status 2 Registers. */
 	sr[1] |= CR_QE_SPAN;
 	rc = spi_flash_write_enable(flash);
-	rc = rc ? rc : spi_flash_write_reg(flash, SFLASH_INST_WRITE_SR, sr, 2);
-	rc = rc ? rc : spi_flash_wait_till_ready(flash);
-	if (rc)
+	rc = rc < 0 ? rc : spi_flash_write_reg(flash, SFLASH_INST_WRITE_SR, sr, 2);
+	rc = rc < 0 ? rc : spi_flash_wait_till_ready(flash);
+	if (rc < 0)
 		return rc;
 
 	/* Read back and check. */
 	rc = spi_flash_read_reg(flash, SFLASH_INST_READ_CR, &sr[1], 1);
-	if (rc)
+	if (rc < 0)
 		return rc;
 
 	return (sr[1] & CR_QE_SPAN) ? 0 : -1;
@@ -520,7 +520,7 @@ int macronix_quad_enable(struct spi_flash *flash)
 
 	/* Check the current Quand Enable bit value. */
 	rc = spi_flash_read_sr(flash, &sr);
-	if (rc)
+	if (rc < 0)
 		return rc;
 
 	if (sr & SR_QE_MX)
@@ -529,14 +529,14 @@ int macronix_quad_enable(struct spi_flash *flash)
 	/* Set the Status and Control/Status 2 Registers. */
 	sr |= SR_QE_MX;
 	rc = spi_flash_write_enable(flash);
-	rc = rc ? rc : spi_flash_write_reg(flash, SFLASH_INST_WRITE_SR, &sr, 1);
-	rc = rc ? rc : spi_flash_wait_till_ready(flash);
-	if (rc)
+	rc = rc < 0 ? rc : spi_flash_write_reg(flash, SFLASH_INST_WRITE_SR, &sr, 1);
+	rc = rc < 0 ? rc : spi_flash_wait_till_ready(flash);
+	if (rc < 0)
 		return rc;
 
 	/* Read back and check. */
 	rc = spi_flash_read_sr(flash, &sr);
-	if (rc)
+	if (rc < 0)
 		return rc;
 
 	return (sr & SR_QE_MX) ? 0 : -1;
@@ -549,7 +549,7 @@ int sr2_bit7_quad_enable(struct spi_flash *flash)
 
 	/* Check the current Quand Enable bit value. */
 	rc = spi_flash_read_reg(flash, SFLASH_INST_READ_SR2, &sr2, 1);
-	if (rc)
+	if (rc < 0)
 		return rc;
 
 	if (sr2 & SR2_QE_BIT7)
@@ -558,14 +558,14 @@ int sr2_bit7_quad_enable(struct spi_flash *flash)
 	/* Set the Status and Control/Status 2 Registers. */
 	sr2 |= SR2_QE_BIT7;
 	rc = spi_flash_write_enable(flash);
-	rc = rc ? rc : spi_flash_write_reg(flash, SFLASH_INST_WRITE_SR2, &sr2, 1);
-	rc = rc ? rc : spi_flash_wait_till_ready(flash);
-	if (rc)
+	rc = rc < 0 ? rc : spi_flash_write_reg(flash, SFLASH_INST_WRITE_SR2, &sr2, 1);
+	rc = rc < 0 ? rc : spi_flash_wait_till_ready(flash);
+	if (rc < 0)
 		return rc;
 
 	/* Read back and check. */
 	rc = spi_flash_read_reg(flash, SFLASH_INST_READ_SR2, &sr2, 1);
-	if (rc)
+	if (rc < 0)
 		return rc;
 
 	return (sr2 & SR2_QE_BIT7) ? 0 : -1;
@@ -581,7 +581,7 @@ int micron_enable_0_4_4(struct spi_flash *flash, bool enable)
 
 	/* Check the current XIP bit value. */
 	rc = spi_flash_read_reg(flash, SFLASH_INST_READ_VCR, &vcr, 1);
-	if (rc)
+	if (rc < 0)
 		return rc;
 
 	if ((vcr & mask) == value)
@@ -590,14 +590,14 @@ int micron_enable_0_4_4(struct spi_flash *flash, bool enable)
 	/* Update the XIP bit value. */
 	vcr = (vcr & ~mask) | value;
 	rc = spi_flash_write_enable(flash);
-	rc = rc ? rc : spi_flash_write_reg(flash, SFLASH_INST_WRITE_VCR, &vcr, 1);
-	rc = rc ? rc : spi_flash_wait_till_ready(flash);
-	if (rc)
+	rc = rc < 0 ? rc : spi_flash_write_reg(flash, SFLASH_INST_WRITE_VCR, &vcr, 1);
+	rc = rc < 0 ? rc : spi_flash_wait_till_ready(flash);
+	if (rc < 0)
 		return rc;
 
 	/* Read back and check. */
 	rc = spi_flash_read_reg(flash, SFLASH_INST_READ_VCR, &vcr, 1);
-	if (rc)
+	if (rc < 0)
 		return rc;
 
 	return ((vcr & mask) == value) ? 0 : -1;
@@ -609,7 +609,7 @@ int at25_set_protection(struct spi_flash *flash, bool protect)
 	int rc;
 
 	rc = spi_flash_read_sr(flash, &sr);
-	if (rc)
+	if (rc < 0)
 		return rc;
 #ifdef SPI_NOR_VERBOSE_DEBUG
 	trace_info("spi-nor: protection: %s\r\n", sr & SR_SWP ? "on" : "off");
@@ -626,7 +626,7 @@ int at25_set_protection(struct spi_flash *flash, bool protect)
 		/* Perform a global protect command */
 		sr |= SR_SWP_PROTECT_ALL;
 		rc = spi_flash_write_reg(flash, SFLASH_INST_WRITE_SR, &sr, 1);
-		if (rc)
+		if (rc < 0)
 			return rc;
 	} else {
 #ifdef SPI_NOR_VERBOSE_DEBUG
@@ -639,12 +639,12 @@ int at25_set_protection(struct spi_flash *flash, bool protect)
 		/* Perform a global unprotect command */
 		sr = 0;
 		rc = spi_flash_write_reg(flash, SFLASH_INST_WRITE_SR, &sr, 1);
-		if (rc)
+		if (rc < 0)
 			return rc;
 
 		/* Check the new status */
 		rc = spi_flash_read_sr(flash, &sr);
-		if (rc)
+		if (rc < 0)
 			return rc;
 		if (sr & (SR_SPRL_LOCKED | SR_SWP))
 			return -EPERM;
@@ -659,7 +659,7 @@ int at25_set_protection(struct spi_flash *flash, bool protect)
 
 int spi_nor_configure(struct spi_flash *flash, const struct spi_flash_cfg *cfg)
 {
-	int ret;
+	int rc;
 
 	memset(flash, 0, sizeof(struct spi_flash));
 
@@ -682,28 +682,28 @@ int spi_nor_configure(struct spi_flash *flash, const struct spi_flash_cfg *cfg)
 	}
 
 	/* Init the SPI controller. */
-	ret = spi_flash_init(flash);
-	if (ret) {
+	rc = spi_flash_init(flash);
+	if (rc < 0) {
 		trace_info("SF: Fail to initialize spi\r\n");
-		return -1;
+		return rc;
 	}
 
 	/* Set the SPI mode. */
-	ret = spi_flash_set_mode(flash, cfg->mode);
-	if (ret)
-		return -1;
+	rc = spi_flash_set_mode(flash, cfg->mode);
+	if (rc < 0)
+		return rc;
 
 	/* Set the new baudrate. */
-	ret = spi_flash_set_freq(flash, cfg->baudrate);
-	if (ret)
-		return -1;
+	rc = spi_flash_set_freq(flash, cfg->baudrate);
+	if (rc < 0)
+		return rc;
 
 	/* Probe the SPI flash memory. */
-	ret = spi_nor_probe(flash);
-	if (ret) {
+	rc = spi_nor_probe(flash);
+	if (rc < 0) {
 		trace_info("SF: Fail to probe SPI flash\r\n");
 		spi_flash_cleanup(flash);
-		return -1;
+		return rc;
 	}
 
 	return 0;
@@ -730,11 +730,11 @@ int spi_nor_read(struct spi_flash *flash, size_t from, uint8_t* buf, size_t len)
 int spi_nor_write(struct spi_flash *flash, size_t to, const uint8_t* buf, size_t len)
 {
 	struct spi_flash_command cmd;
-	int ret = 0;
+	int rc = 0;
 
-	ret = spi_flash_set_protection(flash, false);
-	if (ret)
-		return ret;
+	rc = spi_flash_set_protection(flash, false);
+	if (rc < 0)
+		return rc;
 
 	spi_flash_command_init(&cmd, flash->write_inst, flash->addr_len, SFLASH_TYPE_WRITE);
 	cmd.proto = flash->write_proto;
@@ -751,16 +751,16 @@ int spi_nor_write(struct spi_flash *flash, size_t to, const uint8_t* buf, size_t
 		cmd.data_len = page_remain;
 		cmd.tx_data = buf;
 
-		ret = spi_flash_write_enable(flash);
-		if (ret < 0)
+		rc = spi_flash_write_enable(flash);
+		if (rc < 0)
 			break;
 
-		ret = spi_flash_exec(flash, &cmd);
-		if (ret < 0)
+		rc = spi_flash_exec(flash, &cmd);
+		if (rc < 0)
 			break;
 
-		ret = spi_flash_wait_till_ready(flash);
-		if (ret < 0)
+		rc = spi_flash_wait_till_ready(flash);
+		if (rc < 0)
 			break;
 
 		buf += page_remain;
@@ -768,27 +768,27 @@ int spi_nor_write(struct spi_flash *flash, size_t to, const uint8_t* buf, size_t
 		len -= page_remain;
 	}
 
-	return ret;
+	return rc;
 }
 
 int spi_nor_erase(struct spi_flash *flash, size_t offset, size_t len)
 {
 	const struct spi_flash_erase_map *map = &flash->erase_map;
 	struct spi_flash_command cmd;
-	int ret = 0;
+	int rc = 0;
 
-	ret = spi_flash_set_protection(flash, false);
-	if (ret)
-		return ret;
+	rc = spi_flash_set_protection(flash, false);
+	if (rc < 0)
+		return rc;
 
 	if (!spi_flash_has_uniform_erase(flash)) {
 		/* @TODO: add support to non uniform erase map. */
-		return -1;
+		return -ENOTSUP;
 	}
 
-	ret = spi_flash_set_protection(flash, false);
-	if (ret)
-		return ret;
+	rc = spi_flash_set_protection(flash, false);
+	if (rc < 0)
+		return rc;
 
 	spi_flash_command_init(&cmd, 0, flash->addr_len, SFLASH_TYPE_ERASE);
 	cmd.proto = flash->reg_proto;
@@ -822,23 +822,23 @@ int spi_nor_erase(struct spi_flash *flash, size_t offset, size_t len)
 		trace_info("spi-nor: erase params: size_shift=%ld\r\n", erase->size_shift);
 		trace_info("spi-nor: erase params: size_mask=0x%lx\r\n", erase->size_mask);
 #endif
-		ret = spi_flash_write_enable(flash);
-		if (ret < 0)
+		rc = spi_flash_write_enable(flash);
+		if (rc < 0)
 			break;
 
 		cmd.inst = erase->inst;
 		cmd.addr = offset;
-		ret = spi_flash_exec(flash, &cmd);
-		if (ret < 0)
+		rc = spi_flash_exec(flash, &cmd);
+		if (rc < 0)
 			break;
 
-		ret = spi_flash_wait_till_ready(flash);
-		if (ret < 0)
+		rc = spi_flash_wait_till_ready(flash);
+		if (rc < 0)
 			break;
 
 		offset += erase->size;
 		len -= erase->size;
 	}
 
-	return ret;
+	return rc;
 }

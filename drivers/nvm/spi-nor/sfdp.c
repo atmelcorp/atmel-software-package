@@ -30,6 +30,7 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include "errno.h"
 #include "nvm/spi-nor/sfdp.h"
 #include "nvm/spi-nor/spi-nor.h"
 #include "string.h"
@@ -324,21 +325,21 @@ static int spi_flash_parse_bfpt(struct spi_flash *flash,
 	struct spi_flash_erase_map *map = &flash->erase_map;
 	struct sfdp_bfpt bfpt;
 	size_t len;
-	int i, cmd, err;
+	int i, cmd, rc;
 	uint32_t addr, erase_mask;
 	uint16_t half;
 
 	/* JESD216 Basic Flash Parameter Table length is at least 9 DWORDs. */
 	if (bfpt_header->length < BFPT_DWORD_MAX_JESD216)
-		return -1;
+		return -EINVAL;
 
 	/* Read the Basic Flash Parameter Table. */
 	len = min_u32(sizeof(bfpt), sizeof(uint32_t) * bfpt_header->length);
 	addr = SFDP_PARAM_HEADER_PTP(bfpt_header);
 	memset(&bfpt, 0, sizeof(bfpt));
-	err = spi_flash_read_sfdp(flash,  addr, len, &bfpt);
-	if (err)
-		return err;
+	rc = spi_flash_read_sfdp(flash,  addr, len, &bfpt);
+	if (rc < 0)
+		return rc;
 
 	/* Flash Memory Density (in bits). */
 	params->size = bfpt.dwords[BFPT_DWORD2];
@@ -437,18 +438,18 @@ static struct sfdp_parameter_header param_header;
 int spi_flash_parse_sfdp(struct spi_flash *flash, struct spi_flash_parameters *params)
 {
 	struct sfdp_parameter_header bfpt_header;
-	int i, err;
+	int i, rc;
 
 	/* Get the SFDP header. */
-	err = spi_flash_read_sfdp(flash, 0, sizeof(header), &header);
-	if (err)
-		return err;
+	rc = spi_flash_read_sfdp(flash, 0, sizeof(header), &header);
+	if (rc < 0)
+		return rc;
 
 	/* Check the SFDP header version. */
 	if (header.signature != SFDP_SIGNATURE ||
 	    header.major != SFDP_JESD216_MAJOR ||
 	    header.minor < SFDP_JESD216_MINOR)
-		return -1;
+		return -EINVAL;
 
 	/*
 	 * Verify that the first and only mandatory parameter header is a
@@ -457,18 +458,18 @@ int spi_flash_parse_sfdp(struct spi_flash *flash, struct spi_flash_parameters *p
 	memcpy(&bfpt_header, &header.bfpt_header, sizeof(bfpt_header));
 	if (SFDP_PARAM_HEADER_ID(&bfpt_header) != SFDP_BFPT_ID ||
 	    bfpt_header.major != SFDP_JESD216_MAJOR)
-		return -1;
+		return -EINVAL;
 
 	/*
 	 * Check other parameter headers to get the latest revision of
 	 * the basic flash parameter table.
 	 */
 	for (i = 0; i < header.nph; i++) {
-		err = spi_flash_read_sfdp(flash, sizeof(header) +
-					  i * sizeof(param_header),
-					  sizeof(param_header),
-					  &param_header);
-		if (err)
+		rc = spi_flash_read_sfdp(flash, sizeof(header) +
+					 i * sizeof(param_header),
+					 sizeof(param_header),
+					 &param_header);
+		if (rc < 0)
 			goto exit;
 
 		if (SFDP_PARAM_HEADER_ID(&param_header) == SFDP_BFPT_ID &&
@@ -478,18 +479,18 @@ int spi_flash_parse_sfdp(struct spi_flash *flash, struct spi_flash_parameters *p
 		      param_header.length > bfpt_header.length)))
 			memcpy(&bfpt_header, &param_header, sizeof(bfpt_header));
 	}
-	err = spi_flash_parse_bfpt(flash, &bfpt_header, params);
-	if (err)
+	rc = spi_flash_parse_bfpt(flash, &bfpt_header, params);
+	if (rc < 0)
 		goto exit;
 
 	/* Parse other parameter headers. */
 	for (i = 0; i < header.nph; i++) {
-		err = spi_flash_read_sfdp(flash,
-					  sizeof(header) +
-					  i * sizeof(param_header),
-					  sizeof(param_header),
-					  &param_header);
-		if (err)
+		rc = spi_flash_read_sfdp(flash,
+					 sizeof(header) +
+					 i * sizeof(param_header),
+					 sizeof(param_header),
+					 &param_header);
+		if (rc < 0)
 			goto exit;
 
 		switch (SFDP_PARAM_HEADER_ID(&param_header)) {
@@ -497,10 +498,10 @@ int spi_flash_parse_sfdp(struct spi_flash *flash, struct spi_flash_parameters *p
 			break;
 		}
 
-		if (err)
+		if (rc < 0)
 			goto exit;
 	}
 
 exit:
-	return err;
+	return rc;
 }

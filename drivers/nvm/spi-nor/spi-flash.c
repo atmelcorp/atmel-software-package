@@ -27,6 +27,7 @@
  */
 
 #include "board.h"
+#include "errno.h"
 #include "gpio/pio.h"
 #include "intmath.h"
 #include "nvm/spi-nor/spi-flash.h"
@@ -75,11 +76,11 @@ int spi_flash_write_reg(struct spi_flash *flash, uint8_t inst, const uint8_t *bu
 static int spi_flash_is_ready(struct spi_flash *flash)
 {
 	uint8_t sr, fsr;
-	int ret;
+	int rc;
 
-	ret = spi_flash_read_sr(flash, &sr);
-	if (ret < 0)
-		return ret;
+	rc = spi_flash_read_sr(flash, &sr);
+	if (rc < 0)
+		return rc;
 
 	if (sr & SR_WIP)
 		return 0;
@@ -87,9 +88,9 @@ static int spi_flash_is_ready(struct spi_flash *flash)
 	if (!(flash->flags & SFLASH_FLG_HAS_FSR))
 		return 1;
 
-	ret = spi_flash_read_reg(flash, SFLASH_INST_READ_FSR, &fsr, 1);
-	if (ret < 0)
-		return ret;
+	rc = spi_flash_read_reg(flash, SFLASH_INST_READ_FSR, &fsr, 1);
+	if (rc < 0)
+		return rc;
 
 	return (fsr & FSR_READY) != 0;
 }
@@ -98,21 +99,21 @@ int spi_flash_wait_till_ready_timeout(struct spi_flash *flash, unsigned long tim
 {
 	unsigned long delay = 1L; /* 1ms */
 	unsigned long loop = (timeout + delay - 1) / (delay);
-	int ret;
+	int rc;
 
 	if (!loop)
 		loop = 1;
 	while (loop-- > 0) {
-		ret = spi_flash_is_ready(flash);
-		if (ret < 0)
-			return ret;
-		if (ret)
+		rc = spi_flash_is_ready(flash);
+		if (rc < 0)
+			return rc;
+		if (rc)
 			return 0;
 
 		msleep(delay);
 	}
 
-	return -1;
+	return -ETIMEDOUT;
 }
 
 int spi_flash_hwcaps2cmd(uint32_t hwcaps)
@@ -145,7 +146,7 @@ int spi_flash_hwcaps2cmd(uint32_t hwcaps)
 		return SFLASH_CMD_PP_4_4_4;
 	}
 
-	return -1;
+	return -EINVAL;
 }
 
 static int spi_flash_select_read(struct spi_flash *flash, const struct spi_flash_parameters *params, uint32_t shared_hwcaps)
@@ -154,11 +155,11 @@ static int spi_flash_select_read(struct spi_flash *flash, const struct spi_flash
 	const struct spi_flash_read_command *read;
 
 	if (best_match < 0)
-		return -1;
+		return -EINVAL;
 
 	cmd = spi_flash_hwcaps2cmd((0x1UL << best_match));
 	if (cmd < 0)
-		return -1;
+		return cmd;
 
 	read = &params->reads[cmd];
 	flash->num_mode_cycles = read->num_mode_cycles;
@@ -174,11 +175,11 @@ static int spi_flash_select_pp(struct spi_flash *flash, const struct spi_flash_p
 	const struct spi_flash_pp_command *pp;
 
 	if (best_match < 0)
-		return -1;
+		return -EINVAL;
 
 	cmd = spi_flash_hwcaps2cmd((0x1UL << best_match));
 	if (cmd < 0)
-		return -1;
+		return cmd;
 
 	pp = &params->page_programs[cmd];
 	flash->write_inst = pp->inst;
@@ -189,7 +190,7 @@ static int spi_flash_select_pp(struct spi_flash *flash, const struct spi_flash_p
 int spi_flash_setup(struct spi_flash *flash, const struct spi_flash_parameters *params)
 {
 	uint32_t ignored_mask, shared_mask;
-	int err;
+	int rc;
 
 	/*
 	 * Keep only the hardware capabilities supported by both the SPI
@@ -205,26 +206,26 @@ int spi_flash_setup(struct spi_flash *flash, const struct spi_flash_parameters *
 		shared_mask &= ~ignored_mask;
 
 	/* Select the (Fast) Read command. */
-	err = spi_flash_select_read(flash, params, shared_mask);
-	if (err) {
+	rc = spi_flash_select_read(flash, params, shared_mask);
+	if (rc < 0) {
 		trace_info("SF: can't select read settings supported by both the SPI controller and memory.\n");
-		return err;
+		return rc;
 	}
 
 	/* Select the Page Program command. */
-	err = spi_flash_select_pp(flash, params, shared_mask);
-	if (err) {
+	rc = spi_flash_select_pp(flash, params, shared_mask);
+	if (rc < 0) {
 		trace_info("SF: can't select write settings supported by both the SPI controller and memory.\n");
-		return err;
+		return rc;
 	}
 
 	/* Enable Quad I/O if needed. */
 	if ((spi_flash_protocol_get_data_nbits(flash->read_proto) == 4 ||
 	     spi_flash_protocol_get_data_nbits(flash->write_proto) == 4) &&
 	    params->quad_enable)
-		err = params->quad_enable(flash);
+		rc = params->quad_enable(flash);
 
-	return err;
+	return rc;
 }
 
 int spi_flash_read_sr(struct spi_flash *flash, uint8_t *sr)
@@ -247,7 +248,7 @@ int spi_flash_reset(struct spi_flash *flash)
 	int rc;
 
 	rc = spi_flash_write_reg(flash, SFLASH_INST_RESET_ENABLE, NULL, 0);
-	return rc ? rc : spi_flash_write_reg(flash, SFLASH_INST_RESET, NULL, 0);
+	return rc < 0 ? rc : spi_flash_write_reg(flash, SFLASH_INST_RESET, NULL, 0);
 }
 
 int spi_flash_wait_till_ready(struct spi_flash *flash)
