@@ -54,7 +54,7 @@ static int _pdmic_dma_transfer_callback(void* arg, void* arg2)
 
 	cache_invalidate_region(desc->rx.dma.cfg.daddr, desc->rx.dma.cfg.len);
 
-	dma_free_channel(desc->rx.dma.channel);
+	dma_reset_channel(desc->rx.dma.channel);
 
 	mutex_unlock(&desc->rx.mutex);
 
