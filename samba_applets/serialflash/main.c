@@ -173,11 +173,6 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	 * it's big enough for at least one page */
 	buffer = applet_buffer;
 	buffer_size = applet_buffer_size & ~(page_size - 1);
-	/* SST Flash write is slow, reduce buffer size to avoid
-	 * timeouts */
-	if (flash.id[0] == SFLASH_MFR_SST)
-		buffer_size = min_u32(10 * page_size, buffer_size);
-
 	if (buffer_size == 0) {
 		trace_error("Not enough memory for buffer\r\n");
 		return APPLET_FAIL;
