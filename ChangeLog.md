@@ -2,6 +2,20 @@
 
 The Atmel Softpack can be found on [GitHub](https://github.com/atmelcorp/atmel-software-package).
 
+## Version 2.10 - 2017-10
+
+### Fixes
+
+- Fix build issues with new SPI-NOR driver on IAR.
+- Disable SFDP on SST26 memories (non-uniform erase map is not yet supported.)
+- Fix SPI-NOR driver to return an error code when no memory is detected.
+- Fix build issue with generic targets when the device has QSPI.
+- Enable interrupts for all GMAC queues.
+- Several fixes to high level ADC driver (adcd) and ADC example.
+- Fix NAND issue: 8-bit bus width was broken
+- Fix NAND applet displaying invalid warning about ECC requirements
+
+
 ## Version 2.9 - 2017-09
 
 ### New drivers/examples
