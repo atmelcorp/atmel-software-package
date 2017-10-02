@@ -60,7 +60,7 @@
 	.sector_size = 4096U,			\
 	.n_sectors = (_n_sectors),		\
 	.page_size = 256,			\
-	.flags = SNOR_SECT_4K_ONLY | SNOR_SST_ULBPR
+	.flags = SNOR_SECT_4K_ONLY | SNOR_SST_ULBPR | SNOR_SKIP_SFDP
 
 #define N25Q(_name, _jedec_id, _n_sectors)	\
 	.name = _name,				\
