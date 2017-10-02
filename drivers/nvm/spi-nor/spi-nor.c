@@ -311,6 +311,9 @@ init_params:
 	if (ret < 0)
 		return ret;
 
+	if (params.size == 0)
+		return -ENODEV;
+
 	flash->size = params.size;
 	if (params.page_size > 0)
 		flash->page_size = params.page_size;
