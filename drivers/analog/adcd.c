@@ -75,8 +75,8 @@ static void _adcd_transfer_buffer_dma(struct _adcd_desc* desc)
 	adc_start_conversion();
 
 	cfg.saddr = (void*)&ADC->ADC_LCDR;
-	cfg.daddr = (void *)(desc->xfer.buf->data);
-	cfg.len = desc->xfer.buf->size;
+	cfg.daddr = desc->xfer.buf->data;
+	cfg.len = desc->xfer.buf->size / 2;
 
 	dma_configure_transfer(desc->xfer.dma.channel, &desc->xfer.dma.cfg_dma, &cfg, 0);
 	callback_set(&_cb, _adcd_dma_callback, desc);
@@ -119,7 +119,7 @@ static void _adcd_transfer_buffer_polling(struct _adcd_desc* desc)
 {
 	uint32_t i;
 	uint32_t ier_mask = 0;
-	uint8_t channels = desc->xfer.buf->size;
+	uint8_t channels = desc->xfer.buf->size / sizeof(uint16_t);
 
 	single_transfer_ready = false;
 	/* Enable Data ready interrupt */
@@ -142,7 +142,7 @@ static void _adcd_transfer_buffer_polling(struct _adcd_desc* desc)
 static void adcd_configure(struct _adcd_desc* desc)
 {
 	uint8_t i = 0;
-	uint8_t channels = desc->xfer.buf->size;
+	uint8_t channels = desc->xfer.buf->size / sizeof(uint16_t);
 
 	irq_disable(ID_ADC);
 

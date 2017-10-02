@@ -386,7 +386,7 @@ static void _adc_start_transfer(void)
 #endif
 	struct _buffer buf = {
 		.data = (uint8_t*)adc_buffer,
-		.size = NUM_CHANNELS,
+		.size = NUM_CHANNELS * sizeof(uint16_t),
 	};
 	callback_set(&_cb, _adc_callback, &adcd);
 	adcd_transfer(&adcd, &buf, &_cb);
