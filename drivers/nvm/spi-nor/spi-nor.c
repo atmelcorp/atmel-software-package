@@ -129,22 +129,27 @@ static int spi_nor_init_params(struct spi_flash *flash, const struct spi_nor_inf
 
 	/* Sector Erase settings. */
 set_erase_map:
-	erase_mask |= (0x1UL << erase_offset);
-	if (info && info->flags & SNOR_SECT_4K_ONLY)
+	if (info && info->flags & SNOR_SECT_4K_ONLY) {
+		erase_mask |= (0x1UL << erase_offset);
 		spi_flash_set_erase_command(&map->commands[erase_offset], 4096u, SFLASH_INST_ERASE_4K);
-	else
+		erase_offset++;
+	} else {
+		/* 64KB erase is always supported */
+		erase_mask |= (0x1UL << erase_offset);
 		spi_flash_set_erase_command(&map->commands[erase_offset], info ? info->sector_size : 65536u, SFLASH_INST_ERASE_64K);
-	erase_offset++;
+		erase_offset++;
 
-	if (info && info->flags & SNOR_SECT_4K && (info->flags & SNOR_SECT_4K_ONLY) == 0) {
-		erase_mask |= (0x1UL << erase_offset);
-		spi_flash_set_erase_command(&map->commands[erase_offset], 4096u, SFLASH_INST_ERASE_4K);
-		erase_offset++;
-	}
-	if (info && info->flags & SNOR_SECT_32K) {
-		erase_mask |= (0x1UL << erase_offset);
-		spi_flash_set_erase_command(&map->commands[erase_offset], 32768u, SFLASH_INST_ERASE_32K);
-		erase_offset++;
+		if (info && info->flags & SNOR_SECT_4K) {
+			erase_mask |= (0x1UL << erase_offset);
+			spi_flash_set_erase_command(&map->commands[erase_offset], 4096u, SFLASH_INST_ERASE_4K);
+			erase_offset++;
+		}
+
+		if (info && info->flags & SNOR_SECT_32K) {
+			erase_mask |= (0x1UL << erase_offset);
+			spi_flash_set_erase_command(&map->commands[erase_offset], 32768u, SFLASH_INST_ERASE_32K);
+			erase_offset++;
+		}
 	}
 	spi_flash_init_uniform_erase_map(map, erase_mask, fparams->size);
 
