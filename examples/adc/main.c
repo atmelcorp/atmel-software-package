@@ -426,7 +426,7 @@ int main(void)
 	adcd.cfg.trigger_edge = TRIGGER_NO;
 
 	adcd.cfg.dma_enabled = 0;
-	adcd.cfg.ferq = ADC_FREQ;
+	adcd.cfg.freq = ADC_FREQ;
 
 	/* Set default sequence */
 	adcd.cfg.chan_sequence[0] = 0;

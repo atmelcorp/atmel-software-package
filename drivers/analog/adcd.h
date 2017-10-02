@@ -86,7 +86,7 @@ struct _adcd_desc {
 		bool sequence_enabled;
 		bool dma_enabled;
 		bool power_save_enabled;
-		uint32_t ferq;
+		uint32_t freq;
 		uint8_t channel_used[4];
 		uint8_t chan_sequence[4];
 	} cfg;

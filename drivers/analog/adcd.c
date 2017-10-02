@@ -253,7 +253,7 @@ void adcd_initialize(struct _adcd_desc* desc)
 	 *     ADCClock = 64 / ((4+1) * 2) = 6.4MHz;
 	 */
 	/* Set ADC clock */
-	adc_set_clock(desc->cfg.ferq);
+	adc_set_clock(desc->cfg.freq);
 
 	/* Formula:
 	 *     Startup  Time = startup value / ADCClock
