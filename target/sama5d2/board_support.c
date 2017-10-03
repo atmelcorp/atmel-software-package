@@ -674,7 +674,7 @@ void board_cfg_pmic(void)
 
 	if (!act8945a_configure(&act8945a))
 		goto Fail;
-#if defined(CONFIG_BOARD_SAMA5D2_XPLAINED) || defined(CONFIG_BOARD_SAMA5D2_PTC_ENGI)
+#if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
 	/* Set PMIC output 6 to 2.5V (VDD_LED) */
 	if (!act8945a_set_regulator_voltage(&act8945a, 6, 2500))
 		goto Fail;

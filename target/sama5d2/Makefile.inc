@@ -52,7 +52,6 @@ iar-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/ddram.mac
 iar-flashloader-script-$(CONFIG_BOARD_SAMA5D2_XPLAINED) ?= $(TOP)/flash_loaders/sama5d2-generic/sama5d2-xplained.board
 iar-flashloader-script-$(CONFIG_BOARD_SAMA5D27_SOM1_EK) ?= $(TOP)/flash_loaders/sama5d2-generic/sama5d27-som1-ek.board
 iar-flashloader-script-$(CONFIG_BOARD_SAMA5D2_PTC_EK) ?= $(TOP)/flash_loaders/sama5d2-generic/sama5d2-ptc-ek.board
-iar-flashloader-script-$(CONFIG_BOARD_SAMA5D2_PTC_ENGI) ?= $(TOP)/flash_loaders/sama5d2-generic/sama5d2-ptc-engi.board
 endif
 
 # QSPI0 variant
@@ -63,7 +62,6 @@ iar-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/qspi.mac
 iar-flashloader-script-$(CONFIG_BOARD_SAMA5D2_XPLAINED) ?= $(TOP)/flash_loaders/sama5d2-generic/sama5d2-xplained.board
 iar-flashloader-script-$(CONFIG_BOARD_SAMA5D27_SOM1_EK) ?= $(TOP)/flash_loaders/sama5d2-generic/sama5d27-som1-ek.board
 iar-flashloader-script-$(CONFIG_BOARD_SAMA5D2_PTC_EK) ?= $(TOP)/flash_loaders/sama5d2-generic/sama5d2-ptc-ek.board
-iar-flashloader-script-$(CONFIG_BOARD_SAMA5D2_PTC_ENGI) ?= $(TOP)/flash_loaders/sama5d2-generic/sama5d2-ptc-engi.board
 endif
 
 # QSPI1 variant
@@ -74,7 +72,6 @@ iar-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/qspi.mac
 iar-flashloader-script-$(CONFIG_BOARD_SAMA5D2_XPLAINED) ?= $(TOP)/flash_loaders/sama5d2-generic/sama5d2-xplained.board
 iar-flashloader-script-$(CONFIG_BOARD_SAMA5D27_SOM1_EK) ?= $(TOP)/flash_loaders/sama5d2-generic/sama5d27-som1-ek.board
 iar-flashloader-script-$(CONFIG_BOARD_SAMA5D2_PTC_EK) ?= $(TOP)/flash_loaders/sama5d2-generic/sama5d2-ptc-ek.board
-iar-flashloader-script-$(CONFIG_BOARD_SAMA5D2_PTC_ENGI) ?= $(TOP)/flash_loaders/sama5d2-generic/sama5d2-ptc-engi.board
 endif
 
 chip-family = sama5d2
@@ -82,7 +79,6 @@ chip-family = sama5d2
 target-y += target/sama5d2/chip.o
 target-y += target/sama5d2/board_support.o
 target-$(CONFIG_BOARD_SAMA5D2_GENERIC) += target/sama5d2/board_sama5d2-generic.o
-target-$(CONFIG_BOARD_SAMA5D2_PTC_ENGI) += target/sama5d2/board_sama5d2-ptc-engi.o
 target-$(CONFIG_BOARD_SAMA5D2_VB_BGA196) += target/sama5d2/board_sama5d2-vb-bga196.o
 target-$(CONFIG_BOARD_SAMA5D2_VB_BGA289) += target/sama5d2/board_sama5d2-vb-bga289.o
 target-$(CONFIG_BOARD_SAMA5D2_XPLAINED) += target/sama5d2/board_sama5d2-xplained.o
