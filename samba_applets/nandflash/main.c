@@ -197,13 +197,6 @@ static bool pmecc_set_header(uint32_t header, uint8_t correctability)
 		return false;
 	}
 
-	if (ecc_correction < correctability && correctability != 0xFF) {
-		trace_warning_wp("Warning: Invalid ECC parameter (%u: %u bits): NAND requires at least %u bits\r\n",
-				(unsigned)hdr->bitfield.ecc_bit_req,
-				(unsigned)ecc_correction,
-				correctability);
-	}
-
 	sector_size_in_byte = hdr->bitfield.sector_size == 1 ? 1024 : 512;
 	nb_sector_per_page = 1 << hdr->bitfield.nb_sector_per_page;
 	ecc_size_in_byte = pmecc_get_ecc_size(ecc_correction, sector_size_in_byte, nb_sector_per_page);
@@ -213,6 +206,13 @@ static bool pmecc_set_header(uint32_t header, uint8_t correctability)
 	trace_warning_wp("ECC bits: %d\r\n", ecc_correction);
 	trace_warning_wp("ECC offset: %d\r\n", hdr->bitfield.ecc_offset);
 	trace_warning_wp("ECC size: %d\r\n", ecc_size_in_byte);
+
+	if (ecc_correction < (correctability / nb_sector_per_page) && correctability != 0xFF) {
+		trace_warning_wp("Warning: Invalid ECC parameter (%u: %u bits/sector): NAND requires at least %u bits\r\n",
+				(unsigned)hdr->bitfield.ecc_bit_req,
+				(unsigned)ecc_correction,
+				correctability / nb_sector_per_page);
+	}
 
 	if (hdr->bitfield.spare_size > spare_size) {
 		trace_warning_wp("Warning: Invalid spare_size parameter (%u): NAND spare size (%u) exceeded\r\n",
