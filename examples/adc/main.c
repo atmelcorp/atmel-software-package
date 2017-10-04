@@ -49,9 +49,8 @@
  *  \section Description
  *
  *  This application shows how to use the ADC using the several modes:
- *  with/without DMA, several types of trigger (Software, ADTRG, Timer, etc.),
- *  gain and offset selection, using sequencer. User can select different mode
- *  by configuration menu in the terminal.
+ *  with/without DMA, several types of trigger (Software, ADTRG, Timer, etc.).
+ *  User can select different mode by configuration menu in the terminal.
  *
  *
  *  \section Usage
@@ -85,7 +84,6 @@
  *      [X] 0: Set ADC trigger mode: Software.
  *      [ ] 1: Set ADC trigger mode: ADTRG.
  *      [ ] 2: Set ADC trigger mode: Timer TIOA.
- *      [E] S: Enable/Disable sequencer
  *      [E] D: Enable/Disable to tranfer with DMA.
  *      [D] P: Enable/Disable ADC power save mode.
  *          Q: Quit configuration and start ADC.
@@ -145,21 +143,23 @@
 /** MAXIMUM DIGITAL VALUE */
 #define DIGITAL_MAX    ((1 << adc_get_resolution()) - 1)
 
-/** ADC slected channels */
-static uint8_t adc_channel_used[] =
-{
-	0,
-	1,
-	2,
-	3,
-};
+/** ADC channels to acquire */
+static uint8_t adc_channels[] = { 0, 1, 2, 3 };
 
 /** Total number of ADC channels in use */
-#define NUM_CHANNELS    ARRAY_SIZE(adc_channel_used)
+#define NUM_CHANNELS    ARRAY_SIZE(adc_channels)
 
 /*----------------------------------------------------------------------------
  *        Local types
  *----------------------------------------------------------------------------*/
+
+enum _adc_state {
+	STATE_WAITING = 0,
+	STATE_CONFIGURED = 1,
+	STATE_STARTED = 2,
+	STATE_CAPTURING = 3,
+	STATE_CAPTURED = 4,
+};
 
 /** ADC sample data */
 struct _adc_sample
@@ -170,21 +170,29 @@ struct _adc_sample
 
 CACHE_ALIGNED static uint16_t adc_buffer[NUM_CHANNELS];
 
-bool adc_converted = false;
-unsigned count = 0;
+static volatile bool adc_converted = false;
+static unsigned count = 0;
 
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
 
+static struct _timeout adc_timeout;
+
+static volatile enum _adc_state state;
+
 /** ADC sample data */
 static struct _adc_sample _data;
 
-/** ADCD test instance */
+/** ADCD instance */
 static struct _adcd_desc adcd;
 
-/* /\** Definition of ADTRG pin *\/ */
+/** ADCD configuration for next capture */
+static struct _adcd_cfg adcd_cfg;
+
+/** ADTRG pin */
 struct _pin pin_adtrg[] = {PIN_ADTRG};
+
 #if   defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
 struct _pin pin_trig = { PIO_GROUP_E, PIO_PE23, PIO_OUTPUT_1, PIO_PULLUP };
 struct _pin pin_tioa0 = { PIO_GROUP_E, PIO_PE15C_TIOA0, PIO_PERIPH_C , PIO_DEFAULT };
@@ -231,86 +239,58 @@ static void _display_menu(void)
 	printf("=========================================================\n\r");
 	printf("Menu: press a key to change the configuration.\n\r");
 	printf("---------------------------------------------------------\n\r");
-	tmp = (adcd.cfg.trigger_mode == TRIGGER_MODE_SOFTWARE) ? 'X' : ' ';
+	tmp = (adcd_cfg.trigger_mode == TRIGGER_MODE_SOFTWARE) ? 'X' : ' ';
 	printf("[%c] 0: Set ADC trigger mode: Software.\n\r", tmp);
-	tmp = (adcd.cfg.trigger_mode == TRIGGER_MODE_ADTRG) ? 'X' : ' ';
+	tmp = (adcd_cfg.trigger_mode == TRIGGER_MODE_ADTRG) ? 'X' : ' ';
 	printf("[%c] 1: Set ADC trigger mode: ADTRG.\n\r", tmp);
 #ifdef ADC_TRIG_TIOA0
-	tmp = (adcd.cfg.trigger_mode == TRIGGER_MODE_TIOA0) ? 'X' : ' ';
+	tmp = (adcd_cfg.trigger_mode == TRIGGER_MODE_TIOA0) ? 'X' : ' ';
 	printf("[%c] 2: Set ADC trigger mode: Timer TIOA.\n\r", tmp);
 #endif /* ADC_TRIG_TIOA0 */
-	tmp = (adcd.cfg.trigger_mode == TRIGGER_MODE_ADC_TIMER) ? 'X' : ' ';
+	tmp = (adcd_cfg.trigger_mode == TRIGGER_MODE_ADC_TIMER) ? 'X' : ' ';
 	printf("[%c] 3: Set ADC trigger mode: ADC Internal Timer.\n\r", tmp);
-	tmp = (adcd.cfg.sequence_enabled ) ? 'E' : 'D';
-	printf("[%c] S: Enable/Disable sequencer.\n\r", tmp);
-	tmp = (adcd.cfg.dma_enabled) ? 'E' : 'D';
+	tmp = (adcd_cfg.dma_enabled) ? 'E' : 'D';
 	printf("[%c] D: Enable/Disable to tranfer with DMA.\n\r", tmp);
-	tmp = (adcd.cfg.power_save_enabled) ? 'E' : 'D';
+	tmp = (adcd_cfg.power_save_enabled) ? 'E' : 'D';
 	printf("[%c] P: Enable/Disable ADC power save mode.\n\r", tmp);
 	printf("=========================================================\n\r");
 }
 
 static void console_handler(uint8_t key)
 {
-	uint32_t i;
-
 	switch (key) {
 	case '0' :
-		adcd.cfg.trigger_mode = TRIGGER_MODE_SOFTWARE;
+		adcd_cfg.trigger_mode = TRIGGER_MODE_SOFTWARE;
+		adcd_cfg.trigger_edge = TRIGGER_NO;
 		break;
 	case '1' :
-		adcd.cfg.trigger_mode = TRIGGER_MODE_ADTRG;
+		adcd_cfg.trigger_mode = TRIGGER_MODE_ADTRG;
+		adcd_cfg.trigger_edge = TRIGGER_EXT_TRIG_ANY;
 		break;
 #ifdef ADC_TRIG_TIOA0
 	case '2' :
-		adcd.cfg.trigger_mode = TRIGGER_MODE_TIOA0;
+		adcd_cfg.trigger_mode = TRIGGER_MODE_TIOA0;
+		adcd_cfg.trigger_edge = TRIGGER_EXT_TRIG_RISE;
 		break;
 #endif /* ADC_TRIG_TIOA0 */
 	case '3' :
-		adcd.cfg.trigger_mode = TRIGGER_MODE_ADC_TIMER;
-		break;
-
-	case 's' :
-	case 'S' :
-		/* Enable/disable sequencer */
-		if (adcd.cfg.sequence_enabled)
-			adcd.cfg.sequence_enabled = 0;
-		else
-			adcd.cfg.sequence_enabled = 1;
-
-		if (adcd.cfg.sequence_enabled) {
-			/* channel 0 and channel 1 is repeated 2 times.*/
-			adcd.cfg.chan_sequence[0] = 0;
-			adcd.cfg.chan_sequence[1] = 0;
-			adcd.cfg.chan_sequence[2] = 1;
-			adcd.cfg.chan_sequence[3] = 1;
-		} else {
-			/* Set default sequence */
-			adcd.cfg.chan_sequence[0] = 0;
-			adcd.cfg.chan_sequence[1] = 1;
-			adcd.cfg.chan_sequence[2] = 2;
-			adcd.cfg.chan_sequence[3] = 3;
-		}
-		for (i = 0; i < NUM_CHANNELS; i++) {
-			_data.channel[i] = i;
-			_data.value[i] = 0;
-		}
+		adcd_cfg.trigger_mode = TRIGGER_MODE_ADC_TIMER;
+		adcd_cfg.trigger_edge = TRIGGER_PERIOD;
 		break;
 	case 'd' :
 	case 'D' :
-		if (adcd.cfg.dma_enabled)
-			adcd.cfg.dma_enabled = 0;
+		if (adcd_cfg.dma_enabled)
+			adcd_cfg.dma_enabled = 0;
 		else
-			adcd.cfg.dma_enabled = 1;
+			adcd_cfg.dma_enabled = 1;
 		break;
 	case 'p' :
 	case 'P' :
-		if (adcd.cfg.power_save_enabled)
-			adcd.cfg.power_save_enabled = 0;
+		if (adcd_cfg.power_save_enabled)
+			adcd_cfg.power_save_enabled = 0;
 		else
-			adcd.cfg.power_save_enabled = 1;
+			adcd_cfg.power_save_enabled = 1;
 		break;
-
 	default :
 		break;
 	}
@@ -341,21 +321,14 @@ static void _configure_tc_trigger(void)
 
 static int _adc_callback(void* args, void* arg2)
 {
-	int i, j, chan, value;
+	int i;
 
 	for (i = 0; i < NUM_CHANNELS; ++i) {
-		chan = ADC_CHANNEL_NUM_IN_LCDR(adc_buffer[i]);
-		value = ADC_LAST_DATA_IN_LCDR(adc_buffer[i]);
-		/* Store value to channel according to sequence table*/
-		for (j = 0; j < NUM_CHANNELS; j++) {
-			if ( _data.channel[j] == chan) {
-				_data.value[j] = value;
-				break;
-			}
-		}
+		_data.channel[i] = ADC_CHANNEL_NUM_IN_LCDR(adc_buffer[i]);
+		_data.value[i] = ADC_LAST_DATA_IN_LCDR(adc_buffer[i]);
 	}
-	adc_converted = true;
 
+	state = STATE_CAPTURED;
 	return 0;
 }
 
@@ -363,34 +336,116 @@ static int _adc_callback(void* args, void* arg2)
  * \brief (Re)init config ADC.
  *
  */
-static void _adc_start_transfer(void)
+static void _adc_configure(void)
 {
 	struct _callback _cb;
+	int i;
 
-	if (adcd.cfg.trigger_mode == TRIGGER_MODE_SOFTWARE)
-		adcd.cfg.trigger_edge = TRIGGER_NO;
-	else if (adcd.cfg.trigger_mode == TRIGGER_MODE_ADTRG)
-		adcd.cfg.trigger_edge = TRIGGER_EXT_TRIG_ANY;
-#ifdef ADC_TRIG_TIOA0
-	else if (adcd.cfg.trigger_mode == TRIGGER_MODE_TIOA0)
-		adcd.cfg.trigger_edge = TRIGGER_EXT_TRIG_RISE;
-#endif
-	else if (adcd.cfg.trigger_mode == TRIGGER_MODE_ADC_TIMER)
-		adcd.cfg.trigger_edge = TRIGGER_PERIOD;
+	memcpy(&adcd.cfg, &adcd_cfg, sizeof(adcd_cfg));
 
-#ifdef ADC_TRIG_TIOA0
-	tc_stop(TC0, 0);
-	if (adcd.cfg.trigger_mode == TRIGGER_MODE_TIOA0)
-		/* Start the Timer */
-		tc_start(TC0, 0);
-#endif
+	/* Init channel number and reset values */
+	for (i = 0; i < NUM_CHANNELS; i++) {
+		adcd.cfg.channel_mask |= (1u << adc_channels[i]);
+		_data.channel[i] = 0;
+		_data.value[i] = 0;
+	}
+
 	struct _buffer buf = {
 		.data = (uint8_t*)adc_buffer,
 		.size = NUM_CHANNELS * sizeof(uint16_t),
 	};
 	callback_set(&_cb, _adc_callback, &adcd);
+	adcd_initialize(&adcd);
 	adcd_transfer(&adcd, &buf, &_cb);
-	adcd_wait_transfer(&adcd);
+
+	switch (adcd.cfg.trigger_mode) {
+		case TRIGGER_MODE_ADTRG:
+			pio_clear(&pin_trig);
+			break;
+
+#ifdef ADC_TRIG_TIOA0
+		case TRIGGER_MODE_TIOA0:
+			_configure_tc_trigger();
+			break;
+#endif
+		case TRIGGER_MODE_SOFTWARE:
+		case TRIGGER_MODE_ADC_TIMER:
+		default:
+			break;
+	}
+
+	state = STATE_CONFIGURED;
+}
+
+static void _adc_start(void)
+{
+	switch (adcd.cfg.trigger_mode) {
+		case TRIGGER_MODE_SOFTWARE:
+		case TRIGGER_MODE_ADTRG:
+			timer_start_timeout(&adc_timeout, 250);
+			state = STATE_STARTED;
+			break;
+
+#ifdef ADC_TRIG_TIOA0
+		case TRIGGER_MODE_TIOA0:
+			tc_start(TC0, 0);
+			state = STATE_CAPTURING;
+			break;
+#endif
+		case TRIGGER_MODE_ADC_TIMER:
+		default:
+			state = STATE_CAPTURING;
+			break;
+	}
+
+}
+
+static void _adc_trigger_capture(void)
+{
+	switch (adcd.cfg.trigger_mode) {
+		case TRIGGER_MODE_SOFTWARE:
+			/* ADC software trigger every 500ms */
+			if (timer_timeout_reached(&adc_timeout)) {
+				state = STATE_CAPTURING;
+				adc_start_conversion();
+				led_toggle(LED_RED);
+			}
+			break;
+
+		case TRIGGER_MODE_ADTRG:
+			/* ADTRG trigger every 500ms */
+			if (timer_timeout_reached(&adc_timeout)) {
+				state = STATE_CAPTURING;
+				pio_set(&pin_trig);
+				led_toggle(LED_RED);
+			}
+			break;
+
+#ifdef ADC_TRIG_TIOA0
+		case TRIGGER_MODE_TIOA0:
+#endif
+		case TRIGGER_MODE_ADC_TIMER:
+		default:
+			break;
+	}
+}
+
+static void _adc_print_results(void)
+{
+	int i;
+
+#ifdef ADC_TRIG_TIOA0
+	if (adcd.cfg.trigger_mode == TRIGGER_MODE_TIOA0)
+		tc_stop(TC0, 0);
+#endif
+
+	printf("Count: %08d ", count++);
+	for (i = 0; i < NUM_CHANNELS; ++i) {
+		printf(" CH%02d: %04d mV ", _data.channel[i],
+			(int)(_data.value[i] * BOARD_ADC_VREF / DIGITAL_MAX));
+	}
+	printf("\r");
+	state = STATE_WAITING;
 }
 
 /*----------------------------------------------------------------------------
@@ -404,8 +459,6 @@ static void _adc_start_transfer(void)
  */
 int main(void)
 {
-	uint8_t i;
-
 	/* Configure console interrupts */
 	console_set_rx_handler(console_handler);
 	console_enable_rx_interrupt();
@@ -415,76 +468,35 @@ int main(void)
 
 	/* Configure trigger pins */
 	pio_configure(&pin_trig, 1);
-
 	pio_clear(&pin_trig);
 	pio_configure(pin_adtrg, ARRAY_SIZE(pin_adtrg));
 
-	/* Set defaut ADC test mode */
-	adcd.cfg.trigger_mode = TRIGGER_MODE_SOFTWARE;
-	adcd.cfg.trigger_edge = TRIGGER_NO;
+	/* Set defaut ADC configuration */
+	memset(&adcd_cfg, 0, sizeof(adcd_cfg));
+	adcd_cfg.trigger_mode = TRIGGER_MODE_SOFTWARE;
+	adcd_cfg.trigger_edge = TRIGGER_NO;
+	adcd_cfg.freq = ADC_FREQ;
+	memcpy(&adcd.cfg, &adcd_cfg, sizeof(adcd_cfg));
 
-	adcd.cfg.dma_enabled = 0;
-	adcd.cfg.freq = ADC_FREQ;
-
-	/* Set default sequence */
-	adcd.cfg.chan_sequence[0] = 0;
-	adcd.cfg.chan_sequence[1] = 1;
-	adcd.cfg.chan_sequence[2] = 2;
-	adcd.cfg.chan_sequence[3] = 3;
-
-	/* Initialize ADC clock */
-	adcd_initialize(&adcd);
-
-	/* Launch first timeout */
-	struct _timeout timeout;
-	timer_start_timeout(&timeout, 500);
-#ifdef ADC_TRIG_TIOA0
-	_configure_tc_trigger();
-#endif
-
-	/* Init channel number and reset value */
-	for (i = 0; i < NUM_CHANNELS; i++) {
-		adcd.cfg.channel_used[i] = adc_channel_used[i];
-		_data.channel[i] = adcd.cfg.chan_sequence[i];
-		_data.value[i] = 0;
-	}
-
-	_adc_start_transfer();
-
+	state = STATE_WAITING;
 	_display_menu();
 
 	while (1)
 	{
-		/* ADC software trigger per 100ms */
-		if (adcd.cfg.trigger_mode == TRIGGER_MODE_SOFTWARE) {
-			if (timer_timeout_reached(&timeout)) {
-				adc_start_conversion();
-				timer_start_timeout(&timeout, 500);
-				led_toggle(LED_RED);
-			}
-		}
-		if (adcd.cfg.trigger_mode == TRIGGER_MODE_ADTRG) {
-			msleep(500);
-			if (pio_get(&pin_trig)) {
-				led_clear(LED_RED);
-				pio_clear(&pin_trig);
-			} else {
-				pio_set(&pin_trig);
-				led_set(LED_RED);
-			}
-		}
-		/* Check if ADC sample is done */
-		if (adc_converted) {
-			printf("Count: %08d ", count++);
-			for (i = 0; i < NUM_CHANNELS; ++i) {
-				printf(" CH%02d: %04d mV ",
-					(int)(_data.channel[adcd.cfg.chan_sequence[i]]),
-					(int)(_data.value[adcd.cfg.chan_sequence[i]]
-					* BOARD_ADC_VREF / DIGITAL_MAX));
-			}
-			printf("\r");
-			adc_converted = false;
-			_adc_start_transfer();
+		switch (state) {
+			case STATE_WAITING:
+				_adc_configure();
+				break;
+			case STATE_CONFIGURED:
+				_adc_start();
+			case STATE_STARTED:
+				_adc_trigger_capture();
+				break;
+			case STATE_CAPTURING:
+				break;
+			case STATE_CAPTURED:
+				_adc_print_results();
+				break;
 		}
 	}
 }

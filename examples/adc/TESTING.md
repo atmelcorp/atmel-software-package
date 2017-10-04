@@ -44,7 +44,6 @@ Menu: press a key to change the configuration.``
 [X] 0: Set ADC trigger mode: Software.
 [ ] 1: Set ADC trigger mode: ADTRG.
 [ ] 2: Set ADC trigger mode: Timer TIOA.
-[D] S: Enable/Disable sequencer.
 [D] D: Enable/Disable to tranfer with DMA.
 [D] P: Enable/Disable ADC power save mode.
 =========================================================``
@@ -58,7 +57,6 @@ Step | Description | Expected Result | Result
 Press '0' | Software trigger is selected, continuous converted value will be printed: ``Count:*  CH03:*mV  CH04:*mV  CH00:*mV  CH01:*mV  CH02:*mV`` | PASSED | PASSED
 Press '1' | External trigger on rising edge of the ADTRG pin is selected, the converted value will be updated when triggered| PASSED | PASSED
 Press '2' | Timer TIOA trigger is selected, continuous converted value will be printed if triggered  | PASSED | PASSED
-Press 'S' | Enable/Disable sequencer, continuous converted value will be printed if triggered | PASSED | PASSED
 Press 'D' | Enable/Disable to tranfer with DMA, continuous converted value will be printed if triggered | PASSED | PASSED
 Press 'P' | Enable/Disable ADC power save mode, continuous converted value will be printed if triggered | PASSED | PASSED
 

@@ -28,8 +28,8 @@
  */
 
 
-#ifndef ADCD_HEADER__
-#define ADCD_HEADER__
+#ifndef ADCD_H_
+#define ADCD_H_
 
 /*------------------------------------------------------------------------------
  *        Header
@@ -49,6 +49,8 @@
 #define ADCD_SUCCESS         (0)
 #define ADCD_ERROR_LOCK      (1)
 #define ADCD_ERROR_TRANSFER  (2)
+
+#define ADCD_MAX_CHANNELS    (12)
 
 /** ADC trigger modes */
 enum _trg_mode
@@ -75,21 +77,22 @@ enum _trg_edge
 	TRIGGER_CONTINUOUS
 };
 
+/* structure to define ADC config */
+struct _adcd_cfg {
+	enum _trg_mode trigger_mode;
+	enum _trg_edge trigger_edge;
+	bool dma_enabled;
+	bool power_save_enabled;
+	uint32_t freq;
+	uint32_t channel_mask;
+};
+
+/* structure to define ADC state */
 struct _adcd_desc {
-	/* structure to define AES parameter */
+	struct _adcd_cfg cfg;
 
 	/* following fields are used internally */
 	mutex_t mutex;
-	struct {
-		enum _trg_mode trigger_mode;
-		enum _trg_edge trigger_edge;
-		bool sequence_enabled;
-		bool dma_enabled;
-		bool power_save_enabled;
-		uint32_t freq;
-		uint8_t channel_used[4];
-		uint8_t chan_sequence[4];
-	} cfg;
 
 	/* structure to hold data about current transfer */
 	struct {
@@ -107,8 +110,6 @@ struct _adcd_desc {
  *        Functions
  *----------------------------------------------------------------------------*/
 
-extern void adcd_configure_mode(struct _adcd_desc* desc);
-
 extern void adcd_initialize(struct _adcd_desc* desc);
 
 extern uint32_t adcd_transfer(struct _adcd_desc* desc, struct _buffer* buffer, struct _callback* cb);
@@ -117,4 +118,4 @@ extern bool adcd_is_busy(struct _adcd_desc* desc);
 
 extern void adcd_wait_transfer(struct _adcd_desc* desc);
 
-#endif /* ADCD_HEADER__ */
+#endif /* ADCD_H_ */

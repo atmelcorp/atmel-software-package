@@ -76,48 +76,6 @@ extern "C" {
 #endif
 
 /*------------------------------------------------------------------------------
- *         Macros function of register access
- *------------------------------------------------------------------------------*/
-
-#define adc_get_mode_reg()             (ADC->ADC_MR)
-
-#define adc_start_conversion()         (ADC->ADC_CR = ADC_CR_START)
-
-#define adc_enable_channel(channel)  {			\
-		ADC->ADC_CHER = (1 << (channel));	\
-	}
-
-#define adc_disable_channel(channel) {			\
-		ADC->ADC_CHDR = (1 << (channel));	\
-	}
-
-#define adc_enable_interrupt(mode)   {		\
-		ADC->ADC_IER = (mode);		\
-	}
-
-#define adc_disable_interrupt(mode)  {		\
-		ADC->ADC_IDR = (mode);		\
-	}
-
-#define adc_set_channel_gain(mode)    {	\
-		ADC->ADC_CGR = mode;		\
-	}
-
-#define adc_enable_data_ready_it()     (ADC->ADC_IER = ADC_IER_DRDY)
-
-#define adc_get_status()               (ADC->ADC_ISR)
-
-#define adc_get_compare_mode()         ((ADC->ADC_EMR)& (ADC_EMR_CMPMODE_Msk))
-
-#define adc_get_channel_status()       (ADC->ADC_CHSR)
-
-#define adc_interrupt_mask_status()    (ADC->ADC_IMR)
-
-#define adc_get_last_converted_data()  (ADC->ADC_LCDR)
-
-#define adc_get_overrun_status()  		(ADC->ADC_OVER)
-
-/*------------------------------------------------------------------------------
  *         Exported functions
  *------------------------------------------------------------------------------*/
 
@@ -158,6 +116,32 @@ extern void adc_enable_it(uint32_t mask);
  * \param mask bitmask of the sources to disable
  */
 extern void adc_disable_it(uint32_t mask);
+
+/**
+ * \brief Get ADC Interrupt Status
+ *
+ * \return the content of the ADC interrupt status register
+ */
+extern uint32_t adc_get_status(void);
+
+/**
+ * \brief Trigger ADC conversion (i.e. software trigger)
+ */
+extern void adc_start_conversion(void);
+
+/**
+ * \brief Enable ADC channel
+ *
+ * \param channel index of ADC channel to enable
+ */
+extern void adc_enable_channel(uint32_t channel);
+
+/**
+ * \brief Disable ADC channel
+ *
+ * \param channel index of ADC channel to disable
+ */
+extern void adc_disable_channel(uint32_t channel);
 
 /**
  * \brief Set ADC timing.

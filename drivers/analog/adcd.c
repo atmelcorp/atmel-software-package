@@ -42,12 +42,6 @@
 #include "trace.h"
 
 /*----------------------------------------------------------------------------
- *        Local variables
- *----------------------------------------------------------------------------*/
-
-volatile static bool single_transfer_ready;
-
-/*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
 
@@ -61,7 +55,6 @@ static int _adcd_dma_callback(void *arg, void* arg2)
 	cache_invalidate_region((uint32_t*)desc->xfer.buf->data, desc->xfer.buf->size);
 
 	mutex_unlock(&desc->mutex);
-
 	callback_call(&desc->xfer.callback, NULL);
 
 	return 0;
@@ -72,19 +65,14 @@ static void _adcd_transfer_buffer_dma(struct _adcd_desc* desc)
 	struct _dma_transfer_cfg cfg;
 	struct _callback _cb;
 
-	adc_start_conversion();
-
 	cfg.saddr = (void*)&ADC->ADC_LCDR;
 	cfg.daddr = desc->xfer.buf->data;
 	cfg.len = desc->xfer.buf->size / 2;
 
-	dma_configure_transfer(desc->xfer.dma.channel, &desc->xfer.dma.cfg_dma, &cfg, 0);
+	dma_configure_transfer(desc->xfer.dma.channel, &desc->xfer.dma.cfg_dma, &cfg, 1);
 	callback_set(&_cb, _adcd_dma_callback, desc);
 	dma_set_callback(desc->xfer.dma.channel, &_cb);
 	dma_start_transfer(desc->xfer.dma.channel);
-
-	adcd_wait_transfer(desc);
-	dma_free_channel(desc->xfer.dma.channel);
 }
 
 /**
@@ -92,47 +80,38 @@ static void _adcd_transfer_buffer_dma(struct _adcd_desc* desc)
  */
 static void _adcd_handler(uint32_t source, void* user_arg)
 {
-	uint32_t status;
-	uint8_t i;
-	uint32_t value;
 	struct _adcd_desc* desc = (struct _adcd_desc*)user_arg;
+	uint16_t* data = (uint16_t*)desc->xfer.buf->data;
+	uint32_t mask = 1u << (31 - CLZ(desc->cfg.channel_mask));
+	uint32_t status;
+	int index = 0;
+	int i;
 
 	/* Get Interrupt Status (ISR) */
 	status = adc_get_status();
 
-	adc_disable_it(0xFFFFFFFF);
-	/* check at least one EOCn flag set */
-	if (status & 0x00000FFF) {
+	if (status & mask) {
+		/* Read results */
 		for (i = 0; i < adc_get_num_channels(); i++) {
-			value = adc_get_converted_data(i);
-			/* Check ISR "End of Conversion" corresponding bit */
-			if ((status & (1u << i))) {
-				*(uint16_t*)(desc->xfer.buf->data + i * sizeof (uint16_t))
-				= (i << ADC_LCDR_CHNB_Pos) | value;
+			uint32_t chan_bit = 1u << i;
+			if (desc->cfg.channel_mask & chan_bit) {
+				uint32_t value = adc_get_converted_data(i);
+				data[index++] = (i << ADC_LCDR_CHNB_Pos) | value;
 			}
 		}
+
+		mutex_unlock(&desc->mutex);
+		callback_call(&desc->xfer.callback, NULL);
 	}
-	single_transfer_ready = true;
 }
 
 static void _adcd_transfer_buffer_polling(struct _adcd_desc* desc)
 {
-	uint32_t i;
-	uint32_t ier_mask = 0;
-	uint8_t channels = desc->xfer.buf->size / sizeof(uint16_t);
-
-	single_transfer_ready = false;
-	/* Enable Data ready interrupt */
-	for (i = 0; i < channels; i++) {
-		ier_mask |= 0x1u << desc->cfg.chan_sequence[i];
-	}
-	adc_enable_it(ier_mask) ;
+	/* Enable EOC interrupt for higher numbered channel */
+	adc_disable_it(0xffffffffu);
+	adc_get_status();
+	adc_enable_it(1u << (31 - CLZ(desc->cfg.channel_mask)));
 	irq_enable(ID_ADC);
-	adc_start_conversion();
-
-	while(!single_transfer_ready);
-	mutex_unlock(&desc->mutex);
-	callback_call(&desc->xfer.callback, NULL);
 }
 
 /**
@@ -141,8 +120,7 @@ static void _adcd_transfer_buffer_polling(struct _adcd_desc* desc)
  */
 static void adcd_configure(struct _adcd_desc* desc)
 {
-	uint8_t i = 0;
-	uint8_t channels = desc->xfer.buf->size / sizeof(uint16_t);
+	int i = 0;
 
 	irq_disable(ID_ADC);
 
@@ -152,21 +130,12 @@ static void adcd_configure(struct _adcd_desc* desc)
 	desc->xfer.dma.cfg_dma.data_width = DMA_DATA_WIDTH_HALF_WORD;
 	desc->xfer.dma.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
 
-	for (i = 0; i < channels; i++)
-		adc_disable_channel(desc->cfg.channel_used[i]);
+	for (i = 0; i < adc_get_num_channels(); i++)
+		adc_disable_channel(i);
 
-	/* Enable/disable sequencer */
-	if (desc->cfg.sequence_enabled) {
-		/* Set user defined channel sequence */
-		adc_set_sequence_by_list(desc->cfg.chan_sequence, channels);
-		/* Enable sequencer */
-		adc_set_sequence_mode(true);
-
-	} else {
-		adc_set_sequence(0, 0);
-		/* Disable sequencer */
-		adc_set_sequence_mode(false);
-	}
+	/* Disable sequencer */
+	adc_set_sequence(0, 0);
+	adc_set_sequence_mode(false);
 
 	/* Set power save */
 	if (desc->cfg.power_save_enabled)
@@ -174,11 +143,11 @@ static void adcd_configure(struct _adcd_desc* desc)
 	else
 		adc_set_sleep_mode(false);
 
-	/* Configure trigger mode and start convention */
+	/* Configure trigger mode */
 	switch (desc->cfg.trigger_mode) {
 		case TRIGGER_MODE_SOFTWARE:
 			/* No trigger, only software trigger can start conversions */
-			adc_set_trigger(ADC_MR_TRGSEL_ADC_TRIG0);
+			adc_set_trigger_mode(ADC_TRGR_TRGMOD_NO_TRIGGER);
 			break;
 
 		case TRIGGER_MODE_ADTRG:
@@ -219,22 +188,47 @@ static void adcd_configure(struct _adcd_desc* desc)
 			break;
 #endif /* ADC_MR_TRGSEL_ADC_TRIG5 */
 
-		case TRIGGER_MODE_ADC_TIMER :
+		case TRIGGER_MODE_ADC_TIMER:
 			/* Trigger on internal ADC timer */
-			adc_set_trigger(ADC_MR_TRGSEL_ADC_TRIG0);
+			adc_set_trigger_mode(ADC_TRGR_TRGMOD_PERIOD_TRIG);
 			adc_set_trigger_period(250);
 			break;
 		default :
 			break;
 	}
-	adc_set_trigger_mode(desc->cfg.trigger_edge);
 
-		/* Enable channels, gain, single mode */
-	for (i = 0; i < channels; i++) {
-		adc_enable_channel(desc->cfg.channel_used[i]);
+	/* Configure trigger edge */
+	if (desc->cfg.trigger_mode != TRIGGER_MODE_SOFTWARE &&
+	    desc->cfg.trigger_mode != TRIGGER_MODE_ADC_TIMER) {
+		switch (desc->cfg.trigger_edge) {
+			case TRIGGER_EXT_TRIG_RISE:
+				adc_set_trigger_mode(ADC_TRGR_TRGMOD_EXT_TRIG_RISE);
+				break;
+			case TRIGGER_EXT_TRIG_FALL:
+				adc_set_trigger_mode(ADC_TRGR_TRGMOD_EXT_TRIG_FALL);
+				break;
+			case TRIGGER_EXT_TRIG_ANY:
+				adc_set_trigger_mode(ADC_TRGR_TRGMOD_EXT_TRIG_ANY);
+				break;
+			case TRIGGER_PEN:
+				adc_set_trigger_mode(ADC_TRGR_TRGMOD_PEN_TRIG);
+				break;
+			case TRIGGER_CONTINUOUS:
+				adc_set_trigger_mode(ADC_TRGR_TRGMOD_CONTINUOUS);
+				break;
+			default:
+				break;
+		}
+	}
+
+	/* Enable channels, single mode */
+	for (i = 0; i < adc_get_num_channels(); i++) {
+		if (desc->cfg.channel_mask & (1u << i)) {
+			adc_enable_channel(i);
 #ifdef CONFIG_HAVE_ADC_DIFF_INPUT
-		adc_disable_channel_differential_input(desc->cfg.chan_sequence[i]);
+			adc_disable_channel_differential_input(i);
 #endif
+		}
 	}
 }
 
@@ -242,11 +236,13 @@ static void adcd_configure(struct _adcd_desc* desc)
  *        Public functions
 
  *----------------------------------------------------------------------------*/
+
 void adcd_initialize(struct _adcd_desc* desc)
 {
 	/* Initialize ADC */
 	adc_initialize();
 	adc_set_ts_mode(0);
+
 	/*
 	 * Formula: ADCClock = MCK / ((PRESCAL+1) * 2)
 	 * For example, MCK = 64MHZ, PRESCAL = 4, then:
@@ -268,13 +264,16 @@ void adcd_initialize(struct _adcd_desc* desc)
 	 */
 	/* Set ADC timing */
 	adc_set_timing(ADC_MR_STARTUP_SUT512, 0, 0);
+
 	/* Enable channel number tag */
 	adc_set_tag_enable(true);
 
+	/* Configure IRQ handler */
 	irq_add_handler(ID_ADC, _adcd_handler, desc);
 
 	/* Allocate one DMA channel for receive data from ADC_LCDR */
-	desc->xfer.dma.channel = dma_allocate_channel(ID_ADC, DMA_PERIPH_MEMORY);
+	if (!desc->xfer.dma.channel)
+		desc->xfer.dma.channel = dma_allocate_channel(ID_ADC, DMA_PERIPH_MEMORY);
 	assert(desc->xfer.dma.channel);
 }
 
@@ -303,7 +302,7 @@ bool adcd_is_busy(struct _adcd_desc* desc)
 void adcd_wait_transfer(struct _adcd_desc* desc)
 {
 	while (adcd_is_busy(desc)) {
-		if(desc->cfg.dma_enabled)
+		if (desc->cfg.dma_enabled)
 			dma_poll();
 	}
 }

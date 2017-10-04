@@ -190,6 +190,26 @@ void adc_disable_it(uint32_t mask)
 	ADC->ADC_IDR = mask;
 }
 
+uint32_t adc_get_status(void)
+{
+	return ADC->ADC_ISR;
+}
+
+void adc_start_conversion(void)
+{
+	ADC->ADC_CR = ADC_CR_START;
+}
+
+void adc_enable_channel(uint32_t channel)
+{
+	ADC->ADC_CHER = 1u << channel;
+}
+
+void adc_disable_channel(uint32_t channel)
+{
+	ADC->ADC_CHDR = 1u << channel;
+}
+
 /**
  * \brief Set ADC timing.
  *
