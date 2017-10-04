@@ -327,7 +327,7 @@ bool nand_onfi_get_model(struct _nand_flash_model *model)
 {
 	if (onfi_parameter.onfi_compatible) {
 		model->device_id = nand_onfi_get_manufacturer_id();
-		model->data_bus_width = nand_onfi_get_bus_width() ? 16 : 8;
+		model->data_bus_width = nand_onfi_get_bus_width();
 		model->page_size = nand_onfi_get_page_size();
 		model->spare_size = nand_onfi_get_spare_size();
 		model->block_size = nand_onfi_get_pages_per_block() * nand_onfi_get_page_size();
