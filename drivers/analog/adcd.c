@@ -232,7 +232,7 @@ static void adcd_configure(struct _adcd_desc* desc)
 		/* Enable channels, gain, single mode */
 	for (i = 0; i < channels; i++) {
 		adc_enable_channel(desc->cfg.channel_used[i]);
-#ifdef CONFIG_HAVE_ADC_INPUT_OFFSET
+#ifdef CONFIG_HAVE_ADC_DIFF_INPUT
 		adc_disable_channel_differential_input(desc->cfg.chan_sequence[i]);
 #endif
 	}

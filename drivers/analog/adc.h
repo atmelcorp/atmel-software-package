@@ -261,7 +261,7 @@ extern uint8_t adc_check_configuration(void);
  */
 extern uint32_t adc_get_converted_data(uint32_t channel);
 
-#ifdef CONFIG_HAVE_ADC_INPUT_OFFSET
+#ifdef CONFIG_HAVE_ADC_DIFF_INPUT
 /**
  * \brief Enable differential input for the specified channel.
  *
@@ -275,7 +275,9 @@ extern void adc_enable_channel_differential_input (uint32_t channel);
  * \param channel ADC channel number.
  */
 extern void adc_disable_channel_differential_input(uint32_t channel);
+#endif /* CONFIG_HAVE_ADC_DIFF_INPUT */
 
+#ifdef CONFIG_HAVE_ADC_INPUT_OFFSET
 /**
  * \brief Enable analog signal offset for the specified channel.
  *

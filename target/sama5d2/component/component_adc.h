@@ -57,22 +57,22 @@ typedef struct {
 	__I  uint32_t ADC_OVER;     /**< \brief (Adc Offset: 0x3C) Overrun Status Register */
 	__IO uint32_t ADC_EMR;      /**< \brief (Adc Offset: 0x40) Extended Mode Register */
 	__IO uint32_t ADC_CWR;      /**< \brief (Adc Offset: 0x44) Compare Window Register */
-	__IO uint32_t ADC_CGR;      /**< \brief (Adc Offset: 0x48) Channel Gain Register */
+	__IO uint32_t Reserved2[1];
 	__IO uint32_t ADC_COR;      /**< \brief (Adc Offset: 0x4C) Channel Offset Register */
 	__I  uint32_t ADC_CDR[12];  /**< \brief (Adc Offset: 0x50) Channel Data Register */
-	__I  uint32_t Reserved2[5];
+	__I  uint32_t Reserved3[5];
 	__IO uint32_t ADC_ACR;      /**< \brief (Adc Offset: 0x94) Analog Control Register */
-	__I  uint32_t Reserved3[6];
+	__I  uint32_t Reserved4[6];
 	__IO uint32_t ADC_TSMR;     /**< \brief (Adc Offset: 0xB0) Touchscreen Mode Register */
 	__I  uint32_t ADC_XPOSR;    /**< \brief (Adc Offset: 0xB4) Touchscreen X Position Register */
 	__I  uint32_t ADC_YPOSR;    /**< \brief (Adc Offset: 0xB8) Touchscreen Y Position Register */
 	__I  uint32_t ADC_PRESSR;   /**< \brief (Adc Offset: 0xBC) Touchscreen Pressure Register */
 	__IO uint32_t ADC_TRGR;     /**< \brief (Adc Offset: 0xC0) Trigger Register */
-	__I  uint32_t Reserved4[3];
+	__I  uint32_t Reserved5[3];
 	__IO uint32_t ADC_COSR;     /**< \brief (Adc Offset: 0xD0) Correction Select Register */
 	__IO uint32_t ADC_CVR;      /**< \brief (Adc Offset: 0xD4) Correction Values Register */
 	__IO uint32_t ADC_CECR;     /**< \brief (Adc Offset: 0xD8) Channel Error Correction Register */
-	__I  uint32_t Reserved5[2];
+	__I  uint32_t Reserved6[2];
 	__IO uint32_t ADC_WPMR;     /**< \brief (Adc Offset: 0xE4) Write Protection Mode Register */
 	__I  uint32_t ADC_WPSR;     /**< \brief (Adc Offset: 0xE8) Write Protection Status Register */
 } Adc;
@@ -128,8 +128,8 @@ typedef struct {
 #define   ADC_MR_SETTLING_AST9 (0x2u << 20) /**< \brief (ADC_MR) 9 periods of ADCClock */
 #define   ADC_MR_SETTLING_AST17 (0x3u << 20) /**< \brief (ADC_MR) 17 periods of ADCClock */
 #define ADC_MR_ANACH (0x1u << 23) /**< \brief (ADC_MR) Analog Change */
-#define   ADC_MR_ANACH_NONE (0x0u << 23) /**< \brief (ADC_MR) No analog change on channel switching: DIFF0, GAIN0 and OFF0 are used for all channels */
-#define   ADC_MR_ANACH_ALLOWED (0x1u << 23) /**< \brief (ADC_MR) Allows different analog settings for each channel. See ADC_CGR and ADC_COR Registers */
+#define   ADC_MR_ANACH_NONE (0x0u << 23) /**< \brief (ADC_MR) No analog change on channel switching: DIFF0 is used for all channels */
+#define   ADC_MR_ANACH_ALLOWED (0x1u << 23) /**< \brief (ADC_MR) Allows different analog settings for each channel. See ADC_COR Register */
 #define ADC_MR_TRACKTIM_Pos 24
 #define ADC_MR_TRACKTIM_Msk (0xfu << ADC_MR_TRACKTIM_Pos) /**< \brief (ADC_MR) Tracking Time */
 #define ADC_MR_TRACKTIM(value) ((ADC_MR_TRACKTIM_Msk & ((value) << ADC_MR_TRACKTIM_Pos)))
@@ -372,104 +372,7 @@ typedef struct {
 #define ADC_CWR_HIGHTHRES_Pos 16
 #define ADC_CWR_HIGHTHRES_Msk (0xfffu << ADC_CWR_HIGHTHRES_Pos) /**< \brief (ADC_CWR) High Threshold */
 #define ADC_CWR_HIGHTHRES(value) ((ADC_CWR_HIGHTHRES_Msk & ((value) << ADC_CWR_HIGHTHRES_Pos)))
-/* -------- ADC_CGR : (ADC Offset: 0x48) Channel Gain Register -------- */
-#define ADC_CGR_GAIN0_Pos 0
-#define ADC_CGR_GAIN0_Msk (0x3u << ADC_CGR_GAIN0_Pos) /**< \brief (ADC_CGR) Gain for channel 0 */
-#define ADC_CGR_GAIN0(value) ((ADC_CGR_GAIN0_Msk & ((value) << ADC_CGR_GAIN0_Pos)))
-#define   ADC_CGR_GAIN0_SE1_DIFF0_5 (0x0u << 0) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 0.5 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN0_SE1_DIFF1 (0x1u << 0) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 1 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN0_SE2_DIFF2 (0x2u << 0) /**< \brief (ADC_CGR) Single-ended gain = 2 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN0_SE4_DIFF2 (0x3u << 0) /**< \brief (ADC_CGR) Single-ended gain = 4 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
-#define ADC_CGR_GAIN1_Pos 2
-#define ADC_CGR_GAIN1_Msk (0x3u << ADC_CGR_GAIN1_Pos) /**< \brief (ADC_CGR) Gain for channel 1 */
-#define ADC_CGR_GAIN1(value) ((ADC_CGR_GAIN1_Msk & ((value) << ADC_CGR_GAIN1_Pos)))
-#define   ADC_CGR_GAIN1_SE1_DIFF0_5 (0x0u << 2) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 0.5 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN1_SE1_DIFF1 (0x1u << 2) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 1 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN1_SE2_DIFF2 (0x2u << 2) /**< \brief (ADC_CGR) Single-ended gain = 2 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN1_SE4_DIFF2 (0x3u << 2) /**< \brief (ADC_CGR) Single-ended gain = 4 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
-#define ADC_CGR_GAIN2_Pos 4
-#define ADC_CGR_GAIN2_Msk (0x3u << ADC_CGR_GAIN2_Pos) /**< \brief (ADC_CGR) Gain for channel 2 */
-#define ADC_CGR_GAIN2(value) ((ADC_CGR_GAIN2_Msk & ((value) << ADC_CGR_GAIN2_Pos)))
-#define   ADC_CGR_GAIN2_SE1_DIFF0_5 (0x0u << 4) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 0.5 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN2_SE1_DIFF1 (0x1u << 4) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 1 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN2_SE2_DIFF2 (0x2u << 4) /**< \brief (ADC_CGR) Single-ended gain = 2 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN2_SE4_DIFF2 (0x3u << 4) /**< \brief (ADC_CGR) Single-ended gain = 4 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
-#define ADC_CGR_GAIN3_Pos 6
-#define ADC_CGR_GAIN3_Msk (0x3u << ADC_CGR_GAIN3_Pos) /**< \brief (ADC_CGR) Gain for channel 3 */
-#define ADC_CGR_GAIN3(value) ((ADC_CGR_GAIN3_Msk & ((value) << ADC_CGR_GAIN3_Pos)))
-#define   ADC_CGR_GAIN3_SE1_DIFF0_5 (0x0u << 6) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 0.5 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN3_SE1_DIFF1 (0x1u << 6) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 1 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN3_SE2_DIFF2 (0x2u << 6) /**< \brief (ADC_CGR) Single-ended gain = 2 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN3_SE4_DIFF2 (0x3u << 6) /**< \brief (ADC_CGR) Single-ended gain = 4 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
-#define ADC_CGR_GAIN4_Pos 8
-#define ADC_CGR_GAIN4_Msk (0x3u << ADC_CGR_GAIN4_Pos) /**< \brief (ADC_CGR) Gain for channel 4 */
-#define ADC_CGR_GAIN4(value) ((ADC_CGR_GAIN4_Msk & ((value) << ADC_CGR_GAIN4_Pos)))
-#define   ADC_CGR_GAIN4_SE1_DIFF0_5 (0x0u << 8) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 0.5 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN4_SE1_DIFF1 (0x1u << 8) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 1 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN4_SE2_DIFF2 (0x2u << 8) /**< \brief (ADC_CGR) Single-ended gain = 2 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN4_SE4_DIFF2 (0x3u << 8) /**< \brief (ADC_CGR) Single-ended gain = 4 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
-#define ADC_CGR_GAIN5_Pos 10
-#define ADC_CGR_GAIN5_Msk (0x3u << ADC_CGR_GAIN5_Pos) /**< \brief (ADC_CGR) Gain for channel 5 */
-#define ADC_CGR_GAIN5(value) ((ADC_CGR_GAIN5_Msk & ((value) << ADC_CGR_GAIN5_Pos)))
-#define   ADC_CGR_GAIN5_SE1_DIFF0_5 (0x0u << 10) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 0.5 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN5_SE1_DIFF1 (0x1u << 10) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 1 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN5_SE2_DIFF2 (0x2u << 10) /**< \brief (ADC_CGR) Single-ended gain = 2 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN5_SE4_DIFF2 (0x3u << 10) /**< \brief (ADC_CGR) Single-ended gain = 4 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
-#define ADC_CGR_GAIN6_Pos 12
-#define ADC_CGR_GAIN6_Msk (0x3u << ADC_CGR_GAIN6_Pos) /**< \brief (ADC_CGR) Gain for channel 6 */
-#define ADC_CGR_GAIN6(value) ((ADC_CGR_GAIN6_Msk & ((value) << ADC_CGR_GAIN6_Pos)))
-#define   ADC_CGR_GAIN6_SE1_DIFF0_5 (0x0u << 12) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 0.5 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN6_SE1_DIFF1 (0x1u << 12) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 1 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN6_SE2_DIFF2 (0x2u << 12) /**< \brief (ADC_CGR) Single-ended gain = 2 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN6_SE4_DIFF2 (0x3u << 12) /**< \brief (ADC_CGR) Single-ended gain = 4 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
-#define ADC_CGR_GAIN7_Pos 14
-#define ADC_CGR_GAIN7_Msk (0x3u << ADC_CGR_GAIN7_Pos) /**< \brief (ADC_CGR) Gain for channel 7 */
-#define ADC_CGR_GAIN7(value) ((ADC_CGR_GAIN7_Msk & ((value) << ADC_CGR_GAIN7_Pos)))
-#define   ADC_CGR_GAIN7_SE1_DIFF0_5 (0x0u << 14) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 0.5 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN7_SE1_DIFF1 (0x1u << 14) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 1 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN7_SE2_DIFF2 (0x2u << 14) /**< \brief (ADC_CGR) Single-ended gain = 2 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN7_SE4_DIFF2 (0x3u << 14) /**< \brief (ADC_CGR) Single-ended gain = 4 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
-#define ADC_CGR_GAIN8_Pos 16
-#define ADC_CGR_GAIN8_Msk (0x3u << ADC_CGR_GAIN8_Pos) /**< \brief (ADC_CGR) Gain for channel 8 */
-#define ADC_CGR_GAIN8(value) ((ADC_CGR_GAIN8_Msk & ((value) << ADC_CGR_GAIN8_Pos)))
-#define   ADC_CGR_GAIN8_SE1_DIFF0_5 (0x0u << 16) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 0.5 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN8_SE1_DIFF1 (0x1u << 16) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 1 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN8_SE2_DIFF2 (0x2u << 16) /**< \brief (ADC_CGR) Single-ended gain = 2 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN8_SE4_DIFF2 (0x3u << 16) /**< \brief (ADC_CGR) Single-ended gain = 4 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
-#define ADC_CGR_GAIN9_Pos 18
-#define ADC_CGR_GAIN9_Msk (0x3u << ADC_CGR_GAIN9_Pos) /**< \brief (ADC_CGR) Gain for channel 9 */
-#define ADC_CGR_GAIN9(value) ((ADC_CGR_GAIN9_Msk & ((value) << ADC_CGR_GAIN9_Pos)))
-#define   ADC_CGR_GAIN9_SE1_DIFF0_5 (0x0u << 18) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 0.5 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN9_SE1_DIFF1 (0x1u << 18) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 1 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN9_SE2_DIFF2 (0x2u << 18) /**< \brief (ADC_CGR) Single-ended gain = 2 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN9_SE4_DIFF2 (0x3u << 18) /**< \brief (ADC_CGR) Single-ended gain = 4 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
-#define ADC_CGR_GAIN10_Pos 20
-#define ADC_CGR_GAIN10_Msk (0x3u << ADC_CGR_GAIN10_Pos) /**< \brief (ADC_CGR) Gain for channel 10 */
-#define ADC_CGR_GAIN10(value) ((ADC_CGR_GAIN10_Msk & ((value) << ADC_CGR_GAIN10_Pos)))
-#define   ADC_CGR_GAIN10_SE1_DIFF0_5 (0x0u << 20) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 0.5 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN10_SE1_DIFF1 (0x1u << 20) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 1 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN10_SE2_DIFF2 (0x2u << 20) /**< \brief (ADC_CGR) Single-ended gain = 2 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN10_SE4_DIFF2 (0x3u << 20) /**< \brief (ADC_CGR) Single-ended gain = 4 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
-#define ADC_CGR_GAIN11_Pos 22
-#define ADC_CGR_GAIN11_Msk (0x3u << ADC_CGR_GAIN11_Pos) /**< \brief (ADC_CGR) Gain for channel 11 */
-#define ADC_CGR_GAIN11(value) ((ADC_CGR_GAIN11_Msk & ((value) << ADC_CGR_GAIN11_Pos)))
-#define   ADC_CGR_GAIN11_SE1_DIFF0_5 (0x0u << 22) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 0.5 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN11_SE1_DIFF1 (0x1u << 22) /**< \brief (ADC_CGR) Single-ended gain = 1 (ADC_COR.DIFFx = 0), differential gain = 1 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN11_SE2_DIFF2 (0x2u << 22) /**< \brief (ADC_CGR) Single-ended gain = 2 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
-#define   ADC_CGR_GAIN11_SE4_DIFF2 (0x3u << 22) /**< \brief (ADC_CGR) Single-ended gain = 4 (ADC_COR.DIFFx = 0), differential gain = 2 (ADC_COR.DIFFx = 1) */
 /* -------- ADC_COR : (ADC Offset: 0x4C) Channel Offset Register -------- */
-#define ADC_COR_OFF0 (0x1u << 0) /**< \brief (ADC_COR) Offset for channel 0 */
-#define ADC_COR_OFF1 (0x1u << 1) /**< \brief (ADC_COR) Offset for channel 1 */
-#define ADC_COR_OFF2 (0x1u << 2) /**< \brief (ADC_COR) Offset for channel 2 */
-#define ADC_COR_OFF3 (0x1u << 3) /**< \brief (ADC_COR) Offset for channel 3 */
-#define ADC_COR_OFF4 (0x1u << 4) /**< \brief (ADC_COR) Offset for channel 4 */
-#define ADC_COR_OFF5 (0x1u << 5) /**< \brief (ADC_COR) Offset for channel 5 */
-#define ADC_COR_OFF6 (0x1u << 6) /**< \brief (ADC_COR) Offset for channel 6 */
-#define ADC_COR_OFF7 (0x1u << 7) /**< \brief (ADC_COR) Offset for channel 7 */
-#define ADC_COR_OFF8 (0x1u << 8) /**< \brief (ADC_COR) Offset for channel 8 */
-#define ADC_COR_OFF9 (0x1u << 9) /**< \brief (ADC_COR) Offset for channel 9 */
-#define ADC_COR_OFF10 (0x1u << 10) /**< \brief (ADC_COR) Offset for channel 10 */
-#define ADC_COR_OFF11 (0x1u << 11) /**< \brief (ADC_COR) Offset for channel 11 */
 #define ADC_COR_DIFF0 (0x1u << 16) /**< \brief (ADC_COR) Differential inputs for channel 0 */
 #define ADC_COR_DIFF1 (0x1u << 17) /**< \brief (ADC_COR) Differential inputs for channel 1 */
 #define ADC_COR_DIFF2 (0x1u << 18) /**< \brief (ADC_COR) Differential inputs for channel 2 */

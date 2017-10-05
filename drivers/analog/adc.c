@@ -440,7 +440,7 @@ void adc_set_startup_time(uint32_t startup)
 	ADC->ADC_MR = mode_reg;
 }
 
-#ifdef CONFIG_HAVE_ADC_INPUT_OFFSET
+#ifdef CONFIG_HAVE_ADC_DIFF_INPUT
 /**
  * \brief Enable differential input for the specified channel.
  *
@@ -461,7 +461,9 @@ void adc_disable_channel_differential_input(uint32_t channel)
 {
 	ADC->ADC_COR &= ~(1u << (16 + channel));
 }
+#endif /* CONFIG_HAVE_ADC_DIFF_INPUT */
 
+#ifdef CONFIG_HAVE_ADC_INPUT_OFFSET
 /**
  * \brief Enable analog signal offset for the specified channel.
  *
