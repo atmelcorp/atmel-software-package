@@ -449,7 +449,7 @@ void adc_set_startup_time(uint32_t startup)
 void adc_enable_channel_differential_input (uint32_t channel)
 {
 	/* (ADC_COR) Differential Inputs for Channel n */
-	ADC->ADC_COR |= 0x01u << (16 + channel);
+	ADC->ADC_COR |= 1u << (16 + channel);
 }
 
 /**
@@ -459,10 +459,7 @@ void adc_enable_channel_differential_input (uint32_t channel)
  */
 void adc_disable_channel_differential_input(uint32_t channel)
 {
-	uint32_t temp;
-	temp = ADC->ADC_COR;
-	ADC->ADC_COR &= 0xFFFEFFFFu << channel;
-	ADC->ADC_COR |= temp;
+	ADC->ADC_COR &= ~(1u << (16 + channel));
 }
 
 /**
@@ -472,7 +469,7 @@ void adc_disable_channel_differential_input(uint32_t channel)
  */
 void adc_enable_channel_input_offset (uint32_t channel)
 {
-	ADC->ADC_COR |= 0x01u << channel;
+	ADC->ADC_COR |= 1u << channel;
 }
 
 /**
@@ -482,10 +479,7 @@ void adc_enable_channel_input_offset (uint32_t channel)
  */
 void adc_disable_channel_input_offset (uint32_t channel)
 {
-	uint32_t temp;
-	temp = ADC->ADC_COR;
-	ADC->ADC_COR &= (0xFFFFFFFEu << channel);
-	ADC->ADC_COR |= temp;
+	ADC->ADC_COR &= ~(1u << channel);
 }
 #endif /* CONFIG_HAVE_ADC_INPUT_OFFSET */
 
