@@ -168,11 +168,6 @@ struct _adc_sample
 	int16_t value[NUM_CHANNELS];
 };
 
-CACHE_ALIGNED static uint16_t adc_buffer[NUM_CHANNELS];
-
-static volatile bool adc_converted = false;
-static unsigned count = 0;
-
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
@@ -189,6 +184,17 @@ static struct _adcd_desc adcd;
 
 /** ADCD configuration for next capture */
 static struct _adcd_cfg adcd_cfg;
+
+CACHE_ALIGNED static uint16_t adc_buffer[NUM_CHANNELS];
+
+static volatile bool adc_converted = false;
+static unsigned count = 0;
+
+/** Used to store ADC conversion */
+static struct _buffer buf = {
+	.data = (uint8_t*)adc_buffer,
+	.size = NUM_CHANNELS * sizeof(uint16_t),
+};
 
 /** ADTRG pin */
 struct _pin pin_adtrg[] = {PIN_ADTRG};
@@ -350,10 +356,6 @@ static void _adc_configure(void)
 		_data.value[i] = 0;
 	}
 
-	struct _buffer buf = {
-		.data = (uint8_t*)adc_buffer,
-		.size = NUM_CHANNELS * sizeof(uint16_t),
-	};
 	callback_set(&_cb, _adc_callback, &adcd);
 	adcd_initialize(&adcd);
 	adcd_transfer(&adcd, &buf, &_cb);
