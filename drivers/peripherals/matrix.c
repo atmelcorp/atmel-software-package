@@ -36,6 +36,33 @@
 
 #include <assert.h>
 
+#if defined(CONFIG_SOC_SAMA5D2) || defined(CONFIG_SOC_SAMA5D4)
+void matrix_configure_master(Matrix* mtx, uint8_t id, uint32_t val)
+{
+	mtx->MATRIX_MCFG[id] = val;
+}
+
+void matrix_configure_slave(Matrix* mtx, uint8_t id, uint32_t val)
+{
+	mtx->MATRIX_SCFG[id] = val;
+}
+
+void matrix_master_priority_for_slave(Matrix* mtx,
+	uint8_t s_id, uint8_t m_id, uint8_t priority)
+{
+	if (m_id <= 7) {
+		m_id <<= 2;
+		mtx->MATRIX_PR[s_id].MATRIX_PRAS = (mtx->MATRIX_PR[s_id].MATRIX_PRAS &
+			(~(MATRIX_PRAS_M0PR_Msk << m_id))) | (priority << m_id);
+	} else {
+		assert(m_id < 16);
+		m_id = (m_id - 8) << 2;
+		mtx->MATRIX_PR[s_id].MATRIX_PRBS = (mtx->MATRIX_PR[s_id].MATRIX_PRBS &
+			(~(MATRIX_PRAS_M0PR_Msk << m_id))) | (priority << m_id);
+	}
+}
+#endif
+
 void matrix_configure_slave_sec(Matrix* mtx, uint8_t slave_id,
 				uint8_t sel_mask, uint8_t read_mask,
 				uint8_t write_mask)
@@ -134,3 +161,40 @@ void matrix_remap_ram(void)
 	cache_clean_region((void*)IRAM_ADDR, IRAM_SIZE);
 	cache_invalidate_region((void*)0, IRAM_SIZE);
 }
+
+#if defined(CONFIG_SOC_SAMA5D2) || defined(CONFIG_SOC_SAMA5D4)
+void matrix_set_default_config(void)
+{
+	uint32_t m_id;
+	uint32_t s_id;
+
+	/* Disable write protection */
+	matrix_remove_write_protection(MATRIX0);
+
+	for (m_id = 0; m_id < H64MX_MASTER_COUNT; m_id++)
+		matrix_configure_master(MATRIX0, m_id, MATRIX_MCFG_ULBT_16_BEAT);
+
+	for (s_id = 0; s_id < H64MX_SLAVE_COUNT; s_id++) {
+		matrix_configure_slave(MATRIX0, s_id, MATRIX_SCFG_FIXED_DEFMSTR(0) |
+			MATRIX_SCFG_DEFMSTR_TYPE_NONE | MATRIX_SCFG_SLOT_CYCLE_Msk);
+		for (m_id = 0; m_id < H64MX_MASTER_COUNT; m_id++)
+			matrix_master_priority_for_slave(MATRIX0, s_id, m_id, 0);
+		matrix_configure_slave_sec(MATRIX0, s_id, 0xFF, 0xFF, 0xFF);
+	}
+
+	/* Disable write protection */
+	matrix_remove_write_protection(MATRIX1);
+
+	for (m_id = 0; m_id <= H32MX_MASTER_COUNT; m_id++)
+		matrix_configure_master(MATRIX1, m_id, MATRIX_MCFG_ULBT_16_BEAT);
+
+	for (s_id = 0; s_id <= H32MX_SLAVE_COUNT; s_id++) {
+		matrix_configure_slave(MATRIX1, s_id, MATRIX_SCFG_FIXED_DEFMSTR(0) |
+			MATRIX_SCFG_DEFMSTR_TYPE_NONE | MATRIX_SCFG_SLOT_CYCLE_Msk);
+		for (m_id = 0; m_id <= H32MX_MASTER_COUNT; m_id++)
+			matrix_master_priority_for_slave(MATRIX1, s_id, m_id, 0);
+		matrix_configure_slave_sec(MATRIX1, s_id, 0xFF, 0xFF, 0xFF);
+	}
+}
+#endif
+

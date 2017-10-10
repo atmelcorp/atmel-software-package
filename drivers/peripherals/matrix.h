@@ -67,6 +67,15 @@
 extern "C" {
 #endif
 
+#if defined(CONFIG_SOC_SAMA5D2) || defined(CONFIG_SOC_SAMA5D4)
+extern void matrix_configure_master(Matrix* mtx, uint8_t id, uint32_t val);
+
+extern void matrix_configure_slave(Matrix* mtx, uint8_t id, uint32_t val);
+
+extern void matrix_master_priority_for_slave(Matrix* mtx,
+					uint8_t s_id, uint8_t m_id, uint8_t priority);
+#endif
+
 extern void matrix_configure_slave_sec(Matrix* mtx, uint8_t slave_id,
 				       uint8_t sel_mask, uint8_t read_mask,
 				       uint8_t write_mask);
@@ -84,6 +93,10 @@ extern void matrix_remove_write_protection(Matrix* mtx);
 extern void matrix_remap_rom(void);
 
 extern void matrix_remap_ram(void);
+
+#if defined(CONFIG_SOC_SAMA5D2) || defined(CONFIG_SOC_SAMA5D4)
+extern void matrix_set_default_config(void);
+#endif
 
 #ifdef __cplusplus
 }
