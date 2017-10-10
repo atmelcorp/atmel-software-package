@@ -107,6 +107,15 @@ static bool act8945a_initialized = false;
 #endif /* CONFIG_HAVE_PMIC_ACT8945A */
 
 /*----------------------------------------------------------------------------
+ *        Local functions
+ *----------------------------------------------------------------------------*/
+
+static void board_cfg_matrix_default(void)
+{
+	matrix_set_default_config();
+}
+
+/*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 const char* get_board_name(void)
@@ -173,6 +182,8 @@ void board_cfg_lowlevel(bool clocks, bool ddram, bool mmu)
 
 	/* Configure system timer */
 	board_cfg_timer();
+
+	board_cfg_matrix_default();
 
 	if (ddram) {
 		/* Configure DDRAM */

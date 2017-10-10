@@ -152,6 +152,38 @@ struct _console_cfg;
 /*@}*/
 
 /* ************************************************************************** */
+/*   MASTER MATRIX ID DEFINITIONS FOR SAMA5D2x */
+/* ************************************************************************** */
+/** \addtogroup SAMA5D2x_matrix Matrix Ids Definitions */
+/*@{*/
+
+#define H64MX_MASTER_BRIDGE_AXI     0    /**< Bridge from AXI matrix (Core) */
+#define H64MX_MASTER_1_DMAC0        1    /**< DMA Controller 0 */
+#define H64MX_MASTER_2_DMAC0        2    /**< DMA Controller 0 */
+#define H64MX_MASTER_3_DMAC1        3    /**< DMA Controller 1 */
+#define H64MX_MASTER_4_DMAC1        4    /**< DMA Controller 1 */
+#define H64MX_MASTER_5_LCDC_DMA     5    /**< LCDC DMA */
+#define H64MX_MASTER_6_LCDC_DMA     6    /**< LCDC DMA */
+#define H64MX_MASTER_SDMMC0         7    /**< SDMMC0 */
+#define H64MX_MASTER_SDMMC1         8    /**< SDMMC1 */
+#define H64MX_MASTER_ISC_DMA        9    /**< ISC DMA */
+#define H64MX_MASTER_AESB          10    /**< AESB */
+#define H64MX_MASTER_BRIDGE_H32MX  11    /**< Bridge from H32MX to H64MX */
+#define H64MX_MASTER_COUNT         12
+
+#define H32MX_MASTER_BRIDGE_H64MX   0    /**< Bridge from H64MX to H32MX */
+#define H32MX_MASTER_ICM            1    /**< Integrity Check Monitor (ICM) */
+#define H32MX_MASTER_UHPHS_EHCI_DMA 2    /**< UHPHS EHCI DMA */
+#define H32MX_MASTER_UHPHS_OHCI_DMA 3    /**< UHPHS OHCI DMA */
+#define H32MX_MASTER_UDPHS_DMA      4    /**< UDPHS DMA */
+#define H32MX_MASTER_GMAC_DMA       5    /**< GMAC DMA */
+#define H32MX_MASTER_CAN0_DMA       6    /**< CAN0 DMA */
+#define H32MX_MASTER_CAN1_DMA       7    /**< CAN1 DMA */
+#define H32MX_MASTER_COUNT          8
+
+/*@}*/
+
+/* ************************************************************************** */
 /*   SLAVE MATRIX ID DEFINITIONS FOR SAMA5D2x */
 /* ************************************************************************** */
 /** \addtogroup SAMA5D2x_matrix Matrix Ids Definitions */
@@ -173,6 +205,7 @@ struct _console_cfg;
 #define H64MX_SLAVE_QSPI0          12    /**< QSPI0 */
 #define H64MX_SLAVE_QSPI1          13    /**< QSPI1 */
 #define H64MX_SLAVE_AESB           14    /**< AESB */
+#define H64MX_SLAVE_COUNT          15
 
 #define H32MX_SLAVE_BRIDGE_H64MX    0    /**< Bridge from H32MX to H64MX */
 #define H32MX_SLAVE_APB0            1    /**< H32MX APB0 - User interfaces */
@@ -181,6 +214,7 @@ struct _console_cfg;
 #define H32MX_SLAVE_NFC_CMD         3    /**< NFC Command Register */
 #define H32MX_SLAVE_NFC_SRAM        4    /**< NFC SRAM */
 #define H32MX_SLAVE_USB             5    /**< USB */
+#define H32MX_SLAVE_COUNT           6
 
 /*@}*/
 
