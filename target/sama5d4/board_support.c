@@ -133,6 +133,11 @@ static bool board_cfg_sd_dev_pins(uint32_t periph_id, bool down, bool up)
 	return true;
 }
 
+static void board_cfg_matrix_default(void)
+{
+	matrix_set_default_config();
+}
+
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
@@ -180,6 +185,8 @@ void board_cfg_lowlevel(bool clocks, bool ddram, bool mmu)
 
 	/* Configure system timer */
 	board_cfg_timer();
+
+	board_cfg_matrix_default();
 
 	if (ddram) {
 		/* Configure DDRAM */
