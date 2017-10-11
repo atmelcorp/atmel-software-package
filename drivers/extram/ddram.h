@@ -46,6 +46,11 @@ enum _ddram_devices {
 	W981216BH,     /* SDRAM 2MB */
   #endif
 #endif
+#ifdef CONFIG_HAVE_SDR_SDRAM
+  #ifdef CONFIG_HAVE_SDRAM_MT48LC16M16
+        MT48LC16M16,     /* SDRAM 32MB */
+  #endif
+#endif
 #ifdef CONFIG_HAVE_MPDDRC_DDR2
   #ifdef CONFIG_HAVE_DDR2_MT47H128M8
 	MT47H128M8,    /* DDR2 4*128MB */
