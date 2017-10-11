@@ -41,7 +41,7 @@
 
 static void _set_ddr_timings(struct _mpddrc_desc* desc)
 {
-#ifdef CONFIG_HAVE_MPDDRC_SDRAM
+#ifdef CONFIG_HAVE_MPDDRC_SDRAM_ONLY
 	uint8_t trc_trfc, txsr;
 
 	/* single register value for tRC and tRFC, use max */
@@ -71,7 +71,7 @@ static void _set_ddr_timings(struct _mpddrc_desc* desc)
 #ifdef MPDDRC_CFR1_UNAL_SUPPORTED
 	MPDDRC->MPDDRC_CFR1 |= MPDDRC_CFR1_UNAL_SUPPORTED;
 #endif
-#else /* !CONFIG_HAVE_MPDDRC_SDRAM */
+#else /* !CONFIG_HAVE_MPDDRC_SDRAM_ONLY */
 	MPDDRC->MPDDRC_TPR0 = MPDDRC_TPR0_TMRD(desc->timings.tmrd)
 	                    | MPDDRC_TPR0_TWTR(desc->timings.twtr)
 	                    | MPDDRC_TPR0_TRRD(desc->timings.trrd)
@@ -84,12 +84,17 @@ static void _set_ddr_timings(struct _mpddrc_desc* desc)
 	                    | MPDDRC_TPR1_TXSRD(desc->timings.txsrd)
 	                    | MPDDRC_TPR1_TXSNR(desc->timings.txsnr)
 	                    | MPDDRC_TPR1_TRFC(desc->timings.trfc);
+
+#ifdef CONFIG_HAVE_MPDDRC_SDRAM
+	if (desc->type == MPDDRC_TYPE_SDRAM)
+		return;
+#endif
 	MPDDRC->MPDDRC_TPR2 = MPDDRC_TPR2_TFAW(desc->timings.tfaw)
 	                    | MPDDRC_TPR2_TRTP(desc->timings.trtp)
 	                    | MPDDRC_TPR2_TRPA(desc->timings.trpa)
 	                    | MPDDRC_TPR2_TXARDS(desc->timings.txards)
 	                    | MPDDRC_TPR2_TXARD(desc->timings.txard);
-#endif /* !CONFIG_HAVE_MPDDRC_SDRAM */
+#endif /* !CONFIG_HAVE_MPDDRC_SDRAM_ONLY */
 }
 
 /* Compute BA[] offset according to configuration */
@@ -98,7 +103,7 @@ static uint32_t _compute_ba_offset(void)
 	uint8_t nc, nr;
 	bool interleaved, dbw16;
 
-#if defined CONFIG_HAVE_MPDDRC_SDRAM
+#if defined CONFIG_HAVE_MPDDRC_SDRAM_ONLY
 	nc = ((MPDDRC->MPDDRC_CR & MPDDRC_CR_NC_Msk) >> MPDDRC_CR_NC_Pos) + 8;
 	nr = ((MPDDRC->MPDDRC_CR & MPDDRC_CR_NR_Msk) >> MPDDRC_CR_NR_Pos) + 11;
 	interleaved = false;
