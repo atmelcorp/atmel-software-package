@@ -406,7 +406,11 @@ static void _configure_sdram(struct _mpddrc_desc* desc)
 
 	/* Step 9: For mobile SDRAM , Issue Extended Mode Register Set 2 (EMR)
 		cycle to choose between commercial or high temperature operations.*/
+#ifdef CONFIG_HAVE_MPDDRC_SDRAM_ONLY
 	if (desc->mode & MPDDRC_MD_MD_LPSDRAM)
+#else
+	if (desc->mode & MPDDRC_MD_MD_LPSDR_SDRAM)
+#endif
 		_send_ext_lmr_cmd(0x1, ba_offset);
 
 	/* Step 10: A mode Normal command is provided. Program the Normal mode
