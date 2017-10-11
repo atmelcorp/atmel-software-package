@@ -33,7 +33,7 @@
 #include <stdint.h>
 
 enum _ram_type {
-#ifdef CONFIG_HAVE_MPDDRC_SDRAM
+#if defined(CONFIG_HAVE_MPDDRC_SDRAM) || defined(CONFIG_HAVE_SDR_SDRAM)
 	MPDDRC_TYPE_SDRAM,
 #endif
 #ifdef CONFIG_HAVE_MPDDRC_DDR2

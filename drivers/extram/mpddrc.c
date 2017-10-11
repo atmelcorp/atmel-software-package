@@ -84,11 +84,15 @@ static void _set_ddr_timings(struct _mpddrc_desc* desc)
 	                    | MPDDRC_TPR1_TXSRD(desc->timings.txsrd)
 	                    | MPDDRC_TPR1_TXSNR(desc->timings.txsnr)
 	                    | MPDDRC_TPR1_TRFC(desc->timings.trfc);
-	MPDDRC->MPDDRC_TPR2 = MPDDRC_TPR2_TFAW(desc->timings.tfaw)
+
+#ifndef CONFIG_HAVE_SDR_SDRAM
+        MPDDRC->MPDDRC_TPR2 = MPDDRC_TPR2_TFAW(desc->timings.tfaw)
 	                    | MPDDRC_TPR2_TRTP(desc->timings.trtp)
 	                    | MPDDRC_TPR2_TRPA(desc->timings.trpa)
 	                    | MPDDRC_TPR2_TXARDS(desc->timings.txards)
 	                    | MPDDRC_TPR2_TXARD(desc->timings.txard);
+#endif /* CONFIG_HAVE_SDR_SDRAM */
+
 #endif /* !CONFIG_HAVE_MPDDRC_SDRAM */
 }
 
@@ -370,12 +374,11 @@ static void _configure_lpddr2(struct _mpddrc_desc* desc)
 
 #endif /* CONFIG_HAVE_MPDDRC_LPDDR2 */
 
-#ifdef CONFIG_HAVE_MPDDRC_SDRAM
+#if defined(CONFIG_HAVE_MPDDRC_SDRAM) || defined(CONFIG_HAVE_SDR_SDRAM)
 
 /* Configure SDRAM */
 static void _configure_sdram(struct _mpddrc_desc* desc)
 {
-	uint32_t ba_offset = _compute_ba_offset();
 	volatile uint32_t i;
 
 	/* Timings */
@@ -401,8 +404,11 @@ static void _configure_sdram(struct _mpddrc_desc* desc)
 
 	/* Step 9: For mobile SDRAM , Issue Extended Mode Register Set 2 (EMR)
 		cycle to choose between commercial or high temperature operations.*/
-	if (desc->mode & MPDDRC_MD_MD_LPSDRAM)
+#ifdef CONFIG_HAVE_MPDDRC_SDRAM
+        uint32_t ba_offset = _compute_ba_offset();
+        if (desc->mode & MPDDRC_MD_MD_LPSDRAM)
 		_send_ext_lmr_cmd(0x1, ba_offset);
+#endif
 
 	/* Step 10: A mode Normal command is provided. Program the Normal mode
 	 * into Mode Register. */
@@ -473,11 +479,12 @@ extern void mpddrc_configure(struct _mpddrc_desc* desc)
 #endif /* CONFIG_HAVE_MPDDRC_DDR3 */
 
 	switch(desc->type) {
-#ifdef CONFIG_HAVE_MPDDRC_SDRAM
+#if defined(CONFIG_HAVE_MPDDRC_SDRAM) || defined(CONFIG_HAVE_SDR_SDRAM)
 	case MPDDRC_TYPE_SDRAM:
 		_configure_sdram(desc);
 		break;
 #endif
+
 #ifdef CONFIG_HAVE_MPDDRC_DDR2
 	case MPDDRC_TYPE_DDR2:
 		_configure_ddr2(desc);
