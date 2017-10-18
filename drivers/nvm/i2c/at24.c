@@ -216,7 +216,7 @@ int at24_read(const struct _at24* at24, uint32_t offset, uint8_t* data, uint16_t
 
 int at24_write(const struct _at24* at24, uint32_t offset, const uint8_t* data, uint16_t length)
 {
-	const uint8_t page_size = at24->desc->page_size;
+	const uint16_t page_size = at24->desc->page_size;
 	uint8_t addr_offset, addr_buf[2];
 	struct _buffer buf[2] = {
 		{
@@ -230,7 +230,7 @@ int at24_write(const struct _at24* at24, uint32_t offset, const uint8_t* data, u
 			.attr = BUS_BUF_ATTR_TX | BUS_I2C_BUF_ATTR_STOP,
 		},
 	};
-	uint8_t chunk_size;
+	uint16_t chunk_size;
 	int err = 0;
 
 	/* start a TWI bus transaction */
