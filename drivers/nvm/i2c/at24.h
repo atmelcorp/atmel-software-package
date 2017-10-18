@@ -70,6 +70,7 @@ enum _at24_model {
 	MCP24AA02E64,
 	MCP24AA025E48,
 	MCP24AA025E64,
+        FM24V10,
 };
 
 enum _at24_family {
@@ -79,6 +80,7 @@ enum _at24_family {
 	AT24MAC6,
 	MCP24AAE4,
 	MCP24AAE6,
+        FM24V,
 };
 
 struct _at24_desc {

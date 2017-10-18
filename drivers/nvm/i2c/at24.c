@@ -96,6 +96,7 @@ static const struct _at24_desc _at24_devices[] = {
 	{ MCP24AA02E64,  "MCP24AA02",  MCP24AAE6,  7,   8, .eui = { MCP24AA_EUI64_ADDR_OFFSET, MCP24AA_EUI64_OFFSET, EUI64_LENGTH }, },
 	{ MCP24AA025E48, "MCP24AA025", MCP24AAE4,  7,  16, .eui = { MCP24AA_EUI48_ADDR_OFFSET, MCP24AA_EUI48_OFFSET, EUI48_LENGTH }, },
 	{ MCP24AA025E64, "MCP24AA025", MCP24AAE6,  7,  16, .eui = { MCP24AA_EUI64_ADDR_OFFSET, MCP24AA_EUI64_OFFSET, EUI64_LENGTH }, },
+        { FM24V10,       "FM24V10",    FM24V,     17, 256, },
 };
 
 /*------------------------------------------------------------------------------
@@ -216,7 +217,6 @@ int at24_read(const struct _at24* at24, uint32_t offset, uint8_t* data, uint16_t
 
 int at24_write(const struct _at24* at24, uint32_t offset, const uint8_t* data, uint16_t length)
 {
-	const uint8_t page_size = at24->desc->page_size;
 	const uint16_t page_size = at24->desc->page_size;
 	uint8_t addr_offset, addr_buf[2];
 	struct _buffer buf[2] = {
@@ -231,7 +231,6 @@ int at24_write(const struct _at24* at24, uint32_t offset, const uint8_t* data, u
 			.attr = BUS_BUF_ATTR_TX | BUS_I2C_BUF_ATTR_STOP,
 		},
 	};
-	uint8_t chunk_size;
 	uint16_t chunk_size;
 	int err = 0;
 
