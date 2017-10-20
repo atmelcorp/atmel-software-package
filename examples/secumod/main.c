@@ -314,14 +314,17 @@ static uint32_t tamper_occurred = 0;
 static uint32_t violation_occurred = 0;
 static uint32_t memory_erased = 0;
 
-/* PLL = 708, PCK = 354, MCK = 177 Mhz */
-/* PLLA EXT12M RC32K MULA=59 DIV2ON=1 PRES=1 DIV=2 */
+/* PLLA EXT12M/24M RC32K MULA=59 DIV2ON=1 PRES=1 DIV=2 */
 struct pck_mck_cfg clock_setting = {
 		.pck_input = PMC_MCKR_CSS_PLLA_CLK,
 		.ext12m = true,
 		.ext32k = false,
 		.plla = {
+#if BOARD_MAIN_CLOCK_EXT_OSC == 12000000
 			.mul = 58,
+#elif BOARD_MAIN_CLOCK_EXT_OSC == 24000000
+			.mul = 25,
+#endif
 			.div = 1,
 			.count = 0x3f,
 		},
@@ -694,7 +697,7 @@ int main(void)
 	erase_opt = true;
 	int_opt = true;
 
-	/* reconfigure PCK=354MHz, MCK=177MHz */
+	/* reconfigure PCK, MCK */
 	pmc_set_custom_pck_mck(&clock_setting);
 	board_cfg_console(0);
 
