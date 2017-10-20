@@ -280,6 +280,7 @@ void secumod_initialize(void)
 	/* Enable SECUMOD module clock in PMC */
 	pmc_configure_peripheral(ID_SECUMOD, NULL, true);
 
+	memset(&secumod_inst, 0, sizeof(secumod_inst));
 	secumod_inst.tamper_info.total_tampers = 0;
 	secumod_inst.tamper_info.tampers = 0;
 	secumod_inst.tamper_info.jtag_sel_ca5 = false;
@@ -695,7 +696,7 @@ uint32_t secumod_get_wakeup_protections(void)
  */
 void secumod_enable_it(uint32_t sources)
 {
-	SECUMOD->SECUMOD_NIEPR |= sources;
+	SECUMOD->SECUMOD_NIEPR = sources;
 	if (sources) {
 		/* Enable SECUMOD/Secure RAM interrupts */
 		irq_enable(ID_SECUMOD);
@@ -712,7 +713,7 @@ void secumod_enable_it(uint32_t sources)
  */
 void secumod_disable_it(uint32_t sources)
 {
-	SECUMOD->SECUMOD_NIDPR |= sources;
+	SECUMOD->SECUMOD_NIDPR = sources;
 	if (SECUMOD_NIDPR_ALL == (sources & SECUMOD_NIDPR_ALL)) {
 		/* Disable SECUMOD/Secure RAM interrupts */
 		irq_disable(ID_SECUMOD);
