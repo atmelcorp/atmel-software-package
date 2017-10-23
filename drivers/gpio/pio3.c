@@ -297,9 +297,9 @@ void pio_configure(const struct _pin *pin_list, uint32_t size)
 			pio->PIO_IFSCDR = pin->mask;
 
 		if (pin->attribute & PIO_NO_SCHMITT_TRIG)
-			pio->PIO_SCHMITT &= ~pin->mask;
-		else
 			pio->PIO_SCHMITT |= pin->mask;
+		else
+			pio->PIO_SCHMITT &= ~pin->mask;
 
 		if (pin->attribute & PIO_DRVSTR_MASK)
 			trace_fatal("Invalid pin drive strength\r\n");
