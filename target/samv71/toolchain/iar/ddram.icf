@@ -1,7 +1,7 @@
 define memory mem with size = 4G;
 define region RAM_region           = mem:[from 0x20400000 to 0x2045EFFF];
-define region DDRAM_region         = mem:[from 0x70000000 to 0x700FFFFF];
-define region DDRAM_NOCACHE_region = mem:[from 0x70100000 to 0x701FFFFF];
+define region RAM_NC_region        = mem:[from 0x2045F000 to 0x2045FFFF];
+define region DDRAM_region         = mem:[from 0x70000000 to 0x701FFFFF];
 
 define block CSTACK    with alignment = 8, size = 0x800 { };
 define block IRQ_STACK with alignment = 8, size = 0x60  { };
@@ -41,4 +41,4 @@ place in DDRAM_region { block UND_STACK };
 place in DDRAM_region { block SYS_STACK };
 place in DDRAM_region { block CSTACK };
 
-place in DDRAM_NOCACHE_region { block NO_CACHE };
+place in RAM_NC_region { block NO_CACHE };
