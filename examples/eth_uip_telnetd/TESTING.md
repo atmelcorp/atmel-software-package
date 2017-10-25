@@ -25,6 +25,8 @@ stack and the telnetd example.
 * SAMA5D3-XPLAINED
 * SAMA5D4-EK
 * SAMA5D4-XPLAINED
+* SAME70-XPLAINED
+* SAMV71-XPLAINED
 
 ## Setup
 --------
