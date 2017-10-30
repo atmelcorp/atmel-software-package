@@ -674,6 +674,24 @@
 #define PIN_TC3_TIOB10 { PIO_GROUP_E, PIO_PE4B_TIOB10,  PIO_PERIPH_B, PIO_DEFAULT }
 #define PIN_TC3_TIOB11 { PIO_GROUP_D, PIO_PD22C_TIOB11, PIO_PERIPH_C, PIO_DEFAULT }
 
+/* ========== Pio PIN definition for SSC0 ========== */
+
+/** SSC0 pin Transmitter Data (TD) */
+#define PIN_SSC0_TD      { PIO_GROUP_D, PIO_PD26B_TD, PIO_PERIPH_B, PIO_DEFAULT}
+/** SSC0 pin Transmitter Clock (TK) */
+#define PIN_SSC0_TK      { PIO_GROUP_B, PIO_PB1D_TK, PIO_PERIPH_D, PIO_DEFAULT}
+/** SSC0 pin Transmitter FrameSync (TF) */
+#define PIN_SSC0_TF      { PIO_GROUP_B, PIO_PB0D_TF, PIO_PERIPH_D, PIO_DEFAULT}
+/** SSC0 pin RD */
+#define PIN_SSC0_RD      { PIO_GROUP_A, PIO_PA10C_RD, PIO_PERIPH_C, PIO_DEFAULT}
+/** SSC0 pin RK */
+#define PIN_SSC0_RK      { PIO_GROUP_A, PIO_PA22A_RK, PIO_PERIPH_A, PIO_DEFAULT}
+/** SSC0 pin RF */
+#define PIN_SSC0_RF      { PIO_GROUP_D, PIO_PD24B_RF, PIO_PERIPH_B, PIO_DEFAULT}
+
+/** SSC0 pins definition for codec */
+#define PINS_SSC0  {PIN_SSC0_TD, PIN_SSC0_TK, PIN_SSC0_TF, PIN_SSC0_RD, PIN_SSC0_RK, PIN_SSC0_RF}
+
 //=============================================================================
 
 #endif /* _CHIP_PINS_H_ */
