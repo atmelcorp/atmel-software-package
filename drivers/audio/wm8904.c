@@ -300,8 +300,11 @@ void wm8904_volume_mute(struct _wm8904_desc *wm8904, bool left, bool right)
 
 bool wm8904_detect(struct _wm8904_desc *wm8904)
 {
+	/* Wait for pck out clock is ready */
+	msleep(10);
 	/* Check that WM8904 is there */
-	wm8904_write(wm8904, WM8904_REG_CLOCK_RATE2, 0);
+	wm8904_write(wm8904, WM8904_REG_RESET, 0);
+	msleep(10);
 	return (wm8904_read(wm8904, 0) == WM8904_DEVICE_ID);
 }
 
