@@ -89,6 +89,8 @@
 /* RGB LED index */
 #define LED_YELLOW0   0
 #define LED_YELLOW1   1
+#define LED_RED       1
+#define LED_BLUE      1
 
 /** LED #0 pin definition (Yellow). */
 #define PIN_LED_0 { PIO_GROUP_A, PIO_PA23, PIO_OUTPUT_1, PIO_OPENDRAIN }
