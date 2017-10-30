@@ -2,6 +2,27 @@
 
 The Atmel Softpack can be found on [GitHub](https://github.com/atmelcorp/atmel-software-package).
 
+## Version 2.11 - 2017-11
+
+### New drivers/examples
+
+- Add SDRAM support for SAM9XX5.
+- Add example "secumod", "low_power_mode" for SAMA5D27 SOM1 EK board.
+- Add more ethernet examples and audio examples for SAME70 XPLAINED and SAMV71 XPLAINED.
+
+### Fixes
+
+- Fix misplaced buffer allocation for example "adc".
+- Fix PIO schmitt settings for SAM9XX5, SAMA5D3, SAMA5D4 and SAMV71.
+- Fix the sector number for QSPI flash m25p05, m25p10.
+- Fix qspi_xip example for SAMA5D27 SOM1 EK board.
+
+### Enhancements
+
+- Fully configurate the matrix for SAMA5D2 and SAMA5D4.
+- Align the memory allocation for target "DDRAM" for SAMV71 examples.
+
+
 ## Version 2.10 - 2017-10
 
 ### Fixes

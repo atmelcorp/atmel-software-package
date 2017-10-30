@@ -125,7 +125,7 @@ eth_uip_webserver      | OK               | OK               | OK               
 isc                    | OK               | OK               | x                | x          | x                | x
 isi                    | x                | x                | x                | x          | x                | OK
 lcd                    | OK               | OK               | OK               | OK         | OK               | OK
-low_power_mode         | OK               | TODO             | OK               | OK         | OK               | OK
+low_power_mode         | OK               | OK               | OK               | OK         | OK               | OK
 pdmic                  | OK               | x                | x                | x          | x                | x
 pmc_clock_switching    | OK               | OK               | OK               | OK         | OK               | OK
 power_consumption_pll  | OK               | OK               | OK               | OK         | OK               | OK
@@ -134,7 +134,7 @@ qspi_flash             | OK               | OK               | x                
 qspi_xip               | OK               | OK               | x                | x          | x                | x
 rtc                    | OK               | OK               | OK               | OK         | OK               | OK
 sdmmc_sdcard           | OK               | OK               | OK               | OK         | OK               | OK
-secumod                | OK               | TODO             | x                | x          | OK               | OK
+secumod                | OK               | OK               | x                | x          | OK               | OK
 smc_nandflash_mlc      | OK               | x                | OK               | OK         | OK               | OK
 smc_nandflash_slc      | OK               | x                | OK               | OK         | OK               | OK
 spi_serialflash        | OK               | x                | OK               | OK         | OK               | OK
@@ -187,10 +187,10 @@ dma                    | OK         | OK              | OK
 getting_started        | OK         | OK              | OK
 eefc                   | x          | OK              | OK
 eth                    | OK         | OK              | OK
-eth_lwip               | OK         | TODO            | TODO
-eth_uip_helloworld     | OK         | TODO            | TODO
-eth_uip_telnetd        | OK         | TODO            | TODO
-eth_uip_webserver      | OK         | TODO            | TODO
+eth_lwip               | OK         | OK              | OK
+eth_uip_helloworld     | OK         | OK              | OK
+eth_uip_telnetd        | OK         | OK              | OK
+eth_uip_webserver      | OK         | OK              | OK
 isc                    | x          | x               | x
 isi                    | x          | x               | x
 lcd                    | OK         | x               | TODO
@@ -208,7 +208,7 @@ smc_nandflash_mlc      | OK         | x               | x
 smc_nandflash_slc      | OK         | x               | x
 spi_serialflash        | OK         | x               | x
 spi_slave              | OK         | x               | x
-ssc_dma_audio          | OK         | x               | TODO
+ssc_dma_audio          | OK         | x               | OK
 tc                     | OK         | OK              | OK
 test-pio               | OK         | OK              | OK
 timer                  | OK         | OK              | OK
@@ -220,14 +220,14 @@ usart_lin              | x          | TODO            | TODO
 usart_rs485            | TODO       | OK              | OK
 usb_audio_looprec      | TODO       | x               | TODO
 usb_audio_multi_channels | TODO     | x               | TODO
-usb_audio_speaker      | OK         | x               | TODO
+usb_audio_speaker      | OK         | x               | OK
 usb_cdc_serial         | OK         | OK              | OK
-usb_hid_aud            | OK         | x               | TODO
+usb_hid_aud            | OK         | x               | OK
 usb_hid_keyboard       | OK         | OK              | OK
 usb_hid_mouse          | OK         | OK              | OK
 usb_hid_msd            | OK         | OK              | OK
 usb_hid_transfer       | OK         | OK              | OK
-usb_iad_cdc_aud        | OK         | x               | TODO
+usb_iad_cdc_aud        | OK         | x               | OK
 usb_iad_cdc_cdc        | OK         | OK              | OK
 usb_iad_cdc_hid        | OK         | OK              | OK
 usb_iad_cdc_msd        | OK         | OK              | OK
