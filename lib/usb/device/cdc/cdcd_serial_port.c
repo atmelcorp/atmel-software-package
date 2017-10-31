@@ -64,6 +64,11 @@ typedef struct _CDCDParseData {
 /** Line coding values */
 static CDCLineCoding line_coding;
 
+static struct {
+	CDCSerialNotification notification;
+	uint16_t serial_state;
+} notification_data;
+
 /*------------------------------------------------------------------------------
  *         Internal functions
  *------------------------------------------------------------------------------*/
@@ -406,6 +411,15 @@ uint16_t cdcd_serial_port_get_serial_state(const CDCDSerialPort *p_cdcd)
 void cdcd_serial_port_set_serial_state(CDCDSerialPort *p_cdcd,
 		uint16_t wSerialState)
 {
+
+
+	notification_data.notification.bmRequestType = 0xA1;
+	notification_data.notification.bNotificationType = 0x20;
+	notification_data.notification.wValue = 0;
+	notification_data.notification.wIndex = 0;
+	notification_data.notification.wLength = 2;
+	notification_data.serial_state = p_cdcd->wSerialState;
+
 	if (p_cdcd->bIntInPIPE == 0)
 		return;
 
@@ -413,9 +427,8 @@ void cdcd_serial_port_set_serial_state(CDCDSerialPort *p_cdcd,
 	   host */
 	if (p_cdcd->wSerialState != wSerialState) {
 		p_cdcd->wSerialState = wSerialState;
-		usbd_write(p_cdcd->bIntInPIPE, &p_cdcd->wSerialState, 2,
-				NULL, NULL);
-
+		usbd_write(p_cdcd->bIntInPIPE, (uint8_t*)&notification_data,
+			sizeof(notification_data), NULL, NULL);
 		/* Reset one-time flags */
 		p_cdcd->wSerialState &= ~(CDCSerialState_OVERRUN |
 				CDCSerialState_PARITY |
