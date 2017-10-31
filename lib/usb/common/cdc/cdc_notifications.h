@@ -94,6 +94,14 @@ typedef PACKED_STRUCT _CDCSerialState {
 			 reserved:9;    /**< Reserved */
 } CDCSerialState;
 
+/** USB CDC Serial Notifications struct */
+typedef PACKED_STRUCT _CDCNotification {
+	uint8_t bmRequestType;
+	uint8_t bNotificationType;
+	uint16_t wValue;
+	uint16_t wIndex;
+	uint16_t wLength;
+} CDCSerialNotification;
 
 /*----------------------------------------------------------------------------
  *         Functions
