@@ -170,6 +170,16 @@ set_erase_map:
 		flash->set_protection = at25_set_protection;
 		break;
 
+	case SFLASH_MFR_SST:
+		flash->xip_mode = 0xa0u;
+		fparams->hwcaps.mask |= SFLASH_HWCAPS_READ_1_4_4;
+		fparams->reads[SFLASH_CMD_READ_1_4_4].num_mode_cycles = 2;
+		fparams->reads[SFLASH_CMD_READ_1_4_4].num_wait_states = 4;
+		fparams->reads[SFLASH_CMD_READ_1_4_4].inst = SFLASH_INST_FAST_READ_1_4_4;
+		fparams->reads[SFLASH_CMD_READ_1_4_4].proto = SFLASH_PROTO_1_4_4;
+		fparams->quad_enable = spansion_new_quad_enable;
+		break;
+
 	default:
 		fparams->quad_enable = spansion_quad_enable;
 		break;
