@@ -97,6 +97,7 @@ static const struct _at24_desc _at24_devices[] = {
 	{ MCP24AA02E64,  "MCP24AA02",  MCP24AAE6,  7,   8, .eui = { MCP24AA_EUI64_ADDR_OFFSET, MCP24AA_EUI64_OFFSET, EUI64_LENGTH }, },
 	{ MCP24AA025E48, "MCP24AA025", MCP24AAE4,  7,  16, .eui = { MCP24AA_EUI48_ADDR_OFFSET, MCP24AA_EUI48_OFFSET, EUI48_LENGTH }, },
 	{ MCP24AA025E64, "MCP24AA025", MCP24AAE6,  7,  16, .eui = { MCP24AA_EUI64_ADDR_OFFSET, MCP24AA_EUI64_OFFSET, EUI64_LENGTH }, },
+        { FM24V10,       "FM24V10",    FM24V,     17, 256, },
 };
 
 /*------------------------------------------------------------------------------
