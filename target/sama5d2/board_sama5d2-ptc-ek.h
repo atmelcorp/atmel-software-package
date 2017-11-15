@@ -235,7 +235,7 @@
 
 /* WARNING: PIOs nand Flash shared with SDMMC0 */
 
-#define BOARD_NANDFLASH_PINS      PINS_NAND8_IOS2
+#define BOARD_NANDFLASH_PINS      PINS_NAND8_IOS1
 #define BOARD_NANDFLASH_BUS_WIDTH 8
 
 /* ======================== LCD definition ======================== */
