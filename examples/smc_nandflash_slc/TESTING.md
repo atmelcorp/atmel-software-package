@@ -26,7 +26,7 @@ On the computer, open and configure a terminal application
 
 ## Supported Targets
 --------
-sama5d2-ptc-engi
+sama5d2-ptc-ek
 sama5d3-ek
 sama5d3-xplained
 sama5d4-ek
