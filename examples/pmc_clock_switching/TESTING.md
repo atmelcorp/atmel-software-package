@@ -16,8 +16,9 @@ MCK) or change divider, also shows how to change SLCK (32K OSC or internal RC).
 
 ## Supported targets
 --------------------
-
+* SAMA5D2-PTC-EK
 * SAMA5D2-XPLAINED
+* SAMA5D27-SOM1-EK
 * SAMA5D3-XPLAINED
 * SAMA5D3-EK
 * SAMA5D4-XPLAINED
@@ -26,8 +27,6 @@ MCK) or change divider, also shows how to change SLCK (32K OSC or internal RC).
 
 ## Setup
 --------
-
-
 * Build the program and download it inside the evaluation board.
 * On the computer, open and configure a terminal application (e.g. HyperTerminal
  on Microsoft Windows) with these settings:
