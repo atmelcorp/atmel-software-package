@@ -143,7 +143,12 @@
 #define TIMER1_MODULE                 ID_TC0
 #define TIMER1_CHANNEL                1u
 
-#ifdef CONFIG_BOARD_SAMA5D2_XPLAINED
+#ifdef CONFIG_BOARD_SAMA5D2_PTC_EK
+#  define SLOT0_ID                    ID_SDMMC0
+#  define SLOT0_TAG                   "(SD/MMC)"
+#  define SLOT1_ID                    ID_SDMMC1
+#  define SLOT1_TAG                   "(SD/MMC)"
+#elif defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
 #  define SLOT0_ID                    ID_SDMMC0
 #  define SLOT0_TAG                   "(e.MMC)"
 #  define SLOT1_ID                    ID_SDMMC1
