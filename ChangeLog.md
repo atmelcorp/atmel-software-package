@@ -2,6 +2,30 @@
 
 The Atmel Softpack can be found on [GitHub](https://github.com/atmelcorp/atmel-software-package).
 
+## Version 2.12 - 2018-02
+
+### New drivers/examples
+
+- Add support for SAMA5D2 PTC EK board (examples listed in softpack.md).
+- Add ppt/ptc examples for sama5d2-ptc-ek.
+
+### Fixes
+
+- Fix IAR memcpy compatibility issue for QSPI memory copy.
+- Fix the matrix configuration for SAMA5D3, also update the flash loader for this fix.
+- Fix USB VBus detection for AIC1526-1 on SAMA5D3-EK board.
+- Fix the TWI transfer mode change bug.
+- Fix the bitfields definition for ACT8945A register SYS.
+
+### Enhancements
+
+- Update IAR default debugger driver to JLINK.
+- Add IAR information center support.
+- Rework QSPI applet for flash-loaders.
+- Update nandflash examples by checking the validity of the parameters.
+- Update some documents for softpack.
+- Optimize DMA reset process by disabling interrupts before desabling the channels.
+
 ## Version 2.11 - 2017-11
 
 ### New drivers/examples
