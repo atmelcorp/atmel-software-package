@@ -20,7 +20,7 @@ of `VDDCORE` or `VDDBU`.
 
 ## Supported targets
 --------------------
-
+* SAMA5D2-PTC-EK
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK
 * SAMA5D3-XPLAINED
@@ -31,8 +31,6 @@ of `VDDCORE` or `VDDBU`.
 
 ## Setup
 --------
-Step needed to set up the example.
-
 * Build the program and download it inside the evaluation board.
 * On the computer, open and configure a terminal application (e.g. HyperTerminal
  on Microsoft Windows) with these settings:
@@ -41,10 +39,7 @@ Step needed to set up the example.
 	- No parity
 	- 1 stop bit
 	- No flow control
-
-## Start the application
-------------------------
-
+* Start the application
 * In the terminal window, the following text should appear (values depend on the
  board and chip used):
 ```
