@@ -108,7 +108,10 @@
  *----------------------------------------------------------------------------*/
 
 /* Only used to get the number of available leds */
-#if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
+#if defined(CONFIG_BOARD_SAMA5D2_PTC_EK)
+static struct _pin pio_output = { PIO_GROUP_D, PIO_PD11, PIO_OUTPUT_0, PIO_DEFAULT };
+static struct _pin pio_input = { PIO_GROUP_D, PIO_PD13, PIO_INPUT, PIO_DEFAULT };
+#elif defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
 static struct _pin pio_output = { PIO_GROUP_C, PIO_PC10, PIO_OUTPUT_0, PIO_DEFAULT };
 static struct _pin pio_input = { PIO_GROUP_C, PIO_PC11, PIO_INPUT, PIO_DEFAULT };
 #elif defined(CONFIG_BOARD_SAMA5D27_SOM1_EK)

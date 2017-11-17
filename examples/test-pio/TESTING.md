@@ -15,6 +15,7 @@ This example does automatic test of the PIO features.
 ## Supported targets
 --------------------
 * SAM9XX5-EK
+* SAMA5D2-PTC-EK
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK
 * SAMA5D3-EK
@@ -44,15 +45,17 @@ Step needed to set up the example.
 
 ## Start the application
 ------------------------
+__Pins for SAMA5D2_PTC_EK:__
+Connect PTC_YLINE0 (PD11/ pin 3 on XPRO EXT1 J11) to PTC_YLINE2 (PD13/ pin 5 on XPRO EXT1 J11)
 
 __Pins for SAMA5D2 Xplained Ultra:__
-Connect CANTX0 (PC10 / pin 8 on J9) to CANRX0 PC11/pin 7 on J9)
+Connect CANTX0 (PC10 / pin 8 on J9) to CANRX0 (PC11/pin 7 on J9)
 
 __Pins for SAMA5D27_SOM1_EK:__
 Connect PD6 (pin 5 on ISC) to PD7 (pin 6 on ISC)
 
 __Pins for SAMA5D3 Xplained Ultra:__
-Connect CANTX0 (PD15 / pin 8 on J21) to CANRX0 PD14/pin 7 on J21)
+Connect CANTX0 (PD15 / pin 8 on J21) to CANRX0 (PD14/pin 7 on J21)
 
 __Pins for SAMA5D4 Xplained Ultra:__
 Connect PB15 (pin 8 on J8) to PB14 (pin 7 on J8)
