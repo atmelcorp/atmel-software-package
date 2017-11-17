@@ -50,7 +50,9 @@
 #include "spi/qspi.h"
 #include "trace.h"
 
-#if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
+#if defined(CONFIG_BOARD_SAMA5D2_PTC_EK)
+#include "getting-started_sama5d2-ptc-ek_qspi0.h"
+#elif defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
 #include "getting-started_sama5d2-xplained_qspi0.h"
 #elif defined(CONFIG_BOARD_SAMA5D27_SOM1_EK)
 #include "getting-started_sama5d27-som1-ek_qspi1.h"
