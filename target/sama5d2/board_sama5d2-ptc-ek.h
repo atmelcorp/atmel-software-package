@@ -104,7 +104,7 @@
 #define LED_BLUE  2
 
 /** LED #0 pin definition (Red). */
-#define PIN_LED_0 { PIO_GROUP_B, PIO_PB9, PIO_OUTPUT_1, PIO_OPENDRAIN }
+#define PIN_LED_0 { PIO_GROUP_B, PIO_PB10, PIO_OUTPUT_1, PIO_OPENDRAIN }
 
 /** LED #1 pin definition (Green). */
 #define PIN_LED_1 { PIO_GROUP_B, PIO_PB8, PIO_OUTPUT_1, PIO_OPENDRAIN }
@@ -119,10 +119,7 @@
 
 /* =================== PIN PUSH BUTTON definition ============== */
 
-/** Connected to PIOBU */
-#define PIO_CFG_PB  (PIO_PULLUP | PIO_DEBOUNCE)
-
-#define PIN_PUSHBUTTON_1 { PIO_GROUP_B, PIO_PB10, PIO_INPUT, PIO_CFG_PB }
+#define PIN_PUSHBUTTON_1 { PIO_GROUP_A, PIO_PA10, PIO_INPUT, PIO_PULLUP | PIO_DEBOUNCE }
 
 /** List of all push button definitions. */
 #define PINS_PUSHBUTTONS { PIN_PUSHBUTTON_1 }
