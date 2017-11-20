@@ -70,10 +70,10 @@
 /*----------------------------------------------------------------------------*/
 
 /** Frequency of the board main clock oscillator */
-#define BOARD_MAIN_CLOCK_EXT_OSC 12000000
+#define BOARD_MAIN_CLOCK_EXT_OSC 24000000
 
 /** PMC PLLA configuration */
-#define BOARD_PMC_PLLA_MUL 82
+#define BOARD_PMC_PLLA_MUL 40
 #define BOARD_PMC_PLLA_DIV 1
 
 /** /def Definition of DDRAM's type */
