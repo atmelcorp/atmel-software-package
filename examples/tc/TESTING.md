@@ -35,6 +35,11 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
+
+### SAMA5D2-PTC-EK
+--------------------
+Connect PD11 (XPRO EXT1 pin 3) and PB9 (XPRO EXT1 pin 7) on the board.
+
 ### SAMA5D2-XPLAINED
 --------------------
 Connect EXP_PA19 (J21 pin 2) and EXP_PB22 (J22 pin 6) on the board.
