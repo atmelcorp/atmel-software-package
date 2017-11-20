@@ -17,9 +17,9 @@ without any action on the part of the user.
 ------
 ## Supported targets
 --------------------
+* SAMA5D2-PTC-EK
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK
-* SAMA5D2-PTC-EK
 * SAMA5D4-EK
 * SAMA5D4-XPLAINED
 

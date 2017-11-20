@@ -16,9 +16,9 @@ The second operation mode is an active monitoring of the memory.
 ------
 ## Supported targets
 --------------------
+* SAMA5D2-PTC-EK
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK
-* SAMA5D2-PTC-EK
 * SAMA5D4-EK
 * SAMA5D4-XPLAINED
 * SAME70-XPLAINED
