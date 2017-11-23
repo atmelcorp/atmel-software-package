@@ -213,9 +213,17 @@ static int _twid_dma_read_callback(void* arg, void* arg2)
 static void _twid_dma_read(struct _twi_desc* desc, struct _buffer* buffer)
 {
 	struct _callback _cb;
+	uint32_t id = get_twi_id_from_addr(desc->addr);
+
+	memset(&desc->dma.rx.cfg, 0x0, sizeof(desc->dma.rx.cfg));
 
 	desc->dma.rx.cfg.saddr = (void*)&desc->addr->TWI_RHR;
 	desc->dma.rx.cfg.daddr = buffer->data;
+
+	if(!desc->dma.rx.channel)
+		desc->dma.rx.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
+	assert(desc->dma.rx.channel);
+
 #ifdef CONFIG_HAVE_TWI_FIFO
 	if (desc->use_fifo) {
 		if ((buffer->size % 4) == 0) {
@@ -276,8 +284,13 @@ static int _twid_dma_write_callback(void* arg, void* arg2)
 static void _twid_dma_write(struct _twi_desc* desc, struct _buffer* buffer)
 {
 	struct _callback _cb;
+	uint32_t id = get_twi_id_from_addr(desc->addr);
 
 	memset(&desc->dma.tx.cfg, 0x0, sizeof(desc->dma.tx.cfg));
+
+	if(!desc->dma.tx.channel)
+		desc->dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
+	assert(desc->dma.tx.channel);
 
 	desc->dma.tx.cfg.saddr = buffer->data;
 	desc->dma.tx.cfg.daddr = (void*)&desc->addr->TWI_THR;
@@ -776,23 +789,25 @@ int twid_configure(struct _twi_desc* desc)
 		twi_fifo_enable(desc->addr, true);
 #endif
 
-	if (desc->transfer_mode == BUS_TRANSFER_MODE_DMA) {
-		desc->dma.tx.channel = dma_allocate_channel(DMA_PERIPH_MEMORY, id);
-		assert(desc->dma.tx.channel);
-
-		desc->dma.rx.channel = dma_allocate_channel(id, DMA_PERIPH_MEMORY);
-		assert(desc->dma.rx.channel);
-
-		desc->dma.rx.cfg_dma.incr_saddr = false;
-		desc->dma.rx.cfg_dma.incr_daddr = true;
-		desc->dma.rx.cfg_dma.loop = false;
-		desc->dma.rx.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
-
-		desc->dma.tx.cfg_dma.incr_saddr = true;
-		desc->dma.tx.cfg_dma.incr_daddr = false;
-		desc->dma.tx.cfg_dma.loop = false;
-		desc->dma.tx.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
+	if(desc->dma.rx.channel) {
+		dma_stop_transfer(desc->dma.rx.channel);
+		dma_free_channel(desc->dma.rx.channel);
+		desc->dma.rx.channel = NULL;
 	}
+	desc->dma.rx.cfg_dma.incr_saddr = false;
+	desc->dma.rx.cfg_dma.incr_daddr = true;
+	desc->dma.rx.cfg_dma.loop = false;
+	desc->dma.rx.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
+
+	if(desc->dma.tx.channel) {
+		dma_stop_transfer(desc->dma.tx.channel);
+		dma_free_channel(desc->dma.tx.channel);
+		desc->dma.tx.channel = NULL;
+	}
+	desc->dma.tx.cfg_dma.incr_saddr = true;
+	desc->dma.tx.cfg_dma.incr_daddr = false;
+	desc->dma.tx.cfg_dma.loop = false;
+	desc->dma.tx.cfg_dma.chunk_size = DMA_CHUNK_SIZE_1;
 
 	desc->mutex = 0;
 
