@@ -19,6 +19,7 @@ stack, the hello-world example.
 ------
 ## Supported targets
 --------------------
+* SAMA5D2-PTC-EK
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK
 * SAMA5D3-EK
