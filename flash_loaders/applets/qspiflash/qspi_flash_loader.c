@@ -57,14 +57,15 @@
 #include "interface.h"
 #include "flash_loader.h"
 #include "flash_loader_extra.h"
-
+#include "board_spi.h"
 #include "board_console.h"
 #include "dma/dma.h"
 #include "gpio/pio.h"
-#include "nvm/spi-nor/qspiflash.h"
+#include "nvm/spi-nor/spi-nor.h"
 #include "pin_defs.h"
 #include "peripherals/matrix.h"
 #include "peripherals/pmc.h"
+#include "spi/qspi.h"
 
 #include <stdio.h>
 #include <stdint.h>
@@ -74,8 +75,13 @@
 /*----------------------------------------------------------------------------
  *        Local Varible
  *----------------------------------------------------------------------------*/
-/** QSPI serial flash instance. */
-static struct _qspiflash flash;
+ 
+static struct spi_flash_cfg _flash_cfg = {
+	.type = SPI_FLASH_TYPE_QSPI,
+	.mode = SPI_FLASH_MODE0,
+};
+
+static struct spi_flash flash;
 
 static uint32_t base_address;
 
@@ -85,6 +91,7 @@ static uint32_t freq;
 static uint32_t image_size;
 static uint32_t erase_support;
 static uint32_t size_written;
+static uint32_t erase_support;
 
 /*----------------------------------------------------------------------------
  *         Local functions
@@ -148,7 +155,7 @@ uint32_t FlashInit(void *base_of_flash,
 	
 	link_address = link_address;
 	flags = flags;
-	
+
 	board_init();
 	matrix_remap_ram();
 
@@ -181,47 +188,24 @@ uint32_t FlashInit(void *base_of_flash,
 			(unsigned)freq);
 	
 	/* initialize the QSPI */
-	qspi_initialize(addr);
-	(void)qspi_set_baudrate(addr, freq * 1000000);
+	_flash_cfg.qspi.addr = addr;
+	_flash_cfg.baudrate = freq * 1000000;
 
-	/* initialize the QSPI flash */
-	trace_warning_wp("initialize QSPI Flash...\n\r");
-	if (qspiflash_configure(&flash, addr) < 0) {
-		trace_warning_wp("Configure QSPI Flash failed!\n\r");
+	if (spi_nor_configure(&flash, &_flash_cfg) < 0) {
+		trace_warning_wp("Error while detecting QSPI flash chip\r\n");
 		return RESULT_ERROR;
 	}
-	
-	if (!flash.desc->jedec_id) {
-		trace_warning_wp("Device Unknown\r\n");
-		return RESULT_ERROR;
-	} else {
-		uint32_t page_size = flash.desc->page_size;
-		uint32_t mem_size = flash.desc->size;
 
-		trace_warning_wp("Found Device %s\r\n", flash.desc->name);
-		trace_warning_wp("Size: %u bytes\r\n", (unsigned)mem_size);
-		trace_warning_wp("Page Size: %u bytes\r\n", (unsigned)page_size);
+	uint32_t page_size = flash.page_size;
+	uint32_t mem_size = flash.size;
 
-		erase_support = 0;
-		if (flash.desc->flags & SPINOR_FLAG_ERASE_4K) {
-			trace_warning_wp("Supports 4K block erase\r\n");
-			erase_support |= (4 * 1024) / page_size;
-		}
-		if (flash.desc->flags & SPINOR_FLAG_ERASE_32K) {
-			trace_warning_wp("Supports 32K block erase\r\n");
-			erase_support |= (32 * 1024) / page_size;
-		}
-		if (flash.desc->flags & SPINOR_FLAG_ERASE_64K) {
-			trace_warning_wp("Supports 64K block erase\r\n");
-			erase_support |= (64 * 1024) / page_size;
-		}
-		if (flash.desc->flags & SPINOR_FLAG_ERASE_256K) {
-			trace_warning_wp("Supports 256K block erase\r\n");
-			erase_support |= (256 * 1024) / page_size;
-		}
-	}
-	trace_warning_wp("QSPI Flash configured.\n\r");
+	trace_warning_wp("Found Device %s\r\n", flash.name);
+	trace_warning_wp("Size: %u bytes\r\n", (unsigned)mem_size);
+	trace_warning_wp("Page Size: %u bytes\r\n", (unsigned)page_size);
 
+	erase_support = spi_flash_get_uniform_erase_map(&flash);
+
+	trace_warning_wp("QSPI Flash configured %d.\n\r",erase_support);
 	size_written = 0;
 	return RESULT_OK;
 }
@@ -238,25 +222,30 @@ uint32_t FlashInit(void *base_of_flash,
 
 uint32_t FlashWrite(void *block_start, uint32_t offset_into_block, uint32_t count, char const *buffer)
 {
+	void* qspi_mem_addr = get_qspi_mem_from_addr(flash.priv.qspi.addr);
+
 	trace_info_wp("Write arguments: address 0x%08x,  offset 0x%x of 0x%x Bytes\n\r",
 		(uint32_t)block_start, offset_into_block, count);
-	if (qspiflash_write(&flash, (uint32_t)block_start + offset_into_block - base_address,
-		buffer, count) < 0) {
-		trace_error("Failed to write!\n\r");
+
+	/* perform the write operation */
+	if (spi_nor_write(&flash, (uint32_t)block_start + offset_into_block 
+		- base_address, buffer, count) < 0) {
+		trace_error("Write error\r\n");
 		return RESULT_ERROR;
 	}
-
+	
 	size_written+= count;
 	if (size_written >= image_size) {
 		trace_warning_wp("Enter to XIP mode!\n\r");
 		/* Start continuous read mode to enter in XIP mode*/
-		if (qspiflash_read(&flash, 0, NULL, 0) < 0) {
+		if (qspi_xip(&flash, qspi_mem_addr) < 0) {
 			trace_error("Read the code from QSPI Flash failed!\n\r");
 			return RESULT_ERROR;
 		}
 	}
 	trace_warning_wp("Write Done!\n\r");
 	return RESULT_OK;
+
 }
 
 /**
@@ -270,21 +259,15 @@ uint32_t FlashErase(void *block_start, uint32_t block_size)
 {
 	uint32_t offset = (uint32_t)block_start;
 
-	trace_warning_wp("Erase arguments: address 0x%08x of 0x%x Bytes\n\r", offset, block_size);
-	if ((flash.desc->flags & SPINOR_FLAG_ERASE_4K)
-			&& block_size == 4 * 1024) {
-	} else if ((flash.desc->flags & SPINOR_FLAG_ERASE_32K)
-			&& block_size == 32 * 1024) {
-	} else if ((flash.desc->flags & SPINOR_FLAG_ERASE_64K)
-			&& block_size == 64 * 1024) {
-	} else if ((flash.desc->flags & SPINOR_FLAG_ERASE_256K)
-			&& block_size == 256 * 1024) {
-	} else {
+	trace_info_wp("Erase arguments: offset 0x%08x,  size 0x%x Bytes %x\n\r",
+		offset, block_size, erase_support);
+
+	if ((erase_support & (block_size / flash.page_size)) == 0) {
 		trace_error("Memory does not support requested erase size "
 				"%u bytes\r\n", (unsigned)block_size);
 		return RESULT_ERROR;
 	}
-
+	
 	if (offset & (block_size - 1)) {
 		trace_error("Unaligned erase offset: 0x%08x (erase size "
 				"%u bytes)\r\n", (unsigned)offset,
@@ -292,7 +275,7 @@ uint32_t FlashErase(void *block_start, uint32_t block_size)
 		return RESULT_ERROR;
 	}
 
-	if (qspiflash_erase_block(&flash, offset, block_size) < 0) {
+	if (spi_nor_erase(&flash, offset, block_size) < 0) {
 		trace_error("Erase failed at offset 0x%lx\r\n", offset);
 		return RESULT_ERROR;
 	}
