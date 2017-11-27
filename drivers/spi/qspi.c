@@ -85,8 +85,11 @@ static void * qspi_memcpy(union spi_flash_priv* priv, uint8_t *dst, const uint8_
 		return dst;
 	}
 #endif
-
-	return memcpy(dst, src, count);
+	while (count--) {
+		*dst++ = *src;
+		src++;
+	}
+	return 0;
 }
 
 static int qspi_set_freq(union spi_flash_priv* priv, uint32_t clock)
