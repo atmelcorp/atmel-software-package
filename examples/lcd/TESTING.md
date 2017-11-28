@@ -19,6 +19,7 @@ The example configures the LCDC for LCD to display and then draw test patterns o
 ------
 ## Supported targets
 --------------------
+* SAMA5D2-PTC-EK
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK
 * SAMA5D3-EK
