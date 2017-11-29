@@ -18,13 +18,14 @@ access data on a AT24 device.
 ## Supported targets
 --------------------
 
+* SAM9XX5-EK
+* SAMA5D2-PTC-EK
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK
-* SAMA5D3-XPLAINED
 * SAMA5D3-EK
-* SAMA5D4-XPLAINED
+* SAMA5D3-XPLAINED
 * SAMA5D4-EK
-* SAM9XX5-EK
+* SAMA5D4-XPLAINED
 * SAME70-XPLAINED
 * SAMV71-XPLAINED
 
@@ -69,12 +70,17 @@ Step needed to set up the example.
  |      Write 'str' to address 'addr'                    |
  | a serial                                              |
  |      Query device serial number                       |
- | a mac                                                 |
+ | a eui48                                               |
  |      Query device EUI48                               |
  | h                                                     |
  |      Print this menu                                  |
  |=======================================================|
 ```
+
+__Pins for SAMA5D2 PTC EK:__
+Master SCL                   | Master SDA                  | Slave SCL                | Slave SDA
+---------------------------- | --------------------------- | ------------------------ | -----------------------
+XPRO_TWCK1_PC7 on J11 pin 12 | XPRO_TWD1_PC6 on J11 pin 11 | TWCK0_PD22 on J15 pin B5 | TWD0_PD21 on J15 pin B6
 
 __Pins for SAMA5D2 Xplained Ultra:__
 Master SCL                 | Master SDA                | Slave SCL                         | Slave SDA
@@ -134,8 +140,8 @@ Step | Description | Expected Result | Result
 -----|-------------|-----------------|-------
 Press 'm' | Print the menu on screen | PASSED | PASSED
 Press 'd device' | Print `Use AT24 device` on screen | PASSED | PASSED
-Press 'a serial' | Print `serial number: ` ... on screen | PASSED | PASSED
-Press 'a mac' | Print `MAC addr: ` ... on screen | PASSED | PASSED
+Press 'a serial' | Print `serial number: ` or `device has no serial number`... on screen | PASSED | PASSED
+Press 'a eui48' | Print `EUI48: ` ... on screen | PASSED | PASSED
 Press 'w 0 abcd' | Print `Write done.` on screen | PASSED | PASSED
 Press 'r 0 4' | Print `61 62 63 64` on screen | PASSED | PASSED
 Press 'w 0 1234' | Print `Write done.` on screen | PASSED | PASSED
