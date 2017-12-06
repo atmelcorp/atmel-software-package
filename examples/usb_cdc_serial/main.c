@@ -157,7 +157,11 @@
 #define TEST_COUNT          (1)
 
 /** define the peripherals and pins used for USART */
-#if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
+#if defined(CONFIG_BOARD_SAMA5D2_PTC_EK)
+#define USART_ADDR FLEXUSART4
+#define USART_PINS PINS_FLEXCOM4_USART_IOS3
+
+#elif defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
 #define USART_ADDR FLEXUSART3
 #define USART_PINS PINS_FLEXCOM3_USART_IOS3
 

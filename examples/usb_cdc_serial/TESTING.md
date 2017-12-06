@@ -19,9 +19,9 @@ to the board, and forward to USART port of board.
 ## Supported targets
 --------------------
 * SAM9XX5-EK
+* SAMA5D2-PTC-EK
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK
-* SAMA5D2-PTC-EK
 * SAMA5D3-EK
 * SAMA5D3-XPLAINED
 * SAMA5D4-EK
