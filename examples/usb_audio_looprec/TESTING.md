@@ -13,6 +13,18 @@ input.
 
 # Test
 ------
+## Supported targets
+--------------------
+* SAM9XX5-EK
+* SAMA5D2-PTC-EK
+* SAMA5D2-XPLAINED
+* SAMA5D27-SOM1-EK
+* SAMA5D3-EK
+* SAMA5D3-XPLAINED
+* SAMA5D4-EK
+* SAMA5D4-XPLAINED
+* SAME70-XPLAINED
+* SAMV71-XPLAINED
 
 ## Setup
 --------
@@ -24,7 +36,7 @@ on Microsoft Windows) with these settings:
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D2-XPLAINED)
+## Start the application
 -------------------------------------------
 When the board running this program connected to a host with USB cable
 connected, the board appears as a desktop speaker for the host. Then the host
@@ -49,12 +61,4 @@ Step | Description | Expected Result | Result
 Host side play sound then record | Sound is recorded | PASSED | PASSED
 
 
-# Log
------
 
-## Current version
-------------------
- - v1.3
-
-## History
-----------
