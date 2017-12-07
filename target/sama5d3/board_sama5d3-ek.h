@@ -117,7 +117,7 @@
 
 /** USB Power Enable A:MicroAB:Active Low  */
 #define PIN_USB_POWER_ENA \
-	{ PIO_GROUP_D, PIO_PD25, PIO_OUTPUT_1, PIO_DEFAULT }
+	{ PIO_GROUP_D, PIO_PD25, PIO_OUTPUT_0, PIO_DEFAULT }
 
 /** USB Power Enable B:A:Active Low  */
 #define PIN_USB_POWER_ENB \
