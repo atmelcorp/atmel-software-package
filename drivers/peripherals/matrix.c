@@ -126,8 +126,11 @@ void matrix_remove_write_protection(Matrix* mtx)
 void matrix_remap_rom(void)
 {
 	volatile int i;
-#if defined(CONFIG_SOC_SAM9XX5) || defined(CONFIG_SOC_SAMA5D3)
+#if defined(CONFIG_SOC_SAM9XX5)
 	MATRIX->MATRIX_MRCR = 0;
+#elif defined(CONFIG_SOC_SAMA5D3)
+	MATRIX->MATRIX_MRCR = 0;
+	AXIMX->AXIMX_REMAP = 0;
 #elif defined(CONFIG_SOC_SAMA5D2) || defined(CONFIG_SOC_SAMA5D4)
 	AXIMX->AXIMX_REMAP = 0;
 #endif
@@ -150,6 +153,7 @@ void matrix_remap_ram(void)
 	MATRIX->MATRIX_MRCR = MATRIX_MRCR_RCB0 | MATRIX_MRCR_RCB1;
 #elif defined(CONFIG_SOC_SAMA5D3)
 	MATRIX->MATRIX_MRCR = MATRIX_MRCR_RCB0;
+	AXIMX->AXIMX_REMAP = AXIMX_REMAP_REMAP0;
 #elif defined(CONFIG_SOC_SAMA5D2) || defined(CONFIG_SOC_SAMA5D4)
 	AXIMX->AXIMX_REMAP = AXIMX_REMAP_REMAP0;
 #endif
