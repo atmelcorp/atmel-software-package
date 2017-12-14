@@ -14,6 +14,7 @@ transfer/receive data to/from USART each other with polling mode, using IRQs, or
 ------
 ## Supported targets
 --------------------
+* SAMA5D2-PTC-EK
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK
 * SAMA5D3-EK
@@ -32,6 +33,10 @@ On the computer, open and configure a terminal application
  - No parity
  - 1 stop bit
  - No flow control
+
+### sama5d2-ptc-ek
+--------------------
+Connect FLEXUSART4 (RX on J15B:5, TX on J15B:6)
 
 ### sama5d2-xplained
 --------------------
