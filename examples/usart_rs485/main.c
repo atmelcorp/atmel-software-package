@@ -130,7 +130,11 @@
  *----------------------------------------------------------------------------*/
 #define BUFFER_SIZE  1024
 
-#if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
+#if defined(CONFIG_BOARD_SAMA5D2_PTC_EK)
+#define USART_ADDR FLEXUSART4
+#define USART_PINS PINS_FLEXCOM4_USART_RS485_IOS3
+
+#elif defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
 #define USART_ADDR FLEXUSART0
 #define USART_PINS PINS_FLEXCOM0_USART_RS485_IOS1
 

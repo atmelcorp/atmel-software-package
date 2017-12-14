@@ -27,7 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the USART RS485 example
-AVAILABLE_TARGETS = sama5d2-xplained \
+AVAILABLE_TARGETS = sama5d2-ptc-ek sama5d2-xplained \
 		    sama5d3-ek sama5d3-xplained \
 		    sama5d4-ek sama5d4-xplained \
 		    same70-xplained samv71-xplained

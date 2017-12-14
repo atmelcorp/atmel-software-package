@@ -61,7 +61,9 @@ In order to test this example, the process is the following:
 
 Step | Description | Expected Result | Result
 -----|-------------|-----------------|-------
-Press 't' | write text through usart | receive characters on another board | PASSED
-Press 'r' | Receive text from another board | display the characters  | PASSED
+Press 'r' on board 0 | Receive mode on board 0 | Waiting| PASSED
+Press 't' on board 1 | transmit data throught usart | data received on board 0 | PASSED
+Press 'r' on board 1 | Receive mode on board 1 | Waiting | PASSED
+Press 't' on board 0 | transmit data throught usart | data received on board 1 | PASSED
 Press 'm'| Display the menu | Display the help menu on console | PASSED
 
