@@ -12,6 +12,13 @@ acts as a receiver. The infrared modules should keep face to face
 
 # Test
 ------
+## Supported targets
+--------------------
+* SAM9XX5-EK
+* SAMA5D2-PTC-EK
+* SAMA5D2-XPLAINED
+* SAMA5D4-EK
+* SAMA5D4-XPLAINED
 
 ## Setup
 --------
@@ -23,7 +30,7 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D2-XPLAINED)
+## Start the application
 --------
  Setting of jumpers on Fieldbus shield board:
    - Keep JP24 and JP25 open
@@ -44,12 +51,3 @@ Press 't' on board 1 | transmit data throught IrDA4 | data received on board 0 |
 Press 'r' on board 1 | Receive mode on board 1 | Waiting | PASSED
 Press 't' on board 0 | transmit data throught IrDA4 | data received on board 1 | PASSED
 
-# Log
-------
-
-## Current version
---------
- - v1.3
-
-## History
---------
