@@ -139,7 +139,9 @@
 /** Define the FI_DI_RATIO filed value. */
 #define ISO7816_FI_DI           372
 
-#if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
+#if defined(CONFIG_BOARD_SAMA5D2_PTC_EK)
+#include "config_sama5d2-ptc-ek.h"
+#elif defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
 #include "config_sama5d2-xplained.h"
 #elif defined(CONFIG_BOARD_SAMA5D27_SOM1_EK)
 #include "config_sama5d27-som1-ek.h"
