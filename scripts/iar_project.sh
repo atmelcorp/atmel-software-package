@@ -12,6 +12,9 @@ AVAILABLE_VARIANTS="$5"
 WORKSPACE_TEMPLATE="$6"
 PROJECT_TEMPLATE="$7"
 DEBUG_TEMPLATE="$8"
+IAR_INFO_CENTER_STARTUP_TEMPLATE="$9"
+IAR_INFO_CENTER_EXAMPLE_TEMPLATE="${10}"
+IAR_INFO_CENTER_EWINFO_TEMPLATE="${11}"
 
 ### Global variable
 SCRIPTS="$DIR/$TOP/scripts"
@@ -19,12 +22,13 @@ SCRIPTS="$DIR/$TOP/scripts"
 tpl-split() {
     local template_src="$1"
     local template="$2"
+    local nod="$3"
     local head
     local tail
 
     echo "SPLIT $template_src"
-    head=$(sed -n "/<configuration>/=" "${template_src}" | sed -n '1p')
-    tail=$(sed -n "/<\/configuration>/=" "${template_src}" | sed -n '$p')
+    head=$(sed -n "/<${nod}>/=" "${template_src}" | sed -n '1p')
+    tail=$(sed -n "/<\/${nod}>/=" "${template_src}" | sed -n '$p')
     # head: from start of file to <configuration> (excluded)
     sed -n "1,`expr ${head} - 1`p" "${template_src}" > "$DIR/${template}.head"
     # body: from <configuration> to </configuration> (both included)
@@ -238,7 +242,7 @@ generate-ewd() {
     local file="$1"
     local tpl="$DIR/${file}_$TARGET.ewd"
 
-    tpl-split "$DEBUG_TEMPLATE" iar_debug
+    tpl-split "$DEBUG_TEMPLATE" iar_debug configuration
 
     rm -f "$DIR/$file.ewd.bodies"
     for variant in $AVAILABLE_VARIANTS; do
@@ -287,7 +291,7 @@ generate-ewp() {
     local file="$1"
     local tpl="$DIR/${file}_$TARGET.ewp"
 
-    tpl-split "$PROJECT_TEMPLATE" iar_project
+    tpl-split "$PROJECT_TEMPLATE" iar_project configuration
 
     for variant in $AVAILABLE_VARIANTS; do
         echo "GEN ${file}_$variant.ewp"
@@ -327,13 +331,74 @@ generate-ewp() {
     tpl-finalize      "$tpl"
 }
 
+
+generate-bodies-eww() {
+    local file="$1"
+    local target="$2"
+    local tpl="$DIR/iar_workspace_$target.eww"
+
+    echo "GEN temporary file iar_workspace_$target.eww"
+    cat "$file" > "$tpl"
+}
+
 generate-eww() {
     local file=$1
+    local tpl="$DIR/${file}.eww"
 
-    echo "GEN ${file}_$TARGET.eww"
-    sed -e "s%__REPLACE_WORKSPACE_FILE__%\$WS_DIR\$/${file}_$TARGET.ewp%g" < "$WORKSPACE_TEMPLATE" |
-        sed -e "s%//%/%g" > "$DIR/${file}_$TARGET.eww"
+    if [ -f "$DIR/${file}.eww" ]; then
+       echo "UPD ${file}.eww"
+       tpl-split "$WORKSPACE_TEMPLATE" iar_workspace project
+       generate-bodies-eww "$DIR/iar_workspace.body" $TARGET
+       rm -f "$DIR/iar_workspace.head"
+       rm -f "$DIR/iar_workspace.body"
+       rm -f "$DIR/iar_workspace.tail"
 
+       tpl-split "$tpl" iar_workspace project
+       cat "$DIR/iar_workspace.head" > "$tpl"
+       rm -f "$DIR/iar_workspace.head"
+       cat "$DIR/iar_workspace.body" >> "$tpl"
+       sed -i "s%__REPLACE_WORKSPACE_FILE__%\$WS_DIR\$/${file}_$TARGET.ewp%g" "$DIR/iar_workspace_$TARGET.eww"
+       cat "$DIR/iar_workspace_$TARGET.eww" >> "$tpl"
+       rm -f "$DIR/iar_workspace.body"
+       rm -f "$DIR/iar_workspace_$TARGET.eww"
+       cat "$DIR/iar_workspace.tail" >> "$tpl"
+       rm -f "$DIR/iar_workspace.tail"
+
+    else
+       echo "GEN ${file}_$TARGET.eww"
+       sed -e "s%__REPLACE_WORKSPACE_FILE__%\$WS_DIR\$/${file}_$TARGET.ewp%g" < "$WORKSPACE_TEMPLATE" |
+       sed -e "s%//%/%g" > "$DIR/${file}.eww"
+    fi
+}
+
+generate-infocenter() {
+    local tpl="$DIR/main.c"
+    #local tp2="$DIR/main.purpose"
+    local main_purpose=`mktemp -p "$DIR"`
+    local main_desc=`mktemp -p "$DIR"`
+    #local tp3="$DIR/main.desc"
+    local tp4="$DIR/StartupScreen.ewsample"
+    local tp5="$DIR/ExampleInfo.ENU.xml"
+    local tp6="$DIR/ewinfo.ENU.html"
+    
+    if [ ! -f "$DIR/$tp4" ]; then
+        cat "$IAR_INFO_CENTER_STARTUP_TEMPLATE" > "$tp4"
+        sed -n '/section Purpose/,/section Requirements$/p' $tpl | grep -Ev '(section Purpose|section Requirements$)' | cut -f 1,2 >$main_purpose
+        sed -i '/^$/d' $main_purpose
+        sed -i 's/\ \*//g' $main_purpose
+        
+        sed -n '/section Description/,/section Usage$/p' $tpl | grep -Ev '(section Description|section Usage$)' | cut -f 1,2 >$main_desc
+        sed -i '/^$/d' $main_desc
+        sed -i 's/\ \*//g' $main_desc
+        cat "$IAR_INFO_CENTER_EXAMPLE_TEMPLATE" > "$tp5"
+
+        sed -i "s/__REPLACE_EXAMPLE_NAME__/$BINNAME/g" "$tp5"
+        sed -i "/<iar_description>/r $main_purpose" "$tp5"
+        cat "$IAR_INFO_CENTER_EWINFO_TEMPLATE" > "$tp6"
+        sed -i "/Description:/r $main_desc" "$tp6"
+        rm -f "$main_purpose"
+        rm -f "$main_desc"
+    fi
 }
 
 for variant in $AVAILABLE_VARIANTS; do
@@ -343,6 +408,8 @@ done
 generate-ewp $BINNAME
 generate-eww $BINNAME
 generate-ewd $BINNAME
+
+generate-infocenter
 
 for variant in $AVAILABLE_VARIANTS; do
     rm -f "$DIR/.env-$variant.sh"
