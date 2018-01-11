@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<exampleInfo>
+  <copyDir>..\..\arch</copyDir>
+  <copyDir>..\..\drivers</copyDir>
+  <copyDir>..\..\lib</copyDir>
+  <copyDir>..\..\target</copyDir>
+  <copyDir>..\..\utils</copyDir>
+</exampleInfo>
