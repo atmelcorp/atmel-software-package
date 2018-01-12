@@ -33,9 +33,53 @@
  *  \section Purpose
  *
  *  The DDRAM example will help new users get familiar with Atmel's
- *  SAMA5 family of micro-controllers. This basic application shows Shows how
+ *  SAMA5 family of micro-controllers. This basic application shows how
  *  to initialize and perform read and write a DDRAM memory.
  *
+ * \section Requirements
+ *
+ * This package can be used with SAM9X25-EK, SAM9X35-EK, SAMA5D2-XPLAINED,
+ * SAMA5D27-SOM1-EK, SAMA5D3-EK, SAMA5D3-XPLAINED, SAME70-XPLAINED, SAMV71-XPLAINED
+ *
+ * \section Description
+ *
+ * This example shows how to configure SDRMA/DDR/LPDDR/DDR2/LPDDR2 with MPDDR 
+ * controller. This example write data and read back to compares the result 
+ * against the initial value.
+ *
+ * \section Usage
+ *
+ * -# Build the program and download it inside the evaluation board. Please
+ *    refer to the
+ *    <a href="http://www.atmel.com/dyn/resources/prod_documents/6421B.pdf">
+ *    SAM-BA User Guide</a>, the
+ *    <a href="http://www.atmel.com/dyn/resources/prod_documents/doc6310.pdf">
+ *    GNU-Based Software Development</a>
+ *    application note or to the
+ *    <a href="ftp://ftp.iar.se/WWWfiles/arm/Guides/EWARM_UserGuide.ENU.pdf">
+ *    IAR EWARM User Guide</a>,
+ *    depending on your chosen solution.
+ * -# On the computer, open and configure a terminal application
+ *    (e.g. HyperTerminal on Microsoft Windows) with these settings:
+ *   - 115200 bauds
+ *   - 8 bits of data
+ *   - No parity
+ *   - 1 stop bit
+ *   - No flow control
+ * -# In the terminal window, the
+ *    following text should appear (values depend on the board and chip used):
+ *    \code
+ *     -- DDRAM Example xxx --
+ *     -- SAMxxxxx-xx
+ *     -- Compiled: xxx xx xxxx xx:xx:xx --
+ *     \endcode
+ * -# Input command according to the menu.
+ *
+ * \section References
+ * - ddram/main.c
+ * - extram/ddram.c
+ * - extram/mpddrc.c
+ * - extram/smc.c
  */
 
 /** \file
