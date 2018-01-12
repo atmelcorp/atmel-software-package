@@ -27,6 +27,60 @@
  * ----------------------------------------------------------------------------
  */
 
+/**
+ * \page eefc EEFC Example
+ *
+ * \section Purpose
+ *
+ * This example indicates how to use the EEFC controller with flash driver in 
+ * order to access embedded flash.
+ *
+ * \section Requirements
+ *
+ * This package can be used with SAME70-XPLAINED SAMV71-XPLAINED.
+ *
+ * \section Descriptions
+ *
+ * This example shall show how to read and write data from/to embedded
+ * flash and erase it, also it provide function to query embedded flash 
+ * unique id.
+ *
+ * \section Usage
+ *
+ * -# Compile the application and connect the DBGU port of the evaluation board
+ *    to the computer.
+ * -# Open and configure a terminal application on PC
+ *    (e.g. HyperTerminal on Microsoft Windows) with these settings:
+ *   - 115200 bauds
+ *   - 8 bits of data
+ *   - No parity
+ *   - 1 stop bit
+ *   - No flow control
+ * -# Download the program inside the evaluation board and run it. Please refer to
+ *    <a href="http://www.atmel.com/dyn/resources/prod_documents/6421B.pdf">
+ *    SAM-BA User Guide</a>, the
+ *    <a href="http://www.atmel.com/dyn/resources/prod_documents/doc6310.pdf">
+ *    GNU-Based Software Development</a> application note or to the
+ *    <a href="ftp://ftp.iar.se/WWWfiles/arm/Guides/EWARM_UserGuide.ENU.pdf">
+ *    IAR EWARM User Guide</a>, depending on your chosen solution.
+ * -# Upon startup, the application will output the following line on the DBGU:
+ *    \code
+ *     -- Embedded Flash Example xxx --
+ *     -- SAMxxxxx-xx
+ *     -- Compiled: xxx xx xxxx xx:xx:xx --
+ *    \endcode
+ * -# Choose an item in the menu to test.
+ *
+ * \section References
+ * - eefc/main.c
+ */
+
+/**
+ * \file
+ *
+ * This file contains all the specific code for EEFC example.
+ */
+
 #include <errno.h>
 #include <stdint.h>
 #include <stdio.h>
