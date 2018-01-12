@@ -39,12 +39,10 @@
  *  \section Requirements
  *  This package can be used with SAMA5D2-XULT.
  *
- *  \section Note
- *  The default peripheral clock is 12MHz, and there might be some unreadable
- *  text on the console when console's baudrate is 38400 bps, the reason is:
- *  the value of UART_BRGR will be 12000000/38400/16 ~= 19.53, and the actual
- *  baudrate of console would be 12000000/20/16 = 37500, that has a gap of 2.4%
- *  to the desired one, so unreadable text may occur)
+ * \section Description
+ *  The program provides methods the switch system MCK PLL setting of Audio PLL,
+ *  UPLL and PLLA with different clock fequence, the power consumptions could be 
+ *  measured by ammeters connected between the jumpers of VDDCORE or VDDBU.
  *
  *  \section Usage
  *  -# Build the program and download it inside the evaluation board. Please
@@ -93,6 +91,12 @@
  *      =>
  *     \endcode
  *
+ *  \section Note
+ *  The default peripheral clock is 12MHz, and there might be some unreadable
+ *  text on the console when console's baudrate is 38400 bps, the reason is:
+ *  the value of UART_BRGR will be 12000000/38400/16 ~= 19.53, and the actual
+ *  baudrate of console would be 12000000/20/16 = 37500, that has a gap of 2.4%
+ *  to the desired one, so unreadable text may occur)
  *  \section References
  *  - power_consumption_pll/main.c
  *  - pio.h
