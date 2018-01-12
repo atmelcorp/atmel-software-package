@@ -42,15 +42,6 @@
  *  Power consumptions could be measured by ammeters connected between the
  *  jumpers of VDDCORE or VDDBU.
  *
- *  \section Note
- *  Due to the power consumption results can be affected by IOs setting, the
- *  value in datasheet is measured with most IOs disconnected from external
- *  devices.
- *  For boards with the chip can't disconnected from other devices, user can
- *  change the IOs setting to get lower power consumption. For SAMA5D2-XULT
- *  board, put IOs to the state described in board_restore_pio_reset_state() can
- *  achieve lower power consumption.
- *
  *  \section Usage
  *  -# Build the program and download it inside the evaluation board. Please
  *     refer to the
@@ -89,6 +80,15 @@
  *      -- E -> Reset DDR to normal mode and reconnect Pads
  *     \endcode
  *  -# When setting DDR to self-refresh mode
+ *
+ *  \section Note
+ *  Due to the power consumption results can be affected by IOs setting, the
+ *  value in datasheet is measured with most IOs disconnected from external
+ *  devices.
+ *  For boards with the chip can't disconnected from other devices, user can
+ *  change the IOs setting to get lower power consumption. For SAMA5D2-XULT
+ *  board, put IOs to the state described in board_restore_pio_reset_state() can
+ *  achieve lower power consumption.
  *
  *  \section References
  *  - low_power_mode/main.c
