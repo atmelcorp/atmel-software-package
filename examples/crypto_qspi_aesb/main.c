@@ -26,6 +26,65 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ----------------------------------------------------------------------------
  */
+/**
+ * \page qspi_aesb Advanced Encryption Standard Example with sama5 Microcontrollers
+ *
+ * \section Purpose
+ * This application demonstrates the Advanced Encryption Standard Bridge (AESB) 
+ * peripheral integrated in some SAMA5 microcontrollers. 
+ * The AESB supports three confidentiality modes of operation for symmetrical key 
+ * block cipher algorithms (ECB, CBC and CTR), as specified in the NIST Special 
+ * Publication 800-38A Recommendation.
+ *
+ * \section Requirements
+ *
+ * This package can be used with SAMA5D2 xPlained board.
+ *
+ * \section Description
+ * This example shows how to configure AESB to protect electronic data. 
+ * The Automatic Bridge mode, when the AESB block is connected between the system bus 
+ * and a QSPI memory space , provides automatic encryption/decryption to/from a QSPI 
+ * space without any action on the part of the user.
+ *
+ * \section Usage
+ *
+ * -# Build the program and download it inside the evaluation board. Please
+ *    refer to the
+ *    <a href="http://www.atmel.com/dyn/resources/prod_documents/6421B.pdf">
+ *    SAM-BA User Guide</a>, the
+ *    <a href="http://www.atmel.com/dyn/resources/prod_documents/doc6310.pdf">
+ *    GNU-Based Software Development</a>
+ *    application note or to the
+ *    <a href="ftp://ftp.iar.se/WWWfiles/arm/Guides/EWARM_UserGuide.ENU.pdf">
+ *    IAR EWARM User Guide</a>,
+ *    depending on your chosen solution.
+ * -# On the computer, open and configure a terminal application
+ *    (e.g. HyperTerminal on Microsoft Windows) with these settings:
+ *   - 115200 bauds
+ *   - 8 bits of data
+ *   - No parity
+ *   - 1 stop bit
+ *   - No flow control
+ * -# In the terminal window, the
+ *    following text should appear (values depend on the board and chip used):
+ *    \code
+ *     -- AESB Example xxx --
+ *     -- SAMxxxxxx-xx
+ *     -- Compiled: xxx xx xxxx xx:xx:xx --
+ *     \endcode
+ * -# Input command according to the menu.
+ *
+ * \section References
+ * - aesb/main.c
+ * - aesb.c
+ * - aesb.h
+ */
+
+/** \file
+ *
+ *  This file contains all the specific code for the qspi_aesb example.
+ *
+ */
 
 /*----------------------------------------------------------------------------
  *        Headers
