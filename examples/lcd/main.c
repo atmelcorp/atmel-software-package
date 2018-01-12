@@ -50,8 +50,6 @@
  *  - HEO:  The next layer, showed scaled ('F') which flips or rotates once
  *          for a while.
  *
- *  \section Note
- *
  *  \section Usage
  *
  *  -# Build the program and download it inside the evaluation board. Please
