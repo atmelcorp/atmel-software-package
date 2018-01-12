@@ -46,7 +46,15 @@
  * - SAMA5D4-XULT
  * - SAMA5D3-EK
  * - SAMA5D3-XULT
+ *
  * \section Description
+ *
+ * This example shows how to configure SHA in encryption and decryption mode.
+ * In encryption mode, it encrypts plain text (supported one/multi-block 
+ * or long messagein) in one of the SHA1, SHA224, SHA256, SHA384 and SHA512 modes. 
+ * Programmable key mode with processing using with or  without DMA support.
+ * In decryption mode, it decrypts cipher data generated from encryption mode,
+ * and compares the result against the initial plain value.
  *
  * \section Usage
  *
