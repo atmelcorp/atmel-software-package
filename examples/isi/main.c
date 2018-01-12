@@ -44,11 +44,6 @@
  * The provided program uses the Image Sensor Interface to connects a CMOS-type
  * image sensor to the processor and displays in VGA format.
  *
- *  \section Note
- *
- *  Some pins conflict between LCD pins and JTAG pins, this example can not run
- * in debugger mode.
- *
  * \section Usage
  *  -# Build the program and download it inside the SAMA5D4-EK board.
  *  Please refer to the Getting Started with SAM V71 Microcontrollers.pdf
@@ -68,6 +63,11 @@
  *    \endcode
  * The user can then choose any of the available options to perform the
  * described action.
+ *
+ *  \section Note
+ *
+ *  Some pins conflict between LCD pins and JTAG pins, this example can not run
+ * in debugger mode.
  *
  * \section References
  * - lcdc.c
