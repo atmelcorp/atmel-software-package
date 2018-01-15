@@ -20,7 +20,7 @@ format and 10 bits raw Bayer format.
 ## Supported targets
 --------------------
 * SAMA5D2-XPLAINED
-* SAMA5D27-SOM1-EK
+* SAMA5D27-SOM1-EK (Hardware need modification)
 
 ## Setup
 --------
@@ -37,8 +37,10 @@ Connect image sensor with on board J18 ISC.
 Connect LCD with on board J2 LCD interface.
 
 --- SAMA5D27-SOM1-EK
-Connect image sensor with on board J27 ISC. (it requires cross-wire D0-D11 shift to D0-D4)
-Connect LCD with on board J26 LCD interface.
+Connect image sensor with on board J27 ISC. Connect LCD with on board J26 LCD interface.
+There are pin connection bug on ISC part, Camera sensor’s MSB should align with highest bits
+(instead of LSB). In 8 bits mode, D11-D4 at ISC side connect to D7-D0 at the sensor side. 
+user should cross-wire D0-D11 shift to D4-D11.
 
 ## Start the application
 --------
