@@ -40,14 +40,27 @@
  * \section Requirements
  *
  * This package is compatible with the evaluation boards listed below:
- * - SAMA5D2-VB
- * - SAMA5D2-XULT
+ * - SAMA5D2-PTC-EK
+ * - SAMA5D2-SOM1-EK
+ * - SAMA5D2-XPLAINED
  * - SAMA5D4-EK
- * - SAMA5D4-XULT
+ * - SAMA5D4-XPLAINED
+ * - SAMA5D3-EK
+ * - SAMA5D3-XPLAINED
+ * - SAM9G15-EK 
+ * - SAM9G25-EK 
+ * - SAM9G35-EK 
+ * - SAM9X25-EK 
+ * - SAM9X35-EK
+ * - SAME70-XPLAINED 
+ * - SAMV71-XPLAINED
  *
  * \section Description
  *
- * The demonstration program... TODO
+ * The demonstration offers a set of functions to access SD/eMMC/MMC Card.
+ * it sample usage of SD/MMC card write and read and easily to dump device 
+ * information. This examples also perform mounting the SD/eMMC/MMC Card
+ * file system.
  *
  * \section Usage
  *
