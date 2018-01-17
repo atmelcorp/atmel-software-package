@@ -166,6 +166,8 @@ const struct spi_nor_info spi_nor_ids[] = {
 	{ N25Q("n25q512ax3", 0x20ba20, 1024), },
 	{ N25Q("n25q00ax1",  0x20bb21, 2048), },
 	{ N25Q("n25q00ax3",  0x20ba21, 2048), },
+	{ N25Q("mt25qu02g",  0x20bb22, 4096), },
+	{ N25Q("mt25ql02g",  0x20ba22, 4096), },
 
 	/* Winbond */
 	{ W25("w25x10",  0xef3011,   1), },
