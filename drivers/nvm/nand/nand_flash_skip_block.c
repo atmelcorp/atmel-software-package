@@ -51,8 +51,117 @@
 CACHE_ALIGNED static uint8_t spare_buf[NAND_MAX_PAGE_SPARE_SIZE];
 
 /*----------------------------------------------------------------------------
+ *        Local functions
+ *----------------------------------------------------------------------------*/
+
+/**
+ * \brief Read the value of the marker for a given block.
+ * \param nand  Pointer to a _raw_nand_flash instance.
+ * \param block  Number of block where to read the marker.
+ * \param maker  Pointer to a 16bit word where to write the read marker.
+ */
+static uint8_t nand_skipblock_get_block_marker(const struct _nand_flash *nand,
+					       uint16_t block, uint16_t *marker)
+{
+	uint8_t marker_bytes[2];
+	uint8_t error;
+
+	/* Read spare area of first page of block */
+	error = nand_raw_read_page(nand, block, 0, NULL, spare_buf);
+	if (error) {
+		trace_error("nand_skipblock_get_block_marker: "
+				"Cannot read page #0 of block #%d\r\n", block);
+		return error;
+	}
+	marker_bytes[0] = spare_buf[nand->badblock_marker_pos];
+
+	/* Read spare area of second page of block */
+	error = nand_raw_read_page(nand, block, 1, NULL, spare_buf);
+	if (error) {
+		trace_error("nand_skipblock_get_block_marker: "
+				"Cannot read page #1 of block #%d\r\n", block);
+		return error;
+	}
+	marker_bytes[1] = spare_buf[nand->badblock_marker_pos];
+
+	*marker = (marker_bytes[0] << 8) | marker_bytes[1];
+	return 0;
+}
+
+/*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
+
+/**
+ * \brief Tag/untag some block as bad.
+ * \param nand  Pointer to a _nand_flash instance.
+ * \param block  Number of block to tag.
+ * \param bad  clear/set 'bad' marker.
+ */
+uint8_t nand_skipblock_tag_block(struct _nand_flash *nand, uint16_t block,
+				 bool bad)
+{
+	uint16_t marker, old_marker, new_marker;
+	uint16_t page;
+	uint8_t error;
+
+	if (bad) {
+		old_marker = 0xffff;
+		new_marker = 0xdead;
+	} else {
+		old_marker = 0xdead;
+		new_marker = 0xffff;
+	}
+
+	if (nand_skipblock_get_block_marker(nand, block, &marker))
+		return NAND_ERROR_BADBLOCK;
+
+	if (marker == new_marker)
+		return 0;
+
+	if (marker != old_marker) {
+		trace_error("nand_skipblock_tag_block: Block is INVALID (marker=0x%04x).\r\n",
+			    marker);
+		return NAND_ERROR_BADBLOCK;
+	}
+
+	error = nand_raw_erase_block(nand, block);
+	if (error) {
+		trace_error("nand_skipblock_tag_block: "
+			    "Cannot erase block #%u\r\n",
+			    block);
+		return error;
+	}
+
+	if (new_marker == 0xffff)
+		goto read_back;
+
+	memset(spare_buf, 0xff, sizeof(spare_buf));
+	for (page = 0; page < 2; page++) {
+		uint8_t marker_byte = (new_marker >> (8 * (1 - page))) & 0xff;
+
+		spare_buf[nand->badblock_marker_pos] = marker_byte;
+		error = nand_raw_write_page(nand, block, page, NULL, spare_buf);
+		if (error) {
+			trace_error("nand_skipblock_tag_block: "
+				    "Cannot tag page #%u of block #%u as bad\r\n",
+				    page, block);
+			return error;
+		}
+	}
+
+read_back:
+	if (nand_skipblock_get_block_marker(nand, block, &marker))
+		return NAND_ERROR_BADBLOCK;
+
+	if (marker != new_marker) {
+		trace_error("nand_skipblock_tag_block: Read back failed (marker=0x%04x).\r\n",
+			    marker);
+		return NAND_ERROR_BADBLOCK;
+	}
+
+	return 0;
+}
 
 /**
  * \brief Returns BADBLOCK if the given block of a NANDFLASH device is bad; returns
@@ -65,32 +174,12 @@ CACHE_ALIGNED static uint8_t spare_buf[NAND_MAX_PAGE_SPARE_SIZE];
 uint8_t nand_skipblock_check_block(const struct _nand_flash *nand,
 		uint16_t block)
 {
-	uint8_t error;
-	uint8_t marker;
+	uint16_t marker;
 
-	/* Read spare area of first page of block */
-	error = nand_raw_read_page(nand, block, 0, NULL, spare_buf);
-	if (error) {
-		trace_error("nand_skipblock_check_block: "
-				"Cannot read page #0 of block #%d\r\n", block);
-		return error;
-	}
-	marker = spare_buf[nand->badblock_marker_pos];
-	if (marker != 0xff)
+	if (nand_skipblock_get_block_marker(nand, block, &marker))
 		return BADBLOCK;
 
-	/* Read spare area of second page of block */
-	error = nand_raw_read_page(nand, block, 1, NULL, spare_buf);
-	if (error) {
-		trace_error("nand_skipblock_check_block: "
-				"Cannot read page #1 of block #%d\r\n", block);
-		return error;
-	}
-	marker = spare_buf[nand->badblock_marker_pos];
-	if (marker != 0xff)
-		return BADBLOCK;
-
-	return GOODBLOCK;
+	return (marker == 0xffff) ? GOODBLOCK : BADBLOCK;
 }
 
 /**

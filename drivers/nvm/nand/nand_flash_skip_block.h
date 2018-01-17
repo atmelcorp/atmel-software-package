@@ -58,6 +58,7 @@
 /*---------------------------------------------------------------------- */
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "nand_flash.h"
 
@@ -86,6 +87,9 @@
 
 extern uint8_t nand_skipblock_check_block(const struct _nand_flash *nand,
 		uint16_t block);
+
+extern uint8_t nand_skipblock_tag_block(struct _nand_flash *nand,
+		uint16_t block, bool bad);
 
 extern uint8_t nand_skipblock_erase_block(struct _nand_flash *nand,
 		uint16_t block, uint32_t erase_type);
