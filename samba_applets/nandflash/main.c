@@ -523,6 +523,39 @@ static uint32_t handle_cmd_erase_pages(uint32_t cmd, uint32_t *mailbox)
 	return APPLET_SUCCESS;
 }
 
+/*
+	Tag block into NAND flash.
+ */
+static uint32_t handle_cmd_tag_block(uint32_t cmd, uint32_t *mailbox)
+{
+	union tag_block_mailbox *mbx =
+		(union tag_block_mailbox *)mailbox;
+	uint16_t block;
+	uint8_t status;
+	bool bad;
+
+	assert(cmd == APPLET_CMD_TAG_BLOCK);
+
+	if (mbx->in.offset & (block_size - 1)) {
+		trace_error("Unaligned block address: 0x%x\r\n",
+			    (unsigned)(mbx->in.offset * page_size));
+		return APPLET_FAIL;
+	}
+	block = mbx->in.offset / block_size;
+
+	bad = !!mbx->in.bad;
+	status = nand_skipblock_tag_block(&nand, block, bad);
+	if (status != 0) {
+		trace_error("Failed to %stag block %u\r\n", (bad ? "" : "un"),
+			    block);
+		return APPLET_BAD_BLOCK;
+	}
+
+	trace_info_wp("%s block %u\r\n", (bad ? "Tagged" : "Untagged"), block);
+
+	return APPLET_SUCCESS;
+}
+
 /*----------------------------------------------------------------------------
  *         Commands list
  *----------------------------------------------------------------------------*/
@@ -533,5 +566,6 @@ const struct applet_command applet_commands[] = {
 	{ APPLET_CMD_ERASE_PAGES, handle_cmd_erase_pages },
 	{ APPLET_CMD_READ_PAGES, handle_cmd_read_pages },
 	{ APPLET_CMD_WRITE_PAGES, handle_cmd_write_pages },
+	{ APPLET_CMD_TAG_BLOCK, handle_cmd_tag_block },
 	{ 0, NULL }
 };

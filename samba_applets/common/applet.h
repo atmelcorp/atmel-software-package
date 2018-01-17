@@ -46,6 +46,7 @@
 #define APPLET_CMD_WRITE_PAGES       0x33 /* Write pages */
 #define APPLET_CMD_READ_BOOTCFG      0x34 /* Read Boot Config */
 #define APPLET_CMD_WRITE_BOOTCFG     0x35 /* Write Boot Config */
+#define APPLET_CMD_TAG_BLOCK         0x36 /* Tag / untag block as bad */
 
 #define APPLET_SUCCESS               0x00 /* Operation was successful */
 #define APPLET_DEV_UNKNOWN           0x01 /* Device unknown */
@@ -147,6 +148,19 @@ union read_write_erase_pages_mailbox {
 	struct {
 		/** Pages read/written/erased */
 		uint32_t pages;
+	} out;
+};
+
+/** Mailbox content for the 'tag/untag block' commands. */
+union tag_block_mailbox {
+	struct {
+		/** Block offset (in pages) */
+		uint32_t offset;
+		uint32_t bad;
+	} in;
+
+	struct {
+		uint32_t dummy;
 	} out;
 };
 
