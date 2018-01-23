@@ -26,11 +26,87 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ----------------------------------------------------------------------------
  */
+/**
+ * \page spi_serialflash SPI SerialFlash Example
+ *
+ * \section Purpose
+ *
+ * This basic serialflash example shall show how to SPI serial Flash.
+ *
+ * \section Requirements
+ *
+ * This package can be used with SAMA5D2. On evaluation boards such as 
+ * SAMA5D2-XULT mind the Boot_Disable jumper, as proper execution of 
+ * this example requires the chip select signal from SoC to memory to 
+ * be effectively connected (Boot_Disable jumper removed).
+ *
+ * \section Description
+ *
+ * Upon startup, the program displays the menu.
+ *  - Press 'a status' to print AT25 chip status;
+ *  - Press 'a device' to get device information;
+ *  - Press 'w 0 abcd' to write the flash;
+ *  - Press 'r 0 4' to read at address: 0x00000000;
+ *  - Press 'd 0 4k' to erase the flash;
+ *  - Press 'w 0 12345678' to write the flash;
+ *  - Press 'r 0 8' to read at address: 0x00000000;
+ *  - Press 'd 0 32k' to erase 32k size of flash;
+ *  - Press 'd 0 64k' to erase 64k size of flash;
+ *  - Press 'm' to print the menu.
+ *
+ * \section Usage
+ *
+ * -# Build the program and download it inside the evaluation board. Please
+ *    refer to the
+ *    <a href="http://www.atmel.com/dyn/resources/prod_documents/6421B.pdf">
+ *    SAM-BA User Guide</a>, the
+ *    <a href="http://www.atmel.com/dyn/resources/prod_documents/doc6310.pdf">
+ *    GNU-Based Software Development</a> application note or to the
+ *    <a href="ftp://ftp.iar.se/WWWfiles/arm/Guides/EWARM_UserGuide.ENU.pdf">
+ *    IAR EWARM User Guide</a>, depending on your chosen solution.
+ * -# On the computer, open and configure a terminal application
+ *    (e.g. HyperTerminal on Microsoft Windows) with these settings:
+ *   - 115200 bauds
+ *   - 8 bits of data
+ *   - No parity
+ *   - 1 stop bit
+ *   - No flow control
+ * -# Start the application.
+ * -# In the terminal window, the following text should appear:
+ *     \code
+ *     -- Spi flash Example xxx --
+ *     -- SAMxxxxx-xx
+ *     -- Compiled: xxx xx xxxx xx:xx:xx --
+ *     =========================================================
+ *     Menu: press a key to select test mode.
+ *     ---------------------------------------------------------
+ *     |===========        Commands        ====================|
+ *     | a status                                              |
+ *     |      Query device status                              |
+ *     | a device                                              |
+ *     |      Query serial flash JEDEC info                    |
+ *     | r addr size                                           |
+ *     |      Read 'size' octets starting from address 'addr'  |
+ *     | w addr str                                            |
+ *     |      Write 'str' to address 'addr'                    |
+ *     | d addr [4k|32k|64k|256k]                              |
+ *     |      Erase block containing the address 'addr'        |
+ *     |      The erase can be 4k, 32k, 64k or 256k            |
+ *     | m                                                     |
+ *     |      Print this menu                                  |
+ *     |=======================================================|
+ *    \endcode
+ *
+ * \section References
+ * - spi_serialflash/main.c
+ */
+ 
 
-/*
- * Tip: on evaluation boards such as SAMA5D2-XULT mind the Boot_Disable jumper,
- * as proper execution of this example requires the chip select signal from SoC
- * to memory to be effectively connected (Boot_Disable jumper removed).
+
+/**
+ * \file
+ *
+ * This file contains all the specific code for spi_serialflash example.
  */
 
 /*----------------------------------------------------------------------------

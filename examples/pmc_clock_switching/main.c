@@ -38,7 +38,7 @@
  *  \section Requirements
  *  This package can be used with SAMA5D2-XULT.
  *
- *  \section Note
+ *  - Note
  *  Using some frequency of peripheral clock would cause unreadable text on the
  *  console. (e.g. when console's target baudrate is 38400 bps and peripheral
  *  clock is 12MHz: the value of UART_BRGR will be 12000000/38400/16 ~= 19.53,

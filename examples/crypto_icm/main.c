@@ -28,9 +28,9 @@
  */
 
 /**
- *  \page ICM Integrity Check Monitor Example with sama5 Microcontrollers
+ * \page ICM Integrity Check Monitor Example with sama5 Microcontrollers
  *
- *  \section Purpose
+ * \section Purpose
  *  This application demonstrates The Integrity Check Monitor (ICM)
  *  peripheral integrated in some SAMA5 microcontrollers. The ICM controller integrates
  *  two modes of operation. The first one is used to hash a list of memory regions and save
@@ -46,7 +46,7 @@
  * regions. When the ICM module is enabled, it sequentially retrieves a circular 
  * list of region descriptors from the memory. Up to 4 regions may be monitored.
  *
- *  \section Usage
+ * \section Usage
  *
  *  -# Build the program and download it inside the evaluation board. Please
  *     refer to the

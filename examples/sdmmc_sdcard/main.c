@@ -89,12 +89,19 @@
  *     -- Compiled: xxx xx xxxx xx:xx:xx --
  *
  *     SD card menu:
- *     TODO
+ *          i: Display device info
+ *	        l: Mount FAT file system and list files
+ *          r: Read the file named test_data.bin
+ *	        w: Perform a basic RAW read/write test.
  *     \endcode
  * -# Input command according to the menu.
  *
  * \section References
- * - TODO
+ * - sdmmc_sdcard/main.c
+ * - sdmmc.c
+ * - sdmmc.h
+ * - hsmci.c
+ * - hsmci.h
  */
 
 /** \file

@@ -38,6 +38,11 @@
  *  period to restart it or it can be configured to interrupt before allowed
  *  window to generate error interrupt.
  *
+ *  \section Requirements
+ *
+ *  This package can be used with all Atmel evaluation kits that has WDT
+ *  peripherals.
+ *
  *  \section Description
  *
  *  The demonstration program reset WDT at regular interval without provoking any

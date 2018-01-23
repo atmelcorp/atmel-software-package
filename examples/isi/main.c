@@ -40,6 +40,10 @@
  * This package can be used with SAMA5D4-EK  with
  * On-board ISI interface and a external CMOS-type image sensor board.
  *
+ * - Note
+ * Some pins conflict between LCD pins and JTAG pins, this example can not run
+ * in debugger mode.
+ *
  * \section Description
  * The provided program uses the Image Sensor Interface to connects a CMOS-type
  * image sensor to the processor and displays in VGA format.
@@ -64,10 +68,6 @@
  * The user can then choose any of the available options to perform the
  * described action.
  *
- *  \section Note
- *
- *  Some pins conflict between LCD pins and JTAG pins, this example can not run
- * in debugger mode.
  *
  * \section References
  * - lcdc.c

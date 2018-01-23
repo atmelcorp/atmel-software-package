@@ -76,7 +76,7 @@
  *
  * \section References
  * - dma/main.c
-  * - dma.h
+ * - dma.h
  */
 
 /** \file

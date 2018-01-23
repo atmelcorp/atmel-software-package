@@ -36,6 +36,15 @@
  *  \section Requirements
  *  This package can be used with SAMA5D2-XULT.
  *
+ *  - Note
+ *  Due to the power consumption results can be affected by IOs setting, the
+ *  value in datasheet is measured with most IOs disconnected from external
+ *  devices.
+ *  For boards with the chip can't disconnected from other devices, user can
+ *  change the IOs setting to get lower power consumption. For SAMA5D2-XULT
+ *  board, put IOs to the state described in board_restore_pio_reset_state() can
+ *  achieve lower power consumption.
+ *
  *  \section Description
  *  The demonstration program offers methods to make the device enter low power
  *  mode, users can also change the settings of clock and DDR.
@@ -81,14 +90,6 @@
  *     \endcode
  *  -# When setting DDR to self-refresh mode
  *
- *  \section Note
- *  Due to the power consumption results can be affected by IOs setting, the
- *  value in datasheet is measured with most IOs disconnected from external
- *  devices.
- *  For boards with the chip can't disconnected from other devices, user can
- *  change the IOs setting to get lower power consumption. For SAMA5D2-XULT
- *  board, put IOs to the state described in board_restore_pio_reset_state() can
- *  achieve lower power consumption.
  *
  *  \section References
  *  - low_power_mode/main.c

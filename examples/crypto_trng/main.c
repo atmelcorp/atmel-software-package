@@ -28,9 +28,9 @@
  */
 
 /**
- *  \page trng True Random Number Generator Example with sama5d4x Microcontrollers
+ * \page trng True Random Number Generator Example with sama5d4x Microcontrollers
  *
- *  \section Purpose
+ * \section Purpose
  *  The TRNG example shows how to generate random data with TRNG peripheral.
  *
  * \section Requirements
@@ -44,7 +44,7 @@
  * TRNG interrupt status DATRDY is set when a new random value is ready, it can be read
  * out on the 32-bit output data register (TRNG_ODATA)in TRNG interrupt routine.
  *
- *  \section Usage
+ * \section Usage
  *
  *  -# Build the program and download it inside the evaluation board. Please
  *     refer to the

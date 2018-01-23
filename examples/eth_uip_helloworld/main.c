@@ -37,6 +37,8 @@
  *
  *  \section Requirements
  *  - On-board ethernet interface.
+ *  - Make sure the IP adress of the device(the board) and the computer are 
+ *   in the same network.
  *
  *  \section Description
  *
@@ -90,8 +92,6 @@
  *    Hello. What is your name?
  *    \endcode
  *
- * \note
- * Make sure the IP adress of the device( the  board) and the computer are in the same network.
  */
 
 /** \file

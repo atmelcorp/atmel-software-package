@@ -43,7 +43,7 @@
  * This package can be used with some of Atmel evaluation kits that have UDP
  * interface, depending on the functions included.
  *
- * \section win_drv_update Windows Driver Update
+ * - Windows Driver Update
  *
  * The composite device is generally supported by Microsoft windows, but some
  * patches are needed for muti-interface functions such as CDC & Audio. The
@@ -55,13 +55,13 @@
  * The following is alternate update to fix the composite device support
  * on windows XP:
  *
- * \subsection install_win_sp3 Install Windows Service Pack 3 (SP3)
+ * - Install Windows Service Pack 3 (SP3)
  *
  * All the fixes for USB generic driver are included in window XP service pack
  * 3. It can be found at
  * http://technet.microsoft.com/zh-cn/windows/bb794714(en-us).aspx .
  *
- * \subsection install_win_hotfix Install Windows Hot Fixes
+ * - Install Windows Hot Fixes
  *
  * Two hot fixes are necessary for window to recognize the composite device
  * correctly:

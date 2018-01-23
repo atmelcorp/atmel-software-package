@@ -40,6 +40,8 @@
  *  \section Requirements
  *
  *  - On-board ethernet interface.
+ *  - Make sure the IP adress of the device(the board) and the computer are in the 
+ *    same network.
  *
  *  \section Description
  *
@@ -88,8 +90,6 @@
  *  -# The program will then auto-negotiate the mode of operation and start
  *     receiving packets, displaying feedback on the DBGU. To display additional
  *     information, press any key in the terminal application.
- *  \note
- *  Make sure the IP adress of the device(the board) and the computer are in the same network.
  *
  *  \section References
  *  - eth/main.c

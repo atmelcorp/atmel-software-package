@@ -42,7 +42,6 @@
  * When an EK running this program connected to a host (PC for example), with
  * USB cable, the EK appears as a video camera for the host.
  *
- * \note
  * For the limitation of external memory size, this example only support for
  * VGA/QVGA format.
  *

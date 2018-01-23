@@ -47,11 +47,11 @@
  *
  * Please change the following connections to switch between non-intrusion status
  * and intrusion status.
- * \if document_A5D2_XULT
+ * For SAMA5D2_XULT board
  *   - shorten PIOBU0, PIOBU1 with a jumper (J12 pin 1, 2)      <--- non-intrusion status
  *   - PIOBU3 (J12 pin 5) connects to GND     <--- intrusion status
  *   - PIOBU7 (J12 pin 8) connects to VCC3.3 <--- intrusion status
- * \endif
+ *
  * \section Description
  *
  * Upon startup, the program displays the menu.

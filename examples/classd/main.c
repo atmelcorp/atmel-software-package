@@ -79,6 +79,7 @@
  * -# set the corresponding parameters to the Classd, press key '3' or key '4' to
  * -# increase or decrease the volume, at last press key '5' to play the music
  * -# without DMA or key '6' to play the music wit DMA.
+ *
  * \section References
  * - classd/main.c
  * - classd.h
