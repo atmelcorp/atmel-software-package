@@ -126,6 +126,14 @@
 	.page_size = 256,				\
 	.flags = (_flags)
 
+#define IS25(_name, _jedec_id, _n_sectors, _s_sector)	\
+	.name = _name,					\
+	ID5(_jedec_id, 0),				\
+	.sector_size = (_s_sector),			\
+	.n_sectors = (_n_sectors),			\
+	.page_size = 256,				\
+	.flags = SNOR_SECT_4K
+
 /*----------------------------------------------------------------------------
  *        Exported Variables
  *----------------------------------------------------------------------------*/
@@ -221,6 +229,12 @@ const struct spi_nor_info spi_nor_ids[] = {
 	{ S25FL("s25fl128s", 0x012018,  256, 65536U, SNOR_SECT_4K), },
 	{ S25FL("s25fl256s", 0x010219,  512, 65536U, SNOR_SECT_4K), },
 	{ S25FL("s25fl512s", 0x010220, 1024, 262144U, 0), },
+
+	/* ISSI */
+	{ IS25("is25cd512",  0x7f9d20,   2, 32768U), },
+	{ IS25("is25lq040b", 0x9d4013,   8, 65536U), },
+	{ IS25("is25lp080d", 0x9d6014,  16, 65536U), },
+	{ IS25("is25lp128",  0x9d6018, 256, 65536U), },
 
 	{ 0 }	/* Sentinel */
 };
