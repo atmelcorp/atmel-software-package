@@ -32,7 +32,7 @@ BINNAME := $(BINNAME)_$(TARGET)_$(VARIANT)
 
 CFLAGS_INC += -I$(TOP)/samba_applets/common
 
-CFLAGS += -mno-unaligned-access -DDMA_SG_ITEM_POOL_SIZE=2
+CFLAGS += -mno-unaligned-access -DDMA_SG_ITEM_POOL_SIZE=2 -DSAMBA_APPLET
 
 obj-y += samba_applets/common/applet_main.o
 obj-y += samba_applets/common/applet_legacy.o

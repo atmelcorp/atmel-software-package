@@ -59,7 +59,11 @@
 #define BOARD_MAIN_CLOCK_EXT_OSC 0
 
 /** \def Board System timer */
+#ifdef SAMBA_APPLET
+#define BOARD_TIMER_TC      TC0
+#else
 #define BOARD_TIMER_TC      TC1
+#endif
 #define BOARD_TIMER_CHANNEL 0
 
 #endif /* _BOARD_SAMA5D3_GENERIC_H */
