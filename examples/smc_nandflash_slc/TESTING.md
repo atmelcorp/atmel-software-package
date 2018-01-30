@@ -88,8 +88,8 @@ Press 'h','p' | NFC enable, Host sram enable, Erase/Write/Read | PASSED | PASSED
 Press 'd','p' | NFC enable, Host sram enable, dma ennable, Erase/Write/Read | PASSED | PASSED
 Press 'b' | Back to main menu | PASSED | PASSED
 Press 'p' | data access with PMECC | PASSED | PASSED
-Press 'a' | 1024 bytes per sector, 32 errors per sector | INVALID | PASSED
-Press '3' | 512 bytes per sector, 12 errors per sector | PASSED | PASSED
+Press invalid setting eg 'a' | 1024 bytes per sector, 32 errors per sector | INVALID | PASSED
+Press vaild setting eg '3' | 512 bytes per sector, 12 errors per sector | PASSED | PASSED
 Press 'p' | Erase/Write/Read | PASSED | PASSED
 Press 'w' | Write page with simulated error bit(s) | PASSED | PASSED
 Press 'r' | Read page to correct simulated error bit(s) | PASSED | PASSED
