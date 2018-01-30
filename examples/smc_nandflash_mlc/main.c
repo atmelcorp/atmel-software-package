@@ -307,33 +307,36 @@ static void _page_access(void)
  * \brief Check is the pmecc parameter header is valid
   \return true if the pmecc parameter header is valid; otherwise returns false
  */
-static bool is_valid_pmecc_param(void)
+static bool is_valid_pmecc_param(uint8_t correctability_val, uint32_t sector_size_val)
 {
 	uint32_t mm, ecc_size_bytes, sector_size_per_page;
 
-	if (correctability < onfi_ecc_correctability
+	if (correctability_val < onfi_ecc_correctability
 			&& onfi_ecc_correctability != 0xff) {
 		printf("-W- Number of bits of ECC correction <%d> " \
 				"do not satisfy ONFI ECC correctability <%d>",
-				correctability, onfi_ecc_correctability);
+				correctability_val, onfi_ecc_correctability);
 		printf("This leads to an unpredictable behavior of the " \
 				"ECC correction\n\r");
 	}
 
-	sector_size_per_page = page_size / sector_size;
-	if (sector_size_per_page > 8)
+	sector_size_per_page = page_size / sector_size_val;
+	if (sector_size_per_page > 8) {
+		printf ("-E- Invalid configuration causes sector size per page error. \n\r");
 		return false;
-
-	mm = sector_idx == 0 ? 13 : 14;
-	if (((mm * correctability) % 8) == 0) {
-		ecc_size_bytes = ((mm * correctability) / 8) * sector_size_per_page;
-	} else {
-		ecc_size_bytes = (((mm * correctability) / 8) + 1) * sector_size_per_page;
 	}
 
-	if (ecc_size_bytes > (spare_size - 2))
-		return false;
+	mm = sector_idx == 0 ? 13 : 14;
+	if (((mm * correctability_val) % 8) == 0) {
+		ecc_size_bytes = ((mm * correctability_val) / 8) * sector_size_per_page;
+	} else {
+		ecc_size_bytes = (((mm * correctability_val) / 8) + 1) * sector_size_per_page;
+	}
 
+	if (ecc_size_bytes > (spare_size - 2)) {
+		printf ("-E- Invalid configuration causes ecc size error. \n\r");
+		return false;
+	}
 	return true;
 }
 
@@ -343,66 +346,74 @@ static bool is_valid_pmecc_param(void)
  */
 static uint32_t _configure_correction(uint8_t mode)
 {
+	uint8_t sector_idx_set;
+	uint32_t sector_size_set;
+	uint8_t correctability_set;
+
 	if (mode < 5) {
-		sector_idx = 0;
-		sector_size = 512;
+		sector_idx_set = 0;
+		sector_size_set = 512;
 	} else {
-		sector_idx = 1;
-		sector_size = 1024;
+		sector_idx_set = 1;
+		sector_size_set = 1024;
 	}
 
 	switch (mode) {
 	case 0:
-		correctability = 2;
+		correctability_set = 2;
 		printf("-I- 512 bytes per sector, 2 errors per sector\n\r");
 		break;
 	case 1:
-		correctability = 4;
+		correctability_set = 4;
 		printf("-I- 512 bytes per sector, 4 errors per sector\n\r");
 		break;
 	case 2:
-		correctability = 8;
+		correctability_set = 8;
 		printf("-I- 512 bytes per sector, 8 errors per sector\n\r");
 		break;
 	case 3:
-		correctability = 12;
+		correctability_set = 12;
 		printf("-I- 512 bytes per sector, 12 errors per sector\n\r");
 		break;
 	case 4:
-		correctability = 24;
+		correctability_set = 24;
 		printf("-I- 512 bytes per sector, 24 errors per sector\n\r");
 		break;
 	case 5:
-		correctability = 2;
+		correctability_set = 2;
 		printf("-I- 1024 bytes per sector, 2 errors per sector\n\r");
 		break;
 	case 6:
-		correctability = 4;
+		correctability_set = 4;
 		printf("-I- 1024 bytes per sector, 4 errors per sector\n\r");
 		break;
 	case 7:
-		correctability = 8;
+		correctability_set = 8;
 		printf("-I- 1024 bytes per sector, 8 errors per sector\n\r");
 		break;
 	case 8:
-		correctability = 12;
+		correctability_set = 12;
 		printf("-I- 1024 bytes per sector, 12 errors per sector\n\r");
 		break;
 	case 9:
-		correctability = 24;
+		correctability_set = 24;
 		printf("-I- 1024 bytes per sector, 24 errors per sector\n\r");
 		break;
 	case 10:
-		correctability = 32;
+		correctability_set = 32;
 		printf("-I- 1024 bytes per sector, 32 errors per sector\n\r");
 		break;
 	}
 
-	if (!is_valid_pmecc_param()) {
+	if (!is_valid_pmecc_param(correctability_set, sector_size_set)) {
 		printf ("-E- Invalid configuration for pagesize %u, sparesize %u\n\r",
 				(unsigned)page_size, (unsigned)spare_size);
 		return 0;
 	}
+
+	correctability = correctability_set;
+	sector_idx = sector_idx_set;
+	sector_size = sector_size_set;
 
 	return 1;
 }

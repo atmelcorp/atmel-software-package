@@ -72,7 +72,7 @@ In order to test this example, the process is the following:
 
 Step | Description | Expected Result | Result
 -----|-------------|-----------------|-------
-Press '3'| 512 bytes per sector, 12 errors per sector | PASSED | PASSED
+Press vaild setting eg '3'| 512 bytes per sector, 12 errors per sector | PASSED | PASSED
 Press 'p'| Erase/Write/Read| PASSED | PASSED
 Press 'n','p' | NFC enable, Erase/Write/Read | PASSED | PASSED
 Press 'h','p' | NFC enable, Host sram enable, Erase/Write/Read | PASSED | PASSED
