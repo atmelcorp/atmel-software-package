@@ -380,13 +380,13 @@ generate-infocenter() {
     local tp4="$DIR/StartupScreen.ewsample"
     local tp5="$DIR/ExampleInfo.ENU.xml"
     local tp6="$DIR/ewinfo.ENU.html"
-    
-    if [ ! -f "$DIR/$tp4" ]; then
+
+    if [ ! -f "$tp4" -a -e "$tpl" ]; then
         cat "$IAR_INFO_CENTER_STARTUP_TEMPLATE" > "$tp4"
         sed -n '/section Purpose/,/section Requirements$/p' $tpl | grep -Ev '(section Purpose|section Requirements$)' | cut -f 1,2 >$main_purpose
         sed -i '/^$/d' $main_purpose
         sed -i 's/\ \*//g' $main_purpose
-        
+
         sed -n '/section Description/,/section Usage$/p' $tpl | grep -Ev '(section Description|section Usage$)' | cut -f 1,2 >$main_desc
         sed -i '/^$/d' $main_desc
         sed -i 's/\ \*//g' $main_desc
@@ -396,9 +396,9 @@ generate-infocenter() {
         sed -i "/<iar_description>/r $main_purpose" "$tp5"
         cat "$IAR_INFO_CENTER_EWINFO_TEMPLATE" > "$tp6"
         sed -i "/Description:/r $main_desc" "$tp6"
-        rm -f "$main_purpose"
-        rm -f "$main_desc"
     fi
+    rm -f "$main_purpose"
+    rm -f "$main_desc"
 }
 
 for variant in $AVAILABLE_VARIANTS; do
