@@ -39,6 +39,46 @@ on Microsoft Windows) with these settings:
  - 1 stop bit
  - No flow control
 
+### sam9xx5-ek
+--------------------
+Connect USART0
+
+### sama5d2-ptc-ek
+--------------------
+Connect FLEXUSART4 (RX on J15B:5, TX on J15B:6)
+
+### sama5d2-xplained
+--------------------
+Connect FLEXUSART3
+
+### sama5d27-som1-ek
+--------------------
+Connect FLEXUSART3 (RX on ISC:28, TX on ISC:29)
+
+### sama5d4-xplained
+--------------------
+Connect USART4
+
+### sama5d4-ek
+--------------
+Connect USART4
+
+### sama5d3-xplained
+--------------------
+Connect USART3 (pin 1 on J20 and pin 2 on J20)
+
+### sama5d3-ek
+--------------------
+Connect USART1
+
+### same70-xplained
+--------------------
+Connect USART2 (pin 5 on J505 and pin 6 on J505)
+
+### samv71-xplained
+--------------------
+Connect USART2 (pin 5 on J505 and pin 6 on J505)
+
 ## Start the application
 ------------------------
 
