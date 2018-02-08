@@ -37,10 +37,12 @@ Step needed to set up the example.
 
 * In the terminal window, the following text should appear (values depend on the
  board and chip used):
+ 
 ```
  -- QSPI exmaple xxx --
  -- SAMxxxxx-xx
  -- Compiled: xxx xx xxxx xx:xx:xx --
+
 ```
 
 Tested with IAR and GCC (sram and ddram configurations)
@@ -49,4 +51,4 @@ In order to test this example, the process is the following:
 
 Step | Description | Expected Result | Result
 -----|-------------|-----------------|-------
-Run this example | Print ... `configure returns true` ... `erase returns true` ... `read returns true` ... `write returns true` ... `read returns true` ... on screen | PASSED | PASSED
+Run this example | Print ... `configure returns 0` ... `erase returns 0` ... `read returns 0` ... `write returns 0` ... `read returns 0` ... on screen | PASSED | PASSED
