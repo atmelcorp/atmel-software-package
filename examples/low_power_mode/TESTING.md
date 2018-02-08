@@ -62,6 +62,8 @@ Note:
  * some DDR related operations are omitted while running out of DDR.
  * The battery should be mounted to support the BackUp mode correctly.
  * There are two ULP modes for SAMA5D2 while only one ULP mode for SAMA5D4.
+ * SAMA5D2-PTC-EK and SAMA5D27-SOM1-EK's clock source are 24MHz crystal oscillator,therefore, MCK=164Mhz, PLLA = 492 Mhz, Processor clock = 492 Mhz as default setup.
+ 
 ```
 
 Tested with IAR and GCC (sram configuration)
