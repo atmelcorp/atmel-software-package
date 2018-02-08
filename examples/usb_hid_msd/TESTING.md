@@ -56,8 +56,8 @@ In order to test this example, the process is the following:
 
 Step | Description | Expected Result | Result
 -----|-------------|-----------------|-------
-Input '1' in console | Print 'Key 0 pressed' in console | PASSED | PASSED
-Input '2' in console | Print 'Key 1 pressed' in console | PASSED | PASSED
+Input '1' in console | Print 'Key 1 pressed' in console | PASSED | PASSED
+Input '2' in console | Print 'Key 2 pressed' in console | PASSED | PASSED
 Input any character except '1' and '2' in console | the character input is display in console | PASSED | PASSED
 Format disk | Format all disk | PASSED | PASSED
 Write and read disk | Create a file in disk, write some string to file and save, close the file and then read the content | PASSED | PASSED
