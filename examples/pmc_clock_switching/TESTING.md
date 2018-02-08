@@ -53,7 +53,12 @@ MCK) or change divider, also shows how to change SLCK (32K OSC or internal RC).
  4 -> Switch to slow clock
  -------------------------------
 ```
-`Note: while running out of DDR, changing clock is not permitted.`
+
+```
+Note: 
+	* while running out of DDR, changing clock is not permitted.
+	* SAMA5D2-PTC-EK and SAMA5D27-SOM1-EK's clock source are 24MHz crystal oscillator,therefore, MCK=164Mhz, PLLA = 492 Mhz, Processor clock = 492 Mhz as default setup.
+```
 
 Tested with IAR and GCC (sram configuration)
 
