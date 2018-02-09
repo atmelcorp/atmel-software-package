@@ -55,11 +55,11 @@
 union _sys0 {
 	struct {
 		uint8_t
-			trst:       1,  // Reset time out 0->260 1->65ms
-			nsysmode:   1,  // response of SYSLEV voltage detector, 1->int 0>shutdown
-			nsyslevmsk: 1,  // 1->unmask int
+			syslev:     4,  // defines SYSLEV voltage threshold
 			nsysstat:   1,  // 1 if vsys < syslev voltage threshold
-			syslev:     4;  // defines SYSLEV voltage threshold
+			nsyslevmsk: 1,  // 1->unmask int
+			nsysmode:   1,  // response of SYSLEV voltage detector, 1->int 0>shutdown
+			trst:       1;  // Reset time out 0->260 1->65ms
 	} bits;
 	uint8_t u8;
 };
