@@ -55,6 +55,8 @@ static int _aesd_dma_read_callback(void* arg, void* arg2)
 
 	dma_reset_channel(desc->xfer.dma.tx.channel);
 
+	dma_reset_channel(desc->xfer.dma.rx.channel);
+
 	cache_invalidate_region((uint32_t*)desc->xfer.bufout->data, desc->xfer.bufout->size);
 
 	mutex_unlock(&desc->mutex);
@@ -142,7 +144,6 @@ static void _aesd_transfer_buffer_dma(struct _aesd_desc* desc)
 	dma_configure_transfer(desc->xfer.dma.tx.channel, &cfg_dma, &cfg, 1);
 	dma_set_callback(desc->xfer.dma.tx.channel, NULL);
 
-	dma_reset_channel(desc->xfer.dma.rx.channel);
 	cfg_dma.incr_saddr = false;
 	cfg_dma.incr_daddr = true;
 
