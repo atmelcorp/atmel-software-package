@@ -576,17 +576,17 @@ int dma_reset_channel(struct _dma_channel* channel)
 		return -EBUSY;
 
 #if defined(CONFIG_HAVE_XDMAC)
-	/* Disable channel */
-	xdmac_disable_channel(channel->hw, channel->id);
-
 	/* Disable interrupts */
 	xdmac_disable_channel_it(channel->hw, channel->id, -1);
-#elif defined(CONFIG_HAVE_DMAC)
-	/* Disable channel */
-	dmac_disable_channel(channel->hw, channel->id);
 
+	/* Disable channel */
+	xdmac_disable_channel(channel->hw, channel->id);
+#elif defined(CONFIG_HAVE_DMAC)
 	/* Disable interrupts */
 	dmac_disable_global_it(channel->hw, (DMAC_EBCIDR_CBTC0 | DMAC_EBCIER_BTC0 | DMAC_EBCIER_ERR0) << channel->id);
+
+	/* Disable channel */
+	dmac_disable_channel(channel->hw, channel->id);
 #endif
 
 	_dma_sg_desc_free(channel->sg_list);
