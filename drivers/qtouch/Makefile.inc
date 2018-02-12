@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2013, Atmel Corporation
+# Copyright (c) 2018, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -26,42 +26,7 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-CFLAGS_INC += -I$(TOP)/drivers
-
-lib-y += drivers/drivers.a
-
-drivers-y :=
-
-include $(TOP)/drivers/analog/Makefile.inc
-include $(TOP)/drivers/audio/Makefile.inc
-include $(TOP)/drivers/can/Makefile.inc
-include $(TOP)/drivers/crypto/Makefile.inc
-include $(TOP)/drivers/display/Makefile.inc
-include $(TOP)/drivers/dma/Makefile.inc
-include $(TOP)/drivers/extram/Makefile.inc
-include $(TOP)/drivers/gpio/Makefile.inc
-include $(TOP)/drivers/i2c/Makefile.inc
-include $(TOP)/drivers/irq/Makefile.inc
-include $(TOP)/drivers/led/Makefile.inc
-include $(TOP)/drivers/mm/Makefile.inc
-include $(TOP)/drivers/nvm/Makefile.inc
-include $(TOP)/drivers/network/Makefile.inc
-include $(TOP)/drivers/peripherals/Makefile.inc
-include $(TOP)/drivers/power/Makefile.inc
-include $(TOP)/drivers/qtouch/Makefile.inc
-include $(TOP)/drivers/sdmmc/Makefile.inc
-include $(TOP)/drivers/security/Makefile.inc
-include $(TOP)/drivers/sensor/Makefile.inc
-include $(TOP)/drivers/serial/Makefile.inc
-include $(TOP)/drivers/spi/Makefile.inc
-include $(TOP)/drivers/video/Makefile.inc
-include $(TOP)/drivers/usb/Makefile.inc
-
-DRIVERS_OBJS := $(addprefix $(BUILDDIR)/,$(drivers-y))
-
--include $(DRIVERS_OBJS:.o=.d)
-
-$(BUILDDIR)/drivers/drivers.a: $(DRIVERS_OBJS)
-	@mkdir -p $(BUILDDIR)/drivers
-	$(ECHO) AR $@
-	$(Q)$(AR) -cr $@ $^
+drivers-$(CONFIG_HAVE_QT1_MC) += drivers/qtouch/qt1_mc_support.o
+drivers-$(CONFIG_HAVE_QT1_SC) += drivers/qtouch/qt1_sc_support.o
+drivers-$(CONFIG_HAVE_QT2) += drivers/qtouch/qt2_support.o
+drivers-$(CONFIG_HAVE_QT6) += drivers/qtouch/qt6_support.o
