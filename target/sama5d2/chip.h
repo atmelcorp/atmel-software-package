@@ -126,6 +126,7 @@ struct _console_cfg;
 #define ID_I2SC1        (55) /**< \brief Inter-IC Sound Controller 1 (I2SC1) */
 #define ID_MCAN0_INT0   (56) /**< \brief MCAN 0 Interrupt0 (MCAN0_INT0) */
 #define ID_MCAN1_INT0   (57) /**< \brief MCAN 1 Interrupt0 (MCAN1_INT0) */
+#define ID_PPP          (58) /**< \brief Periph Touch Controller (PTC) */
 #define ID_CLASSD0      (59) /**< \brief Audio Class D amplifier (CLASSD0) */
 #define ID_SFR          (60) /**< \brief Special Function Register  (SFR) */
 #define ID_SAIC         (61) /**< \brief Secured Advanced Interrupt Controller  (SAIC) */

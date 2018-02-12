@@ -340,7 +340,15 @@ void board_cfg_mmu(void)
 	           | TTB_SECT_EXEC_NEVER
 	           | TTB_SECT_SHAREABLE_DEVICE
 	           | TTB_TYPE_SECT;
-
+#ifdef CONFIG_HAVE_PPP
+	/* 0x00800000: pPP */
+	tlb[0x008] = TTB_SECT_ADDR(0x00800000)
+	           | TTB_SECT_AP_FULL_ACCESS
+	           | TTB_SECT_DOMAIN(0xf)
+	           | TTB_SECT_EXEC_NEVER
+	           | TTB_SECT_SHAREABLE_DEVICE
+	           | TTB_TYPE_SECT;
+#endif
 #ifdef CONFIG_HAVE_L2CC
 	/* 0x00a00000: L2CC */
 	tlb[0x00a] = TTB_SECT_ADDR(0x00a00000)

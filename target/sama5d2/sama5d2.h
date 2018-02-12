@@ -81,6 +81,7 @@
 #include "component/component_pmc.h"
 #include "component/component_pmecc.h"
 #include "component/component_pmerrloc.h"
+#include "component/component_ppp.h"
 #include "component/component_pwm.h"
 #include "component/component_qspi.h"
 #include "component/component_rstc.h"
@@ -214,6 +215,7 @@
 #define MCAN1      ((Mcan     *)0xFC050000U) /**< \brief (MCAN1     ) Base Address */
 #endif
 #define SFRBU      ((Sfrbu    *)0xFC05C000U) /**< \brief (SFRBU     ) Base Address */
+#define PPP        ((Ppp      *)0xFC060000U) /**< \brief (PPP     ) Base Address */
 #define CHIPID     ((Chipid   *)0xFC069000U) /**< \brief (CHIPID    ) Base Address */
 
 /*@}*/
@@ -270,6 +272,7 @@
 #define UHPHS_EHCI_ADDR (0x00500000u) /**< USB High Speed Device Port RAM base address */
 #define AXIMX_ADDR      (0x00600000u) /**< AXI Bus Matrix base address */
 #define DAP_ADDR        (0x00700000u) /**< Debug Access Port base address */
+#define PPP_ADDR        (0x00800000u) /**< PPP Memory base address */
 #define PTCMEM_ADDR     (0x00800000u) /**< PTC Memory base address */
 
 #ifdef __cplusplus
