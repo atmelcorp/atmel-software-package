@@ -41,6 +41,7 @@
 #include "board_led.h"
 #include "board_spi.h"
 #include "board_twi.h"
+#include "board_ppp.h"
 #include "compiler.h"
 
 #include "dma/dma.h"
@@ -110,5 +111,8 @@ WEAK void board_init(void)
 	/* Configure LCD controller/display */
 	board_cfg_lcd();
 #endif
-
+#ifdef CONFIG_HAVE_PPP
+	/* Configure PPP */
+	board_cfg_ppp();
+#endif
 }
