@@ -107,9 +107,9 @@ static int _on_irq3(void* arg, void* arg2)
  * \param qdata      QTM Data
  * \return Command status
  */
-static uint16_t qtm_exec(struct _qtm* qtm, uint8_t qcmd, uint32_t qdata)
+static uint32_t qtm_exec(struct _qtm* qtm, uint8_t qcmd, uint32_t qdata)
 {
-	uint16_t data;
+	uint32_t data;
 	struct atmel_qtm_cmd cmd = {
 			.id = qcmd,
 			.data = qdata,
@@ -166,8 +166,8 @@ void qtm_configure(struct _qtm* qtm)
 	ppp_disable_it(qtm->ppp, PPP_IDR_IRQ2 | PPP_IDR_IRQ3);
 
 	qtm->mailbox = (struct atmel_qtm_mailbox*)(ppp_get_mailbox_addr(qtm->ppp));
-
-	trace_info("qtm: firmware v%d\r\n", (short)qtm_exec(qtm, QTM_CMD_FIRM_VERSION, 0));
+	qtm_exec(qtm, QTM_CMD_FIRM_VERSION, 0);
+	trace_info("qtm: firmware v%d.%d\r\n", qtm->mailbox->cmd.data >> 16, qtm->mailbox->cmd.data & 0xffff);
 }
 
 void qtm_start(struct _qtm* qtm)
