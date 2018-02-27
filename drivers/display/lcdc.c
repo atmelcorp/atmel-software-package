@@ -1132,7 +1132,7 @@ void lcdc_stop_base(void)
 	   will disable the channel at the end of the frame. */
 	/* 2. Set the DSCR.CHXNEXT field of the DSCR structure will disable the
 	   channel at the end of the frame. */
-	_clear_dma_desc(lcdc_base.dma_desc, &LCDC->LCDC_BASEADDR);
+	_clear_dma_desc(lcdc_base.dma_desc, &LCDC->LCDC_BASEHEAD);
 
 	/* 3. Writing one to the CHDIS field of the CHXCHDR register will disable
 	   the channel at the end of the frame. */
@@ -1168,7 +1168,7 @@ void lcdc_stop_ovr1(void)
 	   will disable the channel at the end of the frame. */
 	/* 2. Set the DSCR.CHXNEXT field of the DSCR structure will disable the
 	   channel at the end of the frame. */
-	_clear_dma_desc(lcdc_ovr1.dma_desc, &LCDC->LCDC_OVR1ADDR);
+	_clear_dma_desc(lcdc_ovr1.dma_desc, &LCDC->LCDC_OVR1HEAD);
 
 	/* 3. Writing one to the CHDIS field of the CHXCHDR register will disable
 	   the channel at the end of the frame. */
@@ -1205,9 +1205,9 @@ void lcdc_stop_heo(void)
 	   will disable the channel at the end of the frame. */
 	/* 2. Set the DSCR.CHXNEXT field of the DSCR structure will disable the
 	   channel at the end of the frame. */
-	_clear_dma_desc(lcdc_heo.dma_desc, &LCDC->LCDC_HEOADDR);
-	_clear_dma_desc(lcdc_heo.dma_u_desc, &LCDC->LCDC_HEOUADDR);
-	_clear_dma_desc(lcdc_heo.dma_v_desc, &LCDC->LCDC_HEOVADDR);
+	_clear_dma_desc(lcdc_heo.dma_desc, &LCDC->LCDC_HEOHEAD);
+	_clear_dma_desc(lcdc_heo.dma_u_desc, &LCDC->LCDC_HEOUHEAD);
+	_clear_dma_desc(lcdc_heo.dma_v_desc, &LCDC->LCDC_HEOVHEAD);
 
 	/* 3. Writing one to the CHDIS field of the CHXCHDR register will disable
 	   the channel at the end of the frame. */
@@ -1355,16 +1355,16 @@ void lcdc_off(void)
 	   channel at the end of the frame. */
 
 	/* Disable all DMA channel descriptors */
-	_clear_dma_desc(lcdc_base.dma_desc, &LCDC->LCDC_BASEADDR);
+	_clear_dma_desc(lcdc_base.dma_desc, &LCDC->LCDC_BASEHEAD);
 #ifdef CONFIG_HAVE_LCDC_OVR1
-	_clear_dma_desc(lcdc_ovr1.dma_desc, &LCDC->LCDC_OVR1ADDR);
+	_clear_dma_desc(lcdc_ovr1.dma_desc, &LCDC->LCDC_OVR1HEAD);
 #endif
 #ifdef CONFIG_HAVE_LCDC_OVR2
-	_clear_dma_desc(lcdc_ovr2.dma_desc, &LCDC->LCDC_OVR2ADDR);
+	_clear_dma_desc(lcdc_ovr2.dma_desc, &LCDC->LCDC_OVR2HEAD);
 #endif
-	_clear_dma_desc(lcdc_heo.dma_desc, &LCDC->LCDC_HEOADDR);
-	_clear_dma_desc(lcdc_heo.dma_u_desc, &LCDC->LCDC_HEOUADDR);
-	_clear_dma_desc(lcdc_heo.dma_v_desc, &LCDC->LCDC_HEOVADDR);
+	_clear_dma_desc(lcdc_heo.dma_desc, &LCDC->LCDC_HEOHEAD);
+	_clear_dma_desc(lcdc_heo.dma_u_desc, &LCDC->LCDC_HEOUHEAD);
+	_clear_dma_desc(lcdc_heo.dma_v_desc, &LCDC->LCDC_HEOVHEAD);
 
 	/* 3. Writing one to the CHDIS field of the CHXCHDR register will disable
 	   the channel at the end of the frame. */
