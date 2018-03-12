@@ -237,7 +237,7 @@ void pio_configure(const struct _pin *pin_list, uint32_t size)
 		if (pin->attribute & PIO_OPENDRAIN)
 			cfgr |= PIO_CFGR_OPD_ENABLED;
 
-		if (pin->attribute & PIO_DEGLITCH)
+		if (pin->attribute & (PIO_DEGLITCH | PIO_DEBOUNCE))
 			cfgr |= PIO_CFGR_IFEN_ENABLED;
 
 		if (pin->attribute & PIO_DEBOUNCE)
