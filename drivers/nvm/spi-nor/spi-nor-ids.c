@@ -205,6 +205,7 @@ const struct spi_nor_info spi_nor_ids[] = {
 	{ MX25L("mx25l25673f", 0xc22019,  512), },
 	{ MX25L("mx25l51245f", 0xc2201a, 1024), },
 	{ MX66L("mx66l1g45g",  0xc2201b, 2048), },
+	{ MX25("mx25u1635f",   0xc23525,   32), },
 
 	/* SST */
 	{ SST25("sst25vf032",  0xbf254a,   64), },
