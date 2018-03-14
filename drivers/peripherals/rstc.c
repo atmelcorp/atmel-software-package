@@ -102,6 +102,21 @@ void rstc_reset_peripherals(void)
 
 #endif /* CONFIG_HAVE_RSTC_INDEPENDENT_RESET */
 
+void rstc_reset_all(void)
+{
+	uint32_t cr = RSTC_CR_PROCRST | RSTC_CR_KEY_PASSWD;
+
+#ifdef RSTC_CR_PERRST
+	cr |= RSTC_CR_PERRST;
+#endif
+
+#ifdef RSTC_CR_EXTRST
+	cr |= RSTC_CR_EXTRST;
+#endif
+
+	RSTC->RSTC_CR = cr;
+}
+
 bool rstc_get_nrst_level(void)
 {
 	return (RSTC->RSTC_SR & RSTC_SR_NRSTL) != 0;

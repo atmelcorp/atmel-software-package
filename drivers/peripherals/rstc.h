@@ -92,6 +92,11 @@ extern void rstc_reset_peripherals(void);
 #endif /* CONFIG_HAVE_RSTC_INDEPENDENT_RESET */
 
 /**
+ * Resets the processor, the peripherals and asserts external reset, if any.
+ */
+extern void rstc_reset_all(void);
+
+/**
  * Return NRST pin level.
  */
 extern bool rstc_get_nrst_level(void);
