@@ -250,6 +250,11 @@ int main( void )
 	mainlist[3].icm_rnext = 0;
 	cache_clean_region(mainlist, sizeof(mainlist));
 
+	cache_clean_region((uint32_t*)message_region0_sha1, sizeof(message_region0_sha1));
+	cache_clean_region((uint32_t*)message_region1_sha1, sizeof(message_region1_sha1));
+	cache_clean_region((uint32_t*)message_region2_sha224, sizeof(message_region2_sha224));
+	cache_clean_region((uint32_t*)message_region3_sha256, sizeof(message_region3_sha256));
+
 	/* A software triggered hardware reset of the ICM interface is performed */
 	icm_swrst();
 	irq_add_handler(ID_ICM, ICM_IrqHandler, NULL);
@@ -269,12 +274,15 @@ int main( void )
 	/* Wait for all region hash completed */
 	while (region_hash_comp != ICM_IMR_RHC_Msk);
 
+	icm_disable();
+	cache_invalidate_region((uint32_t*)hash_addr, sizeof(hash_addr));
+
 	/* Check the SHA result (example SHA result in DataSheet) */
 	for (i = 1; i < 4; i++) {
 		check_hash(i);
 	}
 
-	icm_disable();
+	icm_swrst();
 	printf("\n\r-I Monitor enable, digest value is compared to the digest stored in hash area\n\r");
 	mainlist[0].icm_raddr = (uint32_t)message_region0_sha1;
 	mainlist[0].icm_rcfg =  ICM_RCFG_ALGO_SHA1 | ICM_RCFG_CDWBN;
@@ -309,10 +317,10 @@ int main( void )
 	printf("Change context in region 3, expect region 3 digest mismatch...\n\r");
 	message_region3_sha256[6] = 0xFFFFFFFF;
 
-	cache_clean_region(message_region0_sha1, 64);
-	cache_clean_region(message_region1_sha1, 64);
-	cache_clean_region(message_region2_sha224, 64);
-	cache_clean_region(message_region3_sha256, 64);
+	cache_clean_region((uint32_t*)message_region0_sha1, sizeof(message_region0_sha1));
+	cache_clean_region((uint32_t*)message_region1_sha1, sizeof(message_region1_sha1));
+	cache_clean_region((uint32_t*)message_region2_sha224, sizeof(message_region2_sha224));
+	cache_clean_region((uint32_t*)message_region3_sha256, sizeof(message_region3_sha256));
 
 	icm_enable();
 	region_mismatch = 0;
