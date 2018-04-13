@@ -111,7 +111,7 @@ $(BUILDDIR)/$(BINNAME).bin: $(BUILDDIR)/$(BINNAME).elf
 
 clean:
 	@rm -rf $(BUILDDIR) settings
-	@rm -f $(BINNAME)_$(TARGET).eww $(BINNAME)_$(TARGET).ewp $(BINNAME)_$(TARGET).ewd $(BINNAME)_$(TARGET).ewt $(BINNAME)_$(TARGET).dep
+	@rm -f $(BINNAME).eww $(BINNAME)_$(TARGET).ewp $(BINNAME)_$(TARGET).ewd $(BINNAME)_$(TARGET).ewt $(BINNAME)_$(TARGET).dep
 
 size: $(BUILDDIR)/$(BINNAME).elf
 	@$(SIZE) $(OBJECTS) $(BUILDDIR)/$(BINNAME).elf
