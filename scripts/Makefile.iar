@@ -64,5 +64,6 @@ iar-env:
 	$(Q)echo usb_y=\"$(usb-y)\"                           >> .env-$(VARIANT).sh
 	$(Q)echo libsdmmc_y=\"$(libsdmmc-y)\"                 >> .env-$(VARIANT).sh
 	$(Q)echo libfatfs_y=\"$(libfatfs-y)\"                 >> .env-$(VARIANT).sh
+	$(Q)echo libfreertos_y=\"$(libfreertos-y)\"           >> .env-$(VARIANT).sh
 	$(Q)echo obj_y=\"$(obj-y)\"                           >> .env-$(VARIANT).sh
 	$(Q)sed -i 's/\(SOFTPACK_VERSION=".*\) \(.*"\) /\1:\2 /' .env-$(VARIANT).sh

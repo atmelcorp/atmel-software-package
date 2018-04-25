@@ -1,0 +1,64 @@
+# ----------------------------------------------------------------------------
+#         SAM Software Package License
+# ----------------------------------------------------------------------------
+# Copyright (c) 2018, Atmel Corporation
+#
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# - Redistributions of source code must retain the above copyright notice,
+# this list of conditions and the disclaimer below.
+#
+# Atmel's name may not be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+# IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+# DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+# OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+# LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+# EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# ----------------------------------------------------------------------------
+
+
+ifeq ($(CONFIG_LIB_FREERTOS),y)
+
+FREERTOS_SOURCE_TOP ?= ../FreeRTOS
+
+FREERTOS_PORT := lib/freertos/portable
+
+lib-y += libfreertos.a
+
+libfreertos-y :=
+
+CFLAGS_INC += -I$(TOP)/$(FREERTOS_SOURCE_TOP)/Source/include
+CFLAGS_INC += -I$(TOP)/$(FREERTOS_SOURCE_TOP)/Demo/Common/include
+
+CFLAGS_INC += -I$(TOP)/$(FREERTOS_PORT)/$(chip-family)/
+iar-cstartup-y := $(FREERTOS_PORT)/$(chip-family)/iar/cstartup_freertos.o $(FREERTOS_PORT)/$(chip-family)/iar/portASM.o
+gnu-cstartup-y := $(FREERTOS_PORT)/$(chip-family)/gcc/cstartup_freertos.o $(FREERTOS_PORT)/$(chip-family)/gcc/portASM.o
+libfreertos-y += $(FREERTOS_PORT)/$(chip-family)/port.o
+libfreertos-y += $(FREERTOS_PORT)/$(chip-family)/FreeRTOS_tick_config.o
+
+libfreertos-y += $(FREERTOS_SOURCE_TOP)/Source/portable/MemMang/heap_4.o
+libfreertos-y += $(FREERTOS_SOURCE_TOP)/Source/list.o
+libfreertos-y += $(FREERTOS_SOURCE_TOP)/Source/queue.o
+libfreertos-y += $(FREERTOS_SOURCE_TOP)/Source/tasks.o
+libfreertos-y += $(FREERTOS_SOURCE_TOP)/Source/timers.o
+
+FREERTOS_OBJS := $(addprefix $(BUILDDIR)/,$(libfreertos-y))
+
+-include $(FREERTOS_OBJS:.o=.d)
+
+$(BUILDDIR)/libfreertos.a: $(FREERTOS_OBJS)
+	@mkdir -p $(BUILDDIR)
+	$(ECHO) AR $@
+	$(Q)$(AR) -cr $@ $^
+
+endif

@@ -45,6 +45,7 @@ include $(TOP)/utils/Makefile.inc
 include $(TOP)/target/Makefile.inc
 include $(TOP)/drivers/Makefile.inc
 include $(TOP)/lib/Makefile.inc
+include $(TOP)/scripts/Makefile.freertos
 
 vpath %.c $(TOP)
 vpath %.S $(TOP)

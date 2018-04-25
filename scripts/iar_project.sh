@@ -326,6 +326,7 @@ generate-ewp() {
     tpl-set-deps      "$tpl" "usb"           "$usb_y"
     tpl-set-deps      "$tpl" "libsdmmc"      "$libsdmmc_y"
     tpl-set-deps      "$tpl" "libfatfs"      "$libfatfs_y"
+    tpl-set-deps      "$tpl" "freertos"      "$libfreertos_y"
     tpl-set-chip      "$tpl"
     tpl-set-prj-files "$tpl" "project_files" "$obj_y"
     tpl-finalize      "$tpl"
