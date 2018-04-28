@@ -33,8 +33,35 @@
 #ifndef _SYS_ARCH_H
 #define _SYS_ARCH_H
 
+#include "lwipopts.h"
 
+#if !NO_SYS
+
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+#include "semphr.h"
+
+#define SYS_MBOX_NULL (QueueHandle_t)0
+#define SYS_SEM_NULL  (SemaphoreHandle_t)0
+#define SYS_DEFAULT_THREAD_STACK_DEPTH	(10*configMINIMAL_STACK_SIZE)
+
+typedef SemaphoreHandle_t sys_sem_t;
+typedef SemaphoreHandle_t sys_mutex_t;
+typedef QueueHandle_t sys_mbox_t;
+typedef TaskHandle_t sys_thread_t;
+
+typedef int sys_prot_t;
+
+#define sys_mbox_valid( x ) ( ( ( *x ) == NULL) ? pdFALSE : pdTRUE )
+#define sys_mbox_set_invalid( x ) ( ( *x ) = NULL )
+#define sys_sem_valid( x ) ( ( ( *x ) == NULL) ? pdFALSE : pdTRUE )
+#define sys_sem_set_invalid( x ) ( ( *x ) = NULL )
+
+#else
 
 unsigned int sys_now(void);
+
+#endif
 
 #endif
