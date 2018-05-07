@@ -47,13 +47,17 @@ This release contains the following examples:
 * crypto_trng: Example using hardware RNG (interrupt mode)
 * ddram: Example of DDRAM usage
 * dma: Example of DMA usage with generic API
-* getting_started: LED blink (uses PIT, TC and PIO)
 * eefc: Internal Flash Example
 * eth: GMAC/EMAC example using a simple IP stack
 * eth_lwip: GMAC/EMAC example using LWIP stack
 * eth_uip_helloworld: GMAC/EMAC example using UIP stack (UIP helloworld example)
 * eth_uip_telnetd: GMAC/EMAC example using UIP stack (UIP telnetd example)
 * eth_uip_webserver: GMAC/EMAC example using UIP stack (UIP webserver example)
+* freertos_lwip: GMAC/EMAC example using LWIP stack and FreeRTOS
+* freertos_queue: FreeRTOS queue example
+* freertos_start: FreeRTOS Started example
+* freertos_uip: UIP webserver example using FreeRTOS
+* getting_started: LED blink (uses PIT, TC and PIO)
 * isi: Example using ISI controller
 * isc: Example using ISC controller
 * lcd: Example using LCD controller
@@ -120,13 +124,17 @@ crypto_tdes            | OK             | OK               | OK               | 
 crypto_trng            | OK             | OK               | OK               | OK               | OK         | OK               | OK
 ddram                  | OK             | OK               | OK               | OK               | OK         | OK               | OK
 dma                    | OK             | OK               | OK               | OK               | OK         | OK               | OK
-getting_started        | OK             | OK               | OK               | OK               | OK         | OK               | OK
 eefc                   | x              | x                | x                | x                | x          | x                | x
 eth                    | OK             | OK               | OK               | OK               | OK         | OK               | OK
 eth_lwip               | OK             | OK               | OK               | OK               | OK         | OK               | OK
 eth_uip_helloworld     | OK             | OK               | OK               | OK               | OK         | OK               | OK
 eth_uip_telnetd        | OK             | OK               | OK               | OK               | OK         | OK               | OK
 eth_uip_webserver      | OK             | OK               | OK               | OK               | OK         | OK               | OK
+freertos_lwip          | OK             | OK               | OK               | OK               | OK         | OK               | OK
+freertos_queue         | OK             | OK               | OK               | OK               | OK         | OK               | OK
+freertos_start         | OK             | OK               | OK               | OK               | OK         | OK               | OK
+freertos_uip           | OK             | OK               | OK               | OK               | OK         | OK               | OK
+getting_started        | OK             | OK               | OK               | OK               | OK         | OK               | OK
 isc                    | x              | OK               | OK               | x                | x          | x                | x
 isi                    | x              | x                | x                | x                | x          | x                | OK
 lcd                    | OK             | OK               | OK               | OK               | OK         | OK               | OK
@@ -193,13 +201,17 @@ crypto_tdes            | x          | x               | x
 crypto_trng            | x          | OK              | OK
 ddram                  | OK         | OK              | OK
 dma                    | OK         | OK              | OK
-getting_started        | OK         | OK              | OK
 eefc                   | x          | OK              | OK
 eth                    | OK         | OK              | OK
 eth_lwip               | OK         | OK              | OK
 eth_uip_helloworld     | OK         | OK              | OK
 eth_uip_telnetd        | OK         | OK              | OK
 eth_uip_webserver      | OK         | OK              | OK
+freertos_lwip          | OK         | TODO            | TODO
+freertos_queue         | OK         | TODO            | TODO
+freertos_start         | OK         | TODO            | TODO
+freertos_uip           | OK         | TODO            | TODO
+getting_started        | OK         | OK              | OK
 isc                    | x          | x               | x
 isi                    | x          | x               | x
 lcd                    | OK         | x               | TODO

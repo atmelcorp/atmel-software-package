@@ -2,6 +2,24 @@
 
 The Atmel Softpack can be found on [GitHub](https://github.com/atmelcorp/atmel-software-package).
 
+## Version 2.13 - 2018-05
+
+### New drivers/examples
+
+- Add support for FreeRTOS and some examples using FreeRTOS (examples listed in softpack.md).
+
+### Fixes
+- Fix icm cache coherency issue.
+- Fix the wrong register indexes in LCDC driver.
+- Fix SAMA5D2's PIO debounce issue.
+- Fix Ethernet examples for sam9xx5 chips which has only one EMAC.
+- Fix the definition of Ethernet PHY for sam9xx5-ek board.
+
+### Enhancements
+
+- Update QTM firmware to v6.4.
+- Update scripts to remove IAR .eww files correctly  when executing "make clean".
+
 ## Version 2.12 - 2018-02
 
 ### New drivers/examples
