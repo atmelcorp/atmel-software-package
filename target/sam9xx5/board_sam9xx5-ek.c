@@ -105,7 +105,9 @@ WEAK void board_init(void)
 
 #ifdef CONFIG_HAVE_ETH
 	board_cfg_net(0, NULL, true);
+#if (ETH_IFACE_COUNT > 1)
 	board_cfg_net(1, NULL, true);
+#endif
 #endif
 
 #ifdef CONFIG_HAVE_LCDC
