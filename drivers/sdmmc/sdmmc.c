@@ -1349,9 +1349,7 @@ static uint32_t sdmmc_control(void *_set, uint32_t bCtl, uint32_t param)
 		    && set->regs->SDMMC_CA0R & SDMMC_CA0R_HSSUP)
 			*param_u32 = 1;
 		else if (byte == SDMMC_TIM_MMC_HS200
-		    && (set->regs->SDMMC_CA0R & (SDMMC_CA0R_V18VSUP
-		    | SDMMC_CA0R_V30VSUP | SDMMC_CA0R_V33VSUP))
-		    == SDMMC_CA0R_V18VSUP
+		    && (set->regs->SDMMC_CA0R & SDMMC_CA0R_V18VSUP)
 		    && set->regs->SDMMC_CA1R & (SDMMC_CA1R_SDR50SUP
 		    | SDMMC_CA1R_DDR50SUP | SDMMC_CA1R_SDR104SUP))
 			*param_u32 = 1;
