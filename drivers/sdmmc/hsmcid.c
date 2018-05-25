@@ -163,13 +163,13 @@ static void hsmci_set_device_clock(struct _hsmci_set *set, uint32_t freq)
 
 	Hsmci *regs = set->regs;
 	uint32_t div, new_freq;
-	uint32_t mck = pmc_get_master_clock();
+	uint32_t pck = pmc_get_peripheral_clock(set->id);
 
-	if ((mck % freq) == 0)
-		div = mck / freq;
+	if ((pck % freq) == 0)
+		div = pck / freq;
 	else
-		div = (mck + freq) / freq;
-	new_freq = mck / div;
+		div = (pck + freq) / freq;
+	new_freq = pck / div;
 
 	/* Modify MR */
 	hsmci_set_clock(regs, div, 0x7);
