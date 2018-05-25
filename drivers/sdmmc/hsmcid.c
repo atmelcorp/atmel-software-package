@@ -417,8 +417,13 @@ static uint8_t hsmci_configure_dma(struct _hsmci_set *set, uint8_t bRd)
 
 	/* We may transfer to/from HSMCI_FIFO, however, on ATSAMV71, using
 	 * HSMCI_TDR and HSMCI_RDR registers is as fast as using HSMCI_FIFO. */
+#ifdef HSMCI_FIFO_DATA_Pos
+	cfg.saddr = bRd ? (void*)&set->regs->HSMCI_FIFO : cmd->pData;
+	cfg.daddr = bRd ? cmd->pData : (void*)&set->regs->HSMCI_FIFO;
+#else
 	cfg.saddr = bRd ? (void*)&set->regs->HSMCI_RDR : cmd->pData;
 	cfg.daddr = bRd ? cmd->pData : (void*)&set->regs->HSMCI_TDR;
+#endif
 
 	/* Configure a single block per master transfer, i.e. no linked list */
 	if (bRd)
