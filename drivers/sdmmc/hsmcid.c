@@ -401,7 +401,7 @@ static uint8_t hsmci_configure_dma(struct _hsmci_set *set, uint8_t bRd)
 	struct _dma_cfg dma_cfg;
 	struct _dma_transfer_cfg cfg;
 
-	dma_cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	dma_cfg.chunk_size = DMA_CHUNK_SIZE_16;
 	dma_cfg.data_width = (unit == 1) ? DMA_DATA_WIDTH_BYTE : DMA_DATA_WIDTH_WORD;
 	dma_cfg.loop = false;
 	if (bRd) {
@@ -894,6 +894,7 @@ bool hsmci_initialize(struct _hsmci_set* set, const struct _hsmci_cfg* config)
 
 	hsmci_enable(regs);
 	hsmci_configure(regs, HSMCI_CFG_FIFOMODE | HSMCI_CFG_FERRCTRL);
+	hsmci_cfg_dma(regs, HSMCI_DMA_CHKSIZE_16);
 	hsmci_enable_dma(regs, true);
 	hsmci_cfg_data_timeout(regs, HSMCI_DTOR_DTOCYC_Msk
 		| HSMCI_DTOR_DTOMUL_1048576);
