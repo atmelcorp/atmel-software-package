@@ -310,6 +310,13 @@ static bool _pmc_get_system_clock_bits(enum _pmc_system_clock clock,
 		s = PMC_SCSR_ISCCK;
 		break;
 #endif
+#ifdef PMC_SCER_QSPICLK
+	case PMC_SYSTEM_CLOCK_QSPI:
+		e = PMC_SCER_QSPICLK;
+		d = PMC_SCDR_QSPICLK;
+		s = PMC_SCSR_QSPICLK;
+		break;
+#endif
 	default:
 		return false;
 	}
