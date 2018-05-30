@@ -121,4 +121,4 @@ Notice:
 GNU make may fail on Windows platforms if the Makefile contains UNIX line endings.
 You can use unix2dos on all Makefile files in scripts/ directory to fix this issue.
 
-Freertos related usages see README in lib/freertos/.
+Please visit [README for FreeRTOS](lib/freertos/README.md) to use examples/freertos_*.
