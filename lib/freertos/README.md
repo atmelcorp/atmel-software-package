@@ -7,18 +7,18 @@ and in so doing, providing a truly compelling free software model.
 
 For more details:
 
-http://www.freertos.org/FreeRTOS-quick-start-guide.html
+http://www.freertos.org/FreeRTOS-quick-start-guide.html  
 http://www.freertos.org/FAQHelp.html
 
-FreeRTOS Porting:
+FreeRTOS Porting
 ---------------
 
 The Software Package references to FreeRTOS code, which is available from one of the following reference links:
-AWS FreeRTOS: https://github.com/aws/amazon-freertos
+
+AWS FreeRTOS: https://github.com/aws/amazon-freertos  
 FreeRTOS SVN clone: https://github.com/cjlano/freertos
 
 The porting layer code is available under lib/freertos/portable,
-
 Some examples using task, queue, lwIP, uIP with FreeRTOS are located under examples/freertos_xxxx.
 
 Directories
