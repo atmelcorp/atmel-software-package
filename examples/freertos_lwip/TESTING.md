@@ -20,6 +20,7 @@ stack and the webserver example.
 ------
 ## Supported targets
 --------------------
+* SAM9XX5-EK
 * SAMA5D2-PTC-EK
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK

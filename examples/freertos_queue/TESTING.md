@@ -15,6 +15,7 @@ these two tasks through queue, which control the led blink rate.
 ------
 ## Supported targets
 --------------------
+* SAM9XX5-EK
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK
 * SAMA5D2-PTC-EK
