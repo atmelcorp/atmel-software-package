@@ -488,7 +488,6 @@ void pio_enable_it(const struct _pin *pin)
 {
 	assert(pin);
 	Pio* pio = _pio_get_instance(pin->group);
-	pio->PIO_ISR;
 	pio->PIO_IER = pin->mask;
 }
 
