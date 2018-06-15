@@ -308,6 +308,71 @@ void lcd_fill_white(void)
 	_show_canvas();
 }
 
+void lcd_fill_yuv422(void)
+{
+	struct _lcdc_layer *pDisp = lcdc_get_canvas();
+	uint8_t *buffur = pDisp->buffer;
+	uint32_t i;
+	uint32_t h = pDisp->width;
+	uint32_t v = pDisp->height;
+	for(i=0;i<h*v*2/8;) {
+		if(((i/h)%2)==0) {
+			buffur[i++]=81; buffur[i++]=239;buffur[i++]=81;buffur[i++]=90;
+		} else {
+			buffur[i++]=165;buffur[i++]=180;buffur[i++]=165;buffur[i++]=42;
+		}
+	}
+	for(i=h*v*2/8;i<h*v*2/8*2;) {
+		if(((i/h)%2)==0) {
+			buffur[i++]=107; buffur[i++]=202;buffur[i++]=107;buffur[i++]=222;
+		} else {
+			buffur[i++]=127;buffur[i++]=134;buffur[i++]=127;buffur[i++]=102;
+		}
+	}
+	for(i=h*v*2/8*2;i<h*v*2/8*3;) {
+		if(((i/h)%2)==0) {
+			buffur[i++]=170; buffur[i++]=16;buffur[i++]=170;buffur[i++]=166;
+		} else {
+			buffur[i++]=40;buffur[i++]=109;buffur[i++]=40;buffur[i++]=239;
+		}
+	}
+	for(i=h*v*2/8*3;i<h*v*2/8*4;) {
+		if(((i/h)%2)==0) {
+			buffur[i++]=144;buffur[i++]=34;buffur[i++]=144;buffur[i++]=53;
+		} else {
+			buffur[i++]=81; buffur[i++]=239;buffur[i++]=81;buffur[i++]=90;
+		}
+	}
+	for(i=h*v*2/8*4;i<h*v*2/8*5;) {
+		if(((i/h)%2)==0) {
+			buffur[i++]=40;buffur[i++]=109;buffur[i++]=40;buffur[i++]=239;
+		} else {
+			buffur[i++]=107; buffur[i++]=202;buffur[i++]=107;buffur[i++]=222;
+		}
+	}
+	for(i=h*v*2/8*5;i<h*v*2/8*6;) {
+		if(((i/h)%2)==0) {
+			buffur[i++]=211;buffur[i++]=146;buffur[i++]=211;buffur[i++]=15;
+		} else {
+			buffur[i++]=127;buffur[i++]=134;buffur[i++]=127;buffur[i++]=102;
+		}
+	}
+	for(i=h*v*2/8*6;i<h*v*2/8*7;) {
+		if(((i/h)%2)==0) {
+			buffur[i++]=165;buffur[i++]=180;buffur[i++]=165;buffur[i++]=42;
+		} else {
+			buffur[i++]=144;buffur[i++]=34;buffur[i++]=144;buffur[i++]=53;
+		}
+	}
+	for(i=h*v*2/8*7;i<h*v*2/8*8;) {
+		if(((i/h)%2)==0) {
+			buffur[i++]=127;buffur[i++]=134;buffur[i++]=127;buffur[i++]=102;
+		} else {
+			buffur[i++]=170; buffur[i++]=16;buffur[i++]=170;buffur[i++]=166;
+		}
+	}
+}
+
 /**
  * \brief Draw a pixel on LCD of given color.
  *

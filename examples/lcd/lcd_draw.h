@@ -78,6 +78,8 @@ extern void lcd_fill_white(void);
 
 extern void lcd_fill(uint32_t color);
 
+extern void lcd_fill_yuv422(void);
+
 extern void lcd_draw_pixel(uint32_t x, uint32_t y, uint32_t c);
 
 extern uint32_t lcd_read_pixel(uint32_t x, uint32_t y);
