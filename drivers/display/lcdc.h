@@ -217,6 +217,8 @@ extern void lcdc_flush_canvas(void);
 
 extern void lcdc_configure_input_mode(uint8_t layer, uint32_t input_mode);
 
+extern uint32_t lcdc_configure_get_mode(uint8_t layer);
+
 extern void *lcdc_create_canvas_yuv_planar(uint8_t layer,
 		void *buffer_y, void *buffer_u, void *buffer_v, uint8_t bpp,
 		uint16_t x, uint16_t y, uint16_t w, uint16_t h);

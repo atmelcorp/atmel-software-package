@@ -817,9 +817,13 @@ void * lcdc_put_image_rotated(uint8_t layer_id,
 	/*  RGB 565 */
 	case 16:
 #ifdef LCDC_HEOCFG1_YUVEN
-		if ((layer->reg_cfg[1] & LCDC_HEOCFG1_YUVEN) != LCDC_HEOCFG1_YUVEN)
+		if ((layer->reg_cfg[1] & LCDC_HEOCFG1_YUVEN) == LCDC_HEOCFG1_YUVEN) {
+			layer->reg_cfg[1] = layer->reg_cfg[1] & (~LCDC_HEOCFG1_YUVMODE_Msk) | LCDC_HEOCFG1_YUVMODE_16BPP_YCBCR_MODE0;
+		} else
 #endif
+		{
 			layer->reg_cfg[1] = LCDC_HEOCFG1_RGBMODE_16BPP_RGB_565;
+		}
 		break;
 	/*  RGB  888 packed */
 	case 24:
@@ -893,104 +897,230 @@ void * lcdc_put_image_rotated(uint8_t layer_id,
 	/* Normal direction: Left,Top -> Right,Down */
 	if ((!right_left && !bottom_up && rotation == 0)
 	    || (right_left && bottom_up && rotation == 180)) {
-		/* No rotation optimization */
-		layer->reg_cfg[0] |= LCDC_HEOCFG0_ROTDIS;
-		/* X0 ++ */
-		if (layer->stride_supported)
-			layer->reg_stride[1] = LCDC_HEOCFG6_PSTRIDE(0);
-		/* Y0 ++ */
-		layer->reg_stride[0] = LCDC_HEOCFG5_XSTRIDE(padding);
-		/* Pointer to Left,Top (x0,y0) */
+#ifdef LCDC_HEOCFG1_YUVEN
+		if(layer->reg_cfg[1] & LCDC_HEOCFG1_YUVEN) {
+			/* No rotation optimization */
+			layer->reg_cfg[0] = LCDC_HEOCFG0_BLEN(0x2) | LCDC_HEOCFG0_ROTDIS;
+			layer->reg_cfg[1] &= ~LCDC_HEOCFG1_YUV422ROT;
+			/* X0 ++ */
+			if (layer->stride_supported)
+					layer->reg_stride[1] = LCDC_HEOCFG6_PSTRIDE(0);
+			/* Y0 ++ */
+			layer->reg_stride[0] = LCDC_HEOCFG5_XSTRIDE(0);
+			/* Pointer to Left,Top (x0,y0) */
+		} else
+#endif
+		{
+			/* No rotation optimization */
+			layer->reg_cfg[0] |= LCDC_HEOCFG0_ROTDIS;
+			/* X0 ++ */
+			if (layer->stride_supported)
+				layer->reg_stride[1] = LCDC_HEOCFG6_PSTRIDE(0);
+			/* Y0 ++ */
+			layer->reg_stride[0] = LCDC_HEOCFG5_XSTRIDE(padding);
+			/* Pointer to Left,Top (x0,y0) */
+		}
 	}
 	/* X mirror: Right,Top -> Left,Down */
 	else if ((right_left && !bottom_up && rotation == 0)
 		 || (!right_left && bottom_up && rotation == 180)) {
-		/* No rotation optimization */
-		layer->reg_cfg[0] |= LCDC_HEOCFG0_ROTDIS;
-		/* X1 -- */
-		if (layer->stride_supported)
-			layer->reg_stride[1] = LCDC_HEOCFG6_PSTRIDE(0 - 2 * bytes_per_pixel);
-		/* Y0 ++ */
-		layer->reg_stride[0] = LCDC_HEOCFG5_XSTRIDE(bytes_per_row * 2 + padding - 2 * bytes_per_pixel);
-		/* Pointer to Right,Top (x1,y0) */
-		buffer = (void *)((uint32_t) buffer + bytes_per_pixel * (img_w - 1));
+#ifdef LCDC_HEOCFG1_YUVEN
+		if ((layer->reg_cfg[1] & LCDC_HEOCFG1_YUVEN) == LCDC_HEOCFG1_YUVEN) {
+			/* No rotation optimization */
+			layer->reg_cfg[0] = LCDC_HEOCFG0_BLEN(0x2) | LCDC_HEOCFG0_ROTDIS;
+			layer->reg_cfg[1] &= ~LCDC_HEOCFG1_YUV422ROT;
+			/* X0 ++ */
+			if (layer->stride_supported)
+					layer->reg_stride[1] = LCDC_HEOCFG6_PSTRIDE(0 - 2 * bytes_per_pixel - 4);
+			/* Y0 ++ */
+			layer->reg_stride[0] = LCDC_HEOCFG5_XSTRIDE(bytes_per_row * 2 - 2 * bytes_per_pixel - 4);
+			/* Pointer to Right,Top (x1,y0) */
+			buffer = (void *)((uint32_t) buffer + bytes_per_row - 4);
+		} else
+#endif
+		{
+			/* No rotation optimization */
+			layer->reg_cfg[0] |= LCDC_HEOCFG0_ROTDIS;
+			/* X1 -- */
+			if (layer->stride_supported)
+				layer->reg_stride[1] = LCDC_HEOCFG6_PSTRIDE(0 - 2 * bytes_per_pixel);
+			/* Y0 ++ */
+			layer->reg_stride[0] = LCDC_HEOCFG5_XSTRIDE(bytes_per_row * 2 + padding - 2 * bytes_per_pixel);
+			/* Pointer to Right,Top (x1,y0) */
+			buffer = (void *)((uint32_t) buffer + bytes_per_pixel * (img_w - 1));
+		}
 	}
 	/* Y mirror: Left,Down -> Right,Top */
 	else if ((!right_left && bottom_up && rotation == 0)
 		 || (right_left && !bottom_up && rotation == 180)) {
-		/* No rotation optimization */
-		layer->reg_cfg[0] |= LCDC_HEOCFG0_ROTDIS;
-		/* X0 ++ */
-		if (layer->stride_supported)
-			layer->reg_stride[1] = LCDC_HEOCFG6_PSTRIDE(0);
-		/* Y1 -- */
-		layer->reg_stride[0] = LCDC_HEOCFG5_XSTRIDE(0 - (bytes_per_row * 2 + padding));
-		/* Pointer to Left,Down (x0,y1) */
-		buffer = (void *)((uint32_t) buffer + (bytes_per_row + padding) * (img_h - 1));
+#ifdef LCDC_HEOCFG1_YUVEN
+		if(layer->reg_cfg[1] & LCDC_HEOCFG1_YUVEN) {
+			/* No rotation optimization */
+			layer->reg_cfg[0] = LCDC_HEOCFG0_BLEN(0x2) | LCDC_HEOCFG0_ROTDIS;
+			layer->reg_cfg[1] &= ~LCDC_HEOCFG1_YUV422ROT;
+			/* X0 ++ */
+			if (layer->stride_supported)
+					layer->reg_stride[1] = LCDC_HEOCFG6_PSTRIDE(0);
+			/* Y0 ++ */
+			layer->reg_stride[0] = LCDC_HEOCFG5_XSTRIDE(0 - bytes_per_row * 2);
+			/* Pointer to Right,Top (x1,y0) */
+			buffer = (void *)((uint32_t) buffer + bytes_per_row * (img_h - 1));
+		} else
+#endif
+		{
+			/* No rotation optimization */
+			layer->reg_cfg[0] |= LCDC_HEOCFG0_ROTDIS;
+			/* X0 ++ */
+			if (layer->stride_supported)
+				layer->reg_stride[1] = LCDC_HEOCFG6_PSTRIDE(0);
+			/* Y1 -- */
+			layer->reg_stride[0] = LCDC_HEOCFG5_XSTRIDE(0 - (bytes_per_row * 2 + padding));
+			/* Pointer to Left,Down (x0,y1) */
+			buffer = (void *)((uint32_t) buffer + (bytes_per_row + padding) * (img_h - 1));
+		}
 	}
 	/* X,Y mirror: Right,Top -> Left,Down */
 	else if ((right_left && bottom_up && rotation == 0)
 		 || (!right_left && !bottom_up && rotation == 180)) {
-		/* No rotation optimization */
-		layer->reg_cfg[0] |= LCDC_HEOCFG0_ROTDIS;
-		/* X1 -- */
-		if (layer->stride_supported)
-			layer->reg_stride[1] = LCDC_HEOCFG6_PSTRIDE(0 - 2 * bytes_per_pixel);
-		/* Y1 -- */
-		layer->reg_stride[0] = LCDC_HEOCFG5_XSTRIDE(0 - (bytes_per_pixel * 2 + padding));
-		/* Pointer to Left,Down (x1,y1) */
-		buffer = (void *)((uint32_t) buffer + (bytes_per_row + padding) * (img_h - 1) + (bytes_per_pixel) * (img_w - 1));
+#ifdef LCDC_HEOCFG1_YUVEN
+		if(layer->reg_cfg[1] & LCDC_HEOCFG1_YUVEN) {
+			/* No rotation optimization */
+			layer->reg_cfg[0] = LCDC_HEOCFG0_BLEN(0x2) | LCDC_HEOCFG0_ROTDIS;
+			layer->reg_cfg[1] &= ~LCDC_HEOCFG1_YUV422ROT;
+			/* X0 ++ */
+			if (layer->stride_supported)
+				  layer->reg_stride[1] = LCDC_HEOCFG6_PSTRIDE(0);
+			/* Y0 ++ */
+			layer->reg_stride[0] = LCDC_HEOCFG5_XSTRIDE(0 - bytes_per_row * 2);
+			/* Pointer to Right,Top (x1,y0) */
+			buffer = (void *)((uint32_t) buffer + bytes_per_row * (img_h-1));
+		} else
+#endif
+		{
+			/* No rotation optimization */
+			layer->reg_cfg[0] |= LCDC_HEOCFG0_ROTDIS;
+			/* X1 -- */
+			if (layer->stride_supported)
+				layer->reg_stride[1] = LCDC_HEOCFG6_PSTRIDE(0 - 2 * bytes_per_pixel);
+			/* Y1 -- */
+			layer->reg_stride[0] = LCDC_HEOCFG5_XSTRIDE(0 - (bytes_per_pixel * 2 + padding));
+			/* Pointer to Left,Down (x1,y1) */
+			buffer = (void *)((uint32_t) buffer + (bytes_per_row + padding) * (img_h - 1) + (bytes_per_pixel) * (img_w - 1));
+		}
 	}
 	/* Rotate  90: Down,Left -> Top,Right (with w,h swap) */
 	else if ((!right_left && !bottom_up && rotation == 90)
 		 || (right_left && bottom_up && rotation == 270)) {
-		/* No rotation optimization */
-		layer->reg_cfg[0] |= LCDC_HEOCFG0_ROTDIS;
-		/* Y -- as pixels in row */
-		if (layer->stride_supported)
-			layer->reg_stride[1] = LCDC_HEOCFG6_PSTRIDE(0 - (bytes_per_pixel + bytes_per_row + padding));
-		/* X ++ as rows */
-		layer->reg_stride[0] = LCDC_HEOCFG5_XSTRIDE((bytes_per_row + padding) * (img_h - 1));
-		/* Pointer to Bottom,Left */
-		buffer = (void *)((uint32_t) buffer + (bytes_per_row + padding) * (img_h - 1));
+#ifdef LCDC_HEOCFG1_YUVEN
+		if(layer->reg_cfg[1] & LCDC_HEOCFG1_YUVEN) {
+			/* No rotation optimization */
+			layer->reg_cfg[0] = LCDC_HEOCFG0_BLEN(0x2) | LCDC_HEOCFG0_ROTDIS;
+			layer->reg_cfg[1] |= LCDC_HEOCFG1_YUV422ROT;
+			/* X0 ++ */
+			if (layer->stride_supported)
+					layer->reg_stride[1] = LCDC_HEOCFG6_PSTRIDE(0 - bytes_per_row - 4);
+			/* Y0 ++ */
+			layer->reg_stride[0] = LCDC_HEOCFG5_XSTRIDE(bytes_per_row * (img_h-1));
+			/* Pointer to Right,Top (x1,y0) */
+			buffer = (void *)((uint32_t) buffer + bytes_per_row * (img_h - 1));
+		} else
+#endif
+		{
+			/* No rotation optimization */
+			layer->reg_cfg[0] |= LCDC_HEOCFG0_ROTDIS;
+			/* Y -- as pixels in row */
+			if (layer->stride_supported)
+				layer->reg_stride[1] = LCDC_HEOCFG6_PSTRIDE(0 - (bytes_per_pixel + bytes_per_row + padding));
+			/* X ++ as rows */
+			layer->reg_stride[0] = LCDC_HEOCFG5_XSTRIDE((bytes_per_row + padding) * (img_h - 1));
+			/* Pointer to Bottom,Left */
+			buffer = (void *)((uint32_t) buffer + (bytes_per_row + padding) * (img_h - 1));
+		}
 	}
 	/* Rotate 270: Top,Right -> Down,Left (with w,h swap) */
 	else if ((!right_left && !bottom_up && rotation == 270)
 		 || (right_left && bottom_up && rotation == 90)) {
-		/* No rotation optimization */
-		layer->reg_cfg[0] |= LCDC_HEOCFG0_ROTDIS;
-		/* Y ++ as pixels in row */
-		if (layer->stride_supported)
-			layer->reg_stride[1] = LCDC_HEOCFG6_PSTRIDE(bytes_per_row + padding - bytes_per_pixel);
-		/* X -- as rows */
-		layer->reg_stride[0] = LCDC_HEOCFG5_XSTRIDE(0 - 2 * bytes_per_pixel - (bytes_per_row + padding) * (img_h - 1));
-		/* Pointer to top right */
-		buffer = (void *)((uint32_t) buffer + bytes_per_pixel * (img_w - 1));
+#ifdef LCDC_HEOCFG1_YUVEN
+		if(layer->reg_cfg[1] & LCDC_HEOCFG1_YUVEN) {
+			/* No rotation optimization */
+			layer->reg_cfg[0] = LCDC_HEOCFG0_BLEN(0x2) | LCDC_HEOCFG0_ROTDIS;
+			layer->reg_cfg[1] |= LCDC_HEOCFG1_YUV422ROT;
+			/* X0 ++ */
+			if (layer->stride_supported)
+					layer->reg_stride[1] = LCDC_HEOCFG6_PSTRIDE(bytes_per_row - 4);
+			/* Y0 ++ */
+			layer->reg_stride[0] = LCDC_HEOCFG5_XSTRIDE((bytes_per_row * (1 - img_h) - 4 - 4));
+			/* Pointer to Right,Top (x1,y0) */
+			buffer = (void *)((uint32_t) buffer + bytes_per_row - 4);
+		} else
+#endif
+		{
+			/* No rotation optimization */
+			layer->reg_cfg[0] |= LCDC_HEOCFG0_ROTDIS;
+			/* Y ++ as pixels in row */
+			if (layer->stride_supported)
+				layer->reg_stride[1] = LCDC_HEOCFG6_PSTRIDE(bytes_per_row + padding - bytes_per_pixel);
+			/* X -- as rows */
+			layer->reg_stride[0] = LCDC_HEOCFG5_XSTRIDE(0 - 2 * bytes_per_pixel - (bytes_per_row + padding) * (img_h - 1));
+			/* Pointer to top right */
+			buffer = (void *)((uint32_t) buffer + bytes_per_pixel * (img_w - 1));
+		}
 	}
 	/* Mirror X then Rotate 90: Down,Right -> Top,Left */
 	else if ((right_left && !bottom_up && rotation == 90)
 		 || (!right_left && bottom_up && rotation == 270)) {
-		/* No rotation optimization */
-		layer->reg_cfg[0] |= LCDC_HEOCFG0_ROTDIS;
-		/* Y -- as pixels in row */
-		if (layer->stride_supported)
-			layer->reg_stride[1] = LCDC_HEOCFG6_PSTRIDE(0 - (bytes_per_pixel + bytes_per_row + padding));
-		/* X -- as rows */
-		layer->reg_stride[0] = LCDC_HEOCFG5_XSTRIDE(0 - 2 * bytes_per_pixel + (bytes_per_row + padding) * (img_h - 1));
-		/* Pointer to down right (x1,y1) */
-		buffer = (void *)((uint32_t) buffer + (bytes_per_row + padding) * (img_h - 1) + (bytes_per_pixel) * (img_w - 1));
+#ifdef LCDC_HEOCFG1_YUVEN
+		if(layer->reg_cfg[1] & LCDC_HEOCFG1_YUVEN) {
+			/* No rotation optimization */
+			layer->reg_cfg[0] = LCDC_HEOCFG0_BLEN(0x2) | LCDC_HEOCFG0_ROTDIS;
+			layer->reg_cfg[1] |= LCDC_HEOCFG1_YUV422ROT;
+			/* X0 ++ */
+			if (layer->stride_supported)
+					layer->reg_stride[1] = LCDC_HEOCFG6_PSTRIDE(0 - bytes_per_row - 4);
+			/* Y0 ++ */
+			layer->reg_stride[0] = LCDC_HEOCFG5_XSTRIDE(bytes_per_row * (img_h - 1) - 2 * bytes_per_pixel - 4);
+			/* Pointer to Right,Top (x1,y0) */
+			buffer = (void *)((uint32_t) buffer + bytes_per_row * img_h - 4);
+		} else
+#endif
+		{
+			/* No rotation optimization */
+			layer->reg_cfg[0] |= LCDC_HEOCFG0_ROTDIS;
+			/* Y -- as pixels in row */
+			if (layer->stride_supported)
+				layer->reg_stride[1] = LCDC_HEOCFG6_PSTRIDE(0 - (bytes_per_pixel + bytes_per_row + padding));
+			/* X -- as rows */
+			layer->reg_stride[0] = LCDC_HEOCFG5_XSTRIDE(0 - 2 * bytes_per_pixel + (bytes_per_row + padding) * (img_h - 1));
+			/* Pointer to down right (x1,y1) */
+			buffer = (void *)((uint32_t) buffer + (bytes_per_row + padding) * (img_h - 1) + (bytes_per_pixel) * (img_w - 1));
+		}
 	}
 	/* Mirror Y then Rotate 90: Top,Left -> Down,Right */
 	else if ((!right_left && bottom_up && rotation == 90)
 		 || (right_left && !bottom_up && rotation == 270)) {
-		/* No rotation optimization */
-		layer->reg_cfg[0] |= LCDC_HEOCFG0_ROTDIS;
-		/* Y ++ as pixels in row */
-		if (layer->stride_supported)
-			layer->reg_stride[1] = LCDC_HEOCFG6_PSTRIDE(bytes_per_row + padding - bytes_per_pixel);
-		/* X ++ as rows */
-		layer->reg_stride[0] = LCDC_HEOCFG5_XSTRIDE(0 - (bytes_per_row + padding) * (img_h - 1));
-		/* Pointer to top left (x0,y0) */
+#ifdef LCDC_HEOCFG1_YUVEN
+		if(layer->reg_cfg[1] & LCDC_HEOCFG1_YUVEN) {
+			/* No rotation optimization */
+			layer->reg_cfg[0] = LCDC_HEOCFG0_BLEN(0x2) | LCDC_HEOCFG0_ROTDIS;
+			layer->reg_cfg[1] |= LCDC_HEOCFG1_YUV422ROT;
+			/* X0 ++ */
+			if (layer->stride_supported)
+					layer->reg_stride[1] = LCDC_HEOCFG6_PSTRIDE(bytes_per_row - 4);
+			/* Y0 ++ */
+			layer->reg_stride[0] = LCDC_HEOCFG5_XSTRIDE(0 - (bytes_per_row * (img_h - 1)));
+			/* Pointer to Right,Top (x1,y0) */
+		} else
+#endif
+		{
+			/* No rotation optimization */
+			layer->reg_cfg[0] |= LCDC_HEOCFG0_ROTDIS;
+			/* Y ++ as pixels in row */
+			if (layer->stride_supported)
+				layer->reg_stride[1] = LCDC_HEOCFG6_PSTRIDE(bytes_per_row + padding - bytes_per_pixel);
+			/* X ++ as rows */
+			layer->reg_stride[0] = LCDC_HEOCFG5_XSTRIDE(0 - (bytes_per_row + padding) * (img_h - 1));
+			/* Pointer to top left (x0,y0) */
+		}
 	}
 
 	/** DMA is running, just add new descriptor to queue */
@@ -1659,6 +1789,12 @@ void lcdc_configure_input_mode(uint8_t layer_id, uint32_t input_mode)
 {
 	const struct _layer_info *layer = &lcdc_layers[layer_id];
 	layer->reg_cfg[1] = input_mode;
+}
+
+uint32_t lcdc_configure_get_mode(uint8_t layer_id)
+{
+	const struct _layer_info *layer = &lcdc_layers[layer_id];
+	return layer->reg_cfg[1];
 }
 
 /**@}*/
