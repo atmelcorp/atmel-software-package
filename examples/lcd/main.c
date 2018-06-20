@@ -186,7 +186,11 @@ CACHE_ALIGNED_DDR static uint8_t _ovr2_buffer[SIZE_LCD_BUFFER_OVR2];
 #endif
 
 /** High End Overlay buffer */
-CACHE_ALIGNED_DDR static uint8_t _heo_buffer[SIZE_LCD_BUFFER_HEO];
+CACHE_ALIGNED_DDR static uint8_t _heo_buffer_rgb[SIZE_LCD_BUFFER_HEO];
+
+#ifdef LCDC_HEOCFG1_YUVEN
+CACHE_ALIGNED_DDR static uint8_t _heo_buffer_yuv[SIZE_LCD_BUFFER_HEO];
+#endif
 
 /** Test pattern source */
 static uint32_t test_colors[N_BLK_HOR*N_BLK_VERT] = {
@@ -302,6 +306,19 @@ static void _LcdOn(void)
 	/* Display base layer */
 	lcdc_show_base(_base_buffer, 24, 0);
 
+	/* Display HEO layer */
+#ifdef LCDC_HEOCFG1_YUVEN	
+	/* Create HEO YUV422 image */
+	heo_img_w = 80 * EXAMPLE_LCD_SCALE;
+	heo_img_h = 40 * EXAMPLE_LCD_SCALE;
+	heo_w = heo_img_w*2;
+	heo_h = heo_img_h*2;
+	heo_bpp = 16;
+	lcdc_create_canvas(LCDC_HEO, _heo_buffer_yuv, heo_bpp, 0, 0,
+						heo_img_w, heo_img_h);
+	lcd_fill_yuv422();
+	cache_clean_region(_heo_buffer_yuv, sizeof(_heo_buffer_yuv));
+#endif
 	/* Show magnified 'F' for rotate test */
 	heo_img_w = 20 * EXAMPLE_LCD_SCALE;
 	heo_img_h = 24 * EXAMPLE_LCD_SCALE;
@@ -310,7 +327,7 @@ static void _LcdOn(void)
 	heo_bpp = 24;
 	/* Mask out background color */
 	lcdc_set_color_keying(LCDC_HEO, 0, COLOR_WHITE, 0xFFFFFF);
-	lcdc_create_canvas(LCDC_HEO, _heo_buffer, heo_bpp, 0, 0,
+	lcdc_create_canvas(LCDC_HEO, _heo_buffer_rgb, heo_bpp, 0, 0,
 			   heo_img_w, heo_img_h);
 
 	lcd_fill(COLOR_WHITE);
@@ -323,8 +340,8 @@ static void _LcdOn(void)
 				   13 * EXAMPLE_LCD_SCALE,
 				   13 * EXAMPLE_LCD_SCALE, COLOR_BLACK);
 
-	cache_clean_region(_heo_buffer, sizeof(_heo_buffer));
-	lcdc_put_image_rotated(LCDC_HEO, _heo_buffer, heo_bpp, SCR_X(heo_x),
+	cache_clean_region(_heo_buffer_rgb, sizeof(_heo_buffer_rgb));
+	lcdc_put_image_rotated(LCDC_HEO, _heo_buffer_rgb, heo_bpp, SCR_X(heo_x),
 			      SCR_Y(heo_y), heo_w, heo_h, heo_img_w,
 			      heo_img_h, 0);
 	/* It's over overlay 1 */
@@ -516,6 +533,9 @@ static void _rotates(void)
 		printf("\r\n");
 		printf("------------------------------------\r\n");
 		printf(" Use 'SPACE' to change HEO priority\r\n");
+#ifdef LCDC_HEOCFG1_YUVEN
+		printf(" Use 'a' to change HEO YUV or RGB\r\n");
+#endif
 		printf("------------------------------------\r\n");
 	}
 }
@@ -629,6 +649,8 @@ static void _moves(void)
 static void dbg_events(void)
 {
 	uint8_t key;
+	uint32_t heo_mode;
+	uint8_t *_heo_buffer;
 	if (console_is_rx_ready()){
 		key = console_get_char();
 		switch(key){
@@ -637,6 +659,34 @@ static void dbg_events(void)
 						!lcdc_get_priority(LCDC_HEO));
 				printf("Changed HEO priority\r\n");
 				break;
+#ifdef LCDC_HEOCFG1_YUVEN
+			case 'a': /* HEO RGB or YUV*/
+				heo_mode = lcdc_configure_get_mode(LCDC_HEO);
+				if((heo_mode & LCDC_HEOCFG1_YUVEN) == LCDC_HEOCFG1_YUVEN) {
+					lcdc_configure_input_mode(LCDC_HEO, 0);
+					heo_img_w = 20 * EXAMPLE_LCD_SCALE;
+					heo_img_h = 24 * EXAMPLE_LCD_SCALE;
+					heo_w = heo_img_w * 3;
+					heo_h = (uint16_t) (heo_img_h * 5.5);
+					heo_bpp = 24;
+					_heo_buffer = _heo_buffer_rgb;
+					printf("Change HEO to RGB\r\n");
+				} else {
+					lcdc_configure_input_mode(LCDC_HEO, LCDC_HEOCFG1_YUVEN);
+					heo_img_w = 80 * EXAMPLE_LCD_SCALE;
+					heo_img_h = 40 * EXAMPLE_LCD_SCALE;
+					heo_w = heo_img_w*2;
+					heo_h = heo_img_h*2;
+					heo_bpp = 16;
+					_heo_buffer = _heo_buffer_yuv;
+					printf("Change HEO to YUV\r\n");
+				}
+				heo_draw = 0;
+				lcdc_put_image_rotated(LCDC_HEO, _heo_buffer, heo_bpp, SCR_X(heo_x),
+										SCR_Y(heo_y), heo_w, heo_h, heo_img_w,
+										heo_img_h, 0);
+				break;
+#endif
 		}
 	}
 }
@@ -665,9 +715,6 @@ extern int main(void)
 	_LcdOn();
 
 	t1 = timer_get_tick();
-	printf("ADDR_LCD_BUFFER_HEO is 0x%x, size %u\r\n",
-	       (unsigned)_heo_buffer,
-	       (unsigned)sizeof(_heo_buffer));
 	while(1) {
 		dbg_events();
 		t2 = timer_get_tick();
