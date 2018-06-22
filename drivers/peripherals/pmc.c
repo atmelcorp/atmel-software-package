@@ -619,7 +619,8 @@ int pmc_select_external_osc(bool bypass)
 	timeout = MOSCSELS_TIMEOUT;
 	while (!(PMC->PMC_SR & PMC_SR_MOSCSELS) && --timeout > 0);
 	if (!timeout) {
-		PMC->CKGR_MOR &= ~CKGR_MOR_MOSCSEL;
+		PMC->CKGR_MOR = (PMC->CKGR_MOR & ~(CKGR_MOR_MOSCSEL | CKGR_MOR_KEY_Msk))
+			| CKGR_MOR_KEY_PASSWD;
 		return -ETIMEDOUT;
 	}
 
