@@ -518,6 +518,55 @@ static uint32_t handle_cmd_read_pages(uint32_t cmd, uint32_t *mailbox)
 	return APPLET_SUCCESS;
 }
 
+static uint32_t handle_cmd_enable_boot_part(uint32_t cmd, uint32_t *mailbox)
+{
+	union boot_partition_mailbox *mbx =
+		(union boot_partition_mailbox*)mailbox;
+	uint32_t boot_partition = mbx->in.boot_partition;
+	uint32_t boot_size;
+	uint8_t card_type;
+
+	assert(cmd == APPLET_CMD_ENABLE_BOOT_PART);
+
+	/* check the boot partition number is valid */
+	if (boot_partition > 2) {
+		trace_error("Invalid boot partition number\r\n");
+		return APPLET_FAIL;
+	}
+
+	/* check that card is MMC */
+	card_type = SD_GetCardType(&lib);
+	if (!(card_type & CARD_TYPE_bmMMC)) {
+		trace_error("Invalid card type: boot partition is only supported on MMC\r\n");
+		return APPLET_SUCCESS;
+	}
+
+	/* get and check boot partition size */
+	boot_size = MMC_EXT_BOOT_SIZE_MULTI(lib.EXT) * (128 * 1024 / BLOCK_SIZE);
+	if (boot_size == 0) {
+		trace_error("No boot partition available\r\n");
+		return APPLET_FAIL;
+	}
+
+	/* configure boot partition */
+	if (mmc_configure_partition(&lib, EMMC_BOOT_PARTITION_ACCESS(boot_partition) |
+				    EMMC_BOOT_PARTITION_ENABLE(boot_partition) |
+				    (boot_partition > 0 ? EMMC_BOOT_ACK : 0)))
+		return APPLET_FAIL;
+
+	/* update partition size */
+	if (boot_partition)
+		mem_size = boot_size;
+	else
+		mem_size = (uint32_t)(((uint64_t)SD_GetTotalSizeKB(&lib) * 1024ull) / BLOCK_SIZE);
+
+	mbx->out.mem_size = mem_size;
+
+	trace_warning_wp("Memory Size: %ld pages\r\n", mbx->out.mem_size);
+
+	return APPLET_SUCCESS;
+}
+
 
 /*----------------------------------------------------------------------------
  *         Commands list
@@ -528,5 +577,6 @@ const struct applet_command applet_commands[] = {
 	{ APPLET_CMD_READ_INFO, handle_cmd_read_info },
 	{ APPLET_CMD_WRITE_PAGES, handle_cmd_write_pages },
 	{ APPLET_CMD_READ_PAGES, handle_cmd_read_pages },
+	{ APPLET_CMD_ENABLE_BOOT_PART, handle_cmd_enable_boot_part },
 	{ 0, NULL }
 };

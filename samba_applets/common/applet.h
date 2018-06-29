@@ -47,6 +47,7 @@
 #define APPLET_CMD_READ_BOOTCFG      0x34 /* Read Boot Config */
 #define APPLET_CMD_WRITE_BOOTCFG     0x35 /* Write Boot Config */
 #define APPLET_CMD_TAG_BLOCK         0x36 /* Tag / untag block as bad */
+#define APPLET_CMD_ENABLE_BOOT_PART  0x37 /* Enable / disable eMMC boot partition */
 
 #define APPLET_SUCCESS               0x00 /* Operation was successful */
 #define APPLET_DEV_UNKNOWN           0x01 /* Device unknown */
@@ -161,6 +162,19 @@ union tag_block_mailbox {
 
 	struct {
 		uint32_t dummy;
+	} out;
+};
+
+/** Mailbox content for the 'enable boot partition' command. */
+union boot_partition_mailbox {
+	struct {
+		/** Boot partition number */
+		uint32_t boot_partition;
+	} in;
+
+	struct {
+		/** Memory size (in pages) */
+		uint32_t mem_size;
 	} out;
 };
 
