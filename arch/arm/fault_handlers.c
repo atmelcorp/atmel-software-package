@@ -34,6 +34,7 @@
 #include "arm/fault_handlers.h"
 
 #include <stdio.h>
+#include <stdint.h>
 
 /*----------------------------------------------------------------------------
  *        Constants
@@ -159,7 +160,9 @@ void data_abort_irq_handler(void)
 #ifdef NDEBUG
 	asm("bkpt #4");
 #endif
+#ifdef CONFIG_HAVE_FAULT_DEBUG
 	while(1);
+#endif
 }
 
 /**
