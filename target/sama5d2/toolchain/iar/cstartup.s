@@ -236,8 +236,6 @@ irqHandler:
 __iar_program_start:
 ?cstartup:
 
-        cpsie   a
-
         ; Set up the fast interrupt stack pointer
 
         mrs     r0, CPSR
@@ -310,6 +308,8 @@ __iar_program_start:
 
         FUNCALL __iar_program_start, board_init
         bl      board_init
+
+        cpsie   a
 
         ; Setup command line
 
