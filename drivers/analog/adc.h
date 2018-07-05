@@ -339,7 +339,7 @@ extern void adc_set_tracking_time(uint32_t dwNs);
 
 /**
  * Sets the trigger period.
- * \param period Trigger period in nS.
+ * \param period Trigger period in uS.
  */
 extern void adc_set_trigger_period(uint32_t period);
 

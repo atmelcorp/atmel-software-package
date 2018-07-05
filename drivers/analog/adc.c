@@ -548,10 +548,11 @@ void adc_set_tracking_time(uint32_t dwNs)
 
 void adc_set_trigger_period(uint32_t period)
 {
-	uint32_t trg_period;
+	uint64_t trg_period;
+
 	if (_adc_clock == 0)
 		return;
-	trg_period = period * (_adc_clock/1000) - 1;
+	trg_period = (((uint64_t)period * (uint64_t)_adc_clock) / 1000000) - 1;
 	ADC->ADC_TRGR = (ADC->ADC_TRGR & ~ADC_TRGR_TRGPER_Msk) | ADC_TRGR_TRGPER(trg_period);
 }
 

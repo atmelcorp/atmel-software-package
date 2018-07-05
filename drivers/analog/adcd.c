@@ -191,7 +191,7 @@ static void adcd_configure(struct _adcd_desc* desc)
 		case TRIGGER_MODE_ADC_TIMER:
 			/* Trigger on internal ADC timer */
 			adc_set_trigger_mode(ADC_TRGR_TRGMOD_PERIOD_TRIG);
-			adc_set_trigger_period(250);
+			adc_set_trigger_period(250000);
 			break;
 		default :
 			break;
