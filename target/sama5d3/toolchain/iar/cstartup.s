@@ -194,8 +194,6 @@ irqHandler:
 __iar_program_start:
 ?cstartup:
 
-        cpsie   a
-
         ; Set up the normal interrupt stack pointer
 
         bic     r0, r0, #MODE_MSK
@@ -259,6 +257,8 @@ __iar_program_start:
 
         FUNCALL __iar_program_start, board_init
         bl      board_init
+
+        cpsie   a
 
         ; Setup command line
 

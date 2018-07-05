@@ -152,8 +152,6 @@ irqHandler:
 entry:
 resetHandler:
 
-	cpsie   a
-
 /* Set up the normal interrupt stack pointer */
 
 	bic     r0, r0, #MODE_MSK
@@ -235,6 +233,10 @@ resetHandler:
 /* Perform board initialization */
 
 	bl      board_init
+
+	cpsie   a
+	nop
+	nop
 
 /* Branch to main() */
 
