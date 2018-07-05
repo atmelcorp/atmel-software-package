@@ -185,8 +185,6 @@ irqHandler:
 entry:
 resetHandler:
 
-	cpsie   a
-
 /* Set up the fast interrupt stack pointer */
 
 	mrs     r0, CPSR
@@ -277,6 +275,10 @@ resetHandler:
 /* Perform board initialization */
 
 	bl      board_init
+
+	cpsie   a
+	nop
+	nop
 
 /* Branch to main() */
 
