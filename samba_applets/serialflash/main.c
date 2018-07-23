@@ -55,7 +55,8 @@
 #if !defined(CONFIG_SOC_SAMA5D2) && \
     !defined(CONFIG_SOC_SAMA5D3) && \
     !defined(CONFIG_SOC_SAMA5D4) && \
-    !defined(CONFIG_SOC_SAM9XX5)
+    !defined(CONFIG_SOC_SAM9XX5) && \
+    !defined(CONFIG_SOC_SAM9X60)
 #error Unsupported SOC!
 #endif
 
