@@ -1,0 +1,26 @@
+define memory mem with size = 4G;
+define region RAM_region = mem:[from 0x00300000 to 0x0030CFFF];
+
+define block CSTACK with alignment = 8, size = 0x400 { };
+define block HEAP with alignment = 4, size = 0x200 { };
+
+define block BSS with alignment = 32 { zi };
+
+define block CACHE_ALIGNED with alignment = 32 { section .region_cache_aligned };
+define block CACHE_ALIGNED_CONST with alignment = 32 { section .region_cache_aligned_const };
+
+do not initialize { section .region_cache_aligned };
+
+place at start of RAM_region { section .cstartup };
+place in RAM_region { ro };
+place in RAM_region { rw };
+place in RAM_region { block CACHE_ALIGNED_CONST };
+place in RAM_region { block CACHE_ALIGNED };
+place in RAM_region { block BSS };
+place in RAM_region { block HEAP };
+place in RAM_region { block CSTACK };
+/* applet_buffer section must be placed last in RAM_region */
+place in RAM_region { section .applet_buffer };
+
+define symbol __buffer_end__ = end(RAM_region);
+export symbol __buffer_end__;
