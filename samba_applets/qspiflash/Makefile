@@ -28,7 +28,8 @@
 
 # Makefile for compiling the QSPI Flash SAM-BA applet
 
-AVAILABLE_TARGETS = sama5d2-generic
+AVAILABLE_TARGETS = sama5d2-generic \
+                    sam9x60-generic
 
 AVAILABLE_VARIANTS = sram ddram
 
