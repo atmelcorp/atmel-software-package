@@ -44,5 +44,10 @@ extern int bootcfg_initialize(void);
 extern int bootcfg_print(uint32_t index, uint32_t value);
 extern int bootcfg_read(uint32_t index, uint32_t* value);
 extern int bootcfg_write(uint32_t index, uint32_t value);
+#ifdef CONFIG_HAVE_OTPC
+extern int bootcfg_invalidate(uint32_t index);
+extern int bootcfg_lock(uint32_t index);
+extern int bootcfg_refresh(uint32_t index);
+#endif /* CONFIG_HAVE_OTPC */
 
 #endif /* BOOTCONFIG_H_ */

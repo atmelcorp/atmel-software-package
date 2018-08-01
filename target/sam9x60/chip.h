@@ -180,6 +180,9 @@ struct _console_cfg;
 #define PLL_ID_PLLA 0
 #define PLL_ID_UPLL 1
 
+#define OTPC_EMUL_ADDR IRAM1_ADDR
+#define OTPC_EMUL_SIZE (0x00001000u)
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -29,7 +29,8 @@
 # Makefile for compiling the BootConfig applet
 
 AVAILABLE_TARGETS = sama5d2-generic \
-                    samv71-generic
+                    samv71-generic \
+                    sam9x60-generic
 
 AVAILABLE_VARIANTS = sram
 
@@ -41,6 +42,10 @@ BINNAME = applet-bootconfig
 
 CONFIG_SAMBA_APPLET = y
 CONFIG_TIMER_POLLING = y
+
+ifeq ($(TARGET),sam9x60-generic)
+CONFIG_HAVE_OTPC = y
+endif
 
 obj-y += samba_applets/bootconfig/main.o
 obj-y += samba_applets/bootconfig/bootconfig_$(chip-family).o
