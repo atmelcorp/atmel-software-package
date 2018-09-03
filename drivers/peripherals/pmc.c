@@ -515,10 +515,7 @@ static uint32_t _pmc_get_pll_clock(uint32_t pll_id)
 	if (pll_id == PLL_ID_PLLA) {
 		f_ref = pmc_get_main_clock();
 	} else if (pll_id == PLL_ID_UPLL){
-		if (0 == (PMC->CKGR_MOR & CKGR_MOR_MOSCXTBY))
-			trace_fatal("frequence of Main Crystal Oscillator not defined\r\n");
-		else
-			f_ref = _pmc_main_oscillators.crystal_freq; /* external crystal */
+		f_ref = pmc_get_main_oscillator_freq();
 		assert(divpmc == 1);
 	} else {
 		trace_fatal("Unknown PLL which index is %d\r\n", (int)pll_id);
@@ -576,9 +573,11 @@ uint32_t pmc_set_main_oscillator_freq(uint32_t freq)
 
 	/* Measure the crystal or by-pass frequency. */
 
+#ifdef CKGR_MOR_MOSCXTBY
 	/* Try by-pass first. */
 	if (pmc_select_external_osc(true) == 0)
 		mainf_xt = _pmc_measure_main_osc_freq(true);
+#endif /* CKGR_MOR_MOSCXTBY */
 
 	/* Then try external crytal if no by-pass. */
 	if (!mainf_xt) {
@@ -750,7 +749,11 @@ int pmc_select_external_osc(bool bypass)
 
 	/* Return if external oscillator had been selected */
 	if ((PMC->CKGR_MOR & CKGR_MOR_MOSCSEL) == CKGR_MOR_MOSCSEL) {
+#ifdef CKGR_MOR_MOSCXTBY
 		uint32_t mask = bypass ? CKGR_MOR_MOSCXTBY : CKGR_MOR_MOSCXTEN;
+#else
+		uint32_t mask = CKGR_MOR_MOSCXTEN;
+#endif  /* CKGR_MOR_MOSCXTBY */
 		if ((PMC->CKGR_MOR & mask) == mask)
 			return 0;
 	}
@@ -797,14 +800,19 @@ int pmc_enable_external_osc(bool bypass)
 	uint32_t mask = CKGR_MOR_MOSCXTEN;
 	volatile uint32_t timeout;
 
+#ifdef CKGR_MOR_MOSCXTBY
 	if (bypass)
 		mask = CKGR_MOR_MOSCXTBY;
+#else
+	(void)bypass;
+#endif /* CKGR_MOR_MOSCXTBY */
 
 	/* Enable Crystal Oscillator if needed */
 	if ((cgmor & mask) != mask) {
 		cgmor &= ~CKGR_MOR_KEY_Msk;
 		cgmor |= CKGR_MOR_KEY_PASSWD;
 
+#ifdef CKGR_MOR_MOSCXTBY
 		if (bypass) {
 			/* Disable Crystal Oscillator */
 			cgmor &= ~CKGR_MOR_MOSCXTEN;
@@ -833,6 +841,16 @@ int pmc_enable_external_osc(bool bypass)
 			cgmor |= CKGR_MOR_MOSCXTEN;
 			PMC->CKGR_MOR = cgmor;
 		}
+#else
+		/* Set Oscillator Startup Time */
+		cgmor &= ~CKGR_MOR_MOSCXTST_Msk;
+		cgmor |= CKGR_MOR_MOSCXTST(18);
+		PMC->CKGR_MOR = cgmor;
+
+		/* Enable Crystal Oscillator */
+		cgmor |= CKGR_MOR_MOSCXTEN;
+		PMC->CKGR_MOR = cgmor;
+#endif /* CKGR_MOR_MOSCXTBY */
 
 		/* Wait Main Oscillator ready */
 		timeout = MOSCXTS_TIMEOUT;
@@ -851,9 +869,15 @@ int pmc_enable_external_osc(bool bypass)
 
 void pmc_disable_external_osc(void)
 {
+#ifdef CKGR_MOR_MOSCXTBY
+	uint32_t mask = CKGR_MOR_MOSCXTEN | CKGR_MOR_MOSCXTBY;
+#else
+	uint32_t mask = CKGR_MOR_MOSCXTEN;
+#endif /* CKGR_MOR_MOSCXTBY */
+
 	/* disable external OSC */
 	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~(CKGR_MOR_MOSCSEL | CKGR_MOR_KEY_Msk)) | CKGR_MOR_KEY_PASSWD;
-	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~(CKGR_MOR_MOSCXTEN | CKGR_MOR_MOSCXTBY | CKGR_MOR_KEY_Msk)) | CKGR_MOR_KEY_PASSWD;
+	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~(mask | CKGR_MOR_KEY_Msk)) | CKGR_MOR_KEY_PASSWD;
 }
 
 void pmc_select_internal_osc(void)
