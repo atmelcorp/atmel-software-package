@@ -527,13 +527,16 @@ static uint32_t _pmc_get_pll_clock(uint32_t pll_id)
 
 uint32_t pmc_set_main_oscillator_freq(uint32_t freq)
 {
+#ifndef CKGR_MCFR_CCSS
 	uint32_t mor, mckr, mckr_mask, pllar;
+#endif /* !CKGR_MCFR_CCSS */
 	uint16_t mainf_rc, mainf_xt = 0;
 
 	_pmc_main_oscillators.crystal_freq = freq;
 	if (freq > 0)
 		return freq;
 
+#ifndef CKGR_MCFR_CCSS
 	/*
 	 * Save the current value of the CKGR_MCKR register then swith to
 	 * the slow clock.
@@ -556,8 +559,11 @@ uint32_t pmc_set_main_oscillator_freq(uint32_t freq)
 		PMC->CKGR_PLLAR &= ~(CKGR_PLLAR_MULA_Msk | CKGR_PLLAR_DIVA_Msk);
 #endif
 
-	/* Measure the 12MHz RC frequency. */
+	/* Switch to internal 12MHz RC, if needed. */
 	pmc_select_internal_osc();
+#endif /* !CKGR_MCFR_CCSS */
+
+	/* Measure the 12MHz RC frequency. */
 	mainf_rc = _pmc_measure_main_osc_freq(false);
 
 	/* Measure the crystal or by-pass frequency. */
@@ -572,6 +578,7 @@ uint32_t pmc_set_main_oscillator_freq(uint32_t freq)
 			mainf_xt = _pmc_measure_main_osc_freq(true);
 	}
 
+#ifndef CKGR_MCFR_CCSS
 	/* Switch back to internal 12MHz RC if it was selected initially */
 	if (!(mor & CKGR_MOR_MOSCSEL))
 		pmc_select_internal_osc();
@@ -593,6 +600,7 @@ uint32_t pmc_set_main_oscillator_freq(uint32_t freq)
 	/* Switch back to the former MCK source. */
 	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~mckr_mask) | (mckr & mckr_mask);
 	pmc_switch_mck_to_new_source(mckr & PMC_MCKR_CSS_Msk);
+#endif /* CKGR_MCFR_CCSS */
 
 	/* Guess the external crystal frequency, if available. */
 	if (mainf_rc && mainf_xt) {
