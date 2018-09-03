@@ -626,7 +626,10 @@ uint32_t pmc_set_main_oscillator_freq(uint32_t freq)
 		uint32_t ratio = (mainf_xt * 1000) / mainf_rc;
 
 		// Use 10% low and high margins
-		if (1800 <= ratio && ratio <= 2200) {
+		if (3600 <= ratio && ratio <= 4400) {
+			// 48/12 => ratio = 4000
+			_pmc_main_oscillators.crystal_freq = 48000000u;
+		} else if (1800 <= ratio && ratio <= 2200) {
 			// 24/12 => ratio = 2000
 			_pmc_main_oscillators.crystal_freq = 24000000u;
 		} else if (1200 <= ratio && ratio <= 1467) {
