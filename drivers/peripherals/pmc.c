@@ -409,51 +409,58 @@ static void _pmc_configure_pll(uint32_t pll_id, const struct _pmc_plla_cfg* plla
 
 	/* Follow the steps below to power-on a PLL: */
 	/* 1. Define the ID (ID=n) and startup time by configuring the fields PMC_PLL_UPDT.ID and
-	PMC_PLL_UPDT.STUPTIM. Set PMC_PLL_UPDT.UPDATE to '0'.In case UPLL is being
-	configured, follow steps 2 to 5, else jump to step 6. */
+	PMC_PLL_UPDT.STUPTIM. Set PMC_PLL_UPDT.UPDATE to '0'. */
 	reg = PMC->PMC_PLL_UPDT;
 	reg &= ~(PMC_PLL_UPDT_STUPTIM_Msk | PMC_PLL_UPDT_UPDATE | PMC_PLL_UPDT_ID_Msk);
 	reg |= PMC_PLL_UPDT_STUPTIM(plla->count) | PMC_PLL_UPDT_ID(pll_id);
 	PMC->PMC_PLL_UPDT = reg;
 
-	/* 2. Write PMC_PLL_ACR.UTMIBG to '1' to enable the UTMI internal bandgap. */
-	PMC->PMC_PLL_ACR |= PMC_PLL_ACR_UTMIBG;
+	/* 2. Configure PMC_PLL_ACR.LOOP_FILTER. */
+	reg = PMC->PMC_PLL_ACR;
+	reg &= ~PMC_PLL_ACR_LOOP_FILTER_Msk;
+	reg |= PMC_PLL_ACR_LOOP_FILTER(plla->loop_filter);
+	PMC->PMC_PLL_ACR = reg;
 
-	/* 3. Wait 10 us. */
-	usleep(10);
+	/* 3. Define the MUL and FRACR to be applied to PLL(n) in PMC_PLL_CTRL1. */
+	PMC->PMC_PLL_CTRL1 = PMC_PLL_CTRL1_MUL(plla->mul) | PMC_PLL_CTRL1_FRACR(plla->fracr);
 
-	/* 4. Write PMC_PLL_ACR.UTMIVR to '1' to enable the UTMI internal regulator. */
-	PMC->PMC_PLL_ACR |= PMC_PLL_ACR_UTMIVR;
+	/* In case UPLL is being configured, follow Step 4. to Step 7., else jump to Step 8. */
+	if (pll_id == PLL_ID_UPLL) {
+		/* 4. Write PMC_PLL_ACR.UTMIBG to '1' to enable the UTMI internal bandgap. */
+		PMC->PMC_PLL_ACR |= PMC_PLL_ACR_UTMIBG;
 
-	/* 5. Wait 10 us. */
-	usleep(10);
+		/* 5. Wait 10 us. */
+		usleep(10);
 
-	/* 6. In PMC_PLL_CTRL0, write a '1' to ENLOCK and to ENPLL and configure DIVPMC (for PLLA only,
+		/* 6. Write PMC_PLL_ACR.UTMIVR to '1' to enable the UTMI internal regulator. */
+		PMC->PMC_PLL_ACR |= PMC_PLL_ACR_UTMIVR;
+
+		/* 7. Wait 10 us. */
+		usleep(10);
+	}
+
+	/* 8. Set PMC_PLL_UPDT.UPDATE to '1'. PMC_PLL_UPDT.ID must equal the one written during step
+	1, else the update is cancelled. */
+	PMC->PMC_PLL_UPDT |= PMC_PLL_UPDT_UPDATE;
+
+	/* 9. In PMC_PLL_CTRL0, write a '1' to ENLOCK and to ENPLL and configure DIVPMC (for PLLA only,
 	as UPLL has a fixed divider value) and ENPLLCK. */
 	reg = PMC->PMC_PLL_CTRL0 & ~PMC_PLL_CTRL0_DIVPMC_Msk;
 	reg |= PMC_PLL_CTRL0_ENLOCK | PMC_PLL_CTRL0_ENPLL;
 	reg |= PMC_PLL_CTRL0_DIVPMC(plla->div) | PMC_PLL_CTRL0_ENPLLCK;
 	PMC->PMC_PLL_CTRL0 = reg;
 
-	/* 7. Configure PMC_PLL_ACR.LOOP_FILTER. */
-	reg = PMC->PMC_PLL_ACR & (~PMC_PLL_ACR_LOOP_FILTER_Msk);
-	reg |= PMC_PLL_ACR_LOOP_FILTER(plla->loop_filter);
-	PMC->PMC_PLL_ACR = reg;
-
-	/* 8. Define the MUL and FRACR to be applied to PLL(n) in PMC_PLL_CTRL1. */
-	PMC->PMC_PLL_CTRL1 = PMC_PLL_CTRL1_MUL(plla->mul) | PMC_PLL_CTRL1_FRACR(plla->fracr);
-
-	/* 9. Set PMC_PLL_UPDT.UPDATE to '1'. PMC_PLL_UPDT.ID must equal the one written during step
+	/* 10. Set PMC_PLL_UPDT.UPDATE to '1'. PMC_PLL_UPDT.ID must equal the one written during step
 	1, else the update is cancelled. */
 	PMC->PMC_PLL_UPDT |= PMC_PLL_UPDT_UPDATE;
 
-	/* 10. Wait for the lock bit to rise by polling the PMC_PLL_ISR0 or by enabling the corresponding interrupt
+	/* 11. Wait for the lock bit to rise by polling the PMC_PLL_ISR0 or by enabling the corresponding interrupt
 	in PMC_PLL_IER. */
 	while ((PMC->PMC_PLL_ISR0 & (PMC_PLL_ISR0_LOCK0 << pll_id)) != (PMC_PLL_ISR0_LOCK0 << pll_id));
 
-	/* 11. Disable the interrupt (if enabled) */
+	/* 12. Disable the interrupt (if enabled) */
 
-	/* 12. Enable the unlock interrupt to quickly detect a failure on the generation of the clock of the PLL. */
+	/* 13. Enable the unlock interrupt to quickly detect a failure on the generation of the clock of the PLL. */
 	PMC->PMC_PLL_IER |= (PMC_PLL_IER_UNLOCK0 << pll_id);
 }
 
@@ -490,7 +497,8 @@ static void _pmc_disable_pll(uint32_t pll_id)
 
 	/* 6. In case a UPLL is being powered down, write a '0' to PMC_PLL_ACR.UTMIBG and
 	PMC_PLL_ACR.UTMIVR. */
-	PMC->PMC_PLL_ACR &= ~(PMC_PLL_ACR_UTMIBG | PMC_PLL_ACR_UTMIVR);
+	if (pll_id == PLL_ID_UPLL)
+		PMC->PMC_PLL_ACR &= ~(PMC_PLL_ACR_UTMIBG | PMC_PLL_ACR_UTMIVR);
 }
 
 static uint32_t _pmc_get_pll_clock(uint32_t pll_id)
