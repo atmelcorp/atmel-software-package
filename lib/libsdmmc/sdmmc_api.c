@@ -2838,7 +2838,6 @@ MmcInit(sSdCard * pSd)
 	pSd->wCurrBlockLen = SDMMC_BLOCK_SIZE;
 
 	if (MMC_IsCSDVer1_2(pSd) && MMC_IsVer4(pSd)) {
-		/* Get size from EXT_CSD */
 		if (MMC_EXT_DATA_SECTOR_SIZE(pSd->EXT)
 		    == MMC_EXT_DATA_SECT_4KIB)
 			pSd->wBlockSize = 4096;
@@ -2846,12 +2845,16 @@ MmcInit(sSdCard * pSd)
 			pSd->wBlockSize = 512;
 		pSd->dwNbBlocks = MMC_EXT_SEC_COUNT(pSd->EXT)
 		    / (pSd->wBlockSize / 512UL);
-		/* Device density >= 4 GiB does not fit 32-bit dwTotalSize */
-		pSd->dwTotalSize = MMC_EXT_SEC_COUNT(pSd->EXT);
-		if (pSd->dwTotalSize >= 0x800000)
-			pSd->dwTotalSize = 0xFFFFFFFF;
-		else
+		if(MMC_CSD_C_SIZE(pSd->CSD) == 0xfff) {
+			/* Device density >= 4 GiB does not fit 32-bit dwTotalSize */
+			pSd->dwTotalSize = MMC_EXT_SEC_COUNT(pSd->EXT);
 			pSd->dwTotalSize *= 512UL;
+		}
+		else {
+			pSd->dwNbBlocks = MMC_CSD_C_SIZE(pSd->CSD)
+							* (1 << (MMC_CSD_C_SIZE_MULT(pSd->CSD) + 2));
+			pSd->dwTotalSize = pSd->dwNbBlocks * (1 << MMC_CSD_READ_BL_LEN(pSd->CSD));
+		}
 	}
 	else {
 		pSd->wBlockSize = 512;

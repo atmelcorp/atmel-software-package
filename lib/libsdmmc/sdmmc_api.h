@@ -269,11 +269,15 @@
 #define SD_CSD_TRAN_SPEED(pCsd)         (uint8_t)SD_CSD(pCsd,  96, 8) /**< Max. data transfer rate */
 #define SD_CSD_CCC(pCsd)                (uint16_t)SD_CSD(pCsd, 84, 12) /**< Card command class */
 #define SD_CSD_READ_BL_LEN(pCsd)        (uint8_t)SD_CSD(pCsd,  80, 4) /**< Max. read data block length */
+#define MMC_CSD_READ_BL_LEN(pCsd)        (uint8_t)SD_CSD(pCsd,  80, 4) /**< Max. read data block length */
 #define SD_CSD_READ_BL_PARTIAL(pCsd)    (uint8_t)SD_CSD(pCsd,  79, 1) /**< Bartial blocks for read allowed */
 #define SD_CSD_WRITE_BLK_MISALIGN(pCsd) (uint8_t)SD_CSD(pCsd,  78, 1) /**< Write block misalignment */
 #define SD_CSD_READ_BLK_MISALIGN(pCsd)  (uint8_t)SD_CSD(pCsd,  77, 1) /**< Read block misalignment */
 #define SD_CSD_DSR_IMP(pCsd)            (uint8_t)SD_CSD(pCsd,  76, 1) /**< DSP implemented */
 #define SD_CSD_C_SIZE(pCsd)             (uint16_t)((SD_CSD(pCsd, 72, 2) << 10) | \
+					(SD_CSD(pCsd, 64, 8) << 2)  | \
+					 SD_CSD(pCsd, 62, 2)) /**< Device size */
+#define MMC_CSD_C_SIZE(pCsd)            (uint16_t)((SD_CSD(pCsd, 72, 2) << 10) | \
 					(SD_CSD(pCsd, 64, 8) << 2)  | \
 					 SD_CSD(pCsd, 62, 2)) /**< Device size */
 #define SD2_CSD_C_SIZE(pCsd)            ((SD_CSD(pCsd, 64, 6) << 16) | \
@@ -284,6 +288,7 @@
 #define SD_CSD_VDD_W_CURR_MIN(pCsd)     (uint8_t)SD_CSD(pCsd,  53, 3) /**< Max. write current VDD min */
 #define SD_CSD_VDD_W_CURR_MAX(pCsd)     (uint8_t)SD_CSD(pCsd,  50, 3) /**< Max. write current VDD max */
 #define SD_CSD_C_SIZE_MULT(pCsd)        (uint8_t)SD_CSD(pCsd,  47, 3) /**< Device size multiplier */
+#define MMC_CSD_C_SIZE_MULT(pCsd)       (uint8_t)SD_CSD(pCsd,  47, 3) /**< Device size multiplier */
 #define SD_CSD_ERASE_BLK_EN(pCsd)       (uint8_t)SD_CSD(pCsd,  46, 1) /**< Erase single block enable */
 #define SD_CSD_SECTOR_SIZE(pCsd)        (uint8_t)((SD_CSD(pCsd, 40, 6) << 1) | \
 					 SD_CSD(pCsd, 39, 1)) /**< Erase sector size*/
