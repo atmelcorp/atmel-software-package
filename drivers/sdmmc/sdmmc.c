@@ -1785,13 +1785,17 @@ bool sdmmc_initialize(struct sdmmc_set *set, uint32_t periph_id,
 	    & ~SDMMC_CALCR_TUNDIS) | SDMMC_CALCR_CNTVAL(val);
 	sdmmc_calibrate_zout(set);
 
-	/* Set DAT line timeout error to occur after 500 ms waiting delay.
-	 * 500 ms is the timeout value to implement when writing to SDXC cards.
+	/* Set Timeout Clock Frequency to main clock */
+	sdmmc_set_capabilities(regs, pmc_get_main_clock() / 1000000UL,
+							SDMMC_CA0R_TEOCLKF_Msk, 0, 0);
+
+	/* Set DAT line timeout error to occur after 2000 ms waiting delay.
+	 * 2000 ms is the timeout value to implement when writing to SDXC cards.
 	 */
 	base_freq = (regs->SDMMC_CA0R & SDMMC_CA0R_TEOCLKF_Msk) >> SDMMC_CA0R_TEOCLKF_Pos;
 	base_freq *= regs->SDMMC_CA0R & SDMMC_CA0R_TEOCLKU ? 1000000UL : 1000UL;
-	/* 2 ^ (DTCVAL + 13) = TIMEOUT * FTEOCLK = FTEOCLK / 2 */
-	val = base_freq / 2;
+	/* 2 ^ (DTCVAL + 13) = TIMEOUT * FTEOCLK = FTEOCLK * 2 */
+	val = base_freq * 2;
 	for (exp = 31, power = 1UL << 31; !(val & power) && power != 0;
 	    exp--, power >>= 1) ;
 	if (power == 0) {
