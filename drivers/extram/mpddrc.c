@@ -420,6 +420,65 @@ static void _configure_sdram(struct _mpddrc_desc* desc)
 
 #endif /* CONFIG_HAVE_MPDDRC_SDRAM */
 
+#ifdef CONFIG_HAVE_MPDDRC_LPDDR
+
+/* Configure LPDDR */
+static void _configure_lpddr(struct _mpddrc_desc *desc)
+{
+	uint32_t ba_offset = _compute_ba_offset();
+
+	/* Timings */
+	_set_ddr_timings(desc);
+
+	/*
+	 * Step 4: Program Temperature Compensated Self-refresh (TCR), Partial
+	 * Array Self-refresh (PASR) and Drive Strength (DS) parameters in the
+	 * Low-power register (MPDDRC_LPR).
+	 */
+
+	/* DDR memory is not in backup mode */
+	MPDDRC->MPDDRC_LPR =
+		MPDDRC_LPR_LPCB_SELFREFRESH |
+		MPDDRC_LPR_CLK_FR_ENABLED |
+		MPDDRC_LPR_PASR(0) |
+		MPDDRC_LPR_DS_DS_QUARTER |
+		MPDDRC_LPR_TIMEOUT_DELAY_128_CLK |
+		MPDDRC_LPR_UPD_MR_NO_UPDATE;
+
+	/* Step 5: Issue a NOP command. */
+	_send_ddr_cmd(MPDDRC_MR_MODE_NOP_CMD);
+
+	/* Step 6: Pause for at least 200μs. */
+	usleep(200);
+
+	/* Step 7: Issue a NOP command. */
+	_send_ddr_cmd(MPDDRC_MR_MODE_NOP_CMD);
+
+	/* Step 8: Issue a All Banks Precharge command. */
+	_send_ddr_cmd(MPDDRC_MR_MODE_PRCGALL_CMD);
+
+	/* Step 9: Issue 2 autorefresh commands. */
+	_send_ddr_cmd(MPDDRC_MR_MODE_RFSH_CMD);
+	_send_ddr_cmd(MPDDRC_MR_MODE_RFSH_CMD);
+
+	/*
+	 * Step 10: An Extended Mode Register Set (EMRS) cycle is issued to
+	 * program the low-power DDR1-SDRAM parameters (TCSR, PASR, DS).
+	 * [...]
+	 * The write address must be chosen so that signal BA[1] is set to 1
+	 * and BA[0] is set to 0.
+	 */
+	_send_ext_lmr_cmd(0x2, ba_offset);
+
+	/* Step 11: Issue a Mode Register Set command. */
+	_send_ddr_cmd(MPDDRC_MR_MODE_LMR_CMD);
+
+	/* Step 12 Issue a Normal mode command. */
+	_send_ddr_cmd(MPDDRC_MR_MODE_NORMAL_CMD);
+}
+
+#endif /* CONFIG_HAVE_MPDDRC_LPDDR */
+
 extern void mpddrc_configure(struct _mpddrc_desc* desc)
 {
 #ifdef MPDDRC_HS_DIS_ANTICIP_READ
@@ -505,6 +564,11 @@ extern void mpddrc_configure(struct _mpddrc_desc* desc)
 #ifdef CONFIG_HAVE_MPDDRC_DDR3
 	case MPDDRC_TYPE_DDR3:
 		_configure_ddr3(desc);
+		break;
+#endif
+#ifdef CONFIG_HAVE_MPDDRC_LPDDR
+	case MPDDRC_TYPE_LPDDR:
+		_configure_lpddr(desc);
 		break;
 #endif
 #ifdef CONFIG_HAVE_MPDDRC_LPDDR2
