@@ -39,6 +39,9 @@ enum _sdram_devices {
 	MT48LC16M16,
 	MT48LC16M16X2,
 #endif
+#ifdef CONFIG_HAVE_LPSDR_MT48H32M16
+	MT48H32M16,
+#endif
 };
 
 #ifdef __cplusplus

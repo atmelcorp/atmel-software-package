@@ -91,6 +91,36 @@ static void _init_mt48lc16m16x2(struct _sdramc_desc *desc)
 }
 #endif /* CONFIG_HAVE_SDRAM_MT48LC16M16 */
 
+#ifdef CONFIG_HAVE_LPSDR_MT48H32M16
+static void _init_mt48h32m16(struct _sdramc_desc *desc)
+{
+	uint32_t mck = pmc_get_master_clock() / 1000000;
+
+	desc->is_lpsdr = true;
+	desc->nb_columns = 10;
+	desc->nb_rows = 13;
+	desc->nb_banks = 4;
+	desc->data_bus_width = 16;
+	desc->cas_latency = 3;
+	desc->shift_sampling = 3;
+
+	/* timings for 166MHz */
+
+	memset(&desc->timings, 0, sizeof(desc->timings));
+	desc->timings.tmrd = 2;                     // 2ck
+	desc->timings.twr  = NS2CYCLES(15, mck);    // 15ns
+	desc->timings.trc  = NS2CYCLES(60, mck);    // 60ns
+	desc->timings.trfc = NS2CYCLES(72, mck);    // 72ns
+	desc->timings.trp  = NS2CYCLES(18, mck);    // 18ns
+	desc->timings.trcd = NS2CYCLES(18, mck);    // 18ns
+	desc->timings.tras = NS2CYCLES(42, mck);    // 42ns
+	desc->timings.txsr = NS2CYCLES(120, mck);   // 120ns
+
+	desc->refresh_window = 64;
+	desc->refresh_cycles = 8192;
+}
+#endif /* CONFIG_HAVE_LPSDR_MT48H32M16 */
+
 /*------------------------------------------------------------------------------
  *        Exported Functions
  *----------------------------------------------------------------------------*/
@@ -105,6 +135,11 @@ void sdram_init_descriptor(struct _sdramc_desc *desc,
 		break;
 	case MT48LC16M16X2:
 		_init_mt48lc16m16x2(desc);
+		break;
+#endif
+#ifdef CONFIG_HAVE_LPSDR_MT48H32M16
+	case MT48H32M16:
+		_init_mt48h32m16(desc);
 		break;
 #endif
 	default:
