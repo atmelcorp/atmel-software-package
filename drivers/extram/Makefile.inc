@@ -28,4 +28,6 @@
 
 drivers-$(CONFIG_HAVE_MPDDRC) += drivers/extram/ddram.o
 drivers-$(CONFIG_HAVE_MPDDRC) += drivers/extram/mpddrc.o
+drivers-$(CONFIG_HAVE_SDRAMC) += drivers/extram/sdram.o
+drivers-$(CONFIG_HAVE_SDRAMC) += drivers/extram/sdramc.o
 drivers-$(CONFIG_HAVE_SMC) += drivers/extram/smc.o
