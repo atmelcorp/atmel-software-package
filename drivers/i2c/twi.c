@@ -85,6 +85,7 @@
 #include "i2c/twi.h"
 #include "peripherals/pmc.h"
 #include "trace.h"
+#include "intmath.h"
 
 #include "timer.h"
 #include "io.h"
@@ -140,7 +141,7 @@ uint32_t twi_configure_master(Twi *twi, uint32_t twi_clock)
 
 #ifdef TWI_CWGR_HOLD
 	/* Compute holding time (I2C spec requires 300ns) */
-	hold = TWI_CWGR_HOLD(ROUND_INT_DIV((uint32_t)(0.3 * clock), 1000000) - 3);
+	hold = TWI_CWGR_HOLD(CEIL_INT_DIV((uint32_t)(0.3 * clock), 1000000) - 3);
 #endif
 
 	/* Configure clock */

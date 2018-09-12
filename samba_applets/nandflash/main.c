@@ -140,7 +140,7 @@ static uint32_t pmecc_get_ecc_size(uint32_t ecc_bits, uint32_t sector_size_in_by
                                    uint32_t nb_sector_per_page)
 {
 	uint32_t mm = sector_size_in_byte == 512 ? 13 : 14;
-	return ROUND_INT_DIV(mm * ecc_bits, 8) * nb_sector_per_page;
+	return CEIL_INT_DIV(mm * ecc_bits, 8) * nb_sector_per_page;
 }
 
 static uint32_t pmecc_get_default_header(uint32_t min_correctability)

@@ -34,6 +34,7 @@
 
 #include "chip.h"
 #include "trace.h"
+#include "intmath.h"
 
 #include "nvm/nand/pmecc.h"
 #include "nvm/nand/pmecc_gf_512.h"
@@ -609,7 +610,7 @@ uint8_t pmecc_initialize(uint8_t sector_size, uint8_t ecc_errors_per_sector,
 
 	/* Real value of ECC bit number correction (2, 4, 8, 12, 24, 32) */
 	pmecc_desc.tt = ecc_errors_per_sector;
-	pmecc_desc.ecc_size = ROUND_INT_DIV(pmecc_desc.mm * ecc_errors_per_sector, 8) * nb_sectors_per_page;
+	pmecc_desc.ecc_size = CEIL_INT_DIV(pmecc_desc.mm * ecc_errors_per_sector, 8) * nb_sectors_per_page;
 
 	if (ecc_offset_in_spare < 2) {
 		pmecc_desc.ecc_start = PMECC_ECC_DEFAULT_START_ADDR;

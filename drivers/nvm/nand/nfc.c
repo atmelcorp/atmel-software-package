@@ -39,6 +39,7 @@
 
 #include "chip.h"
 #include "trace.h"
+#include "intmath.h"
 
 #include "nvm/nand/nfc.h"
 #include "peripherals/pmc.h"
@@ -73,7 +74,7 @@ void nfc_configure(uint32_t data_size, uint32_t spare_size,
 	/* cannot read and write spare at the same time */
 	assert(!read_spare || !write_spare);
 
-	cfg = NFC_CFG_NFCSPARESIZE(ROUND_INT_DIV(spare_size, 4) - 1) |
+	cfg = NFC_CFG_NFCSPARESIZE(CEIL_INT_DIV(spare_size, 4) - 1) |
 	      NFC_CFG_DTOCYC(0xF) |
 	      NFC_CFG_DTOMUL_X1048576 |
 	      NFC_CFG_RBEDGE;
