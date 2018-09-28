@@ -210,6 +210,7 @@ const struct spi_nor_info spi_nor_ids[] = {
 	/* SST */
 	{ SST25("sst25vf032",  0xbf254a,   64), },
 	{ SST25("sst25vf064",  0xbf254b,  128), },
+	{ SST25("sst25vf020b", 0xbf258c,    4), },
 	{ SST25("sst25vf040b", 0xbf258d,    8), },
 	{ SST25("sst25vf080b", 0xbf258e,   16), },
 	{ SST25("sst25pf040c", 0x620613,    8), },
