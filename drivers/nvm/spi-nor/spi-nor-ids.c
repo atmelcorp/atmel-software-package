@@ -52,7 +52,7 @@
 	.sector_size = 65536U,			\
 	.n_sectors = (_n_sectors),		\
 	.page_size = 256,			\
-	.flags = SNOR_SECT_4K | SNOR_NO_4BAIS | SNOR_SKIP_SFDP
+	.flags = SNOR_SECT_4K | SNOR_NO_4BAIS | SNOR_SKIP_SFDP | SNOR_CLEAR_SR_BP
 
 #define SST26(_name, _jedec_id, _n_sectors)	\
 	.name = _name,				\

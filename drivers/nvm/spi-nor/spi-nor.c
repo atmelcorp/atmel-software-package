@@ -269,6 +269,16 @@ static int sst26_unlock_block_protection(struct spi_flash *flash)
 	return rc < 0 ? rc : spi_flash_wait_till_ready(flash);
 }
 
+static int spi_nor_clear_sr_bp(struct spi_flash *flash)
+{
+	uint8_t sr = 0;
+	int rc;
+
+	rc = spi_flash_write_enable(flash);
+	rc = rc < 0 ? rc : spi_flash_write_reg(flash, SFLASH_INST_WRITE_SR, &sr, 1);
+	return rc < 0 ? rc : spi_flash_wait_till_ready(flash);
+}
+
 static int spi_nor_probe(struct spi_flash *flash)
 {
 	const struct spi_nor_info *info;
@@ -313,6 +323,11 @@ static int spi_nor_probe(struct spi_flash *flash)
 	if (info->flags & SNOR_SST_ULBPR)
 		if (sst26_unlock_block_protection(flash))
 			trace_info("SF: WARNING: SST26 - can't unlock block protection\r\n");
+
+	if (info->flags & SNOR_CLEAR_SR_BP)
+		if (spi_nor_clear_sr_bp(flash))
+			trace_warning("SF: WARNING: can't clear Block Protection bits in Status Register\r\n");
+
 	flash->name = info->name;
 
 	/* Parse the Serial Flash Discoverable Parameter tables. */

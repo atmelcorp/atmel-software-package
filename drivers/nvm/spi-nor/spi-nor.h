@@ -49,6 +49,7 @@
 #define SNOR_SECT_4K_ONLY	(0x1UL << 5)
 #define SNOR_SST_ULBPR		(0x1UL << 6)
 #define SNOR_SECT_32K		(0x1UL << 7)
+#define SNOR_CLEAR_SR_BP	(0x1UL << 8)
 
 /*----------------------------------------------------------------------------
  *        Exported Types
