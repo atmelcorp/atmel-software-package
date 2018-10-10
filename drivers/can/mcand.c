@@ -862,13 +862,13 @@ static int mcand_set_baudrate(Mcan *mcan, uint32_t freq, uint32_t freq_fd)
 	uint32_t val;
 
 	const struct _mcan_quanta quanta = {
-		.before_sp = 1 + 2 + 12,
-		.after_sp  = 12,
+		.before_sp = 2 + 25,
+		.after_sp  = 1 + 12,
 		.sync_jump = 4,
 	};
 	const struct _mcan_quanta quanta_fd = {
-		.before_sp = 1 + 2 + 5,
-		.after_sp  = 5,
+		.before_sp = 2 + 12,
+		.after_sp  = 1 + 5,
 		.sync_jump = 2,
 	};
 
@@ -1177,8 +1177,8 @@ int mcand_configure(struct _mcan_desc* desc)
 	 * divided by 24, 12 or 6 */
 	struct _pmc_periph_cfg cfg = {
 		.gck = {
-			.css = PMC_PCR_GCKCSS_MCK_CLK,
-			.div = 1,
+			.css = PMC_PCR_GCKCSS_UPLL_CLK,
+			.div = 6,
 		},
 	};
 	pmc_configure_peripheral(id0, &cfg, true);
