@@ -115,10 +115,10 @@ static bool init_extram_from_preset(uint32_t preset)
 		device = W981216BH;
 		break;
 #endif
-#ifdef CONFIG_HAVE_DDR2_W971G16SG
+#ifdef CONFIG_HAVE_DDR2_W971GG6SB
 	case 8:
-		trace_warning_wp("Preset 8 (W971G16SG)\r\n");
-		device = W971G16SG;
+		trace_warning_wp("Preset 8 (W971GG6SB)\r\n");
+		device = W971GG6SB;
 		break;
 #endif
 #ifdef CONFIG_HAVE_DDR2_W972GG6KB
