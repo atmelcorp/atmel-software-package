@@ -178,8 +178,8 @@ static void _init_edf8164a3ma(struct _mpddrc_desc* desc)
 
 #ifdef CONFIG_HAVE_MPDDRC_DDR2
 
-#ifdef CONFIG_HAVE_DDR2_W971G16SG
-static void _init_w971g16sg(struct _mpddrc_desc* desc)
+#ifdef CONFIG_HAVE_DDR2_W971GG6SB
+static void _init_w971gg6sb(struct _mpddrc_desc* desc)
 {
 	uint32_t mck = pmc_get_master_clock() / 1000000;
 
@@ -229,7 +229,7 @@ static void _init_w971g16sg(struct _mpddrc_desc* desc)
 	desc->refresh_window = 64;
 	desc->refresh_cycles = 8192;
 }
-#endif /* CONFIG_HAVE_DDR2_W971G16SG */
+#endif /* CONFIG_HAVE_DDR2_W971GG6SB */
 
 #ifdef CONFIG_HAVE_DDR2_W972GG6KB
 static void _init_w972gg6kb(struct _mpddrc_desc* desc)
@@ -674,9 +674,9 @@ void ddram_init_descriptor(struct _mpddrc_desc* desc,
 		_init_mt47h128m16(desc);
 		break;
   #endif
-  #ifdef CONFIG_HAVE_DDR2_W971G16SG
-	case W971G16SG:
-		_init_w971g16sg(desc);
+  #ifdef CONFIG_HAVE_DDR2_W971GG6SB
+	case W971GG6SB:
+		_init_w971gg6sb(desc);
 		break;
   #endif
   #ifdef CONFIG_HAVE_DDR2_W972GG6KB
