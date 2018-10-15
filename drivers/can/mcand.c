@@ -1183,7 +1183,8 @@ int mcand_configure(struct _mcan_desc* desc)
 	};
 	pmc_configure_peripheral(id0, &cfg, true);
 #else
-	pmc_configure_pck(PMC_PCK_CAN, PMC_PCK_CSS_MCK, 0);
+	pmc_enable_upll_clock();
+	pmc_configure_pck(PMC_PCK_CAN, PMC_PCK_CSS_UPLL_CLK, 2);
 	pmc_enable_pck(PMC_PCK_CAN);
 	pmc_configure_peripheral(id0, NULL, true);
 #endif
