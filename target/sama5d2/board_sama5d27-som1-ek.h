@@ -56,7 +56,7 @@
 #define BOARD_PMC_PLLA_DIV 1
 
 /** /def Definition of DDRAM's type */
-#define BOARD_DDRAM_TYPE W971G16SG
+#define BOARD_DDRAM_TYPE W971GG6SB
 
 /** \def Board DDR memory size in bytes */
 #define BOARD_DDR_MEMORY_SIZE 128*1024*1024
