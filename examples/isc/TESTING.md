@@ -38,9 +38,49 @@ Connect LCD with on board J2 LCD interface.
 
 --- SAMA5D27-SOM1-EK
 Connect image sensor with on board J27 ISC. Connect LCD with on board J26 LCD interface.
-There are pin connection bug on ISC part, Camera sensor’s MSB should align with highest bits
-(instead of LSB). In 8 bits mode, D11-D4 at ISC side connect to D7-D0 at the sensor side. 
-user should cross-wire D0-D11 shift to D4-D11.
+We cannot simply connect Microchip's Sensor daughter board directly to get correct image.
+
+- CONNECT Microchip's Sensor daughter board TO SAMA5D27-SOM1-EK will not work
+	ISC_D11 ---------- SENSOR D11
+	ISC_D10 ---------- SENSOR D10
+	ISC_D9 ----------- SENSOR D9
+	ISC_D8 ----------- SENSOR D8
+	ISC_D7 ----------- SENSOR D7
+	ISC_D6 ----------- SENSOR D6
+	ISC_D5 ----------- SENSOR D5
+	ISC_D4 ----------- SENSOR D4
+	ISC_D3 ----------- SENSOR D3
+	ISC_D2 ----------- SENSOR D2
+	ISC_D1 ----------- SENSOR D1
+	ISC_D0 ----------- SENSOR D0
+	
+	For example:
+	Data Mapping Raw Bayer Raw Bayer YUV422     YUV422
+	             12-bit    10-bit    8-bit      10-bit
+	ISC_D11      RGGB[11]  RGGB[9]   YC422[7]   YC422[9]
+	ISC_D10      RGGB[10]  RGGB[8]   YC422[6]   YC422[8]
+	ISC_D9       RGGB[9]   RGGB[7]   YC422[5]   YC422[7]
+	ISC_D8       RGGB[8]   RGGB[6]   YC422[4]   YC422[6]
+	ISC_D7       RGGB[7]   RGGB[5]   YC422[3]   YC422[5]
+	ISC_D6       RGGB[6]   RGGB[4]   YC422[2]   YC422[4]
+	ISC_D5       RGGB[5]   RGGB[3]   YC422[1]   YC422[3]
+	ISC_D4       RGGB[4]   RGGB[2]   YC422[0]   YC422[2]
+	ISC_D3       RGGB[3]   RGGB[1]   0          YC422[1]
+	ISC_D2       RGGB[2]   RGGB[0]   0          YC422[0]
+	ISC_D1       RGGB[1]   RGGB[9]   0          0
+	ISC_D0       RGGB[0]   RGGB[8]   0          0
+	
+	The ISC data pins is always aligned with highest bit, 8-bit YUV422 mode for example, ISC_(D0 - D3) are not used.
+	
+- CORRECT CONNECTION (8-BITS MODE) ARE:
+	ISC_D11  ---------- SENSOR D7
+	ISC_D10 ----------- SENSOR D6
+	ISC_D9  ----------- SENSOR D5
+	ISC_D8  ----------- SENSOR D4
+	ISC_D7  ----------- SENSOR D3
+	ISC_D6  ----------- SENSOR D2
+	ISC_D5  ----------- SENSOR D1
+	ISC_D4  ----------- SENSOR D0
 
 ## Start the application
 --------
