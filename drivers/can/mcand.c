@@ -487,7 +487,7 @@ static void _mcand_tx_buffer_handler(struct _mcan_desc *desc)
 			else
 				mcand_release_ram(desc, MCAN_RAM_TX_BUFFER, buf_idx);
 
-			callback_copy(&ram_item->cb, NULL);
+			callback_call(&ram_item->cb, NULL);
 		}
 	}
 }
@@ -545,7 +545,7 @@ static void _mcand_tx_fifo_handler(struct _mcan_desc *desc)
 
 		mcand_release_ram(desc, MCAN_RAM_TX_FIFO, fifo_idx - fifo_start);
 
-		callback_copy(&ram_item->cb, NULL);
+		callback_call(&ram_item->cb, NULL);
 	}
 }
 
@@ -617,7 +617,7 @@ static void _mcand_rx_proc(struct _mcan_desc *desc, enum _mcan_ram ram, uint32_t
 	if ((ram_item->buf->attr & CAND_BUF_ATTR_RX_OVERWRITE) == 0)
 		mcand_release_ram(desc, ram, buf_idx);
 
-	callback_copy(&ram_item->cb, NULL);
+	callback_call(&ram_item->cb, NULL);
 }
 
 static void _mcand_rx_buffer_handler(struct _mcan_desc *desc)
