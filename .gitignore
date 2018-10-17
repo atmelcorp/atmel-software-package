@@ -11,6 +11,9 @@ GTAGS
 *.ewd
 *.dep
 *.ewt
+*.ewsample
+examples/*/ewinfo.ENU.html
+examples/*/ExampleInfo.ENU.xml
 examples/*/settings/
 tests/*/settings/
 examples/*/Debug/
