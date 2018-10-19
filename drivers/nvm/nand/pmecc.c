@@ -730,7 +730,7 @@ uint32_t pmecc_get_sectors_per_page(void)
  */
 uint32_t pmecc_get_ecc_bytes_per_page(void)
 {
-	return pmecc_get_ecc_end_address() - pmecc_get_ecc_start_address() + 1;
+	return pmecc_get_ecc_end_address() - pmecc_get_ecc_start_address();
 }
 
 /**
