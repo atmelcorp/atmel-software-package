@@ -232,9 +232,15 @@ static void _init_w971gg6sb(struct _mpddrc_desc* desc)
 #endif /* CONFIG_HAVE_DDR2_W971GG6SB */
 
 #ifdef CONFIG_HAVE_DDR2_W972GG6KB
+/* Configuring the Multiport DDR-SDRAM Controller for Winbond W972GG6KB-25 */
 static void _init_w972gg6kb(struct _mpddrc_desc* desc, uint8_t bus_width)
 {
+	/* The General Clock Distribution Block Diagram shows that DDRCK is MCK_2X
+	 * divided by 2 */
 	uint32_t mck = pmc_get_master_clock() / 1000000;
+
+	/* Verify that tCK ranges from 5 to 8 ns */
+	assert(mck >= 125 && mck <= 200);
 
 	desc->type = MPDDRC_TYPE_DDR2;
 #ifdef MPDDRC_MD_DBW_DBW_32_BITS
@@ -253,13 +259,17 @@ static void _init_w972gg6kb(struct _mpddrc_desc* desc, uint8_t bus_width)
 #endif
 
 #ifdef CONFIG_HAVE_MPDDRC_DATA_PATH
-	desc->data_path = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_ONE_CYCLE;
+	desc->data_path = mck > 170
+	  ? MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_TWO_CYCLES
+	  : MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_ONE_CYCLE;
 #endif
 
 	desc->control = MPDDRC_CR_NR_14_ROW_BITS
 	              | MPDDRC_CR_NC_DDR_10_COL_BITS
 	              | MPDDRC_CR_CAS_DDR_CAS3
+	              | MPDDRC_CR_DIC_DS_DDR2_WEAKSTRENGTH
 	              | MPDDRC_CR_NB_8_BANKS
+	              | MPDDRC_CR_DECOD_INTERLEAVED
 	              | MPDDRC_CR_UNAL_SUPPORTED;
 
 #ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
@@ -275,26 +285,35 @@ static void _init_w972gg6kb(struct _mpddrc_desc* desc, uint8_t bus_width)
 
 	/* timings */
 	memset(&desc->timings, 0, sizeof(desc->timings));
-	desc->timings.tras   = NS2CYCLES(45, mck);  // 45ns
-	desc->timings.trcd   = NS2CYCLES(13, mck);  // 13ns
-	desc->timings.twr    = NS2CYCLES(15, mck);  // 15ns
-	desc->timings.trc    = NS2CYCLES(58, mck);  // 58ns
-	desc->timings.trp    = NS2CYCLES(13, mck);  // 13ns
-	desc->timings.trrd   = NS2CYCLES(10, mck);  // 10ns
-	desc->timings.twtr   = NS2CYCLES(8, mck);   // 8ns
-	desc->timings.tmrd   = 2;                   // 2ck
-	desc->timings.trfc   = NS2CYCLES(195, mck); // 195ns
-	desc->timings.txsnr  = NS2CYCLES(205, mck); // tRFC+10ns
-	desc->timings.txsrd  = 200;                 // 200ck
-	desc->timings.txp    = 2;                   // 2ck
-	desc->timings.txard  = 2;                   // 2ck
-	desc->timings.txards = 8;                   // 8ck
-	desc->timings.trpa   = NS2CYCLES(21, mck);  // 21ns
-	desc->timings.trtp   = NS2CYCLES(8, mck);   // 8ns
-	desc->timings.tfaw   = NS2CYCLES(45, mck);  // 45ns
+	desc->timings.tras   = NS2CYCLES(45, mck);  /* 45 ns */
+	desc->timings.trcd   = NS2CYCLES(13, mck);  /* 12.5 ns */
+	desc->timings.twr    = NS2CYCLES(15, mck);  /* 15 ns */
+	desc->timings.trc    = NS2CYCLES(58, mck);  /* 57.5 ns */
+	desc->timings.trp    = NS2CYCLES(13, mck);  /* 12.5 ns */
+	/* Satisfy both tRRD >= 10 ns and tRRD >= 2 nCK */
+	desc->timings.trrd   = MAX(NS2CYCLES(10, mck), 2);
+	/* Satisfy both tWTR >= 7.5 ns and tWTR >= 2 nCK */
+	desc->timings.twtr   = MAX(NS2CYCLES(8, mck), 2);
+	desc->timings.tmrd   = 2;                   /* 2 nCK */
+	desc->timings.trfc   = NS2CYCLES(195, mck); /* 195 ns */
+	desc->timings.txsnr  = NS2CYCLES(205, mck); /* tRFC + 10 ns */
+	desc->timings.txsrd  = 200;                 /* 200 nCK */
+	desc->timings.txp    = 2;                   /* 2 nCK */
+	desc->timings.txard  = 2;                   /* 2 nCK */
+	desc->timings.txards = 8;                   /* 8 - AL = 8 nCK */
+	desc->timings.trpa   = 1 + NS2CYCLES(13, mck);  /* tRPall = tRP + 1 nCK */
+	/* Read to precharge cmd delay, satisfy both constraints:
+	 * (1) tRTP >= tRTP(min) i.e. tRTP >= 7.5 ns
+	 * (2) tRTP >= AL+BL/2   i.e. tRTP >= 4 nCK
+	 * with Additive Latency = 0 nCK, and Burst Length = 8 bits */
+	desc->timings.trtp   = MAX(NS2CYCLES(8, mck), 4);
+	desc->timings.tfaw   = NS2CYCLES(45, mck);  /* 45 ns */
 
+	/* Arbitrary software period: 64 ms */
 	desc->refresh_window = 64;
-	desc->refresh_cycles = 8192;
+	/* Periodic auto-refresh interval: tREFI = 7.8 usec
+	 * Within our arbitrary software period it fits 8205 times */
+	desc->refresh_cycles = 8205;
 }
 #endif /* CONFIG_HAVE_DDR2_W972GG6KB */
 
