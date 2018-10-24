@@ -112,8 +112,9 @@
 #include "mm/cache.h"
 #include "serial/console.h"
 
-#include "peripherals/pit.h"
 #include "peripherals/pmc.h"
+#include "peripherals/tc.h"
+#include "peripherals/tcd.h"
 
 #include "video/image_sensor_inf.h"
 #include "video/isc.h"
@@ -136,10 +137,11 @@
 /*----------------------------------------------------------------------------
  *        Local definitions
  *----------------------------------------------------------------------------*/
+#define FRAME_DEBUG_ENABLED
 
 #define NUM_FRAME_BUFFER     4
-
 #define SENSOR_TWI_BUS BOARD_ISC_TWI_BUS
+#define COUNTER_FREQ         1
 
 /*----------------------------------------------------------------------------
  *          External variables
@@ -171,12 +173,23 @@ static struct _iscd_desc iscd;
 CACHE_ALIGNED_DDR
 static uint8_t stream_buffers[FRAME_BUFFER_SIZEC(640, 480) * NUM_FRAME_BUFFER];
 
+#ifdef FRAME_DEBUG_ENABLED
+/** define Timer Counter descriptor for counter/timer */
+static struct _tcd_desc tc_counter = {
+	.addr = TC0,
+	.channel = 1,
+};
+static uint32_t _isc_frame_count = 0;
+#endif
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
 
 static void isc_vd_callback(uint8_t frame_idx)
 {
+#ifdef FRAME_DEBUG_ENABLED
+	_isc_frame_count++;
+#endif
 	uvc_function_update_frame_idx(frame_idx);
 }
 
@@ -245,6 +258,31 @@ void usbd_driver_callbacks_interface_setting_changed(uint8_t interface, uint8_t 
 	uvc_driver_interface_setting_changed_handler(interface, setting);
 }
 
+#ifdef FRAME_DEBUG_ENABLED
+static int _tc_counter_callback(void* arg, void* arg2)
+{
+	printf("ISC %d frames, UVC %d frames per second\r\n",_isc_frame_count, uvc_get_frame_count());
+	_isc_frame_count = 0;
+	uvc_reset_frame_count();
+	return 0;
+}
+
+static void _tc_counter_initialize(uint32_t freq)
+{
+	uint32_t frequency;
+	struct _callback _cb;
+
+	printf("* Configure TC: channel %d: counter mode\r\n", tc_counter.channel);
+
+	frequency = tcd_configure_counter(&tc_counter, freq, freq);
+
+	printf("  - Required frequency = %uHz\r\n", (unsigned)freq);
+	printf("  - Configured frequency = %uHz\r\n", (unsigned)frequency);
+	callback_set(&_cb, _tc_counter_callback, NULL);
+	tcd_start(&tc_counter, &_cb);
+}
+#endif
+
 /*----------------------------------------------------------------------------
  *        Global functions
  *----------------------------------------------------------------------------*/
@@ -278,9 +316,11 @@ extern int main( void )
 
 	/* connect if needed */
 	usb_vbus_configure();
+#ifdef FRAME_DEBUG_ENABLED
+	_tc_counter_initialize(COUNTER_FREQ);
+#endif
 
 	/* clear video buffer */
-
 	while (1) {
 		if (usbd_get_state() < USBD_STATE_CONFIGURED) {
 			continue;
