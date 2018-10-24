@@ -86,6 +86,7 @@ static struct _uvc_driver *uvc_driver;
 
 static volatile uint32_t frame_buffer_addr;
 
+static uint32_t uvc_frame_count = 0;
 /*-----------------------------------------------------------------------------
  *      Exported functions
  *-----------------------------------------------------------------------------*/
@@ -269,6 +270,16 @@ void uvc_function_get_res(const USBGenericRequest *request)
 	usbd_stall(0);
 }
 
+void uvc_reset_frame_count(void)
+{
+	uvc_frame_count = 0;
+}
+
+uint32_t uvc_get_frame_count(void)
+{
+	return uvc_frame_count;
+}
+
 /**
  * Callback that invoked when USB packet is sent.
  */
@@ -297,6 +308,7 @@ void uvc_function_payload_sent(void *arg, uint8_t state,
 		uvc_driver->frm_count++;
 		uvc_driver->frm_offset = 0;
 		header->bmHeaderInfo.bm.EoF = 1;
+		uvc_frame_count++;
 		frame_buffer_addr = uvc_driver ->stream_frm_index;
 		frame_buffer_addr = (frame_buffer_addr == 0) ?
 							(uvc_driver->multi_buffers - 1): (frame_buffer_addr -1);

@@ -61,6 +61,8 @@ extern void uvc_function_set_cur(const USBGenericRequest *request);
 extern uint8_t uvc_function_is_video_on(void);
 extern uint8_t uvc_function_get_frame_format(void);
 extern void uvc_function_update_frame_idx(uint32_t idx);
+extern void uvc_reset_frame_count(void);
+extern uint32_t uvc_get_frame_count(void);
 /**@}*/
 
 #endif /* UVCDRIVER_H */
