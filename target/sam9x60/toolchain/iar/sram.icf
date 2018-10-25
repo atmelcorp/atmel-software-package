@@ -1,0 +1,46 @@
+define memory mem with size = 4G;
+define region RAM_region           = mem:[from 0x00300000 to 0x0030FFFF];
+define region DDRAM_region         = mem:[from 0x20000000 to 0x23FFFFFF];
+define region DDRAM_NOCACHE_region = mem:[from 0x24000000 to 0x24FFFFFF];
+
+define block CSTACK    with alignment = 8, size = 0x800 { };
+define block IRQ_STACK with alignment = 8, size = 0x60  { };
+define block ABT_STACK with alignment = 8, size = 0x40  { };
+define block UND_STACK with alignment = 8, size = 0x40  { };
+define block SYS_STACK with alignment = 8, size = 0x40  { };
+define block HEAP      with alignment = 4, size = 0x200 { };
+
+define block SRAM { section .region_sram  };
+define block DDRAM { section .region_ddr };
+
+/* Please see drivers/mm/cache.h for details on the "Cache-aligned" sections */
+define block NO_CACHE { section .region_nocache };
+define block CACHE_ALIGNED with alignment = 32 { section .region_cache_aligned };
+define block CACHE_ALIGNED_CONST with alignment = 32 { section .region_cache_aligned_const };
+define block DDR_CACHE_ALIGNED with alignment = 32 { section .region_ddr_cache_aligned };
+
+do not initialize { section .region_sram };
+do not initialize { section .region_ddr };
+do not initialize { section .region_nocache };
+do not initialize { section .region_cache_aligned };
+do not initialize { section .region_ddr_cache_aligned };
+
+place at start of RAM_region { section .vectors };
+place in RAM_region { section .cstartup };
+place in RAM_region { ro };
+place in RAM_region { rw };
+place in RAM_region { block CACHE_ALIGNED_CONST };
+place in RAM_region { zi };
+place in RAM_region { block CACHE_ALIGNED };
+place in RAM_region { block SRAM };
+place in RAM_region { block HEAP };
+place in RAM_region { block IRQ_STACK };
+place in RAM_region { block ABT_STACK };
+place in RAM_region { block UND_STACK };
+place in RAM_region { block SYS_STACK };
+place in RAM_region { block CSTACK };
+
+place in DDRAM_region { block DDR_CACHE_ALIGNED };
+place in DDRAM_region { block DDRAM };
+
+place in DDRAM_NOCACHE_region { block NO_CACHE };
