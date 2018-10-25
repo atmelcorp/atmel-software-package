@@ -212,7 +212,13 @@ tpl-set-chip() {
     done
 
     echo "SET CHIP=$chip"
-    sed -i "s/__REPLACE_CHIP__/$chip/g" "$tpl"
+    if [ "$chip" = AT91SAM9X60 ]; then
+        sed -i "s/__REPLACE_CHIP__/SAM9X60/g" "$tpl"
+        # workaround: IAR uses "Microchip" for SAM9X60 device
+        sed -i "s/Atmel/Microchip/g" "$tpl"
+    else
+        sed -i "s/__REPLACE_CHIP__/$chip/g" "$tpl"
+    fi
 }
 
 
