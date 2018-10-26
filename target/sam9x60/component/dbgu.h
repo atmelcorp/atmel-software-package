@@ -82,14 +82,14 @@ typedef struct {
 #define   DBGU_MR_PAR_ODD (0x1u << 9) /**< \brief (DBGU_MR) Odd Parity */
 #define   DBGU_MR_PAR_SPACE (0x2u << 9) /**< \brief (DBGU_MR) Space: parity forced to 0 */
 #define   DBGU_MR_PAR_MARK (0x3u << 9) /**< \brief (DBGU_MR) Mark: parity forced to 1 */
-#define   DBGU_MR_PAR_NO (0x4u << 9) /**< \brief (DBGU_MR) No parity */
+#define   DBGU_MR_PAR_NONE (0x4u << 9) /**< \brief (DBGU_MR) No parity */
 #define DBGU_MR_CHMODE_Pos 14
 #define DBGU_MR_CHMODE_Msk (0x3u << DBGU_MR_CHMODE_Pos) /**< \brief (DBGU_MR) Channel Mode */
 #define DBGU_MR_CHMODE(value) ((DBGU_MR_CHMODE_Msk & ((value) << DBGU_MR_CHMODE_Pos)))
-#define   DBGU_MR_CHMODE_NORMAL (0x0u << 14) /**< \brief (DBGU_MR) Normal mode */
-#define   DBGU_MR_CHMODE_AUTOMATIC (0x1u << 14) /**< \brief (DBGU_MR) Automatic echo */
-#define   DBGU_MR_CHMODE_LOCAL_LOOPBACK (0x2u << 14) /**< \brief (DBGU_MR) Local loopback */
-#define   DBGU_MR_CHMODE_REMOTE_LOOPBACK (0x3u << 14) /**< \brief (DBGU_MR) Remote loopback */
+#define   DBGU_MR_CHMODE_NORM (0x0u << 14) /**< \brief (DBGU_MR) Normal mode */
+#define   DBGU_MR_CHMODE_AUTO (0x1u << 14) /**< \brief (DBGU_MR) Automatic echo */
+#define   DBGU_MR_CHMODE_LOCLOOP (0x2u << 14) /**< \brief (DBGU_MR) Local loopback */
+#define   DBGU_MR_CHMODE_REMLOOP (0x3u << 14) /**< \brief (DBGU_MR) Remote loopback */
 /* -------- DBGU_IER : (DBGU Offset: 0x0008) Interrupt Enable Register -------- */
 #define DBGU_IER_RXRDY (0x1u << 0) /**< \brief (DBGU_IER) Enable RXRDY Interrupt */
 #define DBGU_IER_TXRDY (0x1u << 1) /**< \brief (DBGU_IER) Enable TXRDY Interrupt */
