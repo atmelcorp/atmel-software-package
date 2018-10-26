@@ -27,7 +27,9 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the Advanced Encryption Standard example
-AVAILABLE_TARGETS = sama5d2* sama5d3* sama5d4* same70-xplained samv71-xplained
+AVAILABLE_TARGETS = sama5d2* sama5d3* sama5d4* \
+                    sam9x60* \
+                    same70-xplained samv71-xplained
 
 TOP := ../..
 
