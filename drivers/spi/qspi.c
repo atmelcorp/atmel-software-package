@@ -155,6 +155,8 @@ static int qspi_init(union spi_flash_priv* priv)
 {
 	Qspi* qspi = priv->qspi.addr;
 
+	if (pmc_has_system_clock(PMC_SYSTEM_CLOCK_QSPI))
+		pmc_enable_system_clock(PMC_SYSTEM_CLOCK_QSPI);
 	pmc_configure_peripheral(get_qspi_id_from_addr(qspi), NULL, true);
 
 	/* Disable write protection */
