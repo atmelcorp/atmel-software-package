@@ -39,8 +39,8 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief EmacSa hardware registers */
 typedef struct {
-  __IO uint32_t EMAC_SAxB; /**< \brief (EmacSa Offset: 0x0) Specific Address 1 Bottom Register */
-  __IO uint32_t EMAC_SAxT; /**< \brief (EmacSa Offset: 0x4) Specific Address 1 Top Register */
+  __IO uint32_t EMAC_SAB; /**< \brief (EmacSa Offset: 0x0) Specific Address 1 Bottom Register */
+  __IO uint32_t EMAC_SAT; /**< \brief (EmacSa Offset: 0x4) Specific Address 1 Top Register */
 } EmacSa;
 /** \brief Emac hardware registers */
 #define EMACSA_NUMBER 4
