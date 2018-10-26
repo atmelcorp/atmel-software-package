@@ -27,7 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the Triple Data Encryption Algorithm (3DES) example
-AVAILABLE_TARGETS = sama5d2* sama5d3* sama5d4*
+AVAILABLE_TARGETS = sama5d2* sama5d3* sama5d4* sam9x60*
 
 TOP := ../..
 

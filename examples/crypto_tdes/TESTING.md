@@ -22,6 +22,7 @@ prints the result, which should match the initial plain value.
 ------
 ## Supported targets
 --------------------
+* SAM9X60-EK
 * SAMA5D2-PTC-EK
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK
