@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2018, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,24 +27,14 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef _PIN_DEFS_H_
-#define _PIN_DEFS_H_
+#ifndef _PIN_CONFIG_H_
+#define _PIN_CONFIG_H_
 
-#include "gpio/pio.h"
 #include "spi/qspi.h"
 #include <stdint.h>
 
-/* Instance/IOSet PIO configuration */
-struct qspiflash_pin_definition
-{
-	uint32_t           instance;
-	uint32_t           ioset;
-	Qspi*              addr;
-	uint32_t           num_pins;
-	const struct _pin *pins;
-};
+#if defined (CONFIG_SOC_SAMA5D2)
+bool qspi_pio_configure(uint32_t instance, uint32_t ioset, Qspi** addr);
+#endif
 
-extern const struct qspiflash_pin_definition qspiflash_pin_defs[];
-extern const int num_qspiflash_pin_defs;
-
-#endif /* _PIN_DEFS_H_ */
+#endif /* _PIN_CONFIG_H_ */

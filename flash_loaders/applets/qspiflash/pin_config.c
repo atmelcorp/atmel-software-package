@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2018, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -27,18 +27,30 @@
  * ----------------------------------------------------------------------------
  */
 
-/*----------------------------------------------------------------------------
- *        Headers
- *----------------------------------------------------------------------------*/
-#include "chip.h"
-#include "pin_defs.h"
-#include "compiler.h"
+#ifndef _PIN_CONFIG_H_
+#define _PIN_CONFIG_H_
+
+#include <stdint.h>
+#include "trace.h"
+
+#include "gpio/pio.h"
+#include "spi/qspi.h"
+
+#if defined (CONFIG_SOC_SAMA5D2)
+
+/* Instance/IOSet PIO configuration */
+struct qspiflash_pin_definition
+{
+	uint32_t           instance;
+	uint32_t           ioset;
+	Qspi*              addr;
+	uint32_t           num_pins;
+	const struct _pin *pins;
+};
 
 /*----------------------------------------------------------------------------
- *        Local constants
+ *        static constants
  *----------------------------------------------------------------------------*/
-
-
 static const struct _pin qspi0_ioset1[] = PINS_QSPI0_IOS1;
 static const struct _pin qspi0_ioset2[] = PINS_QSPI0_IOS2;
 static const struct _pin qspi0_ioset3[] = PINS_QSPI0_IOS3;
@@ -47,11 +59,7 @@ static const struct _pin qspi1_ioset1[] = PINS_QSPI1_IOS1;
 static const struct _pin qspi1_ioset2[] = PINS_QSPI1_IOS2;
 static const struct _pin qspi1_ioset3[] = PINS_QSPI1_IOS3;
 
-/*----------------------------------------------------------------------------
- *        Public constants
- *----------------------------------------------------------------------------*/
-
-const struct qspiflash_pin_definition qspiflash_pin_defs[] = {
+static const struct qspiflash_pin_definition qspiflash_pin_defs[] = {
 	{
 		.instance = 0,
 		.ioset = 1,
@@ -96,4 +104,26 @@ const struct qspiflash_pin_definition qspiflash_pin_defs[] = {
 	},
 };
 
-const int num_qspiflash_pin_defs = ARRAY_SIZE(qspiflash_pin_defs);
+static const int num_qspiflash_pin_defs = ARRAY_SIZE(qspiflash_pin_defs);
+
+bool qspi_pio_configure(uint32_t instance, uint32_t ioset, Qspi** addr)
+{
+	int i;
+	for (i = 0; i < num_qspiflash_pin_defs; i++) {
+		const struct qspiflash_pin_definition* def =
+			&qspiflash_pin_defs[i];
+		if (def->instance == instance && def->ioset == ioset) {
+			*addr = def->addr;
+			pio_configure(def->pins, def->num_pins);
+			return true;
+		}
+	}
+
+	trace_error_wp("Invalid configuration: QSPI%u IOSet%u\r\n",
+		(unsigned)instance, (unsigned)ioset);
+	return false;
+}
+
+#endif
+
+#endif /* _PIN_DEFS_H_ */

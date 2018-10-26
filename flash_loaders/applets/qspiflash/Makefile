@@ -43,6 +43,6 @@ CONFIG_QSPI = y
 CONFIG_HAVE_QSPI_DMA = n
 
 obj-y += flash_loaders/applets/qspiflash/qspi_flash_loader.o
-obj-y += flash_loaders/applets/qspiflash/pin_defs_sama5d2.o
+obj-y += flash_loaders/applets/qspiflash/pin_config.o
 
 include $(TOP)/scripts/Makefile.rules

@@ -62,7 +62,7 @@
 #include "dma/dma.h"
 #include "gpio/pio.h"
 #include "nvm/spi-nor/spi-nor.h"
-#include "pin_defs.h"
+#include "pin_config.h"
 #include "peripherals/matrix.h"
 #include "peripherals/pmc.h"
 #include "spi/qspi.h"
@@ -86,7 +86,9 @@ static struct spi_flash flash;
 static uint32_t base_address;
 
 static uint32_t instance;
+#if defined (CONFIG_SOC_SAMA5D2)
 static uint32_t ioset;
+#endif
 static uint32_t freq;
 static uint32_t image_size;
 static uint32_t erase_support;
@@ -96,24 +98,6 @@ static uint32_t erase_support;
 /*----------------------------------------------------------------------------
  *         Local functions
  *----------------------------------------------------------------------------*/
-
-static bool configure_instance_pio(uint32_t instance, uint32_t ioset, Qspi** addr)
-{
-	int i;
-	for (i = 0; i < num_qspiflash_pin_defs; i++) {
-		const struct qspiflash_pin_definition* def =
-			&qspiflash_pin_defs[i];
-		if (def->instance == instance && def->ioset == ioset) {
-			*addr = def->addr;
-			pio_configure(def->pins, def->num_pins);
-			return true;
-		}
-	}
-
-	trace_error_wp("Invalid configuration: QSPI%u IOSet%u\r\n",
-		(unsigned)instance, (unsigned)ioset);
-	return false;
-}
 
 /* override default board init */
 void board_init(void)
@@ -166,6 +150,7 @@ uint32_t FlashInit(void *base_of_flash,
 	arg = findOption("--instance", 1, argc, argv);
 	instance = strtoul(arg, 0, 0);
 
+#if defined (CONFIG_SOC_SAMA5D2)
 	arg = findOption("--ioset", 1,argc, argv);
 	ioset = strtoul(arg, 0, 0);
 
@@ -179,14 +164,18 @@ uint32_t FlashInit(void *base_of_flash,
 				(unsigned)max_freq, (unsigned)freq * 1000000);
 		return RESULT_ERROR;
 	}
+#endif
 
-	if (!configure_instance_pio(instance, ioset, &addr))
+#if defined (CONFIG_SOC_SAMA5D2)
+	if (!qspi_pio_configure(instance, ioset, &addr))
 		return RESULT_ERROR;
 
 	trace_warning_wp("Initializing QSPI%u IOSet%u at %uHz\r\n",
 			(unsigned)instance, (unsigned)ioset,
 			(unsigned)freq);
 	
+#endif
+
 	/* initialize the QSPI */
 	_flash_cfg.qspi.addr = addr;
 	_flash_cfg.baudrate = freq * 1000000;
