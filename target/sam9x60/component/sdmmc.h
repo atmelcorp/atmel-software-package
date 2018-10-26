@@ -71,7 +71,7 @@ typedef struct {
   __O  uint16_t SDMMC_FEREIS;   /**< \brief (Sdmmc Offset: 0x52) Force Event Register for Error Interrupt Status */
   __I  uint8_t  SDMMC_AESR;     /**< \brief (Sdmmc Offset: 0x54) ADMA Error Status Register */
   __I  uint8_t  Reserved2[3];
-  __IO uint32_t SDMMC_ASAR0;    /**< \brief (Sdmmc Offset: 0x58) ADMA System Address Register 0 */
+  __IO uint32_t SDMMC_ASA0R;    /**< \brief (Sdmmc Offset: 0x58) ADMA System Address Register 0 */
   __I  uint32_t Reserved3[1];
   __IO uint16_t SDMMC_PVR[3];   /**< \brief (Sdmmc Offset: 0x60) Preset Value Register 0 (for initialization) */
   __I  uint16_t Reserved4[74];
@@ -136,12 +136,12 @@ typedef struct {
 #define SDMMC_TMR_ACMDEN_Pos 2
 #define SDMMC_TMR_ACMDEN_Msk (0x3u << SDMMC_TMR_ACMDEN_Pos) /**< \brief (SDMMC_TMR) Auto Command Enable */
 #define SDMMC_TMR_ACMDEN(value) ((SDMMC_TMR_ACMDEN_Msk & ((value) << SDMMC_TMR_ACMDEN_Pos)))
-#define   SDMMC_TMR_ACMDEN_DISABLED (0x0u << 2) /**< \brief (SDMMC_TMR) Auto Command Disabled */
-#define   SDMMC_TMR_ACMDEN_CMD12 (0x1u << 2) /**< \brief (SDMMC_TMR) Auto CMD12 Enabled */
-#define   SDMMC_TMR_ACMDEN_CMD23 (0x2u << 2) /**< \brief (SDMMC_TMR) Auto CMD23 Enabled */
+#define   SDMMC_TMR_ACMDEN_DIS (0x0u << 2) /**< \brief (SDMMC_TMR) Auto Command Disabled */
+#define   SDMMC_TMR_ACMDEN_ACMD12 (0x1u << 2) /**< \brief (SDMMC_TMR) Auto CMD12 Enabled */
+#define   SDMMC_TMR_ACMDEN_ACMD23 (0x2u << 2) /**< \brief (SDMMC_TMR) Auto CMD23 Enabled */
 #define SDMMC_TMR_DTDSEL (0x1u << 4) /**< \brief (SDMMC_TMR) Data Transfer Direction Selection */
-#define   SDMMC_TMR_DTDSEL_WRITE (0x0u << 4) /**< \brief (SDMMC_TMR) Writes data from the SDMMC to the device. */
-#define   SDMMC_TMR_DTDSEL_READ (0x1u << 4) /**< \brief (SDMMC_TMR) Reads data from the device to the SDMMC. */
+#define   SDMMC_TMR_DTDSEL_WR (0x0u << 4) /**< \brief (SDMMC_TMR) Writes data from the SDMMC to the device. */
+#define   SDMMC_TMR_DTDSEL_RD (0x1u << 4) /**< \brief (SDMMC_TMR) Reads data from the device to the SDMMC. */
 #define SDMMC_TMR_MSBSEL (0x1u << 5) /**< \brief (SDMMC_TMR) Multi/Single Block Selection */
 /* -------- SDMMC_CR : (SDMMC Offset: 0x0E) Command Register -------- */
 #define SDMMC_CR_RESPTYP_Pos 0
@@ -435,6 +435,9 @@ typedef struct {
 #define SDMMC_CA0R_SLTYPE_Pos 30
 #define SDMMC_CA0R_SLTYPE_Msk (0x3u << SDMMC_CA0R_SLTYPE_Pos) /**< \brief (SDMMC_CA0R) Slot Type */
 #define SDMMC_CA0R_SLTYPE(value) ((SDMMC_CA0R_SLTYPE_Msk & ((value) << SDMMC_CA0R_SLTYPE_Pos)))
+#define   SDMMC_CA0R_SLTYPE_REMOVABLECARD (0x0u << 30)
+#define   SDMMC_CA0R_SLTYPE_EMBEDDED (0x1u << 30)
+#define   SDMMC_CA0R_SLTYPE_SHAREDBUS (0x2u << 30)
 /* -------- SDMMC_CA1R : (SDMMC Offset: 0x44) Capabilities 1 Register -------- */
 #define SDMMC_CA1R_SDR50SUP (0x1u << 0) /**< \brief (SDMMC_CA1R) SDR50 Support */
 #define SDMMC_CA1R_SDR104SUP (0x1u << 1) /**< \brief (SDMMC_CA1R) SDR104 Support */
@@ -479,9 +482,9 @@ typedef struct {
 #define SDMMC_AESR_ERRST_Msk (0x3u << SDMMC_AESR_ERRST_Pos) /**< \brief (SDMMC_AESR) ADMA Error State */
 #define SDMMC_AESR_LMIS (0x1u << 2) /**< \brief (SDMMC_AESR) ADMA Length Mismatch Error */
 /* -------- SDMMC_ASAR0 : (SDMMC Offset: 0x58) ADMA System Address Register 0 -------- */
-#define SDMMC_ASAR0_ADMASA_Pos 0
-#define SDMMC_ASAR0_ADMASA_Msk (0xffffffffu << SDMMC_ASAR0_ADMASA_Pos) /**< \brief (SDMMC_ASAR0) ADMA System Address */
-#define SDMMC_ASAR0_ADMASA(value) ((SDMMC_ASAR0_ADMASA_Msk & ((value) << SDMMC_ASAR0_ADMASA_Pos)))
+#define SDMMC_ASA0R_ADMASA_Pos 0
+#define SDMMC_ASA0R_ADMASA_Msk (0xffffffffu << SDMMC_ASA0R_ADMASA_Pos) /**< \brief (SDMMC_ASAR0) ADMA System Address */
+#define SDMMC_ASA0R_ADMASA(value) ((SDMMC_ASA0R_ADMASA_Msk & ((value) << SDMMC_ASA0R_ADMASA_Pos)))
 /* -------- SDMMC_PVR[3] : (SDMMC Offset: 0x60) Preset Value Register 0 (for initialization) -------- */
 #define SDMMC_PVR_SDCLKFSEL_Pos 0
 #define SDMMC_PVR_SDCLKFSEL_Msk (0x3ffu << SDMMC_PVR_SDCLKFSEL_Pos) /**< \brief (SDMMC_PVR[3]) SDCLK Frequency Select */
@@ -548,6 +551,27 @@ typedef struct {
 /* -------- SDMMC_VERSION3 : (SDMMC Offset: 0x2FC) Version Register 3 -------- */
 #define SDMMC_VERSION3_VERSION_Pos 0
 #define SDMMC_VERSION3_VERSION_Msk (0xffffffffu << SDMMC_VERSION3_VERSION_Pos) /**< \brief (SDMMC_VERSION3) Version of the Hardware Module */
+/* --------  SDMMC Descriptor Table for Advanced DMA 2 as pointed by SDMMC_ASA0R */
+#define SDMMC_DMADL_SIZE (2u) /**< \brief Size of a Descriptor Line in the ADMA2 Descriptor Table, in words */
+#define SDMMC_DMADL_TRAN_LEN_MIN (1u) /**< \brief Minimum data length per ADMA2 Descriptor Line, in bytes */
+#define SDMMC_DMADL_TRAN_LEN_MAX (65536ul) /**< \brief Maximum data length per ADMA2 Descriptor Line, in bytes */
+/* --------  SDMMC_DMADL[0] (Descriptor Line Offset: 0x0) ADMA2 Descriptor Line */
+#define SDMMC_DMA0DL_ATTR_VALID (0x1u << 0)
+#define SDMMC_DMA0DL_ATTR_END (0x1u << 1)
+#define SDMMC_DMA0DL_ATTR_INT (0x1u << 2)
+#define SDMMC_DMA0DL_ATTR_ACT_Pos 4
+#define SDMMC_DMA0DL_ATTR_ACT_Msk (0x3u << SDMMC_DMA0DL_ATTR_ACT_Pos)
+#define   SDMMC_DMA0DL_ATTR_ACT_NOP (0x0u << 4)
+#define   SDMMC_DMA0DL_ATTR_ACT_TRAN (0x2u << 4)
+#define   SDMMC_DMA0DL_ATTR_ACT_LINK (0x3u << 4)
+#define SDMMC_DMA0DL_LEN_Pos 16
+#define SDMMC_DMA0DL_LEN_Msk (0xFFFFu << SDMMC_DMA0DL_LEN_Pos)
+#define   SDMMC_DMA0DL_LEN_MAX (0x0u << 16)
+#define SDMMC_DMA0DL_LEN(value) ((SDMMC_DMA0DL_LEN_Msk & ((value) << SDMMC_DMA0DL_LEN_Pos)))
+/* --------  SDMMC_DMADL[1] (Descriptor Line Offset: 0x4) ADMA2 Descriptor Line */
+#define SDMMC_DMA1DL_ADDR_Pos 0
+#define SDMMC_DMA1DL_ADDR_Msk (0xFFFFFFFFu << SDMMC_DMA1DL_ADDR_Pos)
+#define SDMMC_DMA1DL_ADDR(value) ((SDMMC_DMA1DL_ADDR_Msk & ((value) << SDMMC_DMA1DL_ADDR_Pos)))
 
 /*@}*/
 
