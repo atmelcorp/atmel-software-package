@@ -38,6 +38,7 @@ obj-y += flash_loaders/applets/common/framework2/flash_loader.o
 obj-y += flash_loaders/applets/common/interface.o
 
 iar-linker-script-$(CONFIG_SOC_SAM9XX5) = $(TOP)/flash_loaders/applets/common/sam9xx5/sram.icf
+iar-linker-script-$(CONFIG_SOC_SAM9X60) = $(TOP)/flash_loaders/applets/common/sam9x60/sram.icf
 iar-linker-script-$(CONFIG_SOC_SAMA5D2) = $(TOP)/flash_loaders/applets/common/sama5d2/sram.icf
 iar-linker-script-$(CONFIG_SOC_SAMA5D3) = $(TOP)/flash_loaders/applets/common/sama5d3/sram.icf
 iar-linker-script-$(CONFIG_SOC_SAMA5D4) = $(TOP)/flash_loaders/applets/common/sama5d4/sram.icf
