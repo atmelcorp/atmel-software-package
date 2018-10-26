@@ -74,6 +74,7 @@
 #include "chip.h"
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
+#include "trace.h"
 #include <stdio.h>
 
 /*----------------------------------------------------------------------------
@@ -94,9 +95,14 @@ static uint32_t _wdt_compute_period(uint32_t period)
 
 void wdt_enable(uint32_t mode, uint32_t delta, uint32_t counter)
 {
+#ifdef WDT_MR_WDD
 	WDT->WDT_MR = (mode & ~(WDT_MR_WDDIS | WDT_MR_WDD_Msk | WDT_MR_WDV_Msk)) |
 	              WDT_MR_WDD(_wdt_compute_period(delta)) |
 	              WDT_MR_WDV(_wdt_compute_period(counter));
+#else
+	WDT->WDT_MR &= WDT_MR_WDDIS;
+	trace_warning("wdt_enable() not fully implemented!");
+#endif
 }
 
 void wdt_disable(void)
@@ -111,11 +117,22 @@ void wdt_restart()
 
 uint32_t wdt_get_status(void)
 {
+#ifdef WDT_SR_WDERR
 	return WDT->WDT_SR & (WDT_SR_WDUNF | WDT_SR_WDERR);
+#else
+	return WDT->WDT_ISR;
+	trace_warning("wdt_get_status() not fully implemented!");
+#endif
 }
 
 uint32_t wdt_get_counter_value(void)
 {
+#ifdef WDT_MR_WDV_Msk
 	return (WDT->WDT_MR & WDT_MR_WDV_Msk) >> WDT_MR_WDV_Pos;
+#elif defined(WDT_VR_COUNTER_Msk)
+	return (WDT->WDT_VR & WDT_VR_COUNTER_Msk) >> WDT_VR_COUNTER_Pos;
+#else
+	#error wdt_get_counter_value() needs to be updated.
+#endif
 }
 
