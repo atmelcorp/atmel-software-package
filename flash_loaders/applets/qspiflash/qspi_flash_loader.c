@@ -150,12 +150,12 @@ uint32_t FlashInit(void *base_of_flash,
 	arg = findOption("--instance", 1, argc, argv);
 	instance = strtoul(arg, 0, 0);
 
+	arg = findOption("--freq", 1, argc, argv);
+	freq = strtoul(arg, 0, 0);
+
 #if defined (CONFIG_SOC_SAMA5D2)
 	arg = findOption("--ioset", 1,argc, argv);
 	ioset = strtoul(arg, 0, 0);
-
-	arg = findOption("--freq", 1, argc, argv);
-	freq = strtoul(arg, 0, 0);
 
 	uint32_t max_freq = pmc_get_peripheral_clock(ID_QSPI0);
 	if (freq == 0 || (freq * 1000000) > max_freq) {
@@ -173,7 +173,12 @@ uint32_t FlashInit(void *base_of_flash,
 	trace_warning_wp("Initializing QSPI%u IOSet%u at %uHz\r\n",
 			(unsigned)instance, (unsigned)ioset,
 			(unsigned)freq);
-	
+#elif defined (CONFIG_SOC_SAM9X60)
+	if (!qspi_pio_configure(instance, &addr))
+		return RESULT_ERROR;
+
+	trace_warning_wp("Initializing QSPI%u at %uMHz\r\n",
+			(unsigned)instance, (unsigned)freq);
 #endif
 
 	/* initialize the QSPI */

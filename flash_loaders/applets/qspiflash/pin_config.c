@@ -124,6 +124,22 @@ bool qspi_pio_configure(uint32_t instance, uint32_t ioset, Qspi** addr)
 	return false;
 }
 
+#elif defined (CONFIG_SOC_SAM9X60)
+
+bool qspi_pio_configure(uint32_t instance, Qspi** addr)
+{
+	struct _pin pins_qspi[] = PINS_QSPI;
+
+	if (0 == instance) {
+		pio_configure(pins_qspi, ARRAY_SIZE(pins_qspi));
+		*addr = QSPI0;
+		return true;
+	}
+
+	trace_error_wp("Peripheral not exists: QSPI%u\r\n", (unsigned)instance);
+	return true;
+}
+
 #endif
 
 #endif /* _PIN_DEFS_H_ */

@@ -27,7 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the qpsi initialization flash loader
-AVAILABLE_TARGETS = sama5d2-generic
+AVAILABLE_TARGETS = sama5d2-generic sam9x60-generic
 
 AVAILABLE_VARIANTS = sram
 

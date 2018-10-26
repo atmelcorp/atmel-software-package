@@ -35,6 +35,8 @@
 
 #if defined (CONFIG_SOC_SAMA5D2)
 bool qspi_pio_configure(uint32_t instance, uint32_t ioset, Qspi** addr);
+#elif defined (CONFIG_SOC_SAM9X60)
+bool qspi_pio_configure(uint32_t instance, Qspi** addr);
 #endif
 
 #endif /* _PIN_CONFIG_H_ */
