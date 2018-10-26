@@ -1041,13 +1041,15 @@ bool pmc_is_peripheral_enabled(uint32_t id)
 {
 	assert(id < ID_PERIPH_COUNT);
 
-#ifdef PMC_CSR_PID0
+#if defined(PMC_CSR_PID0) || defined(PMC_CSR0_PID5)
 	return (PMC->PMC_CSR[(id >> 5) & 3] & (1 << (id & 31))) != 0;
-#else
+#elif defined(PMC_PCR_PID)
 	PMC->PMC_PCR = PMC_PCR_PID(id);
 	volatile uint32_t pcr = PMC->PMC_PCR;
 
 	return (pcr & PMC_PCR_EN) != 0;
+#else
+	#error pmc_is_peripheral_enabled() needs to be updated.
 #endif
 }
 
@@ -1363,10 +1365,12 @@ void pmc_enable_gck(uint32_t id)
 	volatile uint32_t pcr = PMC->PMC_PCR;
 	PMC->PMC_PCR = pcr | PMC_PCR_CMD | PMC_PCR_GCKEN;
 
-#ifdef PMC_GCSR_PID0
+#if defined(PMC_GCSR_PID0) || defined(PMC_GCSR0_GPID5)
 	while ((PMC->PMC_GCSR[(id >> 5) & 3] & (1 << (id & 31))) == 0);
-#else
+#elif defined (PMC_SR_GCKRDY)
 	while (!(PMC->PMC_SR & PMC_SR_GCKRDY));
+#else
+	#error pmc_enable_gck() needs to be updated.
 #endif
 }
 
