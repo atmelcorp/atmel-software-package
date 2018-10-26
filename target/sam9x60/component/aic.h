@@ -86,7 +86,7 @@ typedef struct {
 #define AIC_SMR_SRCTYPE_Msk (0x3u << AIC_SMR_SRCTYPE_Pos) /**< \brief (AIC_SMR) Interrupt Source Type */
 #define AIC_SMR_SRCTYPE(value) ((AIC_SMR_SRCTYPE_Msk & ((value) << AIC_SMR_SRCTYPE_Pos)))
 #define   AIC_SMR_SRCTYPE_INT_LEVEL_SENSITIVE (0x0u << 5) /**< \brief (AIC_SMR) High-level sensitive for internal sourceLow-level sensitive for external source */
-#define   AIC_SMR_SRCTYPE_EXT_NEGATIVE_EDGE (0x1u << 5) /**< \brief (AIC_SMR) Negative-edge triggered for external source */
+#define   AIC_SMR_SRCTYPE_INT_EDGE_TRIGGERED (0x1u << 5) /**< \brief (AIC_SMR) Negative-edge triggered for external source */
 #define   AIC_SMR_SRCTYPE_EXT_HIGH_LEVEL (0x2u << 5) /**< \brief (AIC_SMR) High-level sensitive for internal sourceHigh-level sensitive for external source */
 #define   AIC_SMR_SRCTYPE_EXT_POSITIVE_EDGE (0x3u << 5) /**< \brief (AIC_SMR) Positive-edge triggered for external source */
 /* -------- AIC_SVR : (AIC Offset: 0x08) Source Vector Register -------- */
