@@ -316,13 +316,13 @@ static int qspi_exec(union spi_flash_priv* priv, const struct spi_flash_command 
 
 	/* Compute instruction parameters. */
 #ifdef QSPI_RICR_RDINST
-	if (!cmd->data_len
-	    || cmd->flags & SFLASH_TYPE_MASK == SFLASH_TYPE_WRITE_REG
-	    || cmd->flags & SFLASH_TYPE_MASK == SFLASH_TYPE_WRITE) {
+	if ((cmd->flags & SFLASH_TYPE_MASK) == SFLASH_TYPE_ERASE
+	    || (cmd->flags & SFLASH_TYPE_MASK) == SFLASH_TYPE_WRITE_REG
+	    || (cmd->flags & SFLASH_TYPE_MASK) == SFLASH_TYPE_WRITE) {
 		icr_write = true;
-		icr |= QSPI_WICR_WRINST(cmd->instruction);
+		icr |= QSPI_WICR_WRINST(cmd->inst);
 	} else {
-		icr |= QSPI_RICR_RDINST(cmd->instruction);
+		icr |= QSPI_RICR_RDINST(cmd->inst);
 	}
 #else
 	icr |= QSPI_ICR_INST(cmd->inst);
