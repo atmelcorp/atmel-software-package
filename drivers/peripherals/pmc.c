@@ -395,6 +395,132 @@ static uint16_t _pmc_measure_main_osc_freq(bool external_xt)
 		0u);
 }
 
+#if defined(PMC_PLL_UPDT_ID)
+static void _pmc_configure_pll(uint32_t pll_id, const struct _pmc_plla_cfg* plla)
+{
+	uint32_t reg;
+
+	if (pll_id == PLL_ID_PLLA) {
+	} else if (pll_id == PLL_ID_UPLL){
+		assert(plla->div == 1);
+	} else {
+		trace_fatal("Unknown PLL which index is %d\r\n", (int)pll_id);
+	}
+
+	/* Follow the steps below to power-on a PLL: */
+	/* 1. Define the ID (ID=n) and startup time by configuring the fields PMC_PLL_UPDT.ID and
+	PMC_PLL_UPDT.STUPTIM. Set PMC_PLL_UPDT.UPDATE to '0'.In case UPLL is being
+	configured, follow steps 2 to 5, else jump to step 6. */
+	reg = PMC->PMC_PLL_UPDT;
+	reg &= ~(PMC_PLL_UPDT_STUPTIM_Msk | PMC_PLL_UPDT_UPDATE | PMC_PLL_UPDT_ID_Msk);
+	reg |= PMC_PLL_UPDT_STUPTIM(plla->count) | PMC_PLL_UPDT_ID(pll_id);
+	PMC->PMC_PLL_UPDT = reg;
+
+	/* 2. Write PMC_PLL_ACR.UTMIBG to '1' to enable the UTMI internal bandgap. */
+	PMC->PMC_PLL_ACR |= PMC_PLL_ACR_UTMIBG;
+
+	/* 3. Wait 10 us. */
+	usleep(10);
+
+	/* 4. Write PMC_PLL_ACR.UTMIVR to '1' to enable the UTMI internal regulator. */
+	PMC->PMC_PLL_ACR |= PMC_PLL_ACR_UTMIVR;
+
+	/* 5. Wait 10 us. */
+	usleep(10);
+
+	/* 6. In PMC_PLL_CTRL0, write a '1' to ENLOCK and to ENPLL and configure DIVPMC (for PLLA only,
+	as UPLL has a fixed divider value) and ENPLLCK. */
+	reg = PMC->PMC_PLL_CTRL0 & ~PMC_PLL_CTRL0_DIVPMC_Msk;
+	reg |= PMC_PLL_CTRL0_ENLOCK | PMC_PLL_CTRL0_ENPLL;
+	reg |= PMC_PLL_CTRL0_DIVPMC(plla->div) | PMC_PLL_CTRL0_ENPLLCK;
+	PMC->PMC_PLL_CTRL0 = reg;
+
+	/* 7. Configure PMC_PLL_ACR.LOOP_FILTER. */
+	reg = PMC->PMC_PLL_ACR & (~PMC_PLL_ACR_LOOP_FILTER_Msk);
+	reg |= PMC_PLL_ACR_LOOP_FILTER(plla->loop_filter);
+	PMC->PMC_PLL_ACR = reg;
+
+	/* 8. Define the MUL and FRACR to be applied to PLL(n) in PMC_PLL_CTRL1. */
+	PMC->PMC_PLL_CTRL1 = PMC_PLL_CTRL1_MUL(plla->mul) | PMC_PLL_CTRL1_FRACR(plla->fracr);
+
+	/* 9. Set PMC_PLL_UPDT.UPDATE to '1'. PMC_PLL_UPDT.ID must equal the one written during step
+	1, else the update is cancelled. */
+	PMC->PMC_PLL_UPDT |= PMC_PLL_UPDT_UPDATE;
+
+	/* 10. Wait for the lock bit to rise by polling the PMC_PLL_ISR0 or by enabling the corresponding interrupt
+	in PMC_PLL_IER. */
+	while ((PMC->PMC_PLL_ISR0 & (PMC_PLL_ISR0_LOCK0 << pll_id)) != (PMC_PLL_ISR0_LOCK0 << pll_id));
+
+	/* 11. Disable the interrupt (if enabled) */
+
+	/* 12. Enable the unlock interrupt to quickly detect a failure on the generation of the clock of the PLL. */
+	PMC->PMC_PLL_IER |= (PMC_PLL_IER_UNLOCK0 << pll_id);
+}
+
+static void _pmc_disable_pll(uint32_t pll_id)
+{
+	uint32_t reg;
+
+	if (pll_id == PLL_ID_PLLA) {
+	} else if (pll_id == PLL_ID_UPLL){
+	} else {
+		trace_fatal("Unknown PLL which index is %d\r\n", (int)pll_id);
+	}
+
+	/* To power-down a PLL, the following sequence must be applied: */
+	/* 1. If the PLL drives a section of the system that is active, modify the source clock of the system. */
+
+	/* 2. Define the ID (ID=n) of the PLL to be switched off in PMC_UPDT. The bit UPDATE in this register
+	must be set at 0 in this step. */
+	reg = PMC->PMC_PLL_UPDT;
+	reg &= ~(PMC_PLL_UPDT_UPDATE | PMC_PLL_UPDT_ID_Msk);
+	reg |= PMC_PLL_UPDT_ID(pll_id);
+	PMC->PMC_PLL_UPDT = reg;
+
+	/* 3. In PMC_PLL_CTRL0, set ENPLLCK to 0 and leave ENPLL at '1'. */
+	reg = PMC->PMC_PLL_CTRL0 & (~PMC_PLL_CTRL0_ENPLLCK);
+	PMC->PMC_PLL_CTRL0 = reg | PMC_PLL_CTRL0_ENPLL;
+
+	/* 4. Set PMC_PLL_UPDT.UPDATE to '1'. PMC_PLL_UPDT.ID must equal the one written during step
+	2, else the update is cancelled. */
+	PMC->PMC_PLL_UPDT |= PMC_PLL_UPDT_UPDATE;
+
+	/* 5. Write a '0' to PMC_PLL_CTRL0.ENPLL. */
+	PMC->PMC_PLL_CTRL0 &= ~PMC_PLL_CTRL0_ENPLL;
+
+	/* 6. In case a UPLL is being powered down, write a '0' to PMC_PLL_ACR.UTMIBG and
+	PMC_PLL_ACR.UTMIVR. */
+	PMC->PMC_PLL_ACR &= ~(PMC_PLL_ACR_UTMIBG | PMC_PLL_ACR_UTMIVR);
+}
+
+static uint32_t _pmc_get_pll_clock(uint32_t pll_id)
+{
+	uint32_t mul, fracr, divpmc;
+	uint32_t f_core, f_ref;
+
+	PMC->PMC_PLL_UPDT = (PMC->PMC_PLL_UPDT & (~PMC_PLL_UPDT_ID_Pos)) | PMC_PLL_UPDT_ID(pll_id);
+
+	mul = (PMC->PMC_PLL_CTRL1 & PMC_PLL_CTRL1_MUL_Msk) >> PMC_PLL_CTRL1_MUL_Pos;
+	fracr = (PMC->PMC_PLL_CTRL1 & PMC_PLL_CTRL1_FRACR_Msk) >> PMC_PLL_CTRL1_FRACR_Pos;
+	divpmc = (PMC->PMC_PLL_CTRL0 & PMC_PLL_CTRL0_DIVPMC_Msk) >> PMC_PLL_CTRL0_DIVPMC_Pos;
+
+	if (pll_id == PLL_ID_PLLA) {
+		f_ref = pmc_get_main_clock();
+	} else if (pll_id == PLL_ID_UPLL){
+		if (0 == (PMC->CKGR_MOR & CKGR_MOR_MOSCXTBY))
+			trace_fatal("frequence of Main Crystal Oscillator not defined\r\n");
+		else
+			f_ref = _pmc_main_oscillators.crystal_freq; /* external crystal */
+		assert(divpmc == 1);
+	} else {
+		trace_fatal("Unknown PLL which index is %d\r\n", (int)pll_id);
+	}
+
+	f_core = f_ref * (mul + 1) + (uint32_t)((((uint64_t)f_ref) * fracr) >> 22);
+	return f_core / (divpmc + 1);
+}
+#endif /* PMC_PLL_UPDT_ID */
+
 /*----------------------------------------------------------------------------
  *        Exported functions (General)
  *----------------------------------------------------------------------------*/
@@ -521,6 +647,9 @@ uint32_t pmc_get_main_clock(void)
 
 uint32_t pmc_get_plla_clock(void)
 {
+#if defined(PMC_PLL_UPDT_ID)
+	return _pmc_get_pll_clock(PLL_ID_PLLA);
+#elif defined(CKGR_PLLAR_DIVA_Pos)
 	uint32_t pllaclk, pllar, pllmula, plldiva;
 
 	pllar = PMC->CKGR_PLLAR;
@@ -536,6 +665,7 @@ uint32_t pmc_get_plla_clock(void)
 		pllaclk >>= 1;
 #endif
 	return pllaclk;
+#endif
 }
 
 uint32_t pmc_get_processor_clock(void)
@@ -859,6 +989,9 @@ void pmc_set_mck_divider(uint32_t divider)
 
 void pmc_configure_plla(const struct _pmc_plla_cfg* plla)
 {
+#if defined(PMC_PLL_UPDT_ID)
+	_pmc_configure_pll(PLL_ID_PLLA, plla);
+#elif defined(CKGR_PLLAR_DIVA_Pos)
 	uint32_t pllar = 0;
 
 #ifdef CKGR_PLLAR_ONE
@@ -875,11 +1008,16 @@ void pmc_configure_plla(const struct _pmc_plla_cfg* plla)
 
 	if (plla->mul > 0)
 		while (!(PMC->PMC_SR & PMC_SR_LOCKA));
+#endif
 }
 
 void pmc_disable_plla(void)
 {
+#if defined(PMC_PLL_UPDT_ID)
+	_pmc_disable_pll(PLL_ID_PLLA);
+#elif defined(CKGR_PLLAR_DIVA_Pos)
 	PMC->CKGR_PLLAR = (PMC->CKGR_PLLAR & ~CKGR_PLLAR_MULA_Msk) | CKGR_PLLAR_MULA(0);
+#endif
 }
 
 bool pmc_has_system_clock(enum _pmc_system_clock clock)
@@ -1215,6 +1353,11 @@ uint32_t pmc_get_pck_clock(uint32_t index)
 
 void pmc_enable_upll_clock(void)
 {
+#if defined(PMC_PLL_UPDT_ID)
+	const struct _pmc_plla_cfg plla;
+	// todo: initialize the fields in plla
+	_pmc_configure_pll(PLL_ID_UPLL, &plla);
+#else
 	uint32_t uckr = CKGR_UCKR_UPLLEN | CKGR_UCKR_UPLLCOUNT(0x3);
 
 #ifdef CONFIG_HAVE_PMC_UPLL_BIAS
@@ -1252,11 +1395,16 @@ void pmc_enable_upll_clock(void)
 
 	/* wait until UPLL is locked */
 	while (!(PMC->PMC_SR & PMC_SR_LOCKU));
+#endif
 }
 
 void pmc_disable_upll_clock(void)
 {
+#if defined(PMC_PLL_UPDT_ID)
+	_pmc_disable_pll(PLL_ID_UPLL);
+#else
 	PMC->CKGR_UCKR &= ~CKGR_UCKR_UPLLEN;
+#endif
 }
 
 bool pmc_is_upll_clock_enabled(void)
@@ -1266,6 +1414,9 @@ bool pmc_is_upll_clock_enabled(void)
 
 uint32_t pmc_get_upll_clock(void)
 {
+#if defined(PMC_PLL_UPDT_ID)
+	return _pmc_get_pll_clock(PLL_ID_UPLL);
+#elif defined(CKGR_PLLAR_DIVA_Pos)
 	uint32_t upllclk;
 
 #if defined(SFR_UTMICKTRIM_FREQ_Msk)
@@ -1306,6 +1457,7 @@ uint32_t pmc_get_upll_clock(void)
 #endif
 
 	return upllclk;
+#endif
 }
 
 #ifdef CONFIG_HAVE_PMC_UPLL_BIAS

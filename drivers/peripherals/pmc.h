@@ -56,6 +56,11 @@ struct _pmc_plla_cfg {
 	/** PLLA ICP value */
 	uint32_t icp;
 #endif
+
+#ifdef PMC_PLL_UPDT_ID
+	uint32_t fracr;
+	uint32_t loop_filter;
+#endif
 };
 
 struct pck_mck_cfg {
