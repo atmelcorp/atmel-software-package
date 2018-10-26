@@ -31,7 +31,7 @@
  *
  * \section Purpose
  *
- * This example indicates how to use the SPI driver in XIP mode to executing code 
+ * This example indicates how to use the SPI driver in XIP mode to executing code
  * directly from QSPI Flash memory. The serial Flash memory mapping is seen as another memory in the
  * product memory map.
  *
@@ -103,6 +103,8 @@
 #include "getting-started_sama5d2-xplained_qspi0.h"
 #elif defined(CONFIG_BOARD_SAMA5D27_SOM1_EK)
 #include "getting-started_sama5d27-som1-ek_qspi1.h"
+#elif defined(CONFIG_BOARD_SAM9X60_EK)
+#include "getting-started_sam9x60-ek_qspi0.h"
 #endif
 
 /*----------------------------------------------------------------------------
