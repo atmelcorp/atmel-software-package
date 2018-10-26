@@ -224,6 +224,10 @@ typedef enum IRQn
 #include "instance/rtc.h"
 #include "instance/syscwp.h"
 #include "instance/wdt.h"
+
+#include "component/component_spi.h"
+#include "component/component_twi.h"
+#include "component/component_usart.h"
 /*@}*/
 
 /* ************************************************************************** */
@@ -233,6 +237,7 @@ typedef enum IRQn
 /*@{*/
 
 #define ID_SYSC      ( 1) /**< \brief logical-OR interrupt of SYSC, PMC, DWDT, SHDWC, PIT, RTC (SYSC) */
+#define ID_PIT       ( 1) /**< \brief Periodic Interval Timer (PIT) */
 #define ID_PIOA      ( 2) /**< \brief Parallel I/O Controller A (PIOA) */
 #define ID_PIOB      ( 3) /**< \brief Parallel I/O Controller B (PIOB) */
 #define ID_PIOC      ( 4) /**< \brief Parallel I/O Controller C (PIOC) */
@@ -251,7 +256,7 @@ typedef enum IRQn
 #define ID_TC0       (17) /**< \brief TC 0,1,2 - fGCLK < fMCK0 / 3 - False Path (TC0) */
 #define ID_PWM       (18) /**< \brief Pulse Width Modulation Controller (PWM) */
 #define ID_ADC       (19) /**< \brief ADC Controller - fGCLK < fMCK0 / 3 - False Path (ADC) */
-#define ID_XDMAC     (20) /**< \brief Extended DMA Controller (XDMAC) */
+#define ID_XDMAC0    (20) /**< \brief Extended DMA Controller (XDMAC) */
 #define ID_MATRIX    (21) /**< \brief Matrix (MATRIX) */
 #define ID_UHPHS     (22) /**< \brief USB Host High Speed (UHPHS) */
 #define ID_UDPHS     (23) /**< \brief USB Device High Speed (UDPHS) */
@@ -265,7 +270,7 @@ typedef enum IRQn
 #define ID_FLEXCOM11 (32) /**< \brief /!\\ new - UART addition - fGCLK < fMCK0 / 3 - False Path (FLEXCOM11) */
 #define ID_FLEXCOM12 (33) /**< \brief /!\\ new - UART addition - fGCLK < fMCK0 / 3 - False Path (FLEXCOM12) */
 #define ID_I2SMCC    (34) /**< \brief I2S Multi Channel Controller (I2SMCC) */
-#define ID_QSPI      (35) /**< \brief Quad I/O SPI Controller (QSPI) */
+#define ID_QSPI0     (35) /**< \brief Quad I/O SPI Controller (QSPI) */
 #define ID_GFX2D     (36) /**< \brief 2D Graphic Controller (GFX2D) */
 #define ID_PIT64B    (37) /**< \brief 64-b Timer - fGCLK < fMCK0 / 3 - False Path (PIT64B) */
 #define ID_TRNG      (38) /**< \brief True Random Number Generator (TRNG) */
@@ -298,9 +303,9 @@ typedef enum IRQn
 #define OTPC       (0xEFF00000U) /**< \brief (OTPC      ) Base Address */
 #define FLEXCOM4   (0xF0000000U) /**< \brief (FLEXCOM4  ) Base Address */
 #define FLEXCOM5   (0xF0004000U) /**< \brief (FLEXCOM5  ) Base Address */
-#define XDMAC      (0xF0008000U) /**< \brief (XDMAC     ) Base Address */
+#define XDMAC0     (0xF0008000U) /**< \brief (XDMAC     ) Base Address */
 #define SSC        (0xF0010000U) /**< \brief (SSC       ) Base Address */
-#define QSPI       (0xF0014000U) /**< \brief (QSPI      ) Base Address */
+#define QSPI0      (0xF0014000U) /**< \brief (QSPI      ) Base Address */
 #define GFX2D      (0xF0018000U) /**< \brief (GFX2D     ) Base Address */
 #define I2SMCC     (0xF001C000U) /**< \brief (I2SMCC    ) Base Address */
 #define FLEXCOM11  (0xF0020000U) /**< \brief (FLEXCOM11 ) Base Address */
@@ -363,9 +368,9 @@ typedef enum IRQn
 #define OTPC       ((Otpc       *)0xEFF00000U) /**< \brief (OTPC      ) Base Address */
 #define FLEXCOM4   ((Flexcom    *)0xF0000000U) /**< \brief (FLEXCOM4  ) Base Address */
 #define FLEXCOM5   ((Flexcom    *)0xF0004000U) /**< \brief (FLEXCOM5  ) Base Address */
-#define XDMAC      ((Xdmac      *)0xF0008000U) /**< \brief (XDMAC     ) Base Address */
+#define XDMAC0     ((Xdmac      *)0xF0008000U) /**< \brief (XDMAC     ) Base Address */
 #define SSC        ((Ssc        *)0xF0010000U) /**< \brief (SSC       ) Base Address */
-#define QSPI       ((Qspi       *)0xF0014000U) /**< \brief (QSPI      ) Base Address */
+#define QSPI0      ((Qspi       *)0xF0014000U) /**< \brief (QSPI      ) Base Address */
 #define GFX2D      ((Gfx2d      *)0xF0018000U) /**< \brief (GFX2D     ) Base Address */
 #define I2SMCC     ((I2smcc     *)0xF001C000U) /**< \brief (I2SMCC    ) Base Address */
 #define FLEXCOM11  ((Flexcom    *)0xF0020000U) /**< \brief (FLEXCOM11 ) Base Address */
@@ -436,20 +441,28 @@ typedef enum IRQn
 /*   MEMORY MAPPING DEFINITIONS FOR SAM9X60 */
 /* ************************************************************************** */
 
+#define IRAM_SIZE (0x20000u)
 
-#define EBI_CS0_ADDR   (0x10000000u) /**< EBI Chip Select 0 base address */
-#define EBI_CS2_ADDR   (0x30000000u) /**< EBI Chip Select 2 base address */
-#define EBI_CS3_ADDR   (0x40000000u) /**< EBI Chip Select 3 base address */
-#define EBI_NF_ADDR    (0x40000000u) /**< NAND Flash on EBI Chip Select 3 base address */
-#define EBI_CS4_ADDR   (0x50000000u) /**< EBI Chip Select 4 base address */
-#define EBI_CS5_ADDR   (0x60000000u) /**< EBI Chip Select 5 base address */
-#define QSPIMEM_ADDR   (0x70000000u) /**< QSPI Memory base address */
-#define SDMMC0_ADDR    (0x80000000u) /**< SDMMC 0 base address */
-#define SDMMC1_ADDR    (0x90000000u) /**< SDMMC 1 base address */
-#define ECC_ROM_ADDR   (0x00100000u) /**< ECC ROM base address */
-#define IRAM0_ADDR     (0x00300000u) /**< Internal RAM 0 base address */
-#define IRAM1_ADDR     (0x00400000u) /**< Internal RAM 1 base address */
-#define UDPHS_RAM_ADDR (0x00500000u) /**< USB High Speed Device Port RAM base address */
+#define EBI_CS0_ADDR    (0x10000000u) /**< EBI Chip Select 0 base address */
+#define EBI_CS1_ADDR    (0x20000000u) /**< EBI Chip Select 1 base address */
+#define DDR_CS_ADDR     (0x20000000u) /**< MPDDR SDRAM Controller on EBI Chip Select 1 base address */
+#define EBI_CS2_ADDR    (0x30000000u) /**< EBI Chip Select 2 base address */
+#define EBI_CS3_ADDR    (0x40000000u) /**< EBI Chip Select 3 base address */
+#define EBI_NF_ADDR     (0x40000000u) /**< NAND Flash on EBI Chip Select 3 base address */
+#define EBI_CS4_ADDR    (0x50000000u) /**< EBI Chip Select 4 base address */
+#define EBI_CS5_ADDR    (0x60000000u) /**< EBI Chip Select 5 base address */
+#define QSPIMEM0_ADDR   (0x70000000u) /**< QSPI Memory base address */
+#define SDMMC0_ADDR     (0x80000000u) /**< SDMMC 0 base address */
+#define SDMMC1_ADDR     (0x90000000u) /**< SDMMC 1 base address */
+#define OTPC_ADDR        (0xEFF00000u) /**< OTPC base address */
+#define IROM_ADDR        (0x00100000u) /**< Internal ROM base address */
+#define ECC_ROM_ADDR    (0x00100000u) /**< ECC ROM base address */
+#define IRAM0_ADDR      (0x00300000u) /**< Internal RAM 0 base address */
+#define IRAM_ADDR       IRAM0_ADDR
+#define IRAM1_ADDR      (0x00400000u) /**< Internal RAM 1 base address */
+#define UDPHS_RAM_ADDR  (0x00500000u) /**< USB High Speed Device Port RAM base address */
+#define UHPHS_OHCI_ADDR (0x00600000u) /**< USB High Speed Device Port RAM base address */
+#define UHPHS_EHCI_ADDR (0x00700000u) /**< USB High Speed Device Port RAM base address */
 
 /* ************************************************************************** */
 /*   MISCELLANEOUS DEFINITIONS FOR SAM9X60 */
