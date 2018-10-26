@@ -33,6 +33,7 @@
  *---------------------------------------------------------------------------*/
 
 #include "chip.h"
+#include "trace.h"
 #include "peripherals/rstc.h"
 
 /*---------------------------------------------------------------------------
@@ -97,7 +98,11 @@ void rstc_reset_processor(void)
 
 void rstc_reset_peripherals(void)
 {
+#ifdef RSTC_CR_PERRST
 	RSTC->RSTC_CR = RSTC_CR_PERRST | RSTC_MR_KEY_PASSWD;
+#else
+	trace_warning("peripheral reset not supported\n\r");
+#endif
 }
 
 #endif /* CONFIG_HAVE_RSTC_INDEPENDENT_RESET */
