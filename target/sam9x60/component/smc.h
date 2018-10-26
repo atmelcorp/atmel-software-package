@@ -47,7 +47,7 @@ typedef struct {
 /** \brief Smc hardware registers */
 #define SMCCS_NUMBER_NUMBER 6
 typedef struct {
-       SmcCs_number SMC_CS_NUMBER[SMCCS_NUMBER_NUMBER]; /**< \brief (Smc Offset: 0x0) CS_number = 0 .. 5 */
+       SmcCs_number SMC_CS[SMCCS_NUMBER_NUMBER]; /**< \brief (Smc Offset: 0x0) CS_number = 0 .. 5 */
   __I  uint32_t     Reserved1[8];
   __IO uint32_t     SMC_OCMS;                           /**< \brief (Smc Offset: 0x80) SMC Off-Chip Memory Scrambling Register */
   __O  uint32_t     SMC_KEY1;                           /**< \brief (Smc Offset: 0x84) SMC Off-Chip Memory Scrambling KEY1 Register */
