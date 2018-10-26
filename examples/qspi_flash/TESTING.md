@@ -15,6 +15,7 @@ This example demonstrates how to using QSPI flash.
 ------
 ## Supported targets
 --------------------
+* SAM9X60-EK
 * SAMA5D2-PTC-EK
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK
