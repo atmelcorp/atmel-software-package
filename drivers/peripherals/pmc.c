@@ -420,6 +420,7 @@ uint32_t pmc_set_main_oscillator_freq(uint32_t freq)
 	/* Save the current value of the CKGR_MOR register. */
 	mor = PMC->CKGR_MOR;
 
+#ifdef CKGR_PLLAR_MULA_Msk
 	/*
 	 * Save the current value of the CKGR_PLLAR register then stop this
 	 * PLL, if needed.
@@ -427,6 +428,7 @@ uint32_t pmc_set_main_oscillator_freq(uint32_t freq)
 	pllar = PMC->CKGR_PLLAR;
 	if ((pllar & CKGR_PLLAR_MULA_Msk) && (pllar & CKGR_PLLAR_DIVA_Msk))
 		PMC->CKGR_PLLAR &= ~(CKGR_PLLAR_MULA_Msk | CKGR_PLLAR_DIVA_Msk);
+#endif
 
 	/* Measure the 12MHz RC frequency. */
 	pmc_select_internal_osc();
@@ -454,11 +456,13 @@ uint32_t pmc_set_main_oscillator_freq(uint32_t freq)
 		pmc_disable_internal_osc();
 #endif
 
+#ifdef CKGR_PLLAR_MULA_Msk
 	/* Restart the PLLA, if needed. */
 	if ((pllar & CKGR_PLLAR_MULA_Msk) && (pllar & CKGR_PLLAR_DIVA_Msk)) {
 		PMC->CKGR_PLLAR = pllar;
 		while (!(PMC->PMC_SR & PMC_SR_LOCKA));
 	}
+#endif
 
 	/* Switch back to the former MCK source. */
 	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~mckr_mask) | (mckr & mckr_mask);
