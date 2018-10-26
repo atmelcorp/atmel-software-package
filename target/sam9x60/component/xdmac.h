@@ -54,7 +54,7 @@ typedef struct {
   __IO uint32_t XDMAC_CSUS;    /**< \brief (XdmacChid Offset: 0x30) Channel Source Microblock Stride */
   __IO uint32_t XDMAC_CDUS;    /**< \brief (XdmacChid Offset: 0x34) Channel Destination Microblock Stride */
   __I  uint32_t Reserved1[2];
-} XdmacChid;
+} XdmacCh;
 /** \brief Xdmac hardware registers */
 #define XDMACCHID_NUMBER 16
 typedef struct {
@@ -76,7 +76,7 @@ typedef struct {
   __I  uint32_t  XDMAC_GSWS;                   /**< \brief (Xdmac Offset: 0x3C) Global Channel Software Request Status Register */
   __O  uint32_t  XDMAC_GSWF;                   /**< \brief (Xdmac Offset: 0x40) Global Channel Software Flush Request Register */
   __I  uint32_t  Reserved1[3];
-       XdmacChid XDMAC_CHID[XDMACCHID_NUMBER]; /**< \brief (Xdmac Offset: 0x50) chid = 0 .. 15 */
+       XdmacCh XDMAC_CH[XDMACCHID_NUMBER]; /**< \brief (Xdmac Offset: 0x50) chid = 0 .. 15 */
   __I  uint32_t  Reserved2[747];
   __I  uint32_t  XDMAC_VERSION;                /**< \brief (Xdmac Offset: 0xFFC) XDMAC Version Register */
 } Xdmac;
