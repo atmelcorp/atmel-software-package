@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<flash_device>
+  <exe>$PROJ_DIR$\..\..\flash_loaders\sam9x60-generic\flash_loader-extram.out</exe>
+  <flash_base>0x20000000</flash_base>
+  <page>512</page>
+  <block>2048 0x10000</block>
+  <macro>$PROJ_DIR$\..\..\flash_loaders\sam9x60-generic\flash_loader.mac</macro>
+  <args_doc>[--preset] specifies the DDRAM idx to program the external ram.
+</args_doc>
+</flash_device>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<flash_device>
+  <exe>$PROJ_DIR$\..\..\flash_loaders\sam9x60-generic\flash_loader-qspi.out</exe>
+   <flash_base>0x70000000</flash_base>
+  <page>4096</page>
+  <block>512 1000</block>
+  <args_doc>
+    [--freq x] frequency of qspi clock, default is 30.
+  </args_doc>
+</flash_device>
