@@ -165,16 +165,18 @@ static void _aesd_transfer_buffer_dma(struct _aesd_desc* desc)
 static void _aesd_transfer_buffer_polling(struct _aesd_desc* desc)
 {
 	uint32_t i;
+	uint8_t num_of_data_words;
 
+	num_of_data_words = _aesd_get_size_per_trans(desc);
 	aes_enable_it(AES_IER_DATRDY);
-	for (i = 0; i < desc->xfer.bufin->size; i+= _aesd_get_size_per_trans(desc)) {
-		aes_set_input((uint32_t *)((desc->xfer.bufin->data) + i));
+	for (i = 0; i < desc->xfer.bufin->size; i+= num_of_data_words) {
+		aes_set_input((void *)((desc->xfer.bufin->data) + i), num_of_data_words);
 		if (desc->cfg.transfer_mode == AESD_TRANS_POLLING_MANUAL)
 			/* Set the START bit in the AES Control register
 			 to begin the encrypt. or decrypt. process. */
 			aes_start();
 		while ((aes_get_status() & AES_ISR_DATRDY) != AES_ISR_DATRDY);
-		aes_get_output((uint32_t *)((desc->xfer.bufout->data) + i));
+		aes_get_output((void *)((desc->xfer.bufout->data) + i), num_of_data_words);
 	}
 	mutex_unlock(&desc->mutex);
 

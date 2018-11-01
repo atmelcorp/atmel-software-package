@@ -120,15 +120,17 @@ void aes_write_key(const uint32_t * key, uint32_t len);
  * \brief Set the for 32-bit input Data allow to set the 128-bit data block used
  * for encryption/decryption.
  * \param data  Pointer to the 16-bytes data to cipher/decipher.
+ * \param size  Number of words of data to be encryption/decryption.
  */
-void aes_set_input(uint32_t * data);
+void aes_set_input(void * data, uint8_t size);
 
 /**
  * \brief Get the four 32-bit data contain the 128-bit data block which has
  * been encrypted/decrypted.
  * \param data  Pointer to the word that has been encrypted/decrypted..
+ * \param size  Number of words of data to be encryption/decryption.
  */
-void aes_get_output(uint32_t * data);
+void aes_get_output(void * data, uint8_t size);
 
 /**
  * \brief Set four 64-bit initialization vector data block, which is used by

@@ -87,7 +87,7 @@
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
-
+#include "assert.h"
 #include "chip.h"
 #include "crypto/aes.h"
 
@@ -127,6 +127,7 @@ void aes_set_key_size(uint32_t size)
 
 void aes_set_cfbs(uint32_t size)
 {
+	assert(size < 5);
 	AES->AES_MR |= AES_MR_CFBS(size) | AES_MR_CKEY_PASSWD;
 }
 
@@ -170,34 +171,44 @@ void aes_write_key(const uint32_t * key, uint32_t len)
 	}
 }
 
-void aes_set_input(uint32_t* data)
+void aes_set_input(void* data, uint8_t size)
 {
 	uint8_t i;
-	uint8_t size = 4;
-	
-	if ((AES->AES_MR & AES_MR_OPMOD_Msk) == AES_MR_OPMOD_CFB) {
-		if ((AES->AES_MR & AES_MR_CFBS_Msk) ==
-			AES_MR_CFBS_SIZE_128BIT)
-			size = 4;
-		else if ((AES->AES_MR & AES_MR_CFBS_Msk) ==
-			AES_MR_CFBS_SIZE_64BIT)
-			size = 2;
-		else
-			size = 1;
-	}
+	uint32_t* d32;
+
+	if (size >= 4) {
+		d32 = (uint32_t*)data;
+		for (i = 0; i < size / 4; i++)
+			AES->AES_IDATAR[i] = d32[i];
+	} else {
 	/* In 32, 16, and 8-bit CFB modes, writing to AES_IDATAR1, 
 	AES_IDATAR2 and AES_IDATAR3 is not allowed and may lead to 
 	errors in processing. */
-	for (i = 0; i < size; i++)
-		AES->AES_IDATAR[i] = data[i];
+		if (size == 2)
+			AES->AES_IDATAR[0] = *((uint16_t*)data);
+		else
+			AES->AES_IDATAR[0] = *((uint8_t*)data);
+	}
 }
 
-void aes_get_output(uint32_t* data)
+void aes_get_output(void* data, uint8_t size)
 {
 	uint8_t i;
+	uint32_t* d32;
 
-	for (i = 0; i < 4; i++)
-		data[i] = AES->AES_ODATAR[i];
+	if (size >= 4) {
+		d32 = (uint32_t*)data;
+		for (i = 0; i < size / 4; i++)
+			d32[i] = AES->AES_ODATAR[i];
+	} else {
+	/* In 32, 16, and 8-bit CFB modes, writing to AES_IDATAR1, 
+	AES_IDATAR2 and AES_IDATAR3 is not allowed and may lead to 
+	errors in processing. */
+		if (size == 2)
+			*((uint16_t*)data) = AES->AES_ODATAR[0];
+		else
+			*((uint8_t*)data) = AES->AES_ODATAR[0];
+	}
 }
 
 void aes_set_vector(const uint32_t* vector)
