@@ -116,6 +116,16 @@
 
 #define NUM_LEDS  3
 
+/* =================== PIN PUSH BUTTON definition ============== */
+
+#define PIN_PUSHBUTTON_1 { PIO_GROUP_D, PIO_PD18, PIO_INPUT, PIO_PULLUP | PIO_DEBOUNCE }
+
+/** List of all push button definitions. */
+#define PINS_PUSHBUTTONS { PIN_PUSHBUTTON_1 }
+
+/** Push button index. */
+#define PUSHBUTTON_BP1 0
+
 /* =================== USB device definition =================== */
 
 /** USB VBus pin */
