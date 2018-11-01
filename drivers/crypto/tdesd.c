@@ -143,10 +143,10 @@ static void _tdesd_transfer_buffer_polling(struct _tdesd_desc* desc)
 		/* Write one 64/32-bit input data block to the authorized
 		Input Data Registers */
 		if (size == 8)
-			tdes_set_input((uint32_t *)((desc->xfer.bufin->data) + i),
-							(uint32_t *)((desc->xfer.bufin->data) + i + 4));
+			tdes_set_input((void *)((desc->xfer.bufin->data) + i),
+							(void *)((desc->xfer.bufin->data) + i + 4), size);
 		else
-			tdes_set_input((uint32_t *)((desc->xfer.bufin->data) + i), NULL);
+			tdes_set_input((void *)((desc->xfer.bufin->data) + i), NULL, size);
 
 		if (desc->cfg.transfer_mode == TDES_MR_SMOD_MANUAL_START)
 			/* Set the START bit in the TDES Control
@@ -157,10 +157,10 @@ static void _tdesd_transfer_buffer_polling(struct _tdesd_desc* desc)
 		while ((tdes_get_status() & TDES_ISR_DATRDY) != TDES_ISR_DATRDY);
 
 		if (size == 8)
-			tdes_get_output((uint32_t *)((desc->xfer.bufout->data) + i),
-							(uint32_t *)((desc->xfer.bufout->data) + i + 4));
+			tdes_get_output((void *)((desc->xfer.bufout->data) + i),
+							(void *)((desc->xfer.bufout->data) + i + 4), size);
 		else
-			tdes_get_output((uint32_t *)((desc->xfer.bufout->data) + i), NULL);
+			tdes_get_output((void *)((desc->xfer.bufout->data) + i), NULL, size);
 	}
 	mutex_unlock(&desc->mutex);
 	callback_call(&desc->xfer.callback, NULL);

@@ -172,18 +172,30 @@ void tdes_write_key3(uint32_t key_word0, uint32_t key_word1)
 	TDES->TDES_KEY3WR[1] = key_word1;
 }
 
-void tdes_set_input(uint32_t* data0, uint32_t* data1)
+void tdes_set_input(void* data0, void* data1, uint8_t bytes)
 {
-	TDES->TDES_IDATAR[0] = *data0;
+	if (bytes >= 4) {
+		TDES->TDES_IDATAR[0] = *((uint32_t *)data0);
+	} else if (bytes == 2) {
+		TDES->TDES_IDATAR[0] = *((uint16_t *)data0);
+	} else {
+		TDES->TDES_IDATAR[0] = *((uint8_t *)data0);
+	}
 	if (data1)
-		TDES->TDES_IDATAR[1] = *data1;
+		TDES->TDES_IDATAR[1] = *((uint32_t *)data1);
 }
 
-void tdes_get_output(uint32_t *data0, uint32_t *data1)
+void tdes_get_output(void* data0, void* data1, uint8_t bytes)
 {
-	*data0 = TDES->TDES_ODATAR[0];
+	if (bytes >= 4) {
+		*((uint32_t *)data0) = TDES->TDES_ODATAR[0];
+	} else if (bytes == 2) {
+		*((uint16_t *)data0) = TDES->TDES_ODATAR[0];
+	} else {
+		*((uint8_t *)data0) = TDES->TDES_ODATAR[0];
+	}
 	if (data1)
-		*data1 = TDES->TDES_ODATAR[1];
+		*((uint32_t *)data1) = TDES->TDES_ODATAR[1];
 }
 
 void tdes_set_vector(uint32_t v0, uint32_t v1)

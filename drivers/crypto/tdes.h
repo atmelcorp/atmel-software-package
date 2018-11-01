@@ -128,11 +128,11 @@ extern void tdes_write_key3(uint32_t key_word0, uint32_t key_word1);
 /**
  * \brief Set the two 32-bit input data registers. Allows to set the 64-bit data
  * block used for encryption/decryption.
- * \param data0  Corresponds to the first word of the data to be processed.
+ * \param data0  Corresponds to the first word of the data to be _processed.
  * \param data1  Corresponds to the last word of the data to be processed, skip 
 	IDATA1 if data1 is NULL.
  */
-extern void tdes_set_input(uint32_t* data0, uint32_t* data1);
+extern void tdes_set_input(void* data0, void* data1, uint8_t bytes);
 
 /**
  * \brief Read from the two 32-bit data registers containing the 64-bit data
@@ -140,7 +140,7 @@ extern void tdes_set_input(uint32_t* data0, uint32_t* data1);
  * \param data0  Points to the first word.
  * \param data1  Points to the second word, skip IODATA1 if data1 is NULL.
  */
-extern void tdes_get_output(uint32_t *data0, uint32_t *data1);
+extern void tdes_get_output(void* data0, void* data1, uint8_t bytes);
 
 /**
  * \brief Set the 64-bit initialization vector data block, which is used by
