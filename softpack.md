@@ -12,6 +12,7 @@ The Atmel Softpack support multiple devices and multiple targets.
 ## Devices
 
 * SAM9xx5 family (SAM9G15, SAM9G25, SAM9G35, SAM9X25, SAM9X35)
+* SAM9X60 family (SAM9X60)
 * SAMA5D2 family (SAMA5D21, SAMA5D22, SAMA5D23, SAMA5D24, SAMA5D26, SAMA5D27, SAMA5D28)
 * SAMA5D3 family (SAMA5D31, SAMA5D33, SAMA5D34, SAMA5D35, SAMA5D36)
 * SAMA5D4 family (SAMA5D41, SAMA5D42, SAMA5D43, SAMA5D44)
@@ -20,6 +21,7 @@ The Atmel Softpack support multiple devices and multiple targets.
 ## Targets
 
 * SAM9xx5 EVALUATION KIT (sam9g15-ek, sam9g25-ek, sam9g35-ek, sam9x25-ek, sam9x35-ek)
+* SAM9X60 EVALUATION KIT (sam9x60-ek)
 * SAMA5D2 PTC EK (sama5d2-ptc-ek)
 * SAMA5D2 XPLAINED ULTRA (sama5d2-xplained)
 * SAMA5D27 SOM1 EK (sama5d27-som1-ek)
@@ -186,76 +188,76 @@ wdt                    | OK             | OK               | OK               | 
 
 (Cont.)
 
-Examples               | sam9xx5 ek | same70 xplained | samv71 xplained
----------------------- | ---------- | --------------- | ---------------
-adc                    | OK         | TODO            | TODO
-audio_recorder         | OK         | x               | TODO
-can                    | x          | OK              | OK
-classd                 | x          | x               | x
-crypto_aes             | x          | OK              | OK
-crypto_aesb            | x          | x               | x
-crypto_icm             | x          | OK              | OK
-crypto_qspi_aesb       | x          | x               | x
-crypto_sha             | x          | x               | x
-crypto_tdes            | x          | x               | x
-crypto_trng            | x          | OK              | OK
-ddram                  | OK         | OK              | OK
-dma                    | OK         | OK              | OK
-eefc                   | x          | OK              | OK
-eth                    | OK         | OK              | OK
-eth_lwip               | OK         | OK              | OK
-eth_uip_helloworld     | OK         | OK              | OK
-eth_uip_telnetd        | OK         | OK              | OK
-eth_uip_webserver      | OK         | OK              | OK
-freertos_lwip          | OK         | TODO            | TODO
-freertos_queue         | OK         | TODO            | TODO
-freertos_start         | OK         | TODO            | TODO
-freertos_uip           | OK         | TODO            | TODO
-getting_started        | OK         | OK              | OK
-isc                    | x          | x               | x
-isi                    | x          | x               | x
-lcd                    | OK         | x               | TODO
-low_power_mode         | TODO       | TODO            | TODO
-pdmic                  | x          | TODO            | TODO
-pmc_clock_switching    | OK         | TODO            | OK
-power_consumption_pll  | OK         | OK              | TODO
-pwm                    | OK         | OK              | OK
-qspi_flash             | x          | x               | TODO
-qspi_xip               | x          | x               | TODO
-rtc                    | OK         | OK              | OK
-sdmmc_sdcard           | OK         | OK              | OK
-secumod                | x          | x               | x
-smc_nandflash_mlc      | OK         | x               | x
-smc_nandflash_slc      | OK         | x               | x
-spi_serialflash        | OK         | x               | x
-spi_slave              | OK         | x               | x
-ssc_dma_audio          | OK         | x               | OK
-tc                     | OK         | OK              | OK
-test-pio               | OK         | OK              | OK
-timer                  | OK         | OK              | OK
-twi_eeprom             | OK         | OK              | OK
-usart                  | OK         | OK              | OK
-usart_irda             | OK         | TODO            | TODO
-usart_iso7816          | OK         | TODO            | OK
-usart_lin              | x          | TODO            | TODO
-usart_rs485            | TODO       | OK              | OK
-usb_audio_looprec      | TODO       | x               | TODO
-usb_audio_multi_channels | TODO     | x               | TODO
-usb_audio_speaker      | OK         | x               | OK
-usb_cdc_serial         | OK         | OK              | OK
-usb_hid_aud            | OK         | x               | OK
-usb_hid_keyboard       | OK         | OK              | OK
-usb_hid_mouse          | OK         | OK              | OK
-usb_hid_msd            | OK         | OK              | OK
-usb_hid_transfer       | OK         | OK              | OK
-usb_iad_cdc_aud        | OK         | x               | OK
-usb_iad_cdc_cdc        | OK         | OK              | OK
-usb_iad_cdc_hid        | OK         | OK              | OK
-usb_iad_cdc_msd        | OK         | OK              | OK
-usb_mass_storage       | OK         | OK              | OK
-usb_uvc_isc            | x          | x               | x
-usb_uvc_isi            | OK         | TODO            | TODO
-wdt                    | x          | OK              | OK
+Examples               | sam9xx5 ek | sam9x60 ek | same70 xplained | samv71 xplained
+---------------------- | ---------- | ---------- | --------------- | ---------------
+adc                    | OK         | TODO       | TODO            | TODO
+audio_recorder         | OK         | TODO       | x               | TODO
+can                    | x          | TODO       | OK              | OK
+classd                 | x          | TODO       | x               | x
+crypto_aes             | x          | OK         | OK              | OK
+crypto_aesb            | x          | x          | x               | x
+crypto_icm             | x          | x          | OK              | OK
+crypto_qspi_aesb       | x          | x          | x               | x
+crypto_sha             | x          | OK         | x               | x
+crypto_tdes            | x          | OK         | x               | x
+crypto_trng            | x          | OK         | OK              | OK
+ddram                  | OK         | OK         | OK              | OK
+dma                    | OK         | OK         | OK              | OK
+eefc                   | x          | x          | OK              | OK
+eth                    | OK         | OK         | OK              | OK
+eth_lwip               | OK         | TODO       | OK              | OK
+eth_uip_helloworld     | OK         | TODO       | OK              | OK
+eth_uip_telnetd        | OK         | TODO       | OK              | OK
+eth_uip_webserver      | OK         | TODO       | OK              | OK
+freertos_lwip          | OK         | TODO       | TODO            | TODO
+freertos_queue         | OK         | TODO       | TODO            | TODO
+freertos_start         | OK         | TODO       | TODO            | TODO
+freertos_uip           | OK         | TODO       | TODO            | TODO
+getting_started        | OK         | OK         | OK              | OK
+isc                    | x          | TODO       | x               | x
+isi                    | x          | TODO       | x               | x
+lcd                    | OK         | TODO       | x               | TODO
+low_power_mode         | TODO       | TODO       | TODO            | TODO
+pdmic                  | x          | TODO       | TODO            | TODO
+pmc_clock_switching    | OK         | OK         | TODO            | OK
+power_consumption_pll  | OK         | TODO       | OK              | TODO
+pwm                    | OK         | TODO       | OK              | OK
+qspi_flash             | x          | OK         | x               | TODO
+qspi_xip               | x          | OK         | x               | TODO
+rtc                    | OK         | TODO       | OK              | OK
+sdmmc_sdcard           | OK         | OK         | OK              | OK
+secumod                | x          | x          | x               | x
+smc_nandflash_mlc      | OK         | OK         | x               | x
+smc_nandflash_slc      | OK         | OK         | x               | x
+spi_serialflash        | OK         | x          | x               | x
+spi_slave              | OK         | TODO       | x               | x
+ssc_dma_audio          | OK         | TODO       | x               | OK
+tc                     | OK         | TODO       | OK              | OK
+test-pio               | OK         | OK         | OK              | OK
+timer                  | OK         | OK         | OK              | OK
+twi_eeprom             | OK         | OK         | OK              | OK
+usart                  | OK         | OK         | OK              | OK
+usart_irda             | OK         | TODO       | TODO            | TODO
+usart_iso7816          | OK         | TODO       | TODO            | OK
+usart_lin              | x          | TODO       | TODO            | TODO
+usart_rs485            | TODO       | TODO       | OK              | OK
+usb_audio_looprec      | TODO       | TODO       | x               | TODO
+usb_audio_multi_channels | TODO     | TODO       | x               | TODO
+usb_audio_speaker      | OK         | TODO       | x               | OK
+usb_cdc_serial         | OK         | TODO       | OK              | OK
+usb_hid_aud            | OK         | TODO       | x               | OK
+usb_hid_keyboard       | OK         | TODO       | OK              | OK
+usb_hid_mouse          | OK         | TODO       | OK              | OK
+usb_hid_msd            | OK         | TODO       | OK              | OK
+usb_hid_transfer       | OK         | TODO       | OK              | OK
+usb_iad_cdc_aud        | OK         | TODO       | x               | OK
+usb_iad_cdc_cdc        | OK         | TODO       | OK              | OK
+usb_iad_cdc_hid        | OK         | TODO       | OK              | OK
+usb_iad_cdc_msd        | OK         | TODO       | OK              | OK
+usb_mass_storage       | OK         | TODO       | OK              | OK
+usb_uvc_isc            | x          | TODO       | x               | x
+usb_uvc_isi            | OK         | TODO       | TODO            | TODO
+wdt                    | x          | TODO       | OK              | OK
 
 Legend:
   * "x" means "Not Applicable"

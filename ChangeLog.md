@@ -2,6 +2,46 @@
 
 The Atmel Softpack can be found on [GitHub](https://github.com/atmelcorp/atmel-software-package).
 
+## Version 2.14 - 2018-12
+
+### New drivers/examples
+
+- Add support for SAM9X60 EK board (examples listed in softpack.md).
+- Add functions for NandFlash to tag/untag blocks as BAD
+- Add rstc_reset_all() function for reseting everything available from the RSTC_CR register.
+- Update HEO YUV for supporting 0/90/180/270 degrees rotation
+- Add HEO YUV mode for the lcd example
+- Add sumba applets: reset & internalrc
+- Add drive strength and slew rate control functions for PIO3
+
+### Fixes
+- Fix TDES bug when working in CFB(CFB-8 & CFB-16) mode
+- Fix AES bug when working in CFB(CFB-8 & CFB-16) mode
+- Fix MCAN's miss invoking ISR callback bug
+- Update DDR part number W971G16SG to W971GG6SB for sama5d2-som1-ek
+- Fix support of eMMC with different sizes
+- Only enables data abort after its stack is setup properly
+- Fix CKGR_MOR issue on updating it without proper key value
+- Fix PLLA issue due to update MAIN clock without disable PLLA first
+- Fix PIO pending interrupts mis-cleared issue when enabling PIO interrupt
+- Fix test case "pio.irq.edge.falling" in example test-pio
+- Fix *sleep() issue on SAMA5D31 in SAM-BA applets
+- Fix support of some Microchip SST25 memories
+- Fix support of Winbond W25 memory parts
+- Update HSMCI's clock from MCK to peripheral clock
+- Fix the conditions checked for MMC's HS200 mode support
+- Fix wrong header file included in acc driver
+- Fix wrong result from swab32() for ARM9 (ARCH_ARMV5TE) when using GCC
+
+### Enhancements
+- Improve the precision of MCAN Baud Rate
+- Optimize the accuracy of ADC trigger period
+- HSMCI_FIFO used instead of HSMCI_RDR and HSMCI_TDR
+- Update DMA Channel Chunk Size to 16 data for HSMCI
+- Update some documents for FreeRTOS related examples
+- Add support to Micron MT25QL02G/MT25QU02G, Macronix MX25U1635F and some ISSI IS25 memories
+- Improve clock frequencies in SDMMC capabilities
+
 ## Version 2.13 - 2018-05
 
 ### New drivers/examples
