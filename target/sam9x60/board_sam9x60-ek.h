@@ -209,7 +209,7 @@
 
 /* =================== ISI device definition =================== */
 
-#define BOARD_ISI_TWI_BUS     BUS(BUS_TYPE_I2C, 0)
+#define BOARD_ISI_TWI_BUS     BUS(BUS_TYPE_I2C, 1)
 #define BOARD_ISI_PINS        PINS_ISI
 #define BOARD_ISI_RST_PIN     { PIO_GROUP_A, PIO_PA7, PIO_OUTPUT_1, PIO_DEFAULT }
 #define BOARD_ISI_PWD_PIN     { PIO_GROUP_A, PIO_PA13, PIO_OUTPUT_1, PIO_DEFAULT }
@@ -230,10 +230,15 @@
 
 /* ================== TWI bus definition ====================== */
 
-#define BOARD_TWI_BUS0      TWI0
+#define BOARD_TWI_BUS0      FLEXTWI0
 #define BOARD_TWI_BUS0_FREQ 400000
-#define BOARD_TWI_BUS0_PINS PINS_TWI0
+#define BOARD_TWI_BUS0_PINS PINS_FLEXCOM0_TWI_IOS1
 #define BOARD_TWI_BUS0_MODE BUS_TRANSFER_MODE_DMA
+
+#define BOARD_TWI_BUS1      FLEXTWI6
+#define BOARD_TWI_BUS1_FREQ 400000
+#define BOARD_TWI_BUS1_PINS PINS_FLEXCOM6_TWI_IOS1
+#define BOARD_TWI_BUS1_MODE BUS_TRANSFER_MODE_DMA
 
 /* ================== SPI bus definition ====================== */
 
@@ -244,8 +249,8 @@
 /* =================== AT24 device definition =================== */
 
 #define BOARD_AT24_TWI_BUS BUS(BUS_TYPE_I2C, 0)
-#define BOARD_AT24_ADDR    0x51
-#define BOARD_AT24_MODEL   AT24C512
+#define BOARD_AT24_ADDR    0x53
+#define BOARD_AT24_MODEL   MCP24AA025E48
 
 /* =================== AT25 device definition =================== */
 
@@ -261,14 +266,6 @@
 #define BOARD_QSPIFLASH_PINS     PINS_QSPI
 #define BOARD_QSPIFLASH_ADDR     QSPI0
 #define BOARD_QSPIFLASH_BAUDRATE 50000000 /* 50 MHz */
-
-/* ================== WM8731 definition ====================== */
-
-#define BOARD_WM8731_TWI_BUS      BUS(BUS_TYPE_I2C, 0)
-#define BOARD_WM8731_SLAVE_ADDR   0x1a
-#define BOARD_WM8731_MCLK_PCK     0
-#define BOARD_WM8731_MCLK_PCK_SRC PMC_PCK_CSS_MAIN_CLK
-#define BOARD_WM8731_MCLK_PIN     PIN_PCK0
 
 #endif /* BOARD_SAM9x60_ek_H_ */
 

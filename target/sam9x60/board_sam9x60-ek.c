@@ -37,6 +37,7 @@
 #include "board_led.h"
 #include "board_eth.h"
 #include "board_spi.h"
+#include "board_twi.h"
 
 #include "dma/dma.h"
 
@@ -76,6 +77,15 @@ WEAK void board_init(void)
 
 #ifdef CONFIG_HAVE_ETH
 	board_cfg_net(0, NULL, true);
+#endif
+
+#ifdef CONFIG_HAVE_I2C_BUS
+	/* Configure TWI bus */
+	board_cfg_twi_bus();
+
+#ifdef CONFIG_HAVE_TWI_AT24
+	board_cfg_at24();
+#endif
 #endif
 
 #ifdef CONFIG_HAVE_SPI_NOR
