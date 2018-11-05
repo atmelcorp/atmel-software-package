@@ -367,14 +367,24 @@ typedef enum IRQn
 #define SDMMC1     ((Sdmmc      *)0x90000000U) /**< \brief (SDMMC1    ) Base Address */
 #define OTPC       ((Otpc       *)0xEFF00000U) /**< \brief (OTPC      ) Base Address */
 #define FLEXCOM4   ((Flexcom    *)0xF0000000U) /**< \brief (FLEXCOM4  ) Base Address */
+#define FLEXUSART4 ((Usart      *)0xF0000200U) /**< \brief (FLEXUSART4) Base Address */
+#define FLEXSPI4   ((Spi        *)0xF0000400U) /**< \brief (FLEXSPI4  ) Base Address */
+#define FLEXTWI4   ((Twi        *)0xF0000600U) /**< \brief (FLEXTWI4  ) Base Address */
 #define FLEXCOM5   ((Flexcom    *)0xF0004000U) /**< \brief (FLEXCOM5  ) Base Address */
+#define FLEXUSART5 ((Usart      *)0xF0004200U) /**< \brief (FLEXUSART5) Base Address */
+#define FLEXSPI5   ((Spi        *)0xF0004400U) /**< \brief (FLEXSPI5  ) Base Address */
+#define FLEXTWI5   ((Twi        *)0xF0004600U) /**< \brief (FLEXTWI5  ) Base Address */
 #define XDMAC0     ((Xdmac      *)0xF0008000U) /**< \brief (XDMAC     ) Base Address */
 #define SSC        ((Ssc        *)0xF0010000U) /**< \brief (SSC       ) Base Address */
 #define QSPI0      ((Qspi       *)0xF0014000U) /**< \brief (QSPI      ) Base Address */
 #define GFX2D      ((Gfx2d      *)0xF0018000U) /**< \brief (GFX2D     ) Base Address */
 #define I2SMCC     ((I2smcc     *)0xF001C000U) /**< \brief (I2SMCC    ) Base Address */
 #define FLEXCOM11  ((Flexcom    *)0xF0020000U) /**< \brief (FLEXCOM11 ) Base Address */
+#define FLEXUSART11 ((Usart     *)0xF0020200U) /**< \brief (FLEXUSART11) Base Address */
+#define FLEXTWI11   ((Twi       *)0xF0020600U) /**< \brief (FLEXTWI11  ) Base Address */
 #define FLEXCOM12  ((Flexcom    *)0xF0024000U) /**< \brief (FLEXCOM12 ) Base Address */
+#define FLEXUSART12 ((Usart     *)0xF0024200U) /**< \brief (FLEXUSART12) Base Address */
+#define FLEXTWI12   ((Twi       *)0xF0024600U) /**< \brief (FLEXTWI12  ) Base Address */
 #define PIT64B     ((Pit64b     *)0xF0028000U) /**< \brief (PIT64B    ) Base Address */
 #define SHA        ((Sha        *)0xF002C000U) /**< \brief (SHA       ) Base Address */
 #define TRNG       ((Trng       *)0xF0030000U) /**< \brief (TRNG      ) Base Address */
@@ -386,19 +396,41 @@ typedef enum IRQn
 #define TC0        ((Tc         *)0xF8008000U) /**< \brief (TC0       ) Base Address */
 #define TC1        ((Tc         *)0xF800C000U) /**< \brief (TC1       ) Base Address */
 #define FLEXCOM6   ((Flexcom    *)0xF8010000U) /**< \brief (FLEXCOM6  ) Base Address */
+#define FLEXUSART6 ((Usart      *)0xF8010200U) /**< \brief (FLEXUSART6) Base Address */
+#define FLEXTWI6   ((Twi        *)0xF8010600U) /**< \brief (FLEXTWI6  ) Base Address */
 #define FLEXCOM7   ((Flexcom    *)0xF8014000U) /**< \brief (FLEXCOM7  ) Base Address */
+#define FLEXUSART7 ((Usart      *)0xF8014200U) /**< \brief (FLEXUSART7) Base Address */
+#define FLEXTWI7   ((Twi        *)0xF8014600U) /**< \brief (FLEXTWI7  ) Base Address */
 #define FLEXCOM8   ((Flexcom    *)0xF8018000U) /**< \brief (FLEXCOM8  ) Base Address */
+#define FLEXUSART8 ((Usart      *)0xF8018200U) /**< \brief (FLEXUSART8) Base Address */
+#define FLEXTWI8   ((Twi        *)0xF8018600U) /**< \brief (FLEXTWI8  ) Base Address */
 #define FLEXCOM0   ((Flexcom    *)0xF801C000U) /**< \brief (FLEXCOM0  ) Base Address */
+#define FLEXUSART0 ((Usart      *)0xF801C200U) /**< \brief (FLEXUSART0) Base Address */
+#define FLEXSPI0   ((Spi        *)0xF801C400U) /**< \brief (FLEXSPI0  ) Base Address */
+#define FLEXTWI0   ((Twi        *)0xF801C600U) /**< \brief (FLEXTWI0  ) Base Address */
 #define FLEXCOM1   ((Flexcom    *)0xF8020000U) /**< \brief (FLEXCOM1  ) Base Address */
+#define FLEXUSART1 ((Usart      *)0xF8020200U) /**< \brief (FLEXUSART1) Base Address */
+#define FLEXSPI1   ((Spi        *)0xF8020400U) /**< \brief (FLEXSPI1  ) Base Address */
+#define FLEXTWI1   ((Twi        *)0xF8020600U) /**< \brief (FLEXTWI1  ) Base Address */
 #define FLEXCOM2   ((Flexcom    *)0xF8024000U) /**< \brief (FLEXCOM2  ) Base Address */
+#define FLEXUSART2 ((Usart      *)0xF8024200U) /**< \brief (FLEXUSART2) Base Address */
+#define FLEXSPI2   ((Spi        *)0xF8024400U) /**< \brief (FLEXSPI2  ) Base Address */
+#define FLEXTWI2   ((Twi        *)0xF8024600U) /**< \brief (FLEXTWI2  ) Base Address */
 #define FLEXCOM3   ((Flexcom    *)0xF8028000U) /**< \brief (FLEXCOM3  ) Base Address */
+#define FLEXUSART3 ((Usart      *)0xF8028200U) /**< \brief (FLEXUSART3) Base Address */
+#define FLEXSPI3   ((Spi        *)0xF8028400U) /**< \brief (FLEXSPI3  ) Base Address */
+#define FLEXTWI3   ((Twi        *)0xF8028600U) /**< \brief (FLEXTWI3  ) Base Address */
 #define EMAC0      ((Emac       *)0xF802C000U) /**< \brief (EMAC0     ) Base Address */
 #define EMAC1      ((Emac       *)0xF8030000U) /**< \brief (EMAC1     ) Base Address */
 #define PWM        ((Pwm        *)0xF8034000U) /**< \brief (PWM       ) Base Address */
 #define LCDC       ((Lcdc       *)0xF8038000U) /**< \brief (LCDC      ) Base Address */
 #define UDPHS      ((Udphs      *)0xF803C000U) /**< \brief (UDPHS     ) Base Address */
 #define FLEXCOM9   ((Flexcom    *)0xF8040000U) /**< \brief (FLEXCOM9  ) Base Address */
+#define FLEXUSART9 ((Usart      *)0xF8040200U) /**< \brief (FLEXUSART9) Base Address */
+#define FLEXTWI9   ((Twi        *)0xF8040600U) /**< \brief (FLEXTWI9  ) Base Address */
 #define FLEXCOM10  ((Flexcom    *)0xF8044000U) /**< \brief (FLEXCOM10 ) Base Address */
+#define FLEXUSART10 ((Usart     *)0xF8044200U) /**< \brief (FLEXUSART10) Base Address */
+#define FLEXTWI10   ((Twi       *)0xF8044600U) /**< \brief (FLEXTWI10  ) Base Address */
 #define ISI        ((Isi        *)0xF8048000U) /**< \brief (ISI       ) Base Address */
 #define ADC        ((Adc        *)0xF804C000U) /**< \brief (ADC       ) Base Address */
 #define SFR        ((Sfr        *)0xF8050000U) /**< \brief (SFR       ) Base Address */
