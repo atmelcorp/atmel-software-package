@@ -126,6 +126,9 @@ static struct _pin pio_input = { PIO_GROUP_B, PIO_PB15, PIO_INPUT, PIO_DEFAULT }
 #elif defined(CONFIG_BOARD_SAMA5D4_EK)
 static struct _pin pio_output = { PIO_GROUP_E, PIO_PE26, PIO_OUTPUT_0, PIO_DEFAULT };
 static struct _pin pio_input = { PIO_GROUP_E, PIO_PE27, PIO_INPUT, PIO_DEFAULT };
+#elif defined(CONFIG_BOARD_SAM9X60_EK)
+static struct _pin pio_output = { PIO_GROUP_A, PIO_PA2, PIO_OUTPUT_0, PIO_DEFAULT };
+static struct _pin pio_input = { PIO_GROUP_A, PIO_PA3, PIO_INPUT, PIO_DEFAULT };
 #elif defined(CONFIG_BOARD_SAM9G15_EK) || \
       defined(CONFIG_BOARD_SAM9G25_EK) || \
       defined(CONFIG_BOARD_SAM9G35_EK) || \

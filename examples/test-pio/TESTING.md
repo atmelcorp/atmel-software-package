@@ -66,6 +66,9 @@ Connect PE26 (pin 59 on EXPJ19) to PE27 (pin 60 on EXPJ19)
 __Pins for SAM9X5 Evaluation Kit:__
 Connect PD16 (pin 37 on J22) to PD17 (pin 38 on J22)
 
+__Pins for SAM9X60 Evaluation Kit:__
+Connect PA2 (pin 11 on J17) to PA3 (pin 13 on J17)
+
 __Pins for SAME70 Xplained Ultra:__
 Connect D7 PA2 (pin 8 on J503) to D6 PC19 (pin 7 on J503)
 
