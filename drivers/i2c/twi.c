@@ -96,7 +96,7 @@
  *        Definitions
  *----------------------------------------------------------------------------*/
 
-#if defined(CONFIG_SOC_SAM9XX5)
+#if defined(CONFIG_SOC_SAM9XX5) || defined(CONFIG_SOC_SAM9X60)
 #define TWI_CLK_OFFSET (4)
 #elif defined(CONFIG_SOC_SAMA5D2)
 #define TWI_CLK_OFFSET (3) /* TODO: handle GCK case (offset=0) */
