@@ -132,8 +132,11 @@ void board_cfg_clocks(void)
 #else
 	switch (pmc_get_main_oscillator_freq()) {
 	case 24000000:
-		plla_config.mul = 40;
+		plla_config.mul = 49;
 		plla_config.div = 1;
+#ifdef PMC_PLL_UPDT_ID
+		plla_config.pll_id = PLL_ID_PLLA;
+#endif
 		break;
 	case 16000000:
 		plla_config.mul = 61;
