@@ -74,6 +74,14 @@
 /** On-board DDR2-SDRAM type */
 #define BOARD_DDRAM_TYPE         W972GG6KB_16
 
+/** PMC PLLA configuration */
+#define BOARD_PMC_PLLA_MUL 49
+#define BOARD_PMC_PLLA_DIV 1
+
+/** PMC UPLL configuration */
+#define BOARD_PMC_UPLL_MUL 39
+#define BOARD_PMC_UPLL_DIV 1
+
 /** On-board DDR2-SDRAM size in bytes */
 #define BOARD_DDR_MEMORY_SIZE    256*1024*1024
 
