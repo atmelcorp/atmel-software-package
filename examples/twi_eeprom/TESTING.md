@@ -18,6 +18,7 @@ access data on a AT24 device.
 ## Supported targets
 --------------------
 
+* SAM9X60-EK
 * SAM9XX5-EK
 * SAMA5D2-PTC-EK
 * SAMA5D2-XPLAINED
@@ -76,6 +77,11 @@ Step needed to set up the example.
  |      Print this menu                                  |
  |=======================================================|
 ```
+
+__Pins for SAM9X60 EK:__
+Master SCL                   | Master SDA                  | Slave SCL                       | Slave SDA
+---------------------------- | --------------------------- | ------------------------------- | -------------------------------
+MBUS_TWCK_PA01 on J15 pin 12 | MBUS_TWD_PA0 on J15 pin 11  | Flexcom4_IO1_PA11 on J17 pin 21 | Flexcom4_IO0_PA12 on J17 pin 19
 
 __Pins for SAMA5D2 PTC EK:__
 Master SCL                   | Master SDA                  | Slave SCL                | Slave SDA
