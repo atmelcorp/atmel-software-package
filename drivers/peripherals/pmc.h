@@ -58,6 +58,7 @@ struct _pmc_plla_cfg {
 #endif
 
 #ifdef PMC_PLL_UPDT_ID
+	uint32_t pll_id;
 	uint32_t fracr;
 	uint32_t loop_filter;
 #endif

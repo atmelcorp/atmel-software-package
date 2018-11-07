@@ -396,15 +396,15 @@ static uint16_t _pmc_measure_main_osc_freq(bool external_xt)
 }
 
 #if defined(PMC_PLL_UPDT_ID)
-static void _pmc_configure_pll(uint32_t pll_id, const struct _pmc_plla_cfg* plla)
+static void _pmc_configure_pll(const struct _pmc_plla_cfg* plla)
 {
 	uint32_t reg;
 
-	if (pll_id == PLL_ID_PLLA) {
-	} else if (pll_id == PLL_ID_UPLL){
+	if (plla->pll_id == PLL_ID_PLLA) {
+	} else if (plla->pll_id == PLL_ID_UPLL){
 		assert(plla->div == 1);
 	} else {
-		trace_fatal("Unknown PLL which index is %d\r\n", (int)pll_id);
+		trace_fatal("Unknown PLL which index is %d\r\n", (int)plla->pll_id);
 	}
 
 	/* Follow the steps below to power-on a PLL: */
@@ -412,8 +412,15 @@ static void _pmc_configure_pll(uint32_t pll_id, const struct _pmc_plla_cfg* plla
 	PMC_PLL_UPDT.STUPTIM. Set PMC_PLL_UPDT.UPDATE to '0'. */
 	reg = PMC->PMC_PLL_UPDT;
 	reg &= ~(PMC_PLL_UPDT_STUPTIM_Msk | PMC_PLL_UPDT_UPDATE | PMC_PLL_UPDT_ID_Msk);
-	reg |= PMC_PLL_UPDT_STUPTIM(plla->count) | PMC_PLL_UPDT_ID(pll_id);
+	reg |= PMC_PLL_UPDT_STUPTIM(plla->count) | PMC_PLL_UPDT_ID(plla->pll_id);
 	PMC->PMC_PLL_UPDT = reg;
+	
+	if ((PMC -> PMC_PLL_ACR & PMC_PLL_ACR_UTMIBG) != PMC_PLL_ACR_UTMIBG) {
+		/* 2. Write PMC_PLL_ACR.UTMIBG to '1' to enable the UTMI internal bandgap. */
+		PMC->PMC_PLL_ACR |= PMC_PLL_ACR_UTMIBG;
+		/* 3. Wait 10 us. */
+		usleep(10);
+	}
 
 	/* 2. Configure PMC_PLL_ACR.LOOP_FILTER. */
 	reg = PMC->PMC_PLL_ACR;
@@ -425,7 +432,7 @@ static void _pmc_configure_pll(uint32_t pll_id, const struct _pmc_plla_cfg* plla
 	PMC->PMC_PLL_CTRL1 = PMC_PLL_CTRL1_MUL(plla->mul) | PMC_PLL_CTRL1_FRACR(plla->fracr);
 
 	/* In case UPLL is being configured, follow Step 4. to Step 7., else jump to Step 8. */
-	if (pll_id == PLL_ID_UPLL) {
+	if (plla->pll_id == PLL_ID_UPLL) {
 		/* 4. Write PMC_PLL_ACR.UTMIBG to '1' to enable the UTMI internal bandgap. */
 		PMC->PMC_PLL_ACR |= PMC_PLL_ACR_UTMIBG;
 
@@ -456,12 +463,12 @@ static void _pmc_configure_pll(uint32_t pll_id, const struct _pmc_plla_cfg* plla
 
 	/* 11. Wait for the lock bit to rise by polling the PMC_PLL_ISR0 or by enabling the corresponding interrupt
 	in PMC_PLL_IER. */
-	while ((PMC->PMC_PLL_ISR0 & (PMC_PLL_ISR0_LOCK0 << pll_id)) != (PMC_PLL_ISR0_LOCK0 << pll_id));
+	while ((PMC->PMC_PLL_ISR0 & (PMC_PLL_ISR0_LOCK0 << plla->pll_id)) != (PMC_PLL_ISR0_LOCK0 << plla->pll_id));
 
 	/* 12. Disable the interrupt (if enabled) */
 
 	/* 13. Enable the unlock interrupt to quickly detect a failure on the generation of the clock of the PLL. */
-	PMC->PMC_PLL_IER |= (PMC_PLL_IER_UNLOCK0 << pll_id);
+	PMC->PMC_PLL_IER |= (PMC_PLL_IER_UNLOCK0 << plla->pll_id);
 }
 
 static void _pmc_disable_pll(uint32_t pll_id)
@@ -501,12 +508,17 @@ static void _pmc_disable_pll(uint32_t pll_id)
 		PMC->PMC_PLL_ACR &= ~(PMC_PLL_ACR_UTMIBG | PMC_PLL_ACR_UTMIVR);
 }
 
+static bool _pmc_pll_enabled(uint32_t pll_id)
+{
+	return (PMC->PMC_PLL_ISR0 & (1 << (pll_id & 0xf))) != 0;
+}
+
 static uint32_t _pmc_get_pll_clock(uint32_t pll_id)
 {
 	uint32_t mul, fracr, divpmc;
 	uint32_t f_core, f_ref;
 
-	PMC->PMC_PLL_UPDT = (PMC->PMC_PLL_UPDT & (~PMC_PLL_UPDT_ID_Pos)) | PMC_PLL_UPDT_ID(pll_id);
+	PMC->PMC_PLL_UPDT = (PMC->PMC_PLL_UPDT & (~PMC_PLL_UPDT_ID_Msk)) | PMC_PLL_UPDT_ID(pll_id);
 
 	mul = (PMC->PMC_PLL_CTRL1 & PMC_PLL_CTRL1_MUL_Msk) >> PMC_PLL_CTRL1_MUL_Pos;
 	fracr = (PMC->PMC_PLL_CTRL1 & PMC_PLL_CTRL1_FRACR_Msk) >> PMC_PLL_CTRL1_FRACR_Pos;
@@ -1030,7 +1042,7 @@ void pmc_set_mck_divider(uint32_t divider)
 void pmc_configure_plla(const struct _pmc_plla_cfg* plla)
 {
 #if defined(PMC_PLL_UPDT_ID)
-	_pmc_configure_pll(PLL_ID_PLLA, plla);
+	_pmc_configure_pll(plla);
 #elif defined(CKGR_PLLAR_DIVA_Pos)
 	uint32_t pllar = 0;
 
@@ -1394,9 +1406,14 @@ uint32_t pmc_get_pck_clock(uint32_t index)
 void pmc_enable_upll_clock(void)
 {
 #if defined(PMC_PLL_UPDT_ID)
-	const struct _pmc_plla_cfg plla;
-	// todo: initialize the fields in plla
-	_pmc_configure_pll(PLL_ID_UPLL, &plla);
+	struct _pmc_plla_cfg plla = {
+		.mul = BOARD_PMC_UPLL_MUL,
+		.div = BOARD_PMC_UPLL_DIV,
+		.count = 0x3f,
+		.fracr = 0,
+		.pll_id = PLL_ID_UPLL,
+};
+	_pmc_configure_pll(&plla);
 #else
 	uint32_t uckr = CKGR_UCKR_UPLLEN | CKGR_UCKR_UPLLCOUNT(0x3);
 
@@ -1449,7 +1466,11 @@ void pmc_disable_upll_clock(void)
 
 bool pmc_is_upll_clock_enabled(void)
 {
+#if defined(PMC_PLL_UPDT_ID)
+	return _pmc_pll_enabled(PLL_ID_UPLL);
+#else
 	return (PMC->PMC_SR & PMC_SR_LOCKU) != 0;
+#endif
 }
 
 uint32_t pmc_get_upll_clock(void)
