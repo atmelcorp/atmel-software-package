@@ -88,16 +88,16 @@ typedef struct {
 } Pmc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- PMC_SCER : (PMC Offset: 0x0000) System Clock Enable Register -------- */
-#define PMC_SCER_DDRCLK (0x1u << 2) /**< \brief (PMC_SCER) DDR Clock Enable */
-#define PMC_SCER_LCDCLK (0x1u << 3) /**< \brief (PMC_SCER) Enable LCD 2x Clock */
+#define PMC_SCER_DDRCK (0x1u << 2) /**< \brief (PMC_SCER) DDR Clock Enable */
+#define PMC_SCER_LCDCK (0x1u << 3) /**< \brief (PMC_SCER) Enable LCD 2x Clock */
 #define PMC_SCER_UHP (0x1u << 6) /**< \brief (PMC_SCER) USB Host OHCI Clocks Enable */
 #define PMC_SCER_PCK0 (0x1u << 8) /**< \brief (PMC_SCER) Programmable Clock 0 Output Enable */
 #define PMC_SCER_PCK1 (0x1u << 9) /**< \brief (PMC_SCER) Programmable Clock 1 Output Enable */
 #define PMC_SCER_ISICLK (0x1u << 18) /**< \brief (PMC_SCER) Enable ISI 2x Clock */
 #define PMC_SCER_QSPICLK (0x1u << 19) /**< \brief (PMC_SCER) Enable QSPI 2x Clock */
 /* -------- PMC_SCDR : (PMC Offset: 0x0004) System Clock Disable Register -------- */
-#define PMC_SCDR_DDRCLK (0x1u << 2) /**< \brief (PMC_SCDR) DDR Clock Disable */
-#define PMC_SCDR_LCDCLK (0x1u << 3) /**< \brief (PMC_SCDR) LCD Clock Disable */
+#define PMC_SCDR_DDRCK (0x1u << 2) /**< \brief (PMC_SCDR) DDR Clock Disable */
+#define PMC_SCDR_LCDCK (0x1u << 3) /**< \brief (PMC_SCDR) LCD Clock Disable */
 #define PMC_SCDR_UHP (0x1u << 6) /**< \brief (PMC_SCDR) USB Host OHCI Clocks Disable */
 #define PMC_SCDR_PCK0 (0x1u << 8) /**< \brief (PMC_SCDR) Programmable Clock 0 Output Disable */
 #define PMC_SCDR_PCK1 (0x1u << 9) /**< \brief (PMC_SCDR) Programmable Clock 1 Output Disable */
@@ -105,8 +105,8 @@ typedef struct {
 #define PMC_SCDR_QSPICLK (0x1u << 19) /**< \brief (PMC_SCDR) QSPI 2x Clock Disable */
 /* -------- PMC_SCSR : (PMC Offset: 0x0008) System Clock Status Register -------- */
 #define PMC_SCSR_CPU_CLKS (0x1u << 0) /**< \brief (PMC_SCSR) CPU_CLK Status */
-#define PMC_SCSR_DDRCLK (0x1u << 2) /**< \brief (PMC_SCSR) DDR Clock Status */
-#define PMC_SCSR_LCDCLK (0x1u << 3) /**< \brief (PMC_SCSR) LCD Clock Status */
+#define PMC_SCSR_DDRCK (0x1u << 2) /**< \brief (PMC_SCSR) DDR Clock Status */
+#define PMC_SCSR_LCDCK (0x1u << 3) /**< \brief (PMC_SCSR) LCD Clock Status */
 #define PMC_SCSR_UHP (0x1u << 6) /**< \brief (PMC_SCSR) USB Host OHCI Clocks Status */
 #define PMC_SCSR_PCK0 (0x1u << 8) /**< \brief (PMC_SCSR) Programmable Clock 0 Output Status */
 #define PMC_SCSR_PCK1 (0x1u << 9) /**< \brief (PMC_SCSR) Programmable Clock 1 Output Status */
