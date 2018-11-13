@@ -145,10 +145,10 @@ void board_cfg_clocks(void)
 		break;
 	}
 #endif
-//	pmc_switch_mck_to_main();
+	pmc_switch_mck_to_main();
 	pmc_set_mck_prescaler(PMC_MCKR_PRES_CLOCK);
 //	pmc_set_mck_divider(PMC_MCKR_MDIV_EQ_PCK);
-	pmc_disable_plla();
+	//pmc_disable_plla();
 	pmc_select_external_osc(false);
 	pmc_configure_plla(&plla_config);
 	pmc_set_mck_divider(PMC_MCKR_MDIV_PCK_DIV3);
@@ -181,7 +181,7 @@ void board_cfg_lowlevel(bool clocks, bool ddram, bool mmu)
 
 	if (ddram) {
 		/* Configure DDRAM */
-//		board_cfg_ddram();
+		board_cfg_ddram();
 	}
 
 	if (mmu) {
@@ -392,13 +392,23 @@ void board_cfg_mmu(void)
 	dcache_enable();
 }
 
+
+#define VDDIOM_1V8_OUT_Z_CALN_TYP 4
+#define VDDIOM_1V8_OUT_Z_CALP_TYP 10
+
 void board_cfg_matrix_for_ddr(void)
 {
-//	SFR->SFR_DDRCFG |= 0x1u << 1;
-	{
-		const struct _pin pins_ddr[] = PINS_NAND16;
-		pio_configure(pins_ddr, ARRAY_SIZE(pins_ddr));
-	}
+	uint32_t cfg;
+
+	cfg = SFR->SFR_CCFG_EBICSA;
+	SFR->SFR_CCFG_EBICSA = cfg
+	                     | SFR_CCFG_EBICSA_DDR_MP_EN
+	                     | SFR_CCFG_EBICSA_EBI_CS1A
+	                     | SFR_CCFG_EBICSA_NFD0_ON_D16;
+	cfg = SFR->SFR_CAL1;
+	cfg &= ~(SFR_CAL1_CALN_M_Msk | SFR_CAL1_CALP_M_Msk);
+	cfg |= SFR_CAL1_TEST_M | SFR_CAL1_CALN_M(VDDIOM_1V8_OUT_Z_CALN_TYP) | SFR_CAL1_CALP_M(VDDIOM_1V8_OUT_Z_CALP_TYP);
+	SFR->SFR_CAL1 = cfg;
 }
 
 void board_cfg_matrix_for_nand(void)
