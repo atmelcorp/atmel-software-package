@@ -284,7 +284,7 @@ typedef enum IRQn
 #define ID_OTPC      (46) /**< \brief OTP Controller (OTPC) */
 #define ID_DBGU      (47) /**< \brief DBGU - fGCLK < fMCK0 / 3 - False Path (DBGU) */
 #define ID_PMECC     (48) /**< \brief logical-OR interrupt of PMECC and PMERRLOC (PMECC) */
-#define ID_SDRAMC    (49) /**< \brief logical-OR interrupt of SDRAMC and MPDDRC and HSMC (SDRAMC) */
+#define ID_MPDDRC    (49) /**< \brief logical-OR interrupt of SDRAMC and MPDDRC and HSMC (SDRAMC) */
 
 #define ID_PERIPH_COUNT (50) /**< \brief Number of peripheral IDs */
 /*@}*/
