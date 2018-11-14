@@ -408,6 +408,7 @@ static void _eth_process_packet(uint8_t eth_port, struct _eth_packet* pkt, uint3
 int main(void)
 {
 	uint32_t tick_start;
+	bool arp_run = true;
 	uint8_t eth_port = 0;
 
 	/* Output example information */
@@ -430,16 +431,21 @@ int main(void)
 	_arp_request_count = 0;
 	_arp_reply_count = 0;
 	while (1) {
-		if (_arp_request_count < MAX_ARP_REQUESTS) {
+		if ((_arp_request_count < MAX_ARP_REQUESTS) & (arp_run == true)) {
 			if ((timer_get_tick() - tick_start) >= ARP_INTERVAL) {
 				tick_start = timer_get_tick();
 				printf("arp...\r\n");
 				_arp_create_and_send_request(eth_port, _mac_addr, _src_ip, _dest_ip);
 			}
-		} else {
+		} else if (arp_run == true) {
 			/* wait 1s to get remaining replies */
-			if ((timer_get_tick() - tick_start) >= 500)
-				break;
+			if ((timer_get_tick() - tick_start) >= 500) {
+				printf("%s eth%d sends out %d ARP request and gets %d reply\n\r",
+				    BOARD_NAME, eth_port, _arp_request_count, _arp_reply_count);
+				printf("Please input 'ping %d.%d.%d.%d' in PC side to test ping application\n\r",
+				    _src_ip[0], _src_ip[1], _src_ip[2], _src_ip[3]);
+				arp_run = false;
+			}
 		}
 
 		struct _eth_packet* pkt = (struct _eth_packet*)_eth_buffer;
@@ -453,7 +459,4 @@ int main(void)
 			}
 		}
 	}
-
-	printf("%s eth%d sends out %d ARP request and gets %d reply\n\r", BOARD_NAME, eth_port, _arp_request_count, _arp_reply_count);
-	return 1;
 }
