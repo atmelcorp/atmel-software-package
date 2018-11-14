@@ -71,11 +71,11 @@
 /** Frequency of the board main clock oscillator */
 #define BOARD_MAIN_CLOCK_EXT_OSC 24000000
 
-/** Definition of DDRAM's type */
-#define BOARD_DDRAM_TYPE         MT47H64M16
+/** On-board DDR2-SDRAM type */
+#define BOARD_DDRAM_TYPE         W972GG6KB_16
 
-/** Board DDR memory size in bytes */
-#define BOARD_DDR_MEMORY_SIZE    32*1024*1024
+/** On-board DDR2-SDRAM size in bytes */
+#define BOARD_DDR_MEMORY_SIZE    256*1024*1024
 
 /** \def Board System timer */
 #define BOARD_TIMER_TC      TC1
