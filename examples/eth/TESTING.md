@@ -31,6 +31,7 @@ The basic will only answer to two kinds of packets:
 * SAMA5D3-XPLAINED
 * SAMA5D4-EK
 * SAMA5D4-XPLAINED
+* SAM9X60-EK
 
 ## Setup
 --------
