@@ -56,7 +56,7 @@
 /* Convert nanoseconds to clock cycles for given master clock in MHz */
 #define NS2CYCLES(ns, clk) ((((ns) * (clk)) + 999) / 1000)
 
-#define TZQIO_CYCLES(clk) (NS2CYCLES(MPDDRC_TZQIO_DELAY, mck) + 1)
+#define TZQIO_CYCLES(mck) (NS2CYCLES(MPDDRC_TZQIO_DELAY, mck) + 1)
 
 /* For compatibility with older DDR controller IP */
 #ifndef MPDDRC_CR_NDQS_DISABLED
@@ -232,14 +232,25 @@ static void _init_w971gg6sb(struct _mpddrc_desc* desc)
 #endif /* CONFIG_HAVE_DDR2_W971GG6SB */
 
 #ifdef CONFIG_HAVE_DDR2_W972GG6KB
-static void _init_w972gg6kb(struct _mpddrc_desc* desc)
+static void _init_w972gg6kb(struct _mpddrc_desc* desc, uint8_t bus_width)
 {
 	uint32_t mck = pmc_get_master_clock() / 1000000;
 
 	desc->type = MPDDRC_TYPE_DDR2;
-
+#ifdef MPDDRC_MD_DBW_DBW_32_BITS
+	if (bus_width == 16) {
+#ifdef MPDDRC_MD_DBW_DBW_16_BITS
+		desc->mode = MPDDRC_MD_MD_DDR2_SDRAM
+		           | MPDDRC_MD_DBW_DBW_16_BITS;
+#endif
+	} else {
+		desc->mode = MPDDRC_MD_MD_DDR2_SDRAM
+		           | MPDDRC_MD_DBW_DBW_32_BITS;
+	}
+#else
 	desc->mode = MPDDRC_MD_MD_DDR2_SDRAM
-	           | MPDDRC_MD_DBW_DBW_32_BITS;
+	           | MPDDRC_MD_DBW_DBW_16_BITS;
+#endif
 
 #ifdef CONFIG_HAVE_MPDDRC_DATA_PATH
 	desc->data_path = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_ONE_CYCLE;
@@ -681,8 +692,12 @@ void ddram_init_descriptor(struct _mpddrc_desc* desc,
   #endif
   #ifdef CONFIG_HAVE_DDR2_W972GG6KB
 	case W972GG6KB:
-		_init_w972gg6kb(desc);
+		_init_w972gg6kb(desc, 32);
 		break;
+	case W972GG6KB_16:
+		_init_w972gg6kb(desc, 16);
+		break;
+
   #endif
 #endif
 #ifdef CONFIG_HAVE_MPDDRC_LPDDR2

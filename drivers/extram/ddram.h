@@ -63,6 +63,7 @@ enum _ddram_devices {
 	W971GG6SB,     /* DDR2 256MB */
   #endif
   #ifdef CONFIG_HAVE_DDR2_W972GG6KB
+	W972GG6KB_16,  /* DDR2 1*256MB */
 	W972GG6KB,     /* DDR2 2*256MB */
   #endif
 #endif
