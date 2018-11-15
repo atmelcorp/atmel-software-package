@@ -33,6 +33,11 @@
 #ifdef CONFIG_HAVE_ETH
 
 /**
+ * \brief Input the index of the Ethernet interface
+ */
+extern uint8_t select_eth_port(void);
+
+/**
  * \brief Configures the eth<iface> for the board
  * \param iface the network interface number (0/1)
  * \param mac_addr a MAC address to use. If NULL, the board default MAC address

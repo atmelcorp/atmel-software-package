@@ -43,6 +43,7 @@
 #include "board_twi.h"
 #include "trace.h"
 
+#include "serial/console.h"
 #include "gpio/pio.h"
 #include "mm/cache.h"
 #include "network/ethd.h"
@@ -150,6 +151,37 @@ static void _eth_rx_callback(uint8_t queue, uint32_t status)
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
+
+/**
+ * Input the index of the Ethernet interface
+ */
+uint8_t select_eth_port(void)
+{
+	uint8_t key, send_port = 0;
+
+	if (ETH_IFACE_COUNT < 2)
+		return send_port;
+
+#ifdef BOARD_ETH1_ADDR
+	while (1) {
+		printf("\n\r");
+		printf("Input an eth number '0' or '1' to initialize:\n\r");
+		printf("=>");
+		key = console_get_char();
+		printf("%c\r\n", key);
+
+		if (key == '0') {
+			send_port = 0;
+			break;
+		} else if (key == '1') {
+			send_port = 1;
+			break;
+		}
+	}
+#endif
+
+	return send_port;
+}
 
 void board_cfg_net(uint8_t iface, uint8_t* mac_addr, bool block)
 {
