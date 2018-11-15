@@ -201,6 +201,10 @@ uint32_t FlashInit(void *base_of_flash,
 		trace_warning_wp("Preset 9 (W972GG6KB)\r\n");
 		device = W972GG6KB;
 		break;
+	case 11:
+		trace_warning_wp("Preset 11 (W972GG6KB_16)\r\n");
+		device = W972GG6KB_16;
+		break;
 #endif
 #ifdef CONFIG_HAVE_SDRAM_AS4C16M16SA
 	case 10:
@@ -249,6 +253,7 @@ uint32_t FlashWrite(void *block_start, uint32_t offset_into_block, uint32_t coun
 
 	sprintf(message, "-I- Write Done!");
 	cSpyMessageLog(message);
+
 	return RESULT_OK;
 }
 

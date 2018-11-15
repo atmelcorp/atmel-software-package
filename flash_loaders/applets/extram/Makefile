@@ -27,7 +27,8 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the External RAM initialization flash loader
-AVAILABLE_TARGETS = sama5d2-generic \
+AVAILABLE_TARGETS = sam9x60-generic \
+                    sama5d2-generic \
                     sama5d3-generic \
                     sama5d4-generic \
                     sam9x25-generic \
