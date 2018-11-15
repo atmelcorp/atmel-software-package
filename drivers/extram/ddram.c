@@ -263,13 +263,17 @@ static void _init_w972gg6kb(struct _mpddrc_desc* desc, uint8_t bus_width)
 	              | MPDDRC_CR_UNAL_SUPPORTED;
 
 #ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
+#ifdef MPDDRC_IO_CALIBR_RDIV
 	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV(4)
 	                | MPDDRC_IO_CALIBR_TZQIO(TZQIO_CYCLES(mck))
 	                | MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION;
 #endif
+#ifdef MPDDRC_IO_CALIBR_CK_F_RANGE_Msk
+	desc->io_calibr = MPDDRC_IO_CALIBR_CK_F_RANGE(7);
+#endif
+#endif
 
 	/* timings */
-
 	memset(&desc->timings, 0, sizeof(desc->timings));
 	desc->timings.tras   = NS2CYCLES(45, mck);  // 45ns
 	desc->timings.trcd   = NS2CYCLES(13, mck);  // 13ns
@@ -316,9 +320,11 @@ static void _init_mt47h128m8(struct _mpddrc_desc* desc)
 	              | MPDDRC_CR_UNAL_SUPPORTED;
 
 #ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
+#ifdef MPDDRC_IO_CALIBR_RDIV
 	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV(4)
 	                | MPDDRC_IO_CALIBR_TZQIO(TZQIO_CYCLES(mck))
 	                | MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION;
+#endif
 #endif
 
 	/* timings */
@@ -370,9 +376,11 @@ static void _init_mt47h64m16(struct _mpddrc_desc* desc)
 	              | MPDDRC_CR_UNAL_SUPPORTED;
 
 #ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
+#ifdef MPDDRC_IO_CALIBR_RDIV
 	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV(4)
 	                | MPDDRC_IO_CALIBR_TZQIO(TZQIO_CYCLES(mck))
 	                | MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION;
+#endif
 #endif
 
 	/* timings */
