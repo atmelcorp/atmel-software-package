@@ -159,35 +159,6 @@ static void _app_init(void)
 #endif
 }
 
-/**
- * Input the eth number to use
- */
-static uint8_t select_eth_port(void)
-{
-	uint8_t key, send_port = 0;
-
-	if (ETH_IFACE_COUNT < 2)
-		return 0;
-
-	while (1) {
-		printf("\n\r");
-		printf("Input an eth number '0' or '1' to initialize:\n\r");
-		printf("=>");
-		key = console_get_char();
-		printf("%c\r\n", key);
-
-		if (key == '0') {
-			send_port = 0;
-			break;
-		} else if (key == '1') {
-			send_port = 1;
-			break;
-		}
-	}
-
-	return send_port;
-}
-
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/

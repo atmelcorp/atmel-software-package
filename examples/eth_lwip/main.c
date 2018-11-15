@@ -140,35 +140,6 @@ static const uint8_t _netmask[4] = {255, 255, 255, 0};
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-/**
- * Input the eth number to use
- */
-static uint8_t select_eth_port(void)
-{
-	uint8_t key, send_port = 0;
-
-	if (ETH_IFACE_COUNT < 2)
-		return send_port;
-
-	while (1) {
-		printf("\n\r");
-		printf("Input an eth number '0' or '1' to initialize:\n\r");
-		printf("=>");
-		key = console_get_char();
-		printf("%c\r\n", key);
-
-		if (key == '0') {
-			send_port = 0;
-			break;
-		} else if (key == '1') {
-			send_port = 1;
-			break;
-		}
-	}
-
-	return send_port;
-}
-
 static void
 lwiperf_report(void *arg, enum lwiperf_report_type report_type,
 	       const ip_addr_t* local_addr, u16_t local_port, const ip_addr_t* remote_addr, u16_t remote_port,
