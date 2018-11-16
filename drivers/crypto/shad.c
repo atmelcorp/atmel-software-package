@@ -116,7 +116,7 @@ static uint32_t _shad_fill_padding(enum _shad_algo algo, uint32_t len, uint8_t* 
 
 static uint8_t _shad_get_dma_chunk_size(enum _shad_algo algo)
 {
-#if defined(CONFIG_SOC_SAMA5D2) || defined(CONFIG_SOC_SAMA5D4)
+#if defined(CONFIG_SOC_SAM9X60) || defined(CONFIG_SOC_SAMA5D2) || defined(CONFIG_SOC_SAMA5D4)
 	return DMA_CHUNK_SIZE_16;
 #elif defined(CONFIG_SOC_SAMA5D3)
 	if (algo == ALGO_SHA_384 || algo == ALGO_SHA_512)
