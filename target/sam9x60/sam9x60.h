@@ -238,6 +238,10 @@ typedef enum IRQn
 
 #define ID_SYSC      ( 1) /**< \brief logical-OR interrupt of SYSC, PMC, DWDT, SHDWC, PIT, RTC (SYSC) */
 #define ID_PIT       ( 1) /**< \brief Periodic Interval Timer (PIT) */
+#define ID_RSTC      ( 1) /**< \brief Reset Controller (RSTC) */
+#define ID_RTC       ( 1) /**< \brief Real-time Clock (RTC) */
+#define ID_RTT       ( 1) /**< \brief Real-time Timer (RTT) */
+#define ID_WDT       ( 1) /**< \brief Watchdog Timer (WDT) */
 #define ID_PIOA      ( 2) /**< \brief Parallel I/O Controller A (PIOA) */
 #define ID_PIOB      ( 3) /**< \brief Parallel I/O Controller B (PIOB) */
 #define ID_PIOC      ( 4) /**< \brief Parallel I/O Controller C (PIOC) */
