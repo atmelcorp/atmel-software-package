@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2015, Atmel Corporation
+# Copyright (c) 2018, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -27,7 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the Secure Hash Algorithm example
-AVAILABLE_TARGETS = sama5d2* sama5d3* sama5d4*
+AVAILABLE_TARGETS = sam9x60* sama5d2* sama5d3* sama5d4*
 
 TOP := ../..
 
