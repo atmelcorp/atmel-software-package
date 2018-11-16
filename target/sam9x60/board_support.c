@@ -186,7 +186,7 @@ void board_cfg_lowlevel(bool clocks, bool ddram, bool mmu)
 
 	if (mmu) {
 		/* Setup MMU */
-//		board_cfg_mmu();
+		board_cfg_mmu();
 	}
 }
 
