@@ -139,6 +139,9 @@ struct _console_cfg;
 /** Frequency of the on-chip main clock oscillator */
 #define MAIN_CLOCK_INT_OSC 12000000
 
+/** MPDDRC I/O calibration delay, in ns */
+#define MPDDRC_TZQIO_DELAY 600
+
 /** Endpoints max paxcket size */
 #define CHIP_USB_ENDPOINT_MAXPACKETSIZE(ep) \
    ((ep) == 0 ? 64 : 1024)
