@@ -498,19 +498,18 @@ extern void mpddrc_configure(struct _mpddrc_desc* desc)
 #ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
 	/* set driver impedance */
 	uint32_t value = MPDDRC->MPDDRC_IO_CALIBR;
-#if defined(MPDDRC_IO_CALIBR_RDIV)
+#ifdef MPDDRC_IO_CALIBR_RDIV_Msk
 	value &= ~MPDDRC_IO_CALIBR_RDIV_Msk;
-	value &= ~MPDDRC_IO_CALIBR_TZQIO_Msk;
-	value &= ~MPDDRC_IO_CALIBR_CALCODEP_Msk;
-	value &= ~MPDDRC_IO_CALIBR_CALCODEN_Msk;
-#elif defined(MPDDRC_IO_CALIBR_CK_F_RANGE_Msk)
-	value &= ~MPDDRC_IO_CALIBR_CK_F_RANGE_Msk;
-	value &= ~MPDDRC_IO_CALIBR_TZQIO_Msk;
-	value &= ~MPDDRC_IO_CALIBR_CALCODEP_Msk;
-	value &= ~MPDDRC_IO_CALIBR_CALCODEN_Msk;
-#else
-#error please define proper "I/O Calibration Register" first
 #endif
+#ifdef MPDDRC_IO_CALIBR_CK_F_RANGE_Msk
+	value &= ~MPDDRC_IO_CALIBR_CK_F_RANGE_Msk;
+#endif
+#ifdef MPDDRC_IO_CALIBR_EN_CALIB
+	value &= ~MPDDRC_IO_CALIBR_EN_CALIB;
+#endif
+	value &= ~MPDDRC_IO_CALIBR_TZQIO_Msk;
+	value &= ~MPDDRC_IO_CALIBR_CALCODEP_Msk;
+	value &= ~MPDDRC_IO_CALIBR_CALCODEN_Msk;
 
 	value |= desc->io_calibr;
 	MPDDRC->MPDDRC_IO_CALIBR = value;

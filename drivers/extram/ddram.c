@@ -96,8 +96,10 @@ static void _init_mt41k128m16(struct _mpddrc_desc* desc)
 	              | MPDDRC_CR_UNAL_SUPPORTED;
 
 #ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
-	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV(4)
-	                | MPDDRC_IO_CALIBR_TZQIO(TZQIO_CYCLES(mck));
+	desc->io_calibr = MPDDRC_IO_CALIBR_TZQIO(TZQIO_CYCLES(mck));
+#ifdef MPDDRC_IO_CALIBR_RDIV
+	desc->io_calibr |= MPDDRC_IO_CALIBR_RDIV(4);
+#endif
 #endif
 
 	/* timings */
@@ -149,7 +151,10 @@ static void _init_edf8164a3ma(struct _mpddrc_desc* desc)
 	              | MPDDRC_CR_UNAL_SUPPORTED;
 
 #ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
-	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV(4);
+	desc->io_calibr = 0;
+#ifdef MPDDRC_IO_CALIBR_RDIV
+	desc->io_calibr |= MPDDRC_IO_CALIBR_RDIV(4);
+#endif
 #endif
 
 	/* timings */
@@ -201,8 +206,10 @@ static void _init_w971gg6sb(struct _mpddrc_desc* desc)
 	              | MPDDRC_CR_UNAL_SUPPORTED;
 
 #ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
-	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV(4)
-	                | MPDDRC_IO_CALIBR_TZQIO(TZQIO_CYCLES(mck));
+	desc->io_calibr = MPDDRC_IO_CALIBR_TZQIO(TZQIO_CYCLES(mck));
+#ifdef MPDDRC_IO_CALIBR_RDIV
+	desc->io_calibr |= MPDDRC_IO_CALIBR_RDIV(4);
+#endif
 #endif
 
 	/* timings */
@@ -273,13 +280,15 @@ static void _init_w972gg6kb(struct _mpddrc_desc* desc, uint8_t bus_width)
 	              | MPDDRC_CR_UNAL_SUPPORTED;
 
 #ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
+	desc->io_calibr = MPDDRC_IO_CALIBR_TZQIO(TZQIO_CYCLES(mck));
 #ifdef MPDDRC_IO_CALIBR_RDIV
-	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV(4)
-	                | MPDDRC_IO_CALIBR_TZQIO(TZQIO_CYCLES(mck))
-	                | MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION;
+	desc->io_calibr |= MPDDRC_IO_CALIBR_RDIV(4);
 #endif
-#ifdef MPDDRC_IO_CALIBR_CK_F_RANGE_Msk
-	desc->io_calibr = MPDDRC_IO_CALIBR_CK_F_RANGE(7);
+#ifdef MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION
+	desc->io_calibr |= MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION;
+#endif
+#ifdef MPDDRC_IO_CALIBR_CK_F_RANGE
+	desc->io_calibr |= MPDDRC_IO_CALIBR_CK_F_RANGE(7);
 #endif
 #endif
 
@@ -339,10 +348,12 @@ static void _init_mt47h128m8(struct _mpddrc_desc* desc)
 	              | MPDDRC_CR_UNAL_SUPPORTED;
 
 #ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
+	desc->io_calibr = MPDDRC_IO_CALIBR_TZQIO(TZQIO_CYCLES(mck));
 #ifdef MPDDRC_IO_CALIBR_RDIV
-	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV(4)
-	                | MPDDRC_IO_CALIBR_TZQIO(TZQIO_CYCLES(mck))
-	                | MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION;
+	desc->io_calibr |= MPDDRC_IO_CALIBR_RDIV(4);
+#endif
+#ifdef MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION
+	desc->io_calibr |= MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION;
 #endif
 #endif
 
@@ -395,10 +406,12 @@ static void _init_mt47h64m16(struct _mpddrc_desc* desc)
 	              | MPDDRC_CR_UNAL_SUPPORTED;
 
 #ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
+	desc->io_calibr = MPDDRC_IO_CALIBR_TZQIO(TZQIO_CYCLES(mck));
 #ifdef MPDDRC_IO_CALIBR_RDIV
-	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV(4)
-	                | MPDDRC_IO_CALIBR_TZQIO(TZQIO_CYCLES(mck))
-	                | MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION;
+	desc->io_calibr |= MPDDRC_IO_CALIBR_RDIV(4);
+#endif
+#ifdef MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION
+	desc->io_calibr |= MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION;
 #endif
 #endif
 
@@ -450,9 +463,13 @@ static void _init_mt47h128m16(struct _mpddrc_desc* desc)
 	              | MPDDRC_CR_UNAL_SUPPORTED;
 
 #ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
-	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV(4)
-	                | MPDDRC_IO_CALIBR_TZQIO(TZQIO_CYCLES(mck))
-	                | MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION;
+	desc->io_calibr = MPDDRC_IO_CALIBR_TZQIO(TZQIO_CYCLES(mck));
+#ifdef MPDDRC_IO_CALIBR_RDIV
+	desc->io_calibr |= MPDDRC_IO_CALIBR_RDIV(4);
+#endif
+#ifdef MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION
+	desc->io_calibr |= MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION;
+#endif
 #endif
 
 	/* timings */
@@ -506,7 +523,10 @@ static void _init_mt42l128m16(struct _mpddrc_desc* desc)
 	              | MPDDRC_CR_UNAL_SUPPORTED;
 
 #ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
-	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV(4);
+	desc->io_calibr = 0;
+#ifdef MPDDRC_IO_CALIBR_RDIV
+	desc->io_calibr |= MPDDRC_IO_CALIBR_RDIV(4);
+#endif
 #endif
 
 	/* timings */
