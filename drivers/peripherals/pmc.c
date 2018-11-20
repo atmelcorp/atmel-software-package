@@ -1407,8 +1407,13 @@ void pmc_enable_upll_clock(void)
 {
 #if defined(PMC_PLL_UPDT_ID)
 	struct _pmc_plla_cfg plla = {
+#if defined(BOARD_PMC_PLLA_MUL) && defined(BOARD_PMC_PLLA_DIV)
 		.mul = BOARD_PMC_UPLL_MUL,
 		.div = BOARD_PMC_UPLL_DIV,
+#else
+		.mul = 49,
+		.div = 1,
+#endif
 		.count = 0x3f,
 		.fracr = 0,
 		.pll_id = PLL_ID_UPLL,
