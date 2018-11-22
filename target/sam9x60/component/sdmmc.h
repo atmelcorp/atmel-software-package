@@ -73,26 +73,24 @@ typedef struct {
   __I  uint8_t  Reserved2[3];
   __IO uint32_t SDMMC_ASA0R;    /**< \brief (Sdmmc Offset: 0x58) ADMA System Address Register 0 */
   __I  uint32_t Reserved3[1];
-  __IO uint16_t SDMMC_PVR[3];   /**< \brief (Sdmmc Offset: 0x60) Preset Value Register 0 (for initialization) */
-  __I  uint16_t Reserved4[74];
+  __IO uint16_t SDMMC_PVR[3];   /**< \brief (Sdmmc Offset: 0x60) Preset Value Registers */
+  __I  uint16_t Reserved4[75];
   __I  uint16_t SDMMC_SISR;     /**< \brief (Sdmmc Offset: 0xFC) Slot Interrupt Status Register */
   __I  uint16_t SDMMC_HCVR;     /**< \brief (Sdmmc Offset: 0xFE) Host Controller Version Register */
-  __I  uint16_t Reserved5[128];
+  __I  uint32_t Reserved5[64];
   __I  uint32_t SDMMC_APSR;     /**< \brief (Sdmmc Offset: 0x200) Additional Present State Register */
   __IO uint8_t  SDMMC_MC1R;     /**< \brief (Sdmmc Offset: 0x204) e.MMC Control 1 Register */
   __O  uint8_t  SDMMC_MC2R;     /**< \brief (Sdmmc Offset: 0x205) e.MMC Control 2 Register */
   __I  uint8_t  Reserved6[2];
   __IO uint32_t SDMMC_ACR;      /**< \brief (Sdmmc Offset: 0x208) AHB Control Register */
   __IO uint32_t SDMMC_CC2R;     /**< \brief (Sdmmc Offset: 0x20C) Clock Control 2 Register */
-  __I  uint32_t Reserved7[5];
-  __I  uint32_t SDMMC_TUNSR;    /**< \brief (Sdmmc Offset: 0x224) Tuning Status Register */
-  __I  uint32_t Reserved8[2];
+  __I  uint32_t Reserved7[8];
   __IO uint32_t SDMMC_CACR;     /**< \brief (Sdmmc Offset: 0x230) Capabilities Control Register */
   __IO uint32_t SDMMC_DBGR;     /**< \brief (Sdmmc Offset: 0x234) Debug Register */
-  __I  uint32_t Reserved9[44];
+  __I  uint32_t Reserved8[44];
   __I  uint32_t SDMMC_VERSION1; /**< \brief (Sdmmc Offset: 0x2E8) Version Register 1 */
   __I  uint32_t SDMMC_VERSION2; /**< \brief (Sdmmc Offset: 0x2EC) Version Register 2 */
-  __I  uint32_t Reserved10[3];
+  __I  uint32_t Reserved9[3];
   __I  uint32_t SDMMC_VERSION3; /**< \brief (Sdmmc Offset: 0x2FC) Version Register 3 */
 } Sdmmc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
@@ -183,10 +181,6 @@ typedef struct {
 #define SDMMC_PSR_RTACT (0x1u << 9) /**< \brief (SDMMC_PSR) Read Transfer Active */
 #define SDMMC_PSR_BUFWREN (0x1u << 10) /**< \brief (SDMMC_PSR) Buffer Write Enable */
 #define SDMMC_PSR_BUFRDEN (0x1u << 11) /**< \brief (SDMMC_PSR) Buffer Read Enable */
-#define SDMMC_PSR_CARDINS (0x1u << 16) /**< \brief (SDMMC_PSR) Card Inserted */
-#define SDMMC_PSR_CARDSS (0x1u << 17) /**< \brief (SDMMC_PSR) Card State Stable */
-#define SDMMC_PSR_CARDDPL (0x1u << 18) /**< \brief (SDMMC_PSR) Card Detect Pin Level */
-#define SDMMC_PSR_WRPPL (0x1u << 19) /**< \brief (SDMMC_PSR) Write Protect Pin Level */
 #define SDMMC_PSR_DATLL_Pos 20
 #define SDMMC_PSR_DATLL_Msk (0xfu << SDMMC_PSR_DATLL_Pos) /**< \brief (SDMMC_PSR) DAT[3:0] Line Level */
 #define SDMMC_PSR_CMDLL (0x1u << 24) /**< \brief (SDMMC_PSR) CMD Line Level */
@@ -203,8 +197,6 @@ typedef struct {
 #define SDMMC_HC1R_DMASEL(value) ((SDMMC_HC1R_DMASEL_Msk & ((value) << SDMMC_HC1R_DMASEL_Pos)))
 #define   SDMMC_HC1R_DMASEL_SDMA (0x0u << 3) /**< \brief (SDMMC_HC1R) SDMA is selected */
 #define   SDMMC_HC1R_DMASEL_ADMA32 (0x2u << 3) /**< \brief (SDMMC_HC1R) 32-bit Address ADMA2 is selected */
-#define SDMMC_HC1R_CARDDTL (0x1u << 6) /**< \brief (SDMMC_HC1R) Card Detect Test Level */
-#define SDMMC_HC1R_CARDDSEL (0x1u << 7) /**< \brief (SDMMC_HC1R) Card Detect Signal Selection */
 #define SDMMC_HC1R_EXTDW (0x1u << 5) /**< \brief (SDMMC_HC1R) Extended Data Width */
 /* -------- SDMMC_PCR : (SDMMC Offset: 0x29) Power Control Register -------- */
 #define SDMMC_PCR_SDBPWR (0x1u << 0) /**< \brief (SDMMC_PCR) SD Bus Power */
@@ -251,11 +243,9 @@ typedef struct {
 #define SDMMC_NISTR_DMAINT (0x1u << 3) /**< \brief (SDMMC_NISTR) DMA Interrupt */
 #define SDMMC_NISTR_BWRRDY (0x1u << 4) /**< \brief (SDMMC_NISTR) Buffer Write Ready */
 #define SDMMC_NISTR_BRDRDY (0x1u << 5) /**< \brief (SDMMC_NISTR) Buffer Read Ready */
-#define SDMMC_NISTR_CINS (0x1u << 6) /**< \brief (SDMMC_NISTR) Card Insertion */
-#define SDMMC_NISTR_CREM (0x1u << 7) /**< \brief (SDMMC_NISTR) Card Removal */
 #define SDMMC_NISTR_CINT (0x1u << 8) /**< \brief (SDMMC_NISTR) Card Interrupt */
-#define SDMMC_NISTR_ERRINT (0x1u << 15) /**< \brief (SDMMC_NISTR) Error Interrupt */
 #define SDMMC_NISTR_BOOTAR (0x1u << 14) /**< \brief (SDMMC_NISTR) Boot Acknowledge Received */
+#define SDMMC_NISTR_ERRINT (0x1u << 15) /**< \brief (SDMMC_NISTR) Error Interrupt */
 /* -------- SDMMC_EISTR : (SDMMC Offset: 0x32) Error Interrupt Status Register -------- */
 #define SDMMC_EISTR_CMDTEO (0x1u << 0) /**< \brief (SDMMC_EISTR) Command Timeout Error */
 #define SDMMC_EISTR_CMDCRC (0x1u << 1) /**< \brief (SDMMC_EISTR) Command CRC Error */
@@ -480,12 +470,15 @@ typedef struct {
 /* -------- SDMMC_AESR : (SDMMC Offset: 0x54) ADMA Error Status Register -------- */
 #define SDMMC_AESR_ERRST_Pos 0
 #define SDMMC_AESR_ERRST_Msk (0x3u << SDMMC_AESR_ERRST_Pos) /**< \brief (SDMMC_AESR) ADMA Error State */
+#define   SDMMC_AESR_ERRST_STOP (0x0u << 0)
+#define   SDMMC_AESR_ERRST_FDS (0x1u << 0)
+#define   SDMMC_AESR_ERRST_TFR (0x3u << 0)
 #define SDMMC_AESR_LMIS (0x1u << 2) /**< \brief (SDMMC_AESR) ADMA Length Mismatch Error */
-/* -------- SDMMC_ASAR0 : (SDMMC Offset: 0x58) ADMA System Address Register 0 -------- */
+/* -------- SDMMC_ASA0R : (SDMMC Offset: 0x58) ADMA System Address Register 0 -------- */
 #define SDMMC_ASA0R_ADMASA_Pos 0
-#define SDMMC_ASA0R_ADMASA_Msk (0xffffffffu << SDMMC_ASA0R_ADMASA_Pos) /**< \brief (SDMMC_ASAR0) ADMA System Address */
+#define SDMMC_ASA0R_ADMASA_Msk (0xffffffffu << SDMMC_ASA0R_ADMASA_Pos) /**< \brief (SDMMC_ASA0R) ADMA System Address */
 #define SDMMC_ASA0R_ADMASA(value) ((SDMMC_ASA0R_ADMASA_Msk & ((value) << SDMMC_ASA0R_ADMASA_Pos)))
-/* -------- SDMMC_PVR[3] : (SDMMC Offset: 0x60) Preset Value Register 0 (for initialization) -------- */
+/* -------- SDMMC_PVR[3] : (SDMMC Offset: 0x60) Preset Value Registers -------- */
 #define SDMMC_PVR_SDCLKFSEL_Pos 0
 #define SDMMC_PVR_SDCLKFSEL_Msk (0x3ffu << SDMMC_PVR_SDCLKFSEL_Pos) /**< \brief (SDMMC_PVR[3]) SDCLK Frequency Select */
 #define SDMMC_PVR_SDCLKFSEL(value) ((SDMMC_PVR_SDCLKFSEL_Msk & ((value) << SDMMC_PVR_SDCLKFSEL_Pos)))
@@ -512,8 +505,6 @@ typedef struct {
 #define SDMMC_MC1R_DDR (0x1u << 3) /**< \brief (SDMMC_MC1R) e.MMC HSDDR Mode */
 #define SDMMC_MC1R_OPD (0x1u << 4) /**< \brief (SDMMC_MC1R) e.MMC Open Drain Mode */
 #define SDMMC_MC1R_BOOTA (0x1u << 5) /**< \brief (SDMMC_MC1R) e.MMC Boot Acknowledge Enable */
-#define SDMMC_MC1R_RSTN (0x1u << 6) /**< \brief (SDMMC_MC1R) e.MMC Reset Signal */
-#define SDMMC_MC1R_FCD (0x1u << 7) /**< \brief (SDMMC_MC1R) e.MMC Force Card Detect */
 /* -------- SDMMC_MC2R : (SDMMC Offset: 0x205) e.MMC Control 2 Register -------- */
 #define SDMMC_MC2R_SRESP (0x1u << 0) /**< \brief (SDMMC_MC2R) e.MMC Abort Wait IRQ */
 #define SDMMC_MC2R_ABOOT (0x1u << 1) /**< \brief (SDMMC_MC2R) e.MMC Abort Boot */
@@ -529,10 +520,6 @@ typedef struct {
 #define SDMMC_ACR_B1KBDIS (0x1u << 5) /**< \brief (SDMMC_ACR) 1kB Boundary Disable */
 /* -------- SDMMC_CC2R : (SDMMC Offset: 0x20C) Clock Control 2 Register -------- */
 #define SDMMC_CC2R_FSDCLKD (0x1u << 0) /**< \brief (SDMMC_CC2R) Force SDCLK Disabled */
-/* -------- SDMMC_TUNSR : (SDMMC Offset: 0x224) Tuning Status Register -------- */
-#define SDMMC_TUNSR_DLLPS_Pos 0
-#define SDMMC_TUNSR_DLLPS_Msk (0xfu << SDMMC_TUNSR_DLLPS_Pos) /**< \brief (SDMMC_TUNSR) Tuning DLL Phase Status */
-#define SDMMC_TUNSR_SMPLES (0x1u << 8) /**< \brief (SDMMC_TUNSR) Tuning Sampling SDCLK Edge Status */
 /* -------- SDMMC_CACR : (SDMMC Offset: 0x230) Capabilities Control Register -------- */
 #define SDMMC_CACR_CAPWREN (0x1u << 0) /**< \brief (SDMMC_CACR) Capabilities Write Enable */
 #define SDMMC_CACR_KEY_Pos 8
