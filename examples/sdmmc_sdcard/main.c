@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2016, Atmel Corporation
+ * Copyright (c) 2018, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -52,6 +52,7 @@
  * - SAM9G35-EK 
  * - SAM9X25-EK 
  * - SAM9X35-EK
+ * - SAM9X60-EK
  * - SAME70-XPLAINED 
  * - SAMV71-XPLAINED
  *
@@ -207,6 +208,10 @@
 #  define SLOT0_TAG                   "(microSD)"
 #  define SLOT1_ID                    ID_HSMCI1
 #  define SLOT1_TAG                   "(SD/MMC)"
+#elif defined(CONFIG_BOARD_SAM9X60_EK)
+#  define SLOT0_ID                    ID_SDMMC0
+#  define SLOT0_TAG                   "(SD/MMC)"
+/* TODO: SDIO support for the WILC3000 on SLOT1 */
 #elif defined(CONFIG_BOARD_SAME70_XPLAINED)
 #  define SLOT0_ID                    ID_HSMCI0
 #  define SLOT0_TAG                   "(SD/MMC)"
@@ -257,7 +262,7 @@ static const struct _hsmci_cfg drv0_config = {
 #ifdef BOARD_HSMCI0_WP_PIN
 	.wp_pin = BOARD_HSMCI0_WP_PIN,
 #else
-	.wp_pin = 0,
+	.wp_pin = { 0 },
 #endif
 	.use_polling = false,
 	.ops = {
@@ -275,7 +280,7 @@ static const struct _hsmci_cfg drv1_config = {
 #ifdef BOARD_HSMCI0_WP_PIN
 	.wp_pin = BOARD_HSMCI0_WP_PIN,
 #else
-	.wp_pin = 0,
+	.wp_pin = { 0 },
 #endif
 	.use_polling = false,
 	.ops = {
@@ -603,7 +608,7 @@ bool SD_GetInstance(uint8_t index, sSdCard **holder)
  */
 int main(void)
 {
-#ifdef CONFIG_HAVE_SDMMC
+#if defined(CONFIG_HAVE_SDMMC) && defined(CONFIG_HAVE_PMC_AUDIO_CLOCK)
 	struct _pmc_audio_cfg audio_pll_cfg = {
 		.fracr = 0,
 		.div = 3,
@@ -665,20 +670,29 @@ int main(void)
 #else /* !SDMMC_USE_FASTEST_CLK */
 	/* The regular SAMA5D2-XULT board wires on the SDMMC0 slot an e.MMC
 	 * device whose fastest timing mode is High Speed DDR mode @ 52 MHz.
-	 * Target a device clock frequency of 52 MHz. Use the Audio PLL and set
-	 * AUDIOCORECLK frequency to 12 * (51 + 1 + 0/2^22) = 624 MHz.
+	 * Target a device clock frequency of 52 MHz. */
+	struct _pmc_periph_cfg cfg = {
+		.gck = {
+			.css = PMC_PCR_GCKCSS_PLLA_CLK,
+#ifdef CONFIG_CHIP_SAM9X60
+			/* On SAM9X60, MULTCLK shall not exceed 105 MHz */
+			.div = 6,
+#else
+			.div = 1,
+#endif
+		},
+	};
+
+#ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK
+	/* Use the Audio PLL and set AUDIOCORECLK frequency to
+	 * 12 * (51 + 1 + 0/2^22) = 624 MHz.
 	 * And set AUDIOPLLCK frequency to 624 / (5 + 1) = 104 MHz. */
 	audio_pll_cfg.nd = 51;
 	audio_pll_cfg.qdpmc = 5;
 	pmc_configure_audio(&audio_pll_cfg);
 	pmc_enable_audio(true, false);
-
-	struct _pmc_periph_cfg cfg = {
-		.gck = {
-			.css = PMC_PCR_GCKCSS_AUDIO_CLK,
-			.div = 1,
-		},
-	};
+	cfg.gck.css = PMC_PCR_GCKCSS_AUDIO_CLK;
+#endif
 	pmc_configure_peripheral(SLOT0_ID, &cfg, true);
 
 #ifdef SLOT1_ID
@@ -791,7 +805,7 @@ int main(void)
 					print_buffer(BLOCK_CNT * 512ul, data_buf);
 
 					printf("Rewriting blocks #%lu-%lu\n\r", block, block + BLOCK_CNT - 1);
-					memset(data_buf, 0x55, BLOCK_CNT * 512ul);
+					memset(data_buf, 0x5a, BLOCK_CNT * 512ul);
 					rc = SD_Write(lib, block, data_buf, BLOCK_CNT, NULL, NULL);
 					if (rc != SDMMC_OK)
 						trace_error("%s\n\r", SD_StringifyRetCode(rc));
