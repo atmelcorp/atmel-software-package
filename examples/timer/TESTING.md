@@ -15,6 +15,7 @@ It allows the user to wait in different granularity.
 ------
 ## Supported targets
 --------------------
+* SAM9X60-EK
 * SAM9XX5-EK
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK
