@@ -124,6 +124,21 @@
 
 #define NUM_LEDS  3
 
+/* =============== BOARD SELECT PINS definition ================ */
+
+/** PD19 Select PIN for DBGU */
+#define SEL_PD19_EXT40 { PIO_GROUP_D, PIO_PD19, PIO_OUTPUT_1, PIO_DEFAULT }
+
+/** PD19 Select PIN for CAN1 */
+#define SEL_PD19_CAN1 { PIO_GROUP_D, PIO_PD19, PIO_OUTPUT_0, PIO_DEFAULT }
+
+/** PD20 Select PIN for DBGU */
+#define SEL_PD20_DBGU { PIO_GROUP_D, PIO_PD20, PIO_OUTPUT_1, PIO_DEFAULT }
+
+/** PD20 Select PIN for CAN0 */
+#define SEL_PD20_CAN0 { PIO_GROUP_D, PIO_PD20, PIO_OUTPUT_0, PIO_DEFAULT }
+
+
 /* =================== PIN PUSH BUTTON definition ============== */
 
 #define PIN_PUSHBUTTON_1 { PIO_GROUP_D, PIO_PD18, PIO_INPUT, PIO_PULLUP | PIO_DEBOUNCE }

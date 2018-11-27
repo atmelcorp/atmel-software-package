@@ -40,12 +40,14 @@
 #include "board_twi.h"
 
 #include "dma/dma.h"
+#include "gpio/pio.h"
 
 #include "board_support.h"
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
+static const struct _pin pin_sel_dbgu = SEL_PD20_DBGU;
 
 WEAK void board_init(void)
 {
@@ -64,6 +66,9 @@ WEAK void board_init(void)
 	/* Configure misc low-level stuff */
 	board_cfg_lowlevel(clocks, ddram, true);
 
+	/* Configure PD20 to select DBUG function */
+	pio_configure(&pin_sel_dbgu, 1);
+	
 	/* Configure console */
 	board_cfg_console(0);
 
