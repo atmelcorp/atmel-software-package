@@ -72,43 +72,6 @@ SECTION(".region_ddr") ALIGNED(16384) static uint32_t tlb[4096];
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-#define SMC_CS_NUMBER SMC_CS
-static void smc_nand_configure_sam9xx6(uint8_t bus_width)
-{
-	SMC->SMC_CS_NUMBER[NAND_EBI_CS].SMC_SETUP =
-		SMC_SETUP_NWE_SETUP(0) |
-		SMC_SETUP_NCS_WR_SETUP(0) |
-		SMC_SETUP_NRD_SETUP(0) |
-		SMC_SETUP_NCS_RD_SETUP(0);
-
-	SMC->SMC_CS_NUMBER[NAND_EBI_CS].SMC_PULSE =
-		SMC_PULSE_NWE_PULSE(1) |
-		SMC_PULSE_NCS_WR_PULSE(2) |
-		SMC_PULSE_NRD_PULSE(1) |
-		SMC_PULSE_NCS_RD_PULSE(2);
-
-	SMC->SMC_CS_NUMBER[NAND_EBI_CS].SMC_CYCLE =
-		SMC_CYCLE_NWE_CYCLE(2) |
-		SMC_CYCLE_NRD_CYCLE(2);
-
-#ifdef SMC_TIMINGS_NFSEL
-	SMC->SMC_CS_NUMBER[NAND_EBI_CS].SMC_TIMINGS =
-		SMC_TIMINGS_TCLR(3) |
-		SMC_TIMINGS_TADL(27) |
-		SMC_TIMINGS_TAR(3) |
-		SMC_TIMINGS_TRR(6) |dff
-		SMC_TIMINGS_TWB(5) |
-		SMC_TIMINGS_NFSEL;
-#endif
-
-	SMC->SMC_CS_NUMBER[NAND_EBI_CS].SMC_MODE =
-		SMC_MODE_READ_MODE |
-		SMC_MODE_WRITE_MODE |
-                SMC_MODE_EXNW_MODE_FROZEN |
-		((bus_width == 8 ) ? SMC_MODE_DBW_BIT_8 : SMC_MODE_DBW_BIT_16) |
-		SMC_MODE_TDF_CYCLES(0);
-}
-
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
@@ -416,6 +379,15 @@ void board_cfg_matrix_for_ddr(void)
 
 void board_cfg_matrix_for_nand(void)
 {
+	uint32_t mask = SFR_CCFG_EBICSA_EBI_CS3A | SFR_CCFG_EBICSA_NFD0_ON_D16;
+	uint32_t value = SFR_CCFG_EBICSA_EBI_CS3A;
+	uint32_t reg;
+
+	value |= SFR_CCFG_EBICSA_NFD0_ON_D16;
+
+	reg = SFR->SFR_CCFG_EBICSA;
+	reg = (reg & ~mask) | value;
+	SFR->SFR_CCFG_EBICSA = reg;
 }
 
 void board_cfg_ddram(void)
@@ -435,7 +407,7 @@ void board_cfg_nand_flash(void)
 	const struct _pin pins_nandflash[] = BOARD_NANDFLASH_PINS;
 	pio_configure(pins_nandflash, ARRAY_SIZE(pins_nandflash));
 	board_cfg_matrix_for_nand();
-	smc_nand_configure_sam9xx6(BOARD_NANDFLASH_BUS_WIDTH);
+	smc_nand_configure(BOARD_NANDFLASH_BUS_WIDTH);
 #else
 	trace_fatal("Cannot configure NAND: target board has no NAND definitions!");
 #endif
