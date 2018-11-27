@@ -41,6 +41,7 @@
 #include "board.h"
 #include "board_timer.h"
 #include "trace.h"
+#include "intmath.h"
 
 #include "irq/irq.h"
 #ifdef CONFIG_HAVE_ISC
@@ -582,20 +583,43 @@ void board_cfg_nand_flash(void)
 #endif /* CONFIG_HAVE_NAND_FLASH */
 
 #ifdef CONFIG_HAVE_SDMMC
+#if defined(BOARD_SDMMC0_PINS) || defined(BOARD_SDMMC1_PINS)
+static void board_cfg_sd_clk_caps(uint32_t periph_id, uint32_t *caps0,
+    uint32_t *caps1)
+{
+		uint32_t base_freq, mult_freq, val;
+
+		/* Retrieve the frequency of BASECLK and TEOCLK.
+		 * Usual values of this frequency are 12 MHz, 24 MHz. */
+		base_freq = pmc_get_main_clock();
+		base_freq = ROUND_INT_DIV(base_freq, 1000000lu);
+		val = base_freq > (SDMMC_CA0R_BASECLKF_Msk >> SDMMC_CA0R_BASECLKF_Pos)
+		    ? 0 : base_freq;
+		*caps0 |= SDMMC_CA0R_BASECLKF(val);
+		val = base_freq > (SDMMC_CA0R_TEOCLKF_Msk >> SDMMC_CA0R_TEOCLKF_Pos)
+		    ? 0 : base_freq;
+		*caps0 |= SDMMC_CA0R_TEOCLKF(val) | SDMMC_CA0R_TEOCLKU;
+
+		/* Retrieve the frequency of MULTCLK.
+		 * Usual values of this frequency are 100 MHz, 104 MHz. */
+		mult_freq = pmc_get_gck_clock(periph_id);
+		base_freq *= 1000000lu;
+		val = ROUND_INT_DIV(mult_freq, base_freq);
+		val = val < 2 ? 1 : val - 1;
+		val = min_u32(val, SDMMC_CA1R_CLKMULT_Msk >> SDMMC_CA1R_CLKMULT_Pos);
+		*caps1 |= SDMMC_CA1R_CLKMULT(val);
+}
+#endif
+
 bool board_cfg_sdmmc(uint32_t periph_id)
 {
-/* mask for board capabilities defines: voltage, slot type and 8-bit support */
-#define CAPS0_MASK (SDMMC_CA0R_V33VSUP | SDMMC_CA0R_V30VSUP | \
-                    SDMMC_CA0R_V18VSUP | SDMMC_CA0R_SLTYPE_Msk | \
-                    SDMMC_CA0R_ED8SUP)
-
 	switch (periph_id) {
 #ifdef SDMMC0
 	case ID_SDMMC0:
 	{
 #if defined(BOARD_SDMMC0_CAPS0) && defined(BOARD_SDMMC0_PINS)
 		struct _pin pins[] = BOARD_SDMMC0_PINS;
-		uint32_t caps0 = BOARD_SDMMC0_CAPS0;
+		uint32_t caps0 = BOARD_SDMMC0_CAPS0, caps1 = 0;
 
 #ifdef CONFIG_BOARD_SAMA5D2_XPLAINED
 		struct _pin vsel_pin = PIN_SDMMC0_VDDSEL_IOS1;
@@ -649,7 +673,11 @@ bool board_cfg_sdmmc(uint32_t periph_id)
 		}
 #endif
 		/* Program capabilities for SDMMC0 */
-		sdmmc_set_capabilities(SDMMC0, caps0, CAPS0_MASK, 0, 0);
+		board_cfg_sd_clk_caps(ID_SDMMC0, &caps0, &caps1);
+		sdmmc_set_capabilities(SDMMC0, caps0, SDMMC_CA0R_SLTYPE_Msk |
+		    SDMMC_CA0R_V18VSUP | SDMMC_CA0R_V30VSUP | SDMMC_CA0R_V33VSUP |
+		    SDMMC_CA0R_ED8SUP | SDMMC_CA0R_BASECLKF_Msk | SDMMC_CA0R_TEOCLKU |
+		    SDMMC_CA0R_TEOCLKF_Msk, caps1, SDMMC_CA1R_CLKMULT_Msk);
 
 		/* Configure SDMMC0 pins */
 		pio_configure(pins, ARRAY_SIZE(pins));
@@ -664,10 +692,14 @@ bool board_cfg_sdmmc(uint32_t periph_id)
 	{
 #if defined(BOARD_SDMMC1_CAPS0) && defined(BOARD_SDMMC1_PINS)
 		const struct _pin pins[] = BOARD_SDMMC1_PINS;
-		uint32_t caps0 = BOARD_SDMMC1_CAPS0;
+		uint32_t caps0 = BOARD_SDMMC1_CAPS0, caps1 = 0;
 
 		/* Program capabilities for SDMMC1 */
-		sdmmc_set_capabilities(SDMMC1, caps0, CAPS0_MASK, 0, 0);
+		board_cfg_sd_clk_caps(ID_SDMMC1, &caps0, &caps1);
+		sdmmc_set_capabilities(SDMMC1, caps0, SDMMC_CA0R_SLTYPE_Msk |
+		    SDMMC_CA0R_V18VSUP | SDMMC_CA0R_V30VSUP | SDMMC_CA0R_V33VSUP |
+		    SDMMC_CA0R_BASECLKF_Msk | SDMMC_CA0R_TEOCLKU |
+		    SDMMC_CA0R_TEOCLKF_Msk, caps1, SDMMC_CA1R_CLKMULT_Msk);
 
 		/* Configure SDMMC1 pins */
 		pio_configure(pins, ARRAY_SIZE(pins));
@@ -680,8 +712,6 @@ bool board_cfg_sdmmc(uint32_t periph_id)
 	default:
 		return false;
 	}
-
-#undef CAPS0_MASK
 }
 #endif /* CONFIG_HAVE_SDMMC */
 

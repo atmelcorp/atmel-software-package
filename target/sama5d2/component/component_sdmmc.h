@@ -360,6 +360,7 @@ typedef struct {
 #define SDMMC_CA0R_ASINTSUP (0x1u << 29)
 #define SDMMC_CA0R_SLTYPE_Pos 30
 #define SDMMC_CA0R_SLTYPE_Msk (0x3u << SDMMC_CA0R_SLTYPE_Pos)
+#define SDMMC_CA0R_SLTYPE(value) ((SDMMC_CA0R_SLTYPE_Msk & ((value) << SDMMC_CA0R_SLTYPE_Pos)))
 #define   SDMMC_CA0R_SLTYPE_REMOVABLECARD (0x0u << 30)
 #define   SDMMC_CA0R_SLTYPE_EMBEDDED (0x1u << 30)
 #define   SDMMC_CA0R_SLTYPE_SHAREDBUS (0x2u << 30)
@@ -380,6 +381,7 @@ typedef struct {
 #define   SDMMC_CA1R_RTMOD_MODE3 (0x2u << 14)
 #define SDMMC_CA1R_CLKMULT_Pos 16
 #define SDMMC_CA1R_CLKMULT_Msk (0xFFu << SDMMC_CA1R_CLKMULT_Pos)
+#define SDMMC_CA1R_CLKMULT(value) ((SDMMC_CA1R_CLKMULT_Msk & ((value) << SDMMC_CA1R_CLKMULT_Pos)))
 /* --------  SDMMC_MCCAR (SDMMC Offset: 0x048) Maximum Current Capabilities Register */
 #define SDMMC_MCCAR_MAXCUR33V_Pos 0
 #define SDMMC_MCCAR_MAXCUR33V_Msk (0xFFu << SDMMC_MCCAR_MAXCUR33V_Pos)

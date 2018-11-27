@@ -501,8 +501,6 @@ static void sdmmc_set_device_clock(struct sdmmc_set *set, uint32_t freq)
 	/* Now, in the Programmable Clock Mode scenario, compute the divider.
 	 * First, retrieve the frequency of the Generated Clock feeding this
 	 * peripheral. */
-	/* TODO fix CLKMULT value in CA1R capability register: the default value
-	 * is 32 whereas the real value is 40.5 */
 	mult_freq = (regs->SDMMC_CA1R & SDMMC_CA1R_CLKMULT_Msk) >> SDMMC_CA1R_CLKMULT_Pos;
 	if (mult_freq != 0)
 #if 0
@@ -1785,13 +1783,10 @@ bool sdmmc_initialize(struct sdmmc_set *set, uint32_t periph_id,
 	    & ~SDMMC_CALCR_TUNDIS) | SDMMC_CALCR_CNTVAL(val);
 	sdmmc_calibrate_zout(set);
 
-	/* Set Timeout Clock Frequency to main clock */
-	sdmmc_set_capabilities(regs, pmc_get_main_clock() / 1000000UL,
-							SDMMC_CA0R_TEOCLKF_Msk, 0, 0);
-
 	/* Set DAT line timeout error to occur after 2000 ms waiting delay.
-	 * 2000 ms is the timeout value to implement when writing to SDXC cards.
-	 */
+	 * 500 ms is the timeout value to implement when writing to SDXC cards.
+	 * Typical e.MMC devices however can take up to 1600 ms to write a block.
+	 * TODO in case of an e.MMC compute its maximum block program time. */
 	base_freq = (regs->SDMMC_CA0R & SDMMC_CA0R_TEOCLKF_Msk) >> SDMMC_CA0R_TEOCLKF_Pos;
 	base_freq *= regs->SDMMC_CA0R & SDMMC_CA0R_TEOCLKU ? 1000000UL : 1000UL;
 	/* 2 ^ (DTCVAL + 13) = TIMEOUT * FTEOCLK = FTEOCLK * 2 */
