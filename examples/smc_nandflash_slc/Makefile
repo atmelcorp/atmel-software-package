@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2015, Atmel Corporation
+# Copyright (c) 2018, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -27,7 +27,8 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the smc_nandflash_slc example
-AVAILABLE_TARGETS = sama5d2-ptc-ek \
+AVAILABLE_TARGETS = sam9x60-ek \
+                    sama5d2-ptc-ek \
                     sama5d3-xplained sama5d3-ek \
                     sama5d4-xplained sama5d4-ek \
                     sam9g15-ek sam9g25-ek sam9g35-ek sam9x25-ek sam9x35-ek
