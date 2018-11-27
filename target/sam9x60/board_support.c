@@ -88,6 +88,7 @@ void board_cfg_clocks(void)
 		.mul = 199,
 		.div = 3,
 		.count = 0x3f,
+		.pll_id = PLL_ID_PLLA,
 	};
 
 #if defined(BOARD_PMC_PLLA_MUL) && defined(BOARD_PMC_PLLA_DIV)
@@ -98,16 +99,17 @@ void board_cfg_clocks(void)
 	case 24000000:
 		plla_config.mul = 49;
 		plla_config.div = 1;
-#ifdef PMC_PLL_UPDT_ID
-		plla_config.pll_id = PLL_ID_PLLA;
-#endif
 		break;
 	case 16000000:
-		plla_config.mul = 61;
+		plla_config.mul = 74;
 		plla_config.div = 1;
 		break;
 	case 12000000:
-		plla_config.mul = 82;
+		plla_config.mul = 99;
+		plla_config.div = 1;
+		break;
+	case 8000000:
+		plla_config.mul = 149;
 		plla_config.div = 1;
 		break;
 	}
