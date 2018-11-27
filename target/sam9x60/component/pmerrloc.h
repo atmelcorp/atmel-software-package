@@ -39,72 +39,48 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Pmerrloc hardware registers */
 typedef struct {
-  __IO uint32_t PMERRLOC_ELCFG;   /**< \brief (Pmerrloc Offset: 0x000) Configuration Register */
-  __I  uint32_t PMERRLOC_ELPRIM;  /**< \brief (Pmerrloc Offset: 0x004) Primitive Register */
-  __IO uint32_t PMERRLOC_ELEN;    /**< \brief (Pmerrloc Offset: 0x008) Enable Register */
-  __IO uint32_t PMERRLOC_ELDIS;   /**< \brief (Pmerrloc Offset: 0x00C) Disable Register */
-  __IO uint32_t PMERRLOC_ELSR;    /**< \brief (Pmerrloc Offset: 0x010) Status Register */
-  __O  uint32_t PMERRLOC_ELIER;   /**< \brief (Pmerrloc Offset: 0x014) Interrupt Enable Register */
-  __O  uint32_t PMERRLOC_ELIDR;   /**< \brief (Pmerrloc Offset: 0x018) Interrupt Disable Register */
-  __I  uint32_t PMERRLOC_ELIMR;   /**< \brief (Pmerrloc Offset: 0x01C) Interrupt Mask Register */
-  __I  uint32_t PMERRLOC_ELISR;   /**< \brief (Pmerrloc Offset: 0x020) Interrupt Status Register */
+  __IO uint32_t PMERRLOC_CFG;     /**< \brief (Pmerrloc Offset: 0x000) Configuration Register */
+  __I  uint32_t PMERRLOC_PRIM;    /**< \brief (Pmerrloc Offset: 0x004) Primitive Register */
+  __IO uint32_t PMERRLOC_EN;      /**< \brief (Pmerrloc Offset: 0x008) Enable Register */
+  __IO uint32_t PMERRLOC_DIS;     /**< \brief (Pmerrloc Offset: 0x00C) Disable Register */
+  __IO uint32_t PMERRLOC_SR;      /**< \brief (Pmerrloc Offset: 0x010) Status Register */
+  __O  uint32_t PMERRLOC_IER;     /**< \brief (Pmerrloc Offset: 0x014) Interrupt Enable Register */
+  __O  uint32_t PMERRLOC_IDR;     /**< \brief (Pmerrloc Offset: 0x018) Interrupt Disable Register */
+  __I  uint32_t PMERRLOC_IMR;     /**< \brief (Pmerrloc Offset: 0x01C) Interrupt Mask Register */
+  __I  uint32_t PMERRLOC_ISR;     /**< \brief (Pmerrloc Offset: 0x020) Interrupt Status Register */
   __I  uint32_t Reserved1[1];
-  __I  uint32_t PMERRLOC_SIGMA0;  /**< \brief (Pmerrloc Offset: 0x028) SIGMA0 Register */
-  __IO uint32_t PMERRLOC_SIGMA1;  /**< \brief (Pmerrloc Offset: 0x02C) SIGMA1 Register */
-  __IO uint32_t PMERRLOC_SIGMA2;  /**< \brief (Pmerrloc Offset: 0x030) SIGMA1 Register */
-  __IO uint32_t PMERRLOC_SIGMA3;  /**< \brief (Pmerrloc Offset: 0x034) SIGMA1 Register */
-  __IO uint32_t PMERRLOC_SIGMA4;  /**< \brief (Pmerrloc Offset: 0x038) SIGMA1 Register */
-  __IO uint32_t PMERRLOC_SIGMA5;  /**< \brief (Pmerrloc Offset: 0x03C) SIGMA1 Register */
-  __IO uint32_t PMERRLOC_SIGMA6;  /**< \brief (Pmerrloc Offset: 0x040) SIGMA1 Register */
-  __IO uint32_t PMERRLOC_SIGMA7;  /**< \brief (Pmerrloc Offset: 0x044) SIGMA1 Register */
-  __IO uint32_t PMERRLOC_SIGMA8;  /**< \brief (Pmerrloc Offset: 0x048) SIGMA1 Register */
-  __IO uint32_t PMERRLOC_SIGMA9;  /**< \brief (Pmerrloc Offset: 0x04C) SIGMA1 Register */
-  __IO uint32_t PMERRLOC_SIGMA10; /**< \brief (Pmerrloc Offset: 0x050) SIGMA1 Register */
-  __IO uint32_t PMERRLOC_SIGMA11; /**< \brief (Pmerrloc Offset: 0x054) SIGMA1 Register */
-  __IO uint32_t PMERRLOC_SIGMA12; /**< \brief (Pmerrloc Offset: 0x058) SIGMA1 Register */
-  __IO uint32_t PMERRLOC_SIGMA13; /**< \brief (Pmerrloc Offset: 0x05C) SIGMA1 Register */
-  __IO uint32_t PMERRLOC_SIGMA14; /**< \brief (Pmerrloc Offset: 0x060) SIGMA1 Register */
-  __IO uint32_t PMERRLOC_SIGMA15; /**< \brief (Pmerrloc Offset: 0x064) SIGMA1 Register */
-  __IO uint32_t PMERRLOC_SIGMA16; /**< \brief (Pmerrloc Offset: 0x068) SIGMA1 Register */
-  __IO uint32_t PMERRLOC_SIGMA17; /**< \brief (Pmerrloc Offset: 0x06C) SIGMA1 Register */
-  __IO uint32_t PMERRLOC_SIGMA18; /**< \brief (Pmerrloc Offset: 0x070) SIGMA1 Register */
-  __IO uint32_t PMERRLOC_SIGMA19; /**< \brief (Pmerrloc Offset: 0x074) SIGMA1 Register */
-  __IO uint32_t PMERRLOC_SIGMA20; /**< \brief (Pmerrloc Offset: 0x078) SIGMA1 Register */
-  __IO uint32_t PMERRLOC_SIGMA21; /**< \brief (Pmerrloc Offset: 0x07C) SIGMA1 Register */
-  __IO uint32_t PMERRLOC_SIGMA22; /**< \brief (Pmerrloc Offset: 0x080) SIGMA1 Register */
-  __IO uint32_t PMERRLOC_SIGMA23; /**< \brief (Pmerrloc Offset: 0x084) SIGMA1 Register */
-  __IO uint32_t PMERRLOC_SIGMA24; /**< \brief (Pmerrloc Offset: 0x088) SIGMA24 Register */
+  __IO uint32_t PMERRLOC_SIGMA[25];
   __I  uint32_t PMERRLOC_EL[24];  /**< \brief (Pmerrloc Offset: 0x08C) Error Location 0 Register */
   __I  uint32_t Reserved2[68];
   __I  uint32_t PMERRLOC_VERSION; /**< \brief (Pmerrloc Offset: 0x1FC) Version Register */
 } Pmerrloc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- PMERRLOC_ELCFG : (PMERRLOC Offset: 0x000) Configuration Register -------- */
-#define PMERRLOC_ELCFG_SECTORSZ (0x1u << 0) /**< \brief (PMERRLOC_ELCFG) Sector Size */
-#define PMERRLOC_ELCFG_ERRNUM_Pos 16
-#define PMERRLOC_ELCFG_ERRNUM_Msk (0x1fu << PMERRLOC_ELCFG_ERRNUM_Pos) /**< \brief (PMERRLOC_ELCFG) Number of Errors */
-#define PMERRLOC_ELCFG_ERRNUM(value) ((PMERRLOC_ELCFG_ERRNUM_Msk & ((value) << PMERRLOC_ELCFG_ERRNUM_Pos)))
-/* -------- PMERRLOC_ELPRIM : (PMERRLOC Offset: 0x004) Primitive Register -------- */
-#define PMERRLOC_ELPRIM_PRIMITIV_Pos 0
-#define PMERRLOC_ELPRIM_PRIMITIV_Msk (0xffffu << PMERRLOC_ELPRIM_PRIMITIV_Pos) /**< \brief (PMERRLOC_ELPRIM) Primitive Polynomial */
-/* -------- PMERRLOC_ELEN : (PMERRLOC Offset: 0x008) Enable Register -------- */
-#define PMERRLOC_ELEN_ENINIT_Pos 0
-#define PMERRLOC_ELEN_ENINIT_Msk (0x3fffu << PMERRLOC_ELEN_ENINIT_Pos) /**< \brief (PMERRLOC_ELEN) Initial Number of Bits in the Codeword */
-#define PMERRLOC_ELEN_ENINIT(value) ((PMERRLOC_ELEN_ENINIT_Msk & ((value) << PMERRLOC_ELEN_ENINIT_Pos)))
-/* -------- PMERRLOC_ELDIS : (PMERRLOC Offset: 0x00C) Disable Register -------- */
-#define PMERRLOC_ELDIS_DIS (0x1u << 0) /**< \brief (PMERRLOC_ELDIS) Disable Error Location Engine */
-/* -------- PMERRLOC_ELSR : (PMERRLOC Offset: 0x010) Status Register -------- */
-#define PMERRLOC_ELSR_BUSY (0x1u << 0) /**< \brief (PMERRLOC_ELSR) Error Location Engine Busy */
-/* -------- PMERRLOC_ELIER : (PMERRLOC Offset: 0x014) Interrupt Enable Register -------- */
-#define PMERRLOC_ELIER_DONE (0x1u << 0) /**< \brief (PMERRLOC_ELIER) Computation Terminated Interrupt Enable */
-/* -------- PMERRLOC_ELIDR : (PMERRLOC Offset: 0x018) Interrupt Disable Register -------- */
-#define PMERRLOC_ELIDR_DONE (0x1u << 0) /**< \brief (PMERRLOC_ELIDR) Computation Terminated Interrupt Disable */
-/* -------- PMERRLOC_ELIMR : (PMERRLOC Offset: 0x01C) Interrupt Mask Register -------- */
-#define PMERRLOC_ELIMR_DONE (0x1u << 0) /**< \brief (PMERRLOC_ELIMR) Computation Terminated Interrupt Mask */
-/* -------- PMERRLOC_ELISR : (PMERRLOC Offset: 0x020) Interrupt Status Register -------- */
-#define PMERRLOC_ELISR_DONE (0x1u << 0) /**< \brief (PMERRLOC_ELISR) Computation Terminated Interrupt Status */
-#define PMERRLOC_ELISR_ERR_CNT_Pos 8
-#define PMERRLOC_ELISR_ERR_CNT_Msk (0x1fu << PMERRLOC_ELISR_ERR_CNT_Pos) /**< \brief (PMERRLOC_ELISR) Error Counter Value */
+/* -------- PMERRLOC_CFG : (PMERRLOC Offset: 0x000) Configuration Register -------- */
+#define PMERRLOC_CFG_SECTORSZ (0x1u << 0) /**< \brief (PMERRLOC_CFG) Sector Size */
+#define PMERRLOC_CFG_ERRNUM_Pos 16
+#define PMERRLOC_CFG_ERRNUM_Msk (0x1fu << PMERRLOC_CFG_ERRNUM_Pos) /**< \brief (PMERRLOC_CFG) Number of Errors */
+#define PMERRLOC_CFG_ERRNUM(value) ((PMERRLOC_CFG_ERRNUM_Msk & ((value) << PMERRLOC_CFG_ERRNUM_Pos)))
+/* -------- PMERRLOC_PRIM : (PMERRLOC Offset: 0x004) Primitive Register -------- */
+#define PMERRLOC_PRIM_PRIMITIV_Pos 0
+#define PMERRLOC_PRIM_PRIMITIV_Msk (0xffffu << PMERRLOC_PRIM_PRIMITIV_Pos) /**< \brief (PMERRLOC_PRIM) Primitive Polynomial */
+/* -------- PMERRLOC_EN : (PMERRLOC Offset: 0x008) Enable Register -------- */
+#define PMERRLOC_EN_ENINIT_Pos 0
+#define PMERRLOC_EN_ENINIT_Msk (0x3fffu << PMERRLOC_EN_ENINIT_Pos) /**< \brief (PMERRLOC_EN) Initial Number of Bits in the Codeword */
+#define PMERRLOC_EN_ENINIT(value) ((PMERRLOC_EN_ENINIT_Msk & ((value) << PMERRLOC_EN_ENINIT_Pos)))
+/* -------- PMERRLOC_DIS : (PMERRLOC Offset: 0x00C) Disable Register -------- */
+#define PMERRLOC_DIS_DIS (0x1u << 0) /**< \brief (PMERRLOC_DIS) Disable Error Location Engine */
+/* -------- PMERRLOC_SR : (PMERRLOC Offset: 0x010) Status Register -------- */
+#define PMERRLOC_SR_BUSY (0x1u << 0) /**< \brief (PMERRLOC_SR) Error Location Engine Busy */
+/* -------- PMERRLOC_IER : (PMERRLOC Offset: 0x014) Interrupt Enable Register -------- */
+#define PMERRLOC_IER_DONE (0x1u << 0) /**< \brief (PMERRLOC_IER) Computation Terminated Interrupt Enable */
+/* -------- PMERRLOC_IDR : (PMERRLOC Offset: 0x018) Interrupt Disable Register -------- */
+#define PMERRLOC_IDR_DONE (0x1u << 0) /**< \brief (PMERRLOC_IDR) Computation Terminated Interrupt Disable */
+/* -------- PMERRLOC_IMR : (PMERRLOC Offset: 0x01C) Interrupt Mask Register -------- */
+#define PMERRLOC_IMR_DONE (0x1u << 0) /**< \brief (PMERRLOC_IMR) Computation Terminated Interrupt Mask */
+/* -------- PMERRLOC_ISR : (PMERRLOC Offset: 0x020) Interrupt Status Register -------- */
+#define PMERRLOC_ISR_DONE (0x1u << 0) /**< \brief (PMERRLOC_ISR) Computation Terminated Interrupt Status */
+#define PMERRLOC_ISR_ERR_CNT_Pos 8
+#define PMERRLOC_ISR_ERR_CNT_Msk (0x1fu << PMERRLOC_ISR_ERR_CNT_Pos) /**< \brief (PMERRLOC_ISR) Error Counter Value */
 /* -------- PMERRLOC_SIGMA0 : (PMERRLOC Offset: 0x028) SIGMA0 Register -------- */
 #define PMERRLOC_SIGMA0_SIGMA0_Pos 0
 #define PMERRLOC_SIGMA0_SIGMA0_Msk (0x3fffu << PMERRLOC_SIGMA0_SIGMA0_Pos) /**< \brief (PMERRLOC_SIGMA0) Coefficient of Degree 0 in the SIGMA Polynomial */
