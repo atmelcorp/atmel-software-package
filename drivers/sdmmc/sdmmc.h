@@ -58,6 +58,7 @@ struct sdmmc_set
                                        * is not used */
 	uint32_t table_size;          /* Max size of the ADMA descriptor table,
                                        * in lines */
+	bool (*is_cd)(uint32_t id);   /* Card detection platform routine */
 	bool use_polling;             /* polling mode */
 	bool use_set_blk_cnt;         /* implicit SET_BLOCK_COUNT command */
 
@@ -125,12 +126,14 @@ extern void sdmmc_set_capabilities(Sdmmc* regs,
  * word-aligned. NULL to have the CPU read/write data, word by word.
  * \param dma_buf_size  Size of the dma_buf buffer, in words.
  * \param use_polling  Use interrupts if false, otherwise only use polling
+ * \param get_card_detect_status  Optional card detection routine
  * \return true if successful, false if a parameter is assigned an unsupported
  * value.
  */
 extern bool sdmmc_initialize(struct sdmmc_set *set, uint32_t sdmmc_id,
 		uint32_t tc_id, uint32_t tc_ch,
-		uint32_t *dma_buf, uint32_t dma_buf_size, bool use_polling);
+		uint32_t *dma_buf, uint32_t dma_buf_size, bool use_polling,
+		bool (*get_card_detect_status)(uint32_t sdmmc_id));
 
 #ifdef __cplusplus
 }

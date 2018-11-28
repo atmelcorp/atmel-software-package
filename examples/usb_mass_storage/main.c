@@ -420,10 +420,10 @@ static void sd_driver_configure(void)
 
 #ifdef CONFIG_HAVE_SDMMC
 	sdmmc_initialize(&sd_drv[0], SLOT0_ID, TIMER0_MODULE,
-	    TIMER0_CHANNEL, sd_dma_table0, ARRAY_SIZE(sd_dma_table0), false);
+	    TIMER0_CHANNEL, sd_dma_table0, ARRAY_SIZE(sd_dma_table0), false, NULL);
 #ifdef SLOT1_ID
 	sdmmc_initialize(&sd_drv[1], SLOT1_ID, TIMER1_MODULE,
-	    TIMER1_CHANNEL, sd_dma_table1, ARRAY_SIZE(sd_dma_table1), false);
+	    TIMER1_CHANNEL, sd_dma_table1, ARRAY_SIZE(sd_dma_table1), false, NULL);
 #endif
 #elif defined(CONFIG_HAVE_HSMCI)
 	hsmci_initialize(&sd_drv[0], &sd_drv_config[0]);

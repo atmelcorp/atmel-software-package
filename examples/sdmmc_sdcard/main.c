@@ -229,6 +229,20 @@ static struct sdmmc_set drv0 = { 0 };
 static struct sdmmc_set drv1 = { 0 };
 #endif
 
+/* On MPUs that miss standard SDMMC_CD input(s), we should provide here a
+ * board-specific card detection routine that reads general-purpose I/O(s) */
+#ifdef BOARD_SDMMC0_PIN_CD
+bool (*const is_cd0)(uint32_t sdmmc_id) = board_get_sdmmc_card_detect_status;
+#else
+bool (*const is_cd0)(uint32_t sdmmc_id) = NULL;
+#endif
+
+#if defined(BOARD_SDMMC1_PIN_CD) && defined(SLOT1_ID)
+bool (*const is_cd1)(uint32_t sdmmc_id) = board_get_sdmmc_card_detect_status;
+#else
+bool (*const is_cd1)(uint32_t sdmmc_id) = NULL;
+#endif
+
 /* Buffer dedicated to the driver, refer to the driver API. Aligning it on
  * cache lines is optional. */
 CACHE_ALIGNED_DDR static uint32_t dma_table[DMADL_CNT_MAX * SDMMC_DMADL_SIZE];
@@ -356,13 +370,15 @@ static void initialize(void)
 
 	sdmmc_initialize(&drv0, SLOT0_ID,
 	    TIMER0_MODULE, TIMER0_CHANNEL,
-	    use_dma ? dma_table : NULL, use_dma ? ARRAY_SIZE(dma_table) : 0, false);
+	    use_dma ? dma_table : NULL, use_dma ? ARRAY_SIZE(dma_table) : 0, false,
+	    is_cd0);
 	SDD_InitializeSdmmcMode(&lib0, &drv0, 0);
 
 #ifdef SLOT1_ID
 	sdmmc_initialize(&drv1, SLOT1_ID,
 	    TIMER1_MODULE, TIMER1_CHANNEL,
-	    use_dma ? dma_table : NULL, use_dma ? ARRAY_SIZE(dma_table) : 0, false);
+	    use_dma ? dma_table : NULL, use_dma ? ARRAY_SIZE(dma_table) : 0, false,
+	    is_cd1);
 	SDD_InitializeSdmmcMode(&lib1, &drv1, 0);
 #endif /* SLOT1_ID */
 

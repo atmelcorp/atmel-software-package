@@ -348,7 +348,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 			caps0, CAPS0_MASK, 0, 0);
 
 	sdmmc_initialize(&drv, id, TIMER0_MODULE, TIMER0_CHANNEL,
-			dma_table, ARRAY_SIZE(dma_table), true);
+			dma_table, ARRAY_SIZE(dma_table), true, NULL);
 #elif defined(CONFIG_HAVE_HSMCI)
 	id = get_hsmci_id_from_addr(instance_def->addr);
 	pmc_configure_peripheral(id, NULL, true);

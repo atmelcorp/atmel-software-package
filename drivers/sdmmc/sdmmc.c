@@ -143,13 +143,22 @@ static void sdmmc_reset_peripheral(struct sdmmc_set *set)
 	assert(set);
 
 	Sdmmc *regs = set->regs;
+	uint8_t tcr;
+#ifdef SDMMC_MC1R_FCD
+	uint8_t mc1r;
+#endif
+#ifdef SDMMC_HC2R_VS18EN
 	uint32_t calcr;
-	uint8_t mc1r, tcr;
+#endif
 
 	/* First, save the few settings we'll want to restore. */
-	mc1r = regs->SDMMC_MC1R;
 	tcr = regs->SDMMC_TCR;
+#ifdef SDMMC_MC1R_FCD
+	mc1r = regs->SDMMC_MC1R;
+#endif
+#ifdef SDMMC_HC2R_VS18EN
 	calcr = regs->SDMMC_CALCR;
+#endif
 
 	/* Reset our state variables to match reset values of the registers */
 	set->tim_mode = set->tim_mode >= SDMMC_TIM_SD_DS ? SDMMC_TIM_SD_DS
@@ -160,12 +169,16 @@ static void sdmmc_reset_peripheral(struct sdmmc_set *set)
 	while (regs->SDMMC_SRR & SDMMC_SRR_SWRSTALL) ;
 
 	/* Restore specific register fields */
+#ifdef SDMMC_MC1R_FCD
 	if (mc1r & SDMMC_MC1R_FCD)
 		regs->SDMMC_MC1R |= SDMMC_MC1R_FCD;
+#endif
 	regs->SDMMC_TCR = (regs->SDMMC_TCR & ~SDMMC_TCR_DTCVAL_Msk)
 	    | (tcr & SDMMC_TCR_DTCVAL_Msk);
+#ifdef SDMMC_HC2R_VS18EN
 	regs->SDMMC_CALCR = (regs->SDMMC_CALCR & ~SDMMC_CALCR_CNTVAL_Msk
 	    & ~SDMMC_CALCR_TUNDIS) | (calcr & SDMMC_CALCR_CNTVAL_Msk);
+#endif
 
 	/* Apply our unconditional custom settings */
 	/* When using DMA, use the 32-bit Advanced DMA 2 mode */
@@ -181,13 +194,16 @@ static uint8_t sdmmc_unplug_device(struct sdmmc_set *set)
 	assert(set);
 
 	Sdmmc *regs = set->regs;
+#ifdef SDMMC_MC1R_RSTN
 	uint32_t usec = 0;
 	uint8_t mc1r;
+#endif
 
 	trace_debug("Release and power the device off\n\r");
 	if (set->state == MCID_CMD)
 		sdmmc_cancel_command(set);
 
+#ifdef SDMMC_MC1R_RSTN
 	/* Hardware-reset the e.MMC, move it to the pre-idle state.
 	 * Note that this will only be effective on systems where
 	 * 1) the RST_n e.MMC input is wired to the SDMMCx_RSTN PIO, and
@@ -206,6 +222,9 @@ static uint8_t sdmmc_unplug_device(struct sdmmc_set *set)
 		usec = ROUND_INT_DIV(74 * 1000000UL, set->dev_freq);
 	usec = max_u32(usec, 200);
 	usleep(usec);
+#else
+	/* TODO find a way to reset the e.MMC, if any */
+#endif
 
 	/* Stop both the output clock and the SDMMC internal clock */
 	regs->SDMMC_CCR &= ~(SDMMC_CCR_SDCLKEN | SDMMC_CCR_INTCLKEN);
@@ -219,6 +238,7 @@ static uint8_t sdmmc_unplug_device(struct sdmmc_set *set)
 	return SDMMC_SUCCESS;
 }
 
+#ifdef SDMMC_HC2R_VS18EN
 static void sdmmc_calibrate_zout(struct sdmmc_set *set)
 {
 	assert(set);
@@ -237,6 +257,7 @@ static void sdmmc_calibrate_zout(struct sdmmc_set *set)
 	    (calcr & SDMMC_CALCR_CALN_Msk) >> SDMMC_CALCR_CALN_Pos,
 	    (calcr & SDMMC_CALCR_CALP_Msk) >> SDMMC_CALCR_CALP_Pos);
 }
+#endif /* SDMMC_HC2R_VS18EN */
 
 static uint8_t sdmmc_get_bus_width(struct sdmmc_set *set)
 {
@@ -305,6 +326,10 @@ static uint8_t sdmmc_set_speed_mode(struct sdmmc_set *set, uint8_t mode,
 	assert(set);
 
 	Sdmmc *regs = set->regs;
+	uint16_t hc2r_prv, hc2r;
+	uint8_t rc = SDMMC_OK, hc1r_prv, hc1r, mc1r_prv, mc1r, pcr_prv, pcr;
+	bool dev_clk_on, restart_dev_clk;
+#ifdef SDMMC_HC2R_VS18EN
 	const uint32_t caps = regs->SDMMC_CA0R;
 	/* Deviation from the SD Host Controller Specification: we use the
 	 * Voltage Support capabilities to indicate the supported signaling
@@ -312,16 +337,20 @@ static uint8_t sdmmc_set_speed_mode(struct sdmmc_set *set, uint8_t mode,
 	const bool perm_low_sig = (caps & (SDMMC_CA0R_V18VSUP
 	    | SDMMC_CA0R_V30VSUP | SDMMC_CA0R_V33VSUP)) == SDMMC_CA0R_V18VSUP;
 	uint32_t usec = 0;
-	uint16_t hc2r_prv, hc2r;
-	uint8_t rc = SDMMC_OK, hc1r_prv, hc1r, mc1r_prv, mc1r, pcr_prv, pcr;
-	bool toggle_sig_lvl, low_sig, dev_clk_on;
+	bool toggle_sig_lvl, low_sig;
+#else
+	(void) verify;
+#endif
 
 	if ((mode > SDMMC_TIM_MMC_HS200 && mode < SDMMC_TIM_SD_DS)
 	    || mode > SDMMC_TIM_SD_SDR104)
 		return SDMMC_ERROR_PARAM;
 	if ((mode == SDMMC_TIM_MMC_HS200
 	    || (mode >= SDMMC_TIM_SD_SDR12 && mode <= SDMMC_TIM_SD_SDR104))
-	    && !(caps & SDMMC_CA0R_V18VSUP))
+#ifdef SDMMC_HC2R_VS18EN
+	    && !(caps & SDMMC_CA0R_V18VSUP)
+#endif
+	    )
 		return SDMMC_ERROR_PARAM;
 
 #ifndef NDEBUG
@@ -344,6 +373,7 @@ static uint8_t sdmmc_set_speed_mode(struct sdmmc_set *set, uint8_t mode,
 	    | (mode == SDMMC_TIM_MMC_HS_DDR ? SDMMC_MC1R_DDR : 0);
 	hc1r = (hc1r & ~SDMMC_HC1R_HSEN) | (mode == SDMMC_TIM_MMC_HS_SDR
 	    || mode == SDMMC_TIM_SD_HS ? SDMMC_HC1R_HSEN : 0);
+#ifdef SDMMC_HC2R_VS18EN
 	hc2r = hc2r & ~SDMMC_HC2R_DRVSEL_Msk & ~SDMMC_HC2R_VS18EN
 	    & ~SDMMC_HC2R_UHSMS_Msk;
 	if (mode == SDMMC_TIM_MMC_HS200
@@ -374,21 +404,26 @@ static uint8_t sdmmc_set_speed_mode(struct sdmmc_set *set, uint8_t mode,
 	 */
 	if (hc2r & SDMMC_HC2R_VS18EN)
 		hc2r |= SDMMC_HC2R_DRVSEL_TYPEC;
-	pcr = (pcr & ~SDMMC_PCR_SDBVSEL_Msk) | SDMMC_PCR_SDBPWR;
+	pcr &= ~SDMMC_PCR_SDBVSEL_Msk;
 	low_sig = perm_low_sig || hc2r & SDMMC_HC2R_VS18EN;
 	if (low_sig)
 		pcr |= SDMMC_PCR_SDBVSEL_18V;
 	else
 		pcr |= caps & SDMMC_CA0R_V30VSUP ? SDMMC_PCR_SDBVSEL_30V
 		    : SDMMC_PCR_SDBVSEL_33V;
+#endif /* SDMMC_HC2R_VS18EN */
+	pcr |= SDMMC_PCR_SDBPWR;
 
 	if (hc2r == hc2r_prv && hc1r == hc1r_prv && mc1r == mc1r_prv
 	    && pcr == pcr_prv)
 		goto End;
+#ifdef SDMMC_HC2R_VS18EN
 	toggle_sig_lvl = pcr_prv & SDMMC_PCR_SDBPWR
 	    && (pcr ^ pcr_prv) & SDMMC_PCR_SDBVSEL_Msk;
+#endif
 	if (!(pcr_prv & SDMMC_PCR_SDBPWR))
 		trace_debug("Power the device on\n\r");
+#ifdef SDMMC_HC2R_VS18EN
 	else if (toggle_sig_lvl)
 		trace_debug("Signaling level going %s\n\r",
 		    hc2r & SDMMC_HC2R_VS18EN ? "low" : "high");
@@ -403,15 +438,20 @@ static uint8_t sdmmc_set_speed_mode(struct sdmmc_set *set, uint8_t mode,
 		if (regs->SDMMC_PSR & (SDMMC_PSR_CMDLL | SDMMC_PSR_DATLL_Msk))
 			rc = SDMMC_ERROR_STATE;
 	}
+#endif
 	/* Avoid generating glitches on the device clock */
-	dev_clk_on = regs->SDMMC_CCR & SDMMC_CCR_SDCLKEN
-	    && (toggle_sig_lvl || hc2r_prv & SDMMC_HC2R_PVALEN
-	    || hc2r != hc2r_prv);
+	dev_clk_on = hc2r_prv & SDMMC_HC2R_PVALEN || hc2r != hc2r_prv;
+#ifdef SDMMC_HC2R_VS18EN
+	dev_clk_on = dev_clk_on || toggle_sig_lvl;
+#endif
+	dev_clk_on = dev_clk_on && regs->SDMMC_CCR & SDMMC_CCR_SDCLKEN;
 	if (dev_clk_on)
 		regs->SDMMC_CCR &= ~SDMMC_CCR_SDCLKEN;
+#ifdef SDMMC_HC2R_VS18EN
 	if (toggle_sig_lvl)
 		/* Drive the device clock low, turn CMD and DATx high-Z */
 		regs->SDMMC_PCR = pcr & ~SDMMC_PCR_SDBPWR;
+#endif
 
 	/* Now change the timing mode */
 	if (mc1r != mc1r_prv)
@@ -420,6 +460,7 @@ static uint8_t sdmmc_set_speed_mode(struct sdmmc_set *set, uint8_t mode,
 		regs->SDMMC_HC1R = hc1r;
 	if (hc2r != hc2r_prv)
 		regs->SDMMC_HC2R = hc2r;
+#ifdef SDMMC_HC2R_VS18EN
 	if (toggle_sig_lvl) {
 		/* Changing the signaling level. The SD Host Controller
 		 * Specification requires the HW to stabilize the electrical
@@ -430,16 +471,25 @@ static uint8_t sdmmc_set_speed_mode(struct sdmmc_set *set, uint8_t mode,
 		    && !(regs->SDMMC_HC2R & SDMMC_HC2R_VS18EN))
 			rc = SDMMC_ERROR;
 	}
+#endif
 	if (pcr != pcr_prv)
 		regs->SDMMC_PCR = pcr;
+#ifdef SDMMC_HC2R_VS18EN
 	if (verify && toggle_sig_lvl && hc2r & SDMMC_HC2R_VS18EN) {
 		msleep(1);
 		if (regs->SDMMC_PSR & (SDMMC_PSR_CMDLL | SDMMC_PSR_DATLL_Msk))
 			rc = SDMMC_ERROR_STATE;
 	}
-	if (dev_clk_on || (toggle_sig_lvl && hc2r & SDMMC_HC2R_VS18EN))
+#endif
+	restart_dev_clk = dev_clk_on;
+#ifdef SDMMC_HC2R_VS18EN
+	restart_dev_clk = restart_dev_clk
+	    || (toggle_sig_lvl && hc2r & SDMMC_HC2R_VS18EN);
+#endif
+	if (restart_dev_clk)
 		/* FIXME verify that current dev clock freq is 400 kHz */
 		regs->SDMMC_CCR |= SDMMC_CCR_SDCLKEN;
+#ifdef SDMMC_HC2R_VS18EN
 	if (toggle_sig_lvl && hc2r & SDMMC_HC2R_VS18EN) {
 		/* Expect the device to release the CMD and DAT[3:0] lines
 		 * within 1 ms */
@@ -450,14 +500,17 @@ static uint8_t sdmmc_set_speed_mode(struct sdmmc_set *set, uint8_t mode,
 		if (!dev_clk_on)
 			regs->SDMMC_CCR &= ~SDMMC_CCR_SDCLKEN;
 	}
+#endif
 	trace_debug("Using timing mode 0x%02x\n\r", mode);
 
+#ifdef SDMMC_HC2R_VS18EN
 	regs->SDMMC_CALCR = (regs->SDMMC_CALCR & ~SDMMC_CALCR_ALWYSON)
 	    | (low_sig ? SDMMC_CALCR_ALWYSON : 0);
 	if (low_sig || pcr != pcr_prv)
 		/* Perform the output calibration sequence */
 		sdmmc_calibrate_zout(set);
 		/* TODO in SDR12-50/DDR50 mode, schedule periodic re-calibration */
+#endif
 
 End:
 	if (rc == SDMMC_OK)
@@ -476,7 +529,11 @@ static void sdmmc_set_device_clock(struct sdmmc_set *set, uint32_t freq)
 	uint16_t shval;
 	bool use_prog_mode = false;
 
+#ifdef SDMMC_HC2R_VS18EN
 	freq = min_u32(freq, 120000000ul);
+#else
+	freq = min_u32(freq, 52000000ul);
+#endif
 #ifndef NDEBUG
 	if (!(regs->SDMMC_PCR & SDMMC_PCR_SDBPWR))
 		trace_error("Bus is off\n\r");
@@ -516,7 +573,7 @@ static void sdmmc_set_device_clock(struct sdmmc_set *set, uint32_t freq)
 		else if (p_div != 0)
 			p_div = p_div - 1;
 		p_mode_freq = mult_freq / (p_div + 1);
-		if (ABS_DIFF(freq, p_mode_freq) < ABS_DIFF(freq, new_freq)) {
+		if (ABS_DIFF(freq, p_mode_freq) <= ABS_DIFF(freq, new_freq)) {
 			use_prog_mode = true;
 			div = p_div;
 			new_freq = p_mode_freq;
@@ -757,10 +814,12 @@ Fetch:
 			cmd->bStatus = SDMMC_NO_RESPONSE;
 		else if (errors & (SDMMC_EISTR_CMDEND | SDMMC_EISTR_CMDIDX))
 			cmd->bStatus = SDMMC_ERR_IO;
+#ifdef SDMMC_HC2R_VS18EN
 		else if (errors & SDMMC_EISTR_TUNING)
 			cmd->bStatus = SDMMC_ERR_IO;
 		/* TODO upon SDMMC_EISTR_TUNING, clear HC2R:SCLKSEL, and perform
 		 * the tuning procedure */
+#endif
 		/* TODO if SDMMC_NISTR_TRFC and only SDMMC_EISTR_DATTEO then
 		 * ignore SDMMC_EISTR_DATTEO */
 		else if (errors & SDMMC_EISTR_DATTEO)
@@ -1126,6 +1185,7 @@ static uint8_t sdmmc_cancel_command(struct sdmmc_set *set)
 	return SDMMC_OK;
 }
 
+#ifdef SDMMC_HC2R_VS18EN
 static uint8_t sdmmc_tune_sampling(struct sdmmc_set *set)
 {
 	assert(set);
@@ -1198,6 +1258,7 @@ static uint8_t sdmmc_tune_sampling(struct sdmmc_set *set)
 	trace_debug("%u tuning blocks. %s.\n\r", ix, SD_StringifyRetCode(rc));
 	return rc;
 }
+#endif /* SDMMC_HC2R_VS18EN */
 
 /*----------------------------------------------------------------------------
  *        HAL for the SD/MMC library
@@ -1259,9 +1320,16 @@ static uint32_t sdmmc_control(void *_set, uint32_t bCtl, uint32_t param)
 		if ((set->regs->SDMMC_CA0R & SDMMC_CA0R_SLTYPE_Msk)
 		    == SDMMC_CA0R_SLTYPE_EMBEDDED)
 			*param_u32 = 1;
+		else if (set->is_cd)
+			*param_u32 = set->is_cd(set->id) ? 1 : 0;
 		else
-			*param_u32 = set->regs->SDMMC_PSR & SDMMC_PSR_CARDINS
-			    ? 1 : 0;
+#ifdef SDMMC_PSR_CARDINS
+			*param_u32 = set->regs->SDMMC_PSR & SDMMC_PSR_CARDINS ? 1 : 0;
+#else
+			/* Since the card detection routine hasn't been provided, we assume
+			 * the card/device is always present. */
+			*param_u32 = 1;
+#endif
 		break;
 
 	case SDMMC_IOCTL_GET_WP:
@@ -1271,8 +1339,12 @@ static uint32_t sdmmc_control(void *_set, uint32_t bCtl, uint32_t param)
 		    == SDMMC_CA0R_SLTYPE_EMBEDDED)
 			*param_u32 = 1;
 		else
-			*param_u32 = set->regs->SDMMC_PSR & SDMMC_PSR_WRPPL
-			    ? 1 : 0;
+#ifdef SDMMC_PSR_WRPPL
+			*param_u32 = set->regs->SDMMC_PSR & SDMMC_PSR_WRPPL ? 1 : 0;
+#else
+			/* FIXME stop assuming the card/device is always writable */
+			*param_u32 = 1;
+#endif
 		break;
 
 	case SDMMC_IOCTL_POWER:
@@ -1283,7 +1355,10 @@ static uint32_t sdmmc_control(void *_set, uint32_t bCtl, uint32_t param)
 		if (*param_u32 == SDMMC_PWR_OFF)
 			rc = sdmmc_unplug_device(set);
 		else if (*param_u32 == SDMMC_PWR_STD_VDD_LOW_IO
-		    && !(set->regs->SDMMC_CA0R & SDMMC_CA0R_V18VSUP))
+#ifdef SDMMC_HC2R_VS18EN
+		    && !(set->regs->SDMMC_CA0R & SDMMC_CA0R_V18VSUP)
+#endif
+		    )
 			return SDMMC_ERROR_PARAM;
 		else {
 			/* Power the device on, or change signaling level.
@@ -1346,6 +1421,7 @@ static uint32_t sdmmc_control(void *_set, uint32_t bCtl, uint32_t param)
 		    || byte == SDMMC_TIM_MMC_HS_DDR || byte == SDMMC_TIM_SD_HS)
 		    && set->regs->SDMMC_CA0R & SDMMC_CA0R_HSSUP)
 			*param_u32 = 1;
+#ifdef SDMMC_HC2R_VS18EN
 		else if (byte == SDMMC_TIM_MMC_HS200
 		    && (set->regs->SDMMC_CA0R & (SDMMC_CA0R_V18VSUP
 		    | SDMMC_CA0R_V30VSUP | SDMMC_CA0R_V33VSUP))
@@ -1374,6 +1450,7 @@ static uint32_t sdmmc_control(void *_set, uint32_t bCtl, uint32_t param)
 		    && set->regs->SDMMC_CA0R & SDMMC_CA0R_V18VSUP
 		    && set->regs->SDMMC_CA1R & SDMMC_CA1R_SDR104SUP)
 			*param_u32 = 1;
+#endif
 		else
 			*param_u32 = 0;
 		break;
@@ -1394,6 +1471,7 @@ static uint32_t sdmmc_control(void *_set, uint32_t bCtl, uint32_t param)
 			return SDMMC_ERROR_PARAM;
 		sdmmc_set_device_clock(set, *param_u32);
 		trace_debug("Clocking the device at %lu Hz\n\r", set->dev_freq);
+#ifdef SDMMC_HC2R_VS18EN
 		if (set->dev_freq > 95000000ul
 		    && (set->tim_mode == SDMMC_TIM_MMC_HS200
 		    || set->tim_mode == SDMMC_TIM_SD_SDR104
@@ -1401,6 +1479,7 @@ static uint32_t sdmmc_control(void *_set, uint32_t bCtl, uint32_t param)
 		    && set->regs->SDMMC_CA1R & SDMMC_CA1R_TSDR50)))
 			rc = sdmmc_tune_sampling(set);
 			/* TODO setup periodic re-tuning */
+#endif
 		if (set->dev_freq != *param_u32) {
 			rc = rc == SDMMC_OK ? SDMMC_CHANGED : rc;
 			*param_u32 = set->dev_freq;
@@ -1569,10 +1648,13 @@ static uint32_t sdmmc_send_command(void *_set, sSdmmcCommand *cmd)
 	    & ~SDMMC_CR_DPSEL & ~SDMMC_CR_RESPTYP_Msk)
 	    | SDMMC_CR_CMDIDX(cmd->bCmd) | SDMMC_CR_CMDTYP_NORMAL
 	    | SDMMC_CR_CMDICEN | SDMMC_CR_CMDCCEN;
-	eister = SDMMC_EISTER_BOOTAE | SDMMC_EISTER_TUNING | SDMMC_EISTER_ADMA
+	eister = SDMMC_EISTER_BOOTAE | SDMMC_EISTER_ADMA
 	    | SDMMC_EISTER_ACMD | SDMMC_EISTER_CURLIM | SDMMC_EISTER_DATEND
 	    | SDMMC_EISTER_DATCRC | SDMMC_EISTER_DATTEO | SDMMC_EISTER_CMDIDX
 	    | SDMMC_EISTER_CMDEND | SDMMC_EISTER_CMDCRC | SDMMC_EISTER_CMDTEO;
+#ifdef SDMMC_HC2R_VS18EN
+	eister |= SDMMC_EISTER_TUNING;
+#endif
 
 	if (cmd->cmdOp.bmBits.odON)
 		mc1r |= SDMMC_MC1R_OPD;
@@ -1642,15 +1724,22 @@ static uint32_t sdmmc_send_command(void *_set, sSdmmcCommand *cmd)
 	
 	regs->SDMMC_EISTER = eister;
 	/* Clear all interrupt status flags */
-	regs->SDMMC_NISTR = SDMMC_NISTR_ERRINT | SDMMC_NISTR_BOOTAR
-	    | SDMMC_NISTR_CINT | SDMMC_NISTR_CREM | SDMMC_NISTR_CINS
+	mask = SDMMC_NISTR_ERRINT | SDMMC_NISTR_BOOTAR | SDMMC_NISTR_CINT
 	    | SDMMC_NISTR_BRDRDY | SDMMC_NISTR_BWRRDY | SDMMC_NISTR_DMAINT
 	    | SDMMC_NISTR_BLKGE | SDMMC_NISTR_TRFC | SDMMC_NISTR_CMDC;
-	regs->SDMMC_EISTR = SDMMC_EISTR_BOOTAE | SDMMC_EISTR_TUNING
+#ifdef SDMMC_NISTR_CINS
+	mask |= SDMMC_NISTR_CREM | SDMMC_NISTR_CINS;
+#endif
+	regs->SDMMC_NISTR = mask;
+	mask = SDMMC_EISTR_BOOTAE
 	    | SDMMC_EISTR_ADMA | SDMMC_EISTR_ACMD | SDMMC_EISTR_CURLIM
 	    | SDMMC_EISTR_DATEND | SDMMC_EISTR_DATCRC | SDMMC_EISTR_DATTEO
 	    | SDMMC_EISTR_CMDIDX | SDMMC_EISTR_CMDEND | SDMMC_EISTR_CMDCRC
 	    | SDMMC_EISTR_CMDTEO;
+#ifdef SDMMC_HC2R_VS18EN
+	mask |= SDMMC_EISTR_TUNING;
+#endif
+	regs->SDMMC_EISTR = mask;
 
 	/* Issue the command */
 	if (has_data) {
@@ -1741,7 +1830,8 @@ void sdmmc_set_capabilities(Sdmmc* regs,
 
 bool sdmmc_initialize(struct sdmmc_set *set, uint32_t periph_id,
 		uint32_t tc_id, uint32_t tc_ch,
-		uint32_t *dma_buf, uint32_t dma_buf_size, bool use_polling)
+		uint32_t *dma_buf, uint32_t dma_buf_size, bool use_polling,
+		bool (*get_card_detect_status)(uint32_t periph_id))
 {
 	assert(set);
 	assert(periph_id <= 0xff);
@@ -1762,6 +1852,7 @@ bool sdmmc_initialize(struct sdmmc_set *set, uint32_t periph_id,
 	set->timer = &tc_module->TC_CHANNEL[tc_ch];
 	set->table_size = dma_buf ? dma_buf_size / SDMMC_DMADL_SIZE : 0;
 	set->table = set->table_size ? dma_buf : NULL;
+	set->is_cd = get_card_detect_status;
 	set->use_polling = use_polling;
 	set->use_set_blk_cnt = false;
 	set->state = MCID_OFF;
@@ -1775,6 +1866,7 @@ bool sdmmc_initialize(struct sdmmc_set *set, uint32_t periph_id,
 	    | TC_CMR_CPCDIS | TC_CMR_BURST_NONE | TC_CMR_TCCLKS_TIMER_CLOCK2);
 	set->timer->TC_EMR |= TC_EMR_NODIVCLK;
 
+#ifdef SDMMC_HC2R_VS18EN
 	/* Perform the initial I/O calibration sequence, manually.
 	 * Allow tSTARTUP = 2 usec for the analog circuitry to start up.
 	 * CNTVAL = fHCLOCK / (4 * (1 / tSTARTUP)) */
@@ -1784,6 +1876,7 @@ bool sdmmc_initialize(struct sdmmc_set *set, uint32_t periph_id,
 	regs->SDMMC_CALCR = (regs->SDMMC_CALCR & ~SDMMC_CALCR_CNTVAL_Msk
 	    & ~SDMMC_CALCR_TUNDIS) | SDMMC_CALCR_CNTVAL(val);
 	sdmmc_calibrate_zout(set);
+#endif
 
 	/* Set DAT line timeout error to occur after 2000 ms waiting delay.
 	 * 500 ms is the timeout value to implement when writing to SDXC cards.
@@ -1811,6 +1904,7 @@ bool sdmmc_initialize(struct sdmmc_set *set, uint32_t periph_id,
 	/* Reset the peripheral. This will reset almost all registers.
 	 * It doesn't affect I/O calibration however. */
 	sdmmc_reset_peripheral(set);
+#ifdef SDMMC_MC1R_FCD
 	/* As sdmmc_reset_peripheral deliberately preserves MC1R.FCD, this field
 	 * has yet to be initialized. As the controller may disable outputs
 	 * depending on the state of the card detection input, this input should
@@ -1820,6 +1914,7 @@ bool sdmmc_initialize(struct sdmmc_set *set, uint32_t periph_id,
 		regs->SDMMC_MC1R |= SDMMC_MC1R_FCD;
 	else
 		regs->SDMMC_MC1R &= ~SDMMC_MC1R_FCD;
+#endif
 
 	if (!set->use_polling) {
 		irq_add_handler(periph_id, sdmmc_irq_handler, set);
