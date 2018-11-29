@@ -70,7 +70,8 @@
 #define PIO_OPENDRAIN       (1u << 2) /* The pin is Open-Drain. */
 #define PIO_DEGLITCH        (1u << 3) /* The Glitch Filter is enabled. */
 #define PIO_DEBOUNCE        (1u << 4) /* The Debouncing Filter is enabled. */
-#define PIO_NO_SCHMITT_TRIG (1u << 5) /* The Schmitt Trigger is enabled. */
+#define PIO_NO_SCHMITT_TRIG (1u << 5) /* The Schmitt Trigger is disabled. */
+#define PIO_CRTL_SLEWR      (1u << 9) /* The slew rate is controlled. */
 
 /* Pin Event Detection */
 #define PIO_IT_FALL_EDGE    (0u << 6) /*< Event detection on input falling edge. */

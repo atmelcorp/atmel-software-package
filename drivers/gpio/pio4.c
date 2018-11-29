@@ -246,6 +246,9 @@ void pio_configure(const struct _pin *pin_list, uint32_t size)
 		if (pin->attribute & PIO_NO_SCHMITT_TRIG)
 			cfgr |= PIO_CFGR_SCHMITT_DISABLED;
 
+		if (pin->attribute & PIO_CRTL_SLEWR)
+			trace_fatal("Invalid slew rate setting\r\n");
+
 		switch (pin->attribute & PIO_DRVSTR_MASK) {
 		case PIO_DRVSTR_LO:
 			cfgr |= PIO_CFGR_DRVSTR_LO;

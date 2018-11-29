@@ -301,8 +301,31 @@ void pio_configure(const struct _pin *pin_list, uint32_t size)
 		else
 			pio->PIO_SCHMITT &= ~pin->mask;
 
-		if (pin->attribute & PIO_DRVSTR_MASK)
+		/* Control slew rate if requested */
+		if (pin->attribute & PIO_CRTL_SLEWR)
+#ifdef PIO_SLEWR_SR0
+			pio->PIO_SLEWR |= pin->mask;
+		else
+			pio->PIO_SLEWR &= ~pin->mask;
+#else
+			trace_fatal("Invalid slew rate setting\r\n");
+#endif
+
+		switch (pin->attribute & PIO_DRVSTR_MASK) {
+		case PIO_DRVSTR_LO:
+#ifdef PIO_DRIVER_DR0
+			pio->PIO_DRIVER &= ~pin->mask;
+#endif
+			break;
+#ifdef PIO_DRIVER_DR0
+		case PIO_DRVSTR_HI:
+			pio->PIO_DRIVER |= pin->mask;
+			break;
+#endif
+		default:
 			trace_fatal("Invalid pin drive strength\r\n");
+			break;
+		}
 
 		switch (pin->attribute & PIO_IT_MASK) {
 		case PIO_IT_FALL_EDGE:
