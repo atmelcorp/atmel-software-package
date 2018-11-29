@@ -96,6 +96,15 @@ extern void board_cfg_nand_flash(void);
 extern bool board_cfg_sdmmc(uint32_t sdmmc_id);
 
 /**
+ * \brief Detect whether or not a card is inserted into the specified SD/MMC
+ * slot of the board
+ * \param sdmmc_id  SDMMC peripheral ID (ID_SDMMCx).
+ * \return true if a card is inserted, false if no card is inserted.
+ * \note board_cfg_sdmmc() must have been called prior to using this function.
+ */
+extern bool board_get_sdmmc_card_detect_status(uint32_t sdmmc_id);
+
+/**
  * \brief Configures the board.
  */
 extern void board_init(void);

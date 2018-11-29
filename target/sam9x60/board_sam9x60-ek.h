@@ -178,13 +178,25 @@
 
 /* =================== SDMMC device definition ==================== */
 
-#define BOARD_SDMMC0_PINS { PIN_SDMMC0_CK, \
-                            PIN_SDMMC0_CMD, \
-                            PINS_SDMMC0_DATA4B}
+/** Card Detect (CD) line of the SD Card slot */
+#define BOARD_SDMMC0_PIN_CD \
+	{ PIO_GROUP_A, PIO_PA23, PIO_INPUT, PIO_DEFAULT | PIO_DEBOUNCE }
+
+#define BOARD_SDMMC0_PINS { BOARD_SDMMC0_PIN_CD, PIN_SDMMC0_CK, \
+                            PIN_SDMMC0_CMD, PINS_SDMMC0_DATA4B }
+
+/* The relatively high capactive load of SD Cards requires strong drivers,
+ * that we soften by enabling slew rate control. */
+#define BOARD_SDMMC0_PIO_ATTR (PIO_CRTL_SLEWR | PIO_DRVSTR_HI)
+
+#define BOARD_SDMMC0_CAPS0 (SDMMC_CA0R_V33VSUP | \
+                            SDMMC_CA0R_SLTYPE_REMOVABLECARD)
 
 #define BOARD_SDMMC1_PINS { PIN_SDMMC1_CK, \
                             PIN_SDMMC1_CMD, PINS_SDMMC1_DATA4B }
 
+#define BOARD_SDMMC1_CAPS0 (SDMMC_CA0R_V33VSUP | \
+                            SDMMC_CA0R_SLTYPE_EMBEDDED)
 
 /* =================== ETH0 definition =================== */
 

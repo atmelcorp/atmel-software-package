@@ -448,36 +448,17 @@
 
 /* ========== Pio PIN definition for SDMMC0 peripheral ========== */
 
-#ifdef SDMMC0
-
 /** SDMMC0 pin Card Command (CMD) */
 #define PIN_SDMMC0_CMD { PIO_GROUP_A, 0x00010000, PIO_PERIPH_A, PIO_PULLUP }
 
 /** SDMMC0 pin Card Clock (CK) */
 #define PIN_SDMMC0_CK { PIO_GROUP_A, 0x00020000, PIO_PERIPH_A, PIO_DEFAULT }
 
-/** SDMMC0 pin Card Detect (CD) */
-//#define PIN_SDMMC0_CD { PIO_GROUP_A, PIO_PA13A_SDMMC0_CD, PIO_PERIPH_A, PIO_PULLUP }
-
-/** SDMMC0 pin Card Reset (RSTN) */
-//#define PIN_SDMMC0_RSTN { PIO_GROUP_A, PIO_PA10A_SDMMC0_RSTN, PIO_PERIPH_A, PIO_PULLUP }
-
-/** SDMMC0 pin VDD Selection (VDDSEL) */
-//#define PIN_SDMMC0_VDDSEL { PIO_GROUP_A, PIO_PA11A_SDMMC0_VDDSEL, PIO_PERIPH_A, PIO_DEFAULT }
-
-/** SDMMC0 pin Write Protect (WP) */
-//#define PIN_SDMMC0_WP { PIO_GROUP_A, PIO_PA12A_SDMMC0_WP, PIO_PERIPH_A, PIO_PULLUP }
-
 /** SDMMC0 pin 1-bit Data (DA0) */
 #define PINS_SDMMC0_DATA1B { PIO_GROUP_A, 0x00008000, PIO_PERIPH_A, PIO_PULLUP }
 
 /** SDMMC0 pin 4-bit Data (DA0-3) */
 #define PINS_SDMMC0_DATA4B { PIO_GROUP_A, 0x001C8000, PIO_PERIPH_A, PIO_PULLUP }
-
-/** SDMMC0 pin 8-bit Data (DA0-7) */
-//#define PINS_SDMMC0_DATA8B { PIO_GROUP_A, 0x000003fc, PIO_PERIPH_A, PIO_PULLUP }
-
-#endif /* SDMMC0 */
 
 /* ========== Pio PIN definition for SDMMC1 peripheral ========== */
 
@@ -486,15 +467,6 @@
 
 /** SDMMC1 pin Card Clock (CK) */
 #define PIN_SDMMC1_CK { PIO_GROUP_A, 0x00002000, PIO_PERIPH_B, PIO_DEFAULT }
-
-/** SDMMC1 pin Card Detect (CD) */
-//#define PIN_SDMMC1_CD { PIO_GROUP_A, PIO_PA30E_SDMMC1_CD, PIO_PERIPH_E, PIO_PULLUP }
-
-/** SDMMC1 pin Card Reset (RSTN) */
-//#define PIN_SDMMC1_RSTN { PIO_GROUP_A, PIO_PA27E_SDMMC1_RSTN, PIO_PERIPH_E, PIO_PULLUP }
-
-/** SDMMC1 pin Write Protect (WP) */
-//#define PIN_SDMMC1_WP { PIO_GROUP_A, PIO_PA29E_SDMMC1_WP, PIO_PERIPH_E, PIO_PULLUP }
 
 /** SDMMC1 pin 1-bit Data (DA0) */
 #define PINS_SDMMC1_DATA1B { PIO_GROUP_A, 0x00000800, PIO_PERIPH_B, PIO_PULLUP }

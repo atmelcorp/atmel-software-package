@@ -46,6 +46,7 @@
 #include "irq/irq.h"
 #include "gpio/pio.h"
 #include "peripherals/pmc.h"
+#include "sdmmc/sdmmc.h"
 #include "extram/smc.h"
 #include "peripherals/wdt.h"
 
@@ -414,15 +415,55 @@ void board_cfg_nand_flash(void)
 }
 #endif /* CONFIG_HAVE_NAND_FLASH */
 
+#if defined(BOARD_SDMMC0_PINS) || defined(BOARD_SDMMC1_PINS)
+static void board_cfg_sd_clk_caps(uint32_t periph_id, uint32_t *caps0)
+{
+		uint32_t base_freq, mult_freq, val;
+
+		/* Retrieve the frequency of MULTCLK.
+		 * Usual values of this frequency are 100 MHz, 104 MHz. */
+		mult_freq = pmc_get_gck_clock(periph_id);
+
+		/* Retrieve the frequency of BASECLK and TEOCLK.
+		 * Usual values of this frequency are 50 MHz, 52 MHz. */
+		base_freq = ROUND_INT_DIV(mult_freq, 2 * 1000000lu);
+		val = base_freq > (SDMMC_CA0R_BASECLKF_Msk >> SDMMC_CA0R_BASECLKF_Pos)
+		    ? 0 : base_freq;
+		*caps0 |= SDMMC_CA0R_BASECLKF(val);
+		val = base_freq > (SDMMC_CA0R_TEOCLKF_Msk >> SDMMC_CA0R_TEOCLKF_Pos)
+		    ? 0 : base_freq;
+		*caps0 |= SDMMC_CA0R_TEOCLKF(val) | SDMMC_CA0R_TEOCLKU;
+}
+#endif
+
 bool board_cfg_sdmmc(uint32_t periph_id)
 {
 	switch (periph_id) {
 	case ID_SDMMC0:
 	{
-#ifdef BOARD_SDMMC0_PINS
-		const struct _pin pins[] = BOARD_SDMMC0_PINS;
+#if defined(BOARD_SDMMC0_CAPS0) && defined(BOARD_SDMMC0_PINS)
+		struct _pin pins[] = BOARD_SDMMC0_PINS;
+		uint32_t caps0 = BOARD_SDMMC0_CAPS0;
+#ifdef BOARD_SDMMC0_PIO_ATTR
+		uint8_t ix;
+#endif
+
+		/* Program capabilities for SDMMC0 */
+		board_cfg_sd_clk_caps(ID_SDMMC0, &caps0);
+		sdmmc_set_capabilities(SDMMC0, caps0, SDMMC_CA0R_SLTYPE_Msk |
+		    SDMMC_CA0R_V18VSUP | SDMMC_CA0R_V30VSUP | SDMMC_CA0R_V33VSUP |
+		    SDMMC_CA0R_BASECLKF_Msk | SDMMC_CA0R_TEOCLKU |
+		    SDMMC_CA0R_TEOCLKF_Msk, 0, 0);
 
 		/* Configure SDMMC0 pins */
+#ifdef BOARD_SDMMC0_PIO_ATTR
+		/* Tune the attributes of CMD, CK and DAT* peripheral outputs */
+		for (ix = 0; ix < ARRAY_SIZE(pins); ix++) {
+			if (pins[ix].type == PIO_INPUT)
+				continue;
+			pins[ix].attribute |= BOARD_SDMMC0_PIO_ATTR;
+		}
+#endif
 		pio_configure(pins, ARRAY_SIZE(pins));
 		return true;
 #else
@@ -432,8 +473,16 @@ bool board_cfg_sdmmc(uint32_t periph_id)
 	}
 	case ID_SDMMC1:
 	{
-#ifdef BOARD_SDMMC1_PINS
+#if defined(BOARD_SDMMC1_CAPS0) && defined(BOARD_SDMMC1_PINS)
 		const struct _pin pins[] = BOARD_SDMMC1_PINS;
+		uint32_t caps0 = BOARD_SDMMC1_CAPS0;
+
+		/* Program capabilities for SDMMC1 */
+		board_cfg_sd_clk_caps(ID_SDMMC1, &caps0);
+		sdmmc_set_capabilities(SDMMC1, caps0, SDMMC_CA0R_SLTYPE_Msk |
+		    SDMMC_CA0R_V18VSUP | SDMMC_CA0R_V30VSUP | SDMMC_CA0R_V33VSUP |
+		    SDMMC_CA0R_BASECLKF_Msk | SDMMC_CA0R_TEOCLKU |
+		    SDMMC_CA0R_TEOCLKF_Msk, 0, 0);
 
 		/* Configure SDMMC1 pins */
 		pio_configure(pins, ARRAY_SIZE(pins));
@@ -446,4 +495,28 @@ bool board_cfg_sdmmc(uint32_t periph_id)
 	default:
 		return false;
 	}
+}
+
+bool board_get_sdmmc_card_detect_status(uint32_t periph_id)
+{
+	const struct _pin *cd_input = NULL;
+
+#ifdef BOARD_SDMMC0_PIN_CD
+	const struct _pin cd0_input = BOARD_SDMMC0_PIN_CD;
+	cd_input = periph_id == ID_SDMMC0 ? &cd0_input : cd_input;
+#endif
+
+#ifdef BOARD_SDMMC1_PIN_CD
+	const struct _pin cd1_input = BOARD_SDMMC1_PIN_CD;
+	cd_input = periph_id == ID_SDMMC1 ? &cd1_input : cd_input;
+#endif
+
+	if (periph_id != ID_SDMMC0 && periph_id != ID_SDMMC1)
+		return false;
+
+	/* No detection; assume the card/device is always present */
+	if (!cd_input)
+		return true;
+
+	return pio_get(cd_input) ? false : true;
 }
