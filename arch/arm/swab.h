@@ -51,11 +51,10 @@ static inline uint32_t swab32(uint32_t value)
 	uint32_t result;
 
 	// ARMv5TE does not support the "rev" instruction
-	asm("eor %0, %1, %1, ror #16\n"
-	    "bic %0, %0, #0xff0000\n"
-	    "mov %0, %0, lsr #8\n"
-	    "eor %0, %0, %1, ror #8" : "=r"(result) : "r"(value));
-
+	asm("eor r3, %1, %1, ror #16\n"
+	    "bic r3, r3, #0xff0000\n"
+	    "mov %0, %1, ror #8\n"
+	    "eor %0, %0, r3, lsr #8" : "=r"(result) : "0"(value) : "r3","cc");
 	return result;
 }
 
