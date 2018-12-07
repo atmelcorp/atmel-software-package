@@ -92,7 +92,6 @@ Press '4','6','a','p' | 16-bit internal Counter, 192bit, auto| PASSED | PASSED
 Press '0','7','d','p' | Electronic Code Book, 256bit, dma| PASSED | PASSED
 Press '1','7','d','p' |  Cipher Block Chaining, 256bit, dma| PASSED | PASSED
 Press '2','7','d','p' | Output Feedback, 256bit, dma| PASSED | PASSED
-Press '3','7','d','p' | Cipher Feedback, 256bit, dma| PASSED | PASSED
 Press '3','0','7','d','p' | Cipher Feedback 128, 256bit, dma| PASSED | PASSED
 Press '3','1','7','d','p' | Cipher Feedback 64, 256bit, dma| PASSED | PASSED
 Press '3','2','7','d','p' | Cipher Feedback 32, 256bit, dma| PASSED | PASSED
