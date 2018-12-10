@@ -33,6 +33,7 @@ drivers-y += drivers/peripherals/pmc.o
 drivers-$(CONFIG_HAVE_PWMC) += drivers/peripherals/pwmc.o
 drivers-y += drivers/peripherals/rstc.o
 drivers-y += drivers/peripherals/rtc.o
+drivers-$(CONFIG_HAVE_RTT) += drivers/peripherals/rtt.o
 drivers-$(CONFIG_HAVE_SHDWC) += drivers/peripherals/shdwc.o
 drivers-$(CONFIG_HAVE_SCKC) += drivers/peripherals/slowclock_sckc.o
 drivers-$(CONFIG_HAVE_SUPC) += drivers/peripherals/slowclock_supc.o
