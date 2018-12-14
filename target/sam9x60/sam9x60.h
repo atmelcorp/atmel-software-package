@@ -281,7 +281,7 @@ typedef enum IRQn
 #define ID_AES       (39) /**< \brief Advanced Encryption Standard (AES) */
 #define ID_TDES      (40) /**< \brief Triple Data Encryption Standard (TDES) */
 #define ID_SHA       (41) /**< \brief Secure Hash Algorithm (SHA) */
-#define ID_CLASSD    (42) /**< \brief CLASS D Controller (CLASSD) */
+#define ID_CLASSD0   (42) /**< \brief CLASS D Controller (CLASSD) */
 #define ID_ISI       (43) /**< \brief Image Sensor Interface (ISI) */
 #define ID_PIOD      (44) /**< \brief Parallel I/O Controller D (PIOD) */
 #define ID_TC1       (45) /**< \brief TC 3,4,5 - fGCLK < fMCK0 / 3 - False Path (TC1) */
@@ -394,7 +394,7 @@ typedef enum IRQn
 #define TRNG       ((Trng       *)0xF0030000U) /**< \brief (TRNG      ) Base Address */
 #define AES        ((Aes        *)0xF0034000U) /**< \brief (AES       ) Base Address */
 #define TDES       ((Tdes       *)0xF0038000U) /**< \brief (TDES      ) Base Address */
-#define CLASSD     ((Classd     *)0xF003C000U) /**< \brief (CLASSD    ) Base Address */
+#define CLASSD0    ((Classd     *)0xF003C000U) /**< \brief (CLASSD    ) Base Address */
 #define CAN0       ((Can        *)0xF8000000U) /**< \brief (CAN0      ) Base Address */
 #define CAN1       ((Can        *)0xF8004000U) /**< \brief (CAN1      ) Base Address */
 #define TC0        ((Tc         *)0xF8008000U) /**< \brief (TC0       ) Base Address */
