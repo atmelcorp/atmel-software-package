@@ -23,7 +23,7 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D2-XPLAINED)
+## Start the application (SAMA5D2-XPLAINED or SAM9X60-EK)
 --------
 Firstly connect the speaker to the classd interface of main board.
 
