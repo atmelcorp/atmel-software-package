@@ -67,6 +67,7 @@ static const struct {
  *        Local functions
  *----------------------------------------------------------------------------*/
 
+#ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK
 static bool _dspclk_configure(uint32_t dsp_clk)
 {
 	struct _pmc_audio_cfg cfg;
@@ -105,9 +106,9 @@ static bool _dspclk_configure(uint32_t dsp_clk)
 			    (unsigned)clk, (unsigned)(clk >> 3));
 	}
 #endif
-
 	return true;
 }
+#endif
 
 static bool _set_eqcfg_bits(enum _classd_eqcfg eqcfg, volatile uint32_t *intpmr)
 {
@@ -277,13 +278,17 @@ int classd_configure(struct _classd_desc *desc)
 	}
 	if (i == ARRAY_SIZE(audio_info))
 		return -EINVAL;
-
+#ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK
 	if (!_dspclk_configure(dsp_clk_set))
 		return -EINVAL;
-
+#endif
 	struct _pmc_periph_cfg cfg = {
 		.gck = {
+#ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK
 			.css = PMC_PCR_GCKCSS_AUDIO_CLK,
+#else
+			.css = PMC_PCR_GCKCSS_MCK_CLK,
+#endif
 			.div = 1,
 		},
 	};
@@ -378,8 +383,9 @@ int classd_configure(struct _classd_desc *desc)
 void classd_disable(struct _classd_desc *desc)
 {
 	uint32_t id = get_classd_id_from_addr(desc->addr);
-
+#ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK
 	pmc_disable_audio();
+#endif
 	pmc_disable_gck(id);
 	pmc_disable_peripheral(id);
 }
