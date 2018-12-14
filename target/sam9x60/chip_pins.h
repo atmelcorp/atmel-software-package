@@ -292,6 +292,25 @@
 /** TWI2 pins */
 #define PINS_TWI2 { PIN_TWI2_TWD, PIN_TWI2_TWCK }
 
+/* ========== Pio PIN definition for CLASSD peripheral ========== */
+
+#define PIN_CLASSD_L0_IOS1 \
+	{ PIO_GROUP_A, PIO_PA24C_CLASSD_L0, PIO_PERIPH_C, PIO_DEFAULT }
+
+#define PIN_CLASSD_L1_IOS1 \
+	{ PIO_GROUP_A, PIO_PA25C_CLASSD_L1, PIO_PERIPH_C, PIO_DEFAULT }
+
+#define PIN_CLASSD_L2_IOS1 \
+	{ PIO_GROUP_A, PIO_PA26C_CLASSD_L2, PIO_PERIPH_C, PIO_DEFAULT }
+
+#define PIN_CLASSD_L3_IOS1 \
+	{ PIO_GROUP_A, PIO_PA27C_CLASSD_L3, PIO_PERIPH_C, PIO_DEFAULT }
+
+#define PINS_CLASSD_IOS1 {\
+	PIN_CLASSD0_L0_IOS1, PIN_CLASSD0_L1_IOS1, \
+	PIN_CLASSD0_L2_IOS1, PIN_CLASSD0_L3_IOS1, \
+};
+
 /* ========== Pio PIN definition for CAN0 peripheral ========== */
 
 /** CAN0 pin TX */
