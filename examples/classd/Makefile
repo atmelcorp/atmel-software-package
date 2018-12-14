@@ -27,7 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the Class D example
-AVAILABLE_TARGETS = sama5d2-xplained
+AVAILABLE_TARGETS = sama5d2-xplained sam9x60-ek
 AVAILABLE_VARIANTS = ddram
 
 TOP := ../..
