@@ -153,7 +153,9 @@ static void _display_menu(void)
 	printf("-----------------\n\r");
 	printf("1 -> Play the Demo Audio in polling mode\n\r");
 	printf("2 -> Play the Demo Audio in DMA mode\n\r");
+#ifndef CONFIG_SOC_SAM9X60
 	printf("3 -> Output Audio PMC Clock to PCK1 IOS2\n\r");
+#endif
 	printf("+ -> Increase the volume (attenuation reduced by 3dB)\n\r");
 	printf("- -> Decrease the volume (attenuation increased by 3dB)\n\r");
 	printf("=>");
@@ -227,7 +229,7 @@ static void _configure_classd(void)
 		printf("ClassD configuration failed!\r\n");
 	}
 }
-
+#ifndef CONFIG_SOC_SAM9X60
 static void _output_audio_pmc_clock_to_pck1(void)
 {
 	struct _pin pck1_pin = PIN_PCK1_IOS2;
@@ -235,7 +237,7 @@ static void _output_audio_pmc_clock_to_pck1(void)
 	pmc_configure_pck(1, PMC_PCK_CSS_AUDIO_CLK, 0);
 	pmc_enable_pck(1);
 }
-
+#endif
 /*----------------------------------------------------------------------------
  *         Global functions
  *----------------------------------------------------------------------------*/
@@ -264,8 +266,10 @@ extern int main(void)
 			_playback(attn, false);
 		} else if (key == '2') {
 			_playback(attn, true);
+#ifndef CONFIG_SOC_SAM9X60
 		} else if (key == '3') {
 			_output_audio_pmc_clock_to_pck1();
+#endif
 		} else if (key == '+') {
 			if (attn > 1) {
 				attn -= 3;
