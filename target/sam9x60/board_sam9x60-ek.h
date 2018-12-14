@@ -167,6 +167,15 @@
 /** Push button index. */
 #define PUSHBUTTON_BP1 0
 
+/* =================== PIN ClassD definition ==================== */
+
+#define BOARD_CLASSD0_ADDR      CLASSD0
+#define BOARD_CLASSD0_PINS      { PIN_CLASSD_L0_IOS1, PIN_CLASSD_L1_IOS1,\
+								PIN_CLASSD_L2_IOS1, PIN_CLASSD_L3_IOS1 }
+#define BOARD_CLASSD0_MODE      CLASSD_OUTPUT_FULL_BRIDGE
+#define BOARD_CLASSD0_MONO      true
+#define BOARD_CLASSD0_MONO_MODE CLASSD_MONO_MIXED
+
 /* =================== USB device definition =================== */
 
 /** USB VBus pin */

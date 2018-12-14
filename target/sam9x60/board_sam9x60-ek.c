@@ -39,6 +39,7 @@
 #include "board_eth.h"
 #include "board_spi.h"
 #include "board_twi.h"
+#include "board_audio.h"
 
 #include "dma/dma.h"
 #include "gpio/pio.h"
@@ -121,5 +122,10 @@ WEAK void board_init(void)
 	
 	/* Configure CAN bus */
 	board_cfg_can_bus();
+#endif
+
+#ifdef CONFIG_HAVE_CLASSD
+	/* Configure PDMIC interface */
+	board_cfg_classd();
 #endif
 }
