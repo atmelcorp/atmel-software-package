@@ -19,6 +19,7 @@ to the board, and forward to USART port of board.
 ## Supported targets
 --------------------
 * SAM9XX5-EK
+* SAM9X60-EK
 * SAMA5D2-PTC-EK
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK
@@ -42,6 +43,10 @@ on Microsoft Windows) with these settings:
 ### sam9xx5-ek
 --------------------
 Connect USART0
+
+### sam9x60-ek
+--------------------
+Connect FLEXUSART2 (RX on J17:26, TX on J17:24)
 
 ### sama5d2-ptc-ek
 --------------------
