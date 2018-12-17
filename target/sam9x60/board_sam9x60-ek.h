@@ -173,21 +173,17 @@
 #define PIN_USB_VBUS \
 	{ PIO_GROUP_B, PIO_PB16, PIO_INPUT, PIO_DEFAULT }
 
-/** USB OverCurrent detection*/
-#define PIN_USB_OVCUR \
-	{ PIO_GROUP_B, PIO_PB17, PIO_INPUT, PIO_PULLUP }
-
 /** USB Power Enable A:MicroAB:Active Low  */
 #define PIN_USB_POWER_ENA \
-	{ PIO_GROUP_D, PIO_PD18, PIO_OUTPUT_1, PIO_DEFAULT }
+	{ PIO_GROUP_D, PIO_PD14, PIO_OUTPUT_1, PIO_DEFAULT }
 
 /** USB Power Enable B:A:Active Low  */
 #define PIN_USB_POWER_ENB \
-	{ PIO_GROUP_D, PIO_PD19, PIO_OUTPUT_1, PIO_DEFAULT }
+	{ PIO_GROUP_D, PIO_PD15, PIO_OUTPUT_1, PIO_DEFAULT }
 
 /** USB Power Enable C:A:Active Low  */
 #define PIN_USB_POWER_ENC \
-	{ PIO_GROUP_D, PIO_PD20, PIO_OUTPUT_1, PIO_DEFAULT }
+	{ PIO_GROUP_D, PIO_PD16, PIO_OUTPUT_1, PIO_DEFAULT }
 
 /** USB attributes configuration descriptor (bus or self powered,
  * remote wakeup) */
