@@ -183,6 +183,10 @@
 #  define SLOT1_ID                    ID_HSMCI1
 #  define SLOT1_TAG                   "(SD/MMC)"
 #  define BOARD_NUM_SDMMC             (2)
+#elif defined(CONFIG_BOARD_SAM9X60_EK)
+#  define SLOT0_ID                    ID_SDMMC0
+#  define SLOT0_TAG                   "(SD/MMC)"
+#  define BOARD_NUM_SDMMC             (1)
 #elif defined(CONFIG_BOARD_SAME70_XPLAINED) ||\
 	  defined(CONFIG_BOARD_SAMV71_XPLAINED)
 #  define SLOT0_ID                    ID_HSMCI0
@@ -367,7 +371,7 @@ static void sd_driver_configure(void)
 	if (!rc)
 		trace_error("Failed to cfg cells\n\r");
 
-#ifdef CONFIG_HAVE_SDMMC
+#ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK
 	struct _pmc_audio_cfg audio_pll_cfg = {
 		.fracr = 0,
 		.div = 3,
@@ -390,6 +394,7 @@ static void sd_driver_configure(void)
 #endif
 
 #ifdef CONFIG_HAVE_SDMMC
+#ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK
 	/* The regular SAMA5D2-XULT board wires on the SDMMC0 slot an e.MMC
 	 * device whose fastest timing mode is High Speed DDR mode @ 52 MHz.
 	 * Target a device clock frequency of 52 MHz. Use the Audio PLL and set
@@ -405,6 +410,14 @@ static void sd_driver_configure(void)
 			.div = 1,
 		},
 	};
+#else
+	struct _pmc_periph_cfg cfg = {
+		.gck = {
+			.css = PMC_PCR_GCKCSS_PLLA_CLK,
+			.div = 6,
+		},
+	};
+#endif
 	pmc_configure_peripheral(SLOT0_ID, &cfg, true);
 #ifdef SLOT1_ID
 	/* The regular SAMA5D2-XULT board wires on the SDMMC1 slot a MMC/SD
