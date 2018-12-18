@@ -84,7 +84,7 @@ WEAK void board_init(void)
 	board_cfg_console(0);
 
 	/* DMA Driver init */
-	dma_initialize(true);
+	dma_initialize(false);
 
 #ifdef CONFIG_HAVE_LED
 	/* Configure LEDs */
