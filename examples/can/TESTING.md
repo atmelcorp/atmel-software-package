@@ -22,6 +22,7 @@ The demonstration program transmits several different CAN/MCAN messages. The
 
 * SAM9X25-EK
 * SAM9X35-EK
+* SAM9X60-EK
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK
 * SAMA5D3-EK
@@ -32,7 +33,10 @@ The demonstration program transmits several different CAN/MCAN messages. The
 ## Setup
 --------
 Step needed to set up the example.
-* For the EK boards: Connect CAN0 and CAN1 together using a cable
+* For the SAM9X60-EK boards:
+  connect J7 pin 1 (CAN0/CANH) to J7 pin 4 (CAN1/CANH)
+  connect J7 pin 2 (CAN0/CANL) to J7 pin 5 (CAN1/CANL)
+* For the OTHER EK boards: Connect CAN0 and CAN1 together using a cable
 * For the EXPLAINED boards: Mount a FIELDBUS-SHEELD-XULT board and connect CAN0
  and CAN1 together
 * Build the program and download it inside the evaluation board.

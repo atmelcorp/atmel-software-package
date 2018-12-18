@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 #         SAM Software Package License
 # ----------------------------------------------------------------------------
-# Copyright (c) 2015, Atmel Corporation
+# Copyright (c) 2015-2018, Atmel Corporation
 #
 # All rights reserved.
 #
@@ -27,7 +27,9 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the Controller Area Network example
-AVAILABLE_TARGETS = sama5d2-xplained sama5d27-som1-ek \
+
+AVAILABLE_TARGETS = sam9x60-ek \
+                    sama5d2-xplained sama5d27-som1-ek \
                     sama5d3-ek sama5d3-xplained \
                     sam9x25-ek sam9x35-ek \
                     same70-xplained samv71-xplained
