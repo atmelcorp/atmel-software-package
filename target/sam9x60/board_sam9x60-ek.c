@@ -33,6 +33,7 @@
 
 #include "chip.h"
 #include "board.h"
+#include "board_can.h"
 #include "board_console.h"
 #include "board_led.h"
 #include "board_eth.h"
@@ -47,7 +48,15 @@
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
+#ifdef CONFIG_HAVE_SERIALD_DBGU
 static const struct _pin pin_sel_dbgu = SEL_PD20_DBGU;
+#endif
+
+#ifdef CONFIG_HAVE_CAN_BUS
+static const struct _pin pin_can0 = SEL_PD20_CAN0;
+static const struct _pin pin_can1 = SEL_PD19_CAN1;
+static const struct _pin pin_can_stby = CAN_STBY_PD21;
+#endif
 
 WEAK void board_init(void)
 {
@@ -66,9 +75,11 @@ WEAK void board_init(void)
 	/* Configure misc low-level stuff */
 	board_cfg_lowlevel(clocks, ddram, true);
 
+#ifdef CONFIG_HAVE_SERIALD_DBGU
 	/* Configure PD20 to select DBUG function */
 	pio_configure(&pin_sel_dbgu, 1);
-	
+#endif
+
 	/* Configure console */
 	board_cfg_console(0);
 
@@ -101,5 +112,14 @@ WEAK void board_init(void)
 #ifdef CONFIG_HAVE_NAND_FLASH
 	/* Configure NAND flash */
 	board_cfg_nand_flash();
+#endif
+
+#ifdef CONFIG_HAVE_CAN_BUS
+	pio_configure(&pin_can0, 1);
+	pio_configure(&pin_can1, 1);
+	pio_configure(&pin_can_stby, 1);
+	
+	/* Configure CAN bus */
+	board_cfg_can_bus();
 #endif
 }

@@ -91,6 +91,7 @@
 
 /* =================== PIN CONSOLE definition ================== */
 
+#ifndef CONFIG_HAVE_SERIALD_USART
 /** CONSOLE pin definition: use DBGU */
 #ifndef BOARD_CONSOLE_ADDR
 #define BOARD_CONSOLE_ADDR     DBGU
@@ -101,6 +102,21 @@
 #endif
 #ifndef BOARD_CONSOLE_RX_PIN
 #define BOARD_CONSOLE_RX_PIN   PIN_DBGU_RXD
+#endif
+
+
+#else
+/** CONSOLE pin definition: use USART */
+#ifndef BOARD_CONSOLE_ADDR
+#define BOARD_CONSOLE_ADDR     FLEXUSART2
+#endif
+#define BOARD_CONSOLE_BAUDRATE 115200
+#ifndef BOARD_CONSOLE_TX_PIN
+#define BOARD_CONSOLE_TX_PIN   PIN_FLEXCOM2_IO0_IOS1
+#endif
+#ifndef BOARD_CONSOLE_RX_PIN
+#define BOARD_CONSOLE_RX_PIN   PIN_FLEXCOM2_IO1_IOS1
+#endif
 #endif
 
 /* =================== PIN LED definition ====================== */
@@ -138,6 +154,8 @@
 /** PD20 Select PIN for CAN0 */
 #define SEL_PD20_CAN0 { PIO_GROUP_D, PIO_PD20, PIO_OUTPUT_0, PIO_DEFAULT }
 
+/** CAN STNY PD21 for CAN */
+#define CAN_STBY_PD21 { PIO_GROUP_D, PIO_PD21, PIO_OUTPUT_0, PIO_DEFAULT }
 
 /* =================== PIN PUSH BUTTON definition ============== */
 
