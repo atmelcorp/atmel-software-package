@@ -152,13 +152,13 @@
 #  define SLOT1_ID                    ID_SDMMC1
 #  define SLOT1_TAG                   "(microSD)"
 #  define BOARD_NUM_SDMMC             (2)
-#elif CONFIG_BOARD_SAMA5D2_XPLAINED
+#elif defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
 #  define SLOT0_ID                    ID_SDMMC0
 #  define SLOT0_TAG                   "(e.MMC)"
 #  define SLOT1_ID                    ID_SDMMC1
 #  define SLOT1_TAG                   "(SD/MMC)"
 #  define BOARD_NUM_SDMMC             (2)
-#elif CONFIG_BOARD_SAMA5D27_SOM1_EK
+#elif defined(CONFIG_BOARD_SAMA5D27_SOM1_EK)
 #  define SLOT0_ID                    ID_SDMMC0
 #  define SLOT0_TAG                   "(SD/MMC)"
 #  define SLOT1_ID                    ID_SDMMC1
