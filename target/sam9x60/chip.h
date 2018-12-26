@@ -58,6 +58,20 @@ struct _console_cfg;
 /*@}*/
 
 /* ************************************************************************** */
+/*   PMECC DEFINITIONS FOR SAM9x60 */
+/* ************************************************************************** */
+/** \addtogroup SAM9x60_pmecc PMECC Definitions */
+/*@{*/
+
+/** Address of Galois Field Table 512 mapping in ROM. */
+#define GALOIS_TABLE_512_ROM_MAPPING (0x00100000)
+
+/** Address of Galois Field Table 1024 mapping in ROM. */
+#define GALOIS_TABLE_1024_ROM_MAPPING (0x00108000)
+
+/*@}*/
+
+/* ************************************************************************** */
 /* INCLUDE FOR SAM9x60 */
 /* ************************************************************************** */
 
