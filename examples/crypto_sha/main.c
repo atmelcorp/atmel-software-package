@@ -294,7 +294,7 @@ static void start_sha(void)
 		return;
 	}
 
-	memset(digest, 0, ARRAY_SIZE(digest));
+	memset(digest, 0, sizeof digest);
 
 	if (block_mode == SHA_ONE_BLOCK) {
 		len = LEN_MSG_0;
@@ -388,7 +388,7 @@ static void display_menu(void)
 	printf("   o: one-block[%c] t: multi-block[%c] l: long-message[%c] \r\n",
 	       chk_box[0], chk_box[1], chk_box[2]);
 
-	printf("Press [m|a|d] to set Start Mode \r\n");
+	printf("Press [d|p] to select transfer mode\r\n");
 	chk_box[0] = (shad.cfg.transfer_mode == SHAD_TRANS_POLLING) ? 'X' : ' ';
 	chk_box[1] = (shad.cfg.transfer_mode == SHAD_TRANS_DMA) ? 'X' : ' ';
 	printf("   p: POLLING[%c] d: DMA[%c]\r\n", chk_box[0], chk_box[1]);

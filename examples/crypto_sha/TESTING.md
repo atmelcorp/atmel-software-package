@@ -3,12 +3,12 @@ CRYPTO_SHA EXAMPLE
 
 # Objectives
 ------------
-This example aims to encryption and decryption data with the he Secure Hash
+This example aims to encryption and decryption data with the Secure Hash
 Algorithm (SHA) peripheral.
 
 # Example Description
 ---------------------
-This example shows how to configure SHA1/SH256/SHA384/SHA512/SHA224 mode and
+This example shows how to configure SHA1/SHA224/SHA256/SHA384/SHA512 mode and
 transfer message with one block, multi-blocks and long message with or without
 DMA.
 
@@ -38,24 +38,24 @@ On the computer, open and configure a terminal application
 ## Start the application
 ------------------------
 
-Tested with IAR and GCC (sram and ddram configuration)
+Tested with IAR<sup>®</sup> and GCC (sram and ddram configuration)
 
 In order to test this example, the process is the following:
 
 Step | Description | Expected Result | Result
 -----|-------------|-----------------|-------
-Press '0','o','m','p' | SHA1, single block, manual | PASSED | PASSED
-Press '1','o','m','p' | SHA256, single block, manual | PASSED | PASSED
-Press '2','o','m','p' | SHA384, single block, manual | PASSED | PASSED
-Press '3','o','m','p' | SHA512, single block, manual | PASSED | PASSED
-Press '4','o','m','p' | SHA224, single block, manual | PASSED | PASSED
-Press '0','t','a','p' | SHA1, multi block, auto | PASSED | PASSED
-Press '1','t','a','p' | SHA256, multi block, auto | PASSED | PASSED
-Press '2','t','a','p' | SHA384, multi block, auto | PASSED | PASSED
-Press '3','t','a','p' | SHA512, multi block, auto | PASSED | PASSED
-Press '4','t','a','p' | SHA224, multi block, auto | PASSED | PASSED
-Press '0','l','d','p' | SHA1, long-msg, dma | PASSED | PASSED
-Press '1','l','d','p' | SHA256, long-msg, dma | PASSED | PASSED
-Press '2','l','d','p' | SHA384, long-msg, dma | PASSED | PASSED
-Press '3','l','d','p' | SHA512, long-msg, dma | PASSED | PASSED
-Press '4','l','d','p' | SHA224, long-msg, dma | PASSED | PASSED
+Press '0','o','p','s' | SHA1, single block, polling | Digest successfully verified | PASSED
+Press '1','o','p','s' | SHA224, single block, polling | Digest successfully verified | PASSED
+Press '2','o','p','s' | SHA256, single block, polling | Digest successfully verified | PASSED
+Press '3','o','p','s' | SHA384, single block, polling | Digest successfully verified | PASSED
+Press '4','o','p','s' | SHA512, single block, polling | Digest successfully verified | PASSED
+Press '0','t','d','s' | SHA1, multi block, dma | Digest successfully verified | PASSED
+Press '1','t','d','s' | SHA224, multi block, dma | Digest successfully verified | PASSED
+Press '2','t','d','s' | SHA256, multi block, dma | Digest successfully verified | PASSED
+Press '3','t','d','s' | SHA384, multi block, dma | Digest successfully verified | PASSED
+Press '4','t','d','s' | SHA512, multi block, dma | Digest successfully verified | PASSED
+Press '0','l','d','s' | SHA1, long-msg, dma | Digest successfully verified | PASSED
+Press '1','l','d','s' | SHA224, long-msg, dma | Digest successfully verified | PASSED
+Press '2','l','d','s' | SHA256, long-msg, dma | Digest successfully verified | PASSED
+Press '3','l','d','s' | SHA384, long-msg, dma | Digest successfully verified | PASSED
+Press '4','l','d','s' | SHA512, long-msg, dma | Digest successfully verified | PASSED
