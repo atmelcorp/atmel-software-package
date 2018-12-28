@@ -51,6 +51,11 @@ extern const char* get_board_name(void);
 extern void board_cfg_clocks(void);
 
 /**
+ * \brief Save power by disabling most peripherals
+ */
+extern void board_save_misc_power(void);
+
+/**
  * \brief Performs the low-level initialization of the chip.
  *
  * This includes watchdog, master clock, AIC, timer, DDRAM and MMU.
