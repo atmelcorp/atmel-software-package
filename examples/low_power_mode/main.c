@@ -239,7 +239,11 @@ static void _check_ddr_ready(void)
 		sfrbu_disable_ddr_backup();
 	}
 #else
+#ifdef CONFIG_SOC_SAM9X60
+        mpddrc_issue_low_power_command(MPDDRC_LPR_LPCB_NOLOWPOWER);
+#else
 	mpddrc_issue_low_power_command(MPDDRC_LPR_LPCB_DISABLED);
+#endif
 #endif
 }
 
@@ -358,8 +362,13 @@ static void menu_pck_mck(void)
 		break;
 	case 7:
 		printf("PCK = %dMHz, MCK = %dMHz\n\r",
+#ifdef CONFIG_SOC_SAM9X60
+			BOARD_MAIN_CLOCK_EXT_OSC / 1000000 * 50 / 2,
+			BOARD_MAIN_CLOCK_EXT_OSC / 1000000 * 50 / 2 / 3);
+#else
 			BOARD_MAIN_CLOCK_EXT_OSC / 1000000 * 66 / 2,
 			BOARD_MAIN_CLOCK_EXT_OSC / 1000000 * 66 / 2 / 3);
+#endif /* CONFIG_SOC_SAM9X60*/
 		break;
 	}
 }
