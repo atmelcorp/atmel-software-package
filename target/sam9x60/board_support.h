@@ -58,6 +58,11 @@ extern void board_cfg_clocks(void);
 extern void board_cfg_lowlevel(bool clocks, bool ddram, bool mmu);
 
 /**
+ * \brief 
+ */
+extern void board_restore_pio_reset_state(void);
+
+/**
  * \brief Setup MMU for the board
  */
 extern void board_cfg_mmu(void);
