@@ -170,7 +170,11 @@ static const struct pck_mck_cfg clock_test_setting[] = {
 static volatile unsigned int MenuChoice;
 
 static struct _pmc_plla_cfg plla_config = {
+#ifdef CONFIG_DOC_SAM9X60
+	.mul = 49,
+#else
 	.mul = 99,
+#endif
 	.div = 1,
 	.count = 0x3f,
 #ifdef CONFIG_DOC_SAMA5D3
@@ -218,7 +222,11 @@ static void _print_menu(void)
 	       " 9 -> PLLA =   408 MHz\n\r"
 	       " 0 -> PLLA =   600 MHz\n\r"
 	       " a -> PLLA =   792 MHz\n\r"
+#ifdef CONFIG_SOC_SAM9X60
+	       " b -> PLLA =   984 MHz\n\r"                 
+#else
 	       " b -> PLLA =   996 MHz\n\r"
+#endif
 	       " c -> PLLA =  1200 MHz\n\r"
 	       " ############################\n\r"
 	       "=>");
@@ -427,10 +435,15 @@ int main(void)
 		case 'b':
 		case 'B':
 			printf(" %c \r\n", MenuChoice);
+#ifdef CONFIG_SOC_SAM9X60
+			printf("PLLA = 984 MHz\r\n");
+			plla_config.div = 1;
+			plla_config.mul = (984 * 1000000 / BOARD_MAIN_CLOCK_EXT_OSC) - 1;			
+#else
 			printf("PLLA = 996 MHz\r\n");
-
 			plla_config.div = 1;
 			plla_config.mul = (996 * 1000000 / BOARD_MAIN_CLOCK_EXT_OSC) - 1;
+#endif
 			pmc_configure_plla(&plla_config);
 
 			MenuChoice = 0;
