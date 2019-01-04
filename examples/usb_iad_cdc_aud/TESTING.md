@@ -15,6 +15,14 @@ the hardware device list.
 
 # Test
 ------
+## Supported targets
+--------------------
+* SAM9XX5-EK
+* SAM9X60-EK
+* SAMA5D2-XPLAINED
+* SAMA5D3-EK
+* SAMA5D4-EK
+* SAMV71-XPLAINED
 
 ## Setup
 --------
@@ -26,7 +34,7 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D2-XPLAINED)
+## Start the application
 -------------------------------------------
 In the terminal window, the following text should appear (values depend on the
 board and chip used):
@@ -46,12 +54,3 @@ Play sound through host software | Sound is heard | PASSED | PASSED
 Serial echo | open the virtual com and echo the character input | PASSED | PASSED
 
 
-# Log
------
-
-## Current version
-------------------
- - v1.3
-
-## History
-----------
