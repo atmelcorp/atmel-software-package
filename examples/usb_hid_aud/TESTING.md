@@ -16,6 +16,14 @@ can play sound and input characters through board.
 
 # Test
 ------
+## Supported targets
+--------------------
+* SAM9XX5-EK
+* SAM9X60-EK
+* SAMA5D2-XPLAINED
+* SAMA5D3-EK
+* SAMA5D4-EK
+* SAMV71-XPLAINED
 
 ## Setup
 --------
@@ -27,7 +35,7 @@ on Microsoft Windows) with these settings:
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D2-XPLAINED)
+## Start the application
 -------------------------------------------
 When connecting USB cable to windows, the host reports a new USB device
 attachment. You can find new "USB Composite Device" and "USB Audio Device"
@@ -57,12 +65,3 @@ Input '2' in console | Print 'Key 1 pressed' in console | PASSED | PASSED
 Input any character except '1' and '2' in console | the character input is display in console | PASSED | PASSED
 
 
-# Log
------
-
-## Current version
-------------------
- - v1.3
-
-## History
-----------
