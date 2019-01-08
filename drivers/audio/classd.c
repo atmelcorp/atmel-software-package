@@ -286,10 +286,11 @@ int classd_configure(struct _classd_desc *desc)
 		.gck = {
 #ifdef CONFIG_HAVE_PMC_AUDIO_CLOCK
 			.css = PMC_PCR_GCKCSS_AUDIO_CLK,
+			.div = 1,
 #else
 			.css = PMC_PCR_GCKCSS_MCK_CLK,
-#endif
-			.div = 1,
+			.div = 2,
+#endif	
 		},
 	};
 	pmc_configure_peripheral(id, &cfg, true);
