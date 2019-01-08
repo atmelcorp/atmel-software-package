@@ -31,6 +31,7 @@ AVAILABLE_TARGETS = sam9g15-ek sam9g25-ek sam9g35-ek sam9x25-ek sam9x35-ek \
 		    sama5d2-xplained \
 		    sama5d3-ek \
 		    sama5d4-ek \
+		    sam9x60-ek \
 		    samv71-xplained
 
 AVAILABLE_VARIANTS = ddram
