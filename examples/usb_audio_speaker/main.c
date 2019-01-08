@@ -140,6 +140,8 @@
 	#include "config_sam9xx5-ek.h"
 #elif defined(CONFIG_BOARD_SAM9X35_EK)
 	#include "config_sam9xx5-ek.h"
+#elif defined(CONFIG_BOARD_SAM9X60_EK)
+	#include "config_sam9x60-ek.h"
 #elif defined(CONFIG_BOARD_SAMV71_XPLAINED)
 	#include "config_samv71-xplained.h"
 #else
