@@ -269,12 +269,13 @@
 
 #define BOARD_ISI_TWI_BUS     BUS(BUS_TYPE_I2C, 1)
 #define BOARD_ISI_PINS        PINS_ISI
-#define BOARD_ISI_RST_PIN     { PIO_GROUP_A, PIO_PA7, PIO_OUTPUT_1, PIO_DEFAULT }
-#define BOARD_ISI_PWD_PIN     { PIO_GROUP_A, PIO_PA13, PIO_OUTPUT_1, PIO_DEFAULT }
+#define BOARD_ISI_PWD_PIN     { PIO_GROUP_C, PIO_PC24, PIO_OUTPUT_1, PIO_DEFAULT }
+
+/* ISI_MCK actually reflects Programmable Clock Output PCK0.
+ * Clock the image sensor's system input clock at 480/(19+1)=24 MHz. */
 #define BOARD_ISI_MCK_PCK     0
-#define BOARD_ISI_MCK_PCK_SRC PMC_PCK_CSS_PLLA_CLK
-#define BOARD_ISI_MCK_PCK_DIV 4
-#define BOARD_ISI_MCK_PIN     PIN_PCK0_ALT
+#define BOARD_ISI_MCK_PCK_SRC PMC_PCK_CSS_UPLL_CLK
+#define BOARD_ISI_MCK_PCK_DIV 19
 
 /* ================== CAN bus definition ====================== */
 

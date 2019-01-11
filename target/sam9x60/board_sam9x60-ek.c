@@ -38,6 +38,7 @@
 #include "board_lcd.h"
 #include "board_led.h"
 #include "board_eth.h"
+#include "board_isi.h"
 #include "board_spi.h"
 #include "board_twi.h"
 #include "board_audio.h"
@@ -114,6 +115,11 @@ WEAK void board_init(void)
 #ifdef CONFIG_HAVE_SPI_NOR
 	/* Configure SPI NOR flash memory */
 	board_cfg_spi_flash();
+#endif
+
+#ifdef CONFIG_HAVE_ISI
+	/* Configure image sensor */
+	board_cfg_isi();
 #endif
 
 #ifdef CONFIG_HAVE_NAND_FLASH

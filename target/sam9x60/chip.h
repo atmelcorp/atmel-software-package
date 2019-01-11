@@ -156,7 +156,10 @@ struct _console_cfg;
 
 /** Endpoints High Band Width support */
 #define CHIP_USB_ENDPOINT_IS_HBW(ep) \
-    ((ep) != 0 || (ep) != 3 || (ep) != 4)
+    ((ep) > 2)
+
+/** Default ISO IN Endpoint for High Band Width Streaming */
+#define ISO_IN_EP   4
 
 /** NAND EBI Chip Select */
 #define NAND_EBI_CS 3

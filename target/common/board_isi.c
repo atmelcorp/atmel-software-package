@@ -46,26 +46,37 @@
 void board_cfg_isi(void)
 {
 	const struct _pin pins_isi[]= BOARD_ISI_PINS;
+#ifdef BOARD_ISI_MCK_PIN
 	const struct _pin pin_mck = BOARD_ISI_MCK_PIN;
+#endif
+#ifdef BOARD_ISI_RST_PIN
 	const struct _pin pin_rst = BOARD_ISI_RST_PIN;
+#endif
 	const struct _pin pin_pwd = BOARD_ISI_PWD_PIN;
 
 	/* Configure ISI pins */
 	pio_configure(pins_isi, ARRAY_SIZE(pins_isi));
 
-	/* Configure PMC programmable clock (PCK1) */
+	/* ISI_MCK actually is hardwired to a Programmable Clock Output (PCKx).
+	 * Configure this associated Programmable Clock Output. */
+#ifdef BOARD_ISI_MCK_PIN
 	pio_configure(&pin_mck, 1);
+#endif
 	pmc_configure_pck(BOARD_ISI_MCK_PCK,
 	                  BOARD_ISI_MCK_PCK_SRC,
 	                  BOARD_ISI_MCK_PCK_DIV);
 	pmc_enable_pck(BOARD_ISI_MCK_PCK);
 
 	/* Reset sensor */
+#ifdef BOARD_ISI_RST_PIN
 	pio_configure(&pin_rst, 1);
+#endif
 	pio_configure(&pin_pwd, 1);
 	pio_clear(&pin_pwd);
+#ifdef BOARD_ISI_RST_PIN
 	pio_clear(&pin_rst);
 	pio_set(&pin_rst);
+#endif
 	msleep(10);
 
 	/* Enable ISI peripheral clock */

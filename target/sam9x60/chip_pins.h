@@ -426,20 +426,23 @@
 
 /* ========== Pio PIN definition for ISI peripheral ========== */
 
+/** Image Sensor Interface master clock. */
+#define PIN_ISI_MCK { PIO_GROUP_C, PIO_PC15B_ISI_MCK, PIO_PERIPH_B, PIO_DEFAULT }
+
 /** Image Sensor Interface vertical sync. */
 #define PIN_ISI_VSYNC { PIO_GROUP_C, PIO_PC13B_ISI_VSYNC, PIO_PERIPH_B, PIO_DEFAULT }
 
 /** Image Sensor Interface horizontal sync. */
 #define PIN_ISI_HSYNC { PIO_GROUP_C, PIO_PC14B_ISI_HSYNC, PIO_PERIPH_B, PIO_DEFAULT }
 
-/** Image Sensor Interface data clock. */
+/** Image Sensor Interface pixel clock. */
 #define PIN_ISI_PCK { PIO_GROUP_C, PIO_PC12B_ISI_PCK, PIO_PERIPH_B, PIO_DEFAULT }
 
 /** Image Sensor Interface data pins. */
 #define PINS_ISI_DATA { PIO_GROUP_C, 0x00000FFF, PIO_PERIPH_B, PIO_DEFAULT } // pc0-11
 
 /** Image Sensor Interface pin list. */
-#define PINS_ISI { PIN_ISI_VSYNC, PIN_ISI_HSYNC, PIN_ISI_PCK, PINS_ISI_DATA }
+#define PINS_ISI { PIN_ISI_MCK, PIN_ISI_VSYNC, PIN_ISI_HSYNC, PIN_ISI_PCK, PINS_ISI_DATA }
 
 /* ========== Pio PIN definition for ADC peripheral ========== */
 

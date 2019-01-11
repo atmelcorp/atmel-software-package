@@ -75,6 +75,7 @@ CONFIG_HAVE_DDR2_W972GG6KB = y
 CONFIG_HAVE_SPI_AT25 = y
 CONFIG_HAVE_TWI_AT24 = y
 CONFIG_HAVE_NAND_FLASH = y
+CONFIG_HAVE_IMAGE_SENSOR = y
 endif
 
 # features that are different between chips
