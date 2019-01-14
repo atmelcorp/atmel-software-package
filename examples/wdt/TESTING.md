@@ -33,6 +33,7 @@ system.
 ------
 ## Supported targets
 --------------------
+* SAM9X60-EK
 * SAMA5D2-PTC-EK
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK
@@ -55,7 +56,7 @@ On the computer, open and configure a terminal application
 ------------------------
 
  - Press 1 to generate WatchDog Underflow error
- - Press 2 to reset WatchDog and enable Watchdog Reset
+ - Press 2 to reload and restart the down counter
  - Press 3 to generate WatchDog error
  - Press 4 to Enable WatchDog reset interrupt
 
@@ -65,8 +66,8 @@ Tested with IAR and GCC (sram ddram configration)
 
 Step | Description | Expected Result | Result
 -----|-------------|-----------------|-------
-Press '1' | WDT will be reset every 16 seconds | PASSED | PASSED
-Press '2' | WDT has been Reset after 5s| PASSED | PASSED
-Press '3' | WDT will be reset every 2 seconds | PASSED | PASSED
+Press '1' | WDT will be reset every 6 seconds | PASSED | PASSED
+Press '2' | WDT has been Reset after 4s| PASSED | PASSED
+Press '3' | WDT will be reset every 1 seconds | PASSED | PASSED
 Press '4' | System will be restarted by WDT after 16 seconds| PASSED | PASSED
 

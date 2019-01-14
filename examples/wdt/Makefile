@@ -27,7 +27,8 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the WDT example
-AVAILABLE_TARGETS = sama5d2-ptc-ek sama5d2-xplained sama5d27-som1-ek\
+AVAILABLE_TARGETS = sam9x60-ek \
+                    sama5d2-ptc-ek sama5d2-xplained sama5d27-som1-ek\
                     sama5d4-ek sama5d4-xplained \
                     same70-xplained samv71-xplained
 

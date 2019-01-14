@@ -116,9 +116,9 @@
 
 /* Delays for watchdog (in milliseconds). */
 
-#define WDT_DELTATIME 6000 /* 6 secs */
+#define WDT_DELTATIME 3000 /* 3 secs */
 
-#define WDT_COUNTER 10000 /* 10 secs */
+#define WDT_COUNTER 6000   /* 6 secs */
 
 /*----------------------------------------------------------------------------
  *        Local variables
@@ -144,8 +144,7 @@ static volatile uint32_t _change_period = 1;
  */
 static void _configure_wdt(uint32_t timer, uint32_t delta_timer)
 {
-	wdt_enable(WDT_MR_WDFIEN | WDT_MR_WDDBGHLT | WDT_MR_WDIDLEHLT,
-	           delta_timer, timer);
+	wdt_enable(true, false, false, false, delta_timer, timer);
 	wdt_get_status();
 }
 
@@ -157,8 +156,17 @@ static void _wdt_handler(uint32_t source, void* user_arg)
 	assert(source == ID_WDT);
 
 	uint8_t status = wdt_get_status();
+	
+#ifdef CONFIG_HAVE_DWDT
+    printf("WDT current 0x%x\r\n", wdt_get_counter_value());
+	printf("WDT interrupt - level threshold failure:%d - repeat threshold failure:%d, Period interrupt failure:%d\n\r",
+		status & WDT_ISR_LVLINT  ? 1 : 0, 
+		status & WDT_ISR_RPTHINT ? 1 : 0,
+		status & WDT_IER_PERINT ? 1 : 0);
+#else
 	printf("WDT interrupt - Watchdog UnderFlow:%d - Watchdog Error:%d\n\r",
 		status & WDT_SR_WDUNF  ? 1 : 0, status & WDT_SR_WDERR ? 1 : 0);
+#endif
 }
 
 /**
@@ -167,23 +175,24 @@ static void _wdt_handler(uint32_t source, void* user_arg)
  */
 static int _tc_handler(void* arg, void* arg2)
 {
-	if (_countdown_timer > (16000 / 250) && _change_period == 0) {
-		printf("WDT has been Reset after 16s\n\r");
-		_countdown_timer = 0;
+	if (_countdown_timer > ((WDT_COUNTER + 500) / 250) && _change_period == 0) {
 		wdt_restart();
-	} else if (_countdown_timer > (5000 / 250) && _change_period == 1) {
-		printf("WDT has been Reset after 5s\n\r");
+		printf("WDT has been Reset after %ds\n\r",WDT_COUNTER / 1000 );
 		_countdown_timer = 0;
+	} else if (_countdown_timer > (4000 / 250) && _change_period == 1) {
 		wdt_restart();
-	} else if (_countdown_timer > (2000 / 250) && _change_period == 2) {
-		printf( "WDT has been Reset after 2s\n\r");
+		printf("WDT has been Reset after 4s\n\r");
 		_countdown_timer = 0;
+		
+	} else if (_countdown_timer > (1000 / 250) && _change_period == 2) {
 		wdt_restart();
+		printf( "WDT has been Reset after 1s\n\r");
+		_countdown_timer = 0;
+		
 	} else if (_countdown_timer > (16000 / 250) && _change_period == 3) {
 		printf("Watchdog Reset interrupt has been enabled, system will restart after %dms\n\r", WDT_COUNTER);
 		_countdown_timer = 0;
-		wdt_enable(WDT_MR_WDRSTEN | WDT_MR_WDFIEN | WDT_MR_WDDBGHLT | WDT_MR_WDIDLEHLT,
-		           500, WDT_COUNTER);
+		wdt_enable(true, true, true, true, 500, WDT_COUNTER);
 	} else {
 		_countdown_timer++;
 	}
@@ -218,22 +227,23 @@ int main(void)
 	/* Output example information */
 	console_example_info("WDT Example");
 
-	/* Enable watchdog */
-	_configure_wdt(WDT_COUNTER, WDT_DELTATIME);
+	printf("uses DBG key 1/2/3/4.\n\r");
+	printf("Press 1 to generate WatchDog Underflow error.\n\r");
+	printf("Press 2 to reload and restart the down counter.\n\r");
+	printf("Press 3 to generate WatchDog error.\n\r") ;
+	printf("Press 4 to Enable WatchDog reset interrupt.\n\r");
 
 	printf("Configure TC.\n\r");
 	_configure_tc() ;
 
 	printf("Configure WDT.\n\r");
+	wdt_disable();
+	/* Enable watchdog */
+	_configure_wdt(WDT_COUNTER, WDT_DELTATIME);
 	irq_add_handler(ID_WDT, _wdt_handler, NULL);
 	irq_enable(ID_WDT);
-
-	printf("uses DBG key 1/2/3/4.\n\r");
-	printf("Press 1 to generate WatchDog Underflow error.\n\r");
-	printf("Press 2 to reset WatchDog and enable Watchdog Reset.\n\r");
-	printf("Press 3 to generate WatchDog error.\n\r") ;
-	printf("Press 4 to Enable WatchDog reset interrupt.\n\r");
-
+	
+	_countdown_timer = 0;
 	while (1)
 	{
 		key = console_get_char();
@@ -241,18 +251,22 @@ int main(void)
 		{
 		case '1':
 			_change_period = 0;
-			printf("-I- WDT will be reset every 16 seconds\n\r");
+			_countdown_timer = 0;
+			printf("-I- WDT will be reset every %d seconds\n\r", WDT_COUNTER / 1000);
 			break;
 		case '2':
 			_change_period = 1;
-			printf("-I- WDT will be reset every 5 seconds\n\r");
+			_countdown_timer = 0;
+			printf("-I- WDT will be reset every 4 seconds\n\r");
 			break;
 		case '3':
 			_change_period = 2;
-			printf("-I- WDT will be reset every 2 seconds\n\r");
+			_countdown_timer = 0;
+			printf("-I- WDT will be reset every 1 seconds\n\r");
 			break;
 		case '4':
 			_change_period = 3;
+			_countdown_timer = 0;
 			printf("-I- System will be restarted by WDT after 16 seconds\n\r");
 			break;
 		default:
