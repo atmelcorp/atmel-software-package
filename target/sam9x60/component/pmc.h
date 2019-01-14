@@ -89,7 +89,6 @@ typedef struct {
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- PMC_SCER : (PMC Offset: 0x0000) System Clock Enable Register -------- */
 #define PMC_SCER_DDRCK (0x1u << 2) /**< \brief (PMC_SCER) DDR Clock Enable */
-#define PMC_SCER_LCDCK (0x1u << 3) /**< \brief (PMC_SCER) Enable LCD 2x Clock */
 #define PMC_SCER_UHP (0x1u << 6) /**< \brief (PMC_SCER) USB Host OHCI Clocks Enable */
 #define PMC_SCER_PCK0 (0x1u << 8) /**< \brief (PMC_SCER) Programmable Clock 0 Output Enable */
 #define PMC_SCER_PCK1 (0x1u << 9) /**< \brief (PMC_SCER) Programmable Clock 1 Output Enable */
