@@ -75,33 +75,81 @@
 #include "peripherals/pmc.h"
 #include "peripherals/wdt.h"
 #include "trace.h"
+#include "timer.h"
 #include <stdio.h>
 
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
 
-static uint32_t _wdt_compute_period(uint32_t period)
+static uint32_t _wdt_compute_period(uint32_t timeout)
 {
-	uint32_t value = period * (pmc_get_slow_clock() >> 7) / 1000;
-	if (value > 0xfff)
-		value = 0xfff;
-	return value;
+	/* Calculate the reload value to achive this (appoximate) timeout.
+	*
+	* Examples with WDT_FREQUENCY = 32768 / 128 = 256:
+	*  timeout = 4     -> reload = 1
+	*  timeout = 16000 -> reload = 4096
+	*/
+	uint32_t reload = (timeout * (pmc_get_slow_clock() >> 7) + 500) / 1000;
+	if (reload < 1) {
+		reload = 1;
+	}
+	else if (reload > 4095) {
+		reload = 4095;
+	}
+	return reload;
 }
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-void wdt_enable(uint32_t mode, uint32_t delta, uint32_t counter)
+void wdt_enable(bool en_int,
+				bool en_rst,
+				bool en_dbghlt,
+				bool en_idlehlt,
+				uint32_t delta,
+				uint32_t counter)
 {
-#ifdef WDT_MR_WDD
-	WDT->WDT_MR = (mode & ~(WDT_MR_WDDIS | WDT_MR_WDD_Msk | WDT_MR_WDV_Msk)) |
-	              WDT_MR_WDD(_wdt_compute_period(delta)) |
-	              WDT_MR_WDV(_wdt_compute_period(counter));
+	uint32_t mode = 0;
+
+#ifdef CONFIG_HAVE_DWDT
+	uint32_t wc;
+
+	mode &= ~(WDT_MR_WDDIS);
+	WDT->WDT_MR = mode;
+	wc = _wdt_compute_period(counter);
+	WDT->WDT_WLR = WDT_WLR_PERIOD(wc) | WDT_WLR_RPTH(_wdt_compute_period(delta));
+	WDT->WDT_ILR = WDT_ILR_LVLTH(wc);
+	if (en_int)
+		WDT->WDT_IER = WDT_IER_PERINT | WDT_IER_RPTHINT | WDT_IER_LVLINT;
+	else
+		WDT->WDT_IER = 0;
+
+	if (en_rst)
+		mode |= WDT_MR_PERIODRST;
+	if (en_dbghlt)
+		mode |= WDT_MR_WDDBGHLT;
+	if (en_idlehlt)
+		mode |= WDT_MR_WDIDLEHLT;
+	WDT->WDT_MR = mode;
+
 #else
-	WDT->WDT_MR &= WDT_MR_WDDIS;
-	trace_warning("wdt_enable() not fully implemented!");
+	mode &= ~(WDT_MR_WDDIS | WDT_MR_WDD_Msk | WDT_MR_WDV_Msk);
+	mode &= ~(WDT_MR_WDD_Msk | WDT_MR_WDV_Msk);
+	WDT->WDT_MR = mode;
+	usleep(100);
+	if (en_int)
+		mode |= WDT_MR_WDFIEN;
+	if (en_rst)
+		mode |= WDT_MR_WDRSTEN;
+	if (en_dbghlt)
+		mode |= WDT_MR_WDDBGHLT;
+	if (en_idlehlt)
+		mode |= WDT_MR_WDIDLEHLT;
+	WDT->WDT_MR = mode |
+				  WDT_MR_WDD(_wdt_compute_period(delta)) |
+				  WDT_MR_WDV(_wdt_compute_period(counter));
 #endif
 }
 
@@ -117,22 +165,18 @@ void wdt_restart()
 
 uint32_t wdt_get_status(void)
 {
-#ifdef WDT_SR_WDERR
-	return WDT->WDT_SR & (WDT_SR_WDUNF | WDT_SR_WDERR);
-#else
+#ifdef CONFIG_HAVE_DWDT
 	return WDT->WDT_ISR;
-	trace_warning("wdt_get_status() not fully implemented!");
+#else
+	return WDT->WDT_SR & (WDT_SR_WDUNF | WDT_SR_WDERR);
 #endif
 }
 
 uint32_t wdt_get_counter_value(void)
 {
-#ifdef WDT_MR_WDV_Msk
-	return (WDT->WDT_MR & WDT_MR_WDV_Msk) >> WDT_MR_WDV_Pos;
-#elif defined(WDT_VR_COUNTER_Msk)
+#ifdef CONFIG_HAVE_DWDT
 	return (WDT->WDT_VR & WDT_VR_COUNTER_Msk) >> WDT_VR_COUNTER_Pos;
 #else
-	#error wdt_get_counter_value() needs to be updated.
+	return (WDT->WDT_MR & WDT_MR_WDV_Msk) >> WDT_MR_WDV_Pos;
 #endif
 }
-

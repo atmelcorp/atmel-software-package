@@ -65,12 +65,19 @@ extern "C" {
  * \note The Watchdog Mode Register (WDT_MR) can be written only once.
  * Only a processor reset resets it.
  *
- * \param mode WDT mode to be set
+ * \param en_int enable interrupt or not
+ * \param en_rst enable reset or not
+ * \param en_dbghlt Watchdog debug halt or not
+ * \param en_idlehlt Watchdog idle halt or not
  * \param delta WDT delta value
  * \param counter WDT counter value
  */
-extern void wdt_enable(uint32_t mode, uint32_t delta, uint32_t counter);
-
+extern void wdt_enable(bool en_int,
+					   bool en_rst,
+					   bool en_dbghlt,
+					   bool en_idlehlt,
+					   uint32_t delta,
+					   uint32_t counter);
 /**
  * \brief Disable watchdog.
  *
