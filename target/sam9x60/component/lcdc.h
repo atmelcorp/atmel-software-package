@@ -438,7 +438,7 @@ typedef struct {
 #define   LCDC_BASECFG1_RGBMODE_16BPP_RGB_565 (0x3u << 4) /**< \brief (LCDC_BASECFG1) 16 bpp RGB 565 */
 #define   LCDC_BASECFG1_RGBMODE_16BPP_TRGB_1555 (0x4u << 4) /**< \brief (LCDC_BASECFG1) 16 bpp TRGB 1555 */
 #define   LCDC_BASECFG1_RGBMODE_18BPP_RGB_666 (0x5u << 4) /**< \brief (LCDC_BASECFG1) 18 bpp RGB 666 */
-#define   LCDC_BASECFG1_RGBMODE_18BPP_RGB_666PACKED (0x6u << 4) /**< \brief (LCDC_BASECFG1) 18 bpp RGB 666 PACKED */
+#define   LCDC_BASECFG1_RGBMODE_18BPP_RGB_666_PACKED (0x6u << 4) /**< \brief (LCDC_BASECFG1) 18 bpp RGB 666 PACKED */
 #define   LCDC_BASECFG1_RGBMODE_19BPP_TRGB_1666 (0x7u << 4) /**< \brief (LCDC_BASECFG1) 19 bpp TRGB 1666 */
 #define   LCDC_BASECFG1_RGBMODE_19BPP_TRGB_PACKED (0x8u << 4) /**< \brief (LCDC_BASECFG1) 19 bpp TRGB 1666 PACKED */
 #define   LCDC_BASECFG1_RGBMODE_24BPP_RGB_888 (0x9u << 4) /**< \brief (LCDC_BASECFG1) 24 bpp RGB 888 */
@@ -449,10 +449,10 @@ typedef struct {
 #define LCDC_BASECFG1_CLUTMODE_Pos 8
 #define LCDC_BASECFG1_CLUTMODE_Msk (0x3u << LCDC_BASECFG1_CLUTMODE_Pos) /**< \brief (LCDC_BASECFG1) Color Lookup Table Mode Input Selection */
 #define LCDC_BASECFG1_CLUTMODE(value) ((LCDC_BASECFG1_CLUTMODE_Msk & ((value) << LCDC_BASECFG1_CLUTMODE_Pos)))
-#define   LCDC_BASECFG1_CLUTMODE_CLUT_1BPP (0x0u << 8) /**< \brief (LCDC_BASECFG1) Color Lookup Table mode set to 1 bit per pixel */
-#define   LCDC_BASECFG1_CLUTMODE_CLUT_2BPP (0x1u << 8) /**< \brief (LCDC_BASECFG1) Color Lookup Table mode set to 2 bits per pixel */
-#define   LCDC_BASECFG1_CLUTMODE_CLUT_4BPP (0x2u << 8) /**< \brief (LCDC_BASECFG1) Color Lookup Table mode set to 4 bits per pixel */
-#define   LCDC_BASECFG1_CLUTMODE_CLUT_8BPP (0x3u << 8) /**< \brief (LCDC_BASECFG1) Color Lookup Table mode set to 8 bits per pixel */
+#define   LCDC_BASECFG1_CLUTMODE_1BPP (0x0u << 8) /**< \brief (LCDC_BASECFG1) Color lookup table mode set to 1 bit per pixel */
+#define   LCDC_BASECFG1_CLUTMODE_2BPP (0x1u << 8) /**< \brief (LCDC_BASECFG1) Color lookup table mode set to 2 bits per pixel */
+#define   LCDC_BASECFG1_CLUTMODE_4BPP (0x2u << 8) /**< \brief (LCDC_BASECFG1) Color lookup table mode set to 4 bits per pixel */
+#define   LCDC_BASECFG1_CLUTMODE_8BPP (0x3u << 8) /**< \brief (LCDC_BASECFG1) Color lookup table mode set to 8 bits per pixel */
 /* -------- LCDC_BASECFG2 : (LCDC Offset: 0x00000094) Base Layer Configuration Register 2 -------- */
 #define LCDC_BASECFG2_XSTRIDE_Pos 0
 #define LCDC_BASECFG2_XSTRIDE_Msk (0xffffffffu << LCDC_BASECFG2_XSTRIDE_Pos) /**< \brief (LCDC_BASECFG2) Horizontal Stride */
@@ -544,10 +544,10 @@ typedef struct {
 #define LCDC_OVR1CFG0_BLEN_Pos 4
 #define LCDC_OVR1CFG0_BLEN_Msk (0x3u << LCDC_OVR1CFG0_BLEN_Pos) /**< \brief (LCDC_OVR1CFG0) AHB Burst Length */
 #define LCDC_OVR1CFG0_BLEN(value) ((LCDC_OVR1CFG0_BLEN_Msk & ((value) << LCDC_OVR1CFG0_BLEN_Pos)))
-#define   LCDC_OVR1CFG0_BLEN_AHB_BLEN_SINGLE (0x0u << 4) /**< \brief (LCDC_OVR1CFG0) AHB Access is started as soon as there is enough space in the FIFO to store one data. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define   LCDC_OVR1CFG0_BLEN_AHB_BLEN_INCR4 (0x1u << 4) /**< \brief (LCDC_OVR1CFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 4 data. An AHB INCR4 Burst is used. SINGLE, INCR and INCR4 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define   LCDC_OVR1CFG0_BLEN_AHB_BLEN_INCR8 (0x2u << 4) /**< \brief (LCDC_OVR1CFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 8 data. An AHB INCR8 Burst is used. SINGLE, INCR, INCR4 and INCR8 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define   LCDC_OVR1CFG0_BLEN_AHB_BLEN_INCR16 (0x3u << 4) /**< \brief (LCDC_OVR1CFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 16 data. An AHB INCR16 Burst is used. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_OVR1CFG0_BLEN_AHB_SINGLE (0x0u << 4) /**< \brief (LCDC_OVR1CFG0) AHB Access is started as soon as there is enough space in the FIFO to store one data. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_OVR1CFG0_BLEN_AHB_INCR4 (0x1u << 4) /**< \brief (LCDC_OVR1CFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 4 data. An AHB INCR4 Burst is used. SINGLE, INCR and INCR4 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_OVR1CFG0_BLEN_AHB_INCR8 (0x2u << 4) /**< \brief (LCDC_OVR1CFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 8 data. An AHB INCR8 Burst is used. SINGLE, INCR, INCR4 and INCR8 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_OVR1CFG0_BLEN_AHB_INCR16 (0x3u << 4) /**< \brief (LCDC_OVR1CFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 16 data. An AHB INCR16 Burst is used. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
 #define LCDC_OVR1CFG0_DLBO (0x1u << 8) /**< \brief (LCDC_OVR1CFG0) Defined Length Burst Only for Channel Bus Transaction */
 #define LCDC_OVR1CFG0_ROTDIS (0x1u << 12) /**< \brief (LCDC_OVR1CFG0) Hardware Rotation Optimization Disable */
 #define LCDC_OVR1CFG0_LOCKDIS (0x1u << 13) /**< \brief (LCDC_OVR1CFG0) Hardware Rotation Lock Disable */
@@ -562,7 +562,7 @@ typedef struct {
 #define   LCDC_OVR1CFG1_RGBMODE_16BPP_RGB_565 (0x3u << 4) /**< \brief (LCDC_OVR1CFG1) 16 bpp RGB 565 */
 #define   LCDC_OVR1CFG1_RGBMODE_16BPP_TRGB_1555 (0x4u << 4) /**< \brief (LCDC_OVR1CFG1) 16 bpp TRGB 1555 */
 #define   LCDC_OVR1CFG1_RGBMODE_18BPP_RGB_666 (0x5u << 4) /**< \brief (LCDC_OVR1CFG1) 18 bpp RGB 666 */
-#define   LCDC_OVR1CFG1_RGBMODE_18BPP_RGB_666PACKED (0x6u << 4) /**< \brief (LCDC_OVR1CFG1) 18 bpp RGB 666 PACKED */
+#define   LCDC_OVR1CFG1_RGBMODE_18BPP_RGB_666_PACKED (0x6u << 4) /**< \brief (LCDC_OVR1CFG1) 18 bpp RGB 666 PACKED */
 #define   LCDC_OVR1CFG1_RGBMODE_19BPP_TRGB_1666 (0x7u << 4) /**< \brief (LCDC_OVR1CFG1) 19 bpp TRGB 1666 */
 #define   LCDC_OVR1CFG1_RGBMODE_19BPP_TRGB_PACKED (0x8u << 4) /**< \brief (LCDC_OVR1CFG1) 19 bpp TRGB 1666 PACKED */
 #define   LCDC_OVR1CFG1_RGBMODE_24BPP_RGB_888 (0x9u << 4) /**< \brief (LCDC_OVR1CFG1) 24 bpp RGB 888 */
@@ -573,10 +573,10 @@ typedef struct {
 #define LCDC_OVR1CFG1_CLUTMODE_Pos 8
 #define LCDC_OVR1CFG1_CLUTMODE_Msk (0x3u << LCDC_OVR1CFG1_CLUTMODE_Pos) /**< \brief (LCDC_OVR1CFG1) Color Lookup Table Mode Input Selection */
 #define LCDC_OVR1CFG1_CLUTMODE(value) ((LCDC_OVR1CFG1_CLUTMODE_Msk & ((value) << LCDC_OVR1CFG1_CLUTMODE_Pos)))
-#define   LCDC_OVR1CFG1_CLUTMODE_CLUT_1BPP (0x0u << 8) /**< \brief (LCDC_OVR1CFG1) Color Lookup Table mode set to 1 bit per pixel */
-#define   LCDC_OVR1CFG1_CLUTMODE_CLUT_2BPP (0x1u << 8) /**< \brief (LCDC_OVR1CFG1) Color Lookup Table mode set to 2 bits per pixel */
-#define   LCDC_OVR1CFG1_CLUTMODE_CLUT_4BPP (0x2u << 8) /**< \brief (LCDC_OVR1CFG1) Color Lookup Table mode set to 4 bits per pixel */
-#define   LCDC_OVR1CFG1_CLUTMODE_CLUT_8BPP (0x3u << 8) /**< \brief (LCDC_OVR1CFG1) Color Lookup Table mode set to 8 bits per pixel */
+#define   LCDC_OVR1CFG1_CLUTMODE_1BPP (0x0u << 8) /**< \brief (LCDC_OVR1CFG1) Color Lookup Table mode set to 1 bit per pixel */
+#define   LCDC_OVR1CFG1_CLUTMODE_2BPP (0x1u << 8) /**< \brief (LCDC_OVR1CFG1) Color Lookup Table mode set to 2 bits per pixel */
+#define   LCDC_OVR1CFG1_CLUTMODE_4BPP (0x2u << 8) /**< \brief (LCDC_OVR1CFG1) Color Lookup Table mode set to 4 bits per pixel */
+#define   LCDC_OVR1CFG1_CLUTMODE_8BPP (0x3u << 8) /**< \brief (LCDC_OVR1CFG1) Color Lookup Table mode set to 8 bits per pixel */
 /* -------- LCDC_OVR1CFG2 : (LCDC Offset: 0x00000194) Overlay 1 Configuration Register 2 -------- */
 #define LCDC_OVR1CFG2_XPOS_Pos 0
 #define LCDC_OVR1CFG2_XPOS_Msk (0x7ffu << LCDC_OVR1CFG2_XPOS_Pos) /**< \brief (LCDC_OVR1CFG2) Horizontal Window Position */
@@ -731,10 +731,10 @@ typedef struct {
 #define LCDC_OVR2CFG1_CLUTMODE_Pos 8
 #define LCDC_OVR2CFG1_CLUTMODE_Msk (0x3u << LCDC_OVR2CFG1_CLUTMODE_Pos) /**< \brief (LCDC_OVR2CFG1) Color Lookup Table Mode Input Selection */
 #define LCDC_OVR2CFG1_CLUTMODE(value) ((LCDC_OVR2CFG1_CLUTMODE_Msk & ((value) << LCDC_OVR2CFG1_CLUTMODE_Pos)))
-#define   LCDC_OVR2CFG1_CLUTMODE_CLUT_1BPP (0x0u << 8) /**< \brief (LCDC_OVR2CFG1) Color Lookup Table mode set to 1 bit per pixel */
-#define   LCDC_OVR2CFG1_CLUTMODE_CLUT_2BPP (0x1u << 8) /**< \brief (LCDC_OVR2CFG1) Color Lookup Table mode set to 2 bits per pixel */
-#define   LCDC_OVR2CFG1_CLUTMODE_CLUT_4BPP (0x2u << 8) /**< \brief (LCDC_OVR2CFG1) Color Lookup Table mode set to 4 bits per pixel */
-#define   LCDC_OVR2CFG1_CLUTMODE_CLUT_8BPP (0x3u << 8) /**< \brief (LCDC_OVR2CFG1) Color Lookup Table mode set to 8 bits per pixel */
+#define   LCDC_OVR2CFG1_CLUTMODE_1BPP (0x0u << 8) /**< \brief (LCDC_OVR2CFG1) Color Lookup Table mode set to 1 bit per pixel */
+#define   LCDC_OVR2CFG1_CLUTMODE_2BPP (0x1u << 8) /**< \brief (LCDC_OVR2CFG1) Color Lookup Table mode set to 2 bits per pixel */
+#define   LCDC_OVR2CFG1_CLUTMODE_4BPP (0x2u << 8) /**< \brief (LCDC_OVR2CFG1) Color Lookup Table mode set to 4 bits per pixel */
+#define   LCDC_OVR2CFG1_CLUTMODE_8BPP (0x3u << 8) /**< \brief (LCDC_OVR2CFG1) Color Lookup Table mode set to 8 bits per pixel */
 /* -------- LCDC_OVR2CFG2 : (LCDC Offset: 0x00000294) Overlay 2 Configuration Register 2 -------- */
 #define LCDC_OVR2CFG2_XPOS_Pos 0
 #define LCDC_OVR2CFG2_XPOS_Msk (0x7ffu << LCDC_OVR2CFG2_XPOS_Pos) /**< \brief (LCDC_OVR2CFG2) Horizontal Window Position */
@@ -937,10 +937,10 @@ typedef struct {
 #define LCDC_HEOCFG0_BLEN_Pos 4
 #define LCDC_HEOCFG0_BLEN_Msk (0x3u << LCDC_HEOCFG0_BLEN_Pos) /**< \brief (LCDC_HEOCFG0) AHB Burst Length */
 #define LCDC_HEOCFG0_BLEN(value) ((LCDC_HEOCFG0_BLEN_Msk & ((value) << LCDC_HEOCFG0_BLEN_Pos)))
-#define   LCDC_HEOCFG0_BLEN_AHB_BLEN_SINGLE (0x0u << 4) /**< \brief (LCDC_HEOCFG0) AHB Access is started as soon as there is enough space in the FIFO to store one data. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define   LCDC_HEOCFG0_BLEN_AHB_BLEN_INCR4 (0x1u << 4) /**< \brief (LCDC_HEOCFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 4 data. An AHB INCR4 Burst is used. SINGLE, INCR and INCR4 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define   LCDC_HEOCFG0_BLEN_AHB_BLEN_INCR8 (0x2u << 4) /**< \brief (LCDC_HEOCFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 8 data. An AHB INCR8 Burst is used. SINGLE, INCR, INCR4 and INCR8 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define   LCDC_HEOCFG0_BLEN_AHB_BLEN_INCR16 (0x3u << 4) /**< \brief (LCDC_HEOCFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 16 data. An AHB INCR16 Burst is used. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_HEOCFG0_BLEN_AHB_SINGLE (0x0u << 4) /**< \brief (LCDC_HEOCFG0) AHB Access is started as soon as there is enough space in the FIFO to store one data. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_HEOCFG0_BLEN_AHB_INCR4 (0x1u << 4) /**< \brief (LCDC_HEOCFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 4 data. An AHB INCR4 Burst is used. SINGLE, INCR and INCR4 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_HEOCFG0_BLEN_AHB_INCR8 (0x2u << 4) /**< \brief (LCDC_HEOCFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 8 data. An AHB INCR8 Burst is used. SINGLE, INCR, INCR4 and INCR8 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_HEOCFG0_BLEN_AHB_INCR16 (0x3u << 4) /**< \brief (LCDC_HEOCFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 16 data. An AHB INCR16 Burst is used. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
 #define LCDC_HEOCFG0_BLENUV_Pos 6
 #define LCDC_HEOCFG0_BLENUV_Msk (0x3u << LCDC_HEOCFG0_BLENUV_Pos) /**< \brief (LCDC_HEOCFG0) AHB Burst Length for U-V Channel */
 #define LCDC_HEOCFG0_BLENUV(value) ((LCDC_HEOCFG0_BLENUV_Msk & ((value) << LCDC_HEOCFG0_BLENUV_Pos)))
@@ -963,7 +963,7 @@ typedef struct {
 #define   LCDC_HEOCFG1_RGBMODE_16BPP_RGB_565 (0x3u << 4) /**< \brief (LCDC_HEOCFG1) 16 bpp RGB 565 */
 #define   LCDC_HEOCFG1_RGBMODE_16BPP_TRGB_1555 (0x4u << 4) /**< \brief (LCDC_HEOCFG1) 16 bpp TRGB 1555 */
 #define   LCDC_HEOCFG1_RGBMODE_18BPP_RGB_666 (0x5u << 4) /**< \brief (LCDC_HEOCFG1) 18 bpp RGB 666 */
-#define   LCDC_HEOCFG1_RGBMODE_18BPP_RGB_666PACKED (0x6u << 4) /**< \brief (LCDC_HEOCFG1) 18 bpp RGB 666 PACKED */
+#define   LCDC_HEOCFG1_RGBMODE_18BPP_RGB_666_PACKED (0x6u << 4) /**< \brief (LCDC_HEOCFG1) 18 bpp RGB 666 PACKED */
 #define   LCDC_HEOCFG1_RGBMODE_19BPP_TRGB_1666 (0x7u << 4) /**< \brief (LCDC_HEOCFG1) 19 bpp TRGB 1666 */
 #define   LCDC_HEOCFG1_RGBMODE_19BPP_TRGB_PACKED (0x8u << 4) /**< \brief (LCDC_HEOCFG1) 19 bpp TRGB 1666 PACKED */
 #define   LCDC_HEOCFG1_RGBMODE_24BPP_RGB_888 (0x9u << 4) /**< \brief (LCDC_HEOCFG1) 24 bpp RGB 888 */
@@ -974,13 +974,22 @@ typedef struct {
 #define LCDC_HEOCFG1_CLUTMODE_Pos 8
 #define LCDC_HEOCFG1_CLUTMODE_Msk (0x3u << LCDC_HEOCFG1_CLUTMODE_Pos) /**< \brief (LCDC_HEOCFG1) Color Lookup Table Mode Input Selection */
 #define LCDC_HEOCFG1_CLUTMODE(value) ((LCDC_HEOCFG1_CLUTMODE_Msk & ((value) << LCDC_HEOCFG1_CLUTMODE_Pos)))
-#define   LCDC_HEOCFG1_CLUTMODE_CLUT_1BPP (0x0u << 8) /**< \brief (LCDC_HEOCFG1) Color Lookup Table mode set to 1 bit per pixel */
-#define   LCDC_HEOCFG1_CLUTMODE_CLUT_2BPP (0x1u << 8) /**< \brief (LCDC_HEOCFG1) Color Lookup Table mode set to 2 bits per pixel */
-#define   LCDC_HEOCFG1_CLUTMODE_CLUT_4BPP (0x2u << 8) /**< \brief (LCDC_HEOCFG1) Color Lookup Table mode set to 4 bits per pixel */
-#define   LCDC_HEOCFG1_CLUTMODE_CLUT_8BPP (0x3u << 8) /**< \brief (LCDC_HEOCFG1) Color Lookup Table mode set to 8 bits per pixel */
+#define   LCDC_HEOCFG1_CLUTMODE_1BPP (0x0u << 8) /**< \brief (LCDC_HEOCFG1) Color Lookup Table mode set to 1 bit per pixel */
+#define   LCDC_HEOCFG1_CLUTMODE_2BPP (0x1u << 8) /**< \brief (LCDC_HEOCFG1) Color Lookup Table mode set to 2 bits per pixel */
+#define   LCDC_HEOCFG1_CLUTMODE_4BPP (0x2u << 8) /**< \brief (LCDC_HEOCFG1) Color Lookup Table mode set to 4 bits per pixel */
+#define   LCDC_HEOCFG1_CLUTMODE_8BPP (0x3u << 8) /**< \brief (LCDC_HEOCFG1) Color Lookup Table mode set to 8 bits per pixel */
 #define LCDC_HEOCFG1_YUVMODE_Pos 12
 #define LCDC_HEOCFG1_YUVMODE_Msk (0xfu << LCDC_HEOCFG1_YUVMODE_Pos) /**< \brief (LCDC_HEOCFG1) YUV Mode Input Selection */
 #define LCDC_HEOCFG1_YUVMODE(value) ((LCDC_HEOCFG1_YUVMODE_Msk & ((value) << LCDC_HEOCFG1_YUVMODE_Pos)))
+#define   LCDC_HEOCFG1_YUVMODE_32BPP_AYCBCR (0x0u << 12) /**< \brief (LCDC_HEOCFG1) 32 bpp AYCbCr 444 */
+#define   LCDC_HEOCFG1_YUVMODE_16BPP_YCBCR_MODE0 (0x1u << 12) /**< \brief (LCDC_HEOCFG1) 16 bpp Cr(n)Y(n+1)Cb(n)Y(n) 422 */
+#define   LCDC_HEOCFG1_YUVMODE_16BPP_YCBCR_MODE1 (0x2u << 12) /**< \brief (LCDC_HEOCFG1) 16 bpp Y(n+1)Cr(n)Y(n)Cb(n) 422 */
+#define   LCDC_HEOCFG1_YUVMODE_16BPP_YCBCR_MODE2 (0x3u << 12) /**< \brief (LCDC_HEOCFG1) 16 bpp Cb(n)Y(+1)Cr(n)Y(n) 422 */
+#define   LCDC_HEOCFG1_YUVMODE_16BPP_YCBCR_MODE3 (0x4u << 12) /**< \brief (LCDC_HEOCFG1) 16 bpp Y(n+1)Cb(n)Y(n)Cr(n) 422 */
+#define   LCDC_HEOCFG1_YUVMODE_16BPP_YCBCR_SEMIPLANAR (0x5u << 12) /**< \brief (LCDC_HEOCFG1) 16 bpp Semiplanar 422 YCbCr */
+#define   LCDC_HEOCFG1_YUVMODE_16BPP_YCBCR_PLANAR (0x6u << 12) /**< \brief (LCDC_HEOCFG1) 16 bpp Planar 422 YCbCr */
+#define   LCDC_HEOCFG1_YUVMODE_12BPP_YCBCR_SEMIPLANAR (0x7u << 12) /**< \brief (LCDC_HEOCFG1) 12 bpp Semiplanar 420 YCbCr */
+#define   LCDC_HEOCFG1_YUVMODE_12BPP_YCBCR_PLANAR (0x8u << 12) /**< \brief (LCDC_HEOCFG1) 12 bpp Planar 420 YCbCr */
 #define LCDC_HEOCFG1_YUV422ROT (0x1u << 16) /**< \brief (LCDC_HEOCFG1) YUV 4:2:2 Rotation */
 #define LCDC_HEOCFG1_YUV422SWP (0x1u << 17) /**< \brief (LCDC_HEOCFG1) YUV 4:2:2 Swap */
 #define LCDC_HEOCFG1_DSCALEOPT (0x1u << 20) /**< \brief (LCDC_HEOCFG1) Down Scaling Bandwidth Optimization */
