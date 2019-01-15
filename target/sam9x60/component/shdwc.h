@@ -42,6 +42,7 @@ typedef struct {
   __O  uint32_t SHDW_CR; /**< \brief (Shdwc Offset: 0x00) Control Register */
   __IO uint32_t SHDW_MR; /**< \brief (Shdwc Offset: 0x04) Mode Register */
   __I  uint32_t SHDW_SR; /**< \brief (Shdwc Offset: 0x08) Status Register */
+  __IO uint32_t SHDW_WUIR; /**< \brief (Shdwc Offset: 0x0c) Mode Register */
 } Shdwc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- SHDW_CR : (SHDWC Offset: 0x00) Control Register -------- */
@@ -67,7 +68,10 @@ typedef struct {
 #define SHDW_SR_WAKEUP0 (0x1u << 0) /**< \brief (SHDW_SR) Wakeup 0 Status */
 #define SHDW_SR_RTTWK (0x1u << 16) /**< \brief (SHDW_SR) Real-time Timer Wakeup */
 #define SHDW_SR_RTCWK (0x1u << 17) /**< \brief (SHDW_SR) Real-time Clock Wakeup */
-
+/* -------- SHDW_WUIR : (SHDWC Offset: 0x08) Status Register -------- */
+#define SHDW_WUIR_WKUPEN (0x1u << 0) /**< \brief (SHDW_WUIR) Wakeup 0 Input Enable */
+#define SHDW_WUIR_WKUPT0_RISING_EDGE (0x1u << 16) /**< \brief (SHDW_WUIR) Wakeup 0 Input Rising */
+#define SHDW_WUIR_WKUPT0_FALLING_EDGE (0x0u << 16) /**< \brief (SHDW_WUIR) Wakeup 0 Input Falling */
 /*@}*/
 
 
