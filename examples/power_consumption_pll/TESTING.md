@@ -28,6 +28,7 @@ of `VDDCORE` or `VDDBU`.
 * SAMA5D4-XPLAINED
 * SAMA5D4-EK
 * SAM9XX5-EK
+* SAM9X60-EK
 
 ## Setup
 --------
