@@ -167,6 +167,10 @@ uint32_t FlashInit(void *base_of_flash,
 		trace_warning_wp("Preset 4 (2 x MT41K128M16)\r\n");
 		device = MT41K128M16;
 		break;
+	case 12:
+		trace_warning_wp("Preset 12 (1 x MT41K128M16)\r\n");
+		device = MT41K128M16_16;
+		break;
 #endif
 #ifdef CONFIG_HAVE_LPDDR3_EDF8164A3MA
 	case 5:
