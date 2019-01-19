@@ -74,6 +74,7 @@ enum _ddram_devices {
 #endif
 #ifdef CONFIG_HAVE_MPDDRC_DDR3
   #ifdef CONFIG_HAVE_DDR3_MT41K128M16
+	MT41K128M16_16,/* DDR3 1*256MB */
 	MT41K128M16,   /* DDR3 2*256MB */
   #endif
 #endif

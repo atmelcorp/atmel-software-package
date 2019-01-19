@@ -73,14 +73,26 @@
 #ifdef CONFIG_HAVE_MPDDRC_DDR3
 
 #ifdef CONFIG_HAVE_DDR3_MT41K128M16
-static void _init_mt41k128m16(struct _mpddrc_desc* desc)
+static void _init_mt41k128m16(struct _mpddrc_desc* desc, uint8_t bus_width)
 {
 	uint32_t mck = pmc_get_master_clock() / 1000000;
 
 	desc->type = MPDDRC_TYPE_DDR3;
 
+#ifdef MPDDRC_MD_DBW_DBW_32_BITS
+	if (bus_width == 16) {
+#ifdef MPDDRC_MD_DBW_DBW_16_BITS
+		desc->mode = MPDDRC_MD_MD_DDR3_SDRAM
+		           | MPDDRC_MD_DBW_DBW_16_BITS;
+#endif
+	} else {
+		desc->mode = MPDDRC_MD_MD_DDR3_SDRAM
+		           | MPDDRC_MD_DBW_DBW_32_BITS;
+	}
+#else
 	desc->mode = MPDDRC_MD_MD_DDR3_SDRAM
-	           | MPDDRC_MD_DBW_DBW_32_BITS;
+	           | MPDDRC_MD_DBW_DBW_16_BITS;
+#endif
 
 #ifdef CONFIG_HAVE_MPDDRC_DATA_PATH
 	desc->data_path = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_TWO_CYCLES;
@@ -718,7 +730,10 @@ void ddram_init_descriptor(struct _mpddrc_desc* desc,
 #ifdef CONFIG_HAVE_MPDDRC_DDR3
   #ifdef CONFIG_HAVE_DDR3_MT41K128M16
 	case MT41K128M16:
-		_init_mt41k128m16(desc);
+		_init_mt41k128m16(desc, 32);
+		break;
+	case MT41K128M16_16:
+		_init_mt41k128m16(desc, 16);
 		break;
   #endif
 #endif
