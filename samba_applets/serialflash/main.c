@@ -122,18 +122,19 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	trace_warning_wp("\r\nApplet 'AT25/AT26 Serial Flash' from "
 			"softpack " SOFTPACK_VERSION ".\r\n");
 
-	uint32_t max_freq = pmc_get_peripheral_clock(ID_SPI0);
-	if (freq == 0 || freq > max_freq) {
-		trace_error("Invalid configuration: frequency must be " \
-				"between 1 and %uHz (requested %uHz)\r\n",
-				(unsigned)max_freq, (unsigned)freq);
-		return APPLET_FAIL;
-	}
-
 	if (!configure_instance_pio(instance, ioset, chip_select, &iface.spi.hw)) {
 		trace_error("Invalid configuration: SPI%u IOSet%u NPCS%u\r\n",
 			(unsigned)instance, (unsigned)ioset,
 			(unsigned)chip_select);
+		return APPLET_FAIL;
+	}
+
+	uint32_t id = get_spi_id_from_addr(iface.spi.hw);
+	uint32_t max_freq = pmc_get_peripheral_clock(id);
+	if (freq == 0 || freq > max_freq) {
+		trace_error("Invalid configuration: frequency must be " \
+				"between 1 and %uHz (requested %uHz)\r\n",
+				(unsigned)max_freq, (unsigned)freq);
 		return APPLET_FAIL;
 	}
 
