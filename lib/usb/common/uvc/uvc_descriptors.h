@@ -43,9 +43,10 @@
  *         Includes
  *----------------------------------------------------------------------------*/
 
-#include <stdint.h>
-
+#include "chip.h"
 #include "compiler.h"
+
+#include <stdint.h>
 
 #include "usb/common/usb_descriptors.h"
 #include "usb/common/uvc/usb_video.h"
@@ -81,7 +82,11 @@
 /** Interface number of USB Video Streaming Interface */
 #define VIDCAMD_StreamInterfaceNum      1
 /** Endpoint number of USB Video Streaming ISO IN endpoint */
+#ifdef ISO_IN_EP
+#define VIDCAMD_IsoInEndpointNum        (ISO_IN_EP)
+#else
 #define VIDCAMD_IsoInEndpointNum        2
+#endif
 
 /** Number of Video Frame Types */
 #define VIDCAMD_NumFrameTypes           3
