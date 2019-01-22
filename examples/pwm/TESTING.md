@@ -24,6 +24,7 @@ This example demonstrates how to use PWM module.
 * SAMA5D4-XPLAINED
 * SAME70-XPLAINED
 * SAMV71-XPLAINED
+* SAM9X60-EK
 
 ## Setup
 --------
@@ -64,6 +65,10 @@ Connect EXP_PB11 (J15 pin 26) and EXP_PE12 (J15 pin 9) on the board.
 ### SAM9XX5-EK
 ----------------
 Connect PC11 (J2 pin 27) and PA22 (J1 pin 18) on the board.
+
+### SAM9X60-EK
+----------------
+Connect PB11 (J17 pin 32) and PA21 (J15 pin 14) on the board.
 
 ### SAME70-XPLAINED
 ----------------

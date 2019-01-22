@@ -170,6 +170,8 @@ struct _tc_desc {
 	#include "config_sam9xx5-ek.h"
 #elif defined(CONFIG_BOARD_SAM9X35_EK)
 	#include "config_sam9xx5-ek.h"
+#elif defined(CONFIG_BOARD_SAM9X60_EK)
+	#include "config_sam9x60-ek.h"
 #elif defined(CONFIG_BOARD_SAME70_XPLAINED)
 	#include "config_same70-xplained.h"
 #elif defined(CONFIG_BOARD_SAMV71_XPLAINED)
@@ -520,6 +522,9 @@ int main(void)
 
 	/* Configure PIO Pins for TC capture */
 	pio_configure(pins_tc_capture, ARRAY_SIZE(pins_tc_capture));
+#ifdef SETUP_CAPTURE_PIN
+	SETUP_CAPTURE_PIN;
+#endif
 
 	/* Configure one TC channel as capture operating mode */
 	printf("Configure TC channel %d as capture operating mode \n\r",
