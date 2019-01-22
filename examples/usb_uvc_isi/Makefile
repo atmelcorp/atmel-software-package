@@ -28,6 +28,7 @@
 
 # Makefile for compiling the USB UVC isi example
 AVAILABLE_TARGETS = sam9g25-ek \
+		    sam9x60-ek \
 		    sama5d3-ek \
 		    sama5d4-ek
 
@@ -44,6 +45,10 @@ CONFIG_USB = y
 CONFIG_ISI = y
 CONFIG_LIB_USB = y
 CONFIG_LIB_USB_UVC = y
+
+# Uncomment the definition below in order to trace the frame rate.
+#
+# CFLAGS_DEFS += -DFRAME_DEBUG_ENABLED
 
 obj-y += examples/usb_uvc_isi/main.o
 obj-y += examples/usb_uvc_isi/main_descriptors.o

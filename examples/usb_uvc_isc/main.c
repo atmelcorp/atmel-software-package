@@ -261,7 +261,8 @@ void usbd_driver_callbacks_interface_setting_changed(uint8_t interface, uint8_t 
 #ifdef FRAME_DEBUG_ENABLED
 static int _tc_counter_callback(void* arg, void* arg2)
 {
-	printf("ISC %d frames, UVC %d frames per second\r\n",_isc_frame_count, uvc_get_frame_count());
+	printf("ISC %lu frames, UVC %lu frames per second\r\n",
+			_isc_frame_count, uvc_get_frame_count());
 	_isc_frame_count = 0;
 	uvc_reset_frame_count();
 	return 0;

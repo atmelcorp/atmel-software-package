@@ -214,8 +214,8 @@ freertos_queue         | OK         | TODO       | TODO            | TODO
 freertos_start         | OK         | TODO       | TODO            | TODO
 freertos_uip           | OK         | TODO       | TODO            | TODO
 getting_started        | OK         | OK         | OK              | OK
-isc                    | x          | TODO       | x               | x
-isi                    | x          | TODO       | x               | x
+isc                    | x          | x          | x               | x
+isi                    | x          | x          | x               | x
 lcd                    | OK         | TODO       | x               | TODO
 low_power_mode         | TODO       | TODO       | TODO            | TODO
 pdmic                  | x          | TODO       | TODO            | TODO
@@ -255,8 +255,8 @@ usb_iad_cdc_cdc        | OK         | TODO       | OK              | OK
 usb_iad_cdc_hid        | OK         | TODO       | OK              | OK
 usb_iad_cdc_msd        | OK         | TODO       | OK              | OK
 usb_mass_storage       | OK         | TODO       | OK              | OK
-usb_uvc_isc            | x          | TODO       | x               | x
-usb_uvc_isi            | OK         | TODO       | TODO            | TODO
+usb_uvc_isc            | x          | x          | x               | x
+usb_uvc_isi            | OK         | OK         | TODO            | TODO
 wdt                    | x          | TODO       | OK              | OK
 
 Legend:

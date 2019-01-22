@@ -103,6 +103,10 @@
 #include "mm/cache.h"
 #include "serial/console.h"
 
+#ifdef FRAME_DEBUG_ENABLED
+#include "peripherals/tcd.h"
+#endif
+
 #include "video/image_sensor_inf.h"
 #include "video/isi.h"
 #include "video/isid.h"
@@ -129,6 +133,8 @@
 #define NUM_FRAME_BUFFER     4
 
 #define SENSOR_TWI_BUS BOARD_ISI_TWI_BUS
+
+#define COUNTER_FREQ         1
 
 /*----------------------------------------------------------------------------
  *          External variables
@@ -161,12 +167,24 @@ static struct _isid_desc isid;
 CACHE_ALIGNED_DDR
 static uint8_t stream_buffers[FRAME_BUFFER_SIZEC(640, 480) * NUM_FRAME_BUFFER];
 
+#ifdef FRAME_DEBUG_ENABLED
+/** define Timer Counter descriptor for counter/timer */
+static struct _tcd_desc tc_counter = {
+	.addr = TC0,
+	.channel = 1,
+};
+static uint32_t _isi_frame_count = 0;
+#endif
+
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
 
 static void isi_vd_callback (uint8_t index)
 {
+#ifdef FRAME_DEBUG_ENABLED
+	_isi_frame_count++;
+#endif
 	uvc_function_update_frame_idx(index);
 }
 
@@ -236,6 +254,32 @@ void usbd_driver_callbacks_interface_setting_changed( uint8_t interface, uint8_t
 	uvc_driver_interface_setting_changed_handler(interface, setting);
 }
 
+#ifdef FRAME_DEBUG_ENABLED
+static int _tc_counter_callback(void* arg, void* arg2)
+{
+	printf("ISI %lu frames, UVC %lu frames per second\r\n",
+			_isi_frame_count, uvc_get_frame_count());
+	_isi_frame_count = 0;
+	uvc_reset_frame_count();
+	return 0;
+}
+
+static void _tc_counter_initialize(uint32_t freq)
+{
+	uint32_t frequency;
+	struct _callback _cb;
+
+	printf("* Configure TC: channel %d: counter mode\r\n", tc_counter.channel);
+
+	frequency = tcd_configure_counter(&tc_counter, freq, freq);
+
+	printf("  - Required frequency = %uHz\r\n", (unsigned)freq);
+	printf("  - Configured frequency = %uHz\r\n", (unsigned)frequency);
+	callback_set(&_cb, _tc_counter_callback, NULL);
+	tcd_start(&tc_counter, &_cb);
+}
+#endif
+
 /*----------------------------------------------------------------------------
  *        Global functions
  *----------------------------------------------------------------------------*/
@@ -252,12 +296,15 @@ extern int main( void )
 	/* Output example information */
 	console_example_info("USB UVC ISI Example");
 
-	printf("Image sensor detection:\n\r");
+	printf("Detecting image sensor...\n\r");
 	if ((sensor = sensor_detect(SENSOR_TWI_BUS, true, 0))) {
 		if (sensor_setup(SENSOR_TWI_BUS, sensor, VGA, YUV_422) != SENSOR_OK) {
 			printf("-E- Sensor setup failed.");
 			while (1);
 		}
+		else
+			printf("Detected and configured image sensor with PID %02x%02x.\r\n",
+					sensor->pid_high, sensor->pid_low);
 	} else {
 		printf("-E- Can't detect supported sensor connected to board\r\n");
 		while (1);
@@ -269,6 +316,9 @@ extern int main( void )
 
 	/* connect if needed */
 	usb_vbus_configure();
+#ifdef FRAME_DEBUG_ENABLED
+	_tc_counter_initialize(COUNTER_FREQ);
+#endif
 
 	while (1) {
 		if (usbd_get_state() < USBD_STATE_CONFIGURED) {
