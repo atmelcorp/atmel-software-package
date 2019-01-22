@@ -258,7 +258,7 @@ typedef enum IRQn
 #define ID_FLEXCOM9  (15) /**< \brief /!\\ was UART 0 - fGCLK < fMCK0 / 3 - False Path (FLEXCOM9) */
 #define ID_FLEXCOM10 (16) /**< \brief /!\\ was UART 1 - fGCLK < fMCK0 / 3 - False Path (FLEXCOM10) */
 #define ID_TC0       (17) /**< \brief TC 0,1,2 - fGCLK < fMCK0 / 3 - False Path (TC0) */
-#define ID_PWM       (18) /**< \brief Pulse Width Modulation Controller (PWM) */
+#define ID_PWM0      (18) /**< \brief Pulse Width Modulation Controller (PWM0) */
 #define ID_ADC       (19) /**< \brief ADC Controller - fGCLK < fMCK0 / 3 - False Path (ADC) */
 #define ID_XDMAC0    (20) /**< \brief Extended DMA Controller (XDMAC) */
 #define ID_MATRIX    (21) /**< \brief Matrix (MATRIX) */
@@ -426,7 +426,7 @@ typedef enum IRQn
 #define FLEXTWI3   ((Twi        *)0xF8028600U) /**< \brief (FLEXTWI3  ) Base Address */
 #define EMAC0      ((Emac       *)0xF802C000U) /**< \brief (EMAC0     ) Base Address */
 #define EMAC1      ((Emac       *)0xF8030000U) /**< \brief (EMAC1     ) Base Address */
-#define PWM        ((Pwm        *)0xF8034000U) /**< \brief (PWM       ) Base Address */
+#define PWM0       ((Pwm        *)0xF8034000U) /**< \brief (PWM0      ) Base Address */
 #define LCDC       ((Lcdc       *)0xF8038000U) /**< \brief (LCDC      ) Base Address */
 #define UDPHS      ((Udphs      *)0xF803C000U) /**< \brief (UDPHS     ) Base Address */
 #define FLEXCOM9   ((Flexcom    *)0xF8040000U) /**< \brief (FLEXCOM9  ) Base Address */
