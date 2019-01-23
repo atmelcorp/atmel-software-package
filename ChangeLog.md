@@ -2,6 +2,26 @@
 
 The Atmel Softpack can be found on [GitHub](https://github.com/atmelcorp/atmel-software-package).
 
+## Version 2.15 - 2019-01
+
+### New drivers/examples
+
+- Add USB examples for SAM9X60 EK board (examples listed in softpack.md)
+- Add RTT driver and example for SAM9X60 EK board
+- Add Ethernet examples for SAM9X60 EK board
+- Add FreeRTOS examples for SAM9X60 EK board
+- Add some other examples for SAM9X60 EK board (CAN, low-power, clock, CLASSD, LCD, PWM, watchdog)
+- Add support for LPDDR SDRAM
+
+### Fixes
+- Fix pmecc_get_ecc_bytes_per_page() by wrong "+1" issue
+- Fix JEDEC ID for sst25vg040b and sst25vg080b
+
+### Enhancements
+- Improve DDRAM W972GG6KB-25 timings
+- Add support to Microchip sst25vf020b
+- Add system addresses of ROMs for PMECC tables to allow the 'nandflash' applet fitting once again into SRAM0
+
 ## Version 2.14 - 2018-12
 
 ### New drivers/examples
