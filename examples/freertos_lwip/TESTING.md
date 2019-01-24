@@ -28,6 +28,7 @@ stack and the webserver example.
 * SAMA5D3-XPLAINED
 * SAMA5D4-EK
 * SAMA5D4-XPLAINED
+* SAM9X60-EK
 
 ## Setup
 --------
