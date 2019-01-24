@@ -126,6 +126,10 @@ static bool init_extram_from_preset(uint32_t preset)
 		trace_warning_wp("Preset 9 (W972GG6KB)\r\n");
 		device = W972GG6KB;
 		break;
+	case 11:
+		trace_warning_wp("Preset 11 (W972GG6KB_16)\r\n");
+		device = W972GG6KB_16;
+		break;
 #endif
 #ifdef CONFIG_HAVE_SDRAM_AS4C16M16SA
 	case 10:
