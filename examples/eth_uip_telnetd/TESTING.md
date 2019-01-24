@@ -28,6 +28,7 @@ stack and the telnetd example.
 * SAMA5D4-XPLAINED
 * SAME70-XPLAINED
 * SAMV71-XPLAINED
+* SAM9X60-EK
 
 ## Setup
 --------
