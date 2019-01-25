@@ -1,5 +1,6 @@
 #include "intmath.h"
 
+#ifndef HAVE_BSD_FLS
 int fls(int value)
 {
 	int i;
@@ -10,3 +11,4 @@ int fls(int value)
 
 	return 0;
 }
+#endif

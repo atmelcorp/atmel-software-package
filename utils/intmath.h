@@ -53,6 +53,19 @@
 
 #include <stdint.h>
 
+/** Check possible extensions of the C library being used, and find out if
+ *  visible ones provide bit-string functions, including ffs() and fls().
+ *  These functions are not part of ANSI C.
+ *  Newlib 3.0.0, notably, provides BSD extensions that include fls().
+ */
+#if defined(__NEWLIB__) && \
+		(__NEWLIB__ > 1 || (__NEWLIB__ == 1 && __NEWLIB_MINOR__ > 18))
+#include <strings.h>
+#if defined(_DEFAULT_SOURCE) && (__NEWLIB__ > 2)
+#define HAVE_BSD_FLS
+#endif
+#endif /* __NEWLIB__ */
+
 /**
  *  Returns the minimum value between two integers.
  *  \param a First integer to compare
@@ -113,6 +126,13 @@ static inline int fixed_mod(int a, int b)
 	return rem;
 }
 
+#ifndef HAVE_BSD_FLS
+/**
+ *  Find last bit set in a word
+ *  \param value Integer value
+ *  \return 1-indexed position of the most significant bit set; 0 if none
+ */
 extern int fls(int value);
+#endif
 
 #endif /* _INTMATH_H_ */
