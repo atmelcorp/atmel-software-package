@@ -90,14 +90,14 @@ void board_cfg_clocks(void)
 		.count = 0x3f,
 		.pll_id = PLL_ID_PLLA,
 	};
-
-#if defined(BOARD_PMC_PLLA_MUL) && defined(BOARD_PMC_PLLA_DIV)
-	plla_config.mul = BOARD_PMC_PLLA_MUL;
-	plla_config.div = BOARD_PMC_PLLA_DIV;
-#else
 	switch (pmc_get_main_oscillator_freq()) {
 	case 24000000:
+#ifdef CONFIG_HAVE_CLASSD
+		plla_config.mul = 48;
+		plla_config.fracr = 0x9ba5e;
+#else
 		plla_config.mul = 49;
+#endif
 		plla_config.div = 1;
 		break;
 	case 16000000:
@@ -113,7 +113,6 @@ void board_cfg_clocks(void)
 		plla_config.div = 1;
 		break;
 	}
-#endif
 	pmc_switch_mck_to_main();
 	pmc_set_mck_prescaler(PMC_MCKR_PRES_CLOCK);
 //	pmc_set_mck_divider(PMC_MCKR_MDIV_EQ_PCK);

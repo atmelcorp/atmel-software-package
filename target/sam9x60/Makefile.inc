@@ -49,7 +49,13 @@ gnu-debug-script-y ?= $(TOP)/target/sam9x60/toolchain/gnu/ddram.gdb
 bootstrap-linker-script-y ?= $(TOP)/target/sam9x60/toolchain/gnu/sram.ld
 iar-linker-script-y ?= $(TOP)/target/sam9x60/toolchain/iar/ddram.icf
 iar-debug-script-y ?= $(TOP)/target/sam9x60/toolchain/iar/ddram.mac
+
+ifeq ($(CONFIG_HAVE_CLASSD),y)
+iar-flashloader-script-$(CONFIG_BOARD_SAM9X60_EK) ?= $(TOP)/flash_loaders/sam9x60-generic/sam9x60-ek-mck196.608.board
+else
 iar-flashloader-script-$(CONFIG_BOARD_SAM9X60_EK) ?= $(TOP)/flash_loaders/sam9x60-generic/sam9x60-ek.board
+endif
+
 endif
 
 # QSPI0 variant
