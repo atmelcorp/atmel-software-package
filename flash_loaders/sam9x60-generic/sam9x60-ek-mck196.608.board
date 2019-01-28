@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<flash_board>
+  <pass>
+    <loader>$PROJ_DIR$\..\..\flash_loaders\sam9x60-generic\sam9x60-generic_ddram_mck196.608.flash</loader>
+    <range>CODE 0x20000000 0x27ffffff</range>
+    <rel_offset>0x0</rel_offset>
+    <args>--preset
+      11
+    </args>
+  </pass>
+  <pass>
+    <loader>$PROJ_DIR$\..\..\flash_loaders\sam9x60-generic\sam9x60-generic_qspi0.flash</loader>
+    <range>CODE 0x70000000 0x701fffff</range>
+    <rel_offset>0x0</rel_offset>
+    <args>--freq
+      30
+    </args>
+  </pass>
+</flash_board>
+
+
