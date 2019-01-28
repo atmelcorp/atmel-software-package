@@ -45,6 +45,7 @@
 
 #include "dma/dma.h"
 #include "gpio/pio.h"
+#include "peripherals/pmc.h"
 
 #include "board_support.h"
 
@@ -118,6 +119,10 @@ WEAK void board_init(void)
 #endif
 
 #ifdef CONFIG_HAVE_ISI
+#if BOARD_ISI_MCK_PCK_SRC == PMC_PCK_CSS_UPLL_CLK
+	pmc_enable_upll_clock();
+#endif
+
 	/* Configure image sensor */
 	board_cfg_isi();
 #endif
