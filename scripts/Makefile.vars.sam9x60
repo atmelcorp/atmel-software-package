@@ -58,6 +58,8 @@ CONFIG_SERIALD_UART = y
 CONFIG_SERIALD_USART = y
 # allow choosing any supported ddram type at runtime
 CONFIG_HAVE_DDR2_MT47H64M16 = y
+CONFIG_HAVE_AUDIO = y
+CONFIG_HAVE_CLASSD = y
 endif
 
 ifeq ($(TARGET),sam9x60-ek)
