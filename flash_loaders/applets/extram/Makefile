@@ -42,6 +42,10 @@ TOP := ../../..
 
 BINNAME = flash_loader-extram
 
+# Configure to support MCK(196.608MHz) for sam9x60 classd
+# BINNAME = flash_loader-extram-mck196.608
+# CONFIG_AUDIO = y
+
 CONFIG_FLASH_LOADER = y
 CONFIG_TIMER_POLLING = y
 
