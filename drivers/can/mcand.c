@@ -1169,12 +1169,10 @@ int mcand_configure(struct _mcan_desc* desc)
 	assert(id0 < ID_PERIPH_COUNT);
 	assert(id1 < ID_PERIPH_COUNT);
 
+	pmc_enable_upll_clock();
 #ifdef PMC_PCR_GCKCSS
 	/* The MCAN peripheral is clocked by both its Peripheral Clock
 	 * and Generated Clock (at least on SAMA5D2x). */
-	/* Configure GCLK = <Master clock> divided by 1
-	 * FIXME follow datasheet recommendation: configure GCLK = <UPLL clock>
-	 * divided by 24, 12 or 6 */
 	struct _pmc_periph_cfg cfg = {
 		.gck = {
 			.css = PMC_PCR_GCKCSS_UPLL_CLK,
@@ -1183,7 +1181,6 @@ int mcand_configure(struct _mcan_desc* desc)
 	};
 	pmc_configure_peripheral(id0, &cfg, true);
 #else
-	pmc_enable_upll_clock();
 	pmc_configure_pck(PMC_PCK_CAN, PMC_PCK_CSS_UPLL_CLK, 2);
 	pmc_enable_pck(PMC_PCK_CAN);
 	pmc_configure_peripheral(id0, NULL, true);
