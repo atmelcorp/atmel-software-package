@@ -566,6 +566,7 @@ static int _twid_poll_write(struct _twi_desc* desc, struct _buffer* buffer)
 		if (_check_tx_timeout(desc))
 			return -ETIMEDOUT;
 		twi_write_byte(desc->addr, buffer->data[i]);
+		while(!twi_is_byte_sent(desc->addr));
 	}
 
 	/* wait transfer to be finished */
