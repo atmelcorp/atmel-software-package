@@ -216,6 +216,12 @@ uint32_t FlashInit(void *base_of_flash,
 		device = AS4C16M16SA;
 		break;
 #endif
+#ifdef CONFIG_HAVE_LPDDR2_AD220032D
+	case 13:
+		trace_warning_wp("Preset 13 (AD220032D)\r\n");
+		device = AD220032D;
+		break;
+#endif
 	default:
 		trace_warning_wp("Unsupported DRAM preset (%u).\r\n",
 				(unsigned)preset);
