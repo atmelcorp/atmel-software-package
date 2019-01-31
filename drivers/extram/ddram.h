@@ -76,6 +76,9 @@ enum _ddram_devices {
   #ifdef CONFIG_HAVE_LPDDR2_MT42L128M16
 	MT42L128M16,   /* LPDDR2 2*256MB */
   #endif
+  #ifdef CONFIG_HAVE_LPDDR2_AD220032D
+	AD220032D,     /* LPDDR2 1*256MB */
+  #endif
 #endif
 #ifdef CONFIG_HAVE_MPDDRC_DDR3
   #ifdef CONFIG_HAVE_DDR3_MT41K128M16

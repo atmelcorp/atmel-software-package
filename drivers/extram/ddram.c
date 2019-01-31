@@ -563,6 +563,52 @@ static void _init_mt42l128m16(struct _mpddrc_desc* desc)
 }
 #endif /* CONFIG_HAVE_LPDDR2_MT42L128M16 */
 
+#ifdef CONFIG_HAVE_LPDDR2_AD220032D
+static void _init_ad220032d(struct _mpddrc_desc* desc)
+{
+	uint32_t mck = pmc_get_master_clock() / 1000000;
+
+	desc->type = MPDDRC_TYPE_LPDDR2;
+
+	desc->mode = MPDDRC_MD_MD_LPDDR2_SDRAM
+	           | MPDDRC_MD_DBW_DBW_32_BITS;
+
+  #ifdef CONFIG_HAVE_MPDDRC_DATA_PATH
+	desc->data_path = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_ONE_CYCLE;
+  #endif
+
+	desc->control = MPDDRC_CR_NR_14_ROW_BITS
+	              | MPDDRC_CR_NC_DDR_9_COL_BITS
+	              | MPDDRC_CR_CAS_DDR_CAS3
+	              | MPDDRC_CR_NB_8_BANKS
+	              | MPDDRC_CR_UNAL_SUPPORTED;
+
+  #ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
+	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV(4);
+  #endif
+
+	/* timings */
+
+	memset(&desc->timings, 0, sizeof(desc->timings));
+	desc->timings.tras   = NS2CYCLES( 42, mck); //  42ns
+	desc->timings.trcd   = NS2CYCLES( 18, mck); //  18ns
+	desc->timings.twr    = NS2CYCLES( 15, mck); //  15ns
+	desc->timings.trc    = NS2CYCLES( 63, mck); //  63ns
+	desc->timings.trp    = NS2CYCLES( 21, mck); //  21ns
+	desc->timings.trrd   = NS2CYCLES( 10, mck); //  10ns
+	desc->timings.twtr   = NS2CYCLES( 10, mck); //  10ns
+	desc->timings.tmrd   = 5;                   //   5ck
+	desc->timings.trfc   = NS2CYCLES(130, mck); // 130ns 
+	desc->timings.txsnr  = NS2CYCLES(140, mck); // 140ns 
+	desc->timings.txp    = 8;                   //   8ck
+	desc->timings.trtp   = NS2CYCLES(  8, mck); //   8ns
+	desc->timings.tfaw   = NS2CYCLES( 60, mck); //  60ns
+
+	desc->refresh_window = 32;                  //  32ms
+	desc->refresh_cycles = 8192;                // 8K ck
+}
+#endif /* CONFIG_HAVE_LPDDR2_AD220032D */
+
 #endif /* CONFIG_HAVE_MPDDRC_LPDDR2 */
 
 #ifdef CONFIG_HAVE_MPDDRC_LPDDR
@@ -816,6 +862,11 @@ void ddram_init_descriptor(struct _mpddrc_desc* desc,
   #ifdef CONFIG_HAVE_LPDDR2_MT42L128M16
 	case MT42L128M16:
 		_init_mt42l128m16(desc);
+		break;
+  #endif
+  #ifdef CONFIG_HAVE_LPDDR2_AD220032D
+	case AD220032D:
+		_init_ad220032d(desc);
 		break;
   #endif
 #endif
