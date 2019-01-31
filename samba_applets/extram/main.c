@@ -141,6 +141,12 @@ static bool init_extram_from_preset(uint32_t preset)
 		device = AS4C16M16SA;
 		break;
 #endif
+#ifdef CONFIG_HAVE_LPDDR2_AD220032D
+	case 13:
+		trace_warning_wp("Preset 13 (AD220032D)\r\n");
+		device = AD220032D;
+		break;
+#endif
 	default:
 		trace_error("Unsupported DRAM preset (%u).\r\n",
 				(unsigned)preset);
