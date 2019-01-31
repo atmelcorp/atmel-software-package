@@ -42,9 +42,13 @@ TOP := ../../..
 
 BINNAME = flash_loader-extram
 
-# Configure to support MCK(196.608MHz) for sam9x60 classd
-# BINNAME = flash_loader-extram-mck196.608
-# CONFIG_AUDIO = y
+# In SAM9X60, using CLASSD needs to configure MCK to 196.608MHz for DSPCLK(12.288MHz)
+ifeq ($(TARGET),sam9x60-generic)
+CONFIG_AUDIO ?= n
+ifeq ($(CONFIG_AUDIO),y)
+BINNAME = flash_loader-extram-mck196.608
+endif
+endif
 
 CONFIG_FLASH_LOADER = y
 CONFIG_TIMER_POLLING = y
