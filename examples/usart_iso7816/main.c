@@ -169,6 +169,8 @@
 #include "config_samu70-xplained.h"
 #elif defined(CONFIG_BOARD_SAMV72_XPLAINED)
 #include "config_samv72-xplained.h"
+#elif defined(CONFIG_BOARD_SAM9X60_EK)
+#include "config_sam9x60-ek.h"
 #else
 #error Unsupported board!
 #endif

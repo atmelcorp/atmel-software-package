@@ -30,6 +30,7 @@ definitions according to the hardware used.
 * SAMA5D3-XPLAINED
 * SAMA5D4-EK
 * SAMA5D4-XPLAINED
+* SAM9X60-EK
 
 ## Setup
 --------
@@ -55,13 +56,13 @@ C4 (RFU)   |
 C8 (RFU)   |
 
  - Connect the smart card to the board (Cont.)
-Smart Card | Board     | SAMV71-XPLAINED  |
------------|-----------|------------------|
-C1 (Vcc)   | 7816_3V5V | PB0 (EXT1 pin 13)|
-C2 (Reset) | 7816_RST  | PB3 (EXT1 pin 5) |
-C3 (Clock) | 7816_CLK  | PB13(ADCH pin 5) |
-C5 (GND)   | GND       | GND              |
-C7 (I/O)   | 7816_IO   | PB1 (EXT1 pin 14)|
+Smart Card | Board     | SAMV71-XPLAINED   | SAM9X60-EK        |
+-----------|-----------|-------------------|-------------------|
+C1 (Vcc)   | 7816_3V5V | PB0 (EXT1 pin 13) | PA11 (J15 pin 5)  |
+C2 (Reset) | 7816_RST  | PB3 (EXT1 pin 5)  | PA0  (J15 pin 11) |
+C3 (Clock) | 7816_CLK  | PB13(ADCH pin 5)  | PA13 (J15 pin 4)  |
+C5 (GND)   | GND       | GND               | GND               |
+C7 (I/O)   | 7816_IO   | PB1 (EXT1 pin 14) | PA12 (J15 pin 6)  |
 C6 (Vpp)   |
 C4 (RFU)   |
 C8 (RFU)   |
