@@ -35,7 +35,7 @@
  *
  *  \section Requirements
  *
- *  This package can be used with SAMA5Dx/SAME70/SAMV71 board. Before running, make sure to connect
+ *  This package can be used with SAMA5Dx/SAME70/SAMV71/SAM9X60-EK board. Before running, make sure to connect
  *  two boards with RS485 lines. The rs485 adapt board(ADM3485ARZ) for this purpose.
  *  Match each paired pins of two boards respectively with A to A,
  *  B to B and FGND to FGND(the central pin of J3).
@@ -161,6 +161,11 @@
 #elif defined(CONFIG_BOARD_SAMV71_XPLAINED)
 #define USART_ADDR USART2
 #define USART_PINS PINS_USART2_RS485
+
+#elif defined(CONFIG_BOARD_SAM9X60_EK)
+#define USART_ADDR FLEXUSART0
+#define USART_PINS PINS_FLEXCOM0_USART_RS485_IOS1
+
 
 #else
 #error Unsupported SoC!
