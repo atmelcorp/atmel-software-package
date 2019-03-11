@@ -142,6 +142,10 @@
 #define IRDA_USART USART0
 #define IRDA_PINS  PINS_USART0
 
+#elif defined(CONFIG_BOARD_SAM9X60_EK)
+#define IRDA_USART FLEXUSART0
+#define IRDA_PINS  PINS_FLEXCOM0_USART_IOS1
+
 #else
 #error Unsupported SoC!
 #endif

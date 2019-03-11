@@ -19,6 +19,7 @@ acts as a receiver. The infrared modules should keep face to face
 * SAMA5D2-XPLAINED
 * SAMA5D4-EK
 * SAMA5D4-XPLAINED
+* SAM9X60-EK
 
 ## Setup
 --------
@@ -36,6 +37,12 @@ On the computer, open and configure a terminal application
    - Keep JP24 and JP25 open
    - Short 1&2, 3&4, 5&6 of J11
 
+  For SAM9X60-EK
+    - IRDA TX pin : PA00 (MBUS_TWD_PA00 on SAM9X60-EK MikroBUS pin 11) 
+    - IRDA RX pin : PA01 (MBUS_TWCK_PA01 on SAM9X60-EK MikroBUS pin 12) 
+    - Connect TX to COM4_TX4 (pin 1 on IRDA Interface J11 of Fieldbus shield board)
+    - Connect RX to COM4_RX4 (pin 3 on IRDA Interface J11 of Fieldbus shield board)
+  
 Menu:
 t: transmit data throught IrDA
 r: receive data from IrDA
