@@ -46,7 +46,7 @@
  *
  * This example shows how to configure AES in encryption and decryption mode.
  * In encryption mode, it encrypts plain text in one of the ECB/CBC/OFB/CFB/CTR
- * modes. Programmable key mode with processing using with or without DMA
+ * GCM/XTS modes. Programmable key mode with processing using with or without DMA
  * support.
  * In decryption mode, it decrypts cipher data generated from encryption mode,
  * and compares the result against the initial plain value.
@@ -117,28 +117,53 @@
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
-#define DATA_LEN_INBYTE		640
-#define DATA_LEN_INWORD		(DATA_LEN_INBYTE / 4)
+#define DATA_LEN_INBYTE	640
+#define DATA_LEN_INWORD	(DATA_LEN_INBYTE / 4)
 
-#define AES_VECTOR_0		0x11223344
-#define AES_VECTOR_1		0x55667788
-#define AES_VECTOR_2		0x11112222
-#define AES_VECTOR_3		0x33334444
+#define AES_VECTOR_SIZE   16
 
-#define AES_KEY_0		0x01234567
-#define AES_KEY_1		0x89ABCDEF
-#define AES_KEY_2		0x76543210
-#define AES_KEY_3		0xFEDCBA98
-#define AES_KEY_4		0x55AA55AA
-#define AES_KEY_5		0xAA55AA55
-#define AES_KEY_6		0x0000FFFF
-#define AES_KEY_7		0xFFFF0000
+#define AES_GCM_IV_SIZE1   IV_LENGTH_96
+#define AES_GCM_IV_SIZE2   16
 
-/*----------------------------------------------------------------------------
- *        Local variables
- *----------------------------------------------------------------------------*/
+#define AES_VECTOR_0		0x63a3d1db
+#define AES_VECTOR_1		0xb4b72460
+#define AES_VECTOR_2		0x6f7dda02
+#define AES_VECTOR_3		0x11223344
 
+/* Effective AAD Size */
+#define AES_AAD_SIZE		20
+
+#define AES_TWEAKIN_0		0x12345678
+#define AES_TWEAKIN_1		0x11223344
+#define AES_TWEAKIN_2		0x11122233
+#define AES_TWEAKIN_3		0x11112222
+
+#define AES_KEY_0		0xcf76d4f8
+#define AES_KEY_1		0x6cea46d6
+#define AES_KEY_2		0x1ccb8423
+#define AES_KEY_3		0x5d19d627
+#define AES_KEY_4		0xf3a9f1fe
+#define AES_KEY_5		0x218d9c7b
+#define AES_KEY_6		0xf8219ca7
+#define AES_KEY_7		0x89d290cb
+
+#ifdef CONFIG_HAVE_AES_GCM
+#define AES_KEY2_0	0xa393d4ff
+#define AES_KEY2_1	0x4cdf46de
+#define AES_KEY2_2	0x1ccb8423
+#define AES_KEY2_3	0x419d6250
+#define AES_KEY2_4	0xfea9f1f3
+#define AES_KEY2_5	0x318d2c71
+#define AES_KEY2_6	0xf8ee0ca2
+#define AES_KEY2_7	0xa9f290c3
+#endif
 static struct _aesd_desc aesd;
+
+ALIGNED(16) const char aes_aad[20] = {
+	0xa2,0x59,0xd8,0x7b,0x21,0x1a,0x96,0x47,0x0e,0x38,0x3b,0x82,
+	0x50,0xb6,0xe8,0x9f,0xd3,0x61,0xba,0x82 };
+
+/* This is the plain data for encrypt, it is necessary, that the length of the encrypted data is at least as large as the AES cipher block size, but it does not have to be a multiple of the cipher block size.*/
 
 const char example_text[DATA_LEN_INBYTE] = "\
   The Advanced Encryption Standard (AES) is compliant with the A\
@@ -152,17 +177,14 @@ large buffer transfers.The 128-bit/192-bit/256-bit key is stored\
 in four/six/eight 32-bit registers (AES_KEYWRx) which are all wr\
 ite-only .......................................................";
 
-/* Buffers hereafter will receive data transferred by the DMA to/from the
- * peripheral. The data cache won't notice this memory update, hence we'll have
- * to clean/invalidate the related cache lines.
- * May the buffers fail to be aligned on cache lines, cache clean operations
- * would then occur on the shared lines. Which would be prone to data conflicts
- * between these buffers and the variables placed on a same cache line.
- * Alternatively, we might consider allocating these buffers from a
- * non-cacheable memory region. */
 CACHE_ALIGNED static uint32_t msg_in_clear[DATA_LEN_INWORD];
 CACHE_ALIGNED static uint32_t msg_encrypted[DATA_LEN_INWORD];
 CACHE_ALIGNED static uint32_t msg_decrypted[DATA_LEN_INWORD];
+CACHE_ALIGNED static uint32_t msg_aad[DATA_LEN_INWORD];
+
+#ifdef CONFIG_HAVE_AES_GCM
+CACHE_ALIGNED static uint32_t buffer[8];
+#endif
 
 static volatile bool dma_rd_complete = false;
 
@@ -171,7 +193,7 @@ static volatile bool dma_rd_complete = false;
  *----------------------------------------------------------------------------*/
 static int _aes_callback(void* args, void* arg2)
 {
-	printf("-I- transfer completed\r\n");
+	/* TODO for user application */
 	return 0;
 }
 
@@ -181,8 +203,12 @@ static int _aes_callback(void* args, void* arg2)
  * \param encrypt  True to encrypt, false to decrypt
  * \param in  Input buffer
  * \param out  Target buffer receiving processed data
+ * \param aad  Buffer for GCM additional authenticated data
  */
-static void process_buffer(bool encrypt, uint32_t *in, uint32_t *out)
+static void process_buffer(bool encrypt,
+						   uint32_t *in,
+						   uint32_t *out,
+						   uint32_t *aad)
 {
 	struct _callback _cb;
 	struct _buffer buf_in = {
@@ -192,6 +218,10 @@ static void process_buffer(bool encrypt, uint32_t *in, uint32_t *out)
 	struct _buffer buf_out = {
 		.data = (uint8_t*)out,
 		.size = DATA_LEN_INBYTE,
+	};
+	struct _buffer buf_aad = {
+		.data = (uint8_t*)aad,
+		.size = 0,
 	};
 
 	/* Perform a software-triggered hardware reset of the AES interface */
@@ -204,21 +234,37 @@ static void process_buffer(bool encrypt, uint32_t *in, uint32_t *out)
 	aesd.cfg.key[5] = AES_KEY_5;
 	aesd.cfg.key[6] = AES_KEY_6;
 	aesd.cfg.key[7] = AES_KEY_7;
+	if (aesd.cfg.mode != AESD_MODE_GCM)
+		aesd.cfg.vsize = AES_VECTOR_SIZE;
 
 	aesd.cfg.vector[0] = AES_VECTOR_0;
 	aesd.cfg.vector[1] = AES_VECTOR_1;
 	aesd.cfg.vector[2] = AES_VECTOR_2;
 	aesd.cfg.vector[3] = AES_VECTOR_3;
 
-	aesd_configure_mode(&aesd);
+#ifdef CONFIG_HAVE_AES_GCM
+	aesd.cfg.key2[0] = AES_KEY2_0;
+	aesd.cfg.key2[1] = AES_KEY2_1;
+	aesd.cfg.key2[2] = AES_KEY2_2;
+	aesd.cfg.key2[3] = AES_KEY2_3;
+	aesd.cfg.key2[4] = AES_KEY2_4;
+	aesd.cfg.key2[5] = AES_KEY2_5;
+	aesd.cfg.key2[6] = AES_KEY2_6;
+	aesd.cfg.key2[7] = AES_KEY2_7;
+
+	aesd.cfg.tweakin[0] = AES_TWEAKIN_0;
+	aesd.cfg.tweakin[1] = AES_TWEAKIN_1;
+	aesd.cfg.tweakin[2] = AES_TWEAKIN_2;
+	aesd.cfg.tweakin[3] = AES_TWEAKIN_3;
+#endif
 	callback_set(&_cb, _aes_callback, NULL);
-	aesd_transfer(&aesd, &buf_in, &buf_out, &_cb);
+	aesd_transfer(&aesd, &buf_in, &buf_out, &buf_aad, &_cb);
 }
 
 /**
  * \brief Start AES process.
  */
-static void start_aes(void)
+static bool start_aes(bool full_test)
 {
 	uint32_t i;
 	uint8_t c;
@@ -226,27 +272,164 @@ static void start_aes(void)
 	memcpy((char*)msg_in_clear, example_text, sizeof(example_text));
 	memset(msg_encrypted, 0xff, DATA_LEN_INBYTE);
 	memset(msg_decrypted, 0xff, DATA_LEN_INBYTE);
-
-	process_buffer(true, msg_in_clear, msg_encrypted);
-	printf("-I- Dumping the encrypted message...");
-	for (i = 0; i < DATA_LEN_INWORD; i++) {
-		if (i % 8 == 0)
-			printf("\n\r%03lx:    ", i * 4);
-		printf(" %08lx", msg_encrypted[i]);
+#ifdef CONFIG_HAVE_AES_GCM
+	if (aesd.cfg.mode == AESD_MODE_GCM) {
+		memset(msg_aad, 0, DATA_LEN_INBYTE);
+		memcpy((char*)msg_aad, aes_aad, sizeof(aes_aad));
+		aesd.buffer = (uint8_t*)buffer;
 	}
-	printf("\n\r");
-
-	process_buffer(false, msg_encrypted, msg_decrypted);
-	printf("-I- Dumping plain text after AES decryption...\n\r");
-	/* Print the entire buffer, even past the nul characters if any */
-	for (i = 0; i < DATA_LEN_INBYTE; i++) {
-		c = ((const uint8_t*)msg_decrypted)[i];
-		if (isprint(c))
-			putchar(c);
-		else
-			printf("%%%x", c);
+#endif
+	if (full_test) {
+		switch(aesd.cfg.mode) {
+		case AESD_MODE_ECB:
+			printf("ECB ");
+			break;
+		case AESD_MODE_CBC:
+			printf("CBC ");
+			break;
+		case AESD_MODE_OFB:
+			printf("OFB ");
+			break;
+		case AESD_MODE_CFB:
+			switch (aesd.cfg.cfbs){
+			case AESD_CFBS_128:
+				printf("CFBS_128 ");
+				break;
+			case AESD_CFBS_64:
+				printf("CFBS_64 ");
+				break;
+			case AESD_CFBS_32:
+				printf("CFBS_32 ");
+				break;
+			case AESD_CFBS_16:
+				printf("CFBS_16 ");
+				break;
+			case AESD_CFBS_8:
+				printf("CFBS_8 ");
+				break;
+			}
+			break;
+		case AESD_MODE_CTR:
+			printf("CTR ");
+			break;
+		case AESD_MODE_GCM:
+			printf("GCM ");
+			printf("iv_size =%d ",aesd.cfg.vsize);
+			break;
+		case AESD_MODE_XTS:
+			printf("XTS ");
+			break;
+		}
+		switch (aesd.cfg.key_size) {
+		case AESD_AES128:
+			printf("key_size =128 ");
+			break;
+		case AESD_AES192:
+			printf("key_size =192 ");
+			break;
+		case AESD_AES256:
+			printf("key_size =256 ");
+			break;
+		}
+		switch (aesd.cfg.transfer_mode) {
+		case AESD_TRANS_POLLING_MANUAL:
+			printf("manually ");
+			break;
+		case AESD_TRANS_POLLING_AUTO:
+			printf("auto start ");
+			break;
+		case AESD_TRANS_DMA:
+			printf("dma ");
+			break;
+		}
 	}
-	printf("\n\r");
+
+	process_buffer(true, msg_in_clear, msg_encrypted, msg_aad);
+	if (!full_test) {
+		printf("-I- Dumping the encrypted message...");
+		for (i = 0; i < DATA_LEN_INWORD; i++) {
+			if (i % 8 == 0)
+				printf("\n\r%03lx:    ", i * 4);
+			printf(" %08lx", msg_encrypted[i]);
+		}
+		printf("\n\r");
+	}
+
+	process_buffer(false, msg_encrypted, msg_decrypted, msg_aad);
+
+	if (!full_test) {
+		printf("-I- Dumping plain text after AES decryption...\n\r");
+		/* Print the entire buffer, even past the nul characters if any */
+		for (i = 0; i < DATA_LEN_INBYTE; i++) {
+			c = ((const uint8_t*)msg_decrypted)[i];
+			if (isprint(c))
+				putchar(c);
+			else
+				printf("%%%x", c);
+		}
+		printf("\n\r");
+	}
+	if (memcmp(msg_in_clear, msg_decrypted, DATA_LEN_INWORD) != 0) {
+		printf("failed\r\n");
+		return false;
+	}
+	printf("passed\r\n");
+	return true;
+}
+
+/**
+ * \brief Start AES process.
+ */
+static void full_aes_test(void)
+{
+	for (aesd.cfg.transfer_mode = AESD_TRANS_POLLING_MANUAL;
+			aesd.cfg.transfer_mode <= AESD_TRANS_DMA;
+			aesd.cfg.transfer_mode++) {
+
+		for (aesd.cfg.key_size = AESD_AES128;
+			 aesd.cfg.key_size <= AESD_AES256;
+			 aesd.cfg.key_size++) {
+			for (aesd.cfg.mode = AESD_MODE_ECB;; aesd.cfg.mode++) {
+				if (aesd.cfg.mode > AESD_MODE_XTS)
+					break;
+#if !defined CONFIG_HAVE_AES_GCM
+				if (aesd.cfg.mode == AESD_MODE_GCM)
+					continue;
+				if (aesd.cfg.mode == AESD_MODE_XTS)
+					continue;
+#endif
+
+				aesd.cfg.cfbs = AESD_CFBS_128;
+#ifdef CONFIG_HAVE_AES_GCM
+				if (aesd.cfg.mode == AESD_MODE_GCM) {
+					for (uint8_t i = 0; i < 2; i++) {
+						if (i == 0)
+							aesd.cfg.vsize = AES_GCM_IV_SIZE1;
+						else
+							aesd.cfg.vsize = AES_GCM_IV_SIZE2;
+						start_aes(true);
+					}
+				}
+#endif
+				
+				if (aesd.cfg.mode == AESD_MODE_CFB) {
+					for (aesd.cfg.cfbs = AESD_CFBS_128;
+						 aesd.cfg.cfbs <= AESD_CFBS_8;
+						 aesd.cfg.cfbs++) {
+						if (!start_aes(true)) {
+							printf("TEST FAILED !\r\n");
+							return;
+						};
+					}
+				} else {
+					if (aesd.cfg.mode != AESD_MODE_GCM) {
+						start_aes(true);
+					}
+				}
+			}
+		}
+	}
+	printf("TEST SUCCESS !\r\n");
 }
 
 /**
@@ -254,26 +437,37 @@ static void start_aes(void)
  */
 static void display_menu(void)
 {
-	uint8_t chk_box[5];
+	uint8_t chk_box[7];
 	printf("\n\rAES Menu:\n\r");
+#ifdef CONFIG_HAVE_AES_GCM
+	printf("Press [0|1|2|3|4|5|6] to set the Mode of Operation\n\r");
+#else
 	printf("Press [0|1|2|3|4] to set the Mode of Operation\n\r");
+#endif
 	chk_box[0] = (aesd.cfg.mode == AESD_MODE_ECB) ? 'X' : ' ';
 	chk_box[1] = (aesd.cfg.mode == AESD_MODE_CBC) ? 'X' : ' ';
 	chk_box[2] = (aesd.cfg.mode == AESD_MODE_OFB) ? 'X' : ' ';
 	chk_box[3] = (aesd.cfg.mode == AESD_MODE_CFB) ? 'X' : ' ';
 	chk_box[4] = (aesd.cfg.mode == AESD_MODE_CTR) ? 'X' : ' ';
+#ifdef CONFIG_HAVE_AES_GCM
+	chk_box[5] = (aesd.cfg.mode == AESD_MODE_GCM) ? 'X' : ' ';
+	chk_box[6] = (aesd.cfg.mode == AESD_MODE_XTS) ? 'X' : ' ';
+#endif
 
 	printf("   0: Electronic Code Book    [%c]\n\r", chk_box[0]);
 	printf("   1: Cipher Block Chaining   [%c]\n\r", chk_box[1]);
 	printf("   2: Output Feedback         [%c]\n\r", chk_box[2]);
 	printf("   3: Cipher Feedback         [%c]\n\r", chk_box[3]);
 	printf("   4: 16-bit internal Counter [%c]\n\r", chk_box[4]);
-	printf("Press [5|6|7] to select key size\n\r");
+#ifdef CONFIG_HAVE_AES_GCM
+	printf("   5: Galois/Counter Mode     [%c]\n\r", chk_box[5]);
+	printf("   6: XEX-Based Tweaked-Code  [%c]\n\r", chk_box[6]);
+#endif
+	printf("Press [7|8|9] to select key size\n\r");
 	chk_box[0] = (aesd.cfg.key_size == AESD_AES128) ? 'X' : ' ';
 	chk_box[1] = (aesd.cfg.key_size == AESD_AES192) ? 'X' : ' ';
 	chk_box[2] = (aesd.cfg.key_size == AESD_AES256) ? 'X' : ' ';
-
-	printf("   5: 128 bits[%c]  6: 192 bits[%c]  7: 256 bits[%c]\n\r",
+	printf("   7: 128 bits[%c]  8: 192 bits[%c]  9: 256 bits[%c]\n\r",
 		chk_box[0], chk_box[1], chk_box[2]);
 	printf("Press [m|a|d] to set Start Mode \n\r");
 	chk_box[0] = (aesd.cfg.transfer_mode == AESD_TRANS_POLLING_MANUAL) ? 'X' : ' ';
@@ -282,6 +476,7 @@ static void display_menu(void)
 	printf("   m: MANUAL_START[%c]  a: AUTO_START[%c]  d: DMA[%c]\n\r",
 		chk_box[0], chk_box[1], chk_box[2]);
 	printf("   p: Begin the encryption/decryption process\n\r");
+	printf("   f: Full test for all AES mode\n\r");
 	printf("   h: Display this menu\n\r");
 	printf("\n\r");
 }
@@ -313,6 +508,7 @@ static void display_cipher_menu(void)
 static void set_cipher_size(void)
 {
 	uint8_t user_key;
+
 	while (true) {
 		user_key = tolower(console_get_char());
 		if (user_key >= '0' && user_key <= '4') {
@@ -322,6 +518,31 @@ static void set_cipher_size(void)
 	}
 	display_cipher_menu();
 }
+
+#ifdef CONFIG_HAVE_AES_GCM
+static void set_iv_size(void)
+{
+	uint8_t user_key;
+	uint8_t chk_box[2];
+
+	printf("Press [0|1] to select iv size\n\r");
+	chk_box[0] = (aesd.cfg.vsize == AES_GCM_IV_SIZE1) ? 'X' : ' ';
+	chk_box[1] = (aesd.cfg.vsize == AES_GCM_IV_SIZE2) ? 'X' : ' ';
+	printf("   0: iv size == 96 bits [%c]\n\r", chk_box[0]);
+	printf("   1: iv size != 96 bits [%c]\n\r", chk_box[1]);
+	printf("\n\r");
+	while (true) {
+		user_key = tolower(console_get_char());
+		if (user_key == '0') {
+			aesd.cfg.vsize = AES_GCM_IV_SIZE1;
+			break;
+		} else {
+			aesd.cfg.vsize = AES_GCM_IV_SIZE2;
+			break;
+		}
+	}
+}
+#endif
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -338,7 +559,6 @@ int main(void)
 
 	/* Output example information */
 	console_example_info("AES Example");
-
 	aesd_init(&aesd);
 
 	/* Display menu */
@@ -352,6 +572,7 @@ int main(void)
 		switch (user_key) {
 		case '0': case '1': case '2': case '3': case '4':
 			aesd.cfg.mode = (enum _aesd_mode)(user_key - '0');
+			aesd.cfg.aadsize = 0;
 			display_menu();
 			if (aesd.cfg.mode == AESD_MODE_CFB) {
 				display_cipher_menu();
@@ -359,8 +580,22 @@ int main(void)
 				display_menu();
 			}
 			break;
-		case '5': case '6': case '7':
-			aesd.cfg.key_size = (enum _aesd_key_size)(user_key - '5');
+#ifdef CONFIG_HAVE_AES_GCM
+		case '5':
+			set_iv_size();
+			aesd.cfg.mode = AESD_MODE_GCM;
+			aesd.cfg.aadsize = AES_AAD_SIZE;
+			aesd.cfg.entag = true;
+			display_menu();
+			break;
+		case '6':
+			aesd.cfg.mode = AESD_MODE_XTS;
+			aesd.cfg.entag = false;
+			display_menu();
+			break;
+#endif
+		case '7': case '8': case '9':
+			aesd.cfg.key_size = (enum _aesd_key_size)(user_key - '7');
 			display_menu();
 			break;
 		case 'm':
@@ -373,7 +608,14 @@ int main(void)
 			display_menu();
 			break;
 		case 'p':
-			start_aes();
+			start_aes(false);
+			break;
+		case 'f':
+			full_aes_test();
+			aesd.cfg.transfer_mode = AESD_TRANS_POLLING_MANUAL;
+			aesd.cfg.key_size = AESD_AES128;
+			aesd.cfg.mode = AESD_MODE_ECB;
+			aesd.cfg.cfbs = AESD_CFBS_128;
 			break;
 		}
 	}
