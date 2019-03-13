@@ -103,6 +103,7 @@ void aes_start(void)
 void aes_soft_reset(void)
 {
 	AES->AES_CR = AES_CR_SWRST;
+    AES->AES_MR = AES_MR_CKEY_PASSWD;
 }
 
 void aes_configure(uint32_t cfg)
@@ -117,6 +118,7 @@ void aes_set_op_mode(uint32_t mode)
 
 void aes_set_start_mode(uint32_t mode)
 {
+	AES->AES_MR &= ~AES_MR_SMOD_Msk;
 	AES->AES_MR |= AES_MR_SMOD(mode) | AES_MR_CKEY_PASSWD;
 }
 
@@ -181,8 +183,8 @@ void aes_set_input(void* data, uint8_t size)
 		for (i = 0; i < size / 4; i++)
 			AES->AES_IDATAR[i] = d32[i];
 	} else {
-	/* In 32, 16, and 8-bit CFB modes, writing to AES_IDATAR1, 
-	AES_IDATAR2 and AES_IDATAR3 is not allowed and may lead to 
+	/* In 32, 16, and 8-bit CFB modes, writing to AES_IDATAR1,
+	AES_IDATAR2 and AES_IDATAR3 is not allowed and may lead to
 	errors in processing. */
 		if (size == 2)
 			AES->AES_IDATAR[0] = *((uint16_t*)data);
@@ -201,8 +203,8 @@ void aes_get_output(void* data, uint8_t size)
 		for (i = 0; i < size / 4; i++)
 			d32[i] = AES->AES_ODATAR[i];
 	} else {
-	/* In 32, 16, and 8-bit CFB modes, writing to AES_IDATAR1, 
-	AES_IDATAR2 and AES_IDATAR3 is not allowed and may lead to 
+	/* In 32, 16, and 8-bit CFB modes, writing to AES_IDATAR1,
+	AES_IDATAR2 and AES_IDATAR3 is not allowed and may lead to
 	errors in processing. */
 		if (size == 2)
 			*((uint16_t*)data) = AES->AES_ODATAR[0];
@@ -220,6 +222,13 @@ void aes_set_vector(const uint32_t* vector)
 }
 
 #ifdef CONFIG_HAVE_AES_GCM
+void aes_tag_enable(bool tag)
+{
+	if (tag)
+		AES->AES_MR |= AES_MR_GTAGEN;
+	else
+		AES->AES_MR &= ~AES_MR_GTAGEN;
+}
 
 void aes_set_aad_len(uint32_t len)
 {
@@ -236,6 +245,13 @@ void aes_set_gcm_hash(uint32_t* hash)
 	uint8_t i;
 	for (i = 0; i < 4; i++)
 		AES->AES_GHASHR[i] = hash[i];
+}
+
+void aes_get_gcm_hash(uint32_t* hash)
+{
+	uint8_t i;
+	for (i = 0; i < 4; i++)
+		hash[i] = AES->AES_GHASHR[i];
 }
 
 void aes_get_gcm_tag(uint32_t* tag)
@@ -257,4 +273,22 @@ void aes_get_gcm_hash_subkey(uint32_t* h)
 		h[i] = AES->AES_GCMHR[i];
 }
 
+void aes_set_tweak(uint32_t* tweak)
+{
+	uint8_t i;
+	for (i = 0; i < 4; i++)
+		AES->AES_TWR[i] = tweak[i];
+}
+
+void aes_set_alpha(uint32_t* alpha)
+{
+	uint8_t i;
+	for (i = 0; i < 4; i++)
+		AES->AES_ALPHAR[i] = alpha[i];
+}
+
 #endif /* CONFIG_HAVE_AES_GCM */
+
+
+
+

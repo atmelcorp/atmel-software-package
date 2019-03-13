@@ -162,6 +162,26 @@ static void _aesd_transfer_buffer_dma(struct _aesd_desc* desc)
 	aesd_wait_transfer(desc);
 }
 
+#ifdef CONFIG_HAVE_AES_GCM
+static uint32_t _aesd_gcm_tag(struct _aesd_desc* desc)
+{
+	if(desc->cfg.entag) {
+		if ((aes_get_status() & AES_ISR_TAGRDY) != AES_ISR_TAGRDY) {
+			printf("AES GCM TAG did not ready/r/n");
+			return AESD_ERROR_TRANSFER;
+		}
+	} else {
+		// TODO
+	}
+	if(desc->cfg.entag) {
+		aes_get_gcm_tag(&desc->cfg.tag[0]);
+	} else {
+		aes_get_output(&desc->cfg.tag[0], AES_BLOCK_SIZE);
+	}
+	return 0;
+}
+#endif
+
 static void _aesd_transfer_buffer_polling(struct _aesd_desc* desc)
 {
 	uint32_t i;
@@ -179,21 +199,167 @@ static void _aesd_transfer_buffer_polling(struct _aesd_desc* desc)
 		aes_get_output((void *)((desc->xfer.bufout->data) + i), num_of_data_words);
 	}
 	mutex_unlock(&desc->mutex);
-
+#ifdef CONFIG_HAVE_AES_GCM
+	if(desc->cfg.mode == AESD_MODE_GCM) {
+		_aesd_gcm_tag(desc);
+	}
+#endif
 	callback_call(&desc->xfer.callback, NULL);
 }
 
+static void _aesd_write_key(uint32_t* key, enum _aesd_key_size size, bool subkey)
+{
+	/* Write the 128-bit/192-bit/256-bit key in the Key Word Registers */
+	if (size == AESD_AES128)
+		aes_write_key(key, 16);
+	else if (size == AESD_AES192)
+		aes_write_key(key, 24);
+	else
+		aes_write_key(key, 32);
+	if (subkey)
+	/* Set KEYW in AES_KEYWRx and wait until DATRDY bit of AES_ISR is set (GCM hash subkey generation complete */
+	while ((aes_get_status() & AES_ISR_DATRDY) != AES_ISR_DATRDY);
+}
 /*----------------------------------------------------------------------------
  *        Public functions
 
  *----------------------------------------------------------------------------*/
-uint32_t aesd_transfer(struct _aesd_desc* desc, struct _buffer* buffer_in,
-	struct _buffer* buffer_out, struct _callback* cb)
+uint32_t aesd_transfer(struct _aesd_desc* desc,
+					   struct _buffer* buffer_in,
+					   struct _buffer* buffer_out,
+					   struct _buffer* buffer_aad,
+					   struct _callback* cb)
 {
-	aes_encrypt_enable(desc->cfg.encrypt);
+#ifdef CONFIG_HAVE_AES_GCM
+	uint32_t padlen, aadlen, datalen;
+	uint32_t i;
+	uint32_t vsize;
+	uint32_t j0[4];
+	uint32_t j0_tmp;
+	uint8_t *data;
+#endif
+
+#ifdef CONFIG_HAVE_AES_GCM
+	uint32_t tweak[AES_BLOCK_SIZE / sizeof(uint32_t)];
+	uint8_t *tweak_bytes = (uint8_t *)tweak;
+	static uint32_t one[AES_BLOCK_SIZE / sizeof(uint32_t)] = {BIG_ENDIAN_TO_HOST(1), };
+#endif
+
+	aes_soft_reset();
+	if (desc->cfg.mode != AESD_MODE_XTS) {
+		aes_set_op_mode(desc->cfg.mode);
+		aes_encrypt_enable(desc->cfg.encrypt);
+	}
+	aes_set_start_mode(AESD_TRANS_POLLING_AUTO);
+#ifdef CONFIG_HAVE_AES_GCM
+	aes_tag_enable(desc->cfg.entag);
+#endif
+	aes_set_key_size(desc->cfg.key_size);
+	aes_set_cfbs(desc->cfg.cfbs);
+
+#ifdef CONFIG_HAVE_AES_GCM
+	if (desc->cfg.mode == AESD_MODE_GCM) {
+		vsize = desc->cfg.vsize;
+		if (vsize == IV_LENGTH_96) {
+			/* Calculate the J0 value as described in NIST documentation J0 = IV || 031 || 1 when len(IV) = 96 */
+			for (i = 0; i < IV_LENGTH_96 / 4; i++) {
+				j0[i] = desc->cfg.vector[i];
+			}
+			j0[3] = 0x01000000;
+		} else {
+			/* Calculate the J0 value as described in NIST documentation J0 = GHASHH(IV || 0(s+64) || [len(IV)]64) if len(IV) ≠ 96 */
+			for (i = 0; i < AES_BLOCK_SIZE / 4; i++) {
+				j0[i] = desc->cfg.vector[i];
+			}
+			data = desc->buffer;
+			padlen = vsize & (AES_BLOCK_SIZE -1);
+			padlen = padlen > 0 ? 16 - padlen : 0;
+			datalen = desc->cfg.vsize + padlen + AES_BLOCK_SIZE;
+			memcpy(data, j0, vsize);
+			memset(data + vsize, 0, padlen + 8);
+			((uint64_t *)(data + datalen))[-1] = BIG_ENDIAN_TO_HOST_64((uint64_t)vsize * 8);
+			_aesd_write_key(&desc->cfg.key[0], desc->cfg.key_size, true);
+			aes_set_aad_len(desc->cfg.aadsize);
+			aes_set_data_len(0);
+			while (datalen > 0) {
+				aes_set_input((void *)(data), AES_BLOCK_SIZE);
+				data += 4;
+				datalen -= AES_BLOCK_SIZE;
+				while ((aes_get_status() & AES_ISR_DATRDY) != AES_ISR_DATRDY);
+			}
+			/* Read the computed hash from GHASHRx. */
+			aes_get_gcm_hash(j0);
+		}
+	}
+	if (desc->cfg.mode == AESD_MODE_XTS) {
+		/* In AES_MR, set OPMODE to ECB, CIPHER bit to ‘1' */
+		aes_set_op_mode(AESD_MODE_ECB);
+		aes_encrypt_enable(true);
+		/* Set KEYW in AES_KEYWRx with Key2 */
+		_aesd_write_key(&desc->cfg.key2[0], desc->cfg.key_size, false);
+		/* Compute the tweak ecb(aes) mode. */
+		aes_set_input((void *)(desc->cfg.tweakin), AES_BLOCK_SIZE);
+		while ((aes_get_status() & AES_ISR_DATRDY) != AES_ISR_DATRDY);
+		/* Read the computed ciphered tweak value. */
+		aes_get_output((void *)(tweak), AES_BLOCK_SIZE);
+		for (i = 0; i < AES_BLOCK_SIZE / 2; ++i) {
+			uint8_t tmp = tweak_bytes[AES_BLOCK_SIZE - 1 - i];
+			tweak_bytes[AES_BLOCK_SIZE - 1 - i] = tweak_bytes[i];
+			tweak_bytes[i] = tmp;
+		}
+		/* it is required to fill the AES_TWRx register with the encrypted Tweak Value */
+		aes_set_tweak(tweak);
+		/* Fill the AES_ALPHARx register with the alpha primitive corresponding to the block number in the data unit */
+		aes_set_alpha(one);
+		aes_set_op_mode(desc->cfg.mode);
+		aes_encrypt_enable(desc->cfg.encrypt);
+	}
+#endif
+
+	if (desc->cfg.mode == AESD_MODE_GCM) {
+		_aesd_write_key(&desc->cfg.key[0], desc->cfg.key_size, true);
+	} else {
+		_aesd_write_key(&desc->cfg.key[0], desc->cfg.key_size, false);
+	}
+
+#ifdef CONFIG_HAVE_AES_GCM
+	if (desc->cfg.mode == AESD_MODE_GCM) {
+		/* Set IV in AES_IVRx with inc32(J0) (J0 + 1 on 32 bits). */
+		j0_tmp = j0[3];
+		j0[3] = BIG_ENDIAN_TO_HOST((j0[3]) + 1);
+		if (desc->cfg.mode != AES_MR_OPMOD_ECB)
+			aes_set_vector(j0);
+		j0[3] = j0_tmp;
+		/* Set AADLEN field in AES_AADLENR and CLEN field in AES_CLENR */
+		aes_set_aad_len(desc->cfg.aadsize);
+		aes_set_data_len(desc->xfer.bufin->size);
+		desc->xfer.aad = buffer_aad;
+	}
+#endif
+	if ((desc->cfg.mode != AES_MR_OPMOD_ECB)
+		|| (desc->cfg.mode != AESD_MODE_GCM)
+		|| (desc->cfg.mode != AESD_MODE_XTS)
+		)
+		aes_set_vector(&desc->cfg.vector[0]);
+
+#ifdef CONFIG_HAVE_AES_GCM
+	if (desc->cfg.mode == AESD_MODE_GCM) {
+		if (desc->cfg.aadsize != 0) {
+			padlen = desc->cfg.aadsize & (AES_BLOCK_SIZE - 1) ;
+			padlen = padlen > 0 ? AES_BLOCK_SIZE - padlen : 0;
+			aadlen = padlen + desc->cfg.aadsize;
+			for (i = 0; i < aadlen; i+= AES_BLOCK_SIZE) {
+				aes_set_input((void *)((desc->xfer.aad->data) + i), AES_BLOCK_SIZE);
+				while ((aes_get_status() & AES_ISR_DATRDY) != AES_ISR_DATRDY);
+			}
+		}
+	}
+#endif
+
 	aes_set_start_mode(desc->cfg.transfer_mode);
 	desc->xfer.bufin = buffer_in;
 	desc->xfer.bufout = buffer_out;
+
 	callback_copy(&desc->xfer.callback, cb);
 
 	assert(!(desc->xfer.bufin->size % _aesd_get_size_per_trans(desc)));
@@ -203,7 +369,6 @@ uint32_t aesd_transfer(struct _aesd_desc* desc, struct _buffer* buffer_in,
 		trace_error("AESD mutex already locked!\r\n");
 		return ADES_ERROR_LOCK;
 	}
-
 	switch (desc->cfg.transfer_mode) {
 	case AESD_TRANS_POLLING_MANUAL:
 	case AESD_TRANS_POLLING_AUTO:
@@ -233,28 +398,6 @@ void aesd_wait_transfer(struct _aesd_desc* desc)
 		if (desc->cfg.transfer_mode == AESD_TRANS_DMA)
 			dma_poll();
 	}
-}
-
-void aesd_configure_mode(struct _aesd_desc* desc)
-{
-	aes_soft_reset();
-
-	aes_set_op_mode(desc->cfg.mode);
-	aes_set_key_size(desc->cfg.key_size);
-	aes_set_cfbs(desc->cfg.cfbs);
-
-	/* Write the 128-bit/192-bit/256-bit key in the Key Word Registers */
-	if (desc->cfg.key_size == AESD_AES128)
-		aes_write_key(&desc->cfg.key[0], 16);
-	else if (desc->cfg.key_size == AESD_AES192)
-		aes_write_key(&desc->cfg.key[0], 24);
-	else
-		aes_write_key(&desc->cfg.key[0], 32);
-
-	/* The Initialization Vector Registers apply to all modes except
-	 * ECB. */
-	if (desc->cfg.mode != AES_MR_OPMOD_ECB)
-		aes_set_vector(&desc->cfg.vector[0]);
 }
 
 void aesd_init(struct _aesd_desc* desc)

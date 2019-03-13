@@ -50,6 +50,9 @@
 #define ADES_ERROR_LOCK      (1)
 #define AESD_ERROR_TRANSFER  (2)
 
+#define AES_BLOCK_SIZE       16
+#define IV_LENGTH_96         12
+
 enum _aesd_trans_mode
 {
 	AESD_TRANS_POLLING_MANUAL = 0,
@@ -63,7 +66,8 @@ enum _aesd_mode {
 	AESD_MODE_OFB,
 	AESD_MODE_CFB,
 	AESD_MODE_CTR,
-	AESD_MODE_GCM
+	AESD_MODE_GCM,
+	AESD_MODE_XTS
 };
 
 enum _aesd_key_size {
@@ -91,14 +95,21 @@ struct _aesd_desc {
 		enum _aesd_mode mode;
 		enum _aesd_key_size key_size;
 		enum _aesd_cipher_size cfbs;
+		bool entag;
 		uint32_t key[8];
+		uint32_t key2[8];
 		uint32_t vector[4];
+		uint32_t tweakin[4];
+		uint32_t tag[4];
+		uint32_t vsize;
+		uint32_t aadsize;
 	} cfg;
 
 	/* structure to hold data about current transfer */
 	struct {
 		struct _buffer *bufin;         /*< buffer input */
 		struct _buffer *bufout;        /*< buffer output */
+		struct _buffer *aad;           /*< buffer for aad */
 		struct _callback callback;
 
 		struct {
@@ -107,6 +118,9 @@ struct _aesd_desc {
 			} rx, tx;
 		} dma;
 	} xfer;
+#ifdef CONFIG_HAVE_AES_GCM
+	uint8_t* buffer;
+#endif
 };
 
 /*------------------------------------------------------------------------------
@@ -117,8 +131,10 @@ extern void aesd_configure_mode(struct _aesd_desc* desc);
 extern void aesd_init(struct _aesd_desc* desc);
 
 extern uint32_t aesd_transfer(struct _aesd_desc* desc,
-			      struct _buffer* buffer_in, struct _buffer* buffer_out,
-			      struct _callback* callback);
+							  struct _buffer* buffer_in,
+							  struct _buffer* buffer_out,
+							  struct _buffer* buffer_aad,
+							  struct _callback* callback);
 
 extern bool aesd_is_busy(struct _aesd_desc* desc);
 

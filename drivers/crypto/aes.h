@@ -140,6 +140,12 @@ void aes_get_output(void * data, uint8_t size);
 void aes_set_vector(const uint32_t * vector);
 
 #ifdef CONFIG_HAVE_AES_GCM
+/**
+ * \brief Enable AES GCM autimatic tag generation
+ *
+ * \param tag  generate tag true, disable otherwise.
+ */
+extern void aes_tag_enable(bool tag);
 
 /**
  * \brief Set Length in bytes of the Additional Authenticated Data that are to
@@ -165,6 +171,12 @@ void aes_set_data_len(uint32_t len);
 void aes_set_gcm_hash(uint32_t * hash);
 
 /**
+ * \brief Get four 32-bit Hash Word registers
+ * \param hash  Pointer to the word of the hash output.
+ */
+void aes_get_gcm_hash(uint32_t* hash);
+
+/**
  * \brief Get The four 32-bit Tag which contain the final 128-bit GCM
  * Authentication tag 'T' when GCM processing is complete.
  * \param tag  Pointer to the word of the tag.
@@ -183,6 +195,18 @@ void aes_get_gcm_counter(uint32_t * counter);
  * \param h  Pointer to the word that has been encrypted/decrypted.
  */
 void aes_get_gcm_hash_subkey(uint32_t * h);
+
+/**
+ * \brief Set The four 32-bit tweak Word registers.
+ * \param hash  Pointer to the word of the tweak.
+ */
+void aes_set_tweak(uint32_t* tweak);
+
+/**
+ * \brief Set The four 32-bit alpha Word registers.
+ * \param hash  Pointer to the word of the alpha.
+ */
+void aes_set_alpha(uint32_t* alpha);
 
 #endif /* CONFIG_HAVE_AES_GCM */
 
