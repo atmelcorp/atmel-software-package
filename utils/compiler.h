@@ -98,7 +98,11 @@
 		memcpy(&(b), _swp, sizeof(a)); } while(0)
 #endif
 
-#define BIG_ENDIAN_TO_HOST(x) (((x) & 0xFF) << 24) | (((x) & 0xFF00) << 8) \
-		| (((x) & 0xFF0000) >> 8) | (((x) & 0xFF000000) >> 24)
+#define BIG_ENDIAN_TO_HOST(x) ((((x) & 0xFF) << 24) | (((x) & 0xFF00) << 8) \
+		| (((x) & 0xFF0000) >> 8) | (((x) & 0xFF000000) >> 24))
+
+#define BIG_ENDIAN_TO_HOST_64(x) \
+		(((uint64_t)BIG_ENDIAN_TO_HOST((uint32_t)((x) & 0xffffffff)) << 32) | \
+		(((uint64_t)BIG_ENDIAN_TO_HOST((uint32_t)((x) >> 32)))))
 
 #endif /* _COMPILER_H_ */
