@@ -31,10 +31,12 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include <assert.h>
 #include <string.h>
 
 #include "chip.h"
 #include "compiler.h"
+#include "peripherals/matrix.h"
 #include "serial/console.h"
 
 /*----------------------------------------------------------------------------
@@ -217,7 +219,17 @@ uint8_t get_peripheral_dma_channel(uint32_t id, Xdmac *xdmac, bool transmit)
 	}
 }
 
-bool is_peripheral_on_dma_controller(uint32_t id, Xdmac *xdmac)
+bool is_peripheral_on_dma_controller(uint32_t peri_id, Xdmac *xdmac)
 {
-	return get_peripheral_xdma(id, xdmac) != NULL;
+	Matrix *dmac_mtx = NULL;
+	Matrix *peri_mtx = get_peripheral_matrix(peri_id);
+	uint32_t dmac_id = get_xdmac_id_from_addr(xdmac);
+
+	assert(peri_id < ID_PERIPH_COUNT && dmac_id < ID_PERIPH_COUNT);
+	dmac_mtx = get_peripheral_matrix(dmac_id);
+	assert(peri_mtx != NULL && dmac_mtx != NULL);
+	if (matrix_is_peripheral_secured(peri_mtx, peri_id)
+		!= matrix_is_peripheral_secured(dmac_mtx, dmac_id))
+		return false;
+	return get_peripheral_xdma(peri_id, xdmac) != NULL;
 }
