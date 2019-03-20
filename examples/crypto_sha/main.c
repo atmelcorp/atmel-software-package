@@ -50,8 +50,8 @@
  * \section Description
  *
  * This example shows how to configure SHA in encryption and decryption mode.
- * In encryption mode, it encrypts plain text (supported one/multi-block 
- * or long messagein) in one of the SHA1, SHA224, SHA256, SHA384 and SHA512 modes. 
+ * In encryption mode, it encrypts plain text (supported one/multi-block
+ * or long messagein) in one of the SHA1, SHA224, SHA256, SHA384 and SHA512 modes.
  * Programmable key mode with processing using with or  without DMA support.
  * In decryption mode, it decrypts cipher data generated from encryption mode,
  * and compares the result against the initial plain value.
@@ -283,7 +283,7 @@ static struct _shad_desc shad;
 /**
  * \brief Start SHA process.
  */
-static void start_sha(void)
+static bool start_sha(bool full_test)
 {
 	uint32_t rc = 0, i, val, ref = 0;
 	uint32_t len;
@@ -291,17 +291,56 @@ static void start_sha(void)
 
 	if (output_size < 0) {
 		printf("-F- Unsupported SHA algorithm\r\n");
-		return;
+		return false;
 	}
 
-	memset(digest, 0, sizeof digest);
+	memset(digest, 0, MAX_DIGEST_SIZE_INWORD * 4);
+
+	if (full_test) {
+		switch(shad.cfg.algo) {
+		case ALGO_SHA_1:
+			printf("SHA1 ");
+			break;
+		case ALGO_SHA_224:
+			printf("SHA224 ");
+			break;
+		case ALGO_SHA_256:
+			printf("SHA256 ");
+			break;
+		case ALGO_SHA_384:
+			printf("SHA384 ");
+			break;
+		case ALGO_SHA_512:
+			printf("SHA512 ");
+			break;
+		}
+		switch(block_mode) {
+			case 0:
+				printf("one-block message ");
+				break;
+			case 1:
+				printf("multi-block message ");
+			break;
+			case 2:
+				printf("long message ");
+			break;
+		}
+		switch (shad.cfg.transfer_mode) {
+		case SHAD_TRANS_POLLING:
+			printf("polling ");
+			break;
+		case SHAD_TRANS_DMA:
+			printf("dma ");
+			break;
+		}
+	}
 
 	if (block_mode == SHA_ONE_BLOCK) {
 		len = LEN_MSG_0;
 		memcpy ((uint8_t*)message, msg0, len);
 	} else if (block_mode == SHA_MULTI_BLOCK) {
 		if (shad.cfg.algo == ALGO_SHA_384 ||
-		    shad.cfg.algo == ALGO_SHA_512) {
+			shad.cfg.algo == ALGO_SHA_512) {
 			len = LEN_MSG_2;
 			memcpy ((uint8_t*)message, msg2, len);
 		} else {
@@ -334,7 +373,9 @@ static void start_sha(void)
 	shad_finish(&shad, &buf_out, NULL);
 	shad_wait_completion(&shad);
 
-	printf("-I- Dump and compare digest result...\r\n");
+	if (!full_test) {
+		printf("-I- Dump and compare digest result...\r\n");
+	}
 	for (rc = 0, i = 0; i < output_size / 4; i++) {
 		val = swab32(digest[i]);
 		switch (shad.cfg.algo) {
@@ -355,17 +396,26 @@ static void start_sha(void)
 			break;
 		}
 		if (val != ref) {
-			printf(" [X]");
+			if (!full_test)
+				printf(" [X]");
 			rc++;
 		}
-		printf("   0x%08x\r\n", (unsigned)val);
+		if (!full_test)
+			printf("   0x%08x\r\n", (unsigned)val);
 	}
 
-	if (rc)
-		printf("-I- Failed to verify message digest (%u errors)\r\n",
-			  (unsigned)rc);
-	else
-		printf("-I- Message digest result matched with the result in FIPS example\r\n");
+	if (rc) {
+		if (!full_test)
+			printf("-I- Failed to verify message digest (%u errors)\r\n", (unsigned)rc);
+		else
+			printf("failed \r\n");
+	} else {
+		if (!full_test)
+			printf("-I- Message digest result matched with the result in FIPS example\r\n");
+		else
+			printf("passed \r\n");
+	}
+	return (rc == 0 ? true : false);
 }
 
 /**
@@ -388,13 +438,39 @@ static void display_menu(void)
 	printf("   o: one-block[%c] t: multi-block[%c] l: long-message[%c] \r\n",
 	       chk_box[0], chk_box[1], chk_box[2]);
 
-	printf("Press [d|p] to select transfer mode\r\n");
+	printf("Press [p|d] to set transfer Mode \r\n");
 	chk_box[0] = (shad.cfg.transfer_mode == SHAD_TRANS_POLLING) ? 'X' : ' ';
 	chk_box[1] = (shad.cfg.transfer_mode == SHAD_TRANS_DMA) ? 'X' : ' ';
 	printf("   p: POLLING[%c] d: DMA[%c]\r\n", chk_box[0], chk_box[1]);
 	printf("   s: Start hash algorithm process \r\n");
+	printf("   f: Full SHA test\r\n");
 	printf("   h: Display this menu\r\n");
 	printf("\r\n");
+}
+
+
+/**
+ * \brief Start AES process.
+ */
+static void full_sha_test(void)
+{
+	for (shad.cfg.transfer_mode = SHAD_TRANS_POLLING;
+			shad.cfg.transfer_mode <= SHAD_TRANS_DMA;
+			shad.cfg.transfer_mode++) {
+		for (shad.cfg.algo = ALGO_SHA_1;
+			 shad.cfg.algo <= ALGO_SHA_512;
+			  shad.cfg.algo++) {
+			for (uint8_t i = 0; i < 3; i++) {
+				block_mode = i;
+				if (!start_sha(true)){
+					printf("TEST FAILED !\r\n");
+					return;
+				}
+
+			}
+		}
+	}
+	printf("TEST SUCCESS !\r\n");
 }
 
 /*----------------------------------------------------------------------------
@@ -426,42 +502,47 @@ int main(void)
 	while (true) {
 		user_key = tolower(console_get_char());
 		switch (user_key) {
-			case '0':
-			case '1':
-			case '2':
-			case '3':
-			case '4':
-				shad.cfg.algo = (enum _shad_algo)(user_key - '0');
-				display_menu();
-				break;
-			case 'o':
-				block_mode = SHA_ONE_BLOCK;
-				display_menu();
-				break;
-			case 't':
-				block_mode = SHA_MULTI_BLOCK;
-				display_menu();
-				break;
-			case 'l':
-				block_mode = SHA_LONG_MESSAGE;
-				display_menu();
-				break;
-			case 'p':
-				shad.cfg.transfer_mode = SHAD_TRANS_POLLING;
-				display_menu();
-				break;
-			case 'd':
-				shad.cfg.transfer_mode = SHAD_TRANS_DMA;
-				display_menu();
-				break;
-			case 'h':
-				display_menu();
-				break;
-			case 's':
-				start_sha();
-				break;
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+			shad.cfg.algo = (enum _shad_algo)(user_key - '0');
+			display_menu();
+			break;
+		case 'o':
+			block_mode = SHA_ONE_BLOCK;
+			display_menu();
+			break;
+		case 't':
+			block_mode = SHA_MULTI_BLOCK;
+			display_menu();
+			break;
+		case 'l':
+			block_mode = SHA_LONG_MESSAGE;
+			display_menu();
+			break;
+		case 'p':
+			shad.cfg.transfer_mode = SHAD_TRANS_POLLING;
+			display_menu();
+			break;
+		case 'd':
+			shad.cfg.transfer_mode = SHAD_TRANS_DMA;
+			display_menu();
+			break;
+		case 'h':
+			display_menu();
+			break;
+		case 's':
+			start_sha(false);
+			break;
+		case 'f':
+			full_sha_test();
+			shad.cfg.transfer_mode = SHAD_TRANS_POLLING;
+			shad.cfg.algo = ALGO_SHA_1;
+			block_mode = 0;
+			break;
 		}
 	}
-
 	/* This code is never reached */
 }

@@ -59,3 +59,39 @@ Press '1','l','d','s' | SHA224, long-msg, dma | Digest successfully verified | P
 Press '2','l','d','s' | SHA256, long-msg, dma | Digest successfully verified | PASSED
 Press '3','l','d','s' | SHA384, long-msg, dma | Digest successfully verified | PASSED
 Press '4','l','d','s' | SHA512, long-msg, dma | Digest successfully verified | PASSED
+
+Press 'f'
+
+```
+SHA1 one-block message polling passed
+SHA1 multi-block message polling passed
+SHA1 long message polling passed
+SHA224 one-block message polling passed
+SHA224 multi-block message polling passed
+SHA224 long message polling passed
+SHA256 one-block message polling passed
+SHA256 multi-block message polling passed
+SHA256 long message polling passed
+SHA384 one-block message polling passed
+SHA384 multi-block message polling passed
+SHA384 long message polling passed
+SHA512 one-block message polling passed
+SHA512 multi-block message polling passed
+SHA512 long message polling passed
+SHA1 one-block message dma passed
+SHA1 multi-block message dma passed
+SHA1 long message dma passed
+SHA224 one-block message dma passed
+SHA224 multi-block message dma passed
+SHA224 long message dma passed
+SHA256 one-block message dma passed
+SHA256 multi-block message dma passed
+SHA256 long message dma passed
+SHA384 one-block message dma passed
+SHA384 multi-block message dma passed
+SHA384 long message dma passed
+SHA512 one-block message dma passed
+SHA512 multi-block message dma passed
+SHA512 long message dma passed
+TEST SUCCESS 
+```
