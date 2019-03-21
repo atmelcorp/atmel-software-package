@@ -71,3 +71,79 @@ Press '3','0','x','a','p' | Cipher Feedback, 64bit, XTEA, dma | PASSED | PASSED
 Press '3','1','x','a','p' | Cipher Feedback, 32bit, XTEA, dma | PASSED | PASSED
 Press '3','2','x','a','p' | Cipher Feedback, 16bit, XTEA, dma | PASSED | PASSED
 Press '3','3','x','a','p' | Cipher Feedback, 8bit, XTEA, dma | PASSED | PASSED
+
+press 'f'
+```
+ECB single two key auto start passed
+CBC single three key auto start passed
+OFB single three key auto start passed
+CFBS_64 single three key auto start passed
+CFBS_32 single three key auto start passed
+CFBS_16 single three key auto start passed
+CFBS_8 single three key auto start passed
+ECB single three key auto start passed
+CBC single two key auto start passed
+OFB single two key auto start passed
+CFBS_64 single two key auto start passed
+CFBS_32 single two key auto start passed
+CFBS_16 single two key auto start passed
+CFBS_8 single two key auto start passed
+ECB triple two key auto start passed
+CBC triple three key auto start passed
+OFB triple three key auto start passed
+CFBS_64 triple three key auto start passed
+CFBS_32 triple three key auto start passed
+CFBS_16 triple three key auto start passed
+CFBS_8 triple three key auto start passed
+ECB triple three key auto start passed
+CBC triple two key auto start passed
+OFB triple two key auto start passed
+CFBS_64 triple two key auto start passed
+CFBS_32 triple two key auto start passed
+CFBS_16 triple two key auto start passed
+CFBS_8 triple two key auto start passed
+ECB xtea two key auto start passed
+CBC xtea two key auto start passed
+OFB xtea two key auto start passed
+CFBS_64 xtea two key auto start passed
+CFBS_32 xtea two key auto start passed
+CFBS_16 xtea two key auto start passed
+CFBS_8 xtea two key auto start passed
+ECB single two key dma passed
+CBC single three key dma passed
+OFB single three key dma passed
+CFBS_64 single three key dma passed
+CFBS_32 single three key dma passed
+CFBS_16 single three key dma passed
+CFBS_8 single three key dma passed
+ECB single three key dma passed
+CBC single two key dma passed
+OFB single two key dma passed
+CFBS_64 single two key dma passed
+CFBS_32 single two key dma passed
+CFBS_16 single two key dma passed
+CFBS_8 single two key dma passed
+ECB triple two key dma passed
+CBC triple three key dma passed
+OFB triple three key dma passed
+CFBS_64 triple three key dma passed
+CFBS_32 triple three key dma passed
+CFBS_16 triple three key dma passed
+CFBS_8 triple three key dma passed
+ECB triple three key dma passed
+CBC triple two key dma passed
+OFB triple two key dma passed
+CFBS_64 triple two key dma passed
+CFBS_32 triple two key dma passed
+CFBS_16 triple two key dma passed
+CFBS_8 triple two key dma passed
+ECB xtea two key dma passed
+CBC xtea two key dma passed
+OFB xtea two key dma passed
+CFBS_64 xtea two key dma passed
+CFBS_32 xtea two key dma passed
+CFBS_16 xtea two key dma passed
+CFBS_8 xtea two key dma passed
+TEST SUCCESS !
+
+```

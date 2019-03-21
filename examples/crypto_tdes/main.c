@@ -169,7 +169,7 @@ CACHE_ALIGNED static uint32_t msg_in_clear[DATA_LEN_INWORD];
 CACHE_ALIGNED static uint32_t msg_encrypted[DATA_LEN_INWORD];
 CACHE_ALIGNED static uint32_t msg_decrypted[DATA_LEN_INWORD];
 
-static uint32_t  key_mode;
+static uint32_t key_mode;
 
 /* TDES driver instance */
 static struct _tdesd_desc tdesd;
@@ -180,7 +180,6 @@ static struct _tdesd_desc tdesd;
 
 static int _tdes_callback(void* arg, void* arg2)
 {
-	printf("-I- transfer completed\r\n");
 	return 0;
 }
 
@@ -223,7 +222,7 @@ static void process_buffer(bool encrypt, uint32_t *in, uint32_t *out)
 /**
  * \brief Start TDES process.
  */
-static void start_tdes(void)
+static bool start_tdes(bool full_test)
 {
 	uint32_t i;
 	uint8_t c;
@@ -232,26 +231,96 @@ static void start_tdes(void)
 	memset(msg_encrypted, 0xff, DATA_LEN_INBYTE);
 	memset(msg_decrypted, 0xff, DATA_LEN_INBYTE);
 
-	process_buffer(true, msg_in_clear, msg_encrypted);
-	printf("-I- Dumping the encrypted message...");
-	for (i = 0; i < DATA_LEN_INWORD; i++) {
-		if (i % 8 == 0)
-			printf("\n\r%03lx:    ", i * 4);
-		printf(" %08lx", msg_encrypted[i]);
+	if (full_test) {
+		switch(tdesd.cfg.mode) {
+		case TDESD_MODE_ECB:
+			printf("ECB ");
+			break;
+		case TDESD_MODE_CBC:
+			printf("CBC ");
+			break;
+		case TDESD_MODE_OFB:
+			printf("OFB ");
+			break;
+		case TDESD_MODE_CFB:
+			switch (tdesd.cfg.cfbs){
+			case TDESD_CFBS_64:
+				printf("CFBS_64 ");
+				break;
+			case TDESD_CFBS_32:
+				printf("CFBS_32 ");
+				break;
+			case TDESD_CFBS_16:
+				printf("CFBS_16 ");
+				break;
+			case TDESD_CFBS_8:
+				printf("CFBS_8 ");
+				break;
+			}
+			break;
+		}
+		switch (tdesd.cfg.algo) {
+		case TDESD_ALGO_SINGLE:
+			printf("single ");
+			break;
+		case TDESD_ALGO_TRIPLE:
+			printf("triple ");
+			break;
+		case TDESD_ALGO_XTEA:
+			printf("xtea ");
+			break;
+		}
+		switch (tdesd.cfg.key_mode) {
+		case TDESD_KEY_THREE:
+			printf("three key ");
+			break;
+		case TDESD_KEY_TWO:
+			printf("two key ");
+			break;
+		}
+		switch (tdesd.cfg.transfer_mode) {
+		case TDESD_TRANS_POLLING_MANUAL:
+			printf("manually ");
+			break;
+		case TDESD_TRANS_POLLING_AUTO:
+			printf("auto start ");
+			break;
+		case TDESD_TRANS_DMA:
+			printf("dma ");
+			break;
+		}
 	}
-	printf("\n\r");
+
+	process_buffer(true, msg_in_clear, msg_encrypted);
+	if (!full_test) {
+		printf("-I- Dumping the encrypted message...");
+		for (i = 0; i < DATA_LEN_INWORD; i++) {
+			if (i % 8 == 0)
+				printf("\n\r%03lx:    ", i * 4);
+			printf(" %08lx", msg_encrypted[i]);
+		}
+		printf("\n\r");
+	}
 
 	process_buffer(false, msg_encrypted, msg_decrypted);
-	printf("-I- Dumping plain text after TDES decryption...\n\r");
-	/* Print the entire buffer, even past the nul characters if any */
-	for (i = 0; i < DATA_LEN_INBYTE; i++) {
-		c = ((const uint8_t*)msg_decrypted)[i];
-		if (isprint(c) || isspace(c))
-			putchar(c);
-		else
-			printf("%%%x", c);
+	if (!full_test) {
+		printf("-I- Dumping plain text after TDES decryption...\n\r");
+		/* Print the entire buffer, even past the nul characters if any */
+		for (i = 0; i < DATA_LEN_INBYTE; i++) {
+			c = ((const uint8_t*)msg_decrypted)[i];
+			if (isprint(c) || isspace(c))
+				putchar(c);
+			else
+				printf("%%%x", c);
+		}
+		printf("\n\r");
 	}
-	printf("\n\r");
+	if (memcmp(msg_in_clear, msg_decrypted, DATA_LEN_INWORD) != 0) {
+		printf("failed\r\n");
+		return false;
+	}
+	printf("passed\r\n");
+	return true;
 }
 
 /**
@@ -331,6 +400,53 @@ static void set_cipher_size(void)
 	display_cipher_menu();
 }
 
+/**
+ * \brief Start Full TDES test.
+ */
+static void full_tdes_test(void)
+{
+	uint8_t key;
+
+	tdesd.cfg.mode = TDESD_MODE_ECB;
+	tdesd.cfg.cfbs = TDESD_CFBS_64;
+	for (tdesd.cfg.transfer_mode = TDESD_TRANS_POLLING_AUTO;
+		 tdesd.cfg.transfer_mode <= TDESD_TRANS_DMA;
+		 tdesd.cfg.transfer_mode++) {
+		for (tdesd.cfg.algo = TDESD_ALGO_SINGLE;
+			 tdesd.cfg.algo <= TDESD_ALGO_XTEA;
+			 tdesd.cfg.algo++) {
+			for (key = 0; key <= 1; key++) {
+				if (((tdesd.cfg.mode == TDESD_MODE_CFB) || (tdesd.cfg.algo ==TDESD_ALGO_XTEA)) && key == TDESD_KEY_THREE) {
+					continue;
+				} else {
+					key_mode = (enum _tdesd_key_mode)key;
+					for (tdesd.cfg.mode = TDESD_MODE_ECB;
+					tdesd.cfg.mode <= TDESD_MODE_CFB;
+						tdesd.cfg.mode++) {
+						if (tdesd.cfg.mode == TDESD_MODE_CFB) {
+							for (tdesd.cfg.cfbs = TDESD_CFBS_64;
+								tdesd.cfg.cfbs <= TDESD_CFBS_8;
+								tdesd.cfg.cfbs++) {
+								if (!start_tdes(true)) {
+									printf("TEST FAILED !\r\n");
+									return;
+								};
+							}
+						} else {
+							if (!start_tdes(true)) {
+								printf("TEST FAILED !\r\n");
+
+								return;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	printf("TEST SUCCESS !\r\n");
+}
+
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
@@ -399,7 +515,14 @@ int main(void)
 			display_menu();
 			break;
 		case 'p':
-			start_tdes();
+			start_tdes(false);
+			break;
+		case 'f':
+			full_tdes_test();
+			tdesd.cfg.mode = TDESD_MODE_ECB;
+			tdesd.cfg.cfbs = TDESD_CFBS_64;
+			tdesd.cfg.transfer_mode = TDESD_TRANS_POLLING_AUTO;
+			tdesd.cfg.algo = TDESD_ALGO_SINGLE;
 			break;
 		}
 	}
