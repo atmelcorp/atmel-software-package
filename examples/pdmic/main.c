@@ -186,7 +186,7 @@ static struct _classd_desc classd_desc = {
 	.swap_channels = true,
 	.mono = BOARD_CLASSD0_MONO,
 	.mono_mode = BOARD_CLASSD0_MONO_MODE,
-	.left_enable = true,
+	.left_enable = false,
 	.right_enable = true,
 };
 

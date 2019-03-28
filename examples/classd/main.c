@@ -134,8 +134,13 @@ static struct _classd_desc classd_desc = {
 	.swap_channels = false,
 	.mono = BOARD_CLASSD0_MONO,
 	.mono_mode = BOARD_CLASSD0_MONO_MODE,
+#if defined(CONFIG_SOC_SAM9X60)
 	.left_enable = true,
+	.right_enable = false,
+#elif defined(CONFIG_SOC_SAMA5D2)
+	.left_enable = false,
 	.right_enable = true,
+#endif
 	.transfer_mode = CLASSD_MODE_DMA,
 };
 
