@@ -188,3 +188,66 @@ bool is_peripheral_on_dma_controller(uint32_t id, Xdmac *xdmac)
 	return get_peripheral_xdma(id, xdmac) != NULL;
 }
 
+
+int32_t get_peripheral_fifo_depth(void* addr)
+{
+	uint32_t size = -1;
+	uint32_t tmp = (uint32_t)addr;
+	switch (tmp) {
+	case (uint32_t)FLEXUSART0:
+#ifdef FLEXUSART1
+	case (uint32_t)FLEXUSART1:
+#endif
+#ifdef FLEXUSART2
+	case (uint32_t)FLEXUSART2:
+#endif
+#ifdef FLEXUSART3
+	case (uint32_t)FLEXUSART3:
+#endif
+#ifdef FLEXUSART4
+	case (uint32_t)FLEXUSART4:
+#endif
+		size = FLEXCOM_USART_FIFO_DEPTH;
+		break;
+
+	case (uint32_t)FLEXSPI0:
+#ifdef FLEXSPI1
+	case (uint32_t)FLEXSPI1:
+#endif
+#ifdef FLEXSPI2
+	case (uint32_t)FLEXSPI2:
+#endif
+#ifdef FLEXSPI3
+	case (uint32_t)FLEXSPI3:
+#endif
+#ifdef FLEXSPI4
+	case (uint32_t)FLEXSPI4:
+#endif
+		size = FLEXCOM_SPI_FIFO_DEPTH;
+		break;
+	case (uint32_t)FLEXTWI0:
+#ifdef FLEXTWI1
+	case (uint32_t)FLEXTWI1:
+#endif
+#ifdef FLEXTWI2
+	case (uint32_t)FLEXTWI2:
+#endif
+#ifdef FLEXTWI3
+	case (uint32_t)FLEXTWI3:
+#endif
+#ifdef FLEXTWI4
+	case (uint32_t)FLEXTWI4:
+#endif
+#ifdef TWI0
+	case (uint32_t)TWI0:
+#endif
+#ifdef TWI1
+	case (uint32_t)TWI1:
+#endif
+		size = TWI_FIFO_DEPTH;
+		break;
+	default:
+		size = -1;
+	}
+	return size;
+}

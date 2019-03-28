@@ -133,6 +133,21 @@ struct _console_cfg;
 #define ETH_QUEUE_COUNT (EMAC_QUEUE_COUNT)
 #endif
 
+/** FLEXCOM USART FIFO depth */
+#define FLEXCOM_USART_FIFO_DEPTH (16u)
+
+/** FLEXCOM SPI FIFO depth */
+#define FLEXCOM_SPI_FIFO_DEPTH (16u)
+
+/** CAN Interface max */
+#define CAN_IFACE_COUNT (2)
+
+/** SPI FIFO depth */
+#define SPI_FIFO_DEPTH (16u)
+
+/** TWI FIFO depth */
+#define TWI_FIFO_DEPTH (16u)
+
 /** Frequency of the on-chip slow clock oscillator */
 #define SLOW_CLOCK_INT_OSC 32000
 
@@ -232,6 +247,14 @@ extern bool is_peripheral_on_dma_controller(uint32_t id, Xdmac *xdmac);
  */
 extern bool is_peripheral_configurable(uint32_t id);
 
+
+/** \brief Retrive peripheral FIFO size from its base address
+ *
+ * \param addr the Peripheral base addr
+ * \return Size in number of data of the peripherals FIFO if
+ * available, negative value otherwise.
+ */
+extern int32_t get_peripheral_fifo_depth(void* addr);
 #ifdef __cplusplus
 }
 #endif
