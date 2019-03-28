@@ -13,6 +13,10 @@ micro-controllers.
 
 # Test
 ------
+## Supported targets
+--------------------
+* SAMA5D2-XPLAINED
+* SAM9X60-EK
 
 ## Setup
 --------
@@ -26,7 +30,7 @@ Step needed to set up the example.
 	- No parity
 	- 1 stop bit
 	- No flow control
-* Start the application (SAMA5D2-XPLAINED)
+* Start the application
 * In the terminal window, the following text should appear (values depend on the
  board and chip used):
 ```

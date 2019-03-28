@@ -41,6 +41,7 @@
  * This package is compatible with the evaluation boards listed below:
  * - SAMA5D2-VB
  * - SAMA5D2-XULT
+ * - SAM9X60-EK
  *
  * \section Description
  *
@@ -117,16 +118,32 @@
  *----------------------------------------------------------------------------*/
 
 /** COM2 definition **/
+#if defined(CONFIG_BOARD_SAM9X60_EK)
+#define COM2_USART_PINS         PINS_FLEXCOM0_USART_IOS1
+#define COM2_USART_ENA_PIN      { PIO_GROUP_A, PIO_PA2, PIO_OUTPUT_1, PIO_DEFAULT }
+#define COM2_USART_ADDR         FLEXUSART0
+
+#else
+
 #define COM2_USART_PINS         PINS_FLEXCOM0_USART_IOS1
 #define COM2_USART_ENA_PIN      { PIO_GROUP_C, PIO_PC0C_FLEXCOM0_IO4, PIO_OUTPUT_1, PIO_DEFAULT }
 #define COM2_USART_ADDR         FLEXUSART0
+#endif
+
 #define COM2_USART_BAUDRATE     9600
 #define COM2_USART_MODE         (US_MR_CHMODE_NORMAL | US_MR_CHRL_8_BIT | US_MR_NBSTOP_1_BIT | US_MR_PAR_ODD | US_MR_USART_MODE_LIN_MASTER)
 
 /** COM3 definition **/
+#if defined(CONFIG_BOARD_SAM9X60_EK)
+#define COM3_USART_PINS         PINS_FLEXCOM2_USART_IOS1
+#define COM3_USART_ENA_PIN      { PIO_GROUP_A, PIO_PA3, PIO_OUTPUT_1, PIO_DEFAULT }
+#define COM3_USART_ADDR         FLEXUSART2
+
+#else
 #define COM3_USART_PINS         PINS_FLEXCOM1_USART_IOS1
 #define COM3_USART_ENA_PIN      { PIO_GROUP_A, PIO_PA26A_FLEXCOM1_IO4, PIO_OUTPUT_1, PIO_DEFAULT }
 #define COM3_USART_ADDR         FLEXUSART1
+#endif
 #define COM3_USART_BAUDRATE     9600
 #define COM3_USART_MODE         (US_MR_CHMODE_NORMAL | US_MR_CHRL_8_BIT | US_MR_NBSTOP_1_BIT | US_MR_PAR_ODD | US_MR_USART_MODE_LIN_SLAVE)
 
