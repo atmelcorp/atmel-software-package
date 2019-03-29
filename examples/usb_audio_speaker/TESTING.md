@@ -16,6 +16,15 @@ board, and eventually sent to audio DAC connected to the amplifier.
 # Test
 ------
 
+## Supported targets
+--------------------
+* SAMA5D4-EK
+* SAMA5D3-EK
+* SAMA5D2-XPLAINED
+* SAM9XX5-EK
+* SAMV71-XPLAINED
+* SAM9X60-EK: [MCK is 196.608MHz](/projects/SOFTPACK/repos/softpack/browse/flash_loaders/README.md).
+
 ## Setup
 --------
 On the computer, open and configure a terminal application (e.g. HyperTerminal
@@ -26,8 +35,8 @@ on Microsoft Windows) with these settings:
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D2-XPLAINED)
--------------------------------------------
+## Start the application
+------------------------
 When connecting USB cable to host, the host reports a new USB device
 attachment. The new "USB Audio Device" appear in the hardware device list, then
 play sound in host side through the USB Audio Device, and it can be heard from
@@ -47,14 +56,3 @@ In order to test this example, the process is the following:
 Step | Description | Expected Result | Result
 -----|-------------|-----------------|-------
 Play sound through host software | Sound is heard | PASSED | PASSED
-
-
-# Log
------
-
-## Current version
-------------------
- - v1.3
-
-## History
-----------

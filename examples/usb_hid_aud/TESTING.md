@@ -19,7 +19,7 @@ can play sound and input characters through board.
 ## Supported targets
 --------------------
 * SAM9XX5-EK
-* SAM9X60-EK
+* SAM9X60-EK: [MCK is 196.608MHz](/projects/SOFTPACK/repos/softpack/browse/flash_loaders/README.md).
 * SAMA5D2-XPLAINED
 * SAMA5D3-EK
 * SAMA5D4-EK

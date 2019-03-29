@@ -10,8 +10,15 @@ This example aims to test the CLASSD peripheral.
 The demonstration program test the CLASSD Speaker. When the board running this
 program, it can play demonstration music with speaker.
 
+
+
 # Test
 ------
+
+## Supported targets
+--------------------
+* SAMA5D2-XPLAINED: support classd right channel.
+* SAM9X60-EK: support classd left channel, [MCK is 196.608MHz](/projects/SOFTPACK/repos/softpack/browse/flash_loaders/README.md).
 
 ## Setup
 --------
@@ -23,7 +30,7 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
-## Start the application (SAMA5D2-XPLAINED or SAM9X60-EK)
+## Start the application
 --------
 Firstly connect the speaker to the classd interface of main board.
 
@@ -57,13 +64,3 @@ Press '4' | Output Audio PMC Clock to PCK1 IOS2, connect the pin with oscillogra
 Press '+' | Increase the volume of sound | PASSED | PASSED
 Press '-' | Decrease the volume of sound | PASSED | PASSED
 
-
-# Log
-------
-
-## Current version
---------
- - v1.3
-
-## History
---------
