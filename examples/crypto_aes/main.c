@@ -251,7 +251,9 @@ static void process_buffer(bool encrypt,
 	aesd.cfg.key2[5] = AES_KEY2_5;
 	aesd.cfg.key2[6] = AES_KEY2_6;
 	aesd.cfg.key2[7] = AES_KEY2_7;
+#endif
 
+#ifdef CONFIG_HAVE_AES_XTS
 	aesd.cfg.tweakin[0] = AES_TWEAKIN_0;
 	aesd.cfg.tweakin[1] = AES_TWEAKIN_1;
 	aesd.cfg.tweakin[2] = AES_TWEAKIN_2;
@@ -395,6 +397,8 @@ static void full_aes_test(void)
 #if !defined CONFIG_HAVE_AES_GCM
 				if (aesd.cfg.mode == AESD_MODE_GCM)
 					continue;
+#endif
+#if !defined CONFIG_HAVE_AES_XTS
 				if (aesd.cfg.mode == AESD_MODE_XTS)
 					continue;
 #endif
@@ -411,7 +415,7 @@ static void full_aes_test(void)
 					}
 				}
 #endif
-				
+
 				if (aesd.cfg.mode == AESD_MODE_CFB) {
 					for (aesd.cfg.cfbs = AESD_CFBS_128;
 						 aesd.cfg.cfbs <= AESD_CFBS_8;
@@ -439,11 +443,14 @@ static void display_menu(void)
 {
 	uint8_t chk_box[7];
 	printf("\n\rAES Menu:\n\r");
+	printf("Press [0|1|2|3|4");
 #ifdef CONFIG_HAVE_AES_GCM
-	printf("Press [0|1|2|3|4|5|6] to set the Mode of Operation\n\r");
-#else
-	printf("Press [0|1|2|3|4] to set the Mode of Operation\n\r");
+	printf("|5");
 #endif
+#ifdef CONFIG_HAVE_AES_XTS
+	printf("|6");
+#endif
+	printf("] to set the Mode of Operation\n\r");
 	chk_box[0] = (aesd.cfg.mode == AESD_MODE_ECB) ? 'X' : ' ';
 	chk_box[1] = (aesd.cfg.mode == AESD_MODE_CBC) ? 'X' : ' ';
 	chk_box[2] = (aesd.cfg.mode == AESD_MODE_OFB) ? 'X' : ' ';
@@ -451,6 +458,8 @@ static void display_menu(void)
 	chk_box[4] = (aesd.cfg.mode == AESD_MODE_CTR) ? 'X' : ' ';
 #ifdef CONFIG_HAVE_AES_GCM
 	chk_box[5] = (aesd.cfg.mode == AESD_MODE_GCM) ? 'X' : ' ';
+#endif
+#ifdef CONFIG_HAVE_AES_XTS
 	chk_box[6] = (aesd.cfg.mode == AESD_MODE_XTS) ? 'X' : ' ';
 #endif
 
@@ -461,6 +470,8 @@ static void display_menu(void)
 	printf("   4: 16-bit internal Counter [%c]\n\r", chk_box[4]);
 #ifdef CONFIG_HAVE_AES_GCM
 	printf("   5: Galois/Counter Mode     [%c]\n\r", chk_box[5]);
+#endif
+#ifdef CONFIG_HAVE_AES_XTS
 	printf("   6: XEX-Based Tweaked-Code  [%c]\n\r", chk_box[6]);
 #endif
 	printf("Press [7|8|9] to select key size\n\r");
@@ -588,6 +599,8 @@ int main(void)
 			aesd.cfg.entag = true;
 			display_menu();
 			break;
+#endif
+#ifdef CONFIG_HAVE_AES_XTS
 		case '6':
 			aesd.cfg.mode = AESD_MODE_XTS;
 			aesd.cfg.entag = false;
