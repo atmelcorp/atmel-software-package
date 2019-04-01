@@ -18,7 +18,7 @@ program, it can play demonstration music with speaker.
 ## Supported targets
 --------------------
 * SAMA5D2-XPLAINED: support classd right channel.
-* SAM9X60-EK: support classd left channel, [MCK is 196.608MHz](/projects/SOFTPACK/repos/softpack/browse/flash_loaders/README.md).
+* SAM9X60-EK: support classd left channel, [MCK is 196.608MHz](../../flash_loaders/README.md).
 
 ## Setup
 --------

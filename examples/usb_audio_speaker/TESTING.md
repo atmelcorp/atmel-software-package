@@ -23,7 +23,7 @@ board, and eventually sent to audio DAC connected to the amplifier.
 * SAMA5D2-XPLAINED
 * SAM9XX5-EK
 * SAMV71-XPLAINED
-* SAM9X60-EK: [MCK is 196.608MHz](/projects/SOFTPACK/repos/softpack/browse/flash_loaders/README.md).
+* SAM9X60-EK: [MCK is 196.608MHz](../../flash_loaders/README.md).
 
 ## Setup
 --------
