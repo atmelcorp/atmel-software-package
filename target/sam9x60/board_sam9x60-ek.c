@@ -90,6 +90,11 @@ WEAK void board_init(void)
 	/* DMA Driver init */
 	dma_initialize(false);
 
+#ifdef CONFIG_HAVE_SPI_BUS
+	/* Configure SPI bus */
+	board_cfg_spi_bus();
+#endif
+
 #ifdef CONFIG_HAVE_LCDC
 	/* Configure LCD controller/display */
 	board_cfg_lcd();

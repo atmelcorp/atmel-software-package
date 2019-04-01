@@ -301,9 +301,13 @@
 
 /* ================== SPI bus definition ====================== */
 
-//#define BOARD_SPI_BUS0       FLEXSPI0
-//#define BOARD_SPI_BUS0_PINS  PINS_SPI0_NPCS0
-//#define BOARD_SPI_BUS0_MODE  BUS_TRANSFER_MODE_DMA
+#define BOARD_SPI_BUS0       FLEXSPI4
+#define BOARD_SPI_BUS0_PINS  PINS_FLEXCOM4_SPI_NPCS0_IOS1
+#define BOARD_SPI_BUS0_MODE  BUS_TRANSFER_MODE_DMA
+
+#define BOARD_SPI_BUS1       FLEXSPI0
+#define BOARD_SPI_BUS1_PINS  PINS_FLEXCOM0_SPI_NPCS0_IOS1
+#define BOARD_SPI_BUS1_MODE  BUS_TRANSFER_MODE_DMA
 
 /* =================== AT24 device definition =================== */
 
