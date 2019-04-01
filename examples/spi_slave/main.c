@@ -80,6 +80,14 @@
  * - SPI0_SPCK (PA13 on J1 pin 31) - SPI1_SPCK (PA23 on J1 pin 20)
  * - SPI0_NPCS1 (PA7 on J1 pin 19) - SPI1_NPCS0 (PA8 on J1 pin 21)
  *
+ * Requirements when running on SAM9X60-EK:
+ * We need to connect the SPI pins on the board before running the example.
+ * - <b>  SPI0 (MASTER)                        - SPI1 (SLAVE)</b>
+ * - SPI0_MISO (PA11 on J15 pin 5)  - SPI1_MISO (PA01 on J15 pin 12)
+ * - SPI0_MOSI (PA12 on J15 pin 6)  - SPI1_MOSI (PA00 on J15 pin 11)
+ * - SPI0_SPCK (PA13 on J15 pin 4)  - SPI1_SPCK (PA04 on J17 pin 15)
+ * - SPI0_NPCS0 (PA14 on J15 pin 3) - SPI1_NPCS1 (PA03 on J17 pin 13)
+ *
  * \section Descriptions
  *
  * This example shows control of the SPI slave, how to configure and
@@ -180,7 +188,8 @@
 	#include "config_sam9xx5-ek.h"
 #elif defined(CONFIG_BOARD_SAM9X35_EK)
 	#include "config_sam9xx5-ek.h"
-
+#elif defined(CONFIG_BOARD_SAM9X60_EK)
+	#include "config_sam9x60-ek.h"
 #else
 	#error Unsupported board!
 #endif
