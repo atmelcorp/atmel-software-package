@@ -272,7 +272,9 @@ void aes_get_gcm_hash_subkey(uint32_t* h)
 	for (i = 0; i < 4; i++)
 		h[i] = AES->AES_GCMHR[i];
 }
+#endif /* CONFIG_HAVE_AES_GCM */
 
+#ifdef CONFIG_HAVE_AES_XTS
 void aes_set_tweak(uint32_t* tweak)
 {
 	uint8_t i;
@@ -286,9 +288,4 @@ void aes_set_alpha(uint32_t* alpha)
 	for (i = 0; i < 4; i++)
 		AES->AES_ALPHAR[i] = alpha[i];
 }
-
-#endif /* CONFIG_HAVE_AES_GCM */
-
-
-
-
+#endif /* CONFIG_HAVE_AES_XTS */

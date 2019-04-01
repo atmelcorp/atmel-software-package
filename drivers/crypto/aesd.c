@@ -291,6 +291,8 @@ uint32_t aesd_transfer(struct _aesd_desc* desc,
 			aes_get_gcm_hash(j0);
 		}
 	}
+#endif
+#ifdef CONFIG_HAVE_AES_XTS
 	if (desc->cfg.mode == AESD_MODE_XTS) {
 		/* In AES_MR, set OPMODE to ECB, CIPHER bit to ‘1' */
 		aes_set_op_mode(AESD_MODE_ECB);

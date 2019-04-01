@@ -196,6 +196,9 @@ void aes_get_gcm_counter(uint32_t * counter);
  */
 void aes_get_gcm_hash_subkey(uint32_t * h);
 
+#endif /* CONFIG_HAVE_AES_GCM */
+
+#ifdef CONFIG_HAVE_AES_XTS
 /**
  * \brief Set The four 32-bit tweak Word registers.
  * \param hash  Pointer to the word of the tweak.
@@ -208,7 +211,7 @@ void aes_set_tweak(uint32_t* tweak);
  */
 void aes_set_alpha(uint32_t* alpha);
 
-#endif /* CONFIG_HAVE_AES_GCM */
+#endif /* CONFIG_HAVE_AES_XTS */
 
 #endif /* CONFIG_HAVE_AES */
 
