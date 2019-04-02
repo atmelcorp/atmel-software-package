@@ -137,6 +137,7 @@ typedef struct {
 #define PMC_PLL_SSR_NSTEP(value) ((PMC_PLL_SSR_NSTEP_Msk & ((value) << PMC_PLL_SSR_NSTEP_Pos)))
 #define PMC_PLL_SSR_ENSPREAD (0x1u << 28) /**< \brief (PMC_PLL_SSR) Spread Spectrum Enable */
 /* -------- PMC_PLL_ACR : (PMC Offset: 0x0018) PLL Analog Control Register -------- */
+#define PMC_PLL_ACR_DEFAULT 0x1b040010u /**< \brief (PMC_PLL_ACR) Each time the register PMC_PLL_ACR needs to be written with 0x1b040010u */
 #define PMC_PLL_ACR_CONTROL_Pos 0
 #define PMC_PLL_ACR_CONTROL_Msk (0xfffu << PMC_PLL_ACR_CONTROL_Pos) /**< \brief (PMC_PLL_ACR) PLL CONTROL Value Selection */
 #define PMC_PLL_ACR_CONTROL(value) ((PMC_PLL_ACR_CONTROL_Msk & ((value) << PMC_PLL_ACR_CONTROL_Pos)))
