@@ -417,7 +417,10 @@ static void _pmc_configure_pll(const struct _pmc_plla_cfg* plla)
 	
 	if ((PMC -> PMC_PLL_ACR & PMC_PLL_ACR_UTMIBG) != PMC_PLL_ACR_UTMIBG) {
 		/* 2. Write PMC_PLL_ACR.UTMIBG to '1' to enable the UTMI internal bandgap. */
-		PMC->PMC_PLL_ACR |= PMC_PLL_ACR_UTMIBG;
+		reg = PMC->PMC_PLL_ACR;
+		reg |= PMC_PLL_ACR_UTMIBG;
+		reg |= PMC_PLL_ACR_DEFAULT;
+		PMC->PMC_PLL_ACR = reg;
 		/* 3. Wait 10 us. */
 		usleep(10);
 	}
@@ -426,6 +429,7 @@ static void _pmc_configure_pll(const struct _pmc_plla_cfg* plla)
 	reg = PMC->PMC_PLL_ACR;
 	reg &= ~PMC_PLL_ACR_LOOP_FILTER_Msk;
 	reg |= PMC_PLL_ACR_LOOP_FILTER(plla->loop_filter);
+	reg |= PMC_PLL_ACR_DEFAULT;
 	PMC->PMC_PLL_ACR = reg;
 
 	/* 3. Define the MUL and FRACR to be applied to PLL(n) in PMC_PLL_CTRL1. */
@@ -434,13 +438,18 @@ static void _pmc_configure_pll(const struct _pmc_plla_cfg* plla)
 	/* In case UPLL is being configured, follow Step 4. to Step 7., else jump to Step 8. */
 	if (plla->pll_id == PLL_ID_UPLL) {
 		/* 4. Write PMC_PLL_ACR.UTMIBG to '1' to enable the UTMI internal bandgap. */
-		PMC->PMC_PLL_ACR |= PMC_PLL_ACR_UTMIBG;
-
+		reg = PMC->PMC_PLL_ACR;
+		reg |= PMC_PLL_ACR_UTMIBG;
+		reg |= PMC_PLL_ACR_DEFAULT;
+		PMC->PMC_PLL_ACR = reg;
 		/* 5. Wait 10 us. */
 		usleep(10);
 
 		/* 6. Write PMC_PLL_ACR.UTMIVR to '1' to enable the UTMI internal regulator. */
-		PMC->PMC_PLL_ACR |= PMC_PLL_ACR_UTMIVR;
+		reg = PMC->PMC_PLL_ACR;
+		reg |= PMC_PLL_ACR_UTMIVR;
+		reg |= PMC_PLL_ACR_DEFAULT;
+		PMC->PMC_PLL_ACR = reg;
 
 		/* 7. Wait 10 us. */
 		usleep(10);
@@ -504,8 +513,12 @@ static void _pmc_disable_pll(uint32_t pll_id)
 
 	/* 6. In case a UPLL is being powered down, write a '0' to PMC_PLL_ACR.UTMIBG and
 	PMC_PLL_ACR.UTMIVR. */
-	if (pll_id == PLL_ID_UPLL)
-		PMC->PMC_PLL_ACR &= ~(PMC_PLL_ACR_UTMIBG | PMC_PLL_ACR_UTMIVR);
+	if (pll_id == PLL_ID_UPLL) {
+		reg = PMC->PMC_PLL_ACR;
+		reg &= ~(PMC_PLL_ACR_UTMIBG | PMC_PLL_ACR_UTMIVR);
+		reg |= PMC_PLL_ACR_DEFAULT;
+		PMC->PMC_PLL_ACR = reg;
+	}
 }
 
 static bool _pmc_pll_enabled(uint32_t pll_id)
