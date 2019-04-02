@@ -141,6 +141,7 @@ isc                    | x              | OK               | OK               | 
 isi                    | x              | x                | x                | x                | x          | x                | OK
 lcd                    | OK             | OK               | OK               | OK               | OK         | OK               | OK
 low_power_mode         | OK             | OK               | OK               | OK               | OK         | OK               | OK
+otp                    | x              | x                | x                | x                | OK         | x                | x
 pdmic                  | x              | OK               | x                | x                | x          | x                | x
 pmc_clock_switching    | OK             | OK               | OK               | OK               | OK         | OK               | OK
 power_consumption_pll  | OK             | OK               | OK               | OK               | OK         | OK               | OK
@@ -219,30 +220,31 @@ isc                    | x          | x          | x               | x
 isi                    | x          | x          | x               | x
 lcd                    | OK         | OK         | x               | TODO
 low_power_mode         | TODO       | OK         | TODO            | TODO
+otp                    | x          | OK         | x               | x
 pdmic                  | x          | TODO       | TODO            | TODO
 pmc_clock_switching    | OK         | OK         | TODO            | OK
 power_consumption_pll  | OK         | OK         | OK              | TODO
 pwm                    | OK         | OK         | OK              | OK
 qspi_flash             | x          | OK         | x               | TODO
 qspi_xip               | x          | OK         | x               | TODO
-rtc                    | OK         | TODO       | OK              | OK
+rtc                    | OK         | OK         | OK              | OK
 rtt                    | x          | OK         | x               | x
 sdmmc_sdcard           | OK         | OK         | OK              | OK
 secumod                | x          | x          | x               | x
 smc_nandflash_mlc      | OK         | OK         | x               | x
 smc_nandflash_slc      | OK         | OK         | x               | x
 spi_serialflash        | OK         | x          | x               | x
-spi_slave              | OK         | TODO       | x               | x
+spi_slave              | OK         | OK         | x               | x
 ssc_dma_audio          | OK         | TODO       | x               | OK
 tc                     | OK         | TODO       | OK              | OK
 test-pio               | OK         | OK         | OK              | OK
 timer                  | OK         | OK         | OK              | OK
 twi_eeprom             | OK         | OK         | OK              | OK
 usart                  | OK         | OK         | OK              | OK
-usart_irda             | OK         | TODO       | TODO            | TODO
-usart_iso7816          | OK         | TODO       | TODO            | OK
-usart_lin              | x          | TODO       | TODO            | TODO
-usart_rs485            | TODO       | TODO       | OK              | OK
+usart_irda             | OK         | OK         | TODO            | TODO
+usart_iso7816          | OK         | OK         | TODO            | OK
+usart_lin              | x          | OK         | TODO            | TODO
+usart_rs485            | TODO       | OK         | OK              | OK
 usb_audio_looprec      | TODO       | TODO       | x               | TODO
 usb_audio_multi_channels | TODO     | TODO       | x               | TODO
 usb_audio_speaker      | OK         | OK         | x               | OK
