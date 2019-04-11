@@ -210,6 +210,20 @@ uint32_t FlashInit(void *base_of_flash,
 		device = W972GG6KB_16;
 		break;
 #endif
+
+#ifdef CONFIG_HAVE_DDR2_W9712G6KB
+	case 15:
+		trace_warning_wp("Preset 15 (W9712G6KB)\r\n");
+		device = W9712G6KB;
+		break;
+#endif
+#ifdef CONFIG_HAVE_DDR2_W9751G6KB
+	case 16:
+		trace_warning_wp("Preset 16 (W9751G6KB)\r\n");
+		device = W9751G6KB;
+		break;
+#endif
+
 #ifdef CONFIG_HAVE_SDRAM_AS4C16M16SA
 	case 10:
 		printf("Preset 10 (AS4C16M16SA)\r\n");
@@ -220,6 +234,12 @@ uint32_t FlashInit(void *base_of_flash,
 	case 13:
 		trace_warning_wp("Preset 13 (AD220032D)\r\n");
 		device = AD220032D;
+		break;
+#endif
+#ifdef CONFIG_HAVE_LPDDR2_AD210032D
+	case 14:
+		trace_warning_wp("Preset 14 (AD210032D)\r\n");
+		device = AD210032D;
 		break;
 #endif
 	default:
