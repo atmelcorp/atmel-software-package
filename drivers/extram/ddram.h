@@ -65,11 +65,17 @@ enum _ddram_devices {
 	MT47H128M16,   /* DDR2 2*256MB */
   #endif
   #ifdef CONFIG_HAVE_DDR2_W971GG6SB
-	W971GG6SB,     /* DDR2 256MB */
+	W971GG6SB,     /* DDR2 128MB */
   #endif
   #ifdef CONFIG_HAVE_DDR2_W972GG6KB
 	W972GG6KB_16,  /* DDR2 1*256MB */
 	W972GG6KB,     /* DDR2 2*256MB */
+  #endif
+  #ifdef CONFIG_HAVE_DDR2_W9712G6KB
+	W9712G6KB,  /* DDR2 1*16MB */
+  #endif
+  #ifdef CONFIG_HAVE_DDR2_W9751G6KB
+	W9751G6KB,  /* DDR2 1*64MB */
   #endif
 #endif
 #ifdef CONFIG_HAVE_MPDDRC_LPDDR2
@@ -78,6 +84,9 @@ enum _ddram_devices {
   #endif
   #ifdef CONFIG_HAVE_LPDDR2_AD220032D
 	AD220032D,     /* LPDDR2 1*256MB */
+  #endif
+  #ifdef CONFIG_HAVE_LPDDR2_AD210032D
+	AD210032D,     /* LPDDR2 1*128MB */
   #endif
 #endif
 #ifdef CONFIG_HAVE_MPDDRC_DDR3
