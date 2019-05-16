@@ -156,8 +156,8 @@ rtc                    | OK             | OK               | OK               | 
 rtt                    | x              | x                | x                | x                | x          | x                | x
 sdmmc_sdcard           | OK             | OK               | OK               | OK               | OK         | OK               | OK
 secumod                | OK             | OK               | OK               | x                | x          | OK               | OK
-smc_nandflash_mlc      | OK             | OK               | x                | OK               | OK         | OK               | OK
-smc_nandflash_slc      | OK             | OK               | x                | OK               | OK         | OK               | OK
+smc_nandflash_mlc      | OK             | x                | x                | OK               | OK         | OK               | OK
+smc_nandflash_slc      | OK             | x                | x                | OK               | OK         | OK               | OK
 spi_serialflash        | TODO           | OK               | x                | OK               | OK         | OK               | OK
 spi_slave              | x              | OK               | OK               | x                | OK         | OK               | OK
 ssc_dma_audio          | x              | TODO             | x                | OK               | OK         | OK               | OK
