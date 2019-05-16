@@ -55,8 +55,7 @@ typedef struct {
 	__I  uint32_t Reserved3[1];
 	__IO uint32_t PMC_USB;        /**< \brief (Pmc Offset: 0x0038) USB Clock Register */
 	__I  uint32_t Reserved4[1];
-	__IO uint32_t PMC_PCK[7];     /**< \brief (Pmc Offset: 0x0040) Programmable Clock 0 Register */
-	__I  uint32_t Reserved5[1];
+	__IO uint32_t PMC_PCK[8];     /**< \brief (Pmc Offset: 0x0040) Programmable Clock 0 Register */
 	__O  uint32_t PMC_IER;        /**< \brief (Pmc Offset: 0x0060) Interrupt Enable Register */
 	__O  uint32_t PMC_IDR;        /**< \brief (Pmc Offset: 0x0064) Interrupt Disable Register */
 	__I  uint32_t PMC_SR;         /**< \brief (Pmc Offset: 0x0068) Status Register */
