@@ -221,7 +221,7 @@ isi                    | x          | x          | x               | x
 lcd                    | OK         | OK         | x               | TODO
 low_power_mode         | TODO       | OK         | TODO            | TODO
 otp                    | x          | OK         | x               | x
-pdmic                  | x          | TODO       | TODO            | TODO
+pdmic                  | x          | x          | TODO            | TODO
 pmc_clock_switching    | OK         | OK         | TODO            | OK
 power_consumption_pll  | OK         | OK         | OK              | TODO
 pwm                    | OK         | OK         | OK              | OK
@@ -236,7 +236,7 @@ smc_nandflash_slc      | OK         | OK         | x               | x
 spi_serialflash        | OK         | x          | x               | x
 spi_slave              | OK         | OK         | x               | x
 ssc_dma_audio          | OK         | TODO       | x               | OK
-tc                     | OK         | TODO       | OK              | OK
+tc                     | OK         | x          | OK              | OK
 test-pio               | OK         | OK         | OK              | OK
 timer                  | OK         | OK         | OK              | OK
 twi_eeprom             | OK         | OK         | OK              | OK
