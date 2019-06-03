@@ -111,6 +111,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "board.h"
 #include "board_console.h"
@@ -687,6 +688,32 @@ static void menu_out_of_self_refresh(void)
 }
 #endif
 
+#ifdef CONFIG_RAMCODE
+#if defined(__GNUC__)
+	extern uint32_t _ramcode_lma, _sramcode, _eramcode;
+	extern uint32_t _ramdata_lma, _sramdata, _eramdata;
+#elif defined(__ICCARM__)
+	#pragma section = ".ramcode_section"
+	#pragma section = ".ramcode_section_init"
+	#pragma section = ".ramdata_section"
+	#pragma section = ".ramdata_section_init"
+#endif
+static void ramcode_init(void)
+{
+#if defined(__GNUC__)
+	memcpy(&_sramcode, &_ramcode_lma, (uint32_t)&_eramcode - (uint32_t)&_sramcode);
+	memcpy(&_sramdata, &_ramdata_lma, (uint32_t)&_eramdata - (uint32_t)&_sramdata);
+#elif defined(__ICCARM__)
+	memcpy(__section_begin(".ramcode_section"),
+	    __section_begin(".ramcode_section_init"),
+	    __section_size(".ramcode_section_init"));
+	memcpy(__section_begin(".ramdata_section"),
+	    __section_begin(".ramdata_section_init"),
+	    __section_size(".ramdata_section_init"));
+#endif
+}
+#endif
+
 /*----------------------------------------------------------------------------
  *        Global functions
  *----------------------------------------------------------------------------
@@ -695,6 +722,10 @@ static void menu_out_of_self_refresh(void)
 /* override default board_init */
 void board_init(void)
 {
+#ifdef CONFIG_RAMCODE
+	ramcode_init();
+#endif
+
 #ifdef VARIANT_SRAM
 	/* Configure system clocks */
 	pmc_set_custom_pck_mck(&clock_test_setting[0]);
