@@ -151,7 +151,7 @@
  *        Local variables
  *----------------------------------------------------------------------------
  */
-
+#define ULP_CLOCK_SETTINGS 6
 unsigned char use_clock_setting = 0;
 
 #ifdef PINS_PUSHBUTTONS
@@ -165,6 +165,7 @@ volatile unsigned int MenuChoice;
  *        Local functions
  *----------------------------------------------------------------------------
  */
+static void low_power_run(uint8_t clock_setting, bool idle_mode);
 
 /**
  *  \brief Handler for Buttons rising edge interrupt.
@@ -289,7 +290,7 @@ static void _print_menu(void)
 	       " Select an option :\n\r"
 	       " 0 -> Select clock setting\n\r"
 	       " 1 -> Enter BackUp mode\n\r"
-#ifdef CONFIG_SOC_SAMA5D2
+#if defined(CONFIG_SOC_SAMA5D2) || defined(CONFIG_SOC_SAM9X60)
 	       " 2 -> Enter Ultra Low Power mode 0\n\r"
 	       " 3 -> Enter Ultra Low Power mode 1\n\r"
 #elif defined(CONFIG_SOC_SAMA5D3) || defined(CONFIG_SOC_SAMA5D4)
@@ -364,7 +365,8 @@ static void menu_pck_mck(void)
 
 #if defined(CONFIG_SOC_SAMA5D2) ||\
     defined(CONFIG_SOC_SAMA5D3) ||\
-    defined(CONFIG_SOC_SAMA5D4)
+    defined(CONFIG_SOC_SAMA5D4) ||\
+    defined(CONFIG_SOC_SAM9X60)
 
 /**
  * \brief Interrupt handler for the RTC. Refreshes the display.
@@ -417,16 +419,18 @@ static void _start_rtc_timer_for_wakeup(unsigned int wakup_in_seconds)
 	rtc_set_time(&new_time);
 
 	/* Configure RTC interrupts */
+#ifndef CONFIG_SOC_SAM9X60
 	rtc_enable_it(RTC_IER_ALREN);
 	irq_add_handler(ID_RTC, _rtc_handler, NULL);
 	irq_enable(ID_RTC);
+#endif
 	new_time.hour = 0;
 	new_time.min = 0;
 	new_time.sec = wakup_in_seconds;
 	rtc_set_time_alarm(&new_time);
 }
 
-#endif /* CONFIG_SOC_SAMA5D2 || CONFIG_SOC_SAMA5D3 || CONFIG_SOC_SAMA5D4 */
+#endif /* CONFIG_SOC_SAMA5D2 || CONFIG_SOC_SAMA5D3 || CONFIG_SOC_SAMA5D4 || CONFIG_SOC_SAM9X60*/
 
 static void menu_backup(void)
 {
@@ -552,6 +556,56 @@ static void menu_ulp1(void)
 
 	printf("  | | | | | | Leave Ultra Low Power mode | | | | | |\n\r");
 }
+#elif defined(CONFIG_SOC_SAM9X60)
+void menu_ulp0(void)
+{
+	printf("\n\r\n\r");
+	printf("  =========== Enter Ultra Low Power mode 0 ===========\n\r");
+	while(!console_is_tx_empty());
+	/* Set the interrupts to wake up the system. */
+	_configure_buttons();
+
+#ifdef CONFIG_HAVE_LED
+	/* config a led for indicator to capture wake-up time */
+	board_cfg_led();
+#endif
+
+	/* Run low power mode in sram */
+	low_power_run(use_clock_setting, true);
+
+	_restore_console();
+	printf("  | | | | | | Leave Ultra Low Power mode | | | | | |\n\r");
+}
+
+void menu_ulp1(void)
+{
+	printf("\n\r\n\r");
+	printf("  =========== Enter Ultra Low Power mode 1 ===========\n\r");
+	printf("  === Auto wakeup from RTC alarm after 30 second =====\n\r");
+	while(!console_is_tx_empty());
+	/* Set the I/Os to an appropriate state */
+	board_restore_pio_reset_state();
+
+	/* Disable the USB transceivers and all peripheral clocks */
+	board_save_misc_power();
+
+#ifdef CONFIG_HAVE_LED
+	/* config a led for indicator to capture wake-up time */
+	board_cfg_led();
+#endif
+
+	/* set RTC alarm for wake up */
+	_start_rtc_timer_for_wakeup(30);
+
+	/* config wake up sources */
+	pmc_set_fast_startup_mode(PMC_FSMR_RTCAL);
+
+	/* Run low power mode in sram */
+	low_power_run(ULP_CLOCK_SETTINGS, false);
+
+	_restore_console();
+	printf("  | | | | | | Leave Ultra Low Power mode | | | | | |\n\r");
+}
 #elif defined(CONFIG_SOC_SAMA5D3) || defined(CONFIG_SOC_SAMA5D4)
 static void menu_ulp(void)
 {
@@ -627,12 +681,14 @@ static void menu_idle(void)
 
 	printf("=========== Enter Idle mode ===========\n\r");
 	while(!console_is_tx_empty());
+#if defined(CONFIG_SOC_SAM9X60)
+	/* Run low power mode in sram */
+	low_power_run(use_clock_setting, true);
+#else
 	/* config PCK and MCK */
 	pmc_set_custom_pck_mck(&clock_test_setting[use_clock_setting]);
 	cpu_idle();
-
-	/* Restore default PCK and MCK */
-	pmc_set_custom_pck_mck(&clock_test_setting[0]);
+#endif
 	printf("| | | | | | Leave Idle mode | | | | | |\n\r");
 }
 
@@ -713,6 +769,77 @@ static void ramcode_init(void)
 #endif
 }
 #endif
+
+extern struct pck_mck_cfg clock_setting_backup;
+#ifdef VARIANT_DDRAM
+extern int _ddr_active_needed;
+RAMDATA uint32_t tmp_stack[128];
+#if defined(__GNUC__)
+	__attribute__((optimize("O0")))
+#elif defined(__ICCARM__)
+	#pragma optimize=none
+#endif
+#endif
+RAMCODE static void low_power_run(uint8_t clock_setting, bool idle_mode)
+{
+#ifdef VARIANT_DDRAM
+	uint32_t sp = (uint32_t)&tmp_stack[128];
+	asm("mov r3, %0" : : "r"(sp));
+	asm("mov r0, sp");
+	asm("mov sp, r3");
+	asm("push {r0}");
+	{
+#endif /* VARIANT_DDRAM */
+		RAMDATA static struct pck_mck_cfg clock_cfg;
+		RAMDATA static volatile uint32_t i;
+		i = 0;
+		do {
+			*(uint8_t *)(((uint32_t)&clock_cfg) + i) =
+			    *(uint8_t *)(((uint32_t)&clock_test_setting[clock_setting]) + i);
+		} while(++i < sizeof(struct pck_mck_cfg));
+		i = 0;
+		do {
+			*(uint8_t *)(((uint32_t)&clock_setting_backup) + i) =
+			    *(uint8_t *)(((uint32_t)&clock_test_setting[0]) + i);
+		} while(++i < sizeof(struct pck_mck_cfg));
+#ifdef VARIANT_DDRAM
+		_ddr_active_needed = 1;
+		ddr_self_refresh();
+#endif /* VARIANT_DDRAM */
+		/* config PCK and MCK */
+		pmc_set_custom_pck_mck(&clock_cfg);
+
+		if (idle_mode) {
+			/* drain write buffer */
+			asm("mcr p15, 0, %0, c7, c10, 4" :: "r"(0) : "memory");
+			/* wait for interrupt */
+			asm("mcr p15, 0, %0, c7, c0, 4" :: "r"(0) : "memory");
+
+			/* To capture wakeup time, we need to write the register */
+			/* directly instead of calling C function */
+			led_toggle(0);
+		} else {
+			pmc_disable_external_osc();
+			pmc_enable_external_osc(false);
+			pmc_enable_ulp1();
+	#ifdef VARIANT_DDRAM
+			/* Restore default PCK and MCK */
+			pmc_set_custom_pck_mck(&clock_setting_backup);
+			check_ddr_ready();
+	#endif
+
+	#ifdef VARIANT_SRAM
+		/* Restore default PCK and MCK */
+		pmc_set_custom_pck_mck(&clock_setting_backup);
+	#endif /* VARIANT_SRAM */
+		}
+#ifdef VARIANT_DDRAM
+		_ddr_active_needed = 0;
+	}
+	asm("pop {r0}");
+	asm("mov sp, r0");
+#endif /* VARIANT_DDRAM */
+}
 
 /*----------------------------------------------------------------------------
  *        Global functions
@@ -804,7 +931,7 @@ int main(void)
 			MenuChoice = 0;
 			_print_menu();
 			break;
-#if defined(CONFIG_SOC_SAMA5D2)
+#if defined(CONFIG_SOC_SAMA5D2) || defined(CONFIG_SOC_SAM9X60)
 		case '2':
 			printf("2");
 			menu_ulp0();
