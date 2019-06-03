@@ -231,6 +231,7 @@ static void _configure_buttons(void)
 	}
 }
 
+#ifdef VARIANT_SRAM
 /**
  * \brief Test SDRAM access
  * \param base_addr Base address of SDRAM
@@ -274,6 +275,7 @@ static uint32_t _sdram_check(uint32_t base_addr, uint32_t size)
 
 	return ret;
 }
+#endif
 
 /* ---------------------------------------------------------------------------
  * Function Name       : _print_menu
@@ -293,11 +295,13 @@ static void _print_menu(void)
 	       " 2 -> Enter Ultra Low Power mode\n\r"
 #endif
 	       " 4 -> Enter Idle mode\n\r"
+#ifdef VARIANT_SRAM
 	       " A -> Init DDR\n\r"
 	       " B -> Write data in DDR\n\r"
 	       " C -> Check data in DDR\n\r"
 	       " D -> Set DDR self-refresh mode and isolate Pads\n\r"
 	       " E -> Reset DDR to normal mode and reconnect Pads\n\r"
+#endif
 	       " =>");
 }
 
@@ -631,6 +635,7 @@ static void menu_idle(void)
 	printf("| | | | | | Leave Idle mode | | | | | |\n\r");
 }
 
+#ifdef VARIANT_SRAM
 static void menu_init_ddr(void)
 {
 #ifndef VARIANT_DDRAM
@@ -680,6 +685,7 @@ static void menu_out_of_self_refresh(void)
 
 	check_ddr_ready();
 }
+#endif
 
 /*----------------------------------------------------------------------------
  *        Global functions
@@ -689,8 +695,10 @@ static void menu_out_of_self_refresh(void)
 /* override default board_init */
 void board_init(void)
 {
+#ifdef VARIANT_SRAM
 	/* Configure system clocks */
 	pmc_set_custom_pck_mck(&clock_test_setting[0]);
+#endif
 
 	/* Configure low-level peripherals */
 	board_cfg_lowlevel(false, false, false);
@@ -735,8 +743,10 @@ int main(void)
 	/* Set the I/Os to an appropriate state */
 	board_restore_pio_reset_state();
 
+#ifdef VARIANT_SRAM
 	/* Disable the USB transceivers and all peripheral clocks */
 	board_save_misc_power();
+#endif
 
 	/* Disable all AIC interrupt sources */
 	unsigned int i;
@@ -790,6 +800,7 @@ int main(void)
 			MenuChoice = 0;
 			_print_menu();
 			break;
+#ifdef VARIANT_SRAM
 		case 'a':
 		case 'A':
 			printf("a");
@@ -825,6 +836,7 @@ int main(void)
 			MenuChoice = 0;
 			_print_menu();
 			break;
+#endif
 		default:
 			break;
 		}
