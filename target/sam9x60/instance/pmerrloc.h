@@ -67,7 +67,6 @@
   #define REG_PMERRLOC_SIGMA23                  (0xFFFFE684U) /**< \brief (PMERRLOC) SIGMA1 Register */
   #define REG_PMERRLOC_SIGMA24                  (0xFFFFE688U) /**< \brief (PMERRLOC) SIGMA24 Register */
   #define REG_PMERRLOC_EL                       (0xFFFFE68CU) /**< \brief (PMERRLOC) Error Location 0 Register */
-  #define REG_PMERRLOC_VERSION                  (0xFFFFE7FCU) /**< \brief (PMERRLOC) Version Register */
 #else
   #define REG_PMERRLOC_ELCFG   (*(__IO uint32_t*)0xFFFFE600U) /**< \brief (PMERRLOC) Configuration Register */
   #define REG_PMERRLOC_ELPRIM  (*(__I  uint32_t*)0xFFFFE604U) /**< \brief (PMERRLOC) Primitive Register */
@@ -104,7 +103,6 @@
   #define REG_PMERRLOC_SIGMA23 (*(__IO uint32_t*)0xFFFFE684U) /**< \brief (PMERRLOC) SIGMA1 Register */
   #define REG_PMERRLOC_SIGMA24 (*(__IO uint32_t*)0xFFFFE688U) /**< \brief (PMERRLOC) SIGMA24 Register */
   #define REG_PMERRLOC_EL      (*(__I  uint32_t*)0xFFFFE68CU) /**< \brief (PMERRLOC) Error Location 0 Register */
-  #define REG_PMERRLOC_VERSION (*(__I  uint32_t*)0xFFFFE7FCU) /**< \brief (PMERRLOC) Version Register */
 #endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #endif /* _SAM9X_PMERRLOC_INSTANCE_ */

@@ -55,8 +55,7 @@ typedef struct {
 #define RTT_MR_RTTINCIEN (0x1u << 17) /**< \brief (RTT_MR) Real-time Timer Increment Interrupt Enable */
 #define RTT_MR_RTTRST (0x1u << 18) /**< \brief (RTT_MR) Real-time Timer Restart */
 #define RTT_MR_RTTDIS (0x1u << 20) /**< \brief (RTT_MR) Real-time Timer Disable */
-#define RTT_MR_INC2AEN (0x1u << 21) /**< \brief (RTT_MR) RTTINC2 Alarm Enable */
-#define RTT_MR_EVAEN (0x1u << 22) /**< \brief (RTT_MR) Trigger Event Alarm Enable */
+#define RTT_MR_INC2AEN (0x1u << 21) /**< \brief (RTT_MR) RTTINC2 Alarm and Interrupt Enable */
 #define RTT_MR_RTC1HZ (0x1u << 24) /**< \brief (RTT_MR) Real-Time Clock 1Hz Clock Selection */
 /* -------- RTT_AR : (RTT Offset: 0x04) Alarm Register -------- */
 #define RTT_AR_ALMV_Pos 0
@@ -71,27 +70,16 @@ typedef struct {
 #define RTT_SR_RTTINC2 (0x1u << 2) /**< \brief (RTT_SR) Predefined Number of Prescaler Roll-overs Status (cleared on read) */
 /* -------- RTT_MODR : (RTT Offset: 0x10) Modulo Selection Register -------- */
 #define RTT_MODR_SELINC2_Pos 0
-#define RTT_MODR_SELINC2_Msk (0x7u << RTT_MODR_SELINC2_Pos) /**< \brief (RTT_MODR) Selection of the 32-bit Counter Modulo to generate RTTINC2 flag */
+#define RTT_MODR_SELINC2_Msk (0x7u << RTT_MODR_SELINC2_Pos) /**< \brief (RTT_MODR) Selection of the 32-bit Counter Modulo to generate RTTINC2 Flag */
 #define RTT_MODR_SELINC2(value) ((RTT_MODR_SELINC2_Msk & ((value) << RTT_MODR_SELINC2_Pos)))
 #define   RTT_MODR_SELINC2_NO_RTTINC2 (0x0u << 0) /**< \brief (RTT_MODR) The RTTINC2 flag never rises */
 #define   RTT_MODR_SELINC2_MOD64 (0x1u << 0) /**< \brief (RTT_MODR) The RTTINC2 flag is set when CRTV modulo 64 equals 0 */
 #define   RTT_MODR_SELINC2_MOD128 (0x2u << 0) /**< \brief (RTT_MODR) The RTTINC2 flag is set when CRTV modulo 128 equals 0 */
 #define   RTT_MODR_SELINC2_MOD256 (0x3u << 0) /**< \brief (RTT_MODR) The RTTINC2 flag is set when CRTV modulo 256 equals 0 */
 #define   RTT_MODR_SELINC2_MOD512 (0x4u << 0) /**< \brief (RTT_MODR) The RTTINC2 flag is set when CRTV modulo 512 equals 0 */
-#define   RTT_MODR_SELINC2_MOD1024 (0x5u << 0) /**< \brief (RTT_MODR) The RTTINC2 flag is set when CRTV modulo 1024 equals 0.Example: If RTPRES=32 then RTTINC2 flag rises once per second if the slow clock is 32.768 kHz. */
+#define   RTT_MODR_SELINC2_MOD1024 (0x5u << 0) /**< \brief (RTT_MODR) The RTTINC2 flag is set when CRTV modulo 1024 equals 0. Example: If RTPRES=32 then RTTINC2 flag rises once per second if the slow clock is 32.768 kHz. */
 #define   RTT_MODR_SELINC2_MOD2048 (0x6u << 0) /**< \brief (RTT_MODR) The RTTINC2 flag is set when CRTV modulo 2048 equals 0 */
 #define   RTT_MODR_SELINC2_MOD4096 (0x7u << 0) /**< \brief (RTT_MODR) The RTTINC2 flag is set when CRTV modulo 4096 equals 0 */
-#define RTT_MODR_SELTRGEV_Pos 8
-#define RTT_MODR_SELTRGEV_Msk (0x7u << RTT_MODR_SELTRGEV_Pos) /**< \brief (RTT_MODR) Selection of the 32-bit Counter Modulo to generate the trigger event */
-#define RTT_MODR_SELTRGEV(value) ((RTT_MODR_SELTRGEV_Msk & ((value) << RTT_MODR_SELTRGEV_Pos)))
-#define   RTT_MODR_SELTRGEV_NO_EVENT (0x0u << 8) /**< \brief (RTT_MODR) No event generated */
-#define   RTT_MODR_SELTRGEV_MOD2 (0x1u << 8) /**< \brief (RTT_MODR) Event occurs when CRTV modulo 2 equals 0 */
-#define   RTT_MODR_SELTRGEV_MOD4 (0x2u << 8) /**< \brief (RTT_MODR) Event occurs when CRTV modulo 4 equals 0 */
-#define   RTT_MODR_SELTRGEV_MOD8 (0x3u << 8) /**< \brief (RTT_MODR) Event occurs when CRTV modulo 8 equals 0 */
-#define   RTT_MODR_SELTRGEV_MOD16 (0x4u << 8) /**< \brief (RTT_MODR) Event occurs when CRTV modulo 16 equals 0 */
-#define   RTT_MODR_SELTRGEV_MOD32 (0x5u << 8) /**< \brief (RTT_MODR) Event occurs when CRTV modulo 32 equals 0 */
-#define   RTT_MODR_SELTRGEV_MOD64 (0x6u << 8) /**< \brief (RTT_MODR) Event occurs when CRTV modulo 64 equals 0 */
-#define   RTT_MODR_SELTRGEV_MOD128 (0x7u << 8) /**< \brief (RTT_MODR) Event occurs when CRTV modulo 128 equals 0 */
 /* -------- RTT_TSR : (RTT Offset: 0x14) TimeStamp Register -------- */
 #define RTT_TSR_TSTAMP_Pos 0
 #define RTT_TSR_TSTAMP_Msk (0xffffffu << RTT_TSR_TSTAMP_Pos) /**< \brief (RTT_TSR) Real-time Timer Value Timestamp */

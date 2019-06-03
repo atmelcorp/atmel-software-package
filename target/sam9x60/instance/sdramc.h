@@ -48,7 +48,6 @@
   #define REG_SDRAMC_OCMS_KEY2                  (0xFFFFEC34U) /**< \brief (SDRAMC) OCMS KEY2 Register */
   #define REG_SDRAMC_WPMR                       (0xFFFFEC3CU) /**< \brief (SDRAMC) Write Protection Mode Register */
   #define REG_SDRAMC_WPSR                       (0xFFFFEC40U) /**< \brief (SDRAMC) Write Protection Status Register */
-  #define REG_SDRAMC_VERSION                    (0xFFFFECFCU) /**< \brief (SDRAMC) Version Register */
 #else
   #define REG_SDRAMC_MR        (*(__IO uint32_t*)0xFFFFEC00U) /**< \brief (SDRAMC) Mode Register */
   #define REG_SDRAMC_TR        (*(__IO uint32_t*)0xFFFFEC04U) /**< \brief (SDRAMC) Refresh Timer Register */
@@ -66,7 +65,6 @@
   #define REG_SDRAMC_OCMS_KEY2 (*(__O  uint32_t*)0xFFFFEC34U) /**< \brief (SDRAMC) OCMS KEY2 Register */
   #define REG_SDRAMC_WPMR      (*(__IO uint32_t*)0xFFFFEC3CU) /**< \brief (SDRAMC) Write Protection Mode Register */
   #define REG_SDRAMC_WPSR      (*(__I  uint32_t*)0xFFFFEC40U) /**< \brief (SDRAMC) Write Protection Status Register */
-  #define REG_SDRAMC_VERSION   (*(__I  uint32_t*)0xFFFFECFCU) /**< \brief (SDRAMC) Version Register */
 #endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #endif /* _SAM9X_SDRAMC_INSTANCE_ */

@@ -49,7 +49,7 @@ typedef struct {
 #define BSC_CR_WPKEY_Pos 16
 #define BSC_CR_WPKEY_Msk (0xffffu << BSC_CR_WPKEY_Pos) /**< \brief (BSC_CR) Write Protection Key (Write-only) */
 #define BSC_CR_WPKEY(value) ((BSC_CR_WPKEY_Msk & ((value) << BSC_CR_WPKEY_Pos)))
-#define   BSC_CR_WPKEY_PASSWD (0x6683u << 16) /**< \brief (BSC_CR) Writing any other value in this field aborts the write operation of the BOOT field.Always reads as 0. */
+#define   BSC_CR_WPKEY_PASSWD (0x6683u << 16) /**< \brief (BSC_CR) Writing any other value in this field aborts the write operation of the BOOT field. Always reads as 0. */
 
 /*@}*/
 

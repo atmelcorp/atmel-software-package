@@ -44,12 +44,6 @@
   #define REG_UHPHS_EHCI_ASYNCLISTADDR                     (0x00700028U) /**< \brief (UHPHS_EHCI) UHPHS Asynchronous List Address Register */
   #define REG_UHPHS_EHCI_CONFIGFLAG                        (0x00700050U) /**< \brief (UHPHS_EHCI) UHPHS Configured Flag Register */
   #define REG_UHPHS_EHCI_PORTSC                            (0x00700054U) /**< \brief (UHPHS_EHCI) UHPHS Port Status and Control Register (port = 0) */
-  #define REG_UHPHS_EHCI_INSNREG00                         (0x00700090U) /**< \brief (UHPHS_EHCI) EHCI Specific Registers 00 */
-  #define REG_UHPHS_EHCI_INSNREG01                         (0x00700094U) /**< \brief (UHPHS_EHCI) EHCI Specific Registers 01 */
-  #define REG_UHPHS_EHCI_INSNREG02                         (0x00700098U) /**< \brief (UHPHS_EHCI) EHCI Specific Registers 02 */
-  #define REG_UHPHS_EHCI_INSNREG03                         (0x0070009CU) /**< \brief (UHPHS_EHCI) EHCI Specific Registers 03 */
-  #define REG_UHPHS_EHCI_INSNREG04                         (0x007000A0U) /**< \brief (UHPHS_EHCI) EHCI Specific Registers 04 */
-  #define REG_UHPHS_EHCI_INSNREG05                         (0x007000A4U) /**< \brief (UHPHS_EHCI) EHCI Specific Registers 05 */
   #define REG_UHPHS_EHCI_INSNREG06                         (0x007000A8U) /**< \brief (UHPHS_EHCI) EHCI Specific Registers 06 */
   #define REG_UHPHS_EHCI_INSNREG07                         (0x007000ACU) /**< \brief (UHPHS_EHCI) EHCI Specific Registers 07 */
 #else
@@ -65,12 +59,6 @@
   #define REG_UHPHS_EHCI_ASYNCLISTADDR    (*(__IO uint32_t*)0x00700028U) /**< \brief (UHPHS_EHCI) UHPHS Asynchronous List Address Register */
   #define REG_UHPHS_EHCI_CONFIGFLAG       (*(__IO uint32_t*)0x00700050U) /**< \brief (UHPHS_EHCI) UHPHS Configured Flag Register */
   #define REG_UHPHS_EHCI_PORTSC           (*(__IO uint32_t*)0x00700054U) /**< \brief (UHPHS_EHCI) UHPHS Port Status and Control Register (port = 0) */
-  #define REG_UHPHS_EHCI_INSNREG00        (*(__IO uint32_t*)0x00700090U) /**< \brief (UHPHS_EHCI) EHCI Specific Registers 00 */
-  #define REG_UHPHS_EHCI_INSNREG01        (*(__IO uint32_t*)0x00700094U) /**< \brief (UHPHS_EHCI) EHCI Specific Registers 01 */
-  #define REG_UHPHS_EHCI_INSNREG02        (*(__IO uint32_t*)0x00700098U) /**< \brief (UHPHS_EHCI) EHCI Specific Registers 02 */
-  #define REG_UHPHS_EHCI_INSNREG03        (*(__IO uint32_t*)0x0070009CU) /**< \brief (UHPHS_EHCI) EHCI Specific Registers 03 */
-  #define REG_UHPHS_EHCI_INSNREG04        (*(__IO uint32_t*)0x007000A0U) /**< \brief (UHPHS_EHCI) EHCI Specific Registers 04 */
-  #define REG_UHPHS_EHCI_INSNREG05        (*(__IO uint32_t*)0x007000A4U) /**< \brief (UHPHS_EHCI) EHCI Specific Registers 05 */
   #define REG_UHPHS_EHCI_INSNREG06        (*(__IO uint32_t*)0x007000A8U) /**< \brief (UHPHS_EHCI) EHCI Specific Registers 06 */
   #define REG_UHPHS_EHCI_INSNREG07        (*(__IO uint32_t*)0x007000ACU) /**< \brief (UHPHS_EHCI) EHCI Specific Registers 07 */
 #endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */

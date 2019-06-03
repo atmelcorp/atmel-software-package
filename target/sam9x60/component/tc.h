@@ -70,8 +70,6 @@ typedef struct {
   __I  uint32_t  TC_QSR;                       /**< \brief (Tc Offset: 0xDC) QDEC Status Register */
   __I  uint32_t  Reserved1[1];
   __IO uint32_t  TC_WPMR;                      /**< \brief (Tc Offset: 0xE4) Write Protection Mode Register */
-  __I  uint32_t  Reserved2[5];
-  __I  uint32_t  TC_VER;                       /**< \brief (Tc Offset: 0xFC) Version Register */
 } Tc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- TC_CCR : (TC Offset: N/A) Channel Control Register -------- */
@@ -388,12 +386,7 @@ typedef struct {
 #define TC_WPMR_WPKEY_Pos 8
 #define TC_WPMR_WPKEY_Msk (0xffffffu << TC_WPMR_WPKEY_Pos) /**< \brief (TC_WPMR) Write Protection Key */
 #define TC_WPMR_WPKEY(value) ((TC_WPMR_WPKEY_Msk & ((value) << TC_WPMR_WPKEY_Pos)))
-#define   TC_WPMR_WPKEY_PASSWD (0x54494Du << 8) /**< \brief (TC_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit.Always reads as 0. */
-/* -------- TC_VER : (TC Offset: 0xFC) Version Register -------- */
-#define TC_VER_VERSION_Pos 0
-#define TC_VER_VERSION_Msk (0xfffu << TC_VER_VERSION_Pos) /**< \brief (TC_VER) Version of the Hardware Module */
-#define TC_VER_MFN_Pos 16
-#define TC_VER_MFN_Msk (0x7u << TC_VER_MFN_Pos) /**< \brief (TC_VER) Metal Fix Number */
+#define   TC_WPMR_WPKEY_PASSWD (0x54494Du << 8) /**< \brief (TC_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit. Always reads as 0. */
 
 /*@}*/
 

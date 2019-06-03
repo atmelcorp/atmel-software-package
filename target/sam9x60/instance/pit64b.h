@@ -32,33 +32,31 @@
 
 /* ========== Register definition for PIT64B peripheral ========== */
 #if (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-  #define REG_PIT64B_CR                       (0xF0028000U) /**< \brief (PIT64B) Control Register */
-  #define REG_PIT64B_MR                       (0xF0028004U) /**< \brief (PIT64B) Mode Register */
-  #define REG_PIT64B_LSBPR                    (0xF0028008U) /**< \brief (PIT64B) LSB Period Register */
-  #define REG_PIT64B_MSBPR                    (0xF002800CU) /**< \brief (PIT64B) MSB Period Register */
-  #define REG_PIT64B_IER                      (0xF0028010U) /**< \brief (PIT64B) Interrupt Enable Register */
-  #define REG_PIT64B_IDR                      (0xF0028014U) /**< \brief (PIT64B) Interrupt Disable Register */
-  #define REG_PIT64B_IMR                      (0xF0028018U) /**< \brief (PIT64B) Interrupt Mask Register */
-  #define REG_PIT64B_ISR                      (0xF002801CU) /**< \brief (PIT64B) Interrupt Status Register */
-  #define REG_PIT64B_TLSBR                    (0xF0028020U) /**< \brief (PIT64B) Timer LSB Current Value Register */
-  #define REG_PIT64B_TMSBR                    (0xF0028024U) /**< \brief (PIT64B) Timer MSB Current Value Register */
-  #define REG_PIT64B_WPMR                     (0xF00280E4U) /**< \brief (PIT64B) Write Protection Mode Register */
-  #define REG_PIT64B_WPSR                     (0xF00280E8U) /**< \brief (PIT64B) Write Protection Status Register */
-  #define REG_PIT64B_VERSION                  (0xF00280FCU) /**< \brief (PIT64B) Version Register */
+  #define REG_PIT64B_CR                     (0xF0028000U) /**< \brief (PIT64B) Control Register */
+  #define REG_PIT64B_MR                     (0xF0028004U) /**< \brief (PIT64B) Mode Register */
+  #define REG_PIT64B_LSBPR                  (0xF0028008U) /**< \brief (PIT64B) LSB Period Register */
+  #define REG_PIT64B_MSBPR                  (0xF002800CU) /**< \brief (PIT64B) MSB Period Register */
+  #define REG_PIT64B_IER                    (0xF0028010U) /**< \brief (PIT64B) Interrupt Enable Register */
+  #define REG_PIT64B_IDR                    (0xF0028014U) /**< \brief (PIT64B) Interrupt Disable Register */
+  #define REG_PIT64B_IMR                    (0xF0028018U) /**< \brief (PIT64B) Interrupt Mask Register */
+  #define REG_PIT64B_ISR                    (0xF002801CU) /**< \brief (PIT64B) Interrupt Status Register */
+  #define REG_PIT64B_TLSBR                  (0xF0028020U) /**< \brief (PIT64B) Timer LSB Current Value Register */
+  #define REG_PIT64B_TMSBR                  (0xF0028024U) /**< \brief (PIT64B) Timer MSB Current Value Register */
+  #define REG_PIT64B_WPMR                   (0xF00280E4U) /**< \brief (PIT64B) Write Protection Mode Register */
+  #define REG_PIT64B_WPSR                   (0xF00280E8U) /**< \brief (PIT64B) Write Protection Status Register */
 #else
-  #define REG_PIT64B_CR      (*(__O  uint32_t*)0xF0028000U) /**< \brief (PIT64B) Control Register */
-  #define REG_PIT64B_MR      (*(__IO uint32_t*)0xF0028004U) /**< \brief (PIT64B) Mode Register */
-  #define REG_PIT64B_LSBPR   (*(__IO uint32_t*)0xF0028008U) /**< \brief (PIT64B) LSB Period Register */
-  #define REG_PIT64B_MSBPR   (*(__IO uint32_t*)0xF002800CU) /**< \brief (PIT64B) MSB Period Register */
-  #define REG_PIT64B_IER     (*(__O  uint32_t*)0xF0028010U) /**< \brief (PIT64B) Interrupt Enable Register */
-  #define REG_PIT64B_IDR     (*(__O  uint32_t*)0xF0028014U) /**< \brief (PIT64B) Interrupt Disable Register */
-  #define REG_PIT64B_IMR     (*(__I  uint32_t*)0xF0028018U) /**< \brief (PIT64B) Interrupt Mask Register */
-  #define REG_PIT64B_ISR     (*(__I  uint32_t*)0xF002801CU) /**< \brief (PIT64B) Interrupt Status Register */
-  #define REG_PIT64B_TLSBR   (*(__I  uint32_t*)0xF0028020U) /**< \brief (PIT64B) Timer LSB Current Value Register */
-  #define REG_PIT64B_TMSBR   (*(__I  uint32_t*)0xF0028024U) /**< \brief (PIT64B) Timer MSB Current Value Register */
-  #define REG_PIT64B_WPMR    (*(__IO uint32_t*)0xF00280E4U) /**< \brief (PIT64B) Write Protection Mode Register */
-  #define REG_PIT64B_WPSR    (*(__I  uint32_t*)0xF00280E8U) /**< \brief (PIT64B) Write Protection Status Register */
-  #define REG_PIT64B_VERSION (*(__I  uint32_t*)0xF00280FCU) /**< \brief (PIT64B) Version Register */
+  #define REG_PIT64B_CR    (*(__O  uint32_t*)0xF0028000U) /**< \brief (PIT64B) Control Register */
+  #define REG_PIT64B_MR    (*(__IO uint32_t*)0xF0028004U) /**< \brief (PIT64B) Mode Register */
+  #define REG_PIT64B_LSBPR (*(__IO uint32_t*)0xF0028008U) /**< \brief (PIT64B) LSB Period Register */
+  #define REG_PIT64B_MSBPR (*(__IO uint32_t*)0xF002800CU) /**< \brief (PIT64B) MSB Period Register */
+  #define REG_PIT64B_IER   (*(__O  uint32_t*)0xF0028010U) /**< \brief (PIT64B) Interrupt Enable Register */
+  #define REG_PIT64B_IDR   (*(__O  uint32_t*)0xF0028014U) /**< \brief (PIT64B) Interrupt Disable Register */
+  #define REG_PIT64B_IMR   (*(__I  uint32_t*)0xF0028018U) /**< \brief (PIT64B) Interrupt Mask Register */
+  #define REG_PIT64B_ISR   (*(__I  uint32_t*)0xF002801CU) /**< \brief (PIT64B) Interrupt Status Register */
+  #define REG_PIT64B_TLSBR (*(__I  uint32_t*)0xF0028020U) /**< \brief (PIT64B) Timer LSB Current Value Register */
+  #define REG_PIT64B_TMSBR (*(__I  uint32_t*)0xF0028024U) /**< \brief (PIT64B) Timer MSB Current Value Register */
+  #define REG_PIT64B_WPMR  (*(__IO uint32_t*)0xF00280E4U) /**< \brief (PIT64B) Write Protection Mode Register */
+  #define REG_PIT64B_WPSR  (*(__I  uint32_t*)0xF00280E8U) /**< \brief (PIT64B) Write Protection Status Register */
 #endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #endif /* _SAM9X_PIT64B_INSTANCE_ */

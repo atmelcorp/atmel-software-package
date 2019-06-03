@@ -44,9 +44,7 @@ typedef struct {
   __I  uint32_t FLEX_RHR;         /**< \brief (Flexcom Offset: 0x010) FLEXCOM Receive Holding Register */
   __I  uint32_t Reserved2[3];
   __IO uint32_t FLEX_THR;         /**< \brief (Flexcom Offset: 0x020) FLEXCOM Transmit Holding Register */
-  __I  uint32_t Reserved3[54];
-  __I  uint32_t FLEX_VERSION;     /**< \brief (Flexcom Offset: 0x0FC) FLEXCOM Version Register */
-  __I  uint32_t Reserved4[64];
+  __I  uint32_t Reserved3[119];
   __O  uint32_t FLEX_US_CR;       /**< \brief (Flexcom Offset: 0x200) USART Control Register */
   __IO uint32_t FLEX_US_MR;       /**< \brief (Flexcom Offset: 0x204) USART Mode Register */
   __O  uint32_t FLEX_US_IER;      /**< \brief (Flexcom Offset: 0x208) USART Interrupt Enable Register */
@@ -58,10 +56,10 @@ typedef struct {
   __IO uint32_t FLEX_US_BRGR;     /**< \brief (Flexcom Offset: 0x220) USART Baud Rate Generator Register */
   __IO uint32_t FLEX_US_RTOR;     /**< \brief (Flexcom Offset: 0x224) USART Receiver Timeout Register */
   __IO uint32_t FLEX_US_TTGR;     /**< \brief (Flexcom Offset: 0x228) USART Transmitter Timeguard Register */
-  __I  uint32_t Reserved5[5];
+  __I  uint32_t Reserved4[5];
   __IO uint32_t FLEX_US_FIDI;     /**< \brief (Flexcom Offset: 0x240) USART FI DI Ratio Register */
   __I  uint32_t FLEX_US_NER;      /**< \brief (Flexcom Offset: 0x244) USART Number of Errors Register */
-  __I  uint32_t Reserved6[1];
+  __I  uint32_t Reserved5[1];
   __IO uint32_t FLEX_US_IF;       /**< \brief (Flexcom Offset: 0x24C) USART IrDA Filter Register */
   __IO uint32_t FLEX_US_MAN;      /**< \brief (Flexcom Offset: 0x250) USART Manchester Configuration Register */
   __IO uint32_t FLEX_US_LINMR;    /**< \brief (Flexcom Offset: 0x254) USART LIN Mode Register */
@@ -78,21 +76,19 @@ typedef struct {
   __IO uint32_t FLEX_US_IDTTX;    /**< \brief (Flexcom Offset: 0x280) USART LON IDT Tx Register */
   __IO uint32_t FLEX_US_IDTRX;    /**< \brief (Flexcom Offset: 0x284) USART LON IDT Rx Register */
   __IO uint32_t FLEX_US_ICDIFF;   /**< \brief (Flexcom Offset: 0x288) USART IC DIFF Register */
-  __I  uint32_t Reserved7[1];
+  __I  uint32_t Reserved6[1];
   __IO uint32_t FLEX_US_CMPR;     /**< \brief (Flexcom Offset: 0x290) USART Comparison Register */
-  __I  uint32_t Reserved8[3];
+  __I  uint32_t Reserved7[3];
   __IO uint32_t FLEX_US_FMR;      /**< \brief (Flexcom Offset: 0x2A0) USART FIFO Mode Register */
   __I  uint32_t FLEX_US_FLR;      /**< \brief (Flexcom Offset: 0x2A4) USART FIFO Level Register */
   __O  uint32_t FLEX_US_FIER;     /**< \brief (Flexcom Offset: 0x2A8) USART FIFO Interrupt Enable Register */
   __O  uint32_t FLEX_US_FIDR;     /**< \brief (Flexcom Offset: 0x2AC) USART FIFO Interrupt Disable Register */
   __I  uint32_t FLEX_US_FIMR;     /**< \brief (Flexcom Offset: 0x2B0) USART FIFO Interrupt Mask Register */
   __I  uint32_t FLEX_US_FESR;     /**< \brief (Flexcom Offset: 0x2B4) USART FIFO Event Status Register */
-  __I  uint32_t Reserved9[11];
+  __I  uint32_t Reserved8[11];
   __IO uint32_t FLEX_US_WPMR;     /**< \brief (Flexcom Offset: 0x2E4) USART Write Protection Mode Register */
   __I  uint32_t FLEX_US_WPSR;     /**< \brief (Flexcom Offset: 0x2E8) USART Write Protection Status Register */
-  __I  uint32_t Reserved10[4];
-  __I  uint32_t FLEX_US_VERSION;  /**< \brief (Flexcom Offset: 0x2FC) USART Version Register */
-  __I  uint32_t Reserved11[64];
+  __I  uint32_t Reserved9[69];
   __O  uint32_t FLEX_SPI_CR;      /**< \brief (Flexcom Offset: 0x400) SPI Control Register */
   __IO uint32_t FLEX_SPI_MR;      /**< \brief (Flexcom Offset: 0x404) SPI Mode Register */
   __I  uint32_t FLEX_SPI_RDR;     /**< \brief (Flexcom Offset: 0x408) SPI Receive Data Register */
@@ -101,23 +97,21 @@ typedef struct {
   __O  uint32_t FLEX_SPI_IER;     /**< \brief (Flexcom Offset: 0x414) SPI Interrupt Enable Register */
   __O  uint32_t FLEX_SPI_IDR;     /**< \brief (Flexcom Offset: 0x418) SPI Interrupt Disable Register */
   __I  uint32_t FLEX_SPI_IMR;     /**< \brief (Flexcom Offset: 0x41C) SPI Interrupt Mask Register */
-  __I  uint32_t Reserved12[4];
+  __I  uint32_t Reserved10[4];
   __IO uint32_t FLEX_SPI_CSR[4];  /**< \brief (Flexcom Offset: 0x430) SPI Chip Select Register */
   __IO uint32_t FLEX_SPI_FMR;     /**< \brief (Flexcom Offset: 0x440) SPI FIFO Mode Register */
   __I  uint32_t FLEX_SPI_FLR;     /**< \brief (Flexcom Offset: 0x444) SPI FIFO Level Register */
   __IO uint32_t FLEX_SPI_CMPR;    /**< \brief (Flexcom Offset: 0x448) SPI Comparison Register */
-  __I  uint32_t Reserved13[38];
+  __I  uint32_t Reserved11[38];
   __IO uint32_t FLEX_SPI_WPMR;    /**< \brief (Flexcom Offset: 0x4E4) SPI Write Protection Mode Register */
   __I  uint32_t FLEX_SPI_WPSR;    /**< \brief (Flexcom Offset: 0x4E8) SPI Write Protection Status Register */
-  __I  uint32_t Reserved14[4];
-  __I  uint32_t FLEX_SPI_VERSION; /**< \brief (Flexcom Offset: 0x4FC) SPI Version Register */
-  __I  uint32_t Reserved15[64];
+  __I  uint32_t Reserved12[69];
   __O  uint32_t FLEX_TWI_CR;      /**< \brief (Flexcom Offset: 0x600) TWI Control Register */
   __IO uint32_t FLEX_TWI_MMR;     /**< \brief (Flexcom Offset: 0x604) TWI Master Mode Register */
   __IO uint32_t FLEX_TWI_SMR;     /**< \brief (Flexcom Offset: 0x608) TWI Slave Mode Register */
   __IO uint32_t FLEX_TWI_IADR;    /**< \brief (Flexcom Offset: 0x60C) TWI Internal Address Register */
   __IO uint32_t FLEX_TWI_CWGR;    /**< \brief (Flexcom Offset: 0x610) TWI Clock Waveform Generator Register */
-  __I  uint32_t Reserved16[3];
+  __I  uint32_t Reserved13[3];
   __I  uint32_t FLEX_TWI_SR;      /**< \brief (Flexcom Offset: 0x620) TWI Status Register */
   __O  uint32_t FLEX_TWI_IER;     /**< \brief (Flexcom Offset: 0x624) TWI Interrupt Enable Register */
   __O  uint32_t FLEX_TWI_IDR;     /**< \brief (Flexcom Offset: 0x628) TWI Interrupt Disable Register */
@@ -125,24 +119,20 @@ typedef struct {
   __I  uint32_t FLEX_TWI_RHR;     /**< \brief (Flexcom Offset: 0x630) TWI Receive Holding Register */
   __O  uint32_t FLEX_TWI_THR;     /**< \brief (Flexcom Offset: 0x634) TWI Transmit Holding Register */
   __IO uint32_t FLEX_TWI_SMBTR;   /**< \brief (Flexcom Offset: 0x638) TWI SMBus Timing Register */
-  __I  uint32_t Reserved17[1];
+  __I  uint32_t Reserved14[1];
   __IO uint32_t FLEX_TWI_ACR;     /**< \brief (Flexcom Offset: 0x640) TWI Alternative Command Register */
   __IO uint32_t FLEX_TWI_FILTR;   /**< \brief (Flexcom Offset: 0x644) TWI Filter Register */
-  __I  uint32_t Reserved18[2];
+  __I  uint32_t Reserved15[2];
   __IO uint32_t FLEX_TWI_FMR;     /**< \brief (Flexcom Offset: 0x650) TWI FIFO Mode Register */
   __I  uint32_t FLEX_TWI_FLR;     /**< \brief (Flexcom Offset: 0x654) TWI FIFO Level Register */
-  __I  uint32_t Reserved19[2];
+  __I  uint32_t Reserved16[2];
   __I  uint32_t FLEX_TWI_FSR;     /**< \brief (Flexcom Offset: 0x660) TWI FIFO Status Register */
   __O  uint32_t FLEX_TWI_FIER;    /**< \brief (Flexcom Offset: 0x664) TWI FIFO Interrupt Enable Register */
   __O  uint32_t FLEX_TWI_FIDR;    /**< \brief (Flexcom Offset: 0x668) TWI FIFO Interrupt Disable Register */
   __I  uint32_t FLEX_TWI_FIMR;    /**< \brief (Flexcom Offset: 0x66C) TWI FIFO Interrupt Mask Register */
-  __I  uint32_t Reserved20[24];
-  __I  uint32_t FLEX_TWI_DR;      /**< \brief (Flexcom Offset: 0x6D0) TWI Debug Register */
-  __I  uint32_t Reserved21[4];
+  __I  uint32_t Reserved17[29];
   __IO uint32_t FLEX_TWI_WPMR;    /**< \brief (Flexcom Offset: 0x6E4) TWI Write Protection Mode Register */
   __I  uint32_t FLEX_TWI_WPSR;    /**< \brief (Flexcom Offset: 0x6E8) TWI Write Protection Status Register */
-  __I  uint32_t Reserved22[4];
-  __I  uint32_t FLEX_TWI_VER;     /**< \brief (Flexcom Offset: 0x6FC) TWI Version Register */
 } Flexcom;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- FLEX_MR : (FLEXCOM Offset: 0x000) FLEXCOM Mode Register -------- */
@@ -150,9 +140,9 @@ typedef struct {
 #define FLEX_MR_OPMODE_Msk (0x3u << FLEX_MR_OPMODE_Pos) /**< \brief (FLEX_MR) FLEXCOM Operating Mode */
 #define FLEX_MR_OPMODE(value) ((FLEX_MR_OPMODE_Msk & ((value) << FLEX_MR_OPMODE_Pos)))
 #define   FLEX_MR_OPMODE_NO_COM (0x0u << 0) /**< \brief (FLEX_MR) No communication */
-#define   FLEX_MR_OPMODE_USART (0x1u << 0) /**< \brief (FLEX_MR) All UART related protocols are selected (RS232, RS485, IrDA, ISO7816, LIN, LON)SPI/TWI related registers are not accessible and have no impact on IOs. */
-#define   FLEX_MR_OPMODE_SPI (0x2u << 0) /**< \brief (FLEX_MR) SPI operating mode is selected.USART/TWI related registers are not accessible and have no impact on IOs. */
-#define   FLEX_MR_OPMODE_TWI (0x3u << 0) /**< \brief (FLEX_MR) All TWI related protocols are selected (TWI, SMBus).USART/SPI related registers are not accessible and have no impact on IOs. */
+#define   FLEX_MR_OPMODE_USART (0x1u << 0) /**< \brief (FLEX_MR) All UART related protocols are selected (RS232, RS485, IrDA, ISO7816, LIN, LON) SPI/TWI related registers are not accessible and have no impact on IOs. */
+#define   FLEX_MR_OPMODE_SPI (0x2u << 0) /**< \brief (FLEX_MR) SPI operating mode is selected. USART/TWI related registers are not accessible and have no impact on IOs. */
+#define   FLEX_MR_OPMODE_TWI (0x3u << 0) /**< \brief (FLEX_MR) All TWI related protocols are selected (TWI, SMBus). USART/SPI related registers are not accessible and have no impact on IOs. */
 /* -------- FLEX_RHR : (FLEXCOM Offset: 0x010) FLEXCOM Receive Holding Register -------- */
 #define FLEX_RHR_RXDATA_Pos 0
 #define FLEX_RHR_RXDATA_Msk (0xffffu << FLEX_RHR_RXDATA_Pos) /**< \brief (FLEX_RHR) Receive Data */
@@ -160,11 +150,6 @@ typedef struct {
 #define FLEX_THR_TXDATA_Pos 0
 #define FLEX_THR_TXDATA_Msk (0xffffu << FLEX_THR_TXDATA_Pos) /**< \brief (FLEX_THR) Transmit Data */
 #define FLEX_THR_TXDATA(value) ((FLEX_THR_TXDATA_Msk & ((value) << FLEX_THR_TXDATA_Pos)))
-/* -------- FLEX_VERSION : (FLEXCOM Offset: 0x0FC) FLEXCOM Version Register -------- */
-#define FLEX_VERSION_VERSION_Pos 0
-#define FLEX_VERSION_VERSION_Msk (0xfffu << FLEX_VERSION_VERSION_Pos) /**< \brief (FLEX_VERSION) Hardware Module Version */
-#define FLEX_VERSION_MFN_Pos 16
-#define FLEX_VERSION_MFN_Msk (0x7u << FLEX_VERSION_MFN_Pos) /**< \brief (FLEX_VERSION) Metal Fix Number */
 /* -------- FLEX_US_CR : (FLEXCOM Offset: 0x200) USART Control Register -------- */
 #define FLEX_US_CR_RSTRX (0x1u << 2) /**< \brief (FLEX_US_CR) Reset Receiver */
 #define FLEX_US_CR_RSTTX (0x1u << 3) /**< \brief (FLEX_US_CR) Reset Transmitter */
@@ -180,8 +165,6 @@ typedef struct {
 #define FLEX_US_CR_RSTIT (0x1u << 13) /**< \brief (FLEX_US_CR) Reset Iterations */
 #define FLEX_US_CR_RSTNACK (0x1u << 14) /**< \brief (FLEX_US_CR) Reset Non Acknowledge */
 #define FLEX_US_CR_RETTO (0x1u << 15) /**< \brief (FLEX_US_CR) Start Timeout Immediately */
-#define FLEX_US_CR_DTREN (0x1u << 16) /**< \brief (FLEX_US_CR) Data Terminal Ready Enable */
-#define FLEX_US_CR_DTRDIS (0x1u << 17) /**< \brief (FLEX_US_CR) Data Terminal Ready Disable */
 #define FLEX_US_CR_RTSEN (0x1u << 18) /**< \brief (FLEX_US_CR) Request to Send Enable */
 #define FLEX_US_CR_RTSDIS (0x1u << 19) /**< \brief (FLEX_US_CR) Request to Send Disable */
 #define FLEX_US_CR_LINABT (0x1u << 20) /**< \brief (FLEX_US_CR) Abort LIN Transmission */
@@ -192,8 +175,6 @@ typedef struct {
 #define FLEX_US_CR_REQCLR (0x1u << 28) /**< \brief (FLEX_US_CR) Request to Clear the Comparison Trigger */
 #define FLEX_US_CR_FIFOEN (0x1u << 30) /**< \brief (FLEX_US_CR) FIFO Enable */
 #define FLEX_US_CR_FIFODIS (0x1u << 31) /**< \brief (FLEX_US_CR) FIFO Disable */
-#define FLEX_US_CR_FCS (0x1u << 18) /**< \brief (FLEX_US_CR) Force SPI Chip Select */
-#define FLEX_US_CR_RCS (0x1u << 19) /**< \brief (FLEX_US_CR) Release SPI Chip Select */
 /* -------- FLEX_US_MR : (FLEXCOM Offset: 0x204) USART Mode Register -------- */
 #define FLEX_US_MR_USART_MODE_Pos 0
 #define FLEX_US_MR_USART_MODE_Msk (0xfu << FLEX_US_MR_USART_MODE_Pos) /**< \brief (FLEX_US_MR) USART Mode of Operation */
@@ -201,7 +182,6 @@ typedef struct {
 #define   FLEX_US_MR_USART_MODE_NORMAL (0x0u << 0) /**< \brief (FLEX_US_MR) Normal mode */
 #define   FLEX_US_MR_USART_MODE_RS485 (0x1u << 0) /**< \brief (FLEX_US_MR) RS485 */
 #define   FLEX_US_MR_USART_MODE_HW_HANDSHAKING (0x2u << 0) /**< \brief (FLEX_US_MR) Hardware handshaking */
-#define   FLEX_US_MR_USART_MODE_MODEM (0x3u << 0) /**< \brief (FLEX_US_MR) Modem */
 #define   FLEX_US_MR_USART_MODE_IS07816_T_0 (0x4u << 0) /**< \brief (FLEX_US_MR) IS07816 Protocol: T = 0 */
 #define   FLEX_US_MR_USART_MODE_IS07816_T_1 (0x6u << 0) /**< \brief (FLEX_US_MR) IS07816 Protocol: T = 1 */
 #define   FLEX_US_MR_USART_MODE_IRDA (0x8u << 0) /**< \brief (FLEX_US_MR) IrDA */
@@ -210,8 +190,6 @@ typedef struct {
 #define   FLEX_US_MR_USART_MODE_LIN_SLAVE (0xBu << 0) /**< \brief (FLEX_US_MR) LIN Slave mode */
 #define   FLEX_US_MR_USART_MODE_DATA16BIT_MASTER (0xCu << 0) /**< \brief (FLEX_US_MR) 16-bit data master */
 #define   FLEX_US_MR_USART_MODE_DATA16BIT_SLAVE (0xDu << 0) /**< \brief (FLEX_US_MR) 16-bit data slave */
-#define   FLEX_US_MR_USART_MODE_SPI_MASTER (0xEu << 0) /**< \brief (FLEX_US_MR) SPI Master mode (CLKO must be written to 1 and USCLKS = 0, 1 or 2) */
-#define   FLEX_US_MR_USART_MODE_SPI_SLAVE (0xFu << 0) /**< \brief (FLEX_US_MR) SPI Slave mode */
 #define FLEX_US_MR_USCLKS_Pos 4
 #define FLEX_US_MR_USCLKS_Msk (0x3u << FLEX_US_MR_USCLKS_Pos) /**< \brief (FLEX_US_MR) Clock Selection */
 #define FLEX_US_MR_USCLKS(value) ((FLEX_US_MR_USCLKS_Msk & ((value) << FLEX_US_MR_USCLKS_Pos)))
@@ -264,9 +242,6 @@ typedef struct {
 #define FLEX_US_MR_MAN (0x1u << 29) /**< \brief (FLEX_US_MR) Manchester Encoder/Decoder Enable */
 #define FLEX_US_MR_MODSYNC (0x1u << 30) /**< \brief (FLEX_US_MR) Manchester Synchronization Mode */
 #define FLEX_US_MR_ONEBIT (0x1u << 31) /**< \brief (FLEX_US_MR) Start Frame Delimiter Selector */
-#define FLEX_US_MR_CPHA (0x1u << 8) /**< \brief (FLEX_US_MR) SPI Clock Phase */
-#define FLEX_US_MR_CPOL (0x1u << 16) /**< \brief (FLEX_US_MR) SPI Clock Polarity */
-#define FLEX_US_MR_WRDBT (0x1u << 20) /**< \brief (FLEX_US_MR) Wait Read Data Before Transfer */
 /* -------- FLEX_US_IER : (FLEXCOM Offset: 0x208) USART Interrupt Enable Register -------- */
 #define FLEX_US_IER_RXRDY (0x1u << 0) /**< \brief (FLEX_US_IER) RXRDY Interrupt Enable */
 #define FLEX_US_IER_TXRDY (0x1u << 1) /**< \brief (FLEX_US_IER) TXRDY Interrupt Enable */
@@ -278,14 +253,9 @@ typedef struct {
 #define FLEX_US_IER_TXEMPTY (0x1u << 9) /**< \brief (FLEX_US_IER) TXEMPTY Interrupt Enable */
 #define FLEX_US_IER_ITER (0x1u << 10) /**< \brief (FLEX_US_IER) Max number of Repetitions Reached Interrupt Enable */
 #define FLEX_US_IER_NACK (0x1u << 13) /**< \brief (FLEX_US_IER) Non Acknowledge Interrupt Enable */
-#define FLEX_US_IER_RIIC (0x1u << 16) /**< \brief (FLEX_US_IER) Ring Indicator Input Change Enable */
-#define FLEX_US_IER_DSRIC (0x1u << 17) /**< \brief (FLEX_US_IER) Data Set Ready Input Change Enable */
-#define FLEX_US_IER_DCDIC (0x1u << 18) /**< \brief (FLEX_US_IER) Data Carrier Detect Input Change Interrupt Enable */
 #define FLEX_US_IER_CTSIC (0x1u << 19) /**< \brief (FLEX_US_IER) Clear to Send Input Change Interrupt Enable */
 #define FLEX_US_IER_CMP (0x1u << 22) /**< \brief (FLEX_US_IER) Comparison Interrupt Enable */
 #define FLEX_US_IER_MANE (0x1u << 24) /**< \brief (FLEX_US_IER) Manchester Error Interrupt Enable */
-#define FLEX_US_IER_UNRE (0x1u << 10) /**< \brief (FLEX_US_IER) SPI Underrun Error Interrupt Enable */
-#define FLEX_US_IER_NSSE (0x1u << 19) /**< \brief (FLEX_US_IER) NSS Line (Driving CTS Pin) Rising or Falling Edge Event */
 #define FLEX_US_IER_LINBK (0x1u << 13) /**< \brief (FLEX_US_IER) LIN Break Sent or LIN Break Received Interrupt Enable */
 #define FLEX_US_IER_LINID (0x1u << 14) /**< \brief (FLEX_US_IER) LIN Identifier Sent or LIN Identifier Received Interrupt Enable */
 #define FLEX_US_IER_LINTC (0x1u << 15) /**< \brief (FLEX_US_IER) LIN Transfer Completed Interrupt Enable */
@@ -298,6 +268,7 @@ typedef struct {
 #define FLEX_US_IER_LINHTE (0x1u << 31) /**< \brief (FLEX_US_IER) LIN Header Timeout Error Interrupt Enable */
 #define FLEX_US_IER_LSFE (0x1u << 6) /**< \brief (FLEX_US_IER) LON Short Frame Error Interrupt Enable */
 #define FLEX_US_IER_LCRCE (0x1u << 7) /**< \brief (FLEX_US_IER) LON CRC Error Interrupt Enable */
+#define FLEX_US_IER_UNRE (0x1u << 10) /**< \brief (FLEX_US_IER) Underrun Error Interrupt Enable */
 #define FLEX_US_IER_LTXD (0x1u << 24) /**< \brief (FLEX_US_IER) LON Transmission Done Interrupt Enable */
 #define FLEX_US_IER_LCOL (0x1u << 25) /**< \brief (FLEX_US_IER) LON Collision Interrupt Enable */
 #define FLEX_US_IER_LFET (0x1u << 26) /**< \brief (FLEX_US_IER) LON Frame Early Termination Interrupt Enable */
@@ -307,21 +278,16 @@ typedef struct {
 #define FLEX_US_IDR_RXRDY (0x1u << 0) /**< \brief (FLEX_US_IDR) RXRDY Interrupt Disable */
 #define FLEX_US_IDR_TXRDY (0x1u << 1) /**< \brief (FLEX_US_IDR) TXRDY Interrupt Disable */
 #define FLEX_US_IDR_RXBRK (0x1u << 2) /**< \brief (FLEX_US_IDR) Receiver Break Interrupt Disable */
-#define FLEX_US_IDR_OVRE (0x1u << 5) /**< \brief (FLEX_US_IDR) Overrun Error Interrupt Enable */
+#define FLEX_US_IDR_OVRE (0x1u << 5) /**< \brief (FLEX_US_IDR) Overrun Error Interrupt Disable */
 #define FLEX_US_IDR_FRAME (0x1u << 6) /**< \brief (FLEX_US_IDR) Framing Error Interrupt Disable */
 #define FLEX_US_IDR_PARE (0x1u << 7) /**< \brief (FLEX_US_IDR) Parity Error Interrupt Disable */
 #define FLEX_US_IDR_TIMEOUT (0x1u << 8) /**< \brief (FLEX_US_IDR) Timeout Interrupt Disable */
 #define FLEX_US_IDR_TXEMPTY (0x1u << 9) /**< \brief (FLEX_US_IDR) TXEMPTY Interrupt Disable */
 #define FLEX_US_IDR_ITER (0x1u << 10) /**< \brief (FLEX_US_IDR) Max Number of Repetitions Reached Interrupt Disable */
 #define FLEX_US_IDR_NACK (0x1u << 13) /**< \brief (FLEX_US_IDR) Non Acknowledge Interrupt Disable */
-#define FLEX_US_IDR_RIIC (0x1u << 16) /**< \brief (FLEX_US_IDR) Ring Indicator Input Change Disable */
-#define FLEX_US_IDR_DSRIC (0x1u << 17) /**< \brief (FLEX_US_IDR) Data Set Ready Input Change Disable */
-#define FLEX_US_IDR_DCDIC (0x1u << 18) /**< \brief (FLEX_US_IDR) Data Carrier Detect Input Change Interrupt Disable */
 #define FLEX_US_IDR_CTSIC (0x1u << 19) /**< \brief (FLEX_US_IDR) Clear to Send Input Change Interrupt Disable */
 #define FLEX_US_IDR_CMP (0x1u << 22) /**< \brief (FLEX_US_IDR) Comparison Interrupt Disable */
 #define FLEX_US_IDR_MANE (0x1u << 24) /**< \brief (FLEX_US_IDR) Manchester Error Interrupt Disable */
-#define FLEX_US_IDR_UNRE (0x1u << 10) /**< \brief (FLEX_US_IDR) SPI Underrun Error Interrupt Disable */
-#define FLEX_US_IDR_NSSE (0x1u << 19) /**< \brief (FLEX_US_IDR) NSS Line (Driving CTS Pin) Rising or Falling Edge Event */
 #define FLEX_US_IDR_LINBK (0x1u << 13) /**< \brief (FLEX_US_IDR) LIN Break Sent or LIN Break Received Interrupt Disable */
 #define FLEX_US_IDR_LINID (0x1u << 14) /**< \brief (FLEX_US_IDR) LIN Identifier Sent or LIN Identifier Received Interrupt Disable */
 #define FLEX_US_IDR_LINTC (0x1u << 15) /**< \brief (FLEX_US_IDR) LIN Transfer Completed Interrupt Disable */
@@ -334,6 +300,7 @@ typedef struct {
 #define FLEX_US_IDR_LINHTE (0x1u << 31) /**< \brief (FLEX_US_IDR) LIN Header Timeout Error Interrupt Disable */
 #define FLEX_US_IDR_LSFE (0x1u << 6) /**< \brief (FLEX_US_IDR) LON Short Frame Error Interrupt Disable */
 #define FLEX_US_IDR_LCRCE (0x1u << 7) /**< \brief (FLEX_US_IDR) LON CRC Error Interrupt Disable */
+#define FLEX_US_IDR_UNRE (0x1u << 10) /**< \brief (FLEX_US_IDR) Underrun Error Interrupt Disable */
 #define FLEX_US_IDR_LTXD (0x1u << 24) /**< \brief (FLEX_US_IDR) LON Transmission Done Interrupt Disable */
 #define FLEX_US_IDR_LCOL (0x1u << 25) /**< \brief (FLEX_US_IDR) LON Collision Interrupt Disable */
 #define FLEX_US_IDR_LFET (0x1u << 26) /**< \brief (FLEX_US_IDR) LON Frame Early Termination Interrupt Disable */
@@ -350,14 +317,9 @@ typedef struct {
 #define FLEX_US_IMR_TXEMPTY (0x1u << 9) /**< \brief (FLEX_US_IMR) TXEMPTY Interrupt Mask */
 #define FLEX_US_IMR_ITER (0x1u << 10) /**< \brief (FLEX_US_IMR) Max Number of Repetitions Reached Interrupt Mask */
 #define FLEX_US_IMR_NACK (0x1u << 13) /**< \brief (FLEX_US_IMR) Non Acknowledge Interrupt Mask */
-#define FLEX_US_IMR_RIIC (0x1u << 16) /**< \brief (FLEX_US_IMR) Ring Indicator Input Change Mask */
-#define FLEX_US_IMR_DSRIC (0x1u << 17) /**< \brief (FLEX_US_IMR) Data Set Ready Input Change Mask */
-#define FLEX_US_IMR_DCDIC (0x1u << 18) /**< \brief (FLEX_US_IMR) Data Carrier Detect Input Change Interrupt Mask */
 #define FLEX_US_IMR_CTSIC (0x1u << 19) /**< \brief (FLEX_US_IMR) Clear to Send Input Change Interrupt Mask */
 #define FLEX_US_IMR_CMP (0x1u << 22) /**< \brief (FLEX_US_IMR) Comparison Interrupt Mask */
 #define FLEX_US_IMR_MANE (0x1u << 24) /**< \brief (FLEX_US_IMR) Manchester Error Interrupt Mask */
-#define FLEX_US_IMR_UNRE (0x1u << 10) /**< \brief (FLEX_US_IMR) SPI Underrun Error Interrupt Mask */
-#define FLEX_US_IMR_NSSE (0x1u << 19) /**< \brief (FLEX_US_IMR) NSS Line (Driving CTS Pin) Rising or Falling Edge Event */
 #define FLEX_US_IMR_LINBK (0x1u << 13) /**< \brief (FLEX_US_IMR) LIN Break Sent or LIN Break Received Interrupt Mask */
 #define FLEX_US_IMR_LINID (0x1u << 14) /**< \brief (FLEX_US_IMR) LIN Identifier Sent or LIN Identifier Received Interrupt Mask */
 #define FLEX_US_IMR_LINTC (0x1u << 15) /**< \brief (FLEX_US_IMR) LIN Transfer Completed Interrupt Mask */
@@ -370,6 +332,7 @@ typedef struct {
 #define FLEX_US_IMR_LINHTE (0x1u << 31) /**< \brief (FLEX_US_IMR) LIN Header Timeout Error Interrupt Mask */
 #define FLEX_US_IMR_LSFE (0x1u << 6) /**< \brief (FLEX_US_IMR) LON Short Frame Error Interrupt Mask */
 #define FLEX_US_IMR_LCRCE (0x1u << 7) /**< \brief (FLEX_US_IMR) LON CRC Error Interrupt Mask */
+#define FLEX_US_IMR_UNRE (0x1u << 10) /**< \brief (FLEX_US_IMR) Underrun Error Interrupt Mask */
 #define FLEX_US_IMR_LTXD (0x1u << 24) /**< \brief (FLEX_US_IMR) LON Transmission Done Interrupt Mask */
 #define FLEX_US_IMR_LCOL (0x1u << 25) /**< \brief (FLEX_US_IMR) LON Collision Interrupt Mask */
 #define FLEX_US_IMR_LFET (0x1u << 26) /**< \brief (FLEX_US_IMR) LON Frame Early Termination Interrupt Mask */
@@ -386,16 +349,10 @@ typedef struct {
 #define FLEX_US_CSR_TXEMPTY (0x1u << 9) /**< \brief (FLEX_US_CSR) Transmitter Empty (cleared by writing FLEX_US_THR) */
 #define FLEX_US_CSR_ITER (0x1u << 10) /**< \brief (FLEX_US_CSR) Max Number of Repetitions Reached */
 #define FLEX_US_CSR_NACK (0x1u << 13) /**< \brief (FLEX_US_CSR) Non Acknowledge Interrupt */
-#define FLEX_US_CSR_RIIC (0x1u << 16) /**< \brief (FLEX_US_CSR) Ring Indicator Input Change Flag */
-#define FLEX_US_CSR_DSRIC (0x1u << 17) /**< \brief (FLEX_US_CSR) Data Set Ready Input Change Flag */
-#define FLEX_US_CSR_DCDIC (0x1u << 18) /**< \brief (FLEX_US_CSR) Data Carrier Detect Input Change Flag */
 #define FLEX_US_CSR_CTSIC (0x1u << 19) /**< \brief (FLEX_US_CSR) Clear to Send Input Change Flag */
 #define FLEX_US_CSR_CMP (0x1u << 22) /**< \brief (FLEX_US_CSR) Comparison Status */
 #define FLEX_US_CSR_CTS (0x1u << 23) /**< \brief (FLEX_US_CSR) Image of CTS Input */
 #define FLEX_US_CSR_MANE (0x1u << 24) /**< \brief (FLEX_US_CSR) Manchester Error */
-#define FLEX_US_CSR_UNRE (0x1u << 10) /**< \brief (FLEX_US_CSR) Underrun Error */
-#define FLEX_US_CSR_NSSE (0x1u << 19) /**< \brief (FLEX_US_CSR) NSS Line (Driving CTS Pin) Rising or Falling Edge Event (cleared on read) */
-#define FLEX_US_CSR_NSS (0x1u << 23) /**< \brief (FLEX_US_CSR) NSS Line (Driving CTS Pin) Rising or Falling Edge Event (cleared on read) */
 #define FLEX_US_CSR_LINBK (0x1u << 13) /**< \brief (FLEX_US_CSR) LIN Break Sent or LIN Break Received */
 #define FLEX_US_CSR_LINID (0x1u << 14) /**< \brief (FLEX_US_CSR) LIN Identifier Sent or LIN Identifier Received */
 #define FLEX_US_CSR_LINTC (0x1u << 15) /**< \brief (FLEX_US_CSR) LIN Transfer Completed */
@@ -409,6 +366,7 @@ typedef struct {
 #define FLEX_US_CSR_LINHTE (0x1u << 31) /**< \brief (FLEX_US_CSR) LIN Header Timeout Error */
 #define FLEX_US_CSR_LSFE (0x1u << 6) /**< \brief (FLEX_US_CSR) LON Short Frame Error */
 #define FLEX_US_CSR_LCRCE (0x1u << 7) /**< \brief (FLEX_US_CSR) LON CRC Error */
+#define FLEX_US_CSR_UNRE (0x1u << 10) /**< \brief (FLEX_US_CSR) Underrun Error */
 #define FLEX_US_CSR_LTXD (0x1u << 24) /**< \brief (FLEX_US_CSR) LON Transmission End Flag */
 #define FLEX_US_CSR_LCOL (0x1u << 25) /**< \brief (FLEX_US_CSR) LON Collision Detected Flag */
 #define FLEX_US_CSR_LFET (0x1u << 26) /**< \brief (FLEX_US_CSR) LON Frame Early Termination */
@@ -677,11 +635,6 @@ typedef struct {
 #define FLEX_US_WPSR_WPVS (0x1u << 0) /**< \brief (FLEX_US_WPSR) Write Protection Violation Status */
 #define FLEX_US_WPSR_WPVSRC_Pos 8
 #define FLEX_US_WPSR_WPVSRC_Msk (0xffffu << FLEX_US_WPSR_WPVSRC_Pos) /**< \brief (FLEX_US_WPSR) Write Protection Violation Source */
-/* -------- FLEX_US_VERSION : (FLEXCOM Offset: 0x2FC) USART Version Register -------- */
-#define FLEX_US_VERSION_VERSION_Pos 0
-#define FLEX_US_VERSION_VERSION_Msk (0xfffu << FLEX_US_VERSION_VERSION_Pos) /**< \brief (FLEX_US_VERSION) Hardware Module Version */
-#define FLEX_US_VERSION_MFN_Pos 16
-#define FLEX_US_VERSION_MFN_Msk (0x7u << FLEX_US_VERSION_MFN_Pos) /**< \brief (FLEX_US_VERSION) Metal Fix Number */
 /* -------- FLEX_SPI_CR : (FLEXCOM Offset: 0x400) SPI Control Register -------- */
 #define FLEX_SPI_CR_SPIEN (0x1u << 0) /**< \brief (FLEX_SPI_CR) SPI Enable */
 #define FLEX_SPI_CR_SPIDIS (0x1u << 1) /**< \brief (FLEX_SPI_CR) SPI Disable */
@@ -702,7 +655,6 @@ typedef struct {
 #define FLEX_SPI_MR_MODFDIS (0x1u << 4) /**< \brief (FLEX_SPI_MR) Mode Fault Detection */
 #define FLEX_SPI_MR_WDRBT (0x1u << 5) /**< \brief (FLEX_SPI_MR) Wait Data Read Before Transfer */
 #define FLEX_SPI_MR_LLB (0x1u << 7) /**< \brief (FLEX_SPI_MR) Local Loopback Enable */
-#define FLEX_SPI_MR_LBHPC (0x1u << 8) /**< \brief (FLEX_SPI_MR) Last Bit Half Period Compatibility */
 #define FLEX_SPI_MR_CMPMODE (0x1u << 12) /**< \brief (FLEX_SPI_MR) Comparison Mode */
 #define   FLEX_SPI_MR_CMPMODE_FLAG_ONLY (0x0u << 12) /**< \brief (FLEX_SPI_MR) Any character is received and comparison function drives CMP flag. */
 #define   FLEX_SPI_MR_CMPMODE_START_CONDITION (0x1u << 12) /**< \brief (FLEX_SPI_MR) Comparison condition must be met to start reception of all incoming characters until REQCLR is set. */
@@ -844,13 +796,13 @@ typedef struct {
 #define FLEX_SPI_FMR_TXRDYM_Msk (0x3u << FLEX_SPI_FMR_TXRDYM_Pos) /**< \brief (FLEX_SPI_FMR) Transmit Data Register Empty Mode */
 #define FLEX_SPI_FMR_TXRDYM(value) ((FLEX_SPI_FMR_TXRDYM_Msk & ((value) << FLEX_SPI_FMR_TXRDYM_Pos)))
 #define   FLEX_SPI_FMR_TXRDYM_ONE_DATA (0x0u << 0) /**< \brief (FLEX_SPI_FMR) TDRE will be at level '1' when at least one data can be written in the Transmit FIFO. */
-#define   FLEX_SPI_FMR_TXRDYM_TWO_DATA (0x1u << 0) /**< \brief (FLEX_SPI_FMR) TDRE will be at level '1' when at least two data can be written in the Transmit FIFO.Cannot be used if FLEX_SPI_MR.PS =1. */
+#define   FLEX_SPI_FMR_TXRDYM_TWO_DATA (0x1u << 0) /**< \brief (FLEX_SPI_FMR) TDRE will be at level '1' when at least two data can be written in the Transmit FIFO. Cannot be used if FLEX_SPI_MR.PS =1. */
 #define FLEX_SPI_FMR_RXRDYM_Pos 4
 #define FLEX_SPI_FMR_RXRDYM_Msk (0x3u << FLEX_SPI_FMR_RXRDYM_Pos) /**< \brief (FLEX_SPI_FMR) Receive Data Register Full Mode */
 #define FLEX_SPI_FMR_RXRDYM(value) ((FLEX_SPI_FMR_RXRDYM_Msk & ((value) << FLEX_SPI_FMR_RXRDYM_Pos)))
 #define   FLEX_SPI_FMR_RXRDYM_ONE_DATA (0x0u << 4) /**< \brief (FLEX_SPI_FMR) RDRF will be at level '1' when at least one unread data is in the Receive FIFO. */
-#define   FLEX_SPI_FMR_RXRDYM_TWO_DATA (0x1u << 4) /**< \brief (FLEX_SPI_FMR) RDRF will be at level '1' when at least two unread data are in the Receive FIFO.Cannot be used when FLEX_SPI_MR.MSTR =1, or if FLEX_SPI_MR.PS =1. */
-#define   FLEX_SPI_FMR_RXRDYM_FOUR_DATA (0x2u << 4) /**< \brief (FLEX_SPI_FMR) RDRF will be at level '1' when at least four unread data are in the Receive FIFO.Cannot be used when FLEX_SPI_CSRx.BITS is greater than 0, or if FLEX_SPI_MR.MSTR =1, or if FLEX_SPI_MR.PS =1. */
+#define   FLEX_SPI_FMR_RXRDYM_TWO_DATA (0x1u << 4) /**< \brief (FLEX_SPI_FMR) RDRF will be at level '1' when at least two unread data are in the Receive FIFO. Cannot be used when FLEX_SPI_MR.MSTR =1, or if FLEX_SPI_MR.PS =1. */
+#define   FLEX_SPI_FMR_RXRDYM_FOUR_DATA (0x2u << 4) /**< \brief (FLEX_SPI_FMR) RDRF will be at level '1' when at least four unread data are in the Receive FIFO. Cannot be used when FLEX_SPI_CSRx.BITS is greater than 0, or if FLEX_SPI_MR.MSTR =1, or if FLEX_SPI_MR.PS =1. */
 #define FLEX_SPI_FMR_TXFTHRES_Pos 16
 #define FLEX_SPI_FMR_TXFTHRES_Msk (0x3fu << FLEX_SPI_FMR_TXFTHRES_Pos) /**< \brief (FLEX_SPI_FMR) Transmit FIFO Threshold */
 #define FLEX_SPI_FMR_TXFTHRES(value) ((FLEX_SPI_FMR_TXFTHRES_Msk & ((value) << FLEX_SPI_FMR_TXFTHRES_Pos)))
@@ -876,16 +828,11 @@ typedef struct {
 #define FLEX_SPI_WPMR_WPKEY_Pos 8
 #define FLEX_SPI_WPMR_WPKEY_Msk (0xffffffu << FLEX_SPI_WPMR_WPKEY_Pos) /**< \brief (FLEX_SPI_WPMR) Write Protection Key */
 #define FLEX_SPI_WPMR_WPKEY(value) ((FLEX_SPI_WPMR_WPKEY_Msk & ((value) << FLEX_SPI_WPMR_WPKEY_Pos)))
-#define   FLEX_SPI_WPMR_WPKEY_PASSWD (0x535049u << 8) /**< \brief (FLEX_SPI_WPMR) Writing any other value in this field aborts the write operation of bits WPEN, WPITEN and WPCREN.Always reads as 0 */
+#define   FLEX_SPI_WPMR_WPKEY_PASSWD (0x535049u << 8) /**< \brief (FLEX_SPI_WPMR) Writing any other value in this field aborts the write operation of bits WPEN, WPITEN and WPCREN. Always reads as 0 */
 /* -------- FLEX_SPI_WPSR : (FLEXCOM Offset: 0x4E8) SPI Write Protection Status Register -------- */
 #define FLEX_SPI_WPSR_WPVS (0x1u << 0) /**< \brief (FLEX_SPI_WPSR) Write Protection Violation Status */
 #define FLEX_SPI_WPSR_WPVSRC_Pos 8
 #define FLEX_SPI_WPSR_WPVSRC_Msk (0xffu << FLEX_SPI_WPSR_WPVSRC_Pos) /**< \brief (FLEX_SPI_WPSR) Write Protection Violation Source */
-/* -------- FLEX_SPI_VERSION : (FLEXCOM Offset: 0x4FC) SPI Version Register -------- */
-#define FLEX_SPI_VERSION_VERSION_Pos 0
-#define FLEX_SPI_VERSION_VERSION_Msk (0xfffu << FLEX_SPI_VERSION_VERSION_Pos) /**< \brief (FLEX_SPI_VERSION) Version of the Hardware Module */
-#define FLEX_SPI_VERSION_MFN_Pos 16
-#define FLEX_SPI_VERSION_MFN_Msk (0x7u << FLEX_SPI_VERSION_MFN_Pos) /**< \brief (FLEX_SPI_VERSION) Metal Fix Number */
 /* -------- FLEX_TWI_CR : (FLEXCOM Offset: 0x600) TWI Control Register -------- */
 #define FLEX_TWI_CR_START (0x1u << 0) /**< \brief (FLEX_TWI_CR) Send a START Condition */
 #define FLEX_TWI_CR_STOP (0x1u << 1) /**< \brief (FLEX_TWI_CR) Send a STOP Condition */
@@ -930,6 +877,7 @@ typedef struct {
 #define FLEX_TWI_SMR_SMDA (0x1u << 2) /**< \brief (FLEX_TWI_SMR) SMBus Default Address */
 #define FLEX_TWI_SMR_SMHH (0x1u << 3) /**< \brief (FLEX_TWI_SMR) SMBus Host Header */
 #define FLEX_TWI_SMR_SADAT (0x1u << 4) /**< \brief (FLEX_TWI_SMR) Slave Address Treated as Data */
+#define FLEX_TWI_SMR_BSEL (0x1u << 5) /**< \brief (FLEX_TWI_SMR) TWI Bus Selection */
 #define FLEX_TWI_SMR_SCLWSDIS (0x1u << 6) /**< \brief (FLEX_TWI_SMR) Clock Wait State Disable */
 #define FLEX_TWI_SMR_SNIFF (0x1u << 7) /**< \brief (FLEX_TWI_SMR) Slave Sniffer Mode */
 #define FLEX_TWI_SMR_MASK_Pos 8
@@ -1175,11 +1123,6 @@ typedef struct {
 #define FLEX_TWI_FIMR_RXFTHF (0x1u << 5) /**< \brief (FLEX_TWI_FIMR) RXFTHF Interrupt Mask */
 #define FLEX_TWI_FIMR_TXFPTEF (0x1u << 6) /**< \brief (FLEX_TWI_FIMR) TXFPTEF Interrupt Mask */
 #define FLEX_TWI_FIMR_RXFPTEF (0x1u << 7) /**< \brief (FLEX_TWI_FIMR) RXFPTEF Interrupt Mask */
-/* -------- FLEX_TWI_DR : (FLEXCOM Offset: 0x6D0) TWI Debug Register -------- */
-#define FLEX_TWI_DR_SWEN (0x1u << 0) /**< \brief (FLEX_TWI_DR) SleepWalking Enable */
-#define FLEX_TWI_DR_CLKRQ (0x1u << 1) /**< \brief (FLEX_TWI_DR) Clock Request */
-#define FLEX_TWI_DR_SWMATCH (0x1u << 2) /**< \brief (FLEX_TWI_DR) SleepWalking Match */
-#define FLEX_TWI_DR_TRP (0x1u << 3) /**< \brief (FLEX_TWI_DR) Transfer Pending */
 /* -------- FLEX_TWI_WPMR : (FLEXCOM Offset: 0x6E4) TWI Write Protection Mode Register -------- */
 #define FLEX_TWI_WPMR_WPEN (0x1u << 0) /**< \brief (FLEX_TWI_WPMR) Write Protection Enable */
 #define FLEX_TWI_WPMR_WPITEN (0x1u << 1) /**< \brief (FLEX_TWI_WPMR) Write Protection Interrupt Enable */
@@ -1187,16 +1130,11 @@ typedef struct {
 #define FLEX_TWI_WPMR_WPKEY_Pos 8
 #define FLEX_TWI_WPMR_WPKEY_Msk (0xffffffu << FLEX_TWI_WPMR_WPKEY_Pos) /**< \brief (FLEX_TWI_WPMR) Write Protection Key */
 #define FLEX_TWI_WPMR_WPKEY(value) ((FLEX_TWI_WPMR_WPKEY_Msk & ((value) << FLEX_TWI_WPMR_WPKEY_Pos)))
-#define   FLEX_TWI_WPMR_WPKEY_PASSWD (0x545749u << 8) /**< \brief (FLEX_TWI_WPMR) Writing any other value in this field aborts the write operation of bits WPEN, WPITEN and WPCREN.Always reads as 0 */
+#define   FLEX_TWI_WPMR_WPKEY_PASSWD (0x545749u << 8) /**< \brief (FLEX_TWI_WPMR) Writing any other value in this field aborts the write operation of bits WPEN, WPITEN and WPCREN. Always reads as 0 */
 /* -------- FLEX_TWI_WPSR : (FLEXCOM Offset: 0x6E8) TWI Write Protection Status Register -------- */
 #define FLEX_TWI_WPSR_WPVS (0x1u << 0) /**< \brief (FLEX_TWI_WPSR) Write Protect Violation Status */
 #define FLEX_TWI_WPSR_WPVSRC_Pos 8
 #define FLEX_TWI_WPSR_WPVSRC_Msk (0xffffffu << FLEX_TWI_WPSR_WPVSRC_Pos) /**< \brief (FLEX_TWI_WPSR) Write Protection Violation Source */
-/* -------- FLEX_TWI_VER : (FLEXCOM Offset: 0x6FC) TWI Version Register -------- */
-#define FLEX_TWI_VER_VERSION_Pos 0
-#define FLEX_TWI_VER_VERSION_Msk (0xfffu << FLEX_TWI_VER_VERSION_Pos) /**< \brief (FLEX_TWI_VER) Version of the Hardware Module */
-#define FLEX_TWI_VER_MFN_Pos 16
-#define FLEX_TWI_VER_MFN_Msk (0x7u << FLEX_TWI_VER_MFN_Pos) /**< \brief (FLEX_TWI_VER) Metal Fix Number */
 
 /*@}*/
 

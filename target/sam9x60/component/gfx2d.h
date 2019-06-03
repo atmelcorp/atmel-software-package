@@ -67,8 +67,6 @@ typedef struct {
   __IO uint32_t  GFX2D_HEAD;                   /**< \brief (Gfx2d Offset: 0x38) Ring Buffer Head Register */
   __IO uint32_t  GFX2D_TAIL;                   /**< \brief (Gfx2d Offset: 0x3C) Ring Buffer Tail Register */
        Gfx2dChid GFX2D_CHID[GFX2DCHID_NUMBER]; /**< \brief (Gfx2d Offset: 0x40) chid = 0 .. 3 */
-  __I  uint32_t  Reserved1[31];
-  __I  uint32_t  GFX2D_VERSION;                /**< \brief (Gfx2d Offset: 0xFC) Version Register */
 } Gfx2d;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- GFX2D_GC : (GFX2D Offset: 0x00) Global Configuration Register -------- */
@@ -180,11 +178,6 @@ typedef struct {
 #define   GFX2D_CFG_PF_ARGB32 (0xBu << 0) /**< \brief (GFX2D_CFG) 32 bits per pixel, 8 bits for alpha and color channels */
 #define   GFX2D_CFG_PF_RGBA32 (0xCu << 0) /**< \brief (GFX2D_CFG) 32 bits per pixel, 8 bits for alpha and color channels */
 #define GFX2D_CFG_IDXCX (0x1u << 4) /**< \brief (GFX2D_CFG) Color Look-Up Table Selection */
-/* -------- GFX2D_VERSION : (GFX2D Offset: 0xFC) Version Register -------- */
-#define GFX2D_VERSION_VERSION_Pos 0
-#define GFX2D_VERSION_VERSION_Msk (0xfffu << GFX2D_VERSION_VERSION_Pos) /**< \brief (GFX2D_VERSION) Version */
-#define GFX2D_VERSION_MFN_Pos 16
-#define GFX2D_VERSION_MFN_Msk (0x7u << GFX2D_VERSION_MFN_Pos) /**< \brief (GFX2D_VERSION) Metal Fix Number */
 
 /*@}*/
 

@@ -39,21 +39,19 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Pit64b hardware registers */
 typedef struct {
-  __O  uint32_t PIT64B_CR;      /**< \brief (Pit64b Offset: 0x00) Control Register */
-  __IO uint32_t PIT64B_MR;      /**< \brief (Pit64b Offset: 0x04) Mode Register */
-  __IO uint32_t PIT64B_LSBPR;   /**< \brief (Pit64b Offset: 0x08) LSB Period Register */
-  __IO uint32_t PIT64B_MSBPR;   /**< \brief (Pit64b Offset: 0x0C) MSB Period Register */
-  __O  uint32_t PIT64B_IER;     /**< \brief (Pit64b Offset: 0x10) Interrupt Enable Register */
-  __O  uint32_t PIT64B_IDR;     /**< \brief (Pit64b Offset: 0x14) Interrupt Disable Register */
-  __I  uint32_t PIT64B_IMR;     /**< \brief (Pit64b Offset: 0x18) Interrupt Mask Register */
-  __I  uint32_t PIT64B_ISR;     /**< \brief (Pit64b Offset: 0x1C) Interrupt Status Register */
-  __I  uint32_t PIT64B_TLSBR;   /**< \brief (Pit64b Offset: 0x20) Timer LSB Current Value Register */
-  __I  uint32_t PIT64B_TMSBR;   /**< \brief (Pit64b Offset: 0x24) Timer MSB Current Value Register */
+  __O  uint32_t PIT64B_CR;     /**< \brief (Pit64b Offset: 0x00) Control Register */
+  __IO uint32_t PIT64B_MR;     /**< \brief (Pit64b Offset: 0x04) Mode Register */
+  __IO uint32_t PIT64B_LSBPR;  /**< \brief (Pit64b Offset: 0x08) LSB Period Register */
+  __IO uint32_t PIT64B_MSBPR;  /**< \brief (Pit64b Offset: 0x0C) MSB Period Register */
+  __O  uint32_t PIT64B_IER;    /**< \brief (Pit64b Offset: 0x10) Interrupt Enable Register */
+  __O  uint32_t PIT64B_IDR;    /**< \brief (Pit64b Offset: 0x14) Interrupt Disable Register */
+  __I  uint32_t PIT64B_IMR;    /**< \brief (Pit64b Offset: 0x18) Interrupt Mask Register */
+  __I  uint32_t PIT64B_ISR;    /**< \brief (Pit64b Offset: 0x1C) Interrupt Status Register */
+  __I  uint32_t PIT64B_TLSBR;  /**< \brief (Pit64b Offset: 0x20) Timer LSB Current Value Register */
+  __I  uint32_t PIT64B_TMSBR;  /**< \brief (Pit64b Offset: 0x24) Timer MSB Current Value Register */
   __I  uint32_t Reserved1[47];
-  __IO uint32_t PIT64B_WPMR;    /**< \brief (Pit64b Offset: 0xE4) Write Protection Mode Register */
-  __I  uint32_t PIT64B_WPSR;    /**< \brief (Pit64b Offset: 0xE8) Write Protection Status Register */
-  __I  uint32_t Reserved2[4];
-  __I  uint32_t PIT64B_VERSION; /**< \brief (Pit64b Offset: 0xFC) Version Register */
+  __IO uint32_t PIT64B_WPMR;   /**< \brief (Pit64b Offset: 0xE4) Write Protection Mode Register */
+  __I  uint32_t PIT64B_WPSR;   /**< \brief (Pit64b Offset: 0xE8) Write Protection Status Register */
 } Pit64b;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- PIT64B_CR : (PIT64B Offset: 0x00) Control Register -------- */
@@ -87,9 +85,9 @@ typedef struct {
 #define PIT64B_IMR_OVRE (0x1u << 1) /**< \brief (PIT64B_IMR) Overrun Error Interrupt Mask */
 #define PIT64B_IMR_SECE (0x1u << 4) /**< \brief (PIT64B_IMR) Safety and/or Security Report Interrupt Mask */
 /* -------- PIT64B_ISR : (PIT64B Offset: 0x1C) Interrupt Status Register -------- */
-#define PIT64B_ISR_PERIOD (0x1u << 0) /**< \brief (PIT64B_ISR) Elapsed Timer Period Status Flag */
-#define PIT64B_ISR_OVRE (0x1u << 1) /**< \brief (PIT64B_ISR) Overrun Error */
-#define PIT64B_ISR_SECE (0x1u << 4) /**< \brief (PIT64B_ISR) Safety/Security Report */
+#define PIT64B_ISR_PERIOD (0x1u << 0) /**< \brief (PIT64B_ISR) Elapsed Timer Period Status Flag (cleared on read) */
+#define PIT64B_ISR_OVRE (0x1u << 1) /**< \brief (PIT64B_ISR) Overrun Error (cleared on read) */
+#define PIT64B_ISR_SECE (0x1u << 4) /**< \brief (PIT64B_ISR) Safety/Security Report (cleared on read) */
 /* -------- PIT64B_TLSBR : (PIT64B Offset: 0x20) Timer LSB Current Value Register -------- */
 #define PIT64B_TLSBR_LSBTIMER_Pos 0
 #define PIT64B_TLSBR_LSBTIMER_Msk (0xffffffffu << PIT64B_TLSBR_LSBTIMER_Pos) /**< \brief (PIT64B_TLSBR) Current 32 LSB of the Timer */
@@ -104,7 +102,7 @@ typedef struct {
 #define PIT64B_WPMR_WPKEY_Pos 8
 #define PIT64B_WPMR_WPKEY_Msk (0xffffffu << PIT64B_WPMR_WPKEY_Pos) /**< \brief (PIT64B_WPMR) Write Protection Key */
 #define PIT64B_WPMR_WPKEY(value) ((PIT64B_WPMR_WPKEY_Msk & ((value) << PIT64B_WPMR_WPKEY_Pos)))
-#define   PIT64B_WPMR_WPKEY_PASSWD (0x504954u << 8) /**< \brief (PIT64B_WPMR) Writing any other value in this field aborts the write operation of the WPCREN, WPITEN and WPEN bits.Always reads as 0. */
+#define   PIT64B_WPMR_WPKEY_PASSWD (0x504954u << 8) /**< \brief (PIT64B_WPMR) Writing any other value in this field aborts the write operation of the WPCREN, WPITEN and WPEN bits. Always reads as 0. */
 /* -------- PIT64B_WPSR : (PIT64B Offset: 0xE8) Write Protection Status Register -------- */
 #define PIT64B_WPSR_WPVS (0x1u << 0) /**< \brief (PIT64B_WPSR) Write Protection Violation Status (cleared on read) */
 #define PIT64B_WPSR_CGD (0x1u << 1) /**< \brief (PIT64B_WPSR) Clock Glitch Detected (cleared on read) */
@@ -121,11 +119,6 @@ typedef struct {
 #define PIT64B_WPSR_ECLASS (0x1u << 31) /**< \brief (PIT64B_WPSR) Software Error Class (cleared on read) */
 #define   PIT64B_WPSR_ECLASS_WARNING (0x0u << 31) /**< \brief (PIT64B_WPSR) An abnormal access that does not affect system functionality. */
 #define   PIT64B_WPSR_ECLASS_ERROR (0x1u << 31) /**< \brief (PIT64B_WPSR) A write access is performed into PIT64B_MR, PIT64B_LSBR, PIT64B_MSBR while the PIT64B is running. */
-/* -------- PIT64B_VERSION : (PIT64B Offset: 0xFC) Version Register -------- */
-#define PIT64B_VERSION_VERSION_Pos 0
-#define PIT64B_VERSION_VERSION_Msk (0xfffu << PIT64B_VERSION_VERSION_Pos) /**< \brief (PIT64B_VERSION) Hardware Module Version */
-#define PIT64B_VERSION_MFN_Pos 16
-#define PIT64B_VERSION_MFN_Msk (0x7u << PIT64B_VERSION_MFN_Pos) /**< \brief (PIT64B_VERSION) Metal Fix Number */
 
 /*@}*/
 

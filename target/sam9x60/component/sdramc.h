@@ -56,8 +56,6 @@ typedef struct {
   __I  uint32_t Reserved1[1];
   __IO uint32_t SDRAMC_WPMR;      /**< \brief (Sdramc Offset: 0x3C) Write Protection Mode Register */
   __I  uint32_t SDRAMC_WPSR;      /**< \brief (Sdramc Offset: 0x40) Write Protection Status Register */
-  __I  uint32_t Reserved2[46];
-  __I  uint32_t SDRAMC_VERSION;   /**< \brief (Sdramc Offset: 0xFC) Version Register */
 } Sdramc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- SDRAMC_MR : (SDRAMC Offset: 0x00) Mode Register -------- */
@@ -95,8 +93,8 @@ typedef struct {
 #define SDRAMC_CR_CAS_Pos 5
 #define SDRAMC_CR_CAS_Msk (0x3u << SDRAMC_CR_CAS_Pos) /**< \brief (SDRAMC_CR) CAS Latency */
 #define SDRAMC_CR_CAS(value) ((SDRAMC_CR_CAS_Msk & ((value) << SDRAMC_CR_CAS_Pos)))
-#define   SDRAMC_CR_CAS_LATENCY2 (0x2u << 5) /**< \brief (SDRAMC_CR) 2 cycle latency */
-#define   SDRAMC_CR_CAS_LATENCY3 (0x3u << 5) /**< \brief (SDRAMC_CR) 3 cycle latency */
+#define   SDRAMC_CR_CAS_LATENCY2 (0x2u << 5) /**< \brief (SDRAMC_CR) 2-cycle latency */
+#define   SDRAMC_CR_CAS_LATENCY3 (0x3u << 5) /**< \brief (SDRAMC_CR) 3-cycle latency */
 #define SDRAMC_CR_DBW (0x1u << 7) /**< \brief (SDRAMC_CR) Data Bus Width */
 #define SDRAMC_CR_TWR_Pos 8
 #define SDRAMC_CR_TWR_Msk (0xfu << SDRAMC_CR_TWR_Pos) /**< \brief (SDRAMC_CR) Write Recovery Delay */
@@ -180,6 +178,7 @@ typedef struct {
 #define   SDRAMC_CFR1_CMD_MUX_SUPPORTED (0x1u << 11) /**< \brief (SDRAMC_CFR1) Commands are multiplexed with address and data. */
 /* -------- SDRAMC_OCMS : (SDRAMC Offset: 0x2C) OCMS Register -------- */
 #define SDRAMC_OCMS_SDR_SE (0x1u << 0) /**< \brief (SDRAMC_OCMS) SDRAM Memory Controller Scrambling Enable */
+#define SDRAMC_OCMS_TAMPCLR (0x1u << 4) /**< \brief (SDRAMC_OCMS) Tamper Clear Enable */
 /* -------- SDRAMC_OCMS_KEY1 : (SDRAMC Offset: 0x30) OCMS KEY1 Register -------- */
 #define SDRAMC_OCMS_KEY1_KEY1_Pos 0
 #define SDRAMC_OCMS_KEY1_KEY1_Msk (0xffffffffu << SDRAMC_OCMS_KEY1_KEY1_Pos) /**< \brief (SDRAMC_OCMS_KEY1) Off-chip Memory Scrambling (OCMS) Key Part 1 */
@@ -194,7 +193,7 @@ typedef struct {
 #define SDRAMC_WPMR_WPKEY_Pos 8
 #define SDRAMC_WPMR_WPKEY_Msk (0xffffffu << SDRAMC_WPMR_WPKEY_Pos) /**< \brief (SDRAMC_WPMR) Write Protection Key */
 #define SDRAMC_WPMR_WPKEY(value) ((SDRAMC_WPMR_WPKEY_Msk & ((value) << SDRAMC_WPMR_WPKEY_Pos)))
-#define   SDRAMC_WPMR_WPKEY_PASSWD (0x534452u << 8) /**< \brief (SDRAMC_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit.Always reads as 0. */
+#define   SDRAMC_WPMR_WPKEY_PASSWD (0x534452u << 8) /**< \brief (SDRAMC_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit. Always reads as 0. */
 /* -------- SDRAMC_WPSR : (SDRAMC Offset: 0x40) Write Protection Status Register -------- */
 #define SDRAMC_WPSR_WPEN (0x1u << 0) /**< \brief (SDRAMC_WPSR) Write Protection Violation Status (cleared on read) */
 #define SDRAMC_WPSR_CGD (0x1u << 1) /**< \brief (SDRAMC_WPSR) Clock Glitch Detected (cleared on read) */
@@ -211,11 +210,6 @@ typedef struct {
 #define SDRAMC_WPSR_ECLASS (0x1u << 31) /**< \brief (SDRAMC_WPSR) Software Error Class (cleared on read) */
 #define   SDRAMC_WPSR_ECLASS_WARNING (0x0u << 31) /**< \brief (SDRAMC_WPSR) An abnormal access is performed but it does not affect system functionality. */
 #define   SDRAMC_WPSR_ECLASS_ERROR (0x1u << 31) /**< \brief (SDRAMC_WPSR) An access is performed into some registers after memory device initialization sequence. */
-/* -------- SDRAMC_VERSION : (SDRAMC Offset: 0xFC) Version Register -------- */
-#define SDRAMC_VERSION_VERSION_Pos 0
-#define SDRAMC_VERSION_VERSION_Msk (0xfffu << SDRAMC_VERSION_VERSION_Pos) /**< \brief (SDRAMC_VERSION) Version of the Hardware Module */
-#define SDRAMC_VERSION_MFN_Pos 16
-#define SDRAMC_VERSION_MFN_Msk (0x7u << SDRAMC_VERSION_MFN_Pos) /**< \brief (SDRAMC_VERSION) Metal Fix Number */
 
 /*@}*/
 

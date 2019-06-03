@@ -44,7 +44,6 @@
   #define REG_SHA_IODATAR                  (0xF002C080U) /**< \brief (SHA) Input/Output Data 0 Register */
   #define REG_SHA_WPMR                     (0xF002C0E4U) /**< \brief (SHA) Write Protection Mode Register */
   #define REG_SHA_WPSR                     (0xF002C0E8U) /**< \brief (SHA) Write Protection Status Register */
-  #define REG_SHA_VERSION                  (0xF002C0FCU) /**< \brief (SHA) Version Register */
 #else
   #define REG_SHA_CR      (*(__O  uint32_t*)0xF002C000U) /**< \brief (SHA) Control Register */
   #define REG_SHA_MR      (*(__IO uint32_t*)0xF002C004U) /**< \brief (SHA) Mode Register */
@@ -58,7 +57,6 @@
   #define REG_SHA_IODATAR (*(__IO uint32_t*)0xF002C080U) /**< \brief (SHA) Input/Output Data 0 Register */
   #define REG_SHA_WPMR    (*(__IO uint32_t*)0xF002C0E4U) /**< \brief (SHA) Write Protection Mode Register */
   #define REG_SHA_WPSR    (*(__I  uint32_t*)0xF002C0E8U) /**< \brief (SHA) Write Protection Status Register */
-  #define REG_SHA_VERSION (*(__I  uint32_t*)0xF002C0FCU) /**< \brief (SHA) Version Register */
 #endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #endif /* _SAM9X_SHA_INSTANCE_ */

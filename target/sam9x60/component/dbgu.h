@@ -56,8 +56,6 @@ typedef struct {
   __IO uint32_t DBGU_FNR;      /**< \brief (Dbgu Offset: 0x0048) Force NTRST Register */
   __I  uint32_t Reserved3[38];
   __IO uint32_t DBGU_WPMR;     /**< \brief (Dbgu Offset: 0x00E4) Write Protection Mode Register */
-  __I  uint32_t Reserved4[5];
-  __I  uint32_t DBGU_VERSION;  /**< \brief (Dbgu Offset: 0x00FC) Version Register */
 } Dbgu;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- DBGU_CR : (DBGU Offset: 0x0000) Control Register -------- */
@@ -70,7 +68,6 @@ typedef struct {
 #define DBGU_CR_RSTSTA (0x1u << 8) /**< \brief (DBGU_CR) Reset Status */
 #define DBGU_CR_RETTO (0x1u << 10) /**< \brief (DBGU_CR) Rearm Timeout */
 #define DBGU_CR_STTTO (0x1u << 11) /**< \brief (DBGU_CR) Start Timeout */
-#define DBGU_CR_DBGE (0x1u << 15) /**< \brief (DBGU_CR) Debug Enable */
 /* -------- DBGU_MR : (DBGU Offset: 0x0004) Mode Register -------- */
 #define DBGU_MR_FILTER (0x1u << 4) /**< \brief (DBGU_MR) Receiver Digital Filter */
 #define   DBGU_MR_FILTER_DISABLED (0x0u << 4) /**< \brief (DBGU_MR) DBGU does not filter the receive line. */
@@ -83,6 +80,9 @@ typedef struct {
 #define   DBGU_MR_PAR_SPACE (0x2u << 9) /**< \brief (DBGU_MR) Space: parity forced to 0 */
 #define   DBGU_MR_PAR_MARK (0x3u << 9) /**< \brief (DBGU_MR) Mark: parity forced to 1 */
 #define   DBGU_MR_PAR_NONE (0x4u << 9) /**< \brief (DBGU_MR) No parity */
+#define DBGU_MR_BRSRCCK (0x1u << 12) /**< \brief (DBGU_MR) Baud Rate Source Clock */
+#define   DBGU_MR_BRSRCCK_PERIPH_CLK (0x0u << 12) /**< \brief (DBGU_MR) The baud rate is driven by the peripheral clock */
+#define   DBGU_MR_BRSRCCK_GCLK (0x1u << 12) /**< \brief (DBGU_MR) The baud rate is driven by a PMC-programmable clock GCLK (see section Power Management Controller (PMC)). */
 #define DBGU_MR_CHMODE_Pos 14
 #define DBGU_MR_CHMODE_Msk (0x3u << DBGU_MR_CHMODE_Pos) /**< \brief (DBGU_MR) Channel Mode */
 #define DBGU_MR_CHMODE(value) ((DBGU_MR_CHMODE_Msk & ((value) << DBGU_MR_CHMODE_Pos)))
@@ -128,9 +128,6 @@ typedef struct {
 #define DBGU_SR_PARE (0x1u << 7) /**< \brief (DBGU_SR) Parity Error */
 #define DBGU_SR_TIMEOUT (0x1u << 8) /**< \brief (DBGU_SR) Receiver Timeout */
 #define DBGU_SR_TXEMPTY (0x1u << 9) /**< \brief (DBGU_SR) Transmitter Empty */
-#define DBGU_SR_SWES (0x1u << 21) /**< \brief (DBGU_SR) SleepWalking Enable Status */
-#define DBGU_SR_CLKREQ (0x1u << 22) /**< \brief (DBGU_SR) Clock Request */
-#define DBGU_SR_WKUPREQ (0x1u << 23) /**< \brief (DBGU_SR) Wakeup Request */
 #define DBGU_SR_COMMTX (0x1u << 30) /**< \brief (DBGU_SR) Debug Communication Channel Write Status */
 #define DBGU_SR_COMMRX (0x1u << 31) /**< \brief (DBGU_SR) Debug Communication Channel Read Status */
 /* -------- DBGU_RHR : (DBGU Offset: 0x0018) Receive Holding Register -------- */
@@ -256,12 +253,7 @@ typedef struct {
 #define DBGU_WPMR_WPKEY_Pos 8
 #define DBGU_WPMR_WPKEY_Msk (0xffffffu << DBGU_WPMR_WPKEY_Pos) /**< \brief (DBGU_WPMR) Write Protection Key */
 #define DBGU_WPMR_WPKEY(value) ((DBGU_WPMR_WPKEY_Msk & ((value) << DBGU_WPMR_WPKEY_Pos)))
-#define   DBGU_WPMR_WPKEY_PASSWD (0x554152u << 8) /**< \brief (DBGU_WPMR) Writing any other value in this field aborts the write operation.Always reads as 0. */
-/* -------- DBGU_VERSION : (DBGU Offset: 0x00FC) Version Register -------- */
-#define DBGU_VERSION_VERSION_Pos 0
-#define DBGU_VERSION_VERSION_Msk (0xfffu << DBGU_VERSION_VERSION_Pos) /**< \brief (DBGU_VERSION) Hardware Module Version */
-#define DBGU_VERSION_MFN_Pos 16
-#define DBGU_VERSION_MFN_Msk (0x7u << DBGU_VERSION_MFN_Pos) /**< \brief (DBGU_VERSION) Metal Fix Number */
+#define   DBGU_WPMR_WPKEY_PASSWD (0x554152u << 8) /**< \brief (DBGU_WPMR) Writing any other value in this field aborts the write operation. Always reads as 0. */
 
 /*@}*/
 

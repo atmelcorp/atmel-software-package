@@ -77,7 +77,6 @@
   #define REG_PIOC_FRLHSR                   (0xFFFFF8D8U) /**< \brief (PIOC) Fall/Rise - Low/High Status Register */
   #define REG_PIOC_WPMR                     (0xFFFFF8E4U) /**< \brief (PIOC) Write Protection Mode Register */
   #define REG_PIOC_WPSR                     (0xFFFFF8E8U) /**< \brief (PIOC) Write Protection Status Register */
-  #define REG_PIOC_VERSION                  (0xFFFFF8FCU) /**< \brief (PIOC) Version Register */
   #define REG_PIOC_SCHMITT                  (0xFFFFF900U) /**< \brief (PIOC) Schmitt Trigger Register */
   #define REG_PIOC_SLEWR                    (0xFFFFF910U) /**< \brief (PIOC) I/O Slewrate Control Register */
   #define REG_PIOC_DRIVER                   (0xFFFFF918U) /**< \brief (PIOC) I/O Drive Register */
@@ -127,7 +126,6 @@
   #define REG_PIOC_FRLHSR  (*(__I  uint32_t*)0xFFFFF8D8U) /**< \brief (PIOC) Fall/Rise - Low/High Status Register */
   #define REG_PIOC_WPMR    (*(__IO uint32_t*)0xFFFFF8E4U) /**< \brief (PIOC) Write Protection Mode Register */
   #define REG_PIOC_WPSR    (*(__I  uint32_t*)0xFFFFF8E8U) /**< \brief (PIOC) Write Protection Status Register */
-  #define REG_PIOC_VERSION (*(__I  uint32_t*)0xFFFFF8FCU) /**< \brief (PIOC) Version Register */
   #define REG_PIOC_SCHMITT (*(__IO uint32_t*)0xFFFFF900U) /**< \brief (PIOC) Schmitt Trigger Register */
   #define REG_PIOC_SLEWR   (*(__IO uint32_t*)0xFFFFF910U) /**< \brief (PIOC) I/O Slewrate Control Register */
   #define REG_PIOC_DRIVER  (*(__IO uint32_t*)0xFFFFF918U) /**< \brief (PIOC) I/O Drive Register */

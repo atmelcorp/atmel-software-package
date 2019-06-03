@@ -77,7 +77,6 @@
   #define REG_PIOA_FRLHSR                   (0xFFFFF4D8U) /**< \brief (PIOA) Fall/Rise - Low/High Status Register */
   #define REG_PIOA_WPMR                     (0xFFFFF4E4U) /**< \brief (PIOA) Write Protection Mode Register */
   #define REG_PIOA_WPSR                     (0xFFFFF4E8U) /**< \brief (PIOA) Write Protection Status Register */
-  #define REG_PIOA_VERSION                  (0xFFFFF4FCU) /**< \brief (PIOA) Version Register */
   #define REG_PIOA_SCHMITT                  (0xFFFFF500U) /**< \brief (PIOA) Schmitt Trigger Register */
   #define REG_PIOA_SLEWR                    (0xFFFFF510U) /**< \brief (PIOA) I/O Slewrate Control Register */
   #define REG_PIOA_DRIVER                   (0xFFFFF518U) /**< \brief (PIOA) I/O Drive Register */
@@ -127,7 +126,6 @@
   #define REG_PIOA_FRLHSR  (*(__I  uint32_t*)0xFFFFF4D8U) /**< \brief (PIOA) Fall/Rise - Low/High Status Register */
   #define REG_PIOA_WPMR    (*(__IO uint32_t*)0xFFFFF4E4U) /**< \brief (PIOA) Write Protection Mode Register */
   #define REG_PIOA_WPSR    (*(__I  uint32_t*)0xFFFFF4E8U) /**< \brief (PIOA) Write Protection Status Register */
-  #define REG_PIOA_VERSION (*(__I  uint32_t*)0xFFFFF4FCU) /**< \brief (PIOA) Version Register */
   #define REG_PIOA_SCHMITT (*(__IO uint32_t*)0xFFFFF500U) /**< \brief (PIOA) Schmitt Trigger Register */
   #define REG_PIOA_SLEWR   (*(__IO uint32_t*)0xFFFFF510U) /**< \brief (PIOA) I/O Slewrate Control Register */
   #define REG_PIOA_DRIVER  (*(__IO uint32_t*)0xFFFFF518U) /**< \brief (PIOA) I/O Drive Register */

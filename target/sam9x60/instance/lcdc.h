@@ -178,7 +178,6 @@
   #define REG_LCDC_OVR1CLUT                  (0xF8038A00U) /**< \brief (LCDC) Overlay 1 CLUT Register */
   #define REG_LCDC_OVR2CLUT                  (0xF8038E00U) /**< \brief (LCDC) Overlay 2 CLUT Register */
   #define REG_LCDC_HEOCLUT                   (0xF8039200U) /**< \brief (LCDC) High-End Overlay CLUT Register */
-  #define REG_LCDC_VERSION                   (0xF8039FFCU) /**< \brief (LCDC) Version Register */
 #else
   #define REG_LCDC_LCDCFG0  (*(__IO uint32_t*)0xF8038000U) /**< \brief (LCDC) LCD Controller Configuration Register 0 */
   #define REG_LCDC_LCDCFG1  (*(__IO uint32_t*)0xF8038004U) /**< \brief (LCDC) LCD Controller Configuration Register 1 */
@@ -326,7 +325,6 @@
   #define REG_LCDC_OVR1CLUT (*(__IO uint32_t*)0xF8038A00U) /**< \brief (LCDC) Overlay 1 CLUT Register */
   #define REG_LCDC_OVR2CLUT (*(__IO uint32_t*)0xF8038E00U) /**< \brief (LCDC) Overlay 2 CLUT Register */
   #define REG_LCDC_HEOCLUT  (*(__IO uint32_t*)0xF8039200U) /**< \brief (LCDC) High-End Overlay CLUT Register */
-  #define REG_LCDC_VERSION  (*(__I  uint32_t*)0xF8039FFCU) /**< \brief (LCDC) Version Register */
 #endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #endif /* _SAM9X_LCDC_INSTANCE_ */

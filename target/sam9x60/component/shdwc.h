@@ -39,10 +39,10 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Shdwc hardware registers */
 typedef struct {
-  __O  uint32_t SHDW_CR; /**< \brief (Shdwc Offset: 0x00) Control Register */
-  __IO uint32_t SHDW_MR; /**< \brief (Shdwc Offset: 0x04) Mode Register */
-  __I  uint32_t SHDW_SR; /**< \brief (Shdwc Offset: 0x08) Status Register */
-  __IO uint32_t SHDW_WUIR; /**< \brief (Shdwc Offset: 0x0c) Mode Register */
+  __O  uint32_t SHDW_CR;   /**< \brief (Shdwc Offset: 0x00) Control Register */
+  __IO uint32_t SHDW_MR;   /**< \brief (Shdwc Offset: 0x04) Mode Register */
+  __I  uint32_t SHDW_SR;   /**< \brief (Shdwc Offset: 0x08) Status Register */
+  __IO uint32_t SHDW_WUIR; /**< \brief (Shdwc Offset: 0x0C) Wakeup Inputs Register */
 } Shdwc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- SHDW_CR : (SHDWC Offset: 0x00) Control Register -------- */
@@ -52,26 +52,25 @@ typedef struct {
 #define SHDW_CR_KEY(value) ((SHDW_CR_KEY_Msk & ((value) << SHDW_CR_KEY_Pos)))
 #define   SHDW_CR_KEY_PASSWD (0xA5u << 24) /**< \brief (SHDW_CR) Writing any other value in this field aborts the write operation. */
 /* -------- SHDW_MR : (SHDWC Offset: 0x04) Mode Register -------- */
-#define SHDW_MR_WKMODE0_Pos 0
-#define SHDW_MR_WKMODE0_Msk (0x3u << SHDW_MR_WKMODE0_Pos) /**< \brief (SHDW_MR) Wakeup Mode 0 */
-#define SHDW_MR_WKMODE0(value) ((SHDW_MR_WKMODE0_Msk & ((value) << SHDW_MR_WKMODE0_Pos)))
-#define   SHDW_MR_WKMODE0_NO_DETECTION (0x0u << 0) /**< \brief (SHDW_MR) No detection is performed on the wakeup input */
-#define   SHDW_MR_WKMODE0_RISING_EDGE (0x1u << 0) /**< \brief (SHDW_MR) Low to high transition triggers the detection process */
-#define   SHDW_MR_WKMODE0_FALLING_EDGE (0x2u << 0) /**< \brief (SHDW_MR) High to low level transition triggers the detection process */
-#define   SHDW_MR_WKMODE0_ANY_EDGE (0x3u << 0) /**< \brief (SHDW_MR) Any edge on the wakeup input triggers the detection process */
-#define SHDW_MR_CPTWK0_Pos 4
-#define SHDW_MR_CPTWK0_Msk (0xfu << SHDW_MR_CPTWK0_Pos) /**< \brief (SHDW_MR) Debounce Counter on Wakeup 0 */
-#define SHDW_MR_CPTWK0(value) ((SHDW_MR_CPTWK0_Msk & ((value) << SHDW_MR_CPTWK0_Pos)))
 #define SHDW_MR_RTTWKEN (0x1u << 16) /**< \brief (SHDW_MR) Real-time Timer Wakeup Enable */
 #define SHDW_MR_RTCWKEN (0x1u << 17) /**< \brief (SHDW_MR) Real-time Clock Wakeup Enable */
 /* -------- SHDW_SR : (SHDWC Offset: 0x08) Status Register -------- */
-#define SHDW_SR_WAKEUP0 (0x1u << 0) /**< \brief (SHDW_SR) Wakeup 0 Status */
-#define SHDW_SR_RTTWK (0x1u << 16) /**< \brief (SHDW_SR) Real-time Timer Wakeup */
-#define SHDW_SR_RTCWK (0x1u << 17) /**< \brief (SHDW_SR) Real-time Clock Wakeup */
-/* -------- SHDW_WUIR : (SHDWC Offset: 0x08) Status Register -------- */
-#define SHDW_WUIR_WKUPEN (0x1u << 0) /**< \brief (SHDW_WUIR) Wakeup 0 Input Enable */
-#define SHDW_WUIR_WKUPT0_RISING_EDGE (0x1u << 16) /**< \brief (SHDW_WUIR) Wakeup 0 Input Rising */
-#define SHDW_WUIR_WKUPT0_FALLING_EDGE (0x0u << 16) /**< \brief (SHDW_WUIR) Wakeup 0 Input Falling */
+#define SHDW_SR_WKUPS (0x1u << 0) /**< \brief (SHDW_SR) WKUP Wakeup Status */
+#define   SHDW_SR_WKUPS_NO (0x0u << 0) /**< \brief (SHDW_SR) No wakeup due to the assertion of the WKUP pin has occurred since the last read of SHDW_SR. */
+#define   SHDW_SR_WKUPS_PRESENT (0x1u << 0) /**< \brief (SHDW_SR) At least one wakeup due to the assertion of the WKUP pin has occurred since the last read of SHDW_SR. */
+#define SHDW_SR_RTTWK (0x1u << 4) /**< \brief (SHDW_SR) Real-time Timer Wakeup */
+#define SHDW_SR_RTCWK (0x1u << 5) /**< \brief (SHDW_SR) Real-time Clock Wakeup */
+#define SHDW_SR_WKUPIS0 (0x1u << 16) /**< \brief (SHDW_SR) Wakeup 0 Input Status */
+#define   SHDW_SR_WKUPIS0_DISABLE (0x0u << 16) /**< \brief (SHDW_SR) The wakeup 0 input is disabled, or was inactive at the time the debouncer triggered a wakeup event. */
+#define   SHDW_SR_WKUPIS0_ENABLE (0x1u << 16) /**< \brief (SHDW_SR) The wakeup 0 input was active at the time the debouncer triggered a wakeup event. */
+/* -------- SHDW_WUIR : (SHDWC Offset: 0x0C) Wakeup Inputs Register -------- */
+#define SHDW_WUIR_WKUPEN0 (0x1u << 0) /**< \brief (SHDW_WUIR) Wakeup 0 Input Enable */
+#define   SHDW_WUIR_WKUPEN0_DISABLE (0x0u << 0) /**< \brief (SHDW_WUIR) The wakeup 0 input has no wakeup effect. */
+#define   SHDW_WUIR_WKUPEN0_ENABLE (0x1u << 0) /**< \brief (SHDW_WUIR) The wakeup 0 input forces wakeup of the core power supply. */
+#define SHDW_WUIR_WKUPT0 (0x1u << 16) /**< \brief (SHDW_WUIR) Wakeup 0 Input Type */
+#define   SHDW_WUIR_WKUPT0_LOW (0x0u << 16) /**< \brief (SHDW_WUIR) A falling edge followed by a low level on the wakeup 0 input, for a period defined by WKUPDBC, forces wakeup of the core power supply. */
+#define   SHDW_WUIR_WKUPT0_HIGH (0x1u << 16) /**< \brief (SHDW_WUIR) A rising edge followed by a high level on the wakeup 0 input, for a period defined by WKUPDBC, forces wakeup of the core power supply. */
+
 /*@}*/
 
 

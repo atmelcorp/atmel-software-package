@@ -52,8 +52,8 @@ typedef struct {
   __O  uint32_t ADC_IDR;      /**< \brief (Adc Offset: 0x28) Interrupt Disable Register */
   __I  uint32_t ADC_IMR;      /**< \brief (Adc Offset: 0x2C) Interrupt Mask Register */
   __I  uint32_t ADC_ISR;      /**< \brief (Adc Offset: 0x30) Interrupt Status Register */
-  __IO uint32_t ADC_TEMPMR;   /**< \brief (Adc Offset: 0x34) Temperature Sensor Mode Register */
-  __IO uint32_t ADC_TEMPCWR;  /**< \brief (Adc Offset: 0x38) Temperature Compare Window Register */
+  __IO uint32_t ADC_LCTMR;    /**< \brief (Adc Offset: 0x34) Last Channel Trigger Mode Register */
+  __IO uint32_t ADC_LCCWR;    /**< \brief (Adc Offset: 0x38) Last Channel Compare Window Register */
   __I  uint32_t ADC_OVER;     /**< \brief (Adc Offset: 0x3C) Overrun Status Register */
   __IO uint32_t ADC_EMR;      /**< \brief (Adc Offset: 0x40) Extended Mode Register */
   __IO uint32_t ADC_CWR;      /**< \brief (Adc Offset: 0x44) Compare Window Register */
@@ -70,16 +70,13 @@ typedef struct {
   __I  uint32_t ADC_YPOSR;    /**< \brief (Adc Offset: 0xB8) Touchscreen Y Position Register */
   __I  uint32_t ADC_PRESSR;   /**< \brief (Adc Offset: 0xBC) Touchscreen Pressure Register */
   __IO uint32_t ADC_TRGR;     /**< \brief (Adc Offset: 0xC0) Trigger Register */
-  __I  uint32_t Reserved6[3];
-  __IO uint32_t ADC_COSR;     /**< \brief (Adc Offset: 0xD0) Correction Select Register */
+  __I  uint32_t Reserved6[4];
   __IO uint32_t ADC_CVR;      /**< \brief (Adc Offset: 0xD4) Correction Values Register */
   __IO uint32_t ADC_CECR;     /**< \brief (Adc Offset: 0xD8) Channel Error Correction Register */
   __IO uint32_t ADC_TSCVR;    /**< \brief (Adc Offset: 0xDC) Touchscreen Correction Values Register */
   __I  uint32_t Reserved7[1];
   __IO uint32_t ADC_WPMR;     /**< \brief (Adc Offset: 0xE4) Write Protection Mode Register */
   __I  uint32_t ADC_WPSR;     /**< \brief (Adc Offset: 0xE8) Write Protection Status Register */
-  __I  uint32_t Reserved8[4];
-  __I  uint32_t ADC_VERSION;  /**< \brief (Adc Offset: 0xFC) Version Register */
 } Adc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- ADC_CR : (ADC Offset: 0x00) Control Register -------- */
@@ -228,7 +225,7 @@ typedef struct {
 #define ADC_IER_EOC9 (0x1u << 9) /**< \brief (ADC_IER) End of Conversion Interrupt Enable 9 */
 #define ADC_IER_EOC10 (0x1u << 10) /**< \brief (ADC_IER) End of Conversion Interrupt Enable 10 */
 #define ADC_IER_EOC11 (0x1u << 11) /**< \brief (ADC_IER) End of Conversion Interrupt Enable 11 */
-#define ADC_IER_TEMPCHG (0x1u << 19) /**< \brief (ADC_IER) Temperature Change Interrupt Enable */
+#define ADC_IER_LCCHG (0x1u << 19) /**< \brief (ADC_IER) Last Channel Change Interrupt Enable */
 #define ADC_IER_XRDY (0x1u << 20) /**< \brief (ADC_IER) Touchscreen Measure XPOS Ready Interrupt Enable */
 #define ADC_IER_YRDY (0x1u << 21) /**< \brief (ADC_IER) Touchscreen Measure YPOS Ready Interrupt Enable */
 #define ADC_IER_PRDY (0x1u << 22) /**< \brief (ADC_IER) Touchscreen Measure Pressure Ready Interrupt Enable */
@@ -250,7 +247,7 @@ typedef struct {
 #define ADC_IDR_EOC9 (0x1u << 9) /**< \brief (ADC_IDR) End of Conversion Interrupt Disable 9 */
 #define ADC_IDR_EOC10 (0x1u << 10) /**< \brief (ADC_IDR) End of Conversion Interrupt Disable 10 */
 #define ADC_IDR_EOC11 (0x1u << 11) /**< \brief (ADC_IDR) End of Conversion Interrupt Disable 11 */
-#define ADC_IDR_TEMPCHG (0x1u << 19) /**< \brief (ADC_IDR) Temperature Change Interrupt Disable */
+#define ADC_IDR_LCCHG (0x1u << 19) /**< \brief (ADC_IDR) Last Channel Change Interrupt Disable */
 #define ADC_IDR_XRDY (0x1u << 20) /**< \brief (ADC_IDR) Touchscreen Measure XPOS Ready Interrupt Disable */
 #define ADC_IDR_YRDY (0x1u << 21) /**< \brief (ADC_IDR) Touchscreen Measure YPOS Ready Interrupt Disable */
 #define ADC_IDR_PRDY (0x1u << 22) /**< \brief (ADC_IDR) Touchscreen Measure Pressure Ready Interrupt Disable */
@@ -272,7 +269,7 @@ typedef struct {
 #define ADC_IMR_EOC9 (0x1u << 9) /**< \brief (ADC_IMR) End of Conversion Interrupt Mask 9 */
 #define ADC_IMR_EOC10 (0x1u << 10) /**< \brief (ADC_IMR) End of Conversion Interrupt Mask 10 */
 #define ADC_IMR_EOC11 (0x1u << 11) /**< \brief (ADC_IMR) End of Conversion Interrupt Mask 11 */
-#define ADC_IMR_TEMPCHG (0x1u << 19) /**< \brief (ADC_IMR) Temperature Change Interrupt Disable */
+#define ADC_IMR_LCCHG (0x1u << 19) /**< \brief (ADC_IMR) Last Channel Change Interrupt Disable */
 #define ADC_IMR_XRDY (0x1u << 20) /**< \brief (ADC_IMR) Touchscreen Measure XPOS Ready Interrupt Mask */
 #define ADC_IMR_YRDY (0x1u << 21) /**< \brief (ADC_IMR) Touchscreen Measure YPOS Ready Interrupt Mask */
 #define ADC_IMR_PRDY (0x1u << 22) /**< \brief (ADC_IMR) Touchscreen Measure Pressure Ready Interrupt Mask */
@@ -294,7 +291,7 @@ typedef struct {
 #define ADC_ISR_EOC9 (0x1u << 9) /**< \brief (ADC_ISR) End of Conversion 9 (automatically set / cleared) */
 #define ADC_ISR_EOC10 (0x1u << 10) /**< \brief (ADC_ISR) End of Conversion 10 (automatically set / cleared) */
 #define ADC_ISR_EOC11 (0x1u << 11) /**< \brief (ADC_ISR) End of Conversion 11 (automatically set / cleared) */
-#define ADC_ISR_TEMPCHG (0x1u << 19) /**< \brief (ADC_ISR) Temperature Change (cleared on read) */
+#define ADC_ISR_LCCHG (0x1u << 19) /**< \brief (ADC_ISR) Last Channel Change (cleared on read) */
 #define ADC_ISR_XRDY (0x1u << 20) /**< \brief (ADC_ISR) Touchscreen XPOS Measure Ready (cleared on read) */
 #define ADC_ISR_YRDY (0x1u << 21) /**< \brief (ADC_ISR) Touchscreen YPOS Measure Ready (cleared on read) */
 #define ADC_ISR_PRDY (0x1u << 22) /**< \brief (ADC_ISR) Touchscreen Pressure Measure Ready (cleared on read) */
@@ -304,22 +301,22 @@ typedef struct {
 #define ADC_ISR_PEN (0x1u << 29) /**< \brief (ADC_ISR) Pen contact (cleared on read) */
 #define ADC_ISR_NOPEN (0x1u << 30) /**< \brief (ADC_ISR) No Pen Contact (cleared on read) */
 #define ADC_ISR_PENS (0x1u << 31) /**< \brief (ADC_ISR) Pen Detect Status */
-/* -------- ADC_TEMPMR : (ADC Offset: 0x34) Temperature Sensor Mode Register -------- */
-#define ADC_TEMPMR_TEMPON (0x1u << 0) /**< \brief (ADC_TEMPMR) Temperature Sensor ON */
-#define ADC_TEMPMR_TEMPCMPMOD_Pos 4
-#define ADC_TEMPMR_TEMPCMPMOD_Msk (0x3u << ADC_TEMPMR_TEMPCMPMOD_Pos) /**< \brief (ADC_TEMPMR) Temperature Comparison Mode */
-#define ADC_TEMPMR_TEMPCMPMOD(value) ((ADC_TEMPMR_TEMPCMPMOD_Msk & ((value) << ADC_TEMPMR_TEMPCMPMOD_Pos)))
-#define   ADC_TEMPMR_TEMPCMPMOD_LOW (0x0u << 4) /**< \brief (ADC_TEMPMR) Generates the ADC_ISR.TEMPCHG flag when the converted data is lower than the low threshold of the window. */
-#define   ADC_TEMPMR_TEMPCMPMOD_HIGH (0x1u << 4) /**< \brief (ADC_TEMPMR) Generates the ADC_ISR.TEMPCHG flag when the converted data is higher than the high threshold of the window. */
-#define   ADC_TEMPMR_TEMPCMPMOD_IN (0x2u << 4) /**< \brief (ADC_TEMPMR) Generates the ADC_ISR.TEMPCHG flag when the converted data is in the comparison window. */
-#define   ADC_TEMPMR_TEMPCMPMOD_OUT (0x3u << 4) /**< \brief (ADC_TEMPMR) Generates the ADC_ISR.TEMPCHG flag when the converted data is out of the comparison window. */
-/* -------- ADC_TEMPCWR : (ADC Offset: 0x38) Temperature Compare Window Register -------- */
-#define ADC_TEMPCWR_TLOWTHRES_Pos 0
-#define ADC_TEMPCWR_TLOWTHRES_Msk (0xfffu << ADC_TEMPCWR_TLOWTHRES_Pos) /**< \brief (ADC_TEMPCWR) Temperature Low Threshold */
-#define ADC_TEMPCWR_TLOWTHRES(value) ((ADC_TEMPCWR_TLOWTHRES_Msk & ((value) << ADC_TEMPCWR_TLOWTHRES_Pos)))
-#define ADC_TEMPCWR_THIGHTHRES_Pos 16
-#define ADC_TEMPCWR_THIGHTHRES_Msk (0xfffu << ADC_TEMPCWR_THIGHTHRES_Pos) /**< \brief (ADC_TEMPCWR) Temperature High Threshold */
-#define ADC_TEMPCWR_THIGHTHRES(value) ((ADC_TEMPCWR_THIGHTHRES_Msk & ((value) << ADC_TEMPCWR_THIGHTHRES_Pos)))
+/* -------- ADC_LCTMR : (ADC Offset: 0x34) Last Channel Trigger Mode Register -------- */
+#define ADC_LCTMR_DUALTRIG (0x1u << 0) /**< \brief (ADC_LCTMR) Dual Trigger ON */
+#define ADC_LCTMR_CMPMOD_Pos 4
+#define ADC_LCTMR_CMPMOD_Msk (0x3u << ADC_LCTMR_CMPMOD_Pos) /**< \brief (ADC_LCTMR) Last Channel Comparison Mode */
+#define ADC_LCTMR_CMPMOD(value) ((ADC_LCTMR_CMPMOD_Msk & ((value) << ADC_LCTMR_CMPMOD_Pos)))
+#define   ADC_LCTMR_CMPMOD_LOW (0x0u << 4) /**< \brief (ADC_LCTMR) Generates the ADC_ISR.LCCHG flag when the converted data is lower than the low threshold of the window. */
+#define   ADC_LCTMR_CMPMOD_HIGH (0x1u << 4) /**< \brief (ADC_LCTMR) Generates the ADC_ISR.LCCHG flag when the converted data is higher than the high threshold of the window. */
+#define   ADC_LCTMR_CMPMOD_IN (0x2u << 4) /**< \brief (ADC_LCTMR) Generates the ADC_ISR.LCCHG flag when the converted data is in the comparison window. */
+#define   ADC_LCTMR_CMPMOD_OUT (0x3u << 4) /**< \brief (ADC_LCTMR) Generates the ADC_ISR.LCCHG flag when the converted data is out of the comparison window. */
+/* -------- ADC_LCCWR : (ADC Offset: 0x38) Last Channel Compare Window Register -------- */
+#define ADC_LCCWR_LOWTHRES_Pos 0
+#define ADC_LCCWR_LOWTHRES_Msk (0xfffu << ADC_LCCWR_LOWTHRES_Pos) /**< \brief (ADC_LCCWR) Low Threshold */
+#define ADC_LCCWR_LOWTHRES(value) ((ADC_LCCWR_LOWTHRES_Msk & ((value) << ADC_LCCWR_LOWTHRES_Pos)))
+#define ADC_LCCWR_HIGHTHRES_Pos 16
+#define ADC_LCCWR_HIGHTHRES_Msk (0xfffu << ADC_LCCWR_HIGHTHRES_Pos) /**< \brief (ADC_LCCWR) High Threshold */
+#define ADC_LCCWR_HIGHTHRES(value) ((ADC_LCCWR_HIGHTHRES_Msk & ((value) << ADC_LCCWR_HIGHTHRES_Pos)))
 /* -------- ADC_OVER : (ADC Offset: 0x3C) Overrun Status Register -------- */
 #define ADC_OVER_OVRE0 (0x1u << 0) /**< \brief (ADC_OVER) Overrun Error 0 */
 #define ADC_OVER_OVRE1 (0x1u << 1) /**< \brief (ADC_OVER) Overrun Error 1 */
@@ -370,8 +367,8 @@ typedef struct {
 #define ADC_EMR_SIGNMODE_Pos 25
 #define ADC_EMR_SIGNMODE_Msk (0x3u << ADC_EMR_SIGNMODE_Pos) /**< \brief (ADC_EMR) Sign Mode */
 #define ADC_EMR_SIGNMODE(value) ((ADC_EMR_SIGNMODE_Msk & ((value) << ADC_EMR_SIGNMODE_Pos)))
-#define   ADC_EMR_SIGNMODE_SE_UNSG_DF_SIGN (0x0u << 25) /**< \brief (ADC_EMR) Single-Ended channels: Unsigned conversions.Pseudo-differential channels and Differential channels: Signed conversions. */
-#define   ADC_EMR_SIGNMODE_SE_SIGN_DF_UNSG (0x1u << 25) /**< \brief (ADC_EMR) Single-Ended channels: Signed conversions.Pseudo-differential channels and Differential channels: Unsigned conversions. */
+#define   ADC_EMR_SIGNMODE_SE_UNSG_DF_SIGN (0x0u << 25) /**< \brief (ADC_EMR) Single-Ended channels: Unsigned conversions. Pseudo-differential channels and Differential channels: Signed conversions. */
+#define   ADC_EMR_SIGNMODE_SE_SIGN_DF_UNSG (0x1u << 25) /**< \brief (ADC_EMR) Single-Ended channels: Signed conversions. Pseudo-differential channels and Differential channels: Unsigned conversions. */
 #define   ADC_EMR_SIGNMODE_ALL_UNSIGNED (0x2u << 25) /**< \brief (ADC_EMR) All channels: Unsigned conversions. */
 #define   ADC_EMR_SIGNMODE_ALL_SIGNED (0x3u << 25) /**< \brief (ADC_EMR) All channels: Signed conversions. */
 #define ADC_EMR_ADCMODE_Pos 28
@@ -381,7 +378,6 @@ typedef struct {
 #define   ADC_EMR_ADCMODE_OFFSET_ERROR (0x1u << 28) /**< \brief (ADC_EMR) Offset Error mode to measure the offset error. See Table 7-6. */
 #define   ADC_EMR_ADCMODE_GAIN_ERROR_HIGH (0x2u << 28) /**< \brief (ADC_EMR) Gain Error mode to measure the gain error. See Table 7-6. */
 #define   ADC_EMR_ADCMODE_GAIN_ERROR_LOW (0x3u << 28) /**< \brief (ADC_EMR) Gain Error mode to measure the gain error. See Table 7-6. */
-#define ADC_EMR_ALTCH (0x1u << 30) /**< \brief (ADC_EMR) Alternate Channel Selection */
 /* -------- ADC_CWR : (ADC Offset: 0x44) Compare Window Register -------- */
 #define ADC_CWR_LOWTHRES_Pos 0
 #define ADC_CWR_LOWTHRES_Msk (0xffffu << ADC_CWR_LOWTHRES_Pos) /**< \brief (ADC_CWR) Low Threshold */
@@ -474,20 +470,16 @@ typedef struct {
 #define ADC_TRGR_TRGMOD_Pos 0
 #define ADC_TRGR_TRGMOD_Msk (0x7u << ADC_TRGR_TRGMOD_Pos) /**< \brief (ADC_TRGR) Trigger Mode */
 #define ADC_TRGR_TRGMOD(value) ((ADC_TRGR_TRGMOD_Msk & ((value) << ADC_TRGR_TRGMOD_Pos)))
-#define   ADC_TRGR_TRGMOD_NO_TRIGGER (0x0u << 0) /**< \brief (ADC_TRGR) No trigger, only software trigger can start conversions */
-#define   ADC_TRGR_TRGMOD_EXT_TRIG_RISE (0x1u << 0) /**< \brief (ADC_TRGR) Rising edge of the selected trigger event, defined in ADC_MR.TRGSEL */
-#define   ADC_TRGR_TRGMOD_EXT_TRIG_FALL (0x2u << 0) /**< \brief (ADC_TRGR) Falling edge of the selected trigger event */
-#define   ADC_TRGR_TRGMOD_EXT_TRIG_ANY (0x3u << 0) /**< \brief (ADC_TRGR) Any edge of the selected trigger event */
+#define   ADC_TRGR_TRGMOD_NO_TRIGGER (0x0u << 0) /**< \brief (ADC_TRGR) No hardware trigger enabled, only software trigger can start conversions */
+#define   ADC_TRGR_TRGMOD_EXT_TRIG_RISE (0x1u << 0) /**< \brief (ADC_TRGR) Rising edge of the selected hardware trigger event, defined in ADC_MR.TRGSEL */
+#define   ADC_TRGR_TRGMOD_EXT_TRIG_FALL (0x2u << 0) /**< \brief (ADC_TRGR) Falling edge of the selected hardware trigger event */
+#define   ADC_TRGR_TRGMOD_EXT_TRIG_ANY (0x3u << 0) /**< \brief (ADC_TRGR) Any edge of the selected hardware trigger event */
 #define   ADC_TRGR_TRGMOD_PEN_TRIG (0x4u << 0) /**< \brief (ADC_TRGR) Pen Detect Trigger (shall be selected only if PENDET is set and TSMODE > 0) */
-#define   ADC_TRGR_TRGMOD_PERIOD_TRIG (0x5u << 0) /**< \brief (ADC_TRGR) ADC internal periodic trigger (see field TRGPER) */
+#define   ADC_TRGR_TRGMOD_PERIOD_TRIG (0x5u << 0) /**< \brief (ADC_TRGR) ADC internal hardware periodic trigger (see field TRGPER) */
 #define   ADC_TRGR_TRGMOD_CONTINUOUS (0x6u << 0) /**< \brief (ADC_TRGR) Continuous mode */
 #define ADC_TRGR_TRGPER_Pos 16
 #define ADC_TRGR_TRGPER_Msk (0xffffu << ADC_TRGR_TRGPER_Pos) /**< \brief (ADC_TRGR) Trigger Period */
 #define ADC_TRGR_TRGPER(value) ((ADC_TRGR_TRGPER_Msk & ((value) << ADC_TRGR_TRGPER_Pos)))
-/* -------- ADC_COSR : (ADC Offset: 0xD0) Correction Select Register -------- */
-#define ADC_COSR_CSEL_Pos 0
-#define ADC_COSR_CSEL_Msk (0x1fu << ADC_COSR_CSEL_Pos) /**< \brief (ADC_COSR) Channel Correction Select */
-#define ADC_COSR_CSEL(value) ((ADC_COSR_CSEL_Msk & ((value) << ADC_COSR_CSEL_Pos)))
 /* -------- ADC_CVR : (ADC Offset: 0xD4) Correction Values Register -------- */
 #define ADC_CVR_OFFSETCORR_Pos 0
 #define ADC_CVR_OFFSETCORR_Msk (0xffffu << ADC_CVR_OFFSETCORR_Pos) /**< \brief (ADC_CVR) Offset Correction */
@@ -522,16 +514,11 @@ typedef struct {
 #define ADC_WPMR_WPKEY_Pos 8
 #define ADC_WPMR_WPKEY_Msk (0xffffffu << ADC_WPMR_WPKEY_Pos) /**< \brief (ADC_WPMR) Write Protection Key */
 #define ADC_WPMR_WPKEY(value) ((ADC_WPMR_WPKEY_Msk & ((value) << ADC_WPMR_WPKEY_Pos)))
-#define   ADC_WPMR_WPKEY_PASSWD (0x414443u << 8) /**< \brief (ADC_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit.Always reads as 0 */
+#define   ADC_WPMR_WPKEY_PASSWD (0x414443u << 8) /**< \brief (ADC_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit. Always reads as 0 */
 /* -------- ADC_WPSR : (ADC Offset: 0xE8) Write Protection Status Register -------- */
 #define ADC_WPSR_WPVS (0x1u << 0) /**< \brief (ADC_WPSR) Write Protection Violation Status */
 #define ADC_WPSR_WPVSRC_Pos 8
 #define ADC_WPSR_WPVSRC_Msk (0xffffu << ADC_WPSR_WPVSRC_Pos) /**< \brief (ADC_WPSR) Write Protection Violation Source */
-/* -------- ADC_VERSION : (ADC Offset: 0xFC) Version Register -------- */
-#define ADC_VERSION_VERSION_Pos 0
-#define ADC_VERSION_VERSION_Msk (0xfffu << ADC_VERSION_VERSION_Pos) /**< \brief (ADC_VERSION) Version of the Hardware Module */
-#define ADC_VERSION_MFN_Pos 16
-#define ADC_VERSION_MFN_Msk (0x7u << ADC_VERSION_MFN_Pos) /**< \brief (ADC_VERSION) Metal Fix Number */
 
 /*@}*/
 

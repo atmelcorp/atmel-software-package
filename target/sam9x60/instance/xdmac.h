@@ -273,7 +273,6 @@
   #define REG_XDMAC_CDS_MSP15                  (0xF000843CU) /**< \brief (XDMAC) Channel Data Stride Memory Set Pattern (chid = 15) */
   #define REG_XDMAC_CSUS15                     (0xF0008440U) /**< \brief (XDMAC) Channel Source Microblock Stride (chid = 15) */
   #define REG_XDMAC_CDUS15                     (0xF0008444U) /**< \brief (XDMAC) Channel Destination Microblock Stride (chid = 15) */
-  #define REG_XDMAC_VERSION                    (0xF0008FFCU) /**< \brief (XDMAC) XDMAC Version Register */
 #else
   #define REG_XDMAC_GTYPE     (*(__I  uint32_t*)0xF0008000U) /**< \brief (XDMAC) Global Type Register */
   #define REG_XDMAC_GCFG      (*(__IO uint32_t*)0xF0008004U) /**< \brief (XDMAC) Global Configuration Register */
@@ -516,7 +515,6 @@
   #define REG_XDMAC_CDS_MSP15 (*(__IO uint32_t*)0xF000843CU) /**< \brief (XDMAC) Channel Data Stride Memory Set Pattern (chid = 15) */
   #define REG_XDMAC_CSUS15    (*(__IO uint32_t*)0xF0008440U) /**< \brief (XDMAC) Channel Source Microblock Stride (chid = 15) */
   #define REG_XDMAC_CDUS15    (*(__IO uint32_t*)0xF0008444U) /**< \brief (XDMAC) Channel Destination Microblock Stride (chid = 15) */
-  #define REG_XDMAC_VERSION   (*(__I  uint32_t*)0xF0008FFCU) /**< \brief (XDMAC) XDMAC Version Register */
 #endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #endif /* _SAM9X_XDMAC_INSTANCE_ */

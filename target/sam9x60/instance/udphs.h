@@ -43,7 +43,6 @@
   #define REG_UDPHS_TSTCNTB                      (0xF803C0D8U) /**< \brief (UDPHS) UDPHS Test B Counter Register */
   #define REG_UDPHS_TSTMODEREG                   (0xF803C0DCU) /**< \brief (UDPHS) UDPHS Test Mode Register */
   #define REG_UDPHS_TST                          (0xF803C0E0U) /**< \brief (UDPHS) UDPHS Test Register */
-  #define REG_UDPHS_VERSION                      (0xF803C0FCU) /**< \brief (UDPHS) UDPHS Version Register */
   #define REG_UDPHS_EPTCFG0                      (0xF803C100U) /**< \brief (UDPHS) UDPHS Endpoint Configuration Register (endpoint = 0) */
   #define REG_UDPHS_EPTCTLENB0                   (0xF803C104U) /**< \brief (UDPHS) UDPHS Endpoint Control Enable Register (endpoint = 0) */
   #define REG_UDPHS_EPTCTLDIS0                   (0xF803C108U) /**< \brief (UDPHS) UDPHS Endpoint Control Disable Register (endpoint = 0) */
@@ -133,7 +132,6 @@
   #define REG_UDPHS_TSTCNTB     (*(__IO uint32_t*)0xF803C0D8U) /**< \brief (UDPHS) UDPHS Test B Counter Register */
   #define REG_UDPHS_TSTMODEREG  (*(__IO uint32_t*)0xF803C0DCU) /**< \brief (UDPHS) UDPHS Test Mode Register */
   #define REG_UDPHS_TST         (*(__IO uint32_t*)0xF803C0E0U) /**< \brief (UDPHS) UDPHS Test Register */
-  #define REG_UDPHS_VERSION     (*(__I  uint32_t*)0xF803C0FCU) /**< \brief (UDPHS) UDPHS Version Register */
   #define REG_UDPHS_EPTCFG0     (*(__IO uint32_t*)0xF803C100U) /**< \brief (UDPHS) UDPHS Endpoint Configuration Register (endpoint = 0) */
   #define REG_UDPHS_EPTCTLENB0  (*(__O  uint32_t*)0xF803C104U) /**< \brief (UDPHS) UDPHS Endpoint Control Enable Register (endpoint = 0) */
   #define REG_UDPHS_EPTCTLDIS0  (*(__O  uint32_t*)0xF803C108U) /**< \brief (UDPHS) UDPHS Endpoint Control Disable Register (endpoint = 0) */

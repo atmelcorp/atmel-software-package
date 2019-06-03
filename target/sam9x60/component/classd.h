@@ -39,19 +39,17 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Classd hardware registers */
 typedef struct {
-  __O  uint32_t CLASSD_CR;      /**< \brief (Classd Offset: 0x00) Control Register */
-  __IO uint32_t CLASSD_MR;      /**< \brief (Classd Offset: 0x04) Mode Register */
-  __IO uint32_t CLASSD_INTPMR;  /**< \brief (Classd Offset: 0x08) Interpolator Mode Register */
-  __I  uint32_t CLASSD_INTSR;   /**< \brief (Classd Offset: 0x0C) Interpolator Status Register */
-  __IO uint32_t CLASSD_THR;     /**< \brief (Classd Offset: 0x10) Transmit Holding Register */
-  __O  uint32_t CLASSD_IER;     /**< \brief (Classd Offset: 0x14) Interrupt Enable Register */
-  __O  uint32_t CLASSD_IDR;     /**< \brief (Classd Offset: 0x18) Interrupt Disable Register */
-  __IO uint32_t CLASSD_IMR;     /**< \brief (Classd Offset: 0x1C) Interrupt Mask Register */
-  __I  uint32_t CLASSD_ISR;     /**< \brief (Classd Offset: 0x20) Interrupt Status Register */
+  __O  uint32_t CLASSD_CR;     /**< \brief (Classd Offset: 0x00) Control Register */
+  __IO uint32_t CLASSD_MR;     /**< \brief (Classd Offset: 0x04) Mode Register */
+  __IO uint32_t CLASSD_INTPMR; /**< \brief (Classd Offset: 0x08) Interpolator Mode Register */
+  __I  uint32_t CLASSD_INTSR;  /**< \brief (Classd Offset: 0x0C) Interpolator Status Register */
+  __IO uint32_t CLASSD_THR;    /**< \brief (Classd Offset: 0x10) Transmit Holding Register */
+  __O  uint32_t CLASSD_IER;    /**< \brief (Classd Offset: 0x14) Interrupt Enable Register */
+  __O  uint32_t CLASSD_IDR;    /**< \brief (Classd Offset: 0x18) Interrupt Disable Register */
+  __IO uint32_t CLASSD_IMR;    /**< \brief (Classd Offset: 0x1C) Interrupt Mask Register */
+  __I  uint32_t CLASSD_ISR;    /**< \brief (Classd Offset: 0x20) Interrupt Status Register */
   __I  uint32_t Reserved1[48];
-  __IO uint32_t CLASSD_WPMR;    /**< \brief (Classd Offset: 0xE4) Write Protection Mode Register */
-  __I  uint32_t Reserved2[5];
-  __I  uint32_t CLASSD_VERSION; /**< \brief (Classd Offset: 0xFC) IP Version Register */
+  __IO uint32_t CLASSD_WPMR;   /**< \brief (Classd Offset: 0xE4) Write Protection Mode Register */
 } Classd;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- CLASSD_CR : (CLASSD Offset: 0x00) Control Register -------- */
@@ -145,12 +143,7 @@ typedef struct {
 #define CLASSD_WPMR_WPKEY_Pos 8
 #define CLASSD_WPMR_WPKEY_Msk (0xffffffu << CLASSD_WPMR_WPKEY_Pos) /**< \brief (CLASSD_WPMR) Write Protection Key */
 #define CLASSD_WPMR_WPKEY(value) ((CLASSD_WPMR_WPKEY_Msk & ((value) << CLASSD_WPMR_WPKEY_Pos)))
-#define   CLASSD_WPMR_WPKEY_PASSWD (0x434C44u << 8) /**< \brief (CLASSD_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit.Always reads as 0. */
-/* -------- CLASSD_VERSION : (CLASSD Offset: 0xFC) IP Version Register -------- */
-#define CLASSD_VERSION_VERSION_Pos 0
-#define CLASSD_VERSION_VERSION_Msk (0xfffu << CLASSD_VERSION_VERSION_Pos) /**< \brief (CLASSD_VERSION) Version of the Hardware Module */
-#define CLASSD_VERSION_MFN_Pos 16
-#define CLASSD_VERSION_MFN_Msk (0x7u << CLASSD_VERSION_MFN_Pos) /**< \brief (CLASSD_VERSION) Metal Fix Number */
+#define   CLASSD_WPMR_WPKEY_PASSWD (0x434C44u << 8) /**< \brief (CLASSD_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit. Always reads as 0. */
 
 /*@}*/
 

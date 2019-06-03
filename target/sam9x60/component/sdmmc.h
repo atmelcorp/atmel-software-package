@@ -73,8 +73,8 @@ typedef struct {
   __I  uint8_t  Reserved2[3];
   __IO uint32_t SDMMC_ASA0R;    /**< \brief (Sdmmc Offset: 0x58) ADMA System Address Register 0 */
   __I  uint32_t Reserved3[1];
-  __IO uint16_t SDMMC_PVR[3];   /**< \brief (Sdmmc Offset: 0x60) Preset Value Registers */
-  __I  uint16_t Reserved4[75];
+  __IO uint16_t SDMMC_PVR[3];   /**< \brief (Sdmmc Offset: 0x60) Preset Value Register 0 (for initialization) */
+  __I  uint8_t  Reserved4[150];
   __I  uint16_t SDMMC_SISR;     /**< \brief (Sdmmc Offset: 0xFC) Slot Interrupt Status Register */
   __I  uint16_t SDMMC_HCVR;     /**< \brief (Sdmmc Offset: 0xFE) Host Controller Version Register */
   __I  uint32_t Reserved5[64];
@@ -84,14 +84,11 @@ typedef struct {
   __I  uint8_t  Reserved6[2];
   __IO uint32_t SDMMC_ACR;      /**< \brief (Sdmmc Offset: 0x208) AHB Control Register */
   __IO uint32_t SDMMC_CC2R;     /**< \brief (Sdmmc Offset: 0x20C) Clock Control 2 Register */
-  __I  uint32_t Reserved7[8];
+  __I  uint32_t Reserved7[5];
+  __I  uint32_t SDMMC_TUNSR;    /**< \brief (Sdmmc Offset: 0x224) Tuning Status Register */
+  __I  uint32_t Reserved8[2];
   __IO uint32_t SDMMC_CACR;     /**< \brief (Sdmmc Offset: 0x230) Capabilities Control Register */
   __IO uint32_t SDMMC_DBGR;     /**< \brief (Sdmmc Offset: 0x234) Debug Register */
-  __I  uint32_t Reserved8[44];
-  __I  uint32_t SDMMC_VERSION1; /**< \brief (Sdmmc Offset: 0x2E8) Version Register 1 */
-  __I  uint32_t SDMMC_VERSION2; /**< \brief (Sdmmc Offset: 0x2EC) Version Register 2 */
-  __I  uint32_t Reserved9[3];
-  __I  uint32_t SDMMC_VERSION3; /**< \brief (Sdmmc Offset: 0x2FC) Version Register 3 */
 } Sdmmc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- SDMMC_SSAR : (SDMMC Offset: 0x00) SDMA System Address / Argument 2 Register -------- */
@@ -211,12 +208,6 @@ typedef struct {
 #define SDMMC_WCR_WKENCINT (0x1u << 0) /**< \brief (SDMMC_WCR) Wakeup Event Enable on Card Interrupt */
 #define   SDMMC_WCR_WKENCINT_DISABLED (0x0u << 0) /**< \brief (SDMMC_WCR) Wakeup Event disabled. */
 #define   SDMMC_WCR_WKENCINT_ENABLED (0x1u << 0) /**< \brief (SDMMC_WCR) Wakeup Event enabled. */
-#define SDMMC_WCR_WKENCINS (0x1u << 1) /**< \brief (SDMMC_WCR) Wakeup Event Enable on Card Insertion */
-#define   SDMMC_WCR_WKENCINS_DISABLED (0x0u << 1) /**< \brief (SDMMC_WCR) Wakeup Event disabled. */
-#define   SDMMC_WCR_WKENCINS_ENABLED (0x1u << 1) /**< \brief (SDMMC_WCR) Wakeup Event enabled. */
-#define SDMMC_WCR_WKENCREM (0x1u << 2) /**< \brief (SDMMC_WCR) Wakeup Event Enable on Card Removal */
-#define   SDMMC_WCR_WKENCREM_DISABLED (0x0u << 2) /**< \brief (SDMMC_WCR) Wakeup Event disabled. */
-#define   SDMMC_WCR_WKENCREM_ENABLED (0x1u << 2) /**< \brief (SDMMC_WCR) Wakeup Event enabled. */
 /* -------- SDMMC_CCR : (SDMMC Offset: 0x2C) Clock Control Register -------- */
 #define SDMMC_CCR_INTCLKEN (0x1u << 0) /**< \brief (SDMMC_CCR) Internal Clock Enable */
 #define SDMMC_CCR_INTCLKS (0x1u << 1) /**< \brief (SDMMC_CCR) Internal Clock Stable */
@@ -244,8 +235,8 @@ typedef struct {
 #define SDMMC_NISTR_BWRRDY (0x1u << 4) /**< \brief (SDMMC_NISTR) Buffer Write Ready */
 #define SDMMC_NISTR_BRDRDY (0x1u << 5) /**< \brief (SDMMC_NISTR) Buffer Read Ready */
 #define SDMMC_NISTR_CINT (0x1u << 8) /**< \brief (SDMMC_NISTR) Card Interrupt */
-#define SDMMC_NISTR_BOOTAR (0x1u << 14) /**< \brief (SDMMC_NISTR) Boot Acknowledge Received */
 #define SDMMC_NISTR_ERRINT (0x1u << 15) /**< \brief (SDMMC_NISTR) Error Interrupt */
+#define SDMMC_NISTR_BOOTAR (0x1u << 14) /**< \brief (SDMMC_NISTR) Boot Acknowledge Received */
 /* -------- SDMMC_EISTR : (SDMMC Offset: 0x32) Error Interrupt Status Register -------- */
 #define SDMMC_EISTR_CMDTEO (0x1u << 0) /**< \brief (SDMMC_EISTR) Command Timeout Error */
 #define SDMMC_EISTR_CMDCRC (0x1u << 1) /**< \brief (SDMMC_EISTR) Command CRC Error */
@@ -277,12 +268,6 @@ typedef struct {
 #define SDMMC_NISTER_BRDRDY (0x1u << 5) /**< \brief (SDMMC_NISTER) Buffer Read Ready Status Enable */
 #define   SDMMC_NISTER_BRDRDY_MASKED (0x0u << 5) /**< \brief (SDMMC_NISTER) The BRDRDY status flag in SDMMC_NISTR is masked. */
 #define   SDMMC_NISTER_BRDRDY_ENABLED (0x1u << 5) /**< \brief (SDMMC_NISTER) The BRDRDY status flag in SDMMC_NISTR is enabled. */
-#define SDMMC_NISTER_CINS (0x1u << 6) /**< \brief (SDMMC_NISTER) Card Insertion Status Enable */
-#define   SDMMC_NISTER_CINS_MASKED (0x0u << 6) /**< \brief (SDMMC_NISTER) The CINS status flag in SDMMC_NISTR is masked. */
-#define   SDMMC_NISTER_CINS_ENABLED (0x1u << 6) /**< \brief (SDMMC_NISTER) The CINS status flag in SDMMC_NISTR is enabled. */
-#define SDMMC_NISTER_CREM (0x1u << 7) /**< \brief (SDMMC_NISTER) Card Removal Status Enable */
-#define   SDMMC_NISTER_CREM_MASKED (0x0u << 7) /**< \brief (SDMMC_NISTER) The CREM status flag in SDMMC_NISTR is masked. */
-#define   SDMMC_NISTER_CREM_ENABLED (0x1u << 7) /**< \brief (SDMMC_NISTER) The CREM status flag in SDMMC_NISTR is enabled. */
 #define SDMMC_NISTER_CINT (0x1u << 8) /**< \brief (SDMMC_NISTER) Card Interrupt Status Enable */
 #define   SDMMC_NISTER_CINT_MASKED (0x0u << 8) /**< \brief (SDMMC_NISTER) The CINT status flag in SDMMC_NISTR is masked. */
 #define   SDMMC_NISTER_CINT_ENABLED (0x1u << 8) /**< \brief (SDMMC_NISTER) The CINT status flag in SDMMC_NISTR is enabled. */
@@ -342,12 +327,6 @@ typedef struct {
 #define SDMMC_NISIER_BRDRDY (0x1u << 5) /**< \brief (SDMMC_NISIER) Buffer Read Ready Signal Enable */
 #define   SDMMC_NISIER_BRDRDY_MASKED (0x0u << 5) /**< \brief (SDMMC_NISIER) No interrupt is generated when the BRDRDY status rises in SDMMC_NISTR. */
 #define   SDMMC_NISIER_BRDRDY_ENABLED (0x1u << 5) /**< \brief (SDMMC_NISIER) An interrupt is generated when the BRDRDY status rises in SDMMC_NISTR. */
-#define SDMMC_NISIER_CINS (0x1u << 6) /**< \brief (SDMMC_NISIER) Card Insertion Signal Enable */
-#define   SDMMC_NISIER_CINS_MASKED (0x0u << 6) /**< \brief (SDMMC_NISIER) No interrupt is generated when the CINS status rises in SDMMC_NISTR. */
-#define   SDMMC_NISIER_CINS_ENABLED (0x1u << 6) /**< \brief (SDMMC_NISIER) An interrupt is generated when the CINS status rises in SDMMC_NISTR. */
-#define SDMMC_NISIER_CREM (0x1u << 7) /**< \brief (SDMMC_NISIER) Card Removal Signal Enable */
-#define   SDMMC_NISIER_CREM_MASKED (0x0u << 7) /**< \brief (SDMMC_NISIER) No interrupt is generated when the CREM status rises in SDMMC_NISTR. */
-#define   SDMMC_NISIER_CREM_ENABLED (0x1u << 7) /**< \brief (SDMMC_NISIER) An interrupt is generated when the CREM status rises in SDMMC_NISTR. */
 #define SDMMC_NISIER_CINT (0x1u << 8) /**< \brief (SDMMC_NISIER) Card Interrupt Signal Enable */
 #define   SDMMC_NISIER_CINT_MASKED (0x0u << 8) /**< \brief (SDMMC_NISIER) No interrupt is generated when the CINT status rises in SDMMC_NISTR. */
 #define   SDMMC_NISIER_CINT_ENABLED (0x1u << 8) /**< \brief (SDMMC_NISIER) An interrupt is generated when the CINT status rises in SDMMC_NISTR. */
@@ -425,9 +404,8 @@ typedef struct {
 #define SDMMC_CA0R_SLTYPE_Pos 30
 #define SDMMC_CA0R_SLTYPE_Msk (0x3u << SDMMC_CA0R_SLTYPE_Pos) /**< \brief (SDMMC_CA0R) Slot Type */
 #define SDMMC_CA0R_SLTYPE(value) ((SDMMC_CA0R_SLTYPE_Msk & ((value) << SDMMC_CA0R_SLTYPE_Pos)))
-#define   SDMMC_CA0R_SLTYPE_REMOVABLECARD (0x0u << 30)
-#define   SDMMC_CA0R_SLTYPE_EMBEDDED (0x1u << 30)
-#define   SDMMC_CA0R_SLTYPE_SHAREDBUS (0x2u << 30)
+#define   SDMMC_CA0R_SLTYPE_REMOVABLECARD (0x0u << 30) /**< \brief (SDMMC_CA0R) Removable Card Slot */
+#define   SDMMC_CA0R_SLTYPE_EMBEDDED (0x1u << 30) /**< \brief (SDMMC_CA0R) Embedded Slot for One Device */
 /* -------- SDMMC_CA1R : (SDMMC Offset: 0x44) Capabilities 1 Register -------- */
 #define SDMMC_CA1R_SDR50SUP (0x1u << 0) /**< \brief (SDMMC_CA1R) SDR50 Support */
 #define SDMMC_CA1R_SDR104SUP (0x1u << 1) /**< \brief (SDMMC_CA1R) SDR104 Support */
@@ -470,15 +448,15 @@ typedef struct {
 /* -------- SDMMC_AESR : (SDMMC Offset: 0x54) ADMA Error Status Register -------- */
 #define SDMMC_AESR_ERRST_Pos 0
 #define SDMMC_AESR_ERRST_Msk (0x3u << SDMMC_AESR_ERRST_Pos) /**< \brief (SDMMC_AESR) ADMA Error State */
-#define   SDMMC_AESR_ERRST_STOP (0x0u << 0)
-#define   SDMMC_AESR_ERRST_FDS (0x1u << 0)
-#define   SDMMC_AESR_ERRST_TFR (0x3u << 0)
+#define   SDMMC_AESR_ERRST_STOP (0x0u << 0) /**< \brief (SDMMC_AESR) (Stop DMA) SDMMC_ASAR points to the descriptor following the error descriptor */
+#define   SDMMC_AESR_ERRST_FDS (0x1u << 0) /**< \brief (SDMMC_AESR) (Fetch Descriptor) SDMMC_ASAR points to the error descriptor */
+#define   SDMMC_AESR_ERRST_TFR (0x3u << 0) /**< \brief (SDMMC_AESR) (Transfer Data) SDMMC_ASAR points to the descriptor following the error descriptor */
 #define SDMMC_AESR_LMIS (0x1u << 2) /**< \brief (SDMMC_AESR) ADMA Length Mismatch Error */
-/* -------- SDMMC_ASA0R : (SDMMC Offset: 0x58) ADMA System Address Register 0 -------- */
+/* -------- SDMMC_ASAR0 : (SDMMC Offset: 0x58) ADMA System Address Register 0 -------- */
 #define SDMMC_ASA0R_ADMASA_Pos 0
 #define SDMMC_ASA0R_ADMASA_Msk (0xffffffffu << SDMMC_ASA0R_ADMASA_Pos) /**< \brief (SDMMC_ASA0R) ADMA System Address */
 #define SDMMC_ASA0R_ADMASA(value) ((SDMMC_ASA0R_ADMASA_Msk & ((value) << SDMMC_ASA0R_ADMASA_Pos)))
-/* -------- SDMMC_PVR[3] : (SDMMC Offset: 0x60) Preset Value Registers -------- */
+/* -------- SDMMC_PVR[3] : (SDMMC Offset: 0x60) Preset Value Register 0 (for initialization) -------- */
 #define SDMMC_PVR_SDCLKFSEL_Pos 0
 #define SDMMC_PVR_SDCLKFSEL_Msk (0x3ffu << SDMMC_PVR_SDCLKFSEL_Pos) /**< \brief (SDMMC_PVR[3]) SDCLK Frequency Select */
 #define SDMMC_PVR_SDCLKFSEL(value) ((SDMMC_PVR_SDCLKFSEL_Msk & ((value) << SDMMC_PVR_SDCLKFSEL_Pos)))
@@ -520,24 +498,20 @@ typedef struct {
 #define SDMMC_ACR_B1KBDIS (0x1u << 5) /**< \brief (SDMMC_ACR) 1kB Boundary Disable */
 /* -------- SDMMC_CC2R : (SDMMC Offset: 0x20C) Clock Control 2 Register -------- */
 #define SDMMC_CC2R_FSDCLKD (0x1u << 0) /**< \brief (SDMMC_CC2R) Force SDCLK Disabled */
+/* -------- SDMMC_TUNSR : (SDMMC Offset: 0x224) Tuning Status Register -------- */
+#define SDMMC_TUNSR_DLLPS_Pos 0
+#define SDMMC_TUNSR_DLLPS_Msk (0xfu << SDMMC_TUNSR_DLLPS_Pos) /**< \brief (SDMMC_TUNSR) Tuning DLL Phase Status */
+#define SDMMC_TUNSR_SMPLES (0x1u << 8) /**< \brief (SDMMC_TUNSR) Tuning Sampling SDCLK Edge Status */
 /* -------- SDMMC_CACR : (SDMMC Offset: 0x230) Capabilities Control Register -------- */
 #define SDMMC_CACR_CAPWREN (0x1u << 0) /**< \brief (SDMMC_CACR) Capabilities Write Enable */
 #define SDMMC_CACR_KEY_Pos 8
 #define SDMMC_CACR_KEY_Msk (0xffu << SDMMC_CACR_KEY_Pos) /**< \brief (SDMMC_CACR) Key */
 #define SDMMC_CACR_KEY(value) ((SDMMC_CACR_KEY_Msk & ((value) << SDMMC_CACR_KEY_Pos)))
+#define   SDMMC_CACR_KEY_KEY (0x46u << 8) /**< \brief (SDMMC_CACR) Writing any other value in this field aborts the write operation of the CAPWREN bit. Always reads as 0. */
 /* -------- SDMMC_DBGR : (SDMMC Offset: 0x234) Debug Register -------- */
 #define SDMMC_DBGR_NIDBG (0x1u << 0) /**< \brief (SDMMC_DBGR) Nonintrusive Debug */
 #define   SDMMC_DBGR_NIDBG_DISABLED (0x0u << 0) /**< \brief (SDMMC_DBGR) Reading the SDMMC_BDPR via debugger increments the dual port RAM read pointer. */
 #define   SDMMC_DBGR_NIDBG_ENABLED (0x1u << 0) /**< \brief (SDMMC_DBGR) Reading the SDMMC_BDPR via debugger does not increment the dual port RAM read pointer. */
-/* -------- SDMMC_VERSION1 : (SDMMC Offset: 0x2E8) Version Register 1 -------- */
-#define SDMMC_VERSION1_VERSION_Pos 0
-#define SDMMC_VERSION1_VERSION_Msk (0xffffffffu << SDMMC_VERSION1_VERSION_Pos) /**< \brief (SDMMC_VERSION1) Version of the Hardware Module */
-/* -------- SDMMC_VERSION2 : (SDMMC Offset: 0x2EC) Version Register 2 -------- */
-#define SDMMC_VERSION2_VERSION_Pos 0
-#define SDMMC_VERSION2_VERSION_Msk (0xffffffffu << SDMMC_VERSION2_VERSION_Pos) /**< \brief (SDMMC_VERSION2) Version of the Hardware Module */
-/* -------- SDMMC_VERSION3 : (SDMMC Offset: 0x2FC) Version Register 3 -------- */
-#define SDMMC_VERSION3_VERSION_Pos 0
-#define SDMMC_VERSION3_VERSION_Msk (0xffffffffu << SDMMC_VERSION3_VERSION_Pos) /**< \brief (SDMMC_VERSION3) Version of the Hardware Module */
 /* --------  SDMMC Descriptor Table for Advanced DMA 2 as pointed by SDMMC_ASA0R */
 #define SDMMC_DMADL_SIZE (2u) /**< \brief Size of a Descriptor Line in the ADMA2 Descriptor Table, in words */
 #define SDMMC_DMADL_TRAN_LEN_MIN (1u) /**< \brief Minimum data length per ADMA2 Descriptor Line, in bytes */

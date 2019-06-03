@@ -53,7 +53,6 @@ typedef struct {
 #define   RSTC_CR_KEY_PASSWD (0xA5u << 24) /**< \brief (RSTC_CR) Writing any other value in this field aborts the write operation. */
 /* -------- RSTC_SR : (RSTC Offset: 0x04) Status Register -------- */
 #define RSTC_SR_URSTS (0x1u << 0) /**< \brief (RSTC_SR) User Reset Status */
-#define RSTC_SR_URSTASYNC (0x1u << 2) /**< \brief (RSTC_SR) User Reset Asynchronous Control */
 #define RSTC_SR_RSTTYP_Pos 8
 #define RSTC_SR_RSTTYP_Msk (0x7u << RSTC_SR_RSTTYP_Pos) /**< \brief (RSTC_SR) Reset Type */
 #define   RSTC_SR_RSTTYP_GENERAL_RST (0x0u << 8) /**< \brief (RSTC_SR) First powerup reset */
@@ -61,22 +60,22 @@ typedef struct {
 #define   RSTC_SR_RSTTYP_WDT_RST (0x2u << 8) /**< \brief (RSTC_SR) Watchdog fault occurred */
 #define   RSTC_SR_RSTTYP_SOFT_RST (0x3u << 8) /**< \brief (RSTC_SR) Processor reset required by the software */
 #define   RSTC_SR_RSTTYP_USER_RST (0x4u << 8) /**< \brief (RSTC_SR) NRST pin detected low */
-#define   RSTC_SR_RSTTYP_CPU_FAIL_RST (0x6u << 8) /**< \brief (RSTC_SR) CPU clock failure detection occurred */
 #define   RSTC_SR_RSTTYP_SLCK_XTAL_RST (0x7u << 8) /**< \brief (RSTC_SR) 32.768 kHz crystal failure detection fault occurred */
 #define RSTC_SR_NRSTL (0x1u << 16) /**< \brief (RSTC_SR) NRST Pin Level */
 #define RSTC_SR_SRCMP (0x1u << 17) /**< \brief (RSTC_SR) Software Reset Command in Progress */
 /* -------- RSTC_MR : (RSTC Offset: 0x08) Mode Register -------- */
 #define RSTC_MR_URSTEN (0x1u << 0) /**< \brief (RSTC_MR) User Reset Enable */
 #define RSTC_MR_SCKSW (0x1u << 1) /**< \brief (RSTC_MR) Slow Clock Switching */
-#define RSTC_MR_CPUFEN (0x1u << 3) /**< \brief (RSTC_MR) CPU Fail Enable */
+#define RSTC_MR_URSTASYNC (0x1u << 2) /**< \brief (RSTC_MR) User Reset Asynchronous Control */
 #define RSTC_MR_URSTIEN (0x1u << 4) /**< \brief (RSTC_MR) User Reset Interrupt Enable */
 #define RSTC_MR_ERSTL_Pos 8
 #define RSTC_MR_ERSTL_Msk (0xfu << RSTC_MR_ERSTL_Pos) /**< \brief (RSTC_MR) External Reset Length */
 #define RSTC_MR_ERSTL(value) ((RSTC_MR_ERSTL_Msk & ((value) << RSTC_MR_ERSTL_Pos)))
+#define RSTC_MR_ENGCLR (0x1u << 20) /**< \brief (RSTC_MR) Enable GPBR Clear on Tamper Event */
 #define RSTC_MR_KEY_Pos 24
 #define RSTC_MR_KEY_Msk (0xffu << RSTC_MR_KEY_Pos) /**< \brief (RSTC_MR) Write Access Password */
 #define RSTC_MR_KEY(value) ((RSTC_MR_KEY_Msk & ((value) << RSTC_MR_KEY_Pos)))
-#define   RSTC_MR_KEY_PASSWD (0xA5u << 24) /**< \brief (RSTC_MR) Writing any other value in this field aborts the write operation.Always reads as 0. */
+#define   RSTC_MR_KEY_PASSWD (0xA5u << 24) /**< \brief (RSTC_MR) Writing any other value in this field aborts the write operation. Always reads as 0. */
 
 /*@}*/
 

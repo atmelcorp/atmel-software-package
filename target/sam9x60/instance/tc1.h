@@ -86,7 +86,6 @@
   #define REG_TC1_FMR                    (0xF800C0D8U) /**< \brief (TC1) Fault Mode Register */
   #define REG_TC1_QSR                    (0xF800C0DCU) /**< \brief (TC1) QDEC Status Register */
   #define REG_TC1_WPMR                   (0xF800C0E4U) /**< \brief (TC1) Write Protection Mode Register */
-  #define REG_TC1_VER                    (0xF800C0FCU) /**< \brief (TC1) Version Register */
 #else
   #define REG_TC1_CCR0  (*(__O  uint32_t*)0xF800C000U) /**< \brief (TC1) Channel Control Register (channel = 0) */
   #define REG_TC1_CMR0  (*(__IO uint32_t*)0xF800C004U) /**< \brief (TC1) Channel Mode Register (channel = 0) */
@@ -142,7 +141,6 @@
   #define REG_TC1_FMR   (*(__IO uint32_t*)0xF800C0D8U) /**< \brief (TC1) Fault Mode Register */
   #define REG_TC1_QSR   (*(__I  uint32_t*)0xF800C0DCU) /**< \brief (TC1) QDEC Status Register */
   #define REG_TC1_WPMR  (*(__IO uint32_t*)0xF800C0E4U) /**< \brief (TC1) Write Protection Mode Register */
-  #define REG_TC1_VER   (*(__I  uint32_t*)0xF800C0FCU) /**< \brief (TC1) Version Register */
 #endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #endif /* _SAM9X_TC1_INSTANCE_ */

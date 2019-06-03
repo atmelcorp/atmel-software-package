@@ -70,8 +70,6 @@ typedef struct {
   __I  uint32_t Reserved4[29];
   __IO uint32_t AIC_WPMR;      /**< \brief (Aic Offset: 0xE4) Write Protection Mode Register */
   __I  uint32_t AIC_WPSR;      /**< \brief (Aic Offset: 0xE8) Write Protection Status Register */
-  __I  uint32_t Reserved5[4];
-  __I  uint32_t AIC_VERSION;   /**< \brief (Aic Offset: 0xFC) AIC Version Register */
 } Aic;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- AIC_SSR : (AIC Offset: 0x00) Source Select Register -------- */
@@ -85,9 +83,9 @@ typedef struct {
 #define AIC_SMR_SRCTYPE_Pos 5
 #define AIC_SMR_SRCTYPE_Msk (0x3u << AIC_SMR_SRCTYPE_Pos) /**< \brief (AIC_SMR) Interrupt Source Type */
 #define AIC_SMR_SRCTYPE(value) ((AIC_SMR_SRCTYPE_Msk & ((value) << AIC_SMR_SRCTYPE_Pos)))
-#define   AIC_SMR_SRCTYPE_INT_LEVEL_SENSITIVE (0x0u << 5) /**< \brief (AIC_SMR) High-level sensitive for internal sourceLow-level sensitive for external source */
+#define   AIC_SMR_SRCTYPE_INT_LEVEL_SENSITIVE (0x0u << 5) /**< \brief (AIC_SMR) High-level sensitive for internal source Low-level sensitive for external source */
 #define   AIC_SMR_SRCTYPE_INT_EDGE_TRIGGERED (0x1u << 5) /**< \brief (AIC_SMR) Negative-edge triggered for external source */
-#define   AIC_SMR_SRCTYPE_EXT_HIGH_LEVEL (0x2u << 5) /**< \brief (AIC_SMR) High-level sensitive for internal sourceHigh-level sensitive for external source */
+#define   AIC_SMR_SRCTYPE_EXT_HIGH_LEVEL (0x2u << 5) /**< \brief (AIC_SMR) High-level sensitive for internal source High-level sensitive for external source */
 #define   AIC_SMR_SRCTYPE_EXT_POSITIVE_EDGE (0x3u << 5) /**< \brief (AIC_SMR) Positive-edge triggered for external source */
 /* -------- AIC_SVR : (AIC Offset: 0x08) Source Vector Register -------- */
 #define AIC_SVR_VECTOR_Pos 0
@@ -273,16 +271,11 @@ typedef struct {
 #define AIC_WPMR_WPKEY_Pos 8
 #define AIC_WPMR_WPKEY_Msk (0xffffffu << AIC_WPMR_WPKEY_Pos) /**< \brief (AIC_WPMR) Write Protection Key */
 #define AIC_WPMR_WPKEY(value) ((AIC_WPMR_WPKEY_Msk & ((value) << AIC_WPMR_WPKEY_Pos)))
-#define   AIC_WPMR_WPKEY_PASSWD (0x414943u << 8) /**< \brief (AIC_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit.Always reads as 0. */
+#define   AIC_WPMR_WPKEY_PASSWD (0x414943u << 8) /**< \brief (AIC_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit. Always reads as 0. */
 /* -------- AIC_WPSR : (AIC Offset: 0xE8) Write Protection Status Register -------- */
 #define AIC_WPSR_WPVS (0x1u << 0) /**< \brief (AIC_WPSR) Write Protection Violation Status */
 #define AIC_WPSR_WPVSRC_Pos 8
 #define AIC_WPSR_WPVSRC_Msk (0xffffu << AIC_WPSR_WPVSRC_Pos) /**< \brief (AIC_WPSR) Write Protection Violation Source */
-/* -------- AIC_VERSION : (AIC Offset: 0xFC) AIC Version Register -------- */
-#define AIC_VERSION_VERSION_Pos 0
-#define AIC_VERSION_VERSION_Msk (0xfffu << AIC_VERSION_VERSION_Pos) /**< \brief (AIC_VERSION) Version of the Hardware Module */
-#define AIC_VERSION_MFN_Pos 16
-#define AIC_VERSION_MFN_Msk (0x7u << AIC_VERSION_MFN_Pos) /**< \brief (AIC_VERSION) Metal Fix Number */
 
 /*@}*/
 

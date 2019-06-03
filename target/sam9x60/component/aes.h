@@ -65,8 +65,6 @@ typedef struct {
   __I  uint32_t Reserved4[1];
   __IO uint32_t AES_WPMR;      /**< \brief (Aes Offset: 0xE4) Write Protection Mode Register */
   __I  uint32_t AES_WPSR;      /**< \brief (Aes Offset: 0xE8) Write Protection Status Register */
-  __I  uint32_t Reserved5[4];
-  __I  uint32_t AES_VERSION;   /**< \brief (Aes Offset: 0xFC) Version Register */
 } Aes;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- AES_CR : (AES Offset: 0x00) Control Register -------- */
@@ -117,7 +115,7 @@ typedef struct {
 #define AES_MR_CKEY_Pos 20
 #define AES_MR_CKEY_Msk (0xfu << AES_MR_CKEY_Pos) /**< \brief (AES_MR) Countermeasure Key */
 #define AES_MR_CKEY(value) ((AES_MR_CKEY_Msk & ((value) << AES_MR_CKEY_Pos)))
-#define   AES_MR_CKEY_PASSWD (0xEu << 20) /**< \brief (AES_MR) This field must be written with 0xE to allow CMTYPx bit configuration changes. Any other values will abort the write operation in CMTYPx bits.Always reads as 0. */
+#define   AES_MR_CKEY_PASSWD (0xEu << 20) /**< \brief (AES_MR) This field must be written with 0xE to allow CMTYPx bit configuration changes. Any other values will abort the write operation in CMTYPx bits. Always reads as 0. */
 #define AES_MR_CMTYP1 (0x1u << 24) /**< \brief (AES_MR) Countermeasure Type 1 */
 #define   AES_MR_CMTYP1_NOPROT_EXTKEY (0x0u << 24) /**< \brief (AES_MR) Countermeasure type 1 is disabled. */
 #define   AES_MR_CMTYP1_PROT_EXTKEY (0x1u << 24) /**< \brief (AES_MR) Countermeasure type 1 is enabled. */
@@ -250,13 +248,13 @@ typedef struct {
 #define   AES_WPMR_ACTION_LOCK_PKRPVS_WPVS_SWE (0x1u << 5) /**< \brief (AES_WPMR) If a processing is in progress when the AES_WPSR.PKRPVS/WPVS/SWE event detection occurs, the current processing is ended normally but no other processing is started while a AES_CR.UNLOCK command is issued. */
 #define   AES_WPMR_ACTION_LOCK_CGD_SEQE (0x2u << 5) /**< \brief (AES_WPMR) If a processing is in progress when the AES_WPSR.CGD/SEQE event detection occurs, the current processing is ended normally but no other processing is started while a AES_CR.UNLOCK command is issued. */
 #define   AES_WPMR_ACTION_LOCK_ANY_EV (0x3u << 5) /**< \brief (AES_WPMR) If a processing is in progress when the AES_WPSR.PKRPVS/WPVS/CGD/SEQE/SWE events detection occurs, the current processing is ended normally but no other processing is started while a AES_CR.UNLOCK command is issued. */
-#define   AES_WPMR_ACTION_CLEAR_PKRPVS_WPVS_SWE (0x4u << 5) /**< \brief (AES_WPMR) If a processing is in progress when the AES_WPSR.PKRPVS/WPVS/SWE events detection occurs, the current processing is ended normally but no other processing is started while a AES_CR.UNLOCK command is issued.Moreover, the AES_KEYWRx key is immedialely cleared. */
-#define   AES_WPMR_ACTION_CLEAR_CGD_SEQE (0x5u << 5) /**< \brief (AES_WPMR) If a processing is in progress when the AES_WPSR.CGD/SEQE events detection occurs, the current processing is ended normally but no other processing is started while a AES_CR.UNLOCK command is issued.Moreover, the AES_KEYWRx key is immedialely cleared. */
-#define   AES_WPMR_ACTION_CLEAR_ANY_EV (0x6u << 5) /**< \brief (AES_WPMR) If a processing is in progress when the AES_WPSR.PKRPVS/WPVS/CGD/SEQE/SWE events detection occurs, the current processing is ended normally but no other processing is started while a AES_CR.UNLOCK command is issued.Moreover, the AES_KEYWRx key is immedialely cleared. */
+#define   AES_WPMR_ACTION_CLEAR_PKRPVS_WPVS_SWE (0x4u << 5) /**< \brief (AES_WPMR) If a processing is in progress when the AES_WPSR.PKRPVS/WPVS/SWE events detection occurs, the current processing is ended normally but no other processing is started while a AES_CR.UNLOCK command is issued. Moreover, the AES_KEYWRx key is immediately cleared. */
+#define   AES_WPMR_ACTION_CLEAR_CGD_SEQE (0x5u << 5) /**< \brief (AES_WPMR) If a processing is in progress when the AES_WPSR.CGD/SEQE events detection occurs, the current processing is ended normally but no other processing is started while a AES_CR.UNLOCK command is issued. Moreover, the AES_KEYWRx key is immediately cleared. */
+#define   AES_WPMR_ACTION_CLEAR_ANY_EV (0x6u << 5) /**< \brief (AES_WPMR) If a processing is in progress when the AES_WPSR.PKRPVS/WPVS/CGD/SEQE/SWE events detection occurs, the current processing is ended normally but no other processing is started while a AES_CR.UNLOCK command is issued. Moreover, the AES_KEYWRx key is immediately cleared. */
 #define AES_WPMR_WPKEY_Pos 8
 #define AES_WPMR_WPKEY_Msk (0xffffffu << AES_WPMR_WPKEY_Pos) /**< \brief (AES_WPMR) Write Protection Key */
 #define AES_WPMR_WPKEY(value) ((AES_WPMR_WPKEY_Msk & ((value) << AES_WPMR_WPKEY_Pos)))
-#define   AES_WPMR_WPKEY_PASSWD (0x414553u << 8) /**< \brief (AES_WPMR) Writing any other value in this field aborts the write operation of the WPEN,WPITEN,WPCREN bits.Always reads as 0. */
+#define   AES_WPMR_WPKEY_PASSWD (0x414553u << 8) /**< \brief (AES_WPMR) Writing any other value in this field aborts the write operation of the WPEN,WPITEN,WPCREN bits. Always reads as 0. */
 /* -------- AES_WPSR : (AES Offset: 0xE8) Write Protection Status Register -------- */
 #define AES_WPSR_WPVS (0x1u << 0) /**< \brief (AES_WPSR) Write Protection Violation Status (cleared on read) */
 #define AES_WPSR_CGD (0x1u << 1) /**< \brief (AES_WPSR) Clock Glitch Detected (cleared on read) */
@@ -275,12 +273,7 @@ typedef struct {
 #define   AES_WPSR_SWETYP_INCOMPLETE_KEY (0x5u << 24) /**< \brief (AES_WPSR) A tentative of start is required while the key is not fully loaded into the AES_KEYWRx registers. */
 #define AES_WPSR_ECLASS (0x1u << 31) /**< \brief (AES_WPSR) Software Error Class (cleared on read) */
 #define   AES_WPSR_ECLASS_WARNING (0x0u << 31) /**< \brief (AES_WPSR) An abnormal access that does not affect system functionality */
-#define   AES_WPSR_ECLASS_ERROR (0x1u << 31) /**< \brief (AES_WPSR) An access is performed into key, input data, control registers while the AES is performing an encryp-tion/decryption or a start is request by software or DMA while the key is not fully configured. */
-/* -------- AES_VERSION : (AES Offset: 0xFC) Version Register -------- */
-#define AES_VERSION_VERSION_Pos 0
-#define AES_VERSION_VERSION_Msk (0xfffu << AES_VERSION_VERSION_Pos) /**< \brief (AES_VERSION) Version of the Hardware Module */
-#define AES_VERSION_MFN_Pos 16
-#define AES_VERSION_MFN_Msk (0x7u << AES_VERSION_MFN_Pos) /**< \brief (AES_VERSION) Metal Fix Number */
+#define   AES_WPSR_ECLASS_ERROR (0x1u << 31) /**< \brief (AES_WPSR) An access is performed into key, input data, control registers while the AES is performing an encryption/decryption or a start is request by software or DMA while the key is not fully configured. */
 
 /*@}*/
 

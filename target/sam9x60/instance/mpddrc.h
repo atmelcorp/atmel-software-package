@@ -65,17 +65,6 @@
   #define REG_MPDDRC_SAFETY                         (0xFFFFE8D0U) /**< \brief (MPDDRC) Safety Register */
   #define REG_MPDDRC_WPMR                           (0xFFFFE8E4U) /**< \brief (MPDDRC) Write Protection Mode Register */
   #define REG_MPDDRC_WPSR                           (0xFFFFE8E8U) /**< \brief (MPDDRC) Write Protection Status Register */
-  #define REG_MPDDRC_VERSION                        (0xFFFFE8FCU) /**< \brief (MPDDRC) MPDDRC Version Register */
-  #define REG_MPDDRC_DLL_OS                         (0xFFFFE900U) /**< \brief (MPDDRC) MPDDRC DLL Offset Selection Register */
-  #define REG_MPDDRC_DLL_MAO                        (0xFFFFE904U) /**< \brief (MPDDRC) MPDDRC DLL Master Offset Register */
-  #define REG_MPDDRC_DLL_SO0                        (0xFFFFE908U) /**< \brief (MPDDRC) MPDDRC DLL Slave Offset 0 Register */
-  #define REG_MPDDRC_DLL_WRO                        (0xFFFFE910U) /**< \brief (MPDDRC) MPDDRC DLL CLKWR Offset Register */
-  #define REG_MPDDRC_DLL_SM                         (0xFFFFE918U) /**< \brief (MPDDRC) MPDDRC DLL Status Master 0 Register */
-  #define REG_MPDDRC_DLL_SSL                        (0xFFFFE928U) /**< \brief (MPDDRC) MPDDRC DLL Status Slave 0 Register */
-  #define REG_MPDDRC_DLL_SWR                        (0xFFFFE948U) /**< \brief (MPDDRC) MPDDRC DLL Status CLKWR 0 Register */
-  #define REG_MPDDRC_DLL_BC                         (0xFFFFE9D0U) /**< \brief (MPDDRC) MPDDRC DLL BIST Control Register */
-  #define REG_MPDDRC_DLL_BS                         (0xFFFFE9D4U) /**< \brief (MPDDRC) MPDDRC DLL BIST Status Register */
-  #define REG_MPDDRC_DLL_REVISION                   (0xFFFFE9FCU) /**< \brief (MPDDRC) MPDDRC DLL Revision Register */
 #else
   #define REG_MPDDRC_MR            (*(__IO uint32_t*)0xFFFFE800U) /**< \brief (MPDDRC) Mode Register */
   #define REG_MPDDRC_RTR           (*(__IO uint32_t*)0xFFFFE804U) /**< \brief (MPDDRC) Refresh Timer Register */
@@ -110,17 +99,6 @@
   #define REG_MPDDRC_SAFETY        (*(__IO uint32_t*)0xFFFFE8D0U) /**< \brief (MPDDRC) Safety Register */
   #define REG_MPDDRC_WPMR          (*(__IO uint32_t*)0xFFFFE8E4U) /**< \brief (MPDDRC) Write Protection Mode Register */
   #define REG_MPDDRC_WPSR          (*(__I  uint32_t*)0xFFFFE8E8U) /**< \brief (MPDDRC) Write Protection Status Register */
-  #define REG_MPDDRC_VERSION       (*(__I  uint32_t*)0xFFFFE8FCU) /**< \brief (MPDDRC) MPDDRC Version Register */
-  #define REG_MPDDRC_DLL_OS        (*(__IO uint32_t*)0xFFFFE900U) /**< \brief (MPDDRC) MPDDRC DLL Offset Selection Register */
-  #define REG_MPDDRC_DLL_MAO       (*(__IO uint32_t*)0xFFFFE904U) /**< \brief (MPDDRC) MPDDRC DLL Master Offset Register */
-  #define REG_MPDDRC_DLL_SO0       (*(__IO uint32_t*)0xFFFFE908U) /**< \brief (MPDDRC) MPDDRC DLL Slave Offset 0 Register */
-  #define REG_MPDDRC_DLL_WRO       (*(__IO uint32_t*)0xFFFFE910U) /**< \brief (MPDDRC) MPDDRC DLL CLKWR Offset Register */
-  #define REG_MPDDRC_DLL_SM        (*(__I  uint32_t*)0xFFFFE918U) /**< \brief (MPDDRC) MPDDRC DLL Status Master 0 Register */
-  #define REG_MPDDRC_DLL_SSL       (*(__I  uint32_t*)0xFFFFE928U) /**< \brief (MPDDRC) MPDDRC DLL Status Slave 0 Register */
-  #define REG_MPDDRC_DLL_SWR       (*(__I  uint32_t*)0xFFFFE948U) /**< \brief (MPDDRC) MPDDRC DLL Status CLKWR 0 Register */
-  #define REG_MPDDRC_DLL_BC        (*(__O  uint32_t*)0xFFFFE9D0U) /**< \brief (MPDDRC) MPDDRC DLL BIST Control Register */
-  #define REG_MPDDRC_DLL_BS        (*(__I  uint32_t*)0xFFFFE9D4U) /**< \brief (MPDDRC) MPDDRC DLL BIST Status Register */
-  #define REG_MPDDRC_DLL_REVISION  (*(__I  uint32_t*)0xFFFFE9FCU) /**< \brief (MPDDRC) MPDDRC DLL Revision Register */
 #endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #endif /* _SAM9X_MPDDRC_INSTANCE_ */

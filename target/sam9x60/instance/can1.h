@@ -45,7 +45,6 @@
   #define REG_CAN1_ACR                      (0xF8004028U) /**< \brief (CAN1) Abort Command Register */
   #define REG_CAN1_WPMR                     (0xF80040E4U) /**< \brief (CAN1) Write Protection Mode Register */
   #define REG_CAN1_WPSR                     (0xF80040E8U) /**< \brief (CAN1) Write Protection Status Register */
-  #define REG_CAN1_VERSION                  (0xF80040FCU) /**< \brief (CAN1) Version Register */
   #define REG_CAN1_MMR0                     (0xF8004200U) /**< \brief (CAN1) Mailbox Mode Register (MB = 0) */
   #define REG_CAN1_MAM0                     (0xF8004204U) /**< \brief (CAN1) Mailbox Acceptance Mask Register (MB = 0) */
   #define REG_CAN1_MID0                     (0xF8004208U) /**< \brief (CAN1) Mailbox ID Register (MB = 0) */
@@ -124,7 +123,6 @@
   #define REG_CAN1_ACR     (*(__O  uint32_t*)0xF8004028U) /**< \brief (CAN1) Abort Command Register */
   #define REG_CAN1_WPMR    (*(__IO uint32_t*)0xF80040E4U) /**< \brief (CAN1) Write Protection Mode Register */
   #define REG_CAN1_WPSR    (*(__I  uint32_t*)0xF80040E8U) /**< \brief (CAN1) Write Protection Status Register */
-  #define REG_CAN1_VERSION (*(__I  uint32_t*)0xF80040FCU) /**< \brief (CAN1) Version Register */
   #define REG_CAN1_MMR0    (*(__IO uint32_t*)0xF8004200U) /**< \brief (CAN1) Mailbox Mode Register (MB = 0) */
   #define REG_CAN1_MAM0    (*(__IO uint32_t*)0xF8004204U) /**< \brief (CAN1) Mailbox Acceptance Mask Register (MB = 0) */
   #define REG_CAN1_MID0    (*(__IO uint32_t*)0xF8004208U) /**< \brief (CAN1) Mailbox ID Register (MB = 0) */

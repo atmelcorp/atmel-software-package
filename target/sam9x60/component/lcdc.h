@@ -190,8 +190,6 @@ typedef struct {
   __IO uint32_t LCDC_OVR1CLUT[256]; /**< \brief (Lcdc Offset: 0x00000A00) Overlay 1 CLUT Register */
   __IO uint32_t LCDC_OVR2CLUT[256]; /**< \brief (Lcdc Offset: 0x00000E00) Overlay 2 CLUT Register */
   __IO uint32_t LCDC_HEOCLUT[256];  /**< \brief (Lcdc Offset: 0x00001200) High-End Overlay CLUT Register */
-  __I  uint32_t Reserved6[639];
-  __I  uint32_t LCDC_VERSION;       /**< \brief (Lcdc Offset: 0x00001FFC) Version Register */
 } Lcdc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- LCDC_LCDCFG0 : (LCDC Offset: 0x00000000) LCD Controller Configuration Register 0 -------- */
@@ -418,15 +416,14 @@ typedef struct {
 #define LCDC_BASENEXT_NEXT_Msk (0xffffffffu << LCDC_BASENEXT_NEXT_Pos) /**< \brief (LCDC_BASENEXT) DMA Descriptor Next Address */
 #define LCDC_BASENEXT_NEXT(value) ((LCDC_BASENEXT_NEXT_Msk & ((value) << LCDC_BASENEXT_NEXT_Pos)))
 /* -------- LCDC_BASECFG0 : (LCDC Offset: 0x0000008C) Base Layer Configuration Register 0 -------- */
-#define LCDC_BASECFG0_SIF (0x1u << 0) /**< \brief (LCDC_BASECFG0) Source Interface */
 #define LCDC_BASECFG0_BLEN_Pos 4
-#define LCDC_BASECFG0_BLEN_Msk (0x3u << LCDC_BASECFG0_BLEN_Pos) /**< \brief (LCDC_BASECFG0) AHB Burst Length */
+#define LCDC_BASECFG0_BLEN_Msk (0x3u << LCDC_BASECFG0_BLEN_Pos) /**< \brief (LCDC_BASECFG0) System Bus Burst Length */
 #define LCDC_BASECFG0_BLEN(value) ((LCDC_BASECFG0_BLEN_Msk & ((value) << LCDC_BASECFG0_BLEN_Pos)))
-#define   LCDC_BASECFG0_BLEN_AHB_SINGLE (0x0u << 4) /**< \brief (LCDC_BASECFG0) AHB Access is started as soon as there is enough space in the FIFO to store one data. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define   LCDC_BASECFG0_BLEN_AHB_INCR4 (0x1u << 4) /**< \brief (LCDC_BASECFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 4 data. An AHB INCR4 Burst is used. SINGLE, INCR and INCR4 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define   LCDC_BASECFG0_BLEN_AHB_INCR8 (0x2u << 4) /**< \brief (LCDC_BASECFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 8 data. An AHB INCR8 Burst is used. SINGLE, INCR, INCR4 and INCR8 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define   LCDC_BASECFG0_BLEN_AHB_INCR16 (0x3u << 4) /**< \brief (LCDC_BASECFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 16 data. An AHB INCR16 Burst is used. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define LCDC_BASECFG0_DLBO (0x1u << 8) /**< \brief (LCDC_BASECFG0) Defined Length Burst Only For Channel Bus Transaction */
+#define   LCDC_BASECFG0_BLEN_AHB_SINGLE (0x0u << 4) /**< \brief (LCDC_BASECFG0) System bus access is started as soon as there is enough space in the FIFO to store one data. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_BASECFG0_BLEN_AHB_INCR4 (0x1u << 4) /**< \brief (LCDC_BASECFG0) System bus access is started as soon as there is enough space in the FIFO to store a total amount of 4 data. A system bus INCR4 Burst is used. SINGLE, INCR and INCR4 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_BASECFG0_BLEN_AHB_INCR8 (0x2u << 4) /**< \brief (LCDC_BASECFG0) System bus access is started as soon as there is enough space in the FIFO to store a total amount of 8 data. A system bus INCR8 Burst is used. SINGLE, INCR, INCR4 and INCR8 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_BASECFG0_BLEN_AHB_INCR16 (0x3u << 4) /**< \brief (LCDC_BASECFG0) System bus access is started as soon as there is enough space in the FIFO to store a total amount of 16 data. A system bus INCR16 Burst is used. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define LCDC_BASECFG0_DLBO (0x1u << 8) /**< \brief (LCDC_BASECFG0) defined length Burst Only For Channel Bus Transaction */
 /* -------- LCDC_BASECFG1 : (LCDC Offset: 0x00000090) Base Layer Configuration Register 1 -------- */
 #define LCDC_BASECFG1_CLUTEN (0x1u << 0) /**< \brief (LCDC_BASECFG1) Color Lookup Table Mode Enable */
 #define LCDC_BASECFG1_RGBMODE_Pos 4
@@ -449,10 +446,10 @@ typedef struct {
 #define LCDC_BASECFG1_CLUTMODE_Pos 8
 #define LCDC_BASECFG1_CLUTMODE_Msk (0x3u << LCDC_BASECFG1_CLUTMODE_Pos) /**< \brief (LCDC_BASECFG1) Color Lookup Table Mode Input Selection */
 #define LCDC_BASECFG1_CLUTMODE(value) ((LCDC_BASECFG1_CLUTMODE_Msk & ((value) << LCDC_BASECFG1_CLUTMODE_Pos)))
-#define   LCDC_BASECFG1_CLUTMODE_1BPP (0x0u << 8) /**< \brief (LCDC_BASECFG1) Color lookup table mode set to 1 bit per pixel */
-#define   LCDC_BASECFG1_CLUTMODE_2BPP (0x1u << 8) /**< \brief (LCDC_BASECFG1) Color lookup table mode set to 2 bits per pixel */
-#define   LCDC_BASECFG1_CLUTMODE_4BPP (0x2u << 8) /**< \brief (LCDC_BASECFG1) Color lookup table mode set to 4 bits per pixel */
-#define   LCDC_BASECFG1_CLUTMODE_8BPP (0x3u << 8) /**< \brief (LCDC_BASECFG1) Color lookup table mode set to 8 bits per pixel */
+#define   LCDC_BASECFG1_CLUTMODE_1BPP (0x0u << 8) /**< \brief (LCDC_BASECFG1) Color Lookup Table mode set to 1 bit per pixel */
+#define   LCDC_BASECFG1_CLUTMODE_2BPP (0x1u << 8) /**< \brief (LCDC_BASECFG1) Color Lookup Table mode set to 2 bits per pixel */
+#define   LCDC_BASECFG1_CLUTMODE_4BPP (0x2u << 8) /**< \brief (LCDC_BASECFG1) Color Lookup Table mode set to 4 bits per pixel */
+#define   LCDC_BASECFG1_CLUTMODE_8BPP (0x3u << 8) /**< \brief (LCDC_BASECFG1) Color Lookup Table mode set to 8 bits per pixel */
 /* -------- LCDC_BASECFG2 : (LCDC Offset: 0x00000094) Base Layer Configuration Register 2 -------- */
 #define LCDC_BASECFG2_XSTRIDE_Pos 0
 #define LCDC_BASECFG2_XSTRIDE_Msk (0xffffffffu << LCDC_BASECFG2_XSTRIDE_Pos) /**< \brief (LCDC_BASECFG2) Horizontal Stride */
@@ -540,15 +537,14 @@ typedef struct {
 #define LCDC_OVR1NEXT_NEXT_Msk (0xffffffffu << LCDC_OVR1NEXT_NEXT_Pos) /**< \brief (LCDC_OVR1NEXT) DMA Descriptor Next Address */
 #define LCDC_OVR1NEXT_NEXT(value) ((LCDC_OVR1NEXT_NEXT_Msk & ((value) << LCDC_OVR1NEXT_NEXT_Pos)))
 /* -------- LCDC_OVR1CFG0 : (LCDC Offset: 0x0000018C) Overlay 1 Configuration Register 0 -------- */
-#define LCDC_OVR1CFG0_SIF (0x1u << 0) /**< \brief (LCDC_OVR1CFG0) Source Interface */
 #define LCDC_OVR1CFG0_BLEN_Pos 4
-#define LCDC_OVR1CFG0_BLEN_Msk (0x3u << LCDC_OVR1CFG0_BLEN_Pos) /**< \brief (LCDC_OVR1CFG0) AHB Burst Length */
+#define LCDC_OVR1CFG0_BLEN_Msk (0x3u << LCDC_OVR1CFG0_BLEN_Pos) /**< \brief (LCDC_OVR1CFG0) System Bus Burst Length */
 #define LCDC_OVR1CFG0_BLEN(value) ((LCDC_OVR1CFG0_BLEN_Msk & ((value) << LCDC_OVR1CFG0_BLEN_Pos)))
-#define   LCDC_OVR1CFG0_BLEN_AHB_SINGLE (0x0u << 4) /**< \brief (LCDC_OVR1CFG0) AHB Access is started as soon as there is enough space in the FIFO to store one data. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define   LCDC_OVR1CFG0_BLEN_AHB_INCR4 (0x1u << 4) /**< \brief (LCDC_OVR1CFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 4 data. An AHB INCR4 Burst is used. SINGLE, INCR and INCR4 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define   LCDC_OVR1CFG0_BLEN_AHB_INCR8 (0x2u << 4) /**< \brief (LCDC_OVR1CFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 8 data. An AHB INCR8 Burst is used. SINGLE, INCR, INCR4 and INCR8 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define   LCDC_OVR1CFG0_BLEN_AHB_INCR16 (0x3u << 4) /**< \brief (LCDC_OVR1CFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 16 data. An AHB INCR16 Burst is used. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define LCDC_OVR1CFG0_DLBO (0x1u << 8) /**< \brief (LCDC_OVR1CFG0) Defined Length Burst Only for Channel Bus Transaction */
+#define   LCDC_OVR1CFG0_BLEN_AHB_SINGLE (0x0u << 4) /**< \brief (LCDC_OVR1CFG0) System bus access is started as soon as there is enough space in the FIFO to store one data. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_OVR1CFG0_BLEN_AHB_INCR4 (0x1u << 4) /**< \brief (LCDC_OVR1CFG0) System bus access is started as soon as there is enough space in the FIFO to store a total amount of 4 data. An AHB INCR4 Burst is used. SINGLE, INCR and INCR4 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_OVR1CFG0_BLEN_AHB_INCR8 (0x2u << 4) /**< \brief (LCDC_OVR1CFG0) System bus access is started as soon as there is enough space in the FIFO to store a total amount of 8 data. An AHB INCR8 Burst is used. SINGLE, INCR, INCR4 and INCR8 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_OVR1CFG0_BLEN_AHB_INCR16 (0x3u << 4) /**< \brief (LCDC_OVR1CFG0) System bus access is started as soon as there is enough space in the FIFO to store a total amount of 16 data. An AHB INCR16 Burst is used. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define LCDC_OVR1CFG0_DLBO (0x1u << 8) /**< \brief (LCDC_OVR1CFG0) defined length Burst Only for Channel Bus Transaction */
 #define LCDC_OVR1CFG0_ROTDIS (0x1u << 12) /**< \brief (LCDC_OVR1CFG0) Hardware Rotation Optimization Disable */
 #define LCDC_OVR1CFG0_LOCKDIS (0x1u << 13) /**< \brief (LCDC_OVR1CFG0) Hardware Rotation Lock Disable */
 /* -------- LCDC_OVR1CFG1 : (LCDC Offset: 0x00000190) Overlay 1 Configuration Register 1 -------- */
@@ -700,12 +696,12 @@ typedef struct {
 #define LCDC_OVR2NEXT_NEXT(value) ((LCDC_OVR2NEXT_NEXT_Msk & ((value) << LCDC_OVR2NEXT_NEXT_Pos)))
 /* -------- LCDC_OVR2CFG0 : (LCDC Offset: 0x0000028C) Overlay 2 Configuration Register 0 -------- */
 #define LCDC_OVR2CFG0_BLEN_Pos 4
-#define LCDC_OVR2CFG0_BLEN_Msk (0x3u << LCDC_OVR2CFG0_BLEN_Pos) /**< \brief (LCDC_OVR2CFG0) AHB Burst Length */
+#define LCDC_OVR2CFG0_BLEN_Msk (0x3u << LCDC_OVR2CFG0_BLEN_Pos) /**< \brief (LCDC_OVR2CFG0) System Bus Burst Length */
 #define LCDC_OVR2CFG0_BLEN(value) ((LCDC_OVR2CFG0_BLEN_Msk & ((value) << LCDC_OVR2CFG0_BLEN_Pos)))
-#define   LCDC_OVR2CFG0_BLEN_AHB_SINGLE (0x0u << 4) /**< \brief (LCDC_OVR2CFG0) AHB Access is started as soon as there is enough space in the FIFO to store one data. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define   LCDC_OVR2CFG0_BLEN_AHB_INCR4 (0x1u << 4) /**< \brief (LCDC_OVR2CFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 4 data. An AHB INCR4 Burst is used. SINGLE, INCR and INCR4 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define   LCDC_OVR2CFG0_BLEN_AHB_INCR8 (0x2u << 4) /**< \brief (LCDC_OVR2CFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 8 data. An AHB INCR8 Burst is used. SINGLE, INCR, INCR4 and INCR8 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define   LCDC_OVR2CFG0_BLEN_AHB_INCR16 (0x3u << 4) /**< \brief (LCDC_OVR2CFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 16 data. An AHB INCR16 Burst is used. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_OVR2CFG0_BLEN_AHB_SINGLE (0x0u << 4) /**< \brief (LCDC_OVR2CFG0) System bus access is started as soon as there is enough space in the FIFO to store one data. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_OVR2CFG0_BLEN_AHB_INCR4 (0x1u << 4) /**< \brief (LCDC_OVR2CFG0) System bus access is started as soon as there is enough space in the FIFO to store a total amount of 4 data. A system bus INCR4 Burst is used. SINGLE, INCR and INCR4 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_OVR2CFG0_BLEN_AHB_INCR8 (0x2u << 4) /**< \brief (LCDC_OVR2CFG0) System bus access is started as soon as there is enough space in the FIFO to store a total amount of 8 data. A system bus INCR8 Burst is used. SINGLE, INCR, INCR4 and INCR8 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_OVR2CFG0_BLEN_AHB_INCR16 (0x3u << 4) /**< \brief (LCDC_OVR2CFG0) System bus access is started as soon as there is enough space in the FIFO to store a total amount of 16 data. A system bus INCR16 Burst is used. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
 #define LCDC_OVR2CFG0_DLBO (0x1u << 8) /**< \brief (LCDC_OVR2CFG0) Defined Length Burst Only For Channel Bus Transaction */
 #define LCDC_OVR2CFG0_ROTDIS (0x1u << 12) /**< \brief (LCDC_OVR2CFG0) Hardware Rotation Optimization Disable */
 #define LCDC_OVR2CFG0_LOCKDIS (0x1u << 13) /**< \brief (LCDC_OVR2CFG0) Hardware Rotation Lock Disable */
@@ -933,21 +929,20 @@ typedef struct {
 #define LCDC_HEOVNEXT_VNEXT_Msk (0xffffffffu << LCDC_HEOVNEXT_VNEXT_Pos) /**< \brief (LCDC_HEOVNEXT) DMA Descriptor Next Address */
 #define LCDC_HEOVNEXT_VNEXT(value) ((LCDC_HEOVNEXT_VNEXT_Msk & ((value) << LCDC_HEOVNEXT_VNEXT_Pos)))
 /* -------- LCDC_HEOCFG0 : (LCDC Offset: 0x000003AC) High-End Overlay Configuration Register 0 -------- */
-#define LCDC_HEOCFG0_SIF (0x1u << 0) /**< \brief (LCDC_HEOCFG0) Source Interface */
 #define LCDC_HEOCFG0_BLEN_Pos 4
-#define LCDC_HEOCFG0_BLEN_Msk (0x3u << LCDC_HEOCFG0_BLEN_Pos) /**< \brief (LCDC_HEOCFG0) AHB Burst Length */
+#define LCDC_HEOCFG0_BLEN_Msk (0x3u << LCDC_HEOCFG0_BLEN_Pos) /**< \brief (LCDC_HEOCFG0) System Bus Burst Length */
 #define LCDC_HEOCFG0_BLEN(value) ((LCDC_HEOCFG0_BLEN_Msk & ((value) << LCDC_HEOCFG0_BLEN_Pos)))
-#define   LCDC_HEOCFG0_BLEN_AHB_SINGLE (0x0u << 4) /**< \brief (LCDC_HEOCFG0) AHB Access is started as soon as there is enough space in the FIFO to store one data. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define   LCDC_HEOCFG0_BLEN_AHB_INCR4 (0x1u << 4) /**< \brief (LCDC_HEOCFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 4 data. An AHB INCR4 Burst is used. SINGLE, INCR and INCR4 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define   LCDC_HEOCFG0_BLEN_AHB_INCR8 (0x2u << 4) /**< \brief (LCDC_HEOCFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 8 data. An AHB INCR8 Burst is used. SINGLE, INCR, INCR4 and INCR8 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define   LCDC_HEOCFG0_BLEN_AHB_INCR16 (0x3u << 4) /**< \brief (LCDC_HEOCFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 16 data. An AHB INCR16 Burst is used. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_HEOCFG0_BLEN_AHB_SINGLE (0x0u << 4) /**< \brief (LCDC_HEOCFG0) System bus access is started as soon as there is enough space in the FIFO to store one data. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_HEOCFG0_BLEN_AHB_INCR4 (0x1u << 4) /**< \brief (LCDC_HEOCFG0) System bus access is started as soon as there is enough space in the FIFO to store a total amount of 4 data. An AHB INCR4 Burst is used. SINGLE, INCR and INCR4 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_HEOCFG0_BLEN_AHB_INCR8 (0x2u << 4) /**< \brief (LCDC_HEOCFG0) System bus access is started as soon as there is enough space in the FIFO to store a total amount of 8 data. An AHB INCR8 Burst is used. SINGLE, INCR, INCR4 and INCR8 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_HEOCFG0_BLEN_AHB_INCR16 (0x3u << 4) /**< \brief (LCDC_HEOCFG0) System bus access is started as soon as there is enough space in the FIFO to store a total amount of 16 data. An AHB INCR16 Burst is used. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
 #define LCDC_HEOCFG0_BLENUV_Pos 6
-#define LCDC_HEOCFG0_BLENUV_Msk (0x3u << LCDC_HEOCFG0_BLENUV_Pos) /**< \brief (LCDC_HEOCFG0) AHB Burst Length for U-V Channel */
+#define LCDC_HEOCFG0_BLENUV_Msk (0x3u << LCDC_HEOCFG0_BLENUV_Pos) /**< \brief (LCDC_HEOCFG0) System Bus Burst Length for U-V Channel */
 #define LCDC_HEOCFG0_BLENUV(value) ((LCDC_HEOCFG0_BLENUV_Msk & ((value) << LCDC_HEOCFG0_BLENUV_Pos)))
-#define   LCDC_HEOCFG0_BLENUV_AHB_SINGLE (0x0u << 6) /**< \brief (LCDC_HEOCFG0) AHB Access is started as soon as there is enough space in the FIFO to store one data. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define   LCDC_HEOCFG0_BLENUV_AHB_INCR4 (0x1u << 6) /**< \brief (LCDC_HEOCFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 4 data. An AHB INCR4 Burst is used. SINGLE, INCR and INCR4 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define   LCDC_HEOCFG0_BLENUV_AHB_INCR8 (0x2u << 6) /**< \brief (LCDC_HEOCFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 8 data. An AHB INCR8 Burst is used. SINGLE, INCR, INCR4 and INCR8 bursts are used. INCR is used for a burst of 2 and 3 beats. */
-#define   LCDC_HEOCFG0_BLENUV_AHB_INCR16 (0x3u << 6) /**< \brief (LCDC_HEOCFG0) AHB Access is started as soon as there is enough space in the FIFO to store a total amount of 16 data. An AHB INCR16 Burst is used. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_HEOCFG0_BLENUV_AHB_SINGLE (0x0u << 6) /**< \brief (LCDC_HEOCFG0) System bus access is started as soon as there is enough space in the FIFO to store one data. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_HEOCFG0_BLENUV_AHB_INCR4 (0x1u << 6) /**< \brief (LCDC_HEOCFG0) System bus access is started as soon as there is enough space in the FIFO to store a total amount of 4 data. A system bus INCR4 Burst is used. SINGLE, INCR and INCR4 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_HEOCFG0_BLENUV_AHB_INCR8 (0x2u << 6) /**< \brief (LCDC_HEOCFG0) System bus access is started as soon as there is enough space in the FIFO to store a total amount of 8 data. A system bus INCR8 Burst is used. SINGLE, INCR, INCR4 and INCR8 bursts are used. INCR is used for a burst of 2 and 3 beats. */
+#define   LCDC_HEOCFG0_BLENUV_AHB_INCR16 (0x3u << 6) /**< \brief (LCDC_HEOCFG0) System bus access is started as soon as there is enough space in the FIFO to store a total amount of 16 data. A system bus INCR16 Burst is used. SINGLE, INCR, INCR4, INCR8 and INCR16 bursts are used. INCR is used for a burst of 2 and 3 beats. */
 #define LCDC_HEOCFG0_DLBO (0x1u << 8) /**< \brief (LCDC_HEOCFG0) Defined Length Burst Only For Channel Bus Transaction */
 #define LCDC_HEOCFG0_ROTDIS (0x1u << 12) /**< \brief (LCDC_HEOCFG0) Hardware Rotation Optimization Disable */
 #define LCDC_HEOCFG0_LOCKDIS (0x1u << 13) /**< \brief (LCDC_HEOCFG0) Hardware Rotation Lock Disable */
@@ -1389,11 +1384,6 @@ typedef struct {
 #define LCDC_HEOCLUT_ACLUT_Pos 24
 #define LCDC_HEOCLUT_ACLUT_Msk (0xffu << LCDC_HEOCLUT_ACLUT_Pos) /**< \brief (LCDC_HEOCLUT[256]) Alpha Color Entry */
 #define LCDC_HEOCLUT_ACLUT(value) ((LCDC_HEOCLUT_ACLUT_Msk & ((value) << LCDC_HEOCLUT_ACLUT_Pos)))
-/* -------- LCDC_VERSION : (LCDC Offset: 0x00001FFC) Version Register -------- */
-#define LCDC_VERSION_VERSION_Pos 0
-#define LCDC_VERSION_VERSION_Msk (0xfffu << LCDC_VERSION_VERSION_Pos) /**< \brief (LCDC_VERSION) Version of the Hardware Module */
-#define LCDC_VERSION_MFN_Pos 16
-#define LCDC_VERSION_MFN_Msk (0x7u << LCDC_VERSION_MFN_Pos) /**< \brief (LCDC_VERSION) Metal Fix Number */
 
 /*@}*/
 

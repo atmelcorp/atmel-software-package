@@ -58,10 +58,11 @@ typedef struct {
   __O  uint32_t RTC_IDR;              /**< \brief (Rtc Offset: 0x24) Interrupt Disable Register */
   __I  uint32_t RTC_IMR;              /**< \brief (Rtc Offset: 0x28) Interrupt Mask Register */
   __I  uint32_t RTC_VER;              /**< \brief (Rtc Offset: 0x2C) Valid Entry Register */
-  __I  uint32_t Reserved1[32];
+  __I  uint32_t Reserved1[10];
+  __IO uint32_t RTC_TMR;              /**< \brief (Rtc Offset: 0x58) Tamper Mode register */
+  __IO uint32_t RTC_TDPR;             /**< \brief (Rtc Offset: 0x5C) Tamper Debounce Period register */
+  __I  uint32_t Reserved2[20];
        RtcTs    RTC_TS[RTCTS_NUMBER]; /**< \brief (Rtc Offset: 0xB0) 0 .. 1 */
-  __I  uint32_t Reserved2[13];
-  __I  uint32_t RTC_VERSION;          /**< \brief (Rtc Offset: 0xFC) Version Register */
 } Rtc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- RTC_CR : (RTC Offset: 0x00) Control Register -------- */
@@ -238,6 +239,105 @@ typedef struct {
 #define RTC_VER_NVCAL (0x1u << 1) /**< \brief (RTC_VER) Non-valid Calendar */
 #define RTC_VER_NVTIMALR (0x1u << 2) /**< \brief (RTC_VER) Non-valid Time Alarm */
 #define RTC_VER_NVCALALR (0x1u << 3) /**< \brief (RTC_VER) Non-valid Calendar Alarm */
+/* -------- RTC_TMR : (RTC Offset: 0x58) Tamper Mode register -------- */
+#define RTC_TMR_EN0 (0x1u << 0) /**< \brief (RTC_TMR) WKUPx+1 Tamper Source Enable */
+#define   RTC_TMR_EN0_DISABLE (0x0u << 0) /**< \brief (RTC_TMR) WKUP pin index x+1 is not enabled as a source of tamper. */
+#define   RTC_TMR_EN0_ENABLE (0x1u << 0) /**< \brief (RTC_TMR) WKUP pin index x+1 is enabled as a source of tamper. */
+#define RTC_TMR_EN1 (0x1u << 1) /**< \brief (RTC_TMR) WKUPx+1 Tamper Source Enable */
+#define   RTC_TMR_EN1_DISABLE (0x0u << 1) /**< \brief (RTC_TMR) WKUP pin index x+1 is not enabled as a source of tamper. */
+#define   RTC_TMR_EN1_ENABLE (0x1u << 1) /**< \brief (RTC_TMR) WKUP pin index x+1 is enabled as a source of tamper. */
+#define RTC_TMR_EN2 (0x1u << 2) /**< \brief (RTC_TMR) WKUPx+1 Tamper Source Enable */
+#define   RTC_TMR_EN2_DISABLE (0x0u << 2) /**< \brief (RTC_TMR) WKUP pin index x+1 is not enabled as a source of tamper. */
+#define   RTC_TMR_EN2_ENABLE (0x1u << 2) /**< \brief (RTC_TMR) WKUP pin index x+1 is enabled as a source of tamper. */
+#define RTC_TMR_EN3 (0x1u << 3) /**< \brief (RTC_TMR) WKUPx+1 Tamper Source Enable */
+#define   RTC_TMR_EN3_DISABLE (0x0u << 3) /**< \brief (RTC_TMR) WKUP pin index x+1 is not enabled as a source of tamper. */
+#define   RTC_TMR_EN3_ENABLE (0x1u << 3) /**< \brief (RTC_TMR) WKUP pin index x+1 is enabled as a source of tamper. */
+#define RTC_TMR_EN4 (0x1u << 4) /**< \brief (RTC_TMR) WKUPx+1 Tamper Source Enable */
+#define   RTC_TMR_EN4_DISABLE (0x0u << 4) /**< \brief (RTC_TMR) WKUP pin index x+1 is not enabled as a source of tamper. */
+#define   RTC_TMR_EN4_ENABLE (0x1u << 4) /**< \brief (RTC_TMR) WKUP pin index x+1 is enabled as a source of tamper. */
+#define RTC_TMR_EN5 (0x1u << 5) /**< \brief (RTC_TMR) WKUPx+1 Tamper Source Enable */
+#define   RTC_TMR_EN5_DISABLE (0x0u << 5) /**< \brief (RTC_TMR) WKUP pin index x+1 is not enabled as a source of tamper. */
+#define   RTC_TMR_EN5_ENABLE (0x1u << 5) /**< \brief (RTC_TMR) WKUP pin index x+1 is enabled as a source of tamper. */
+#define RTC_TMR_EN6 (0x1u << 6) /**< \brief (RTC_TMR) WKUPx+1 Tamper Source Enable */
+#define   RTC_TMR_EN6_DISABLE (0x0u << 6) /**< \brief (RTC_TMR) WKUP pin index x+1 is not enabled as a source of tamper. */
+#define   RTC_TMR_EN6_ENABLE (0x1u << 6) /**< \brief (RTC_TMR) WKUP pin index x+1 is enabled as a source of tamper. */
+#define RTC_TMR_EN7 (0x1u << 7) /**< \brief (RTC_TMR) WKUPx+1 Tamper Source Enable */
+#define   RTC_TMR_EN7_DISABLE (0x0u << 7) /**< \brief (RTC_TMR) WKUP pin index x+1 is not enabled as a source of tamper. */
+#define   RTC_TMR_EN7_ENABLE (0x1u << 7) /**< \brief (RTC_TMR) WKUP pin index x+1 is enabled as a source of tamper. */
+#define RTC_TMR_POL0 (0x1u << 16) /**< \brief (RTC_TMR) WKUPx+1 Polarity */
+#define   RTC_TMR_POL0_LOW (0x0u << 16) /**< \brief (RTC_TMR) If the source of tamper remains low for a debounce period, a tamper event is generated. */
+#define   RTC_TMR_POL0_HIGH (0x1u << 16) /**< \brief (RTC_TMR) If the source of tamper remains high for a debounce period, a tamper event is generated. */
+#define RTC_TMR_POL1 (0x1u << 17) /**< \brief (RTC_TMR) WKUPx+1 Polarity */
+#define   RTC_TMR_POL1_LOW (0x0u << 17) /**< \brief (RTC_TMR) If the source of tamper remains low for a debounce period, a tamper event is generated. */
+#define   RTC_TMR_POL1_HIGH (0x1u << 17) /**< \brief (RTC_TMR) If the source of tamper remains high for a debounce period, a tamper event is generated. */
+#define RTC_TMR_POL2 (0x1u << 18) /**< \brief (RTC_TMR) WKUPx+1 Polarity */
+#define   RTC_TMR_POL2_LOW (0x0u << 18) /**< \brief (RTC_TMR) If the source of tamper remains low for a debounce period, a tamper event is generated. */
+#define   RTC_TMR_POL2_HIGH (0x1u << 18) /**< \brief (RTC_TMR) If the source of tamper remains high for a debounce period, a tamper event is generated. */
+#define RTC_TMR_POL3 (0x1u << 19) /**< \brief (RTC_TMR) WKUPx+1 Polarity */
+#define   RTC_TMR_POL3_LOW (0x0u << 19) /**< \brief (RTC_TMR) If the source of tamper remains low for a debounce period, a tamper event is generated. */
+#define   RTC_TMR_POL3_HIGH (0x1u << 19) /**< \brief (RTC_TMR) If the source of tamper remains high for a debounce period, a tamper event is generated. */
+#define RTC_TMR_POL4 (0x1u << 20) /**< \brief (RTC_TMR) WKUPx+1 Polarity */
+#define   RTC_TMR_POL4_LOW (0x0u << 20) /**< \brief (RTC_TMR) If the source of tamper remains low for a debounce period, a tamper event is generated. */
+#define   RTC_TMR_POL4_HIGH (0x1u << 20) /**< \brief (RTC_TMR) If the source of tamper remains high for a debounce period, a tamper event is generated. */
+#define RTC_TMR_POL5 (0x1u << 21) /**< \brief (RTC_TMR) WKUPx+1 Polarity */
+#define   RTC_TMR_POL5_LOW (0x0u << 21) /**< \brief (RTC_TMR) If the source of tamper remains low for a debounce period, a tamper event is generated. */
+#define   RTC_TMR_POL5_HIGH (0x1u << 21) /**< \brief (RTC_TMR) If the source of tamper remains high for a debounce period, a tamper event is generated. */
+#define RTC_TMR_POL6 (0x1u << 22) /**< \brief (RTC_TMR) WKUPx+1 Polarity */
+#define   RTC_TMR_POL6_LOW (0x0u << 22) /**< \brief (RTC_TMR) If the source of tamper remains low for a debounce period, a tamper event is generated. */
+#define   RTC_TMR_POL6_HIGH (0x1u << 22) /**< \brief (RTC_TMR) If the source of tamper remains high for a debounce period, a tamper event is generated. */
+#define RTC_TMR_POL7 (0x1u << 23) /**< \brief (RTC_TMR) WKUPx+1 Polarity */
+#define   RTC_TMR_POL7_LOW (0x0u << 23) /**< \brief (RTC_TMR) If the source of tamper remains low for a debounce period, a tamper event is generated. */
+#define   RTC_TMR_POL7_HIGH (0x1u << 23) /**< \brief (RTC_TMR) If the source of tamper remains high for a debounce period, a tamper event is generated. */
+#define RTC_TMR_TRLOCK (0x1u << 31) /**< \brief (RTC_TMR) Tamper Registers Lock (Write-once, cleared by VDDCORE reset) */
+#define   RTC_TMR_TRLOCK_UNLOCKED (0x0u << 31) /**< \brief (RTC_TMR) RTC_TMR and RTC_TDPR can be written. */
+#define   RTC_TMR_TRLOCK_LOCKED (0x1u << 31) /**< \brief (RTC_TMR) RTC_TMR and RTC_TDPR cannot be written until the next VDDCORE domain reset. */
+/* -------- RTC_TDPR : (RTC Offset: 0x5C) Tamper Debounce Period register -------- */
+#define RTC_TDPR_PERA_Pos 0
+#define RTC_TDPR_PERA_Msk (0xfu << RTC_TDPR_PERA_Pos) /**< \brief (RTC_TDPR) Debounce Period A */
+#define RTC_TDPR_PERA(value) ((RTC_TDPR_PERA_Msk & ((value) << RTC_TDPR_PERA_Pos)))
+#define   RTC_TDPR_PERA_MD_SLCK_2 (0x0u << 0) /**< \brief (RTC_TDPR) The source of tamper must remain active for at least 2 monitoring domain slow clock cycles to generate a tamper event. */
+#define   RTC_TDPR_PERA_MD_SLCK_4 (0x1u << 0) /**< \brief (RTC_TDPR) The source of tamper must remain active for at least 4 monitoring domain slow clock cycles to generate a tamper event. */
+#define   RTC_TDPR_PERA_MD_SLCK_8 (0x2u << 0) /**< \brief (RTC_TDPR) The source of tamper must remain active for at least 8 monitoring domain slow clock cycles to generate a tamper event. */
+#define   RTC_TDPR_PERA_MD_SLCK_16 (0x3u << 0) /**< \brief (RTC_TDPR) The source of tamper must remain active for at least 16 monitoring domain slow clock cycles to generate a tamper event. */
+#define   RTC_TDPR_PERA_MD_SLCK_32 (0x4u << 0) /**< \brief (RTC_TDPR) The source of tamper must remain active for at least 32 monitoring domain slow clock cycles to generate a tamper event. */
+#define   RTC_TDPR_PERA_MD_SLCK_64 (0x5u << 0) /**< \brief (RTC_TDPR) The source of tamper must remain active for at least 64 monitoring domain slow clock cycles to generate a tamper event. */
+#define   RTC_TDPR_PERA_MD_SLCK_128 (0x6u << 0) /**< \brief (RTC_TDPR) The source of tamper must remain active for at least 128 monitoring domain slow clock cycles to generate a tamper event. */
+#define   RTC_TDPR_PERA_MD_SLCK_256 (0x7u << 0) /**< \brief (RTC_TDPR) The source of tamper must remain active for at least 256 monitoring domain slow clock cycles to generate a tamper event. */
+#define RTC_TDPR_PERB_Pos 4
+#define RTC_TDPR_PERB_Msk (0xfu << RTC_TDPR_PERB_Pos) /**< \brief (RTC_TDPR) Debounce Period B */
+#define RTC_TDPR_PERB(value) ((RTC_TDPR_PERB_Msk & ((value) << RTC_TDPR_PERB_Pos)))
+#define   RTC_TDPR_PERB_MD_SLCK_2 (0x0u << 4) /**< \brief (RTC_TDPR) The source of tamper must remain active for at least 2 monitoring domain slow clock cycles to generate a tamper event. */
+#define   RTC_TDPR_PERB_MD_SLCK_4 (0x1u << 4) /**< \brief (RTC_TDPR) The source of tamper must remain active for at least 4 monitoring domain slow clock cycles to generate a tamper event. */
+#define   RTC_TDPR_PERB_MD_SLCK_8 (0x2u << 4) /**< \brief (RTC_TDPR) The source of tamper must remain active for at least 8 monitoring domain slow clock cycles to generate a tamper event. */
+#define   RTC_TDPR_PERB_MD_SLCK_16 (0x3u << 4) /**< \brief (RTC_TDPR) The source of tamper must remain active for at least 16 monitoring domain slow clock cycles to generate a tamper event. */
+#define   RTC_TDPR_PERB_MD_SLCK_32 (0x4u << 4) /**< \brief (RTC_TDPR) The source of tamper must remain active for at least 32 monitoring domain slow clock cycles to generate a tamper event. */
+#define   RTC_TDPR_PERB_MD_SLCK_64 (0x5u << 4) /**< \brief (RTC_TDPR) The source of tamper must remain active for at least 64 monitoring domain slow clock cycles to generate a tamper event. */
+#define   RTC_TDPR_PERB_MD_SLCK_128 (0x6u << 4) /**< \brief (RTC_TDPR) The source of tamper must remain active for at least 128 monitoring domain slow clock cycles to generate a tamper event. */
+#define   RTC_TDPR_PERB_MD_SLCK_256 (0x7u << 4) /**< \brief (RTC_TDPR) The source of tamper must remain active for at least 256 monitoring domain slow clock cycles to generate a tamper event. */
+#define RTC_TDPR_SELP0 (0x1u << 16) /**< \brief (RTC_TDPR) WKUPx+1 Debounce Period Selection */
+#define   RTC_TDPR_SELP0_SEL_PA (0x0u << 16) /**< \brief (RTC_TDPR) WKUP pin index x+1 is debounced with PERA period. */
+#define   RTC_TDPR_SELP0_SEL_PB (0x1u << 16) /**< \brief (RTC_TDPR) WKUP pin index x+1 is debounced with PERB period. */
+#define RTC_TDPR_SELP1 (0x1u << 17) /**< \brief (RTC_TDPR) WKUPx+1 Debounce Period Selection */
+#define   RTC_TDPR_SELP1_SEL_PA (0x0u << 17) /**< \brief (RTC_TDPR) WKUP pin index x+1 is debounced with PERA period. */
+#define   RTC_TDPR_SELP1_SEL_PB (0x1u << 17) /**< \brief (RTC_TDPR) WKUP pin index x+1 is debounced with PERB period. */
+#define RTC_TDPR_SELP2 (0x1u << 18) /**< \brief (RTC_TDPR) WKUPx+1 Debounce Period Selection */
+#define   RTC_TDPR_SELP2_SEL_PA (0x0u << 18) /**< \brief (RTC_TDPR) WKUP pin index x+1 is debounced with PERA period. */
+#define   RTC_TDPR_SELP2_SEL_PB (0x1u << 18) /**< \brief (RTC_TDPR) WKUP pin index x+1 is debounced with PERB period. */
+#define RTC_TDPR_SELP3 (0x1u << 19) /**< \brief (RTC_TDPR) WKUPx+1 Debounce Period Selection */
+#define   RTC_TDPR_SELP3_SEL_PA (0x0u << 19) /**< \brief (RTC_TDPR) WKUP pin index x+1 is debounced with PERA period. */
+#define   RTC_TDPR_SELP3_SEL_PB (0x1u << 19) /**< \brief (RTC_TDPR) WKUP pin index x+1 is debounced with PERB period. */
+#define RTC_TDPR_SELP4 (0x1u << 20) /**< \brief (RTC_TDPR) WKUPx+1 Debounce Period Selection */
+#define   RTC_TDPR_SELP4_SEL_PA (0x0u << 20) /**< \brief (RTC_TDPR) WKUP pin index x+1 is debounced with PERA period. */
+#define   RTC_TDPR_SELP4_SEL_PB (0x1u << 20) /**< \brief (RTC_TDPR) WKUP pin index x+1 is debounced with PERB period. */
+#define RTC_TDPR_SELP5 (0x1u << 21) /**< \brief (RTC_TDPR) WKUPx+1 Debounce Period Selection */
+#define   RTC_TDPR_SELP5_SEL_PA (0x0u << 21) /**< \brief (RTC_TDPR) WKUP pin index x+1 is debounced with PERA period. */
+#define   RTC_TDPR_SELP5_SEL_PB (0x1u << 21) /**< \brief (RTC_TDPR) WKUP pin index x+1 is debounced with PERB period. */
+#define RTC_TDPR_SELP6 (0x1u << 22) /**< \brief (RTC_TDPR) WKUPx+1 Debounce Period Selection */
+#define   RTC_TDPR_SELP6_SEL_PA (0x0u << 22) /**< \brief (RTC_TDPR) WKUP pin index x+1 is debounced with PERA period. */
+#define   RTC_TDPR_SELP6_SEL_PB (0x1u << 22) /**< \brief (RTC_TDPR) WKUP pin index x+1 is debounced with PERB period. */
+#define RTC_TDPR_SELP7 (0x1u << 23) /**< \brief (RTC_TDPR) WKUPx+1 Debounce Period Selection */
+#define   RTC_TDPR_SELP7_SEL_PA (0x0u << 23) /**< \brief (RTC_TDPR) WKUP pin index x+1 is debounced with PERA period. */
+#define   RTC_TDPR_SELP7_SEL_PB (0x1u << 23) /**< \brief (RTC_TDPR) WKUP pin index x+1 is debounced with PERB period. */
 /* -------- RTC_TSTR : (RTC Offset: N/A) TimeStamp Time Register 0 -------- */
 #define RTC_TSTR_SEC_Pos 0
 #define RTC_TSTR_SEC_Msk (0x7fu << RTC_TSTR_SEC_Pos) /**< \brief (RTC_TSTR) Seconds of the Tamper (cleared by reading RTC_TSSR0) */
@@ -271,11 +371,6 @@ typedef struct {
 #define RTC_TSSR_DET5 (0x1u << 21) /**< \brief (RTC_TSSR) Tamper Detection on VDDCORE WKUP[8:1] (cleared on read) */
 #define RTC_TSSR_DET6 (0x1u << 22) /**< \brief (RTC_TSSR) Tamper Detection on VDDCORE WKUP[8:1] (cleared on read) */
 #define RTC_TSSR_DET7 (0x1u << 23) /**< \brief (RTC_TSSR) Tamper Detection on VDDCORE WKUP[8:1] (cleared on read) */
-/* -------- RTC_VERSION : (RTC Offset: 0xFC) Version Register -------- */
-#define RTC_VERSION_VERSION_Pos 0
-#define RTC_VERSION_VERSION_Msk (0xfffu << RTC_VERSION_VERSION_Pos) /**< \brief (RTC_VERSION) Version of the Hardware Module */
-#define RTC_VERSION_MFN_Pos 16
-#define RTC_VERSION_MFN_Msk (0x7u << RTC_VERSION_MFN_Pos) /**< \brief (RTC_VERSION) Metal Fix Number */
 
 /*@}*/
 

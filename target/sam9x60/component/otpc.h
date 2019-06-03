@@ -39,27 +39,27 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Otpc hardware registers */
 typedef struct {
-  __O  uint32_t OTPC_CR;        /**< \brief (Otpc Offset: 0x00) Control Register */
-  __IO uint32_t OTPC_MR;        /**< \brief (Otpc Offset: 0x04) Mode Register */
-  __IO uint32_t OTPC_AR;        /**< \brief (Otpc Offset: 0x08) Address Register */
-  __I  uint32_t OTPC_SR;        /**< \brief (Otpc Offset: 0x0C) Status Register */
-  __O  uint32_t OTPC_IER;       /**< \brief (Otpc Offset: 0x10) Interrupt Enable Register */
-  __O  uint32_t OTPC_IDR;       /**< \brief (Otpc Offset: 0x14) Interrupt Disable Register */
-  __I  uint32_t OTPC_IMR;       /**< \brief (Otpc Offset: 0x18) Interrupt Mask Register */
-  __I  uint32_t OTPC_ISR;       /**< \brief (Otpc Offset: 0x1C) Interrupt Status Register */
-  __IO uint32_t OTPC_HR;        /**< \brief (Otpc Offset: 0x20) Header Register */
-  __IO uint32_t OTPC_DR;        /**< \brief (Otpc Offset: 0x24) Data Register */
+  __O  uint32_t OTPC_CR;       /**< \brief (Otpc Offset: 0x00) Control Register */
+  __IO uint32_t OTPC_MR;       /**< \brief (Otpc Offset: 0x04) Mode Register */
+  __IO uint32_t OTPC_AR;       /**< \brief (Otpc Offset: 0x08) Address Register */
+  __I  uint32_t OTPC_SR;       /**< \brief (Otpc Offset: 0x0C) Status Register */
+  __O  uint32_t OTPC_IER;      /**< \brief (Otpc Offset: 0x10) Interrupt Enable Register */
+  __O  uint32_t OTPC_IDR;      /**< \brief (Otpc Offset: 0x14) Interrupt Disable Register */
+  __I  uint32_t OTPC_IMR;      /**< \brief (Otpc Offset: 0x18) Interrupt Mask Register */
+  __I  uint32_t OTPC_ISR;      /**< \brief (Otpc Offset: 0x1C) Interrupt Status Register */
+  __IO uint32_t OTPC_HR;       /**< \brief (Otpc Offset: 0x20) Header Register */
+  __IO uint32_t OTPC_DR;       /**< \brief (Otpc Offset: 0x24) Data Register */
   __I  uint32_t Reserved1[2];
-  __I  uint32_t OTPC_BAR;       /**< \brief (Otpc Offset: 0x30) Boot Addresses Register */
-  __I  uint32_t OTPC_CAR;       /**< \brief (Otpc Offset: 0x34) Custom Address Register */
+  __I  uint32_t OTPC_BAR;      /**< \brief (Otpc Offset: 0x30) Boot Addresses Register */
+  __I  uint32_t OTPC_CAR;      /**< \brief (Otpc Offset: 0x34) Custom Address Register */
   __I  uint32_t Reserved2[6];
-  __I  uint32_t OTPC_UHC0R;     /**< \brief (Otpc Offset: 0x50) User Hardware Configuration 0 Register */
-  __I  uint32_t OTPC_UHC1R;     /**< \brief (Otpc Offset: 0x54) User Hardware Configuration 1 Register */
+  __I  uint32_t OTPC_UHC0R;    /**< \brief (Otpc Offset: 0x50) User Hardware Configuration 0 Register */
+  __I  uint32_t OTPC_UHC1R;    /**< \brief (Otpc Offset: 0x54) User Hardware Configuration 1 Register */
   __I  uint32_t Reserved3[2];
-  __I  uint32_t OTPC_UIDxR[4];  /**< \brief (Otpc Offset: 0x60) Product UID Register */
+  __I  uint32_t OTPC_UIDxR[4]; /**< \brief (Otpc Offset: 0x60) Product UID Register */
   __I  uint32_t Reserved4[29];
-  __IO uint32_t OTPC_WPMR;      /**< \brief (Otpc Offset: 0xE4) Write Protection Mode Register */
-  __I  uint32_t OTPC_WPSR;      /**< \brief (Otpc Offset: 0xE8) Write Protection Status Register */
+  __IO uint32_t OTPC_WPMR;     /**< \brief (Otpc Offset: 0xE4) Write Protection Mode Register */
+  __I  uint32_t OTPC_WPSR;     /**< \brief (Otpc Offset: 0xE8) Write Protection Status Register */
 } Otpc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- OTPC_CR : (OTPC Offset: 0x00) Control Register -------- */
@@ -107,20 +107,6 @@ typedef struct {
 #define OTPC_SR_HIDE (0x1u << 8) /**< \brief (OTPC_SR) Hiding On-Going */
 #define OTPC_SR_ONEF (0x1u << 9) /**< \brief (OTPC_SR) One Found */
 #define OTPC_SR_UNLOCK (0x1u << 11) /**< \brief (OTPC_SR) OTP Registers Unlocked */
-#define OTPC_SR_AHIDE (0x1u << 12) /**< \brief (OTPC_SR) Hiding On-Going */
-#define OTPC_SR_RPGM (0x1u << 16) /**< \brief (OTPC_SR) ROM Programming On-Going */
-#define OTPC_SR_PPGM (0x1u << 20) /**< \brief (OTPC_SR) Patch Programming On-Going */
-#define OTPC_SR_PEMUL (0x1u << 21) /**< \brief (OTPC_SR) Patch Emulation Enabled */
-#define OTPC_SR_PREAD (0x1u << 22) /**< \brief (OTPC_SR) Patch Read On-Going */
-#define OTPC_SR_PREFRESH (0x1u << 23) /**< \brief (OTPC_SR) Patch Refresh On-Going */
-#define OTPC_SR_APGM (0x1u << 24) /**< \brief (OTPC_SR) Engineering Programming On-Going */
-#define OTPC_SR_ALOCK (0x1u << 25) /**< \brief (OTPC_SR) Engineering Lock On-Going */
-#define OTPC_SR_AINVLD (0x1u << 26) /**< \brief (OTPC_SR) Engineering Invalidation On-Going */
-#define OTPC_SR_AEMUL (0x1u << 27) /**< \brief (OTPC_SR) Engineering Emulation Enabled */
-#define OTPC_SR_AMKBB (0x1u << 28) /**< \brief (OTPC_SR) Engineering Master Key Bus Busy */
-#define OTPC_SR_ASKBB (0x1u << 29) /**< \brief (OTPC_SR) Engineering Slave Key Bus Busy */
-#define OTPC_SR_AREAD (0x1u << 30) /**< \brief (OTPC_SR) Engineering Read On-Going */
-#define OTPC_SR_AFLUSH (0x1u << 31) /**< \brief (OTPC_SR) Engineering Flush On-Going */
 /* -------- OTPC_IER : (OTPC Offset: 0x10) Interrupt Enable Register -------- */
 #define OTPC_IER_EOP (0x1u << 0) /**< \brief (OTPC_IER) End Of Programming Interrupt Enable */
 #define OTPC_IER_EOL (0x1u << 1) /**< \brief (OTPC_IER) End Of Locking Interrupt Enable */
@@ -265,7 +251,7 @@ typedef struct {
 #define OTPC_WPMR_WPKEY_Pos 8
 #define OTPC_WPMR_WPKEY_Msk (0xffffffu << OTPC_WPMR_WPKEY_Pos) /**< \brief (OTPC_WPMR) Write Protection Key */
 #define OTPC_WPMR_WPKEY(value) ((OTPC_WPMR_WPKEY_Msk & ((value) << OTPC_WPMR_WPKEY_Pos)))
-#define   OTPC_WPMR_WPKEY_PASSWD (0x4F5450u << 8) /**< \brief (OTPC_WPMR) Writing any other value in this field aborts the write operation.Always reads as 0. */
+#define   OTPC_WPMR_WPKEY_PASSWD (0x4F5450u << 8) /**< \brief (OTPC_WPMR) Writing any other value in this field aborts the write operation. Always reads as 0. */
 /* -------- OTPC_WPSR : (OTPC Offset: 0xE8) Write Protection Status Register -------- */
 #define OTPC_WPSR_WPVS (0x1u << 0) /**< \brief (OTPC_WPSR) Write Protection Violation Status (cleared on read) */
 #define OTPC_WPSR_CGD (0x1u << 1) /**< \brief (OTPC_WPSR) Clock Glitch Detected (cleared on read) */
@@ -278,7 +264,7 @@ typedef struct {
 #define   OTPC_WPSR_SWETYP_READ_WO (0x0u << 24) /**< \brief (OTPC_WPSR) A write-only register has been read (warning). */
 #define   OTPC_WPSR_SWETYP_WRITE_RO (0x1u << 24) /**< \brief (OTPC_WPSR) A write access has been performed on a read-only register (warning). */
 #define   OTPC_WPSR_SWETYP_CONF_CHG (0x2u << 24) /**< \brief (OTPC_WPSR) A change has been made into the configuration (error). */
-#define   OTPC_WPSR_SWETYP_KEY_ERROR (0x3u << 24) /**< \brief (OTPC_WPSR) A write has been computed in OTPC_CR, OTPC_ACR, OTPC_RCR, OTPC_PCR, OTPC_OMR or OTPC_WPMR register with a wrong value in the related KEY field (error). */
+#define   OTPC_WPSR_SWETYP_KEY_ERROR (0x3u << 24) /**< \brief (OTPC_WPSR) A write has been computed in OTPC_CR or OTPC_WPMR register with a wrong value in the related KEY field (error). */
 #define OTPC_WPSR_ECLASS (0x1u << 31) /**< \brief (OTPC_WPSR) Software Error Class */
 #define   OTPC_WPSR_ECLASS_WARNING (0x0u << 31) /**< \brief (OTPC_WPSR) An abnormal access that does not have any impact. */
 #define   OTPC_WPSR_ECLASS_ERROR (0x1u << 31) /**< \brief (OTPC_WPSR) An abnormal access that may have an impact. */

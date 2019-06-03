@@ -77,8 +77,6 @@ typedef struct {
   __O  uint32_t  XDMAC_GSWF;                   /**< \brief (Xdmac Offset: 0x40) Global Channel Software Flush Request Register */
   __I  uint32_t  Reserved1[3];
        XdmacCh XDMAC_CH[XDMACCHID_NUMBER]; /**< \brief (Xdmac Offset: 0x50) chid = 0 .. 15 */
-  __I  uint32_t  Reserved2[747];
-  __I  uint32_t  XDMAC_VERSION;                /**< \brief (Xdmac Offset: 0xFFC) XDMAC Version Register */
 } Xdmac;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- XDMAC_GTYPE : (XDMAC Offset: 0x00) Global Type Register -------- */
@@ -407,6 +405,9 @@ typedef struct {
 #define   XDMAC_CNDC_NDVIEW_NDV1 (0x1u << 3) /**< \brief (XDMAC_CNDC) Next Descriptor View 1 */
 #define   XDMAC_CNDC_NDVIEW_NDV2 (0x2u << 3) /**< \brief (XDMAC_CNDC) Next Descriptor View 2 */
 #define   XDMAC_CNDC_NDVIEW_NDV3 (0x3u << 3) /**< \brief (XDMAC_CNDC) Next Descriptor View 3 */
+#define XDMAC_CNDC_QOS_Pos 5
+#define XDMAC_CNDC_QOS_Msk (0x3u << XDMAC_CNDC_QOS_Pos) /**< \brief (XDMAC_CNDC) Channel Quality Of Service Level */
+#define XDMAC_CNDC_QOS(value) ((XDMAC_CNDC_QOS_Msk & ((value) << XDMAC_CNDC_QOS_Pos)))
 /* -------- XDMAC_CUBC : (XDMAC Offset: N/A) Channel Microblock Control Register -------- */
 #define XDMAC_CUBC_UBLEN_Pos 0
 #define XDMAC_CUBC_UBLEN_Msk (0xffffffu << XDMAC_CUBC_UBLEN_Pos) /**< \brief (XDMAC_CUBC) Channel x Microblock Length */
@@ -496,11 +497,6 @@ typedef struct {
 #define XDMAC_CDUS_DUBS_Pos 0
 #define XDMAC_CDUS_DUBS_Msk (0xffffffu << XDMAC_CDUS_DUBS_Pos) /**< \brief (XDMAC_CDUS) Channel x Destination Microblock Stride */
 #define XDMAC_CDUS_DUBS(value) ((XDMAC_CDUS_DUBS_Msk & ((value) << XDMAC_CDUS_DUBS_Pos)))
-/* -------- XDMAC_VERSION : (XDMAC Offset: 0xFFC) XDMAC Version Register -------- */
-#define XDMAC_VERSION_VERSION_Pos 0
-#define XDMAC_VERSION_VERSION_Msk (0xfffu << XDMAC_VERSION_VERSION_Pos) /**< \brief (XDMAC_VERSION) Version of the Hardware Module */
-#define XDMAC_VERSION_MFN_Pos 16
-#define XDMAC_VERSION_MFN_Msk (0x7u << XDMAC_VERSION_MFN_Pos) /**< \brief (XDMAC_VERSION) Metal Fix Number */
 
 /*@}*/
 

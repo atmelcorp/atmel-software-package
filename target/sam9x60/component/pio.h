@@ -95,8 +95,7 @@ typedef struct {
   __I  uint32_t Reserved11[2];
   __IO uint32_t PIO_WPMR;      /**< \brief (Pio Offset: 0x00E4) Write Protection Mode Register */
   __I  uint32_t PIO_WPSR;      /**< \brief (Pio Offset: 0x00E8) Write Protection Status Register */
-  __I  uint32_t Reserved12[4];
-  __I  uint32_t PIO_VERSION;   /**< \brief (Pio Offset: 0x00FC) Version Register */
+  __I  uint32_t Reserved12[5];
   __IO uint32_t PIO_SCHMITT;   /**< \brief (Pio Offset: 0x0100) Schmitt Trigger Register */
   __I  uint32_t Reserved13[3];
   __IO uint32_t PIO_SLEWR;     /**< \brief (Pio Offset: 0x0110) I/O Slewrate Control Register */
@@ -1499,16 +1498,11 @@ typedef struct {
 #define PIO_WPMR_WPKEY_Pos 8
 #define PIO_WPMR_WPKEY_Msk (0xffffffu << PIO_WPMR_WPKEY_Pos) /**< \brief (PIO_WPMR) Write Protection Key */
 #define PIO_WPMR_WPKEY(value) ((PIO_WPMR_WPKEY_Msk & ((value) << PIO_WPMR_WPKEY_Pos)))
-#define   PIO_WPMR_WPKEY_PASSWD (0x50494Fu << 8) /**< \brief (PIO_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit.Always reads as 0. */
+#define   PIO_WPMR_WPKEY_PASSWD (0x50494Fu << 8) /**< \brief (PIO_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit. Always reads as 0. */
 /* -------- PIO_WPSR : (PIO Offset: 0x00E8) Write Protection Status Register -------- */
 #define PIO_WPSR_WPVS (0x1u << 0) /**< \brief (PIO_WPSR) Write Protection Violation Status */
 #define PIO_WPSR_WPVSRC_Pos 8
 #define PIO_WPSR_WPVSRC_Msk (0xffffu << PIO_WPSR_WPVSRC_Pos) /**< \brief (PIO_WPSR) Write Protection Violation Source */
-/* -------- PIO_VERSION : (PIO Offset: 0x00FC) Version Register -------- */
-#define PIO_VERSION_VERSION_Pos 0
-#define PIO_VERSION_VERSION_Msk (0xfffu << PIO_VERSION_VERSION_Pos) /**< \brief (PIO_VERSION) Hardware Module Version */
-#define PIO_VERSION_MFN_Pos 16
-#define PIO_VERSION_MFN_Msk (0x7u << PIO_VERSION_MFN_Pos) /**< \brief (PIO_VERSION) Metal Fix Number */
 /* -------- PIO_SCHMITT : (PIO Offset: 0x0100) Schmitt Trigger Register -------- */
 #define PIO_SCHMITT_SCHMITT0 (0x1u << 0) /**< \brief (PIO_SCHMITT) Schmitt Trigger Control */
 #define PIO_SCHMITT_SCHMITT1 (0x1u << 1) /**< \brief (PIO_SCHMITT) Schmitt Trigger Control */

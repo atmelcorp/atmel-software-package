@@ -65,9 +65,7 @@ typedef struct {
   __I  uint32_t Reserved1[46];
   __IO uint32_t CAN_WPMR;             /**< \brief (Can Offset: 0x00E4) Write Protection Mode Register */
   __I  uint32_t CAN_WPSR;             /**< \brief (Can Offset: 0x00E8) Write Protection Status Register */
-  __I  uint32_t Reserved2[4];
-  __I  uint32_t CAN_VERSION;          /**< \brief (Can Offset: 0x00FC) Version Register */
-  __I  uint32_t Reserved3[64];
+  __I  uint32_t Reserved2[69];
        CanMb    CAN_MB[CANMB_NUMBER]; /**< \brief (Can Offset: 0x200) MB = 0 .. 7 */
 } Can;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
@@ -232,16 +230,11 @@ typedef struct {
 #define CAN_WPMR_WPKEY_Pos 8
 #define CAN_WPMR_WPKEY_Msk (0xffffffu << CAN_WPMR_WPKEY_Pos) /**< \brief (CAN_WPMR) Write Protection Key Password */
 #define CAN_WPMR_WPKEY(value) ((CAN_WPMR_WPKEY_Msk & ((value) << CAN_WPMR_WPKEY_Pos)))
-#define   CAN_WPMR_WPKEY_PASSWD (0x43414Eu << 8) /**< \brief (CAN_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit.Always reads as 0 */
+#define   CAN_WPMR_WPKEY_PASSWD (0x43414Eu << 8) /**< \brief (CAN_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit. Always reads as 0 */
 /* -------- CAN_WPSR : (CAN Offset: 0x00E8) Write Protection Status Register -------- */
 #define CAN_WPSR_WPVS (0x1u << 0) /**< \brief (CAN_WPSR) Write Protection Violation Status */
 #define CAN_WPSR_WPVSRC_Pos 8
 #define CAN_WPSR_WPVSRC_Msk (0xffu << CAN_WPSR_WPVSRC_Pos) /**< \brief (CAN_WPSR) Write Protection Violation Source */
-/* -------- CAN_VERSION : (CAN Offset: 0x00FC) Version Register -------- */
-#define CAN_VERSION_VERSION_Pos 0
-#define CAN_VERSION_VERSION_Msk (0xfffu << CAN_VERSION_VERSION_Pos) /**< \brief (CAN_VERSION) Hardware Module Version */
-#define CAN_VERSION_MFN_Pos 16
-#define CAN_VERSION_MFN_Msk (0x7u << CAN_VERSION_MFN_Pos) /**< \brief (CAN_VERSION) Metal Fix Number */
 /* -------- CAN_MMR : (CAN Offset: N/A) Mailbox Mode Register -------- */
 #define CAN_MMR_MTIMEMARK_Pos 0
 #define CAN_MMR_MTIMEMARK_Msk (0xffffu << CAN_MMR_MTIMEMARK_Pos) /**< \brief (CAN_MMR) Mailbox Timemark */

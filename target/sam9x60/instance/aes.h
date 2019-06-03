@@ -54,7 +54,6 @@
   #define REG_AES_ALPHAR                   (0xF00340D0U) /**< \brief (AES) Alpha Word Register */
   #define REG_AES_WPMR                     (0xF00340E4U) /**< \brief (AES) Write Protection Mode Register */
   #define REG_AES_WPSR                     (0xF00340E8U) /**< \brief (AES) Write Protection Status Register */
-  #define REG_AES_VERSION                  (0xF00340FCU) /**< \brief (AES) Version Register */
 #else
   #define REG_AES_CR      (*(__O  uint32_t*)0xF0034000U) /**< \brief (AES) Control Register */
   #define REG_AES_MR      (*(__IO uint32_t*)0xF0034004U) /**< \brief (AES) Mode Register */
@@ -78,7 +77,6 @@
   #define REG_AES_ALPHAR  (*(__O  uint32_t*)0xF00340D0U) /**< \brief (AES) Alpha Word Register */
   #define REG_AES_WPMR    (*(__IO uint32_t*)0xF00340E4U) /**< \brief (AES) Write Protection Mode Register */
   #define REG_AES_WPSR    (*(__I  uint32_t*)0xF00340E8U) /**< \brief (AES) Write Protection Status Register */
-  #define REG_AES_VERSION (*(__I  uint32_t*)0xF00340FCU) /**< \brief (AES) Version Register */
 #endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #endif /* _SAM9X_AES_INSTANCE_ */

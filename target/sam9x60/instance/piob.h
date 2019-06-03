@@ -77,7 +77,6 @@
   #define REG_PIOB_FRLHSR                   (0xFFFFF6D8U) /**< \brief (PIOB) Fall/Rise - Low/High Status Register */
   #define REG_PIOB_WPMR                     (0xFFFFF6E4U) /**< \brief (PIOB) Write Protection Mode Register */
   #define REG_PIOB_WPSR                     (0xFFFFF6E8U) /**< \brief (PIOB) Write Protection Status Register */
-  #define REG_PIOB_VERSION                  (0xFFFFF6FCU) /**< \brief (PIOB) Version Register */
   #define REG_PIOB_SCHMITT                  (0xFFFFF700U) /**< \brief (PIOB) Schmitt Trigger Register */
   #define REG_PIOB_SLEWR                    (0xFFFFF710U) /**< \brief (PIOB) I/O Slewrate Control Register */
   #define REG_PIOB_DRIVER                   (0xFFFFF718U) /**< \brief (PIOB) I/O Drive Register */
@@ -127,7 +126,6 @@
   #define REG_PIOB_FRLHSR  (*(__I  uint32_t*)0xFFFFF6D8U) /**< \brief (PIOB) Fall/Rise - Low/High Status Register */
   #define REG_PIOB_WPMR    (*(__IO uint32_t*)0xFFFFF6E4U) /**< \brief (PIOB) Write Protection Mode Register */
   #define REG_PIOB_WPSR    (*(__I  uint32_t*)0xFFFFF6E8U) /**< \brief (PIOB) Write Protection Status Register */
-  #define REG_PIOB_VERSION (*(__I  uint32_t*)0xFFFFF6FCU) /**< \brief (PIOB) Version Register */
   #define REG_PIOB_SCHMITT (*(__IO uint32_t*)0xFFFFF700U) /**< \brief (PIOB) Schmitt Trigger Register */
   #define REG_PIOB_SLEWR   (*(__IO uint32_t*)0xFFFFF710U) /**< \brief (PIOB) I/O Slewrate Control Register */
   #define REG_PIOB_DRIVER  (*(__IO uint32_t*)0xFFFFF718U) /**< \brief (PIOB) I/O Drive Register */

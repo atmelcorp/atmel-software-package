@@ -52,8 +52,6 @@ typedef struct {
   __I  uint32_t Reserved3[36];
   __IO uint32_t TRNG_WPMR;     /**< \brief (Trng Offset: 0xE4) Write Protection Mode Register */
   __I  uint32_t TRNG_WPSR;     /**< \brief (Trng Offset: 0xE8) Write Protection Status Register */
-  __I  uint32_t Reserved4[4];
-  __I  uint32_t TRNG_VERSION;  /**< \brief (Trng Offset: 0xFC) Version Register */
 } Trng;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- TRNG_CR : (TRNG Offset: 0x00) Control Register -------- */
@@ -106,7 +104,7 @@ typedef struct {
 #define TRNG_WPMR_WPKEY_Pos 8
 #define TRNG_WPMR_WPKEY_Msk (0xffffffu << TRNG_WPMR_WPKEY_Pos) /**< \brief (TRNG_WPMR) Write Protection Key */
 #define TRNG_WPMR_WPKEY(value) ((TRNG_WPMR_WPKEY_Msk & ((value) << TRNG_WPMR_WPKEY_Pos)))
-#define   TRNG_WPMR_WPKEY_PASSWD (0x524E47u << 8) /**< \brief (TRNG_WPMR) Writing any other value in this field aborts the write operation of bits WPEN, WPITEN and WPCREN.Always reads as 0. */
+#define   TRNG_WPMR_WPKEY_PASSWD (0x524E47u << 8) /**< \brief (TRNG_WPMR) Writing any other value in this field aborts the write operation of bits WPEN, WPITEN and WPCREN. Always reads as 0. */
 /* -------- TRNG_WPSR : (TRNG Offset: 0xE8) Write Protection Status Register -------- */
 #define TRNG_WPSR_WPVS (0x1u << 0) /**< \brief (TRNG_WPSR) Write Protection Violation Status (cleared on read) */
 #define TRNG_WPSR_CGD (0x1u << 1) /**< \brief (TRNG_WPSR) Clock Glitch Detected (cleared on read) */
@@ -123,12 +121,7 @@ typedef struct {
 #define   TRNG_WPSR_SWETYP_PKB_BUSY (0x4u << 24) /**< \brief (TRNG_WPSR) A write access to the PKB_CTRL register has been attempted during a private key bus transfer (Error). */
 #define TRNG_WPSR_ECLASS (0x1u << 31) /**< \brief (TRNG_WPSR) Software Error Class (cleared on read) */
 #define   TRNG_WPSR_ECLASS_WARNING (0x0u << 31) /**< \brief (TRNG_WPSR) An abnormal access that does not affect system functionality. */
-#define   TRNG_WPSR_ECLASS_ERROR (0x1u << 31) /**< \brief (TRNG_WPSR) Reading TRNG_ODATA when TRNG was disabled or TRNG used for private key bus transfer. TRNG does not provide a random value.Writing to the PKB_CTRL register while a private key bus transfer is ongoing does not launch a new private key bus transfer. */
-/* -------- TRNG_VERSION : (TRNG Offset: 0xFC) Version Register -------- */
-#define TRNG_VERSION_VERSION_Pos 0
-#define TRNG_VERSION_VERSION_Msk (0xfffu << TRNG_VERSION_VERSION_Pos) /**< \brief (TRNG_VERSION) Version of the Hardware Module */
-#define TRNG_VERSION_MFN_Pos 16
-#define TRNG_VERSION_MFN_Msk (0x7u << TRNG_VERSION_MFN_Pos) /**< \brief (TRNG_VERSION) Metal Fix Number */
+#define   TRNG_WPSR_ECLASS_ERROR (0x1u << 31) /**< \brief (TRNG_WPSR) Reading TRNG_ODATA when TRNG was disabled or TRNG used for private key bus transfer. TRNG does not provide a random value. Writing to the PKB_CTRL register while a private key bus transfer is ongoing does not launch a new private key bus transfer. */
 
 /*@}*/
 

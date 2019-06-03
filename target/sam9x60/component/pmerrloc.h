@@ -51,36 +51,34 @@ typedef struct {
   __I  uint32_t Reserved1[1];
   __IO uint32_t PMERRLOC_SIGMA[25];
   __I  uint32_t PMERRLOC_EL[24];  /**< \brief (Pmerrloc Offset: 0x08C) Error Location 0 Register */
-  __I  uint32_t Reserved2[68];
-  __I  uint32_t PMERRLOC_VERSION; /**< \brief (Pmerrloc Offset: 0x1FC) Version Register */
 } Pmerrloc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- PMERRLOC_CFG : (PMERRLOC Offset: 0x000) Configuration Register -------- */
-#define PMERRLOC_CFG_SECTORSZ (0x1u << 0) /**< \brief (PMERRLOC_CFG) Sector Size */
+/* -------- PMERRLOC_ELCFG : (PMERRLOC Offset: 0x000) Configuration Register -------- */
+#define PMERRLOC_CFG_SECTORSZ (0x1u << 0) /**< \brief (PMERRLOC_ELCFG) Sector Size */
 #define PMERRLOC_CFG_ERRNUM_Pos 16
-#define PMERRLOC_CFG_ERRNUM_Msk (0x1fu << PMERRLOC_CFG_ERRNUM_Pos) /**< \brief (PMERRLOC_CFG) Number of Errors */
+#define PMERRLOC_CFG_ERRNUM_Msk (0x1fu << PMERRLOC_CFG_ERRNUM_Pos) /**< \brief (PMERRLOC_ELCFG) Number of Errors */
 #define PMERRLOC_CFG_ERRNUM(value) ((PMERRLOC_CFG_ERRNUM_Msk & ((value) << PMERRLOC_CFG_ERRNUM_Pos)))
-/* -------- PMERRLOC_PRIM : (PMERRLOC Offset: 0x004) Primitive Register -------- */
+/* -------- PMERRLOC_ELPRIM : (PMERRLOC Offset: 0x004) Primitive Register -------- */
 #define PMERRLOC_PRIM_PRIMITIV_Pos 0
-#define PMERRLOC_PRIM_PRIMITIV_Msk (0xffffu << PMERRLOC_PRIM_PRIMITIV_Pos) /**< \brief (PMERRLOC_PRIM) Primitive Polynomial */
-/* -------- PMERRLOC_EN : (PMERRLOC Offset: 0x008) Enable Register -------- */
+#define PMERRLOC_PRIM_PRIMITIV_Msk (0xffffu << PMERRLOC_PRIM_PRIMITIV_Pos) /**< \brief (PMERRLOC_ELPRIM) Primitive Polynomial */
+/* -------- PMERRLOC_ELEN : (PMERRLOC Offset: 0x008) Enable Register -------- */
 #define PMERRLOC_EN_ENINIT_Pos 0
-#define PMERRLOC_EN_ENINIT_Msk (0x3fffu << PMERRLOC_EN_ENINIT_Pos) /**< \brief (PMERRLOC_EN) Initial Number of Bits in the Codeword */
+#define PMERRLOC_EN_ENINIT_Msk (0x3fffu << PMERRLOC_EN_ENINIT_Pos) /**< \brief (PMERRLOC_ELEN) Initial Number of Bits in the Codeword */
 #define PMERRLOC_EN_ENINIT(value) ((PMERRLOC_EN_ENINIT_Msk & ((value) << PMERRLOC_EN_ENINIT_Pos)))
-/* -------- PMERRLOC_DIS : (PMERRLOC Offset: 0x00C) Disable Register -------- */
-#define PMERRLOC_DIS_DIS (0x1u << 0) /**< \brief (PMERRLOC_DIS) Disable Error Location Engine */
-/* -------- PMERRLOC_SR : (PMERRLOC Offset: 0x010) Status Register -------- */
-#define PMERRLOC_SR_BUSY (0x1u << 0) /**< \brief (PMERRLOC_SR) Error Location Engine Busy */
-/* -------- PMERRLOC_IER : (PMERRLOC Offset: 0x014) Interrupt Enable Register -------- */
-#define PMERRLOC_IER_DONE (0x1u << 0) /**< \brief (PMERRLOC_IER) Computation Terminated Interrupt Enable */
-/* -------- PMERRLOC_IDR : (PMERRLOC Offset: 0x018) Interrupt Disable Register -------- */
-#define PMERRLOC_IDR_DONE (0x1u << 0) /**< \brief (PMERRLOC_IDR) Computation Terminated Interrupt Disable */
-/* -------- PMERRLOC_IMR : (PMERRLOC Offset: 0x01C) Interrupt Mask Register -------- */
-#define PMERRLOC_IMR_DONE (0x1u << 0) /**< \brief (PMERRLOC_IMR) Computation Terminated Interrupt Mask */
-/* -------- PMERRLOC_ISR : (PMERRLOC Offset: 0x020) Interrupt Status Register -------- */
-#define PMERRLOC_ISR_DONE (0x1u << 0) /**< \brief (PMERRLOC_ISR) Computation Terminated Interrupt Status */
+/* -------- PMERRLOC_ELDIS : (PMERRLOC Offset: 0x00C) Disable Register -------- */
+#define PMERRLOC_DIS_DIS (0x1u << 0) /**< \brief (PMERRLOC_ELDIS) Disable Error Location Engine */
+/* -------- PMERRLOC_ELSR : (PMERRLOC Offset: 0x010) Status Register -------- */
+#define PMERRLOC_SR_BUSY (0x1u << 0) /**< \brief (PMERRLOC_ELLSR) Error Location Engine Busy */
+/* -------- PMERRLOC_ELIER : (PMERRLOC Offset: 0x014) Interrupt Enable Register -------- */
+#define PMERRLOC_IER_DONE (0x1u << 0) /**< \brief (PMERRLOC_ELIER) Computation Terminated Interrupt Enable */
+/* -------- PMERRLOC_ELIDR : (PMERRLOC Offset: 0x018) Interrupt Disable Register -------- */
+#define PMERRLOC_IDR_DONE (0x1u << 0) /**< \brief (PMERRLOC_ELIDR) Computation Terminated Interrupt Disable */
+/* -------- PMERRLOC_ELIMR : (PMERRLOC Offset: 0x01C) Interrupt Mask Register -------- */
+#define PMERRLOC_IMR_DONE (0x1u << 0) /**< \brief (PMERRLOC_ELIMR) Computation Terminated Interrupt Mask */
+/* -------- PMERRLOC_ELISR : (PMERRLOC Offset: 0x020) Interrupt Status Register -------- */
+#define PMERRLOC_ISR_DONE (0x1u << 0) /**< \brief (PMERRLOC_ELISR) Computation Terminated Interrupt Status */
 #define PMERRLOC_ISR_ERR_CNT_Pos 8
-#define PMERRLOC_ISR_ERR_CNT_Msk (0x1fu << PMERRLOC_ISR_ERR_CNT_Pos) /**< \brief (PMERRLOC_ISR) Error Counter Value */
+#define PMERRLOC_ISR_ERR_CNT_Msk (0x1fu << PMERRLOC_ISR_ERR_CNT_Pos) /**< \brief (PMERRLOC_ELISR) Error Counter Value */
 /* -------- PMERRLOC_SIGMA0 : (PMERRLOC Offset: 0x028) SIGMA0 Register -------- */
 #define PMERRLOC_SIGMA0_SIGMA0_Pos 0
 #define PMERRLOC_SIGMA0_SIGMA0_Msk (0x3fffu << PMERRLOC_SIGMA0_SIGMA0_Pos) /**< \brief (PMERRLOC_SIGMA0) Coefficient of Degree 0 in the SIGMA Polynomial */
@@ -183,11 +181,6 @@ typedef struct {
 /* -------- PMERRLOC_EL[24] : (PMERRLOC Offset: 0x08C) Error Location 0 Register -------- */
 #define PMERRLOC_EL_ERRLOCN_Pos 0
 #define PMERRLOC_EL_ERRLOCN_Msk (0x3fffu << PMERRLOC_EL_ERRLOCN_Pos) /**< \brief (PMERRLOC_EL[24]) Error Position within the Set {sector area, spare area}. */
-/* -------- PMERRLOC_VERSION : (PMERRLOC Offset: 0x1FC) Version Register -------- */
-#define PMERRLOC_VERSION_VERSION_Pos 0
-#define PMERRLOC_VERSION_VERSION_Msk (0xfffu << PMERRLOC_VERSION_VERSION_Pos) /**< \brief (PMERRLOC_VERSION) Version of the Hardware Module */
-#define PMERRLOC_VERSION_MFN_Pos 16
-#define PMERRLOC_VERSION_MFN_Msk (0x7u << PMERRLOC_VERSION_MFN_Pos) /**< \brief (PMERRLOC_VERSION) Metal Fix Number */
 
 /*@}*/
 

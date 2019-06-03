@@ -35,7 +35,6 @@
   #define REG_FLEXCOM2_MR                           (0xF8024000U) /**< \brief (FLEXCOM2) FLEXCOM Mode Register */
   #define REG_FLEXCOM2_RHR                          (0xF8024010U) /**< \brief (FLEXCOM2) FLEXCOM Receive Holding Register */
   #define REG_FLEXCOM2_THR                          (0xF8024020U) /**< \brief (FLEXCOM2) FLEXCOM Transmit Holding Register */
-  #define REG_FLEXCOM2_VERSION                      (0xF80240FCU) /**< \brief (FLEXCOM2) FLEXCOM Version Register */
   #define REG_FLEXCOM2_US_CR                        (0xF8024200U) /**< \brief (FLEXCOM2) USART Control Register */
   #define REG_FLEXCOM2_US_MR                        (0xF8024204U) /**< \brief (FLEXCOM2) USART Mode Register */
   #define REG_FLEXCOM2_US_IER                       (0xF8024208U) /**< \brief (FLEXCOM2) USART Interrupt Enable Register */
@@ -74,7 +73,6 @@
   #define REG_FLEXCOM2_US_FESR                      (0xF80242B4U) /**< \brief (FLEXCOM2) USART FIFO Event Status Register */
   #define REG_FLEXCOM2_US_WPMR                      (0xF80242E4U) /**< \brief (FLEXCOM2) USART Write Protection Mode Register */
   #define REG_FLEXCOM2_US_WPSR                      (0xF80242E8U) /**< \brief (FLEXCOM2) USART Write Protection Status Register */
-  #define REG_FLEXCOM2_US_VERSION                   (0xF80242FCU) /**< \brief (FLEXCOM2) USART Version Register */
   #define REG_FLEXCOM2_SPI_CR                       (0xF8024400U) /**< \brief (FLEXCOM2) SPI Control Register */
   #define REG_FLEXCOM2_SPI_MR                       (0xF8024404U) /**< \brief (FLEXCOM2) SPI Mode Register */
   #define REG_FLEXCOM2_SPI_RDR                      (0xF8024408U) /**< \brief (FLEXCOM2) SPI Receive Data Register */
@@ -89,7 +87,6 @@
   #define REG_FLEXCOM2_SPI_CMPR                     (0xF8024448U) /**< \brief (FLEXCOM2) SPI Comparison Register */
   #define REG_FLEXCOM2_SPI_WPMR                     (0xF80244E4U) /**< \brief (FLEXCOM2) SPI Write Protection Mode Register */
   #define REG_FLEXCOM2_SPI_WPSR                     (0xF80244E8U) /**< \brief (FLEXCOM2) SPI Write Protection Status Register */
-  #define REG_FLEXCOM2_SPI_VERSION                  (0xF80244FCU) /**< \brief (FLEXCOM2) SPI Version Register */
   #define REG_FLEXCOM2_TWI_CR                       (0xF8024600U) /**< \brief (FLEXCOM2) TWI Control Register */
   #define REG_FLEXCOM2_TWI_MMR                      (0xF8024604U) /**< \brief (FLEXCOM2) TWI Master Mode Register */
   #define REG_FLEXCOM2_TWI_SMR                      (0xF8024608U) /**< \brief (FLEXCOM2) TWI Slave Mode Register */
@@ -110,15 +107,12 @@
   #define REG_FLEXCOM2_TWI_FIER                     (0xF8024664U) /**< \brief (FLEXCOM2) TWI FIFO Interrupt Enable Register */
   #define REG_FLEXCOM2_TWI_FIDR                     (0xF8024668U) /**< \brief (FLEXCOM2) TWI FIFO Interrupt Disable Register */
   #define REG_FLEXCOM2_TWI_FIMR                     (0xF802466CU) /**< \brief (FLEXCOM2) TWI FIFO Interrupt Mask Register */
-  #define REG_FLEXCOM2_TWI_DR                       (0xF80246D0U) /**< \brief (FLEXCOM2) TWI Debug Register */
   #define REG_FLEXCOM2_TWI_WPMR                     (0xF80246E4U) /**< \brief (FLEXCOM2) TWI Write Protection Mode Register */
   #define REG_FLEXCOM2_TWI_WPSR                     (0xF80246E8U) /**< \brief (FLEXCOM2) TWI Write Protection Status Register */
-  #define REG_FLEXCOM2_TWI_VER                      (0xF80246FCU) /**< \brief (FLEXCOM2) TWI Version Register */
 #else
   #define REG_FLEXCOM2_MR          (*(__IO uint32_t*)0xF8024000U) /**< \brief (FLEXCOM2) FLEXCOM Mode Register */
   #define REG_FLEXCOM2_RHR         (*(__I  uint32_t*)0xF8024010U) /**< \brief (FLEXCOM2) FLEXCOM Receive Holding Register */
   #define REG_FLEXCOM2_THR         (*(__IO uint32_t*)0xF8024020U) /**< \brief (FLEXCOM2) FLEXCOM Transmit Holding Register */
-  #define REG_FLEXCOM2_VERSION     (*(__I  uint32_t*)0xF80240FCU) /**< \brief (FLEXCOM2) FLEXCOM Version Register */
   #define REG_FLEXCOM2_US_CR       (*(__O  uint32_t*)0xF8024200U) /**< \brief (FLEXCOM2) USART Control Register */
   #define REG_FLEXCOM2_US_MR       (*(__IO uint32_t*)0xF8024204U) /**< \brief (FLEXCOM2) USART Mode Register */
   #define REG_FLEXCOM2_US_IER      (*(__O  uint32_t*)0xF8024208U) /**< \brief (FLEXCOM2) USART Interrupt Enable Register */
@@ -157,7 +151,6 @@
   #define REG_FLEXCOM2_US_FESR     (*(__I  uint32_t*)0xF80242B4U) /**< \brief (FLEXCOM2) USART FIFO Event Status Register */
   #define REG_FLEXCOM2_US_WPMR     (*(__IO uint32_t*)0xF80242E4U) /**< \brief (FLEXCOM2) USART Write Protection Mode Register */
   #define REG_FLEXCOM2_US_WPSR     (*(__I  uint32_t*)0xF80242E8U) /**< \brief (FLEXCOM2) USART Write Protection Status Register */
-  #define REG_FLEXCOM2_US_VERSION  (*(__I  uint32_t*)0xF80242FCU) /**< \brief (FLEXCOM2) USART Version Register */
   #define REG_FLEXCOM2_SPI_CR      (*(__O  uint32_t*)0xF8024400U) /**< \brief (FLEXCOM2) SPI Control Register */
   #define REG_FLEXCOM2_SPI_MR      (*(__IO uint32_t*)0xF8024404U) /**< \brief (FLEXCOM2) SPI Mode Register */
   #define REG_FLEXCOM2_SPI_RDR     (*(__I  uint32_t*)0xF8024408U) /**< \brief (FLEXCOM2) SPI Receive Data Register */
@@ -172,7 +165,6 @@
   #define REG_FLEXCOM2_SPI_CMPR    (*(__IO uint32_t*)0xF8024448U) /**< \brief (FLEXCOM2) SPI Comparison Register */
   #define REG_FLEXCOM2_SPI_WPMR    (*(__IO uint32_t*)0xF80244E4U) /**< \brief (FLEXCOM2) SPI Write Protection Mode Register */
   #define REG_FLEXCOM2_SPI_WPSR    (*(__I  uint32_t*)0xF80244E8U) /**< \brief (FLEXCOM2) SPI Write Protection Status Register */
-  #define REG_FLEXCOM2_SPI_VERSION (*(__I  uint32_t*)0xF80244FCU) /**< \brief (FLEXCOM2) SPI Version Register */
   #define REG_FLEXCOM2_TWI_CR      (*(__O  uint32_t*)0xF8024600U) /**< \brief (FLEXCOM2) TWI Control Register */
   #define REG_FLEXCOM2_TWI_MMR     (*(__IO uint32_t*)0xF8024604U) /**< \brief (FLEXCOM2) TWI Master Mode Register */
   #define REG_FLEXCOM2_TWI_SMR     (*(__IO uint32_t*)0xF8024608U) /**< \brief (FLEXCOM2) TWI Slave Mode Register */
@@ -193,10 +185,8 @@
   #define REG_FLEXCOM2_TWI_FIER    (*(__O  uint32_t*)0xF8024664U) /**< \brief (FLEXCOM2) TWI FIFO Interrupt Enable Register */
   #define REG_FLEXCOM2_TWI_FIDR    (*(__O  uint32_t*)0xF8024668U) /**< \brief (FLEXCOM2) TWI FIFO Interrupt Disable Register */
   #define REG_FLEXCOM2_TWI_FIMR    (*(__I  uint32_t*)0xF802466CU) /**< \brief (FLEXCOM2) TWI FIFO Interrupt Mask Register */
-  #define REG_FLEXCOM2_TWI_DR      (*(__I  uint32_t*)0xF80246D0U) /**< \brief (FLEXCOM2) TWI Debug Register */
   #define REG_FLEXCOM2_TWI_WPMR    (*(__IO uint32_t*)0xF80246E4U) /**< \brief (FLEXCOM2) TWI Write Protection Mode Register */
   #define REG_FLEXCOM2_TWI_WPSR    (*(__I  uint32_t*)0xF80246E8U) /**< \brief (FLEXCOM2) TWI Write Protection Status Register */
-  #define REG_FLEXCOM2_TWI_VER     (*(__I  uint32_t*)0xF80246FCU) /**< \brief (FLEXCOM2) TWI Version Register */
 #endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #endif /* _SAM9X_FLEXCOM2_INSTANCE_ */

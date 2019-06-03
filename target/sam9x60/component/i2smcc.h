@@ -39,25 +39,23 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief I2smcc hardware registers */
 typedef struct {
-  __O  uint32_t I2SMCC_CR;      /**< \brief (I2smcc Offset: 0x00) Control Register */
-  __IO uint32_t I2SMCC_MRA;     /**< \brief (I2smcc Offset: 0x04) Mode Register A */
-  __IO uint32_t I2SMCC_MRB;     /**< \brief (I2smcc Offset: 0x08) Mode Register B */
-  __I  uint32_t I2SMCC_SR;      /**< \brief (I2smcc Offset: 0x0C) Status Register */
-  __O  uint32_t I2SMCC_IERA;    /**< \brief (I2smcc Offset: 0x10) Interrupt Enable Register A */
-  __O  uint32_t I2SMCC_IDRA;    /**< \brief (I2smcc Offset: 0x14) Interrupt Disable Register A */
-  __I  uint32_t I2SMCC_IMRA;    /**< \brief (I2smcc Offset: 0x18) Interrupt Mask Register A */
-  __I  uint32_t I2SMCC_ISRA;    /**< \brief (I2smcc Offset: 0x1C) Interrupt Status Register A */
-  __O  uint32_t I2SMCC_IERB;    /**< \brief (I2smcc Offset: 0x20) Interrupt Enable Register B */
-  __O  uint32_t I2SMCC_IDRB;    /**< \brief (I2smcc Offset: 0x24) Interrupt Disable Register B */
-  __I  uint32_t I2SMCC_IMRB;    /**< \brief (I2smcc Offset: 0x28) Interrupt Mask Register B */
-  __I  uint32_t I2SMCC_ISRB;    /**< \brief (I2smcc Offset: 0x2C) Interrupt Status Register B */
-  __I  uint32_t I2SMCC_RHR;     /**< \brief (I2smcc Offset: 0x30) Receiver Holding Register */
-  __O  uint32_t I2SMCC_THR;     /**< \brief (I2smcc Offset: 0x34) Transmitter Holding Register */
+  __O  uint32_t I2SMCC_CR;     /**< \brief (I2smcc Offset: 0x00) Control Register */
+  __IO uint32_t I2SMCC_MRA;    /**< \brief (I2smcc Offset: 0x04) Mode Register A */
+  __IO uint32_t I2SMCC_MRB;    /**< \brief (I2smcc Offset: 0x08) Mode Register B */
+  __I  uint32_t I2SMCC_SR;     /**< \brief (I2smcc Offset: 0x0C) Status Register */
+  __O  uint32_t I2SMCC_IERA;   /**< \brief (I2smcc Offset: 0x10) Interrupt Enable Register A */
+  __O  uint32_t I2SMCC_IDRA;   /**< \brief (I2smcc Offset: 0x14) Interrupt Disable Register A */
+  __I  uint32_t I2SMCC_IMRA;   /**< \brief (I2smcc Offset: 0x18) Interrupt Mask Register A */
+  __I  uint32_t I2SMCC_ISRA;   /**< \brief (I2smcc Offset: 0x1C) Interrupt Status Register A */
+  __O  uint32_t I2SMCC_IERB;   /**< \brief (I2smcc Offset: 0x20) Interrupt Enable Register B */
+  __O  uint32_t I2SMCC_IDRB;   /**< \brief (I2smcc Offset: 0x24) Interrupt Disable Register B */
+  __I  uint32_t I2SMCC_IMRB;   /**< \brief (I2smcc Offset: 0x28) Interrupt Mask Register B */
+  __I  uint32_t I2SMCC_ISRB;   /**< \brief (I2smcc Offset: 0x2C) Interrupt Status Register B */
+  __I  uint32_t I2SMCC_RHR;    /**< \brief (I2smcc Offset: 0x30) Receiver Holding Register */
+  __O  uint32_t I2SMCC_THR;    /**< \brief (I2smcc Offset: 0x34) Transmitter Holding Register */
   __I  uint32_t Reserved1[43];
-  __IO uint32_t I2SMCC_WPMR;    /**< \brief (I2smcc Offset: 0xE4) Write Protection Mode Register */
-  __I  uint32_t I2SMCC_WPSR;    /**< \brief (I2smcc Offset: 0xE8) Write Protection Status Register */
-  __I  uint32_t Reserved2[4];
-  __I  uint32_t I2SMCC_VERSION; /**< \brief (I2smcc Offset: 0xFC) Version Register */
+  __IO uint32_t I2SMCC_WPMR;   /**< \brief (I2smcc Offset: 0xE4) Write Protection Mode Register */
+  __I  uint32_t I2SMCC_WPSR;   /**< \brief (I2smcc Offset: 0xE8) Write Protection Status Register */
 } I2smcc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- I2SMCC_CR : (I2SMCC Offset: 0x00) Control Register -------- */
@@ -84,7 +82,7 @@ typedef struct {
 #define   I2SMCC_MRA_DATALENGTH_8_BITS (0x6u << 1) /**< \brief (I2SMCC_MRA) Data length is set to 8 bits. */
 #define   I2SMCC_MRA_DATALENGTH_8_BITS_COMPACT (0x7u << 1) /**< \brief (I2SMCC_MRA) Data length is set to 8-bit compact stereo. Left sample in bits [7:0] and right sample in bits [15:8] of the same word. */
 #define I2SMCC_MRA_ZERO_Pos 4
-#define I2SMCC_MRA_ZERO_Msk (0x3u << I2SMCC_MRA_ZERO_Pos) /**< \brief (I2SMCC_MRA) This field must always be written to 0. */
+#define I2SMCC_MRA_ZERO_Msk (0x3u << I2SMCC_MRA_ZERO_Pos) /**< \brief (I2SMCC_MRA) Must always be written to 0. */
 #define I2SMCC_MRA_ZERO(value) ((I2SMCC_MRA_ZERO_Msk & ((value) << I2SMCC_MRA_ZERO_Pos)))
 #define I2SMCC_MRA_FORMAT_Pos 6
 #define I2SMCC_MRA_FORMAT_Msk (0x3u << I2SMCC_MRA_FORMAT_Pos) /**< \brief (I2SMCC_MRA) Data Format */
@@ -116,9 +114,6 @@ typedef struct {
 #define I2SMCC_MRA_IMCKMODE (0x1u << 30) /**< \brief (I2SMCC_MRA) Master Clock Mode */
 #define I2SMCC_MRA_IWS (0x1u << 31) /**< \brief (I2SMCC_MRA) I2SMCC_WS Slot Length */
 /* -------- I2SMCC_MRB : (I2SMCC Offset: 0x08) Mode Register B -------- */
-#define I2SMCC_MRB_CRAMODE (0x1u << 0) /**< \brief (I2SMCC_MRB) Common Register Access Mode */
-#define   I2SMCC_MRB_CRAMODE_LEFT_FIRST (0x0u << 0) /**< \brief (I2SMCC_MRB) All enabled I2S left channels are filled first, then I2S right channels. */
-#define   I2SMCC_MRB_CRAMODE_REGULAR (0x1u << 0) /**< \brief (I2SMCC_MRB) An enabled I2S left channel is filled, then the corresponding right channel, until all channels are filled. */
 #define I2SMCC_MRB_DMACHUNK_Pos 8
 #define I2SMCC_MRB_DMACHUNK_Msk (0x3u << I2SMCC_MRB_DMACHUNK_Pos) /**< \brief (I2SMCC_MRB) DMA Chunk Size */
 #define I2SMCC_MRB_DMACHUNK(value) ((I2SMCC_MRB_DMACHUNK_Msk & ((value) << I2SMCC_MRB_DMACHUNK_Pos)))
@@ -267,9 +262,9 @@ typedef struct {
 /* -------- I2SMCC_IDRB : (I2SMCC Offset: 0x24) Interrupt Disable Register B -------- */
 #define I2SMCC_IDRB_WERR (0x1u << 0) /**< \brief (I2SMCC_IDRB) Write Error Interrupt Disable */
 /* -------- I2SMCC_IMRB : (I2SMCC Offset: 0x28) Interrupt Mask Register B -------- */
-#define I2SMCC_IMRB_WERR (0x1u << 0) /**< \brief (I2SMCC_IMRB) Write Error Interrupt Mask */
+#define I2SMCC_IMRB_WERR (0x1u << 0) /**< \brief (I2SMCC_IMRB) Write Error Interrupt Enable */
 /* -------- I2SMCC_ISRB : (I2SMCC Offset: 0x2C) Interrupt Status Register B -------- */
-#define I2SMCC_ISRB_WERR (0x1u << 0) /**< \brief (I2SMCC_ISRB) Write Error Flag (Cleared on read) */
+#define I2SMCC_ISRB_WERR (0x1u << 0) /**< \brief (I2SMCC_ISRB) Write Error Flag (cleared on read) */
 /* -------- I2SMCC_RHR : (I2SMCC Offset: 0x30) Receiver Holding Register -------- */
 #define I2SMCC_RHR_RHR_Pos 0
 #define I2SMCC_RHR_RHR_Msk (0xffffffffu << I2SMCC_RHR_RHR_Pos) /**< \brief (I2SMCC_RHR) Receiver Holding Register */
@@ -284,16 +279,11 @@ typedef struct {
 #define I2SMCC_WPMR_WPKEY_Pos 8
 #define I2SMCC_WPMR_WPKEY_Msk (0xffffffu << I2SMCC_WPMR_WPKEY_Pos) /**< \brief (I2SMCC_WPMR) Write Protection Key */
 #define I2SMCC_WPMR_WPKEY(value) ((I2SMCC_WPMR_WPKEY_Msk & ((value) << I2SMCC_WPMR_WPKEY_Pos)))
-#define   I2SMCC_WPMR_WPKEY_PASSWD (0x493253u << 8) /**< \brief (I2SMCC_WPMR) Writing any other value in this field aborts the write operation.Always reads as 0. */
+#define   I2SMCC_WPMR_WPKEY_PASSWD (0x493253u << 8) /**< \brief (I2SMCC_WPMR) Writing any other value in this field aborts the write operation. Always reads as 0. */
 /* -------- I2SMCC_WPSR : (I2SMCC Offset: 0xE8) Write Protection Status Register -------- */
 #define I2SMCC_WPSR_WPVS (0x1u << 0) /**< \brief (I2SMCC_WPSR) Write Protection Violation Status */
 #define I2SMCC_WPSR_WPVSRC_Pos 8
 #define I2SMCC_WPSR_WPVSRC_Msk (0xffffffu << I2SMCC_WPSR_WPVSRC_Pos) /**< \brief (I2SMCC_WPSR) Write Protection Violation Source */
-/* -------- I2SMCC_VERSION : (I2SMCC Offset: 0xFC) Version Register -------- */
-#define I2SMCC_VERSION_VERSION_Pos 0
-#define I2SMCC_VERSION_VERSION_Msk (0xfffu << I2SMCC_VERSION_VERSION_Pos) /**< \brief (I2SMCC_VERSION) Version of the Hardware Module */
-#define I2SMCC_VERSION_MFN_Pos 16
-#define I2SMCC_VERSION_MFN_Msk (0x7u << I2SMCC_VERSION_MFN_Pos) /**< \brief (I2SMCC_VERSION) Metal Fix Number */
 
 /*@}*/
 

@@ -43,12 +43,11 @@ typedef struct {
 } Sckc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- SCKC_CR : (SCKC Offset: 0x0) Slow Clock Controller Configuration Register -------- */
-#define SCKC_CR_RCEN (0x1u << 0) /**< \brief (SCKC_CR) Embedded 32 kHz (typical) RC Oscillator */
 #define SCKC_CR_OSC32EN (0x1u << 1) /**< \brief (SCKC_CR) 32.768 kHz Crystal Oscillator */
 #define SCKC_CR_OSC32BYP (0x1u << 2) /**< \brief (SCKC_CR) 32.768 kHz Crystal Oscillator Bypass */
-#define SCKC_CR_OSCSEL (0x1u << 3) /**< \brief (SCKC_CR) Slow Clock Selector */
-#define   SCKC_CR_OSCSEL_RC (0x0u << 3) /**< \brief (SCKC_CR) Slow clock is the embedded 32 kHz (typical) RC oscillator. */
-#define   SCKC_CR_OSCSEL_XTAL (0x1u << 3) /**< \brief (SCKC_CR) Slow clock is the 32.768 kHz crystal oscillator. */
+#define SCKC_CR_OSCSEL (0x1u << 24) /**< \brief (SCKC_CR) Timing Domain Slow Clock Selector */
+#define   SCKC_CR_OSCSEL_RC (0x0u << 24) /**< \brief (SCKC_CR) Slow clock of the timing domain is driven by the embedded 32 kHz (typical) RC oscillator. */
+#define   SCKC_CR_OSCSEL_XTAL (0x1u << 24) /**< \brief (SCKC_CR) Slow clock of the timing domain is driven by the 32.768 kHz crystal oscillator. */
 
 /*@}*/
 

@@ -47,7 +47,6 @@
   #define REG_TDES_XTEA_RNDR                  (0xF0038070U) /**< \brief (TDES) XTEA Rounds Register */
   #define REG_TDES_WPMR                       (0xF00380E4U) /**< \brief (TDES) Write Protection Mode Register */
   #define REG_TDES_WPSR                       (0xF00380E8U) /**< \brief (TDES) Write Protection Status Register */
-  #define REG_TDES_VERSION                    (0xF00380FCU) /**< \brief (TDES) Version Register */
 #else
   #define REG_TDES_CR        (*(__O  uint32_t*)0xF0038000U) /**< \brief (TDES) Control Register */
   #define REG_TDES_MR        (*(__IO uint32_t*)0xF0038004U) /**< \brief (TDES) Mode Register */
@@ -64,7 +63,6 @@
   #define REG_TDES_XTEA_RNDR (*(__IO uint32_t*)0xF0038070U) /**< \brief (TDES) XTEA Rounds Register */
   #define REG_TDES_WPMR      (*(__IO uint32_t*)0xF00380E4U) /**< \brief (TDES) Write Protection Mode Register */
   #define REG_TDES_WPSR      (*(__I  uint32_t*)0xF00380E8U) /**< \brief (TDES) Write Protection Status Register */
-  #define REG_TDES_VERSION   (*(__I  uint32_t*)0xF00380FCU) /**< \brief (TDES) Version Register */
 #endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #endif /* _SAM9X_TDES_INSTANCE_ */

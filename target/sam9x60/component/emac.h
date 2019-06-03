@@ -87,8 +87,6 @@ typedef struct {
   __IO uint32_t EMAC_TPQ;               /**< \brief (Emac Offset: 0xBC) Transmit Pause Quantum Register */
   __IO uint32_t EMAC_USRIO;             /**< \brief (Emac Offset: 0xC0) User Input/Output Register */
   __IO uint32_t EMAC_WOL;               /**< \brief (Emac Offset: 0xC4) Wake-on-LAN Register */
-  __I  uint32_t Reserved2[13];
-  __I  uint32_t EMAC_VERSION;           /**< \brief (Emac Offset: 0xFC) Version Register */
 } Emac;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- EMAC_NCR : (EMAC Offset: 0x00) Network Control Register -------- */
@@ -358,14 +356,9 @@ typedef struct {
 #define EMAC_WOL_IP_Msk (0xffffu << EMAC_WOL_IP_Pos) /**< \brief (EMAC_WOL) ARP Request IP Address */
 #define EMAC_WOL_IP(value) ((EMAC_WOL_IP_Msk & ((value) << EMAC_WOL_IP_Pos)))
 #define EMAC_WOL_MAG (0x1u << 16) /**< \brief (EMAC_WOL) Magic Packet Event Enable */
-#define EMAC_WOL_ARP (0x1u << 17) /**< \brief (EMAC_WOL) ARP Request IP Address */
+#define EMAC_WOL_ARP (0x1u << 17) /**< \brief (EMAC_WOL) ARP Request Event Enable */
 #define EMAC_WOL_SA1 (0x1u << 18) /**< \brief (EMAC_WOL) Specific Address Register 1 Event Enable */
 #define EMAC_WOL_MTI (0x1u << 19) /**< \brief (EMAC_WOL) Multicast Hash Event Enable */
-/* -------- EMAC_VERSION : (EMAC Offset: 0xFC) Version Register -------- */
-#define EMAC_VERSION_VERSION_Pos 0
-#define EMAC_VERSION_VERSION_Msk (0xfffu << EMAC_VERSION_VERSION_Pos) /**< \brief (EMAC_VERSION) Hardware Module Version */
-#define EMAC_VERSION_MFN_Pos 16
-#define EMAC_VERSION_MFN_Msk (0x7u << EMAC_VERSION_MFN_Pos) /**< \brief (EMAC_VERSION) Metal Fix Number */
 
 /*@}*/
 

@@ -31,9 +31,9 @@
 #define _SAM9X_UDPHS_COMPONENT_
 
 /* ============================================================================= */
-/**  SOFTWARE API DEFINITION FOR USB High Speed Device Port */
+/**  SOFTWARE API DEFINITION FOR OTP Memory Controller */
 /* ============================================================================= */
-/** \addtogroup SAM9X_UDPHS USB High Speed Device Port */
+/** \addtogroup SAM9X_UDPHS OTP Memory Controller */
 /*@{*/
 
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -72,8 +72,7 @@ typedef struct {
   __IO uint32_t UDPHS_TSTCNTB;              /**< \brief (Udphs Offset: 0xD8) UDPHS Test B Counter Register */
   __IO uint32_t UDPHS_TSTMODEREG;           /**< \brief (Udphs Offset: 0xDC) UDPHS Test Mode Register */
   __IO uint32_t UDPHS_TST;                  /**< \brief (Udphs Offset: 0xE0) UDPHS Test Register */
-  __I  uint32_t Reserved3[6];
-  __I  uint32_t UDPHS_VERSION;              /**< \brief (Udphs Offset: 0xFC) UDPHS Version Register */
+  __I  uint32_t Reserved3[7];
        UdphsEpt UDPHS_EPT[UDPHSEPT_NUMBER]; /**< \brief (Udphs Offset: 0x100) endpoint = 0 .. 6 */
   __I  uint32_t Reserved4[72];
        UdphsDma UDPHS_DMA[UDPHSDMA_NUMBER]; /**< \brief (Udphs Offset: 0x300) channel = 0 .. 6 */
@@ -183,11 +182,6 @@ typedef struct {
 #define UDPHS_TST_TST_K (0x1u << 3) /**< \brief (UDPHS_TST) Test K Mode */
 #define UDPHS_TST_TST_PKT (0x1u << 4) /**< \brief (UDPHS_TST) Test Packet Mode */
 #define UDPHS_TST_OPMODE2 (0x1u << 5) /**< \brief (UDPHS_TST) OpMode2 */
-/* -------- UDPHS_VERSION : (UDPHS Offset: 0xFC) UDPHS Version Register -------- */
-#define UDPHS_VERSION_VERSION_Pos 0
-#define UDPHS_VERSION_VERSION_Msk (0xffffu << UDPHS_VERSION_VERSION_Pos) /**< \brief (UDPHS_VERSION) Version of the Hardware Module */
-#define UDPHS_VERSION_MFN_Pos 16
-#define UDPHS_VERSION_MFN_Msk (0x7u << UDPHS_VERSION_MFN_Pos) /**< \brief (UDPHS_VERSION) Metal Fix Number */
 /* -------- UDPHS_EPTCFG : (UDPHS Offset: N/A) UDPHS Endpoint Configuration Register -------- */
 #define UDPHS_EPTCFG_EPT_SIZE_Pos 0
 #define UDPHS_EPTCFG_EPT_SIZE_Msk (0x7u << UDPHS_EPTCFG_EPT_SIZE_Pos) /**< \brief (UDPHS_EPTCFG) Endpoint Size (cleared upon USB reset) */

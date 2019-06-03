@@ -227,7 +227,6 @@
   #define REG_PMECC_REM9_7                   (0xFFFFE424U) /**< \brief (PMECC) PMECC REM 9 Register (sec_num = 7) */
   #define REG_PMECC_REM10_7                  (0xFFFFE428U) /**< \brief (PMECC) PMECC REM 10 Register (sec_num = 7) */
   #define REG_PMECC_REM11_7                  (0xFFFFE42CU) /**< \brief (PMECC) PMECC REM 11 Register (sec_num = 7) */
-  #define REG_PMECC_VERSION                  (0xFFFFE5FCU) /**< \brief (PMECC) PMECC Version Register */
 #else
   #define REG_PMECC_CFG     (*(__IO uint32_t*)0xFFFFE000U) /**< \brief (PMECC) PMECC Configuration Register */
   #define REG_PMECC_SAREA   (*(__IO uint32_t*)0xFFFFE004U) /**< \brief (PMECC) PMECC Spare Area Size Register */
@@ -424,7 +423,6 @@
   #define REG_PMECC_REM9_7  (*(__I  uint32_t*)0xFFFFE424U) /**< \brief (PMECC) PMECC REM 9 Register (sec_num = 7) */
   #define REG_PMECC_REM10_7 (*(__I  uint32_t*)0xFFFFE428U) /**< \brief (PMECC) PMECC REM 10 Register (sec_num = 7) */
   #define REG_PMECC_REM11_7 (*(__I  uint32_t*)0xFFFFE42CU) /**< \brief (PMECC) PMECC REM 11 Register (sec_num = 7) */
-  #define REG_PMECC_VERSION (*(__I  uint32_t*)0xFFFFE5FCU) /**< \brief (PMECC) PMECC Version Register */
 #endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #endif /* _SAM9X_PMECC_INSTANCE_ */

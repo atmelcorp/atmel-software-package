@@ -32,29 +32,27 @@
 
 /* ========== Register definition for CLASSD peripheral ========== */
 #if (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-  #define REG_CLASSD_CR                       (0xF003C000U) /**< \brief (CLASSD) Control Register */
-  #define REG_CLASSD_MR                       (0xF003C004U) /**< \brief (CLASSD) Mode Register */
-  #define REG_CLASSD_INTPMR                   (0xF003C008U) /**< \brief (CLASSD) Interpolator Mode Register */
-  #define REG_CLASSD_INTSR                    (0xF003C00CU) /**< \brief (CLASSD) Interpolator Status Register */
-  #define REG_CLASSD_THR                      (0xF003C010U) /**< \brief (CLASSD) Transmit Holding Register */
-  #define REG_CLASSD_IER                      (0xF003C014U) /**< \brief (CLASSD) Interrupt Enable Register */
-  #define REG_CLASSD_IDR                      (0xF003C018U) /**< \brief (CLASSD) Interrupt Disable Register */
-  #define REG_CLASSD_IMR                      (0xF003C01CU) /**< \brief (CLASSD) Interrupt Mask Register */
-  #define REG_CLASSD_ISR                      (0xF003C020U) /**< \brief (CLASSD) Interrupt Status Register */
-  #define REG_CLASSD_WPMR                     (0xF003C0E4U) /**< \brief (CLASSD) Write Protection Mode Register */
-  #define REG_CLASSD_VERSION                  (0xF003C0FCU) /**< \brief (CLASSD) IP Version Register */
+  #define REG_CLASSD_CR                      (0xF003C000U) /**< \brief (CLASSD) Control Register */
+  #define REG_CLASSD_MR                      (0xF003C004U) /**< \brief (CLASSD) Mode Register */
+  #define REG_CLASSD_INTPMR                  (0xF003C008U) /**< \brief (CLASSD) Interpolator Mode Register */
+  #define REG_CLASSD_INTSR                   (0xF003C00CU) /**< \brief (CLASSD) Interpolator Status Register */
+  #define REG_CLASSD_THR                     (0xF003C010U) /**< \brief (CLASSD) Transmit Holding Register */
+  #define REG_CLASSD_IER                     (0xF003C014U) /**< \brief (CLASSD) Interrupt Enable Register */
+  #define REG_CLASSD_IDR                     (0xF003C018U) /**< \brief (CLASSD) Interrupt Disable Register */
+  #define REG_CLASSD_IMR                     (0xF003C01CU) /**< \brief (CLASSD) Interrupt Mask Register */
+  #define REG_CLASSD_ISR                     (0xF003C020U) /**< \brief (CLASSD) Interrupt Status Register */
+  #define REG_CLASSD_WPMR                    (0xF003C0E4U) /**< \brief (CLASSD) Write Protection Mode Register */
 #else
-  #define REG_CLASSD_CR      (*(__O  uint32_t*)0xF003C000U) /**< \brief (CLASSD) Control Register */
-  #define REG_CLASSD_MR      (*(__IO uint32_t*)0xF003C004U) /**< \brief (CLASSD) Mode Register */
-  #define REG_CLASSD_INTPMR  (*(__IO uint32_t*)0xF003C008U) /**< \brief (CLASSD) Interpolator Mode Register */
-  #define REG_CLASSD_INTSR   (*(__I  uint32_t*)0xF003C00CU) /**< \brief (CLASSD) Interpolator Status Register */
-  #define REG_CLASSD_THR     (*(__IO uint32_t*)0xF003C010U) /**< \brief (CLASSD) Transmit Holding Register */
-  #define REG_CLASSD_IER     (*(__O  uint32_t*)0xF003C014U) /**< \brief (CLASSD) Interrupt Enable Register */
-  #define REG_CLASSD_IDR     (*(__O  uint32_t*)0xF003C018U) /**< \brief (CLASSD) Interrupt Disable Register */
-  #define REG_CLASSD_IMR     (*(__IO uint32_t*)0xF003C01CU) /**< \brief (CLASSD) Interrupt Mask Register */
-  #define REG_CLASSD_ISR     (*(__I  uint32_t*)0xF003C020U) /**< \brief (CLASSD) Interrupt Status Register */
-  #define REG_CLASSD_WPMR    (*(__IO uint32_t*)0xF003C0E4U) /**< \brief (CLASSD) Write Protection Mode Register */
-  #define REG_CLASSD_VERSION (*(__I  uint32_t*)0xF003C0FCU) /**< \brief (CLASSD) IP Version Register */
+  #define REG_CLASSD_CR     (*(__O  uint32_t*)0xF003C000U) /**< \brief (CLASSD) Control Register */
+  #define REG_CLASSD_MR     (*(__IO uint32_t*)0xF003C004U) /**< \brief (CLASSD) Mode Register */
+  #define REG_CLASSD_INTPMR (*(__IO uint32_t*)0xF003C008U) /**< \brief (CLASSD) Interpolator Mode Register */
+  #define REG_CLASSD_INTSR  (*(__I  uint32_t*)0xF003C00CU) /**< \brief (CLASSD) Interpolator Status Register */
+  #define REG_CLASSD_THR    (*(__IO uint32_t*)0xF003C010U) /**< \brief (CLASSD) Transmit Holding Register */
+  #define REG_CLASSD_IER    (*(__O  uint32_t*)0xF003C014U) /**< \brief (CLASSD) Interrupt Enable Register */
+  #define REG_CLASSD_IDR    (*(__O  uint32_t*)0xF003C018U) /**< \brief (CLASSD) Interrupt Disable Register */
+  #define REG_CLASSD_IMR    (*(__IO uint32_t*)0xF003C01CU) /**< \brief (CLASSD) Interrupt Mask Register */
+  #define REG_CLASSD_ISR    (*(__I  uint32_t*)0xF003C020U) /**< \brief (CLASSD) Interrupt Status Register */
+  #define REG_CLASSD_WPMR   (*(__IO uint32_t*)0xF003C0E4U) /**< \brief (CLASSD) Write Protection Mode Register */
 #endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #endif /* _SAM9X_CLASSD_INSTANCE_ */

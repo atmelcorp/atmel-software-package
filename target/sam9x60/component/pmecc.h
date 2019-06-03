@@ -65,8 +65,6 @@ typedef struct {
   __I  uint32_t Reserved1[5];
        PmeccEcc PMECC_ECC[PMECCECC_NUMBER]; /**< \brief (Pmecc Offset: 0x40) sec_num = 0 .. 7 */
        PmeccRem PMECC_REM[PMECCREM_NUMBER]; /**< \brief (Pmecc Offset: 0x240) sec_num = 0 .. 7 */
-  __I  uint32_t Reserved2[111];
-  __I  uint32_t PMECC_VERSION;              /**< \brief (Pmecc Offset: 0x5FC) PMECC Version Register */
 } Pmecc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- PMECC_CFG : (PMECC Offset: 0x000) PMECC Configuration Register -------- */
@@ -131,11 +129,6 @@ typedef struct {
 #define PMECC_REM_REM2NP1_Msk (0x3fffu << PMECC_REM_REM2NP1_Pos) /**< \brief (PMECC_REM[12]) BCH Remainder 2 * N + 1 */
 #define PMECC_REM_REM2NP3_Pos 16
 #define PMECC_REM_REM2NP3_Msk (0x3fffu << PMECC_REM_REM2NP3_Pos) /**< \brief (PMECC_REM[12]) BCH Remainder 2 * N + 3 */
-/* -------- PMECC_VERSION : (PMECC Offset: 0x5FC) PMECC Version Register -------- */
-#define PMECC_VERSION_VERSION_Pos 0
-#define PMECC_VERSION_VERSION_Msk (0xfffu << PMECC_VERSION_VERSION_Pos) /**< \brief (PMECC_VERSION) Version of the Hardware Module */
-#define PMECC_VERSION_MFN_Pos 16
-#define PMECC_VERSION_MFN_Msk (0x7u << PMECC_VERSION_MFN_Pos) /**< \brief (PMECC_VERSION) Metal Fix Number */
 
 /*@}*/
 

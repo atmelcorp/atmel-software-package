@@ -55,8 +55,6 @@ typedef struct {
   __I  uint32_t Reserved4[9];
   __IO uint32_t SHA_WPMR;        /**< \brief (Sha Offset: 0xE4) Write Protection Mode Register */
   __I  uint32_t SHA_WPSR;        /**< \brief (Sha Offset: 0xE8) Write Protection Status Register */
-  __I  uint32_t Reserved5[4];
-  __I  uint32_t SHA_VERSION;     /**< \brief (Sha Offset: 0xFC) Version Register */
 } Sha;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- SHA_CR : (SHA Offset: 0x00) Control Register -------- */
@@ -88,11 +86,15 @@ typedef struct {
 #define   SHA_MR_ALGO_SHA384 (0x2u << 8) /**< \brief (SHA_MR) SHA384 algorithm processed */
 #define   SHA_MR_ALGO_SHA512 (0x3u << 8) /**< \brief (SHA_MR) SHA512 algorithm processed */
 #define   SHA_MR_ALGO_SHA224 (0x4u << 8) /**< \brief (SHA_MR) SHA224 algorithm processed */
+#define   SHA_MR_ALGO_SHA512_224 (0x5u << 8) /**< \brief (SHA_MR) SHA512/224 algorithm processed */
+#define   SHA_MR_ALGO_SHA512_256 (0x6u << 8) /**< \brief (SHA_MR) SHA512/256 algorithm processed */
 #define   SHA_MR_ALGO_HMAC_SHA1 (0x8u << 8) /**< \brief (SHA_MR) HMAC algorithm with SHA1 Hash processed */
 #define   SHA_MR_ALGO_HMAC_SHA256 (0x9u << 8) /**< \brief (SHA_MR) HMAC algorithm with SHA256 Hash processed */
 #define   SHA_MR_ALGO_HMAC_SHA384 (0xAu << 8) /**< \brief (SHA_MR) HMAC algorithm with SHA384 Hash processed */
 #define   SHA_MR_ALGO_HMAC_SHA512 (0xBu << 8) /**< \brief (SHA_MR) HMAC algorithm with SHA512 Hash processed */
 #define   SHA_MR_ALGO_HMAC_SHA224 (0xCu << 8) /**< \brief (SHA_MR) HMAC algorithm with SHA224 Hash processed */
+#define   SHA_MR_ALGO_HMAC_SHA512_224 (0xDu << 8) /**< \brief (SHA_MR) HMAC algorithm with SHA512/224 Hash processed */
+#define   SHA_MR_ALGO_HMAC_SHA512_256 (0xEu << 8) /**< \brief (SHA_MR) HMAC algorithm with SHA512/256 Hash processed */
 #define SHA_MR_TMPLCK (0x1u << 15) /**< \brief (SHA_MR) Tamper Lock Enable */
 #define SHA_MR_DUALBUFF (0x1u << 16) /**< \brief (SHA_MR) Dual Input Buffer */
 #define   SHA_MR_DUALBUFF_INACTIVE (0x0u << 16) /**< \brief (SHA_MR) SHA_IDATARx and SHA_IODATARx cannot be written during processing of previous block. */
@@ -162,7 +164,7 @@ typedef struct {
 #define SHA_WPMR_WPKEY_Pos 8
 #define SHA_WPMR_WPKEY_Msk (0xffffffu << SHA_WPMR_WPKEY_Pos) /**< \brief (SHA_WPMR) Write Protection Key */
 #define SHA_WPMR_WPKEY(value) ((SHA_WPMR_WPKEY_Msk & ((value) << SHA_WPMR_WPKEY_Pos)))
-#define   SHA_WPMR_WPKEY_PASSWD (0x534841u << 8) /**< \brief (SHA_WPMR) Writing any other value in this field aborts the write operation of the WPEN,WPITEN,WPCREN bits.Always reads as 0. */
+#define   SHA_WPMR_WPKEY_PASSWD (0x534841u << 8) /**< \brief (SHA_WPMR) Writing any other value in this field aborts the write operation of the WPEN,WPITEN,WPCREN bits. Always reads as 0. */
 /* -------- SHA_WPSR : (SHA Offset: 0xE8) Write Protection Status Register -------- */
 #define SHA_WPSR_WPVS (0x1u << 0) /**< \brief (SHA_WPSR) Write Protection Violation Status (cleared on read) */
 #define SHA_WPSR_CGD (0x1u << 1) /**< \brief (SHA_WPSR) Clock Glitch Detected (cleared on read) */
@@ -180,12 +182,7 @@ typedef struct {
 #define   SHA_WPSR_SWETYP_BAD_START (0x5u << 24) /**< \brief (SHA_WPSR) SHA is not locked and a start command with SHA_CR.START has been performed whereas Start mode is automatic (SHA_MR.SMOD>0) */
 #define SHA_WPSR_ECLASS (0x1u << 31) /**< \brief (SHA_WPSR) Software Error Class (cleared on read) */
 #define   SHA_WPSR_ECLASS_WARNING (0x0u << 31) /**< \brief (SHA_WPSR) An abnormal access that does not affect system functionality */
-#define   SHA_WPSR_ECLASS_ERROR (0x1u << 31) /**< \brief (SHA_WPSR) An access is performed into key, input data, control registers while the SHA is performing an encryp-tion/decryption or a start is request by software or DMA while the key is not fully configured. */
-/* -------- SHA_VERSION : (SHA Offset: 0xFC) Version Register -------- */
-#define SHA_VERSION_VERSION_Pos 0
-#define SHA_VERSION_VERSION_Msk (0xfffu << SHA_VERSION_VERSION_Pos) /**< \brief (SHA_VERSION) Version of the Hardware Module */
-#define SHA_VERSION_MFN_Pos 16
-#define SHA_VERSION_MFN_Msk (0x7u << SHA_VERSION_MFN_Pos) /**< \brief (SHA_VERSION) Metal Fix Number */
+#define   SHA_WPSR_ECLASS_ERROR (0x1u << 31) /**< \brief (SHA_WPSR) An access is performed into key, input data, control registers while the SHA is performing an encryption/decryption or a start is request by software or DMA while the key is not fully configured. */
 
 /*@}*/
 

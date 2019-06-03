@@ -79,24 +79,6 @@ typedef struct {
   __I  uint32_t Reserved7[4];
   __IO uint32_t MPDDRC_WPMR;          /**< \brief (Mpddrc Offset: 0xE4) Write Protection Mode Register */
   __I  uint32_t MPDDRC_WPSR;          /**< \brief (Mpddrc Offset: 0xE8) Write Protection Status Register */
-  __I  uint32_t Reserved8[4];
-  __I  uint32_t MPDDRC_VERSION;       /**< \brief (Mpddrc Offset: 0xFC) MPDDRC Version Register */
-  __IO uint32_t MPDDRC_DLL_OS;        /**< \brief (Mpddrc Offset: 0x100) MPDDRC DLL Offset Selection Register */
-  __IO uint32_t MPDDRC_DLL_MAO;       /**< \brief (Mpddrc Offset: 0x104) MPDDRC DLL Master Offset Register */
-  __IO uint32_t MPDDRC_DLL_SO0;       /**< \brief (Mpddrc Offset: 0x108) MPDDRC DLL Slave Offset 0 Register */
-  __I  uint32_t Reserved9[1];
-  __IO uint32_t MPDDRC_DLL_WRO;       /**< \brief (Mpddrc Offset: 0x110) MPDDRC DLL CLKWR Offset Register */
-  __I  uint32_t Reserved10[1];
-  __I  uint32_t MPDDRC_DLL_SM[2];     /**< \brief (Mpddrc Offset: 0x118) MPDDRC DLL Status Master 0 Register */
-  __I  uint32_t Reserved11[2];
-  __I  uint32_t MPDDRC_DLL_SSL[4];    /**< \brief (Mpddrc Offset: 0x128) MPDDRC DLL Status Slave 0 Register */
-  __I  uint32_t Reserved12[4];
-  __I  uint32_t MPDDRC_DLL_SWR[2];    /**< \brief (Mpddrc Offset: 0x148) MPDDRC DLL Status CLKWR 0 Register */
-  __I  uint32_t Reserved13[32];
-  __O  uint32_t MPDDRC_DLL_BC;        /**< \brief (Mpddrc Offset: 0x1D0) MPDDRC DLL BIST Control Register */
-  __I  uint32_t MPDDRC_DLL_BS;        /**< \brief (Mpddrc Offset: 0x1D4) MPDDRC DLL BIST Status Register */
-  __I  uint32_t Reserved14[9];
-  __I  uint32_t MPDDRC_DLL_REVISION;  /**< \brief (Mpddrc Offset: 0x1FC) MPDDRC DLL Revision Register */
 } Mpddrc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- MPDDRC_MR : (MPDDRC Offset: 0x00) Mode Register -------- */
@@ -118,10 +100,10 @@ typedef struct {
 #define MPDDRC_CR_NC_Pos 0
 #define MPDDRC_CR_NC_Msk (0x3u << MPDDRC_CR_NC_Pos) /**< \brief (MPDDRC_CR) Number of Column Bits */
 #define MPDDRC_CR_NC(value) ((MPDDRC_CR_NC_Msk & ((value) << MPDDRC_CR_NC_Pos)))
-#define   MPDDRC_CR_NC_DDR_9_COL_BITS (0x0u << 0) /**< \brief (MPDDRC_CR) 9 bits for DDR */
-#define   MPDDRC_CR_NC_DDR_10_COL_BITS (0x1u << 0) /**< \brief (MPDDRC_CR) 10 bits for DDR */
-#define   MPDDRC_CR_NC_DDR_11_COL_BITS (0x2u << 0) /**< \brief (MPDDRC_CR) 11 bits for DDR */
-#define   MPDDRC_CR_NC_DDR_12_COL_BITS (0x3u << 0) /**< \brief (MPDDRC_CR) 12 bits for DDR */
+#define   MPDDRC_CR_NC_DDR_9_COL_BITS (0x0u << 0) /**< \brief (MPDDRC_CR) 9 bits to define the column number, up to 512 columns */
+#define   MPDDRC_CR_NC_DDR_10_COL_BITS (0x1u << 0) /**< \brief (MPDDRC_CR) 10 bits to define the column number, up to 1024 columns */
+#define   MPDDRC_CR_NC_DDR_11_COL_BITS (0x2u << 0) /**< \brief (MPDDRC_CR) 11 bits to define the column number, up to 2048 columns */
+#define   MPDDRC_CR_NC_DDR_12_COL_BITS (0x3u << 0) /**< \brief (MPDDRC_CR) 12 bits to define the column number, up to 4096 columns */
 #define MPDDRC_CR_NR_Pos 2
 #define MPDDRC_CR_NR_Msk (0x3u << MPDDRC_CR_NR_Pos) /**< \brief (MPDDRC_CR) Number of Row Bits. */
 #define MPDDRC_CR_NR(value) ((MPDDRC_CR_NR_Msk & ((value) << MPDDRC_CR_NR_Pos)))
@@ -134,7 +116,6 @@ typedef struct {
 #define MPDDRC_CR_CAS(value) ((MPDDRC_CR_CAS_Msk & ((value) << MPDDRC_CR_CAS_Pos)))
 #define   MPDDRC_CR_CAS_DDR_CAS2 (0x2u << 4) /**< \brief (MPDDRC_CR) LPDDR1 CAS Latency 2 */
 #define   MPDDRC_CR_CAS_DDR_CAS3 (0x3u << 4) /**< \brief (MPDDRC_CR) DDR2/LPDDR1 CAS Latency 3 */
-#define   MPDDRC_CR_CAS_DDR_CAS4 (0x4u << 4) /**< \brief (MPDDRC_CR) DDR2 CAS Latency 4 */
 #define MPDDRC_CR_DLL (0x1u << 7) /**< \brief (MPDDRC_CR) Reset DLL */
 #define   MPDDRC_CR_DLL_RESET_DISABLED (0x0u << 7) /**< \brief (MPDDRC_CR) Disable DLL reset */
 #define   MPDDRC_CR_DLL_RESET_ENABLED (0x1u << 7) /**< \brief (MPDDRC_CR) Enable DLL reset */
@@ -152,7 +133,7 @@ typedef struct {
 #define   MPDDRC_CR_DQMS_SHARED (0x1u << 16) /**< \brief (MPDDRC_CR) DQM is shared with another controller */
 #define MPDDRC_CR_LC_LPDDR1 (0x1u << 19) /**< \brief (MPDDRC_CR) Low-cost Low-power DDR1 */
 #define   MPDDRC_CR_LC_LPDDR1_NOT_2_BANKS (0x0u << 19) /**< \brief (MPDDRC_CR) Any type of memory devices except of low cost, low density Low Power DDR1. */
-#define   MPDDRC_CR_LC_LPDDR1_2_BANKS_LPDDR1 (0x1u << 19) /**< \brief (MPDDRC_CR) Low-cost and low-density low-power DDR1. These devices have a density of 32 Mbits and are organized as two internal banks. To use this feature, the user has to define the type of memory and the data bus width (see Section 8.8 "MPDDRC Memory Device Register").The 16-bit memory device is organized as 2 banks, 9 columns and 11 rows. */
+#define   MPDDRC_CR_LC_LPDDR1_2_BANKS_LPDDR1 (0x1u << 19) /**< \brief (MPDDRC_CR) Low-cost and low-density low-power DDR1. These devices have a density of 32 Mbits and are organized as two internal banks. To use this feature, the user has to define the type of memory and the data bus width (see Section 8.8 "MPDDRC Memory Device Register"). The 16-bit memory device is organized as 2 banks, 9 columns and 11 rows. */
 #define MPDDRC_CR_NB (0x1u << 20) /**< \brief (MPDDRC_CR) Number of Banks */
 #define   MPDDRC_CR_NB_4_BANKS (0x0u << 20) /**< \brief (MPDDRC_CR) 4-bank memory devices */
 #define   MPDDRC_CR_NB_8_BANKS (0x1u << 20) /**< \brief (MPDDRC_CR) 8 banks. Only possible when using DDR2-SDRAM devices. */
@@ -162,9 +143,7 @@ typedef struct {
 #define MPDDRC_CR_DECOD (0x1u << 22) /**< \brief (MPDDRC_CR) Type of Decoding */
 #define   MPDDRC_CR_DECOD_SEQUENTIAL (0x0u << 22) /**< \brief (MPDDRC_CR) Method for address mapping where banks alternate at each last DDR-SDRAM page of the current bank. */
 #define   MPDDRC_CR_DECOD_INTERLEAVED (0x1u << 22) /**< \brief (MPDDRC_CR) Method for address mapping where banks alternate at each DDR-SDRAM end of page of the current bank. */
-#define MPDDRC_CR_UNAL (0x1u << 23) /**< \brief (MPDDRC_CR) Support Unaligned Access (masters supporting byte-strobes) */
-#define   MPDDRC_CR_UNAL_UNSUPPORTED (0x0u << 23) /**< \brief (MPDDRC_CR) Unaligned access is not supported. */
-#define   MPDDRC_CR_UNAL_SUPPORTED (0x1u << 23) /**< \brief (MPDDRC_CR) Unaligned access is supported.This mode must be enabled when accessing DDR memory by DMA (masters supporting byte strobes). */
+#define MPDDRC_CR_UNAL (0x1u << 23) /**< \brief (MPDDRC_CR) This bit must always be written to 1 */
 /* -------- MPDDRC_TPR0 : (MPDDRC Offset: 0x0C) Timing Parameter 0 Register -------- */
 #define MPDDRC_TPR0_TRAS_Pos 0
 #define MPDDRC_TPR0_TRAS_Msk (0xfu << MPDDRC_TPR0_TRAS_Pos) /**< \brief (MPDDRC_TPR0) Active to Precharge Delay */
@@ -281,6 +260,7 @@ typedef struct {
 #define MPDDRC_IO_CALIBR_CALCODEN(value) ((MPDDRC_IO_CALIBR_CALCODEN_Msk & ((value) << MPDDRC_IO_CALIBR_CALCODEN_Pos)))
 /* -------- MPDDRC_OCMS : (MPDDRC Offset: 0x38) OCMS Register -------- */
 #define MPDDRC_OCMS_SCR_EN (0x1u << 0) /**< \brief (MPDDRC_OCMS) Scrambling Enable */
+#define MPDDRC_OCMS_TAMPCLR (0x1u << 4) /**< \brief (MPDDRC_OCMS) Tamper Clear Enable */
 /* -------- MPDDRC_OCMS_KEY1 : (MPDDRC Offset: 0x3C) OCMS KEY1 Register -------- */
 #define MPDDRC_OCMS_KEY1_KEY1_Pos 0
 #define MPDDRC_OCMS_KEY1_KEY1_Msk (0xffffffffu << MPDDRC_OCMS_KEY1_KEY1_Pos) /**< \brief (MPDDRC_OCMS_KEY1) Off-chip Memory Scrambling (OCMS) Key Part 1 */
@@ -325,14 +305,17 @@ typedef struct {
 #define MPDDRC_TIMEOUT_TIMEOUT_P3(value) ((MPDDRC_TIMEOUT_TIMEOUT_P3_Msk & ((value) << MPDDRC_TIMEOUT_TIMEOUT_P3_Pos)))
 /* -------- MPDDRC_REQ_PORT_0123 : (MPDDRC Offset: 0x4C) Request Port 0-1-2-3 Register -------- */
 #define MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P0_Pos 0
-#define MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P0_Msk (0xffu << MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P0_Pos) /**< \brief (MPDDRC_REQ_PORT_0123) Number of Requests, Number of Words or Bandwidth Allocation from Port 0-1-2 */
+#define MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P0_Msk (0xffu << MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P0_Pos) /**< \brief (MPDDRC_REQ_PORT_0123) Number of Requests, Number of Words or Bandwidth Allocation from Port 0-1-2-3 */
 #define MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P0(value) ((MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P0_Msk & ((value) << MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P0_Pos)))
 #define MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P1_Pos 8
-#define MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P1_Msk (0xffu << MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P1_Pos) /**< \brief (MPDDRC_REQ_PORT_0123) Number of Requests, Number of Words or Bandwidth Allocation from Port 0-1-2 */
+#define MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P1_Msk (0xffu << MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P1_Pos) /**< \brief (MPDDRC_REQ_PORT_0123) Number of Requests, Number of Words or Bandwidth Allocation from Port 0-1-2-3 */
 #define MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P1(value) ((MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P1_Msk & ((value) << MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P1_Pos)))
 #define MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P2_Pos 16
-#define MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P2_Msk (0xffu << MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P2_Pos) /**< \brief (MPDDRC_REQ_PORT_0123) Number of Requests, Number of Words or Bandwidth Allocation from Port 0-1-2 */
+#define MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P2_Msk (0xffu << MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P2_Pos) /**< \brief (MPDDRC_REQ_PORT_0123) Number of Requests, Number of Words or Bandwidth Allocation from Port 0-1-2-3 */
 #define MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P2(value) ((MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P2_Msk & ((value) << MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P2_Pos)))
+#define MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P3_Pos 24
+#define MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P3_Msk (0xffu << MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P3_Pos) /**< \brief (MPDDRC_REQ_PORT_0123) Number of Requests, Number of Words or Bandwidth Allocation from Port 0-1-2-3 */
+#define MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P3(value) ((MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P3_Msk & ((value) << MPDDRC_REQ_PORT_0123_NRQ_NWD_BDW_P3_Pos)))
 /* -------- MPDDRC_BDW_PORT_0123 : (MPDDRC Offset: 0x54) Current/Maximum Bandwidth Port 0-1-2-3 Register -------- */
 #define MPDDRC_BDW_PORT_0123_BDW_P0_Pos 0
 #define MPDDRC_BDW_PORT_0123_BDW_P0_Msk (0x7fu << MPDDRC_BDW_PORT_0123_BDW_P0_Pos) /**< \brief (MPDDRC_BDW_PORT_0123) Current/Maximum Bandwidth from Port 0-1-2-3 */
@@ -349,7 +332,7 @@ typedef struct {
 #define   MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_NO_SHIFT (0x0u << 0) /**< \brief (MPDDRC_RD_DATA_PATH) Initial sampling point. */
 #define   MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_ONE_CYCLE (0x1u << 0) /**< \brief (MPDDRC_RD_DATA_PATH) Sampling point is shifted by one cycle. */
 #define   MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_TWO_CYCLES (0x2u << 0) /**< \brief (MPDDRC_RD_DATA_PATH) Sampling point is shifted by two cycles. */
-#define   MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_THREE_CYCLES (0x3u << 0) /**< \brief (MPDDRC_RD_DATA_PATH) .Not applicable for DDR2 and LPDDR1 devices. */
+#define   MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_THREE_CYCLES (0x3u << 0) /**< \brief (MPDDRC_RD_DATA_PATH) Not applicable for DDR2 and LPDDR1 devices. */
 /* -------- MPDDRC_MCFGR : (MPDDRC Offset: 0x60) Monitor Configuration Register -------- */
 #define MPDDRC_MCFGR_EN_MONI (0x1u << 0) /**< \brief (MPDDRC_MCFGR) Enable Monitor */
 #define MPDDRC_MCFGR_SOFT_RESET (0x1u << 1) /**< \brief (MPDDRC_MCFGR) Soft Reset */
@@ -431,10 +414,10 @@ typedef struct {
 #define MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS0_Msk (0xffffu << MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS0_Pos) /**< \brief (MPDDRC_MINFO0) Total Latency on Port 0 [x = 0..3] when value of qos is 0 */
 #define MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS1_Pos 16
 #define MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS1_Msk (0xffffu << MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS1_Pos) /**< \brief (MPDDRC_MINFO0) Total Latency on Port 1 [x = 0..3] when value of qos is 1 */
-#define MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS3_Pos 0
-#define MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS3_Msk (0xffffu << MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS3_Pos) /**< \brief (MPDDRC_MINFO0) Total Latency on Port 3 [x = 0..3] when value of qos is 3 */
-#define MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS2_Pos 16
+#define MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS2_Pos 0
 #define MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS2_Msk (0xffffu << MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS2_Pos) /**< \brief (MPDDRC_MINFO0) Total Latency on Port 2 [x = 0..3] when value of qos is 2 */
+#define MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS3_Pos 16
+#define MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS3_Msk (0xffffu << MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS3_Pos) /**< \brief (MPDDRC_MINFO0) Total Latency on Port 3 [x = 0..3] when value of qos is 3 */
 /* -------- MPDDRC_MINFO1 : (MPDDRC Offset: 0x88) Monitor Information Port 1 Register -------- */
 #define MPDDRC_MINFO1_MAX_PORT1_WAITING_Pos 0
 #define MPDDRC_MINFO1_MAX_PORT1_WAITING_Msk (0xffffu << MPDDRC_MINFO1_MAX_PORT1_WAITING_Pos) /**< \brief (MPDDRC_MINFO1) Address High on Port x [x = 0..3] */
@@ -469,10 +452,10 @@ typedef struct {
 #define MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS0_Msk (0xffffu << MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS0_Pos) /**< \brief (MPDDRC_MINFO1) Total Latency on Port 0 [x = 0..3] when value of qos is 0 */
 #define MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS1_Pos 16
 #define MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS1_Msk (0xffffu << MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS1_Pos) /**< \brief (MPDDRC_MINFO1) Total Latency on Port 1 [x = 0..3] when value of qos is 1 */
-#define MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS3_Pos 0
-#define MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS3_Msk (0xffffu << MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS3_Pos) /**< \brief (MPDDRC_MINFO1) Total Latency on Port 3 [x = 0..3] when value of qos is 3 */
-#define MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS2_Pos 16
+#define MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS2_Pos 0
 #define MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS2_Msk (0xffffu << MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS2_Pos) /**< \brief (MPDDRC_MINFO1) Total Latency on Port 2 [x = 0..3] when value of qos is 2 */
+#define MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS3_Pos 16
+#define MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS3_Msk (0xffffu << MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS3_Pos) /**< \brief (MPDDRC_MINFO1) Total Latency on Port 3 [x = 0..3] when value of qos is 3 */
 /* -------- MPDDRC_MINFO2 : (MPDDRC Offset: 0x8C) Monitor Information Port 2 Register -------- */
 #define MPDDRC_MINFO2_MAX_PORT2_WAITING_Pos 0
 #define MPDDRC_MINFO2_MAX_PORT2_WAITING_Msk (0xffffu << MPDDRC_MINFO2_MAX_PORT2_WAITING_Pos) /**< \brief (MPDDRC_MINFO2) Address High on Port x [x = 0..3] */
@@ -507,10 +490,10 @@ typedef struct {
 #define MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS0_Msk (0xffffu << MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS0_Pos) /**< \brief (MPDDRC_MINFO2) Total Latency on Port 0 [x = 0..3] when value of qos is 0 */
 #define MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS1_Pos 16
 #define MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS1_Msk (0xffffu << MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS1_Pos) /**< \brief (MPDDRC_MINFO2) Total Latency on Port 1 [x = 0..3] when value of qos is 1 */
-#define MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS3_Pos 0
-#define MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS3_Msk (0xffffu << MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS3_Pos) /**< \brief (MPDDRC_MINFO2) Total Latency on Port 3 [x = 0..3] when value of qos is 3 */
-#define MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS2_Pos 16
+#define MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS2_Pos 0
 #define MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS2_Msk (0xffffu << MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS2_Pos) /**< \brief (MPDDRC_MINFO2) Total Latency on Port 2 [x = 0..3] when value of qos is 2 */
+#define MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS3_Pos 16
+#define MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS3_Msk (0xffffu << MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS3_Pos) /**< \brief (MPDDRC_MINFO2) Total Latency on Port 3 [x = 0..3] when value of qos is 3 */
 /* -------- MPDDRC_MINFO3 : (MPDDRC Offset: 0x90) Monitor Information Port 3 Register -------- */
 #define MPDDRC_MINFO3_MAX_PORT3_WAITING_Pos 0
 #define MPDDRC_MINFO3_MAX_PORT3_WAITING_Msk (0xffffu << MPDDRC_MINFO3_MAX_PORT3_WAITING_Pos) /**< \brief (MPDDRC_MINFO3) Address High on Port x [x = 0..3] */
@@ -545,10 +528,10 @@ typedef struct {
 #define MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS0_Msk (0xffffu << MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS0_Pos) /**< \brief (MPDDRC_MINFO3) Total Latency on Port 0 [x = 0..3] when value of qos is 0 */
 #define MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS1_Pos 16
 #define MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS1_Msk (0xffffu << MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS1_Pos) /**< \brief (MPDDRC_MINFO3) Total Latency on Port 1 [x = 0..3] when value of qos is 1 */
-#define MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS3_Pos 0
-#define MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS3_Msk (0xffffu << MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS3_Pos) /**< \brief (MPDDRC_MINFO3) Total Latency on Port 3 [x = 0..3] when value of qos is 3 */
-#define MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS2_Pos 16
+#define MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS2_Pos 0
 #define MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS2_Msk (0xffffu << MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS2_Pos) /**< \brief (MPDDRC_MINFO3) Total Latency on Port 2 [x = 0..3] when value of qos is 2 */
+#define MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS3_Pos 16
+#define MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS3_Msk (0xffffu << MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS3_Pos) /**< \brief (MPDDRC_MINFO3) Total Latency on Port 3 [x = 0..3] when value of qos is 3 */
 /* -------- MPDDRC_IER : (MPDDRC Offset: 0xC0) Interrupt Enable Register -------- */
 #define MPDDRC_IER_SEC (0x1u << 0) /**< \brief (MPDDRC_IER) Security and /or Safety Interrupt Enable */
 #define MPDDRC_IER_RD_ERR (0x1u << 1) /**< \brief (MPDDRC_IER) Read Error Interrupt Enable */
@@ -573,7 +556,7 @@ typedef struct {
 #define MPDDRC_WPMR_WPKEY_Pos 8
 #define MPDDRC_WPMR_WPKEY_Msk (0xffffffu << MPDDRC_WPMR_WPKEY_Pos) /**< \brief (MPDDRC_WPMR) Write Protection Key */
 #define MPDDRC_WPMR_WPKEY(value) ((MPDDRC_WPMR_WPKEY_Msk & ((value) << MPDDRC_WPMR_WPKEY_Pos)))
-#define   MPDDRC_WPMR_WPKEY_PASSWD (0x444452u << 8) /**< \brief (MPDDRC_WPMR) Writing any other value in this field aborts the write operation of the WPEN and WPITEN bits.Always reads as 0. */
+#define   MPDDRC_WPMR_WPKEY_PASSWD (0x444452u << 8) /**< \brief (MPDDRC_WPMR) Writing any other value in this field aborts the write operation of the WPEN and WPITEN bits. Always reads as 0. */
 /* -------- MPDDRC_WPSR : (MPDDRC Offset: 0xE8) Write Protection Status Register -------- */
 #define MPDDRC_WPSR_WPVS (0x1u << 0) /**< \brief (MPDDRC_WPSR) Write Protection Enable */
 #define MPDDRC_WPSR_CGD (0x1u << 1) /**< \brief (MPDDRC_WPSR) Clock Glitch Detected (cleared on read) */
@@ -590,70 +573,6 @@ typedef struct {
 #define MPDDRC_WPSR_ECLASS (0x1u << 31) /**< \brief (MPDDRC_WPSR) Software Error Class (cleared on read) */
 #define   MPDDRC_WPSR_ECLASS_WARNING (0x0u << 31) /**< \brief (MPDDRC_WPSR) An abnormal access that does not affect system functionality is performed. */
 #define   MPDDRC_WPSR_ECLASS_ERROR (0x1u << 31) /**< \brief (MPDDRC_WPSR) An access is performed into some registers after memory device initialization sequence. */
-/* -------- MPDDRC_VERSION : (MPDDRC Offset: 0xFC) MPDDRC Version Register -------- */
-#define MPDDRC_VERSION_VERSION_Pos 0
-#define MPDDRC_VERSION_VERSION_Msk (0xffffu << MPDDRC_VERSION_VERSION_Pos) /**< \brief (MPDDRC_VERSION) Version of the Hardware Module */
-#define MPDDRC_VERSION_MFN_Pos 16
-#define MPDDRC_VERSION_MFN_Msk (0xfu << MPDDRC_VERSION_MFN_Pos) /**< \brief (MPDDRC_VERSION) Metal Fix Number */
-/* -------- MPDDRC_DLL_OS : (MPDDRC Offset: 0x100) MPDDRC DLL Offset Selection Register -------- */
-#define MPDDRC_DLL_OS_SELOFF (0x1u << 0) /**< \brief (MPDDRC_DLL_OS) Offset Selection */
-/* -------- MPDDRC_DLL_MAO : (MPDDRC Offset: 0x104) MPDDRC DLL Master Offset Register -------- */
-#define MPDDRC_DLL_MAO_MAOFF_Pos 0
-#define MPDDRC_DLL_MAO_MAOFF_Msk (0xffu << MPDDRC_DLL_MAO_MAOFF_Pos) /**< \brief (MPDDRC_DLL_MAO) Master Delay Line Offset */
-#define MPDDRC_DLL_MAO_MAOFF(value) ((MPDDRC_DLL_MAO_MAOFF_Msk & ((value) << MPDDRC_DLL_MAO_MAOFF_Pos)))
-/* -------- MPDDRC_DLL_SO0 : (MPDDRC Offset: 0x108) MPDDRC DLL Slave Offset 0 Register -------- */
-#define MPDDRC_DLL_SO0_S0OFF_Pos 0
-#define MPDDRC_DLL_SO0_S0OFF_Msk (0xffu << MPDDRC_DLL_SO0_S0OFF_Pos) /**< \brief (MPDDRC_DLL_SO0) SLAVEx Delay Line Offset */
-#define MPDDRC_DLL_SO0_S0OFF(value) ((MPDDRC_DLL_SO0_S0OFF_Msk & ((value) << MPDDRC_DLL_SO0_S0OFF_Pos)))
-#define MPDDRC_DLL_SO0_S1OFF_Pos 8
-#define MPDDRC_DLL_SO0_S1OFF_Msk (0xffu << MPDDRC_DLL_SO0_S1OFF_Pos) /**< \brief (MPDDRC_DLL_SO0) SLAVEx Delay Line Offset */
-#define MPDDRC_DLL_SO0_S1OFF(value) ((MPDDRC_DLL_SO0_S1OFF_Msk & ((value) << MPDDRC_DLL_SO0_S1OFF_Pos)))
-#define MPDDRC_DLL_SO0_S2OFF_Pos 16
-#define MPDDRC_DLL_SO0_S2OFF_Msk (0xffu << MPDDRC_DLL_SO0_S2OFF_Pos) /**< \brief (MPDDRC_DLL_SO0) SLAVEx Delay Line Offset */
-#define MPDDRC_DLL_SO0_S2OFF(value) ((MPDDRC_DLL_SO0_S2OFF_Msk & ((value) << MPDDRC_DLL_SO0_S2OFF_Pos)))
-#define MPDDRC_DLL_SO0_S3OFF_Pos 24
-#define MPDDRC_DLL_SO0_S3OFF_Msk (0xffu << MPDDRC_DLL_SO0_S3OFF_Pos) /**< \brief (MPDDRC_DLL_SO0) SLAVEx Delay Line Offset */
-#define MPDDRC_DLL_SO0_S3OFF(value) ((MPDDRC_DLL_SO0_S3OFF_Msk & ((value) << MPDDRC_DLL_SO0_S3OFF_Pos)))
-/* -------- MPDDRC_DLL_WRO : (MPDDRC Offset: 0x110) MPDDRC DLL CLKWR Offset Register -------- */
-#define MPDDRC_DLL_WRO_WR0OFF_Pos 0
-#define MPDDRC_DLL_WRO_WR0OFF_Msk (0xffu << MPDDRC_DLL_WRO_WR0OFF_Pos) /**< \brief (MPDDRC_DLL_WRO) CLKWRx Delay Line Offset */
-#define MPDDRC_DLL_WRO_WR0OFF(value) ((MPDDRC_DLL_WRO_WR0OFF_Msk & ((value) << MPDDRC_DLL_WRO_WR0OFF_Pos)))
-#define MPDDRC_DLL_WRO_WR1OFF_Pos 8
-#define MPDDRC_DLL_WRO_WR1OFF_Msk (0xffu << MPDDRC_DLL_WRO_WR1OFF_Pos) /**< \brief (MPDDRC_DLL_WRO) CLKWRx Delay Line Offset */
-#define MPDDRC_DLL_WRO_WR1OFF(value) ((MPDDRC_DLL_WRO_WR1OFF_Msk & ((value) << MPDDRC_DLL_WRO_WR1OFF_Pos)))
-/* -------- MPDDRC_DLL_SM[2] : (MPDDRC Offset: 0x118) MPDDRC DLL Status Master 0 Register -------- */
-#define MPDDRC_DLL_SM_MDINC (0x1u << 0) /**< \brief (MPDDRC_DLL_SM[2]) MASTERx Delay Increment */
-#define MPDDRC_DLL_SM_MDDEC (0x1u << 1) /**< \brief (MPDDRC_DLL_SM[2]) MASTERx Delay Decrement */
-#define MPDDRC_DLL_SM_MDOVF (0x1u << 2) /**< \brief (MPDDRC_DLL_SM[2]) MASTERx Delay Overflow Flag */
-#define MPDDRC_DLL_SM_MDLVAL_Pos 8
-#define MPDDRC_DLL_SM_MDLVAL_Msk (0xffu << MPDDRC_DLL_SM_MDLVAL_Pos) /**< \brief (MPDDRC_DLL_SM[2]) MASTERx Delay Lock Value */
-#define MPDDRC_DLL_SM_MDCNT_Pos 20
-#define MPDDRC_DLL_SM_MDCNT_Msk (0xffu << MPDDRC_DLL_SM_MDCNT_Pos) /**< \brief (MPDDRC_DLL_SM[2]) MASTERx Delay Counter Value */
-/* -------- MPDDRC_DLL_SSL[4] : (MPDDRC Offset: 0x128) MPDDRC DLL Status Slave 0 Register -------- */
-#define MPDDRC_DLL_SSL_SDCOVF (0x1u << 0) /**< \brief (MPDDRC_DLL_SSL[4]) SLAVEx Delay Correction Overflow Flag */
-#define MPDDRC_DLL_SSL_SDCUDF (0x1u << 1) /**< \brief (MPDDRC_DLL_SSL[4]) SLAVEx Delay Correction Underflow Flag */
-#define MPDDRC_DLL_SSL_SDERF (0x1u << 2) /**< \brief (MPDDRC_DLL_SSL[4]) SLAVEx Delay Correction Error Flag */
-#define MPDDRC_DLL_SSL_SDCNT_Pos 8
-#define MPDDRC_DLL_SSL_SDCNT_Msk (0xffu << MPDDRC_DLL_SSL_SDCNT_Pos) /**< \brief (MPDDRC_DLL_SSL[4]) SLAVEx Delay Counter Value */
-#define MPDDRC_DLL_SSL_SDCVAL_Pos 20
-#define MPDDRC_DLL_SSL_SDCVAL_Msk (0xffu << MPDDRC_DLL_SSL_SDCVAL_Pos) /**< \brief (MPDDRC_DLL_SSL[4]) SLAVEx Delay Correction Value */
-/* -------- MPDDRC_DLL_SWR[2] : (MPDDRC Offset: 0x148) MPDDRC DLL Status CLKWR 0 Register -------- */
-#define MPDDRC_DLL_SWR_WRDCNT_Pos 0
-#define MPDDRC_DLL_SWR_WRDCNT_Msk (0xffu << MPDDRC_DLL_SWR_WRDCNT_Pos) /**< \brief (MPDDRC_DLL_SWR[2]) CLKWRx Delay Counter Value */
-/* -------- MPDDRC_DLL_BC : (MPDDRC Offset: 0x1D0) MPDDRC DLL BIST Control Register -------- */
-#define MPDDRC_DLL_BC_BISTEN (0x1u << 0) /**< \brief (MPDDRC_DLL_BC) BIST Mode Enable */
-#define MPDDRC_DLL_BC_BIST2EN (0x1u << 1) /**< \brief (MPDDRC_DLL_BC) BIST 2 Mode Enable */
-/* -------- MPDDRC_DLL_BS : (MPDDRC Offset: 0x1D4) MPDDRC DLL BIST Status Register -------- */
-#define MPDDRC_DLL_BS_BISTS (0x1u << 0) /**< \brief (MPDDRC_DLL_BS) BIST Mode Status */
-#define MPDDRC_DLL_BS_BIST2S (0x1u << 1) /**< \brief (MPDDRC_DLL_BS) BIST2 Mode Status */
-#define MPDDRC_DLL_BS_BIST2PASS (0x1u << 2) /**< \brief (MPDDRC_DLL_BS) BIST 2 is pass */
-#define MPDDRC_DLL_BS_DL_BIST2_FAIL_Pos 8
-#define MPDDRC_DLL_BS_DL_BIST2_FAIL_Msk (0x7fu << MPDDRC_DLL_BS_DL_BIST2_FAIL_Pos) /**< \brief (MPDDRC_DLL_BS) Delay line x [0:6] is failed */
-/* -------- MPDDRC_DLL_REVISION : (MPDDRC Offset: 0x1FC) MPDDRC DLL Revision Register -------- */
-#define MPDDRC_DLL_REVISION_VERSION_Pos 0
-#define MPDDRC_DLL_REVISION_VERSION_Msk (0xfffu << MPDDRC_DLL_REVISION_VERSION_Pos) /**< \brief (MPDDRC_DLL_REVISION) Version of the Hardware Module */
-#define MPDDRC_DLL_REVISION_MFN_Pos 16
-#define MPDDRC_DLL_REVISION_MFN_Msk (0x7u << MPDDRC_DLL_REVISION_MFN_Pos) /**< \brief (MPDDRC_DLL_REVISION) Metal Fix Number */
 
 /*@}*/
 

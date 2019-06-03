@@ -49,18 +49,16 @@ typedef struct {
 /** \brief Pwm hardware registers */
 #define PWMCH_NUM_NUMBER 4
 typedef struct {
-	__IO uint32_t PWM_CLK;       /**< \brief (Pwm Offset: 0x00) PWM Clock Register */
+  __IO uint32_t  PWM_CLK;                      /**< \brief (Pwm Offset: 0x00) PWM Mode Register */
   __O  uint32_t  PWM_ENA;                      /**< \brief (Pwm Offset: 0x04) PWM Enable Register */
   __O  uint32_t  PWM_DIS;                      /**< \brief (Pwm Offset: 0x08) PWM Disable Register */
   __I  uint32_t  PWM_SR;                       /**< \brief (Pwm Offset: 0x0C) PWM Status Register */
-	__O  uint32_t PWM_IER1;      /**< \brief (Pwm Offset: 0x10) PWM Interrupt Enable Register 1 */
-	__O  uint32_t PWM_IDR1;      /**< \brief (Pwm Offset: 0x14) PWM Interrupt Disable Register 1 */
-	__I  uint32_t PWM_IMR1;      /**< \brief (Pwm Offset: 0x18) PWM Interrupt Mask Register 1 */
-	__I  uint32_t PWM_ISR1;      /**< \brief (Pwm Offset: 0x1C) PWM Interrupt Status Register 1 */
-  __I  uint32_t  Reserved1[55];
-  __I  uint32_t  PWM_VERSION;                  /**< \brief (Pwm Offset: 0xFC) Version Register */
-  __I  uint32_t  Reserved2[64];
-       PwmCh_num PWM_CH[PWMCH_NUM_NUMBER]; /**< \brief (Pwm Offset: 0x200) ch_num = 0 .. 3 */
+  __O  uint32_t  PWM_IER1;                     /**< \brief (Pwm Offset: 0x10) PWM Interrupt Enable Register */
+  __O  uint32_t  PWM_IDR1;                     /**< \brief (Pwm Offset: 0x14) PWM Interrupt Disable Register */
+  __I  uint32_t  PWM_IMR1;                     /**< \brief (Pwm Offset: 0x18) PWM Interrupt Mask Register */
+  __I  uint32_t  PWM_ISR1;                     /**< \brief (Pwm Offset: 0x1C) PWM Interrupt Status Register */
+  __I  uint32_t  Reserved1[120];
+       PwmCh_num PWM_CH[PWMCH_NUM_NUMBER];     /**< \brief (Pwm Offset: 0x200) ch_num = 0 .. 3 */
 } Pwm;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 /* -------- PWM_MR : (PWM Offset: 0x00) PWM Mode Register -------- */
@@ -137,11 +135,6 @@ typedef struct {
 #define PWM_ISR1_CHID1 (0x1u << 1) /**< \brief (PWM_ISR1) Counter Event on Channel 1 */
 #define PWM_ISR1_CHID2 (0x1u << 2) /**< \brief (PWM_ISR1) Counter Event on Channel 2 */
 #define PWM_ISR1_CHID3 (0x1u << 3) /**< \brief (PWM_ISR1) Counter Event on Channel 3 */
-/* -------- PWM_VERSION : (PWM Offset: 0xFC) Version Register -------- */
-#define PWM_VERSION_VERSION_Pos 0
-#define PWM_VERSION_VERSION_Msk (0xfffu << PWM_VERSION_VERSION_Pos) /**< \brief (PWM_VERSION) Version of the Hardware Module */
-#define PWM_VERSION_MFN_Pos 16
-#define PWM_VERSION_MFN_Msk (0x7u << PWM_VERSION_MFN_Pos) /**< \brief (PWM_VERSION) Metal Fix Number */
 /* -------- PWM_CMR : (PWM Offset: N/A) PWM Channel Mode Register -------- */
 #define PWM_CMR_CPRE_Pos 0
 #define PWM_CMR_CPRE_Msk (0xfu << PWM_CMR_CPRE_Pos) /**< \brief (PWM_CMR) Channel Prescaler */

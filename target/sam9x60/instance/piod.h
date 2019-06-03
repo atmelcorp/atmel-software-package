@@ -77,7 +77,6 @@
   #define REG_PIOD_FRLHSR                   (0xFFFFFAD8U) /**< \brief (PIOD) Fall/Rise - Low/High Status Register */
   #define REG_PIOD_WPMR                     (0xFFFFFAE4U) /**< \brief (PIOD) Write Protection Mode Register */
   #define REG_PIOD_WPSR                     (0xFFFFFAE8U) /**< \brief (PIOD) Write Protection Status Register */
-  #define REG_PIOD_VERSION                  (0xFFFFFAFCU) /**< \brief (PIOD) Version Register */
   #define REG_PIOD_SCHMITT                  (0xFFFFFB00U) /**< \brief (PIOD) Schmitt Trigger Register */
   #define REG_PIOD_SLEWR                    (0xFFFFFB10U) /**< \brief (PIOD) I/O Slewrate Control Register */
   #define REG_PIOD_DRIVER                   (0xFFFFFB18U) /**< \brief (PIOD) I/O Drive Register */
@@ -127,7 +126,6 @@
   #define REG_PIOD_FRLHSR  (*(__I  uint32_t*)0xFFFFFAD8U) /**< \brief (PIOD) Fall/Rise - Low/High Status Register */
   #define REG_PIOD_WPMR    (*(__IO uint32_t*)0xFFFFFAE4U) /**< \brief (PIOD) Write Protection Mode Register */
   #define REG_PIOD_WPSR    (*(__I  uint32_t*)0xFFFFFAE8U) /**< \brief (PIOD) Write Protection Status Register */
-  #define REG_PIOD_VERSION (*(__I  uint32_t*)0xFFFFFAFCU) /**< \brief (PIOD) Version Register */
   #define REG_PIOD_SCHMITT (*(__IO uint32_t*)0xFFFFFB00U) /**< \brief (PIOD) Schmitt Trigger Register */
   #define REG_PIOD_SLEWR   (*(__IO uint32_t*)0xFFFFFB10U) /**< \brief (PIOD) I/O Slewrate Control Register */
   #define REG_PIOD_DRIVER  (*(__IO uint32_t*)0xFFFFFB18U) /**< \brief (PIOD) I/O Drive Register */

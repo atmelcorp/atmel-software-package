@@ -32,13 +32,15 @@
 
 /* ========== Register definition for SHDWC peripheral ========== */
 #if (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-  #define REG_SHDWC_CR                  (0xFFFFFE10U) /**< \brief (SHDWC) Control Register */
-  #define REG_SHDWC_MR                  (0xFFFFFE14U) /**< \brief (SHDWC) Mode Register */
-  #define REG_SHDWC_SR                  (0xFFFFFE18U) /**< \brief (SHDWC) Status Register */
+  #define REG_SHDWC_CR                    (0xFFFFFE10U) /**< \brief (SHDWC) Control Register */
+  #define REG_SHDWC_MR                    (0xFFFFFE14U) /**< \brief (SHDWC) Mode Register */
+  #define REG_SHDWC_SR                    (0xFFFFFE18U) /**< \brief (SHDWC) Status Register */
+  #define REG_SHDWC_WUIR                  (0xFFFFFE1CU) /**< \brief (SHDWC) Wakeup Inputs Register */
 #else
-  #define REG_SHDWC_CR (*(__O  uint32_t*)0xFFFFFE10U) /**< \brief (SHDWC) Control Register */
-  #define REG_SHDWC_MR (*(__IO uint32_t*)0xFFFFFE14U) /**< \brief (SHDWC) Mode Register */
-  #define REG_SHDWC_SR (*(__I  uint32_t*)0xFFFFFE18U) /**< \brief (SHDWC) Status Register */
+  #define REG_SHDWC_CR   (*(__O  uint32_t*)0xFFFFFE10U) /**< \brief (SHDWC) Control Register */
+  #define REG_SHDWC_MR   (*(__IO uint32_t*)0xFFFFFE14U) /**< \brief (SHDWC) Mode Register */
+  #define REG_SHDWC_SR   (*(__I  uint32_t*)0xFFFFFE18U) /**< \brief (SHDWC) Status Register */
+  #define REG_SHDWC_WUIR (*(__IO uint32_t*)0xFFFFFE1CU) /**< \brief (SHDWC) Wakeup Inputs Register */
 #endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #endif /* _SAM9X_SHDWC_INSTANCE_ */
