@@ -105,4 +105,12 @@
 		(((uint64_t)BIG_ENDIAN_TO_HOST((uint32_t)((x) & 0xffffffff)) << 32) | \
 		(((uint64_t)BIG_ENDIAN_TO_HOST((uint32_t)((x) >> 32)))))
 
+#ifdef CONFIG_RAMCODE
+	#define RAMCODE SECTION(".ramcode_section")
+	#define RAMDATA SECTION(".ramdata_section")
+#else
+	#define RAMCODE
+	#define RAMDATA
+#endif
+
 #endif /* _COMPILER_H_ */
