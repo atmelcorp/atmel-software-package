@@ -98,4 +98,9 @@ extern void mpddrc_configure(struct _mpddrc_desc* desc);
  */
 extern void mpddrc_issue_low_power_command(uint32_t cmd);
 
+void ddr_self_refresh(void);
+
+void check_ddr_ready(void);
+
+void ddram_active(void);
 #endif
