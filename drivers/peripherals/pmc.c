@@ -94,10 +94,20 @@ struct _pmc_main_osc {
  *        Variables
  *----------------------------------------------------------------------------*/
 
-static uint32_t _pmc_mck = 0;
+RAMDATA static uint32_t _pmc_mck = 0;
 static struct _pmc_main_osc _pmc_main_oscillators = {
 	.rc_freq = MAIN_CLOCK_INT_OSC,
 };
+
+#ifdef CONFIG_RAMCODE
+	#define TRACE_FATAL(...) ((void)0)
+	#define _ASSERT(x) ((void)0)
+	#define _SLEEP(x) do { for(volatile uint32_t count = 0; count < 100; count++);} while(0)
+#else
+	#define TRACE_FATAL trace_fatal
+	#define _ASSERT assert
+	#define _SLEEP(x) do { usleep(x); } while(0)
+#endif
 
 /*----------------------------------------------------------------------------
  *        Private functions
@@ -212,7 +222,7 @@ static uint32_t _pmc_get_pck_clock(uint32_t index)
 	return clk / (prescaler + 1);
 }
 
-static bool _pmc_get_system_clock_bits(enum _pmc_system_clock clock,
+RAMCODE static bool _pmc_get_system_clock_bits(enum _pmc_system_clock clock,
 	uint32_t *scer, uint32_t* scdr, uint32_t *scsr)
 {
 	uint32_t e, d, s;
@@ -346,7 +356,7 @@ static bool _pmc_get_system_clock_bits(enum _pmc_system_clock clock,
 }
 
 #ifdef CONFIG_HAVE_PMC_PERIPH_DIV
-static void _pmc_configure_peripheral_div(uint32_t id, uint32_t div)
+RAMCODE static void _pmc_configure_peripheral_div(uint32_t id, uint32_t div)
 {
 	uint32_t clk_max;
 	bool can_divide;
@@ -362,7 +372,7 @@ static void _pmc_configure_peripheral_div(uint32_t id, uint32_t div)
 		}
 	} else {
 		if (div > 1 && !can_divide)
-			trace_fatal("Peripheral does not support divided clock\r\n");
+			TRACE_FATAL("Peripheral does not support divided clock\r\n");
 		div--;
 	}
 
@@ -371,7 +381,7 @@ static void _pmc_configure_peripheral_div(uint32_t id, uint32_t div)
 		volatile uint32_t pcr = PMC->PMC_PCR;
 		PMC->PMC_PCR = (pcr & ~PMC_PCR_DIV_Msk) | PMC_PCR_DIV(div) | PMC_PCR_CMD;
 	} else {
-		trace_fatal("Peripheral clock for periph#%d is too high\r\n", (int)id);
+		TRACE_FATAL("Peripheral clock for periph#%d is too high\r\n", (int)id);
 	}
 }
 #endif
@@ -396,15 +406,15 @@ static uint16_t _pmc_measure_main_osc_freq(bool external_xt)
 }
 
 #if defined(PMC_PLL_UPDT_ID)
-static void _pmc_configure_pll(const struct _pmc_plla_cfg* plla)
+RAMCODE static void _pmc_configure_pll(const struct _pmc_plla_cfg* plla)
 {
 	uint32_t reg;
 
 	if (plla->pll_id == PLL_ID_PLLA) {
 	} else if (plla->pll_id == PLL_ID_UPLL){
-		assert(plla->div == 1);
+		_ASSERT(plla->div == 1);
 	} else {
-		trace_fatal("Unknown PLL which index is %d\r\n", (int)plla->pll_id);
+		TRACE_FATAL("Unknown PLL which index is %d\r\n", (int)plla->pll_id);
 	}
 
 	/* Follow the steps below to power-on a PLL: */
@@ -422,7 +432,7 @@ static void _pmc_configure_pll(const struct _pmc_plla_cfg* plla)
 		reg |= PMC_PLL_ACR_DEFAULT;
 		PMC->PMC_PLL_ACR = reg;
 		/* 3. Wait 10 us. */
-		usleep(10);
+		_SLEEP(10);
 	}
 
 	/* 2. Configure PMC_PLL_ACR.LOOP_FILTER. */
@@ -443,7 +453,7 @@ static void _pmc_configure_pll(const struct _pmc_plla_cfg* plla)
 		reg |= PMC_PLL_ACR_DEFAULT;
 		PMC->PMC_PLL_ACR = reg;
 		/* 5. Wait 10 us. */
-		usleep(10);
+		_SLEEP(10);
 
 		/* 6. Write PMC_PLL_ACR.UTMIVR to '1' to enable the UTMI internal regulator. */
 		reg = PMC->PMC_PLL_ACR;
@@ -452,7 +462,7 @@ static void _pmc_configure_pll(const struct _pmc_plla_cfg* plla)
 		PMC->PMC_PLL_ACR = reg;
 
 		/* 7. Wait 10 us. */
-		usleep(10);
+		_SLEEP(10);
 	}
 
 	/* 8. Set PMC_PLL_UPDT.UPDATE to '1'. PMC_PLL_UPDT.ID must equal the one written during step
@@ -480,14 +490,14 @@ static void _pmc_configure_pll(const struct _pmc_plla_cfg* plla)
 	PMC->PMC_PLL_IER |= (PMC_PLL_IER_UNLOCK0 << plla->pll_id);
 }
 
-static void _pmc_disable_pll(uint32_t pll_id)
+RAMCODE static void _pmc_disable_pll(uint32_t pll_id)
 {
 	uint32_t reg;
 
 	if (pll_id == PLL_ID_PLLA) {
 	} else if (pll_id == PLL_ID_UPLL){
 	} else {
-		trace_fatal("Unknown PLL which index is %d\r\n", (int)pll_id);
+		TRACE_FATAL("Unknown PLL which index is %d\r\n", (int)pll_id);
 	}
 
 	/* To power-down a PLL, the following sequence must be applied: */
@@ -521,12 +531,12 @@ static void _pmc_disable_pll(uint32_t pll_id)
 	}
 }
 
-static bool _pmc_pll_enabled(uint32_t pll_id)
+RAMCODE static bool _pmc_pll_enabled(uint32_t pll_id)
 {
 	return (PMC->PMC_PLL_ISR0 & (1 << (pll_id & 0xf))) != 0;
 }
 
-static uint32_t _pmc_get_pll_clock(uint32_t pll_id)
+RAMCODE static uint32_t _pmc_get_pll_clock(uint32_t pll_id)
 {
 	uint32_t mul, fracr, divpmc;
 	uint32_t f_core, f_ref;
@@ -541,9 +551,9 @@ static uint32_t _pmc_get_pll_clock(uint32_t pll_id)
 		f_ref = pmc_get_main_clock();
 	} else if (pll_id == PLL_ID_UPLL){
 		f_ref = pmc_get_main_oscillator_freq();
-		assert(divpmc == 1);
+		_ASSERT(divpmc == 1);
 	} else {
-		trace_fatal("Unknown PLL which index is %d\r\n", (int)pll_id);
+		TRACE_FATAL("Unknown PLL which index is %d\r\n", (int)pll_id);
 	}
 
 	f_core = f_ref * (mul + 1) + (uint32_t)((((uint64_t)f_ref) * fracr) >> 22);
@@ -735,7 +745,7 @@ uint32_t pmc_get_processor_clock(void)
 	return procclk;
 }
 
-void pmc_select_external_crystal(void)
+RAMCODE void pmc_select_external_crystal(void)
 {
 	bool return_to_slck = false;
 
@@ -751,7 +761,7 @@ void pmc_select_external_crystal(void)
 		pmc_switch_mck_to_slck();
 }
 
-void pmc_select_internal_crystal(void)
+RAMCODE void pmc_select_internal_crystal(void)
 {
 	bool return_to_slck = false;
 
@@ -767,7 +777,7 @@ void pmc_select_internal_crystal(void)
 		pmc_switch_mck_to_slck();
 }
 
-int pmc_select_external_osc(bool bypass)
+RAMCODE int pmc_select_external_osc(bool bypass)
 {
 	int err;
 	volatile uint32_t timeout;
@@ -819,7 +829,7 @@ int pmc_select_external_osc(bool bypass)
 	return 0;
 }
 
-int pmc_enable_external_osc(bool bypass)
+RAMCODE int pmc_enable_external_osc(bool bypass)
 {
 	uint32_t cgmor = PMC->CKGR_MOR;
 	uint32_t mask = CKGR_MOR_MOSCXTEN;
@@ -892,7 +902,7 @@ int pmc_enable_external_osc(bool bypass)
 	}
 }
 
-void pmc_disable_external_osc(void)
+RAMCODE void pmc_disable_external_osc(void)
 {
 #ifdef CKGR_MOR_MOSCXTBY
 	uint32_t mask = CKGR_MOR_MOSCXTEN | CKGR_MOR_MOSCXTBY;
@@ -905,7 +915,7 @@ void pmc_disable_external_osc(void)
 	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~(mask | CKGR_MOR_KEY_Msk)) | CKGR_MOR_KEY_PASSWD;
 }
 
-void pmc_select_internal_osc(void)
+RAMCODE void pmc_select_internal_osc(void)
 {
 	pmc_enable_internal_osc();
 
@@ -920,7 +930,7 @@ void pmc_select_internal_osc(void)
 	pmc_disable_external_osc();
 }
 
-void pmc_enable_internal_osc(void)
+RAMCODE void pmc_enable_internal_osc(void)
 {
 #ifdef CKGR_MOR_MOSCRCEN
 	/* Enable internal 12MHz RC when needed */
@@ -932,11 +942,22 @@ void pmc_enable_internal_osc(void)
 #endif
 }
 
-void pmc_disable_internal_osc(void)
+RAMCODE void pmc_disable_internal_osc(void)
 {
 #ifdef CKGR_MOR_MOSCRCEN
 	/* disable internal 12MHz RC */
 	PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_MOSCRCEN & ~CKGR_MOR_KEY_Msk) | CKGR_MOR_KEY_PASSWD;
+#endif
+}
+
+RAMCODE void pmc_enable_ulp1(void)
+{
+#ifdef CKGR_MOR_ULP1
+	/* enable ulp1 mode */
+	PMC->CKGR_MOR = PMC->CKGR_MOR | CKGR_MOR_ULP1 | CKGR_MOR_KEY_PASSWD;
+	asm volatile ("nop");
+	asm volatile ("nop");
+	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
 #endif
 }
 
@@ -953,7 +974,7 @@ void pmc_switch_mck_to_new_source(uint32_t mckr_css)
 	_pmc_mck = 0;
 }
 
-void pmc_switch_mck_to_pll(void)
+RAMCODE void pmc_switch_mck_to_pll(void)
 {
 	/* Select PLL as input clock for PCK and MCK */
 	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_CSS_Msk) | PMC_MCKR_CSS_PLLA_CLK;
@@ -962,7 +983,7 @@ void pmc_switch_mck_to_pll(void)
 	_pmc_mck = 0;
 }
 
-void pmc_switch_mck_to_upll(void)
+RAMCODE void pmc_switch_mck_to_upll(void)
 {
 	/* Select UPLL as input clock for PCK and MCK */
 	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_CSS_Msk) | PMC_MCKR_CSS_UPLL_CLK;
@@ -971,7 +992,7 @@ void pmc_switch_mck_to_upll(void)
 	_pmc_mck = 0;
 }
 
-void pmc_switch_mck_to_main(void)
+RAMCODE void pmc_switch_mck_to_main(void)
 {
 	/* Select Main Oscillator as input clock for PCK and MCK */
 	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_CSS_Msk) | PMC_MCKR_CSS_MAIN_CLK;
@@ -980,7 +1001,7 @@ void pmc_switch_mck_to_main(void)
 	_pmc_mck = 0;
 }
 
-void pmc_switch_mck_to_slck(void)
+RAMCODE void pmc_switch_mck_to_slck(void)
 {
 	/* Select Slow Clock as input clock for PCK and MCK */
 	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_CSS_Msk) | PMC_MCKR_CSS_SLOW_CLK;
@@ -989,9 +1010,9 @@ void pmc_switch_mck_to_slck(void)
 	_pmc_mck = 0;
 }
 
-void pmc_set_mck_prescaler(uint32_t prescaler)
+RAMCODE void pmc_set_mck_prescaler(uint32_t prescaler)
 {
-	assert(!(prescaler & ~PMC_MCKR_PRES_Msk));
+	_ASSERT(!(prescaler & ~PMC_MCKR_PRES_Msk));
 
 	/* Change MCK Prescaler divider in PMC_MCKR register */
 	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_PRES_Msk) | prescaler;
@@ -999,7 +1020,7 @@ void pmc_set_mck_prescaler(uint32_t prescaler)
 }
 
 #ifdef CONFIG_HAVE_PMC_PLLADIV2
-void pmc_set_mck_plladiv2(bool div2)
+RAMCODE void pmc_set_mck_plladiv2(bool div2)
 {
 	uint32_t mckr = PMC->PMC_MCKR;
 	if (div2) {
@@ -1029,7 +1050,7 @@ void pmc_set_mck_uplldiv2(bool div2)
 #endif
 
 #ifdef CONFIG_HAVE_PMC_H32MXDIV
-void pmc_set_mck_h32mxdiv(bool div2)
+RAMCODE void pmc_set_mck_h32mxdiv(bool div2)
 {
 	uint32_t mckr = PMC->PMC_MCKR;
 	if (div2) {
@@ -1043,16 +1064,16 @@ void pmc_set_mck_h32mxdiv(bool div2)
 }
 #endif /* CONFIG_HAVE_PMC_H32MXDIV */
 
-void pmc_set_mck_divider(uint32_t divider)
+RAMCODE void pmc_set_mck_divider(uint32_t divider)
 {
-	assert(!(divider & ~PMC_MCKR_MDIV_Msk));
+	_ASSERT(!(divider & ~PMC_MCKR_MDIV_Msk));
 
 	/* change MCK Prescaler divider in PMC_MCKR register */
 	PMC->PMC_MCKR = (PMC->PMC_MCKR & ~PMC_MCKR_MDIV_Msk) | divider;
 	while (!(PMC->PMC_SR & PMC_SR_MCKRDY));
 }
 
-void pmc_configure_plla(const struct _pmc_plla_cfg* plla)
+RAMCODE void pmc_configure_plla(const struct _pmc_plla_cfg* plla)
 {
 #if defined(PMC_PLL_UPDT_ID)
 	_pmc_configure_pll(plla);
@@ -1076,7 +1097,7 @@ void pmc_configure_plla(const struct _pmc_plla_cfg* plla)
 #endif
 }
 
-void pmc_disable_plla(void)
+RAMCODE void pmc_disable_plla(void)
 {
 #if defined(PMC_PLL_UPDT_ID)
 	_pmc_disable_pll(PLL_ID_PLLA);
@@ -1090,7 +1111,7 @@ bool pmc_has_system_clock(enum _pmc_system_clock clock)
 	return _pmc_get_system_clock_bits(clock, NULL, NULL, NULL);
 }
 
-void pmc_enable_system_clock(enum _pmc_system_clock clock)
+RAMCODE void pmc_enable_system_clock(enum _pmc_system_clock clock)
 {
 	uint32_t scer, scsr;
 
@@ -1103,7 +1124,7 @@ void pmc_enable_system_clock(enum _pmc_system_clock clock)
 	while (!(PMC->PMC_SCSR & scsr));
 }
 
-void pmc_disable_system_clock(enum _pmc_system_clock clock)
+RAMCODE void pmc_disable_system_clock(enum _pmc_system_clock clock)
 {
 	uint32_t scdr, scsr;
 
@@ -1143,7 +1164,7 @@ void pmc_set_fast_startup_polarity(uint32_t high_level, uint32_t low_level)
 }
 #endif /* CONFIG_HAVE_PMC_FAST_STARTUP */
 
-void pmc_set_custom_pck_mck(const struct pck_mck_cfg *cfg)
+RAMCODE void pmc_set_custom_pck_mck(const struct pck_mck_cfg *cfg)
 {
 	pmc_switch_mck_to_slck();
 
@@ -1197,9 +1218,9 @@ void pmc_set_custom_pck_mck(const struct pck_mck_cfg *cfg)
  *        Exported functions (Peripherals)
  *----------------------------------------------------------------------------*/
 
-void pmc_configure_peripheral(uint32_t id, const struct _pmc_periph_cfg* cfg, bool enable)
+RAMCODE void pmc_configure_peripheral(uint32_t id, const struct _pmc_periph_cfg* cfg, bool enable)
 {
-	assert(id < ID_PERIPH_COUNT);
+	_ASSERT(id < ID_PERIPH_COUNT);
 
 	pmc_disable_peripheral(id);
 
@@ -1231,9 +1252,9 @@ void pmc_configure_peripheral(uint32_t id, const struct _pmc_periph_cfg* cfg, bo
 	}
 }
 
-void pmc_enable_peripheral(uint32_t id)
+RAMCODE void pmc_enable_peripheral(uint32_t id)
 {
-	assert(id < ID_PERIPH_COUNT);
+	_ASSERT(id < ID_PERIPH_COUNT);
 
 	// select peripheral
 	PMC->PMC_PCR = PMC_PCR_PID(id);
@@ -1242,9 +1263,9 @@ void pmc_enable_peripheral(uint32_t id)
 	PMC->PMC_PCR = pcr | PMC_PCR_CMD | PMC_PCR_EN;
 }
 
-void pmc_disable_peripheral(uint32_t id)
+RAMCODE void pmc_disable_peripheral(uint32_t id)
 {
-	assert(id < ID_PERIPH_COUNT);
+	_ASSERT(id < ID_PERIPH_COUNT);
 
 	// select peripheral
 	PMC->PMC_PCR = PMC_PCR_PID(id);
@@ -1618,7 +1639,7 @@ void pmc_enable_gck(uint32_t id)
 #endif
 }
 
-void pmc_disable_gck(uint32_t id)
+RAMCODE void pmc_disable_gck(uint32_t id)
 {
 	assert(id < ID_PERIPH_COUNT);
 

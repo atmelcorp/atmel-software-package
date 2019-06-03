@@ -35,12 +35,12 @@
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-bool slowclock_is_internal(enum _slowclock_domain domain)
+RAMCODE bool slowclock_is_internal(enum _slowclock_domain domain)
 {
 	return (SCKC->SCKC_CR & SCKC_CR_OSCSEL) != SCKC_CR_OSCSEL;
 }
 
-void slowclock_select_internal(enum _slowclock_domain domain)
+RAMCODE void slowclock_select_internal(enum _slowclock_domain domain)
 {
 	volatile int count;
 
@@ -67,7 +67,7 @@ void slowclock_select_internal(enum _slowclock_domain domain)
 #endif
 }
 
-void slowclock_select_external(enum _slowclock_domain domain)
+RAMCODE void slowclock_select_external(enum _slowclock_domain domain)
 {
 	volatile int count;
 
