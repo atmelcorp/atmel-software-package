@@ -253,6 +253,11 @@ extern void pmc_select_internal_osc(void);
 extern void pmc_enable_internal_osc(void);
 
 /**
+ * \brief Enable ulp1 mode.
+ */
+extern void pmc_enable_ulp1(void);
+
+/**
  * \brief Disable internal 12M OSC.
  */
 extern void pmc_disable_internal_osc(void);
