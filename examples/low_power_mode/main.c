@@ -231,22 +231,6 @@ static void _configure_buttons(void)
 	}
 }
 
-static void _check_ddr_ready(void)
-{
-#ifdef CONFIG_HAVE_SFRBU
-	if (sfrbu_is_ddr_backup_enabled()) {
-		/* Enable the DDR Controller clock signal at PMC level */
-		pmc_configure_peripheral(ID_MPDDRC, NULL, true);
-		/* Enable ddrclk */
-		pmc_enable_system_clock(PMC_SYSTEM_CLOCK_DDR);
-		/* Disable DDR Backup mode */
-		sfrbu_disable_ddr_backup();
-	}
-#endif
-
-	mpddrc_issue_low_power_command(MPDDRC_LPR_LPCB_DISABLED);
-}
-
 /**
  * \brief Test SDRAM access
  * \param base_addr Base address of SDRAM
@@ -259,7 +243,7 @@ static uint32_t _sdram_access(uint32_t base_addr, uint32_t size)
 	uint32_t ret = 1;
 	uint32_t *ptr32 = (uint32_t *) base_addr;
 
-	_check_ddr_ready();
+	check_ddr_ready();
 
 	/* Test for DWORD accessing */
 	printf(" Test for DWORD accessing...\n\r");
@@ -274,7 +258,7 @@ static uint32_t _sdram_check(uint32_t base_addr, uint32_t size)
 	uint32_t ret = 1;
 	uint32_t *ptr32 = (uint32_t *) base_addr;
 
-	_check_ddr_ready();
+	check_ddr_ready();
 
 	/* Test for DWORD accessing */
 	printf("Test for DWORD accessing...\n\r");
@@ -686,18 +670,7 @@ static void menu_self_refresh(void)
 	printf("\n\r\n\r");
 	printf("=========== Set DDR into self-refresh ===========\n\r");
 
-	mpddrc_issue_low_power_command(MPDDRC_LPR_LPCB_SELFREFRESH);
-
-#ifdef CONFIG_HAVE_SFRBU
-	if (!sfrbu_is_ddr_backup_enabled()) {
-		/* Disable the DDR Controller clock signal at PMC level*/
-		pmc_disable_peripheral(ID_MPDDRC);
-		/* Disable ddrclk */
-		pmc_disable_system_clock(PMC_SYSTEM_CLOCK_DDR);
-
-		sfrbu_enable_ddr_backup();
-	}
-#endif
+	ddr_self_refresh();
 }
 
 static void menu_out_of_self_refresh(void)
@@ -705,7 +678,7 @@ static void menu_out_of_self_refresh(void)
 	printf("\n\r\n\r");
 	printf("=========== Out of DDR Self refresh state  ===========\n\r");
 
-	_check_ddr_ready();
+	check_ddr_ready();
 }
 
 /*----------------------------------------------------------------------------
