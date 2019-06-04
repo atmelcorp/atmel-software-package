@@ -50,12 +50,17 @@ void mutex_lock(mutex_t* mutex)
 bool mutex_try_lock(mutex_t* mutex)
 {
 	uint32_t value;
-	asm("ldrex %0, [%1]" : "=r"(value) : "r"(mutex));
-	if (value != MUTEX_UNLOCKED)
-		return false;
-	asm("strex %0, %1, [%2]" : "=&r"(value) : "r"(MUTEX_LOCKED), "r"(mutex));
-	if (value == 1) /* strex failed */
-		return false;
+	while (true)
+	{
+		// Read the current mutex value and tag the mutex address for exclusive access by the executing processor
+		__asm volatile("ldrex %0, [%1]" : "=r"(value) : "r"(mutex));
+		if (value != MUTEX_UNLOCKED)
+			return false;
+		// Provided the executing processor still has exclusive access to the mutex address, lock it now
+		__asm volatile("strex %0, %1, [%2]" : "=&r"(value) : "r"(MUTEX_LOCKED), "r"(mutex));
+		if (value == 0) /* Check if strex was ok */
+			break;
+	}
 	dmb();
 	return true;
 }
