@@ -50,12 +50,19 @@ void mutex_lock(mutex_t* mutex)
 bool mutex_try_lock(mutex_t* mutex)
 {
 	uint32_t value;
-	asm("ldrex %0, [%1]" : "=r"(value) : "r"(mutex));
-	if (value != MUTEX_UNLOCKED)
-		return false;
-	asm("strex %0, %1, [%2]" : "=&r"(value) : "r"(MUTEX_LOCKED), "r"(mutex));
-	if (value == 1) /* strex failed */
-		return false;
+	while (true)
+	{
+		__asm volatile("ldrex %0, [%1]" : "=r"(value) : "r"(mutex));
+		if (value != MUTEX_UNLOCKED)
+		{
+			return false;
+		}
+		__asm volatile("strex %0, %1, [%2]" : "=&r"(value) : "r"(MUTEX_LOCKED), "r"(mutex));
+		if (value == 0) /* Check if strex was ok */
+		{
+			break;
+		}
+	}
 	dmb();
 	return true;
 }
