@@ -186,7 +186,7 @@ static void _init_edf8164a3ma(struct _mpddrc_desc* desc)
 	desc->timings.trtp  = MAX(NS2CYCLES(8, mck), 4);   // max(7.5ns, 4ck)
 	desc->timings.tfaw  = MAX(NS2CYCLES(50, mck), 8);  // max(50ns, 8ck)
 
-	desc->refresh_window = 64;
+	desc->refresh_window = 32;
 	desc->refresh_cycles = 8192;
 }
 #endif /* CONFIG_HAVE_LPDDR3_EDF8164A3MA */
@@ -245,8 +245,11 @@ static void _init_w971gg6sb(struct _mpddrc_desc* desc)
 	desc->timings.trtp   = NS2CYCLES(8, mck);   // 7.5ns
 	desc->timings.tfaw   = NS2CYCLES(45, mck);  // 45ns
 
+	/* Rolling refresh window: 64 ms */
 	desc->refresh_window = 64;
-	desc->refresh_cycles = 8192;
+	/* Periodic auto-refresh interval: tREFI = 7.8 usec
+	 * Within a refresh window at least 8205 REFRESH commands shall be issued */
+	desc->refresh_cycles = 8205;
 }
 #endif /* CONFIG_HAVE_DDR2_W971GG6SB */
 
@@ -330,10 +333,10 @@ static void _init_w972gg6kb(struct _mpddrc_desc* desc, uint8_t bus_width)
 	desc->timings.trtp   = MAX(NS2CYCLES(8, mck), 4);
 	desc->timings.tfaw   = NS2CYCLES(45, mck);  /* 45 ns */
 
-	/* Arbitrary software period: 64 ms */
+	/* Rolling refresh window: 64 ms */
 	desc->refresh_window = 64;
 	/* Periodic auto-refresh interval: tREFI = 7.8 usec
-	 * Within our arbitrary software period it fits 8205 times */
+	 * Within a refresh window at least 8205 REFRESH commands shall be issued */
 	desc->refresh_cycles = 8205;
 }
 #endif /* CONFIG_HAVE_DDR2_W972GG6KB */
@@ -651,7 +654,7 @@ static void _init_mt46h64m16(struct _mpddrc_desc *desc)
 	desc->timings.trtp   = 2;                   // 2ck
 
 	desc->refresh_window = 64;   /* tref = 64ms */
-	desc->refresh_cycles = 8192; /* trefi = 7.8us */
+	desc->refresh_cycles = 8192; /* REFRESH count = 8K */
 }
 #endif /* CONFIG_HAVE_LPDDR_MT46H64M16 */
 
