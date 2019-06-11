@@ -196,9 +196,14 @@ static void _init_edf8164a3ma(struct _mpddrc_desc* desc)
 #ifdef CONFIG_HAVE_MPDDRC_DDR2
 
 #ifdef CONFIG_HAVE_DDR2_W971GG6SB
+/* Configuring the Multiport DDR-SDRAM Controller for Winbond W971GG6SB25I */
 static void _init_w971gg6sb(struct _mpddrc_desc* desc)
 {
+	/* SAMA5D2's General Clock Block Diagram shows that DDRCK is 2 x MCK / 2 */
 	uint32_t mck = pmc_get_master_clock() / 1000000;
+
+	/* Verify that tCK ranges from 5 to 8 ns */
+	assert(mck >= 125 && mck <= 200);
 
 	desc->type = MPDDRC_TYPE_DDR2;
 
@@ -209,6 +214,7 @@ static void _init_w971gg6sb(struct _mpddrc_desc* desc)
 	desc->data_path = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_ONE_CYCLE;
 #endif
 
+	/* Refer to the description of memory address signals A[12:0] */
 	desc->control = MPDDRC_CR_NR_13_ROW_BITS
 	              | MPDDRC_CR_NC_DDR_10_COL_BITS
 	              | MPDDRC_CR_CAS_DDR_CAS3
@@ -220,30 +226,34 @@ static void _init_w971gg6sb(struct _mpddrc_desc* desc)
 #ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
 	desc->io_calibr = MPDDRC_IO_CALIBR_TZQIO(TZQIO_CYCLES(mck));
 #ifdef MPDDRC_IO_CALIBR_RDIV
+	/* Serial impedance line: 52 Ohms */
 	desc->io_calibr |= MPDDRC_IO_CALIBR_RDIV(4);
 #endif
 #endif
 
 	/* timings */
-
 	memset(&desc->timings, 0, sizeof(desc->timings));
-	desc->timings.tras   = NS2CYCLES(40, mck);  // 40ns
-	desc->timings.trcd   = NS2CYCLES(13, mck);  // 12.5ns
-	desc->timings.twr    = NS2CYCLES(15, mck);  // 15ns
-	desc->timings.trc    = NS2CYCLES(53, mck);  // 52.5ns
-	desc->timings.trp    = NS2CYCLES(13, mck);  // 12.5ns
-	desc->timings.trrd   = NS2CYCLES(10, mck);  // 10ns
-	desc->timings.twtr   = NS2CYCLES(8, mck);   // 7.5ns
-	desc->timings.tmrd   = 2;                   // 2ck
-	desc->timings.trfc   = NS2CYCLES(128, mck); // 127.5ns
-	desc->timings.txsnr  = NS2CYCLES(138, mck); // tRFC+10ns
-	desc->timings.txsrd  = 200;                 // 200ck
-	desc->timings.txp    = 2;                   // 2ck
-	desc->timings.txard  = 2;                   // 2ck
-	desc->timings.txards = 8;                   // 8ck
-	desc->timings.trpa   = desc->timings.trp + 1; // tRP+1ck
-	desc->timings.trtp   = NS2CYCLES(8, mck);   // 7.5ns
-	desc->timings.tfaw   = NS2CYCLES(45, mck);  // 45ns
+	desc->timings.tras   = NS2CYCLES(40, mck);  /* 40 ns */
+	desc->timings.trcd   = NS2CYCLES(13, mck);  /* 12.5 ns */
+	desc->timings.twr    = NS2CYCLES(15, mck);  /* 15 ns */
+	desc->timings.trc    = NS2CYCLES(53, mck);  /* 52.5 ns */
+	desc->timings.trp    = NS2CYCLES(13, mck);  /* 12.5 ns */
+	/* Satisfy both tRRD >= 10 ns and tRRD >= 2 nCK */
+	desc->timings.trrd   = MAX(NS2CYCLES(10, mck), 2);
+	/* Satisfy both tWTR >= 7.5 ns and tWTR >= 2 nCK */
+	desc->timings.twtr   = MAX(NS2CYCLES(8, mck), 2);
+	desc->timings.tmrd   = 2;                   /* 2 nCK */
+	desc->timings.trfc   = NS2CYCLES(128, mck); /* 127.5 ns */
+	desc->timings.txsnr  = NS2CYCLES(138, mck); /* tRFC + 10 ns */
+	desc->timings.txsrd  = 200;                 /* 200 nCK */
+	desc->timings.txp    = 2;                   /* 2 nCK */
+	desc->timings.txard  = 2;                   /* 2 nCK */
+	desc->timings.txards = 8;                   /* 8 - AL = 8 nCK */
+	desc->timings.trpa   = 1 + desc->timings.trp; /* tRPall = tRP + 1 nCK */
+	/* MPDDRC implements tRTP >= AL + BL/2
+	 * Satisfy tRTP >= tRTP(min) i.e. tRTP >= 7.5 ns */
+	desc->timings.trtp   = NS2CYCLES(8, mck);
+	desc->timings.tfaw   = NS2CYCLES(45, mck);  /* 45 ns */
 
 	/* Rolling refresh window: 64 ms */
 	desc->refresh_window = 64;
@@ -286,6 +296,7 @@ static void _init_w972gg6kb(struct _mpddrc_desc* desc, uint8_t bus_width)
 	  : MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_ONE_CYCLE;
 #endif
 
+	/* Refer to the description of memory address signals A[13:0] */
 	desc->control = MPDDRC_CR_NR_14_ROW_BITS
 	              | MPDDRC_CR_NC_DDR_10_COL_BITS
 	              | MPDDRC_CR_CAS_DDR_CAS3
@@ -297,6 +308,7 @@ static void _init_w972gg6kb(struct _mpddrc_desc* desc, uint8_t bus_width)
 #ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
 	desc->io_calibr = MPDDRC_IO_CALIBR_TZQIO(TZQIO_CYCLES(mck));
 #ifdef MPDDRC_IO_CALIBR_RDIV
+	/* Serial impedance line: 52 Ohms */
 	desc->io_calibr |= MPDDRC_IO_CALIBR_RDIV(4);
 #endif
 #ifdef MPDDRC_IO_CALIBR_EN_CALIB_ENABLE_CALIBRATION
@@ -326,11 +338,9 @@ static void _init_w972gg6kb(struct _mpddrc_desc* desc, uint8_t bus_width)
 	desc->timings.txard  = 2;                   /* 2 nCK */
 	desc->timings.txards = 8;                   /* 8 - AL = 8 nCK */
 	desc->timings.trpa   = 1 + NS2CYCLES(13, mck);  /* tRPall = tRP + 1 nCK */
-	/* Read to precharge cmd delay, satisfy both constraints:
-	 * (1) tRTP >= tRTP(min) i.e. tRTP >= 7.5 ns
-	 * (2) tRTP >= AL+BL/2   i.e. tRTP >= 4 nCK
-	 * with Additive Latency = 0 nCK, and Burst Length = 8 bits */
-	desc->timings.trtp   = MAX(NS2CYCLES(8, mck), 4);
+	/* MPDDRC implements tRTP >= AL + BL/2
+	 * Satisfy tRTP >= tRTP(min) i.e. tRTP >= 7.5 ns */
+	desc->timings.trtp   = NS2CYCLES(8, mck);
 	desc->timings.tfaw   = NS2CYCLES(45, mck);  /* 45 ns */
 
 	/* Rolling refresh window: 64 ms */
