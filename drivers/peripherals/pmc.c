@@ -1136,8 +1136,10 @@ void pmc_set_fast_startup_mode(uint32_t startup_mode)
 
 void pmc_set_fast_startup_polarity(uint32_t high_level, uint32_t low_level)
 {
+#ifdef PMC_FSPR_FSTP0
 	PMC->PMC_FSPR &= ~low_level;
 	PMC->PMC_FSPR |= high_level;
+#endif /* PMC_FSPR_FSTP0 */
 }
 #endif /* CONFIG_HAVE_PMC_FAST_STARTUP */
 
