@@ -461,7 +461,7 @@ static void menu_ulp0(void)
 
 	printf("\n\r\n\r");
 	printf("  =========== Enter Ultra Low Power mode 0 ===========\n\r");
-
+	while(!console_is_tx_empty());
 	/* Back up IOs and USB transceivers */
 	read_reg[0] = PMC->PMC_PCSR0;
 	read_reg[1] = PMC->PMC_PCSR1;
@@ -509,7 +509,7 @@ static void menu_ulp1(void)
 	printf("  =========== Enter Ultra Low Power mode 1 ===========\n\r");
 	printf("  =========== USE WKUP0 button to wake up  ===========\n\r");
 	printf("  === Auto wakeup from RTC alarm after 30 second =====\n\r");
-
+	while(!console_is_tx_empty());
 	/* Back up IOs and USB transceivers */
 	read_reg[0] = PMC->PMC_PCSR0;
 	read_reg[1] = PMC->PMC_PCSR1;
@@ -571,7 +571,7 @@ static void menu_ulp(void)
 	printf("\n\r\n\r");
 	printf("  =========== Enter Ultra Low Power mode  ============\n\r");
 	printf("  === Auto wakeup from RTC alarm after 30 second =====\n\r");
-
+	while(!console_is_tx_empty());
 	/* Back up IOs and USB transceivers */
 	read_reg[0] = PMC->PMC_PCSR0;
 	read_reg[1] = PMC->PMC_PCSR1;
@@ -637,6 +637,7 @@ static void menu_idle(void)
 #endif
 
 	printf("=========== Enter Idle mode ===========\n\r");
+	while(!console_is_tx_empty());
 	/* config PCK and MCK */
 	pmc_set_custom_pck_mck(&clock_test_setting[use_clock_setting]);
 	cpu_idle();
