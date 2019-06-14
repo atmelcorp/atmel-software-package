@@ -452,6 +452,7 @@ uint32_t rtc_set_time_alarm(struct _time *time)
 	if (time->sec) {
 		alarm |= RTC_TIMALR_SECEN | ((time->sec / 10) << 4) | (time->sec % 10);
 	}
+	RTC->RTC_SCCR = RTC_SCCR_ALRCLR;
 	RTC->RTC_TIMALR = alarm;
 	return (uint32_t) (RTC->RTC_VER & RTC_VER_NVTIMALR);
 }
