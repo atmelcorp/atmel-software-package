@@ -157,10 +157,13 @@ static void _eth_rx_callback(uint8_t queue, uint32_t status)
  */
 uint8_t select_eth_port(void)
 {
-	uint8_t key, send_port = 0;
+	uint8_t send_port = 0;
+#ifdef BOARD_ETH1_ADDR
+	uint8_t key;
+#endif
 
 	if (ETH_IFACE_COUNT < 2)
-		return send_port;
+		goto Done;
 
 #ifdef BOARD_ETH1_ADDR
 	while (1) {
@@ -180,6 +183,7 @@ uint8_t select_eth_port(void)
 	}
 #endif
 
+Done:
 	return send_port;
 }
 
