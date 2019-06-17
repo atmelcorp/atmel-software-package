@@ -250,6 +250,59 @@ static void _init_w971gg6sb(struct _mpddrc_desc* desc)
 }
 #endif /* CONFIG_HAVE_DDR2_W971GG6SB */
 
+#ifdef CONFIG_HAVE_DDR2_W9712G6KB
+static void _init_w9712g6kb(struct _mpddrc_desc* desc)
+{
+	uint32_t mck = pmc_get_master_clock() / 1000000;
+
+	desc->type = MPDDRC_TYPE_DDR2;
+
+	desc->mode = MPDDRC_MD_MD_DDR2_SDRAM
+		| MPDDRC_MD_DBW_DBW_16_BITS;
+
+#ifdef CONFIG_HAVE_MPDDRC_DATA_PATH
+	desc->data_path = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_ONE_CYCLE;
+#endif
+
+	desc->control = MPDDRC_CR_NR_12_ROW_BITS
+		| MPDDRC_CR_NC_DDR_9_COL_BITS
+		| MPDDRC_CR_CAS_DDR_CAS3
+		| MPDDRC_CR_DIC_DS_DDR2_WEAKSTRENGTH
+		| MPDDRC_CR_NB_4_BANKS
+		| MPDDRC_CR_DECOD_INTERLEAVED
+		| MPDDRC_CR_UNAL_SUPPORTED;
+
+#ifdef CONFIG_HAVE_MPDDRC_IO_CALIBRATION
+	desc->io_calibr = MPDDRC_IO_CALIBR_RDIV(4)
+		| MPDDRC_IO_CALIBR_TZQIO(TZQIO_CYCLES(mck));
+#endif
+
+	/* timings */
+
+	memset(&desc->timings, 0, sizeof(desc->timings));
+	desc->timings.tras = NS2CYCLES(45, mck);    // 45ns
+	desc->timings.trcd = NS2CYCLES(13, mck);    // 12.5ns
+	desc->timings.twr  = NS2CYCLES(15, mck);    // 15ns
+	desc->timings.trc  = NS2CYCLES(58, mck);    // 57.5ns
+	desc->timings.trp  = NS2CYCLES(13, mck);    // 12.5ns
+	desc->timings.trrd = NS2CYCLES(10, mck);    // 10ns
+	desc->timings.twtr = NS2CYCLES(8, mck);     // 7.5ns
+	desc->timings.tmrd = 2;                     // 2ck
+	desc->timings.trfc = NS2CYCLES(75, mck);    // 75ns
+	desc->timings.txsnr = NS2CYCLES(85, mck);   // tRFC+10ns
+	desc->timings.txsrd = 200;                  // 200ck
+	desc->timings.txp = 2;                      // 2ck
+	desc->timings.txard = 2;                    // 2ck
+	desc->timings.txards = 8;                   // 8ck
+	desc->timings.trpa = desc->timings.trp + 1; // tRP+1ck
+	desc->timings.trtp = NS2CYCLES(8, mck);     // 7.5ns
+	desc->timings.tfaw = NS2CYCLES(35, mck);    // 35ns
+
+	desc->refresh_window = 64;
+	desc->refresh_cycles = 8192;
+}
+#endif /* CONFIG_HAVE_DDR2_W9712G6KB */
+
 #ifdef CONFIG_HAVE_DDR2_W972GG6KB
 /* Configuring the Multiport DDR-SDRAM Controller for Winbond W972GG6KB-25 */
 static void _init_w972gg6kb(struct _mpddrc_desc* desc, uint8_t bus_width)
@@ -841,6 +894,11 @@ void ddram_init_descriptor(struct _mpddrc_desc* desc,
   #ifdef CONFIG_HAVE_DDR2_MT47H128M16
 	case MT47H128M16:
 		_init_mt47h128m16(desc);
+		break;
+  #endif
+  #ifdef CONFIG_HAVE_DDR2_W9712G6KB
+	case W9712G6KB :
+		_init_w9712g6kb(desc);
 		break;
   #endif
   #ifdef CONFIG_HAVE_DDR2_W971GG6SB

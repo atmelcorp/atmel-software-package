@@ -64,6 +64,9 @@ enum _ddram_devices {
   #ifdef CONFIG_HAVE_DDR2_MT47H128M16
 	MT47H128M16,   /* DDR2 2*256MB */
   #endif
+  #ifdef CONFIG_HAVE_DDR2_W9712G6KB
+	W9712G6KB,    /* DDR2 16MB */
+  #endif
   #ifdef CONFIG_HAVE_DDR2_W971GG6SB
 	W971GG6SB,     /* DDR2 256MB */
   #endif
