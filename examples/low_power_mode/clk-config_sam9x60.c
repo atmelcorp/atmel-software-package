@@ -108,7 +108,7 @@ struct pck_mck_cfg clock_test_setting[8] = {
 			.mul = 0,
 		},
 		.pck_pres = PMC_MCKR_PRES_CLOCK,
-		.mck_div = PMC_MCKR_MDIV_EQ_PCK,
+		.mck_div = PMC_MCKR_MDIV_PCK_DIV3,
 	},
 	/* PLLA = BOARD_OSC*50/2, PCK = PLLA, MCK = PCK/3 */
 	{
