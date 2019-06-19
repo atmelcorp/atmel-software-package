@@ -142,6 +142,10 @@
 
 #include "clk-config.h"
 
+#ifndef MPDDRC_LPR_LPCB_DISABLED
+#define MPDDRC_LPR_LPCB_DISABLED			(MPDDRC_LPR_LPCB_NOLOWPOWER)
+#endif
+
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------
@@ -238,13 +242,9 @@ static void _check_ddr_ready(void)
 		/* Disable DDR Backup mode */
 		sfrbu_disable_ddr_backup();
 	}
-#else
-#ifdef CONFIG_SOC_SAM9X60
-        mpddrc_issue_low_power_command(MPDDRC_LPR_LPCB_NOLOWPOWER);
-#else
+#endif
+
 	mpddrc_issue_low_power_command(MPDDRC_LPR_LPCB_DISABLED);
-#endif
-#endif
 }
 
 /**
@@ -332,7 +332,7 @@ static void menu_pck_mck(void)
 		if (clock_test_setting[0].plla_div2)
 			pck /= 2;
 #endif
-		printf("PCK = %dMHz, MCK = %dMHz\n\r", pck,
+		printf("PCK = %luMHz, MCK = %luMHz\n\r", pck,
 			pck / ((clock_test_setting[0].mck_div >> PMC_MCKR_MDIV_Pos) + 1));
 		break;
 	}
@@ -685,11 +685,10 @@ static void menu_self_refresh(void)
 	printf("\n\r\n\r");
 	printf("=========== Set DDR into self-refresh ===========\n\r");
 
+	mpddrc_issue_low_power_command(MPDDRC_LPR_LPCB_SELFREFRESH);
+
 #ifdef CONFIG_HAVE_SFRBU
 	if (!sfrbu_is_ddr_backup_enabled()) {
-		/* Wait DDR into self-refresh mode*/
-		while (!((MPDDRC->MPDDRC_LPR) & MPDDRC_LPR_SELF_DONE));
-
 		/* Disable the DDR Controller clock signal at PMC level*/
 		pmc_disable_peripheral(ID_MPDDRC);
 		/* Disable ddrclk */
@@ -697,8 +696,6 @@ static void menu_self_refresh(void)
 
 		sfrbu_enable_ddr_backup();
 	}
-#else
-	mpddrc_issue_low_power_command(MPDDRC_LPR_LPCB_SELFREFRESH);
 #endif
 }
 

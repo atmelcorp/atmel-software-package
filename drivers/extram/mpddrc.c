@@ -39,6 +39,10 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#ifndef MPDDRC_LPR_LPCB_DISABLED
+#define MPDDRC_LPR_LPCB_DISABLED			(MPDDRC_LPR_LPCB_NOLOWPOWER)
+#endif
+
 static void _set_ddr_timings(struct _mpddrc_desc* desc)
 {
 #ifdef CONFIG_HAVE_MPDDRC_SDRAM_ONLY
@@ -162,9 +166,11 @@ static void _configure_ddr3(struct _mpddrc_desc* desc)
 	/* Timings */
 	_set_ddr_timings(desc);
 
+#ifdef CONFIG_HAVE_SFRBU
 	/* Only initialize DDR chip when needed */
 	if (sfrbu_is_ddr_backup_enabled())
 		return;
+#endif
 
 	/* Step 3: Issue a NOP command. */
 	_send_ddr_cmd(MPDDRC_MR_MODE_NOP_CMD);
@@ -436,14 +442,9 @@ static void _configure_lpddr(struct _mpddrc_desc *desc)
 	 * Low-power register (MPDDRC_LPR).
 	 */
 
-	/* DDR memory is not in backup mode */
-	MPDDRC->MPDDRC_LPR =
-		MPDDRC_LPR_LPCB_SELFREFRESH |
-		MPDDRC_LPR_CLK_FR_ENABLED |
-		MPDDRC_LPR_PASR(0) |
-		MPDDRC_LPR_DS_DS_QUARTER |
-		MPDDRC_LPR_TIMEOUT_DELAY_128_CLK |
-		MPDDRC_LPR_UPD_MR_NO_UPDATE;
+	/* Assign one-quarter output buffer drive strength to external EMR.DS */
+	uint32_t value = MPDDRC->MPDDRC_LPR & ~MPDDRC_LPR_DS_Msk;
+	MPDDRC->MPDDRC_LPR = value | MPDDRC_LPR_DS(0x2);
 
 	/* Step 5: Issue a NOP command. */
 	_send_ddr_cmd(MPDDRC_MR_MODE_NOP_CMD);
@@ -526,28 +527,17 @@ extern void mpddrc_configure(struct _mpddrc_desc* desc)
 	/* Configurations */
 	MPDDRC->MPDDRC_CR = desc->control;
 
-#ifdef CONFIG_HAVE_MPDDRC_DDR3
+	uint32_t lpr_prv = MPDDRC->MPDDRC_LPR, lpr = lpr_prv;
+#ifdef MPDDRC_LPR_APDE
+	lpr = (lpr & ~MPDDRC_LPR_APDE) | MPDDRC_LPR_APDE_DDR2_FAST_EXIT;
+#endif
+#ifdef CONFIG_HAVE_SFRBU
 	if (sfrbu_is_ddr_backup_enabled())
-		/* DDR memory had been initilized and in backup mode */
-		MPDDRC->MPDDRC_LPR =
-			MPDDRC_LPR_LPCB_SELFREFRESH |
-			MPDDRC_LPR_CLK_FR_ENABLED |
-			MPDDRC_LPR_PASR(0) |
-			MPDDRC_LPR_DS(2) |
-			MPDDRC_LPR_TIMEOUT_NONE |
-			MPDDRC_LPR_APDE_DDR2_FAST_EXIT |
-			MPDDRC_LPR_UPD_MR(0);
-	else
-		/* DDR memory is not in backup mode */
-		MPDDRC->MPDDRC_LPR =
-			MPDDRC_LPR_LPCB_SELFREFRESH |
-			MPDDRC_LPR_CLK_FR_ENABLED |
-			MPDDRC_LPR_PASR(0) |
-			MPDDRC_LPR_DS(2) |
-			MPDDRC_LPR_TIMEOUT_DELAY_128_CLK |
-			MPDDRC_LPR_APDE_DDR2_SLOW_EXIT |
-			MPDDRC_LPR_UPD_MR(0);
-#endif /* CONFIG_HAVE_MPDDRC_DDR3 */
+		/* The memory is in self-refresh mode; restore MPDDRC_LPR */
+		lpr = (lpr & ~MPDDRC_LPR_LPCB_Msk) | MPDDRC_LPR_LPCB_SELFREFRESH;
+#endif
+	if (lpr != lpr_prv)
+		MPDDRC->MPDDRC_LPR = lpr;
 
 	switch(desc->type) {
 #ifdef CONFIG_HAVE_MPDDRC_SDRAM
@@ -590,10 +580,11 @@ extern void mpddrc_configure(struct _mpddrc_desc* desc)
 	uint32_t master_clock = pmc_get_master_clock() / 1000;
 	MPDDRC->MPDDRC_RTR = MPDDRC_RTR_COUNT(desc->refresh_window * master_clock / desc->refresh_cycles);
 
-#ifdef CONFIG_HAVE_MPDDRC_DDR3
+#ifdef CONFIG_HAVE_SFRBU
 	if (sfrbu_is_ddr_backup_enabled()) {
 		MPDDRC->MPDDRC_MR = MPDDRC_MR_MODE_NORMAL_CMD;
 		sfrbu_disable_ddr_backup();
+		mpddrc_issue_low_power_command(MPDDRC_LPR_LPCB_DISABLED);
 	}
 #endif
 }
@@ -603,4 +594,10 @@ void mpddrc_issue_low_power_command(uint32_t cmd)
 	uint32_t value;
 	value = MPDDRC->MPDDRC_LPR & ~MPDDRC_LPR_LPCB_Msk;
 	MPDDRC->MPDDRC_LPR = value | (cmd & MPDDRC_LPR_LPCB_Msk);
+
+#ifdef MPDDRC_LPR_SELF_DONE
+	if (cmd == MPDDRC_LPR_LPCB_SELFREFRESH)
+		/* Wait for the memory to enter self-refresh mode */
+		while (!((MPDDRC->MPDDRC_LPR) & MPDDRC_LPR_SELF_DONE)) ;
+#endif
 }
