@@ -2,6 +2,29 @@
 
 The Atmel Softpack can be found on [GitHub](https://github.com/atmelcorp/atmel-software-package).
 
+## Version 2.16 - 2019-07
+
+- Update SAM9X60 header files to the latest version
+
+### New drivers/examples
+
+- Add ISO7816, RS485, LIN, IrDA, SPI, OTP examples for SAM9X60 EK board
+- Add AES GCM/XTS support for SAM9X60 & SAMA5D2
+- Add support for DDR2 AD210032D, AD220032D, W9712G6KB and W9751G6KB
+
+### Fixes
+
+- Match DMA security type with peripheral security type for SAMA5D2 and SAMA5D4
+- Fix GMAC data bus width configuration for SAMA5D2 and SAMA5D4
+- Fix the left/right channel settings for CLASSD
+- Fix get_chip_name() for SAM9X60
+
+### Enhancements
+
+- Improve DDRAM timings for W97GG6SB and EDF8164A3MA
+- Add full test for TDES, SHA, AES examples
+- Update PLL setting for SAM9X60
+
 ## Version 2.15 - 2019-01
 
 ### New drivers/examples
@@ -14,10 +37,12 @@ The Atmel Softpack can be found on [GitHub](https://github.com/atmelcorp/atmel-s
 - Add support for LPDDR SDRAM
 
 ### Fixes
+
 - Fix pmecc_get_ecc_bytes_per_page() by wrong "+1" issue
 - Fix JEDEC ID for sst25vg040b and sst25vg080b
 
 ### Enhancements
+
 - Improve DDRAM W972GG6KB-25 timings
 - Add support to Microchip sst25vf020b
 - Add system addresses of ROMs for PMECC tables to allow the 'nandflash' applet fitting once again into SRAM0
@@ -35,6 +60,7 @@ The Atmel Softpack can be found on [GitHub](https://github.com/atmelcorp/atmel-s
 - Add drive strength and slew rate control functions for PIO3
 
 ### Fixes
+
 - Fix TDES bug when working in CFB(CFB-8 & CFB-16) mode
 - Fix AES bug when working in CFB(CFB-8 & CFB-16) mode
 - Fix MCAN's miss invoking ISR callback bug
@@ -54,6 +80,7 @@ The Atmel Softpack can be found on [GitHub](https://github.com/atmelcorp/atmel-s
 - Fix wrong result from swab32() for ARM9 (ARCH_ARMV5TE) when using GCC
 
 ### Enhancements
+
 - Improve the precision of MCAN Baud Rate
 - Optimize the accuracy of ADC trigger period
 - HSMCI_FIFO used instead of HSMCI_RDR and HSMCI_TDR
@@ -69,6 +96,7 @@ The Atmel Softpack can be found on [GitHub](https://github.com/atmelcorp/atmel-s
 - Add support for FreeRTOS and some examples using FreeRTOS (examples listed in softpack.md).
 
 ### Fixes
+
 - Fix icm cache coherency issue.
 - Fix the wrong register indexes in LCDC driver.
 - Fix SAMA5D2's PIO debounce issue.
