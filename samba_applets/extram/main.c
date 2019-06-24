@@ -147,6 +147,24 @@ static bool init_extram_from_preset(uint32_t preset)
 		device = AD220032D;
 		break;
 #endif
+#ifdef CONFIG_HAVE_LPDDR2_AD210032D
+	case 14:
+		trace_warning_wp("Preset 14 (AD210032D)\r\n");
+		device = AD210032D;
+		break;
+#endif
+#ifdef CONFIG_HAVE_DDR2_W9712G6KB
+	case 15:
+		trace_warning_wp("Preset 15 (W9712G6KB)\r\n");
+		device = W9712G6KB;
+		break;
+#endif
+#ifdef CONFIG_HAVE_DDR2_W9751G6KB
+	case 16:
+		trace_warning_wp("Preset 16 (W9751G6KB)\r\n");
+		device = W9751G6KB;
+		break;
+#endif
 	default:
 		trace_error("Unsupported DRAM preset (%u).\r\n",
 				(unsigned)preset);
