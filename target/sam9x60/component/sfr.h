@@ -48,7 +48,10 @@ typedef struct {
   __IO uint32_t SFR_UTMISWAP;    /**< \brief (Sfr Offset: 0x3C) UTMI DP/DM Pin Swapping Register */
   __I  uint32_t Reserved4[15];
   __IO uint32_t SFR_LS;          /**< \brief (Sfr Offset: 0x7C) Light Sleep Register */
-  __I  uint32_t Reserved5[25];
+  __I  uint32_t Reserved5[12];
+  __IO uint32_t SFR_CAL0;            /**< \brief (Sfr Offset: 0xB0) I/O Calibration 0 Register */
+  __IO uint32_t SFR_CAL1;            /**< \brief (Sfr Offset: 0xB4) I/O Calibration 1 Register */
+  __I  uint32_t Reserved7[11];
   __IO uint32_t SFR_WPMR;        /**< \brief (Sfr Offset: 0xE4) Write Protection Mode Register */
 } Sfr;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
@@ -99,6 +102,39 @@ typedef struct {
 #define SFR_LS_LS8 (0x1u << 8) /**< \brief (SFR_LS) Light Sleep Value (ROM + OTPC) */
 #define SFR_LS_LS9 (0x1u << 9) /**< \brief (SFR_LS) Light Sleep Value (ARM926) */
 #define SFR_LS_MEM_POWER_GATING_ULP1_EN (0x1u << 16) /**< \brief (SFR_LS) Light Sleep Value for ULP1 Power-Gated Memories */
+/* -------- SFR_CAL0 : (SFR Offset: 0xB0) I/O Calibration 0 Register -------- */
+#define SFR_CAL0_CALN_P0_Pos 0
+#define SFR_CAL0_CALN_P0_Msk (0xfu << SFR_CAL0_CALN_P0_Pos) /**< \brief (SFR_CAL0) Calibration of Low Level Output Impedance of Pads with VDDIOP0 Supply */
+#define SFR_CAL0_CALN_P0(value) ((SFR_CAL0_CALN_P0_Msk & ((value) << SFR_CAL0_CALN_P0_Pos)))
+#define SFR_CAL0_CALP_P0_Pos 4
+#define SFR_CAL0_CALP_P0_Msk (0xfu << SFR_CAL0_CALP_P0_Pos) /**< \brief (SFR_CAL0) Calibration of High Level Output Impedance of Pads with VDDIOP0 Supply */
+#define SFR_CAL0_CALP_P0(value) ((SFR_CAL0_CALP_P0_Msk & ((value) << SFR_CAL0_CALP_P0_Pos)))
+#define SFR_CAL0_CALN_P1_Pos 8
+#define SFR_CAL0_CALN_P1_Msk (0xfu << SFR_CAL0_CALN_P1_Pos) /**< \brief (SFR_CAL0) Calibration of Low Level Output Impedance of Pads with VDDIOP1 Supply */
+#define SFR_CAL0_CALN_P1(value) ((SFR_CAL0_CALN_P1_Msk & ((value) << SFR_CAL0_CALN_P1_Pos)))
+#define SFR_CAL0_CALP_P1_Pos 12
+#define SFR_CAL0_CALP_P1_Msk (0xfu << SFR_CAL0_CALP_P1_Pos) /**< \brief (SFR_CAL0) Calibration of High Level Output Impedance of Pads with VDDIOP1 Supply */
+#define SFR_CAL0_CALP_P1(value) ((SFR_CAL0_CALP_P1_Msk & ((value) << SFR_CAL0_CALP_P1_Pos)))
+#define SFR_CAL0_CALN_ANA_Pos 16
+#define SFR_CAL0_CALN_ANA_Msk (0xfu << SFR_CAL0_CALN_ANA_Pos) /**< \brief (SFR_CAL0) Calibration of Low Level Output Impedance of Pads with VDDANA Supply */
+#define SFR_CAL0_CALN_ANA(value) ((SFR_CAL0_CALN_ANA_Msk & ((value) << SFR_CAL0_CALN_ANA_Pos)))
+#define SFR_CAL0_CALP_ANA_Pos 20
+#define SFR_CAL0_CALP_ANA_Msk (0xfu << SFR_CAL0_CALP_ANA_Pos) /**< \brief (SFR_CAL0) Calibration of High Level Output Impedance of Pads with VDDANA Supply */
+#define SFR_CAL0_CALP_ANA(value) ((SFR_CAL0_CALP_ANA_Msk & ((value) << SFR_CAL0_CALP_ANA_Pos)))
+#define SFR_CAL0_CALN_QSPI_Pos 24
+#define SFR_CAL0_CALN_QSPI_Msk (0xfu << SFR_CAL0_CALN_QSPI_Pos) /**< \brief (SFR_CAL0) Calibration of Low Level Output Impedance of Pads with VDDQSPI Supply */
+#define SFR_CAL0_CALN_QSPI(value) ((SFR_CAL0_CALN_QSPI_Msk & ((value) << SFR_CAL0_CALN_QSPI_Pos)))
+#define SFR_CAL0_CALP_QSPI_Pos 28
+#define SFR_CAL0_CALP_QSPI_Msk (0xfu << SFR_CAL0_CALP_QSPI_Pos) /**< \brief (SFR_CAL0) Calibration of High Level Output Impedance of Pads with VDDQSPI Supply */
+#define SFR_CAL0_CALP_QSPI(value) ((SFR_CAL0_CALP_QSPI_Msk & ((value) << SFR_CAL0_CALP_QSPI_Pos)))
+/* -------- SFR_CAL1 : (SFR Offset: 0xB4) I/O Calibration 1 Register -------- */
+#define SFR_CAL1_CALN_M_Pos 0
+#define SFR_CAL1_CALN_M_Msk (0xfu << SFR_CAL1_CALN_M_Pos) /**< \brief (SFR_CAL1) Calibration of Low Level Output Impedance of Pads with VDDIOM Supply */
+#define SFR_CAL1_CALN_M(value) ((SFR_CAL1_CALN_M_Msk & ((value) << SFR_CAL1_CALN_M_Pos)))
+#define SFR_CAL1_CALP_M_Pos 4
+#define SFR_CAL1_CALP_M_Msk (0xfu << SFR_CAL1_CALP_M_Pos) /**< \brief (SFR_CAL1) Calibration of High Level Output Impedance of Pads with VDDIOM Supply */
+#define SFR_CAL1_CALP_M(value) ((SFR_CAL1_CALP_M_Msk & ((value) << SFR_CAL1_CALP_M_Pos)))
+#define SFR_CAL1_TEST_M (0x1u << 8) /**< \brief (SFR_CAL1) Enable Calibration of Low/High Level Output Impedance of Pads with VDDIOM Supply */
 /* -------- SFR_WPMR : (SFR Offset: 0xE4) Write Protection Mode Register -------- */
 #define SFR_WPMR_WPEN (0x1u << 0) /**< \brief (SFR_WPMR) Write Protection Enable */
 #define SFR_WPMR_WPKEY_Pos 8

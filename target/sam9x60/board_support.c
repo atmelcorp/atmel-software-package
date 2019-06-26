@@ -421,6 +421,12 @@ void board_cfg_matrix_for_ddr(void)
 	                     | SFR_CCFG_EBICSA_DDR_MP_EN
 	                     | SFR_CCFG_EBICSA_EBI_CS1A
 	                     | SFR_CCFG_EBICSA_NFD0_ON_D16;
+	if ((DBGU->DBGU_CIDR & DBGU_CIDR_VERSION_Msk) == 0) { /* fixed DDR I/O calibration is needed for this version */
+		cfg = SFR->SFR_CAL1;
+		cfg &= ~(SFR_CAL1_CALN_M_Msk | SFR_CAL1_CALP_M_Msk);
+		cfg |= SFR_CAL1_TEST_M | SFR_CAL1_CALN_M(VDDIOM_1V8_OUT_Z_CALN_TYP) | SFR_CAL1_CALP_M(VDDIOM_1V8_OUT_Z_CALP_TYP);
+		SFR->SFR_CAL1 = cfg;
+	}
 }
 
 void board_cfg_matrix_for_nand(void)
