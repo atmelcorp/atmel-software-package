@@ -51,9 +51,7 @@ struct _console_cfg;
 /** \addtogroup SAM9x60_chipid CHIPID Definitions */
 /*@{*/
 
-#define CHIPID_CIDR_SAM9X60     (0x819a05a1ul)
-
-#define CHIPID_EXID_SAM9X60     (0x00000004ul)
+#define CHIPID_CIDR_SAM9X60     (0x819b35a0ul)
 
 /*@}*/
 

@@ -42,11 +42,6 @@
  *        Definitions
  *----------------------------------------------------------------------------*/
 
-struct chipid {
-	uint32_t    exid; /**< EXID */
-	const char* name; /**< Chip Name */
-};
-
 struct peripheral_xdma {
 	uint32_t id;   /**< Peripheral ID */
 	uint8_t  iftx; /**< DMA Interface for TX */
@@ -56,10 +51,6 @@ struct peripheral_xdma {
 /*----------------------------------------------------------------------------
  *        Local constants
  *----------------------------------------------------------------------------*/
-
-static const struct chipid _exid_names[] = {
-	{ CHIPID_EXID_SAM9X60, "SAM9X60" },
-};
 
 /* default console used by ROM-code */
 static const struct _console_cfg _console_cfg =
@@ -135,15 +126,9 @@ static const struct peripheral_xdma *get_peripheral_xdma(uint32_t id, Xdmac *xdm
 
 const char* get_chip_name(void)
 {
-	int i;
-
 	if ((DBGU->DBGU_CIDR & ~DBGU_CIDR_VERSION_Msk) ==
 			CHIPID_CIDR_SAM9X60) {
-		uint32_t exid = DBGU->DBGU_EXID;
-		for (i = 0; i < ARRAY_SIZE(_exid_names); i++) {
-			if (_exid_names[i].exid == exid)
-				return _exid_names[i].name;
-		}
+		return "SAM9X60";
 	}
 
 	return "Unknown";
