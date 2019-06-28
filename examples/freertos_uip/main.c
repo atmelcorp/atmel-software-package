@@ -143,7 +143,7 @@
 
 /* The rate at which data is sent to the queue.  The 1000 value is converted
 to ticks using the portTICK_PERIOD_MS constant. */
-#define mainTIMER_PERIOD_MS			( 500 / portTICK_PERIOD_MS )
+#define mainTIMER_PERIOD_MS			( 2000 / portTICK_PERIOD_MS )
 
 /* The LED toggled by the Rx task. */
 #define mainTIMER_LED				( 2 )
