@@ -104,6 +104,7 @@ In order to test this example, the process is the following:
 
 Step | Description | Expected Result | Result
 -----|-------------|-----------------|-------
+# For SAMA5D2X-XXX , SAMV71-XXX boards
 Press 'c' | Print `Start capture, result will be dumped to console when finished.` on screen | PASSED | PASSED
 Press 'a' | Print `-- PWM Channel 2 Duty cycle: 0% Signal Period: 20 ms--` ... `-- PWM Channel 2 Duty cycle: 42% Signal Period: 20 ms--` ... `Captured 32 pulses from TC capture channel:` `Captured[0] frequency =` ... `Captured[31] frequency = ` ... on screen | PASSED | PASSED
 Press 'h' | Print the menu on screen | PASSED | PASSED
@@ -121,4 +122,27 @@ Press 'o' | Print `Input options:`, `0/1: override to 0/1`, `others: set dead-ti
 Press 'x' | test dead-time | PASSED | PASSED
 Press 'h' | Print the menu on screen | PASSED | PASSED
 
+# For SAMA5D3-XXX, SAMA5D4-XXX boards
+Press 'c' | Print `Start capture, result will be dumped to console when finished.` on screen | PASSED | PASSED
+Press 'a' | Print `-- PWM Channel 2 Duty cycle: 0% Signal Period: 20 ms--` ... `-- PWM Channel 2 Duty cycle: 42% Signal Period: 20 ms--` ... `Captured 32 pulses from TC capture channel:` `Captured[0] frequency =` ... `Captured[31] frequency = ` ... on screen | PASSED | PASSED
+Press 'h' | Print the menu on screen | PASSED | PASSED
+Press 'c' | Print `Start capture, result will be dumped to console when finished.` on screen | PASSED | PASSED
+Press 'h' | Print the menu on screen | PASSED | PASSED
+Press 'f' | initialize fault mode | PASSED | PASSED
+Press 'F' | clear and disable fault mode | PASSED | PASSED
+Press 'm' | test 2-bit gray mode | PASSED | PASSED
+Press 'o' | Print `Input options:`, `0/1: override to 0/1`, `others: set dead-time` on screen | PASSED | PASSED
+Press '0' | test override 0 | PASSED | PASSED
+Press 'o' | Print `Input options:`, `0/1: override to 0/1`, `others: set dead-time` on screen | PASSED | PASSED
+Press '1' | test override 1 | PASSED | PASSED
+Press 'o' | Print `Input options:`, `0/1: override to 0/1`, `others: set dead-time` on screen | PASSED | PASSED
+Press 'x' | test dead-time | PASSED | PASSED
+Press 'h' | Print the menu on screen | PASSED | PASSED
+
+# For SAM9X60-XXX, SAM9XX5-XXX boards
+Press 'c' | Print `Start capture, result will be dumped to console when finished.` on screen | PASSED | PASSED
+Press 'a' | Print `-- PWM Channel 2 Duty cycle: 0% Signal Period: 20 ms--` ... `-- PWM Channel 2 Duty cycle: 42% Signal Period: 20 ms--` ... `Captured 32 pulses from TC capture channel:` `Captured[0] frequency =` ... `Captured[31] frequency = ` ... on screen | PASSED | PASSED
+Press 'h' | Print the menu on screen | PASSED | PASSED
+Press 'c' | Print `Start capture, result will be dumped to console when finished.` on screen | PASSED | PASSED
+Press 'h' | Print the menu on screen | PASSED | PASSED
 
