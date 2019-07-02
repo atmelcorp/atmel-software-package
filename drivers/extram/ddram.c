@@ -796,7 +796,7 @@ static void _init_mt46h64m16(struct _mpddrc_desc *desc)
 	desc->mode = MPDDRC_MD_MD_LPDDR_SDRAM
 	           | MPDDRC_MD_DBW_DBW_16_BITS;
 
-#ifdef CONFIG_HAVE_MPDDR_DATA_PATH
+#ifdef CONFIG_HAVE_MPDDRC_DATA_PATH
 	desc->data_path = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_ONE_CYCLE;
 #endif
 
