@@ -48,11 +48,6 @@
  *         Definitions
  *----------------------------------------------------------------------------*/
 
-/* for compatibility with some devices that do not support this flag */
-#ifndef GMAC_NCFGR_DBW_DBW64
-#define GMAC_NCFGR_DBW_DBW64 0
-#endif
-
 // Interrupt bits
 #define GMAC_INT_RX_BITS     (GMAC_IER_RCOMP | GMAC_IER_RXUBR | GMAC_IER_ROVR)
 #define GMAC_INT_TX_ERR_BITS (GMAC_IER_TUR | GMAC_IER_RLEX | GMAC_IER_TFC)
@@ -414,8 +409,12 @@ void gmacd_configure(struct _ethd * gmacd,
 
 	/* Enable the copy of data into the buffers
 	   ignore broadcasts, and don't copy FCS. */
-	ncfgr = gmac_get_network_config_register(gmac);
-	ncfgr |= GMAC_NCFGR_FD | GMAC_NCFGR_DBW_DBW64;
+	ncfgr = gmac_get_network_config_register(gmac) & (~GMAC_NCFGR_DBW_Msk);
+	#if defined(CONFIG_SOC_SAMA5D3)
+		ncfgr |= GMAC_NCFGR_FD | GMAC_NCFGR_DBW_DBW64;
+	#else
+		ncfgr |= GMAC_NCFGR_FD | GMAC_NCFGR_DBW_DBW32;
+	#endif
 	if (enableCAF) {
 		ncfgr |= GMAC_NCFGR_CAF;
 	}
