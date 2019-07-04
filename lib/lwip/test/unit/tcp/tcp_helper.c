@@ -10,6 +10,10 @@
 #error "This tests needs TCP- and MEMP-statistics enabled"
 #endif
 
+const ip_addr_t test_local_ip = IPADDR4_INIT_BYTES(192, 168, 1, 1);
+const ip_addr_t test_remote_ip = IPADDR4_INIT_BYTES(192, 168, 1, 2);
+const ip_addr_t test_netmask = IPADDR4_INIT_BYTES(255, 255, 255, 0);
+
 /** Remove all pcbs on the given list. */
 static void
 tcp_remove(struct tcp_pcb* pcb_list)
@@ -29,6 +33,7 @@ void
 tcp_remove_all(void)
 {
   tcp_remove(tcp_listen_pcbs.pcbs);
+  tcp_remove(tcp_bound_pcbs);
   tcp_remove(tcp_active_pcbs);
   tcp_remove(tcp_tw_pcbs);
   fail_unless(MEMP_STATS_GET(used, MEMP_TCP_PCB) == 0);
@@ -138,8 +143,8 @@ struct pbuf* tcp_create_rx_segment_wnd(struct tcp_pcb* pcb, void* data, size_t d
 
 /** Safely bring a tcp_pcb into the requested state */
 void
-tcp_set_state(struct tcp_pcb* pcb, enum tcp_state state, ip_addr_t* local_ip,
-                   ip_addr_t* remote_ip, u16_t local_port, u16_t remote_port)
+tcp_set_state(struct tcp_pcb* pcb, enum tcp_state state, const ip_addr_t* local_ip,
+                   const ip_addr_t* remote_ip, u16_t local_port, u16_t remote_port)
 {
   u32_t iss;
 
@@ -155,19 +160,19 @@ tcp_set_state(struct tcp_pcb* pcb, enum tcp_state state, ip_addr_t* local_ip,
   
   if (state == ESTABLISHED) {
     TCP_REG(&tcp_active_pcbs, pcb);
-    pcb->local_ip.addr = local_ip->addr;
+    ip_addr_copy(pcb->local_ip, *local_ip);
     pcb->local_port = local_port;
-    pcb->remote_ip.addr = remote_ip->addr;
+    ip_addr_copy(pcb->remote_ip, *remote_ip);
     pcb->remote_port = remote_port;
   } else if(state == LISTEN) {
     TCP_REG(&tcp_listen_pcbs.pcbs, pcb);
-    pcb->local_ip.addr = local_ip->addr;
+    ip_addr_copy(pcb->local_ip, *local_ip);
     pcb->local_port = local_port;
   } else if(state == TIME_WAIT) {
     TCP_REG(&tcp_tw_pcbs, pcb);
-    pcb->local_ip.addr = local_ip->addr;
+    ip_addr_copy(pcb->local_ip, *local_ip);
     pcb->local_port = local_port;
-    pcb->remote_ip.addr = remote_ip->addr;
+    ip_addr_copy(pcb->remote_ip, *remote_ip);
     pcb->remote_port = remote_port;
   } else {
     fail();
@@ -292,7 +297,7 @@ static err_t test_tcp_netif_output(struct netif *netif, struct pbuf *p,
 }
 
 void test_tcp_init_netif(struct netif *netif, struct test_tcp_txcounters *txcounters,
-                         ip_addr_t *ip_addr, ip_addr_t *netmask)
+                         const ip_addr_t *ip_addr, const ip_addr_t *netmask)
 {
   struct netif *n;
   memset(netif, 0, sizeof(struct netif));
@@ -302,8 +307,8 @@ void test_tcp_init_netif(struct netif *netif, struct test_tcp_txcounters *txcoun
   }
   netif->output = test_tcp_netif_output;
   netif->flags |= NETIF_FLAG_UP | NETIF_FLAG_LINK_UP;
-  ip4_addr_copy(netif->netmask, *ip_2_ip4(netmask));
-  ip4_addr_copy(netif->ip_addr, *ip_2_ip4(ip_addr));
+  ip_addr_copy_from_ip4(netif->netmask, *ip_2_ip4(netmask));
+  ip_addr_copy_from_ip4(netif->ip_addr, *ip_2_ip4(ip_addr));
   for (n = netif_list; n != NULL; n = n->next) {
     if (n == netif) {
       return;
