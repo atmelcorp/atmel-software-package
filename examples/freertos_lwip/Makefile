@@ -50,8 +50,8 @@ CONFIG_TWI_AT24 = y
 CONFIG_LIB_LWIP = y
 CONFIG_LIB_LWIP_DEFAULT_CONFIG = n # Use lwip_config.h instead of default lib/lwip/softpack/include/arch/lwipopts.h
 CONFIG_LIB_LWIP_IPV4 = y
-CONFIG_LIB_LWIP_HTTPD = y
-CONFIG_LIB_LWIP_HTTPD_FSDATA = y # Embed default webpages from lwip
+CONFIG_LIB_LWIP_HTTP = y
+CONFIG_LIB_LWIP_HTTP_FSDATA = y # Embed default webpages from lwip
 CONFIG_LIB_LWIP_IPERF = y
 
 # To include "FreeRTOSConfig.h"

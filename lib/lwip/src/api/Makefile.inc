@@ -29,6 +29,7 @@
 lwip-y += lib/lwip/src/api/api_lib.o
 lwip-y += lib/lwip/src/api/api_msg.o
 lwip-y += lib/lwip/src/api/err.o
+lwip-y += lib/lwip/src/api/if_api.o
 lwip-y += lib/lwip/src/api/netbuf.o
 lwip-y += lib/lwip/src/api/netdb.o
 lwip-y += lib/lwip/src/api/netifapi.o

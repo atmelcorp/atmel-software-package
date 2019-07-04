@@ -27,7 +27,6 @@
 # ----------------------------------------------------------------------------
 
 lwip-y += lib/lwip/src/netif/ethernet.o
-lwip-y += lib/lwip/src/netif/ethernetif.o
 lwip-y += lib/lwip/src/netif/lowpan6.o
 lwip-y += lib/lwip/src/netif/slipif.o
 lwip-y += lib/lwip/src/netif/ppp/auth.o

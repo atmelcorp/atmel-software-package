@@ -26,9 +26,9 @@
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ----------------------------------------------------------------------------
 
-lwip-$(CONFIG_LIB_LWIP_HTTPD) += lib/lwip/src/apps/httpd/fs.o
-lwip-$(CONFIG_LIB_LWIP_HTTPD) += lib/lwip/src/apps/httpd/httpd.o
+lwip-$(CONFIG_LIB_LWIP_HTTP) += lib/lwip/src/apps/http/fs.o
+lwip-$(CONFIG_LIB_LWIP_HTTP) += lib/lwip/src/apps/http/httpd.o
 
-lwip-$(CONFIG_LIB_LWIP_HTTPD_FSDATA) += lib/lwip/src/apps/httpd/fsdata.o
+lwip-$(CONFIG_LIB_LWIP_HTTP_FSDATA) += lib/lwip/src/apps/http/fsdata.o
 
 lwip-$(CONFIG_LIB_LWIP_IPERF) += lib/lwip/src/apps/lwiperf/lwiperf.o
