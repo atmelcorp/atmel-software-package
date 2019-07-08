@@ -1059,7 +1059,6 @@ typedef struct {
 /* -------- FLEX_TWI_FILTR : (FLEXCOM Offset: 0x644) TWI Filter Register -------- */
 #define FLEX_TWI_FILTR_FILT (0x1u << 0) /**< \brief (FLEX_TWI_FILTR) RX Digital Filter */
 #define FLEX_TWI_FILTR_PADFEN (0x1u << 1) /**< \brief (FLEX_TWI_FILTR) PAD Filter Enable */
-#define FLEX_TWI_FILTR_PADFCFG (0x1u << 2) /**< \brief (FLEX_TWI_FILTR) PAD Filter Config */
 #define FLEX_TWI_FILTR_THRES_Pos 8
 #define FLEX_TWI_FILTR_THRES_Msk (0x7u << FLEX_TWI_FILTR_THRES_Pos) /**< \brief (FLEX_TWI_FILTR) Digital Filter Threshold */
 #define FLEX_TWI_FILTR_THRES(value) ((FLEX_TWI_FILTR_THRES_Msk & ((value) << FLEX_TWI_FILTR_THRES_Pos)))

@@ -35,6 +35,8 @@
   #define REG_SFR_CCFG_EBICSA                  (0xF8050004U) /**< \brief (SFR) EBI Chip Select Register */
   #define REG_SFR_OHCIICR                      (0xF8050010U) /**< \brief (SFR) OHCI Interrupt Configuration Register */
   #define REG_SFR_OHCIISR                      (0xF8050014U) /**< \brief (SFR) OHCI Interrupt Status Register */
+  #define REG_SFR_UTMIHSTRIM                   (0xF8050034U) /**< \brief (SFR) UTMI High-Speed Trimming Register */
+  #define REG_SFR_UTMIFSTRIM                   (0xF8050038U) /**< \brief (SFR) UTMI Full-Speed Trimming Register */
   #define REG_SFR_UTMISWAP                     (0xF805003CU) /**< \brief (SFR) UTMI DP/DM Pin Swapping Register */
   #define REG_SFR_LS                           (0xF805007CU) /**< \brief (SFR) Light Sleep Register */
   #define REG_SFR_WPMR                         (0xF80500E4U) /**< \brief (SFR) Write Protection Mode Register */
@@ -42,6 +44,8 @@
   #define REG_SFR_CCFG_EBICSA (*(__IO uint32_t*)0xF8050004U) /**< \brief (SFR) EBI Chip Select Register */
   #define REG_SFR_OHCIICR     (*(__IO uint32_t*)0xF8050010U) /**< \brief (SFR) OHCI Interrupt Configuration Register */
   #define REG_SFR_OHCIISR     (*(__I  uint32_t*)0xF8050014U) /**< \brief (SFR) OHCI Interrupt Status Register */
+  #define REG_SFR_UTMIHSTRIM  (*(__IO uint32_t*)0xF8050034U) /**< \brief (SFR) UTMI High-Speed Trimming Register */
+  #define REG_SFR_UTMIFSTRIM  (*(__IO uint32_t*)0xF8050038U) /**< \brief (SFR) UTMI Full-Speed Trimming Register */
   #define REG_SFR_UTMISWAP    (*(__IO uint32_t*)0xF805003CU) /**< \brief (SFR) UTMI DP/DM Pin Swapping Register */
   #define REG_SFR_LS          (*(__IO uint32_t*)0xF805007CU) /**< \brief (SFR) Light Sleep Register */
   #define REG_SFR_WPMR        (*(__IO uint32_t*)0xF80500E4U) /**< \brief (SFR) Write Protection Mode Register */

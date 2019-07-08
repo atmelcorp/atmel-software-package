@@ -311,6 +311,9 @@ typedef struct {
 #define UDPHS_EPTSTA_NAK_OUT (0x1u << 15) /**< \brief (UDPHS_EPTSTA) NAK OUT (cleared upon USB reset) */
 #define UDPHS_EPTSTA_CURBK_CTLDIR_Pos 16
 #define UDPHS_EPTSTA_CURBK_CTLDIR_Msk (0x3u << UDPHS_EPTSTA_CURBK_CTLDIR_Pos) /**< \brief (UDPHS_EPTSTA) Current Bank/Control Direction (cleared upon USB reset) */
+#define   UDPHS_EPTSTA_CURBK_CTLDIR_BANK0 (0x0u << 16) /**< \brief (UDPHS_EPTSTA) Bank 0 (or single bank) */
+#define   UDPHS_EPTSTA_CURBK_CTLDIR_BANK1 (0x1u << 16) /**< \brief (UDPHS_EPTSTA) Bank 1 */
+#define   UDPHS_EPTSTA_CURBK_CTLDIR_BANK2 (0x2u << 16) /**< \brief (UDPHS_EPTSTA) Bank 2 */
 #define UDPHS_EPTSTA_BUSY_BANK_STA_Pos 18
 #define UDPHS_EPTSTA_BUSY_BANK_STA_Msk (0x3u << UDPHS_EPTSTA_BUSY_BANK_STA_Pos) /**< \brief (UDPHS_EPTSTA) Busy Bank Number (cleared upon USB reset) */
 #define   UDPHS_EPTSTA_BUSY_BANK_STA_0BUSYBANK (0x0u << 18) /**< \brief (UDPHS_EPTSTA) All banks are free */

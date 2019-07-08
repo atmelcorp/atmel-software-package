@@ -56,7 +56,7 @@ typedef struct {
   __I  uint32_t OTPC_UHC0R;    /**< \brief (Otpc Offset: 0x50) User Hardware Configuration 0 Register */
   __I  uint32_t OTPC_UHC1R;    /**< \brief (Otpc Offset: 0x54) User Hardware Configuration 1 Register */
   __I  uint32_t Reserved3[2];
-  __I  uint32_t OTPC_UIDxR[4]; /**< \brief (Otpc Offset: 0x60) Product UID Register */
+  __I  uint32_t OTPC_UIDxR[4]; /**< \brief (Otpc Offset: 0x60) Product UID x Register */
   __I  uint32_t Reserved4[29];
   __IO uint32_t OTPC_WPMR;     /**< \brief (Otpc Offset: 0xE4) Write Protection Mode Register */
   __I  uint32_t OTPC_WPSR;     /**< \brief (Otpc Offset: 0xE8) Write Protection Status Register */
@@ -231,16 +231,16 @@ typedef struct {
 #define OTPC_UHC1R_CLKDIS (0x1u << 15) /**< \brief (OTPC_UHC1R) Custom Packet Lock Disable */
 #define OTPC_UHC1R_CPGDIS (0x1u << 16) /**< \brief (OTPC_UHC1R) Custom Packet Program Disable */
 #define OTPC_UHC1R_URFDIS (0x1u << 17) /**< \brief (OTPC_UHC1R) User Refresh Disable */
-/* -------- OTPC_UID0R : (OTPC Offset: 0x60) Product UID Register -------- */
+/* -------- OTPC_UID0R : (OTPC Offset: 0x60) Product UID 0 Register -------- */
 #define OTPC_UID0R_UID_Pos 0
 #define OTPC_UID0R_UID_Msk (0xffffffffu << OTPC_UID0R_UID_Pos) /**< \brief (OTPC_UID0R) Unique Product ID */
-/* -------- OTPC_UID1R : (OTPC Offset: 0x64) Product UID Register -------- */
+/* -------- OTPC_UID1R : (OTPC Offset: 0x64) Product UID 1 Register -------- */
 #define OTPC_UID1R_UID_Pos 0
 #define OTPC_UID1R_UID_Msk (0xffffffffu << OTPC_UID1R_UID_Pos) /**< \brief (OTPC_UID1R) Unique Product ID */
-/* -------- OTPC_UID2R : (OTPC Offset: 0x68) Product UID Register -------- */
+/* -------- OTPC_UID2R : (OTPC Offset: 0x68) Product UID 2 Register -------- */
 #define OTPC_UID2R_UID_Pos 0
 #define OTPC_UID2R_UID_Msk (0xffffffffu << OTPC_UID2R_UID_Pos) /**< \brief (OTPC_UID2R) Unique Product ID */
-/* -------- OTPC_UID3R : (OTPC Offset: 0x6C) Product UID Register -------- */
+/* -------- OTPC_UID3R : (OTPC Offset: 0x6C) Product UID 3 Register -------- */
 #define OTPC_UID3R_UID_Pos 0
 #define OTPC_UID3R_UID_Msk (0xffffffffu << OTPC_UID3R_UID_Pos) /**< \brief (OTPC_UID3R) Unique Product ID */
 /* -------- OTPC_WPMR : (OTPC Offset: 0xE4) Write Protection Mode Register -------- */

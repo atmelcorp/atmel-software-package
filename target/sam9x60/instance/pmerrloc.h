@@ -43,28 +43,28 @@
   #define REG_PMERRLOC_ELISR                    (0xFFFFE620U) /**< \brief (PMERRLOC) Interrupt Status Register */
   #define REG_PMERRLOC_SIGMA0                   (0xFFFFE628U) /**< \brief (PMERRLOC) SIGMA0 Register */
   #define REG_PMERRLOC_SIGMA1                   (0xFFFFE62CU) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA2                   (0xFFFFE630U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA3                   (0xFFFFE634U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA4                   (0xFFFFE638U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA5                   (0xFFFFE63CU) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA6                   (0xFFFFE640U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA7                   (0xFFFFE644U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA8                   (0xFFFFE648U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA9                   (0xFFFFE64CU) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA10                  (0xFFFFE650U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA11                  (0xFFFFE654U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA12                  (0xFFFFE658U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA13                  (0xFFFFE65CU) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA14                  (0xFFFFE660U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA15                  (0xFFFFE664U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA16                  (0xFFFFE668U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA17                  (0xFFFFE66CU) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA18                  (0xFFFFE670U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA19                  (0xFFFFE674U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA20                  (0xFFFFE678U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA21                  (0xFFFFE67CU) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA22                  (0xFFFFE680U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA23                  (0xFFFFE684U) /**< \brief (PMERRLOC) SIGMA1 Register */
+  #define REG_PMERRLOC_SIGMA2                   (0xFFFFE630U) /**< \brief (PMERRLOC) SIGMA2 Register */
+  #define REG_PMERRLOC_SIGMA3                   (0xFFFFE634U) /**< \brief (PMERRLOC) SIGMA3 Register */
+  #define REG_PMERRLOC_SIGMA4                   (0xFFFFE638U) /**< \brief (PMERRLOC) SIGMA4 Register */
+  #define REG_PMERRLOC_SIGMA5                   (0xFFFFE63CU) /**< \brief (PMERRLOC) SIGMA5 Register */
+  #define REG_PMERRLOC_SIGMA6                   (0xFFFFE640U) /**< \brief (PMERRLOC) SIGMA6 Register */
+  #define REG_PMERRLOC_SIGMA7                   (0xFFFFE644U) /**< \brief (PMERRLOC) SIGMA7 Register */
+  #define REG_PMERRLOC_SIGMA8                   (0xFFFFE648U) /**< \brief (PMERRLOC) SIGMA8 Register */
+  #define REG_PMERRLOC_SIGMA9                   (0xFFFFE64CU) /**< \brief (PMERRLOC) SIGMA9 Register */
+  #define REG_PMERRLOC_SIGMA10                  (0xFFFFE650U) /**< \brief (PMERRLOC) SIGMA10 Register */
+  #define REG_PMERRLOC_SIGMA11                  (0xFFFFE654U) /**< \brief (PMERRLOC) SIGMA11 Register */
+  #define REG_PMERRLOC_SIGMA12                  (0xFFFFE658U) /**< \brief (PMERRLOC) SIGMA12 Register */
+  #define REG_PMERRLOC_SIGMA13                  (0xFFFFE65CU) /**< \brief (PMERRLOC) SIGMA13 Register */
+  #define REG_PMERRLOC_SIGMA14                  (0xFFFFE660U) /**< \brief (PMERRLOC) SIGMA14 Register */
+  #define REG_PMERRLOC_SIGMA15                  (0xFFFFE664U) /**< \brief (PMERRLOC) SIGMA15 Register */
+  #define REG_PMERRLOC_SIGMA16                  (0xFFFFE668U) /**< \brief (PMERRLOC) SIGMA16 Register */
+  #define REG_PMERRLOC_SIGMA17                  (0xFFFFE66CU) /**< \brief (PMERRLOC) SIGMA17 Register */
+  #define REG_PMERRLOC_SIGMA18                  (0xFFFFE670U) /**< \brief (PMERRLOC) SIGMA18 Register */
+  #define REG_PMERRLOC_SIGMA19                  (0xFFFFE674U) /**< \brief (PMERRLOC) SIGMA19 Register */
+  #define REG_PMERRLOC_SIGMA20                  (0xFFFFE678U) /**< \brief (PMERRLOC) SIGMA20 Register */
+  #define REG_PMERRLOC_SIGMA21                  (0xFFFFE67CU) /**< \brief (PMERRLOC) SIGMA21 Register */
+  #define REG_PMERRLOC_SIGMA22                  (0xFFFFE680U) /**< \brief (PMERRLOC) SIGMA22 Register */
+  #define REG_PMERRLOC_SIGMA23                  (0xFFFFE684U) /**< \brief (PMERRLOC) SIGMA23 Register */
   #define REG_PMERRLOC_SIGMA24                  (0xFFFFE688U) /**< \brief (PMERRLOC) SIGMA24 Register */
   #define REG_PMERRLOC_EL                       (0xFFFFE68CU) /**< \brief (PMERRLOC) Error Location 0 Register */
 #else
@@ -79,28 +79,28 @@
   #define REG_PMERRLOC_ELISR   (*(__I  uint32_t*)0xFFFFE620U) /**< \brief (PMERRLOC) Interrupt Status Register */
   #define REG_PMERRLOC_SIGMA0  (*(__I  uint32_t*)0xFFFFE628U) /**< \brief (PMERRLOC) SIGMA0 Register */
   #define REG_PMERRLOC_SIGMA1  (*(__IO uint32_t*)0xFFFFE62CU) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA2  (*(__IO uint32_t*)0xFFFFE630U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA3  (*(__IO uint32_t*)0xFFFFE634U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA4  (*(__IO uint32_t*)0xFFFFE638U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA5  (*(__IO uint32_t*)0xFFFFE63CU) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA6  (*(__IO uint32_t*)0xFFFFE640U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA7  (*(__IO uint32_t*)0xFFFFE644U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA8  (*(__IO uint32_t*)0xFFFFE648U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA9  (*(__IO uint32_t*)0xFFFFE64CU) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA10 (*(__IO uint32_t*)0xFFFFE650U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA11 (*(__IO uint32_t*)0xFFFFE654U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA12 (*(__IO uint32_t*)0xFFFFE658U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA13 (*(__IO uint32_t*)0xFFFFE65CU) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA14 (*(__IO uint32_t*)0xFFFFE660U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA15 (*(__IO uint32_t*)0xFFFFE664U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA16 (*(__IO uint32_t*)0xFFFFE668U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA17 (*(__IO uint32_t*)0xFFFFE66CU) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA18 (*(__IO uint32_t*)0xFFFFE670U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA19 (*(__IO uint32_t*)0xFFFFE674U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA20 (*(__IO uint32_t*)0xFFFFE678U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA21 (*(__IO uint32_t*)0xFFFFE67CU) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA22 (*(__IO uint32_t*)0xFFFFE680U) /**< \brief (PMERRLOC) SIGMA1 Register */
-  #define REG_PMERRLOC_SIGMA23 (*(__IO uint32_t*)0xFFFFE684U) /**< \brief (PMERRLOC) SIGMA1 Register */
+  #define REG_PMERRLOC_SIGMA2  (*(__IO uint32_t*)0xFFFFE630U) /**< \brief (PMERRLOC) SIGMA2 Register */
+  #define REG_PMERRLOC_SIGMA3  (*(__IO uint32_t*)0xFFFFE634U) /**< \brief (PMERRLOC) SIGMA3 Register */
+  #define REG_PMERRLOC_SIGMA4  (*(__IO uint32_t*)0xFFFFE638U) /**< \brief (PMERRLOC) SIGMA4 Register */
+  #define REG_PMERRLOC_SIGMA5  (*(__IO uint32_t*)0xFFFFE63CU) /**< \brief (PMERRLOC) SIGMA5 Register */
+  #define REG_PMERRLOC_SIGMA6  (*(__IO uint32_t*)0xFFFFE640U) /**< \brief (PMERRLOC) SIGMA6 Register */
+  #define REG_PMERRLOC_SIGMA7  (*(__IO uint32_t*)0xFFFFE644U) /**< \brief (PMERRLOC) SIGMA7 Register */
+  #define REG_PMERRLOC_SIGMA8  (*(__IO uint32_t*)0xFFFFE648U) /**< \brief (PMERRLOC) SIGMA8 Register */
+  #define REG_PMERRLOC_SIGMA9  (*(__IO uint32_t*)0xFFFFE64CU) /**< \brief (PMERRLOC) SIGMA9 Register */
+  #define REG_PMERRLOC_SIGMA10 (*(__IO uint32_t*)0xFFFFE650U) /**< \brief (PMERRLOC) SIGMA10 Register */
+  #define REG_PMERRLOC_SIGMA11 (*(__IO uint32_t*)0xFFFFE654U) /**< \brief (PMERRLOC) SIGMA11 Register */
+  #define REG_PMERRLOC_SIGMA12 (*(__IO uint32_t*)0xFFFFE658U) /**< \brief (PMERRLOC) SIGMA12 Register */
+  #define REG_PMERRLOC_SIGMA13 (*(__IO uint32_t*)0xFFFFE65CU) /**< \brief (PMERRLOC) SIGMA13 Register */
+  #define REG_PMERRLOC_SIGMA14 (*(__IO uint32_t*)0xFFFFE660U) /**< \brief (PMERRLOC) SIGMA14 Register */
+  #define REG_PMERRLOC_SIGMA15 (*(__IO uint32_t*)0xFFFFE664U) /**< \brief (PMERRLOC) SIGMA15 Register */
+  #define REG_PMERRLOC_SIGMA16 (*(__IO uint32_t*)0xFFFFE668U) /**< \brief (PMERRLOC) SIGMA16 Register */
+  #define REG_PMERRLOC_SIGMA17 (*(__IO uint32_t*)0xFFFFE66CU) /**< \brief (PMERRLOC) SIGMA17 Register */
+  #define REG_PMERRLOC_SIGMA18 (*(__IO uint32_t*)0xFFFFE670U) /**< \brief (PMERRLOC) SIGMA18 Register */
+  #define REG_PMERRLOC_SIGMA19 (*(__IO uint32_t*)0xFFFFE674U) /**< \brief (PMERRLOC) SIGMA19 Register */
+  #define REG_PMERRLOC_SIGMA20 (*(__IO uint32_t*)0xFFFFE678U) /**< \brief (PMERRLOC) SIGMA20 Register */
+  #define REG_PMERRLOC_SIGMA21 (*(__IO uint32_t*)0xFFFFE67CU) /**< \brief (PMERRLOC) SIGMA21 Register */
+  #define REG_PMERRLOC_SIGMA22 (*(__IO uint32_t*)0xFFFFE680U) /**< \brief (PMERRLOC) SIGMA22 Register */
+  #define REG_PMERRLOC_SIGMA23 (*(__IO uint32_t*)0xFFFFE684U) /**< \brief (PMERRLOC) SIGMA23 Register */
   #define REG_PMERRLOC_SIGMA24 (*(__IO uint32_t*)0xFFFFE688U) /**< \brief (PMERRLOC) SIGMA24 Register */
   #define REG_PMERRLOC_EL      (*(__I  uint32_t*)0xFFFFE68CU) /**< \brief (PMERRLOC) Error Location 0 Register */
 #endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */

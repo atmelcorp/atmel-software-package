@@ -106,7 +106,7 @@ typedef enum IRQn
   DBGU_IRQn            = 47, /**< 47 DBGU - fGCLK < fMCK0 / 3 - False Path (DBGU) */
   PMECC_IRQn           = 48, /**< 48 logical-OR interrupt of PMECC and PMERRLOC (PMECC) */
   SDRAMC_IRQn          = 49, /**< 49 logical-OR interrupt of SDRAMC and MPDDRC and HSMC (SDRAMC) */
-  UTMI_IRQn            = 50, /**< 50 Unknown (UTMI) */
+  UTMI_IRQn            = 50, /**< 50 UTMI (UTMI) */
 
   PERIPH_COUNT_IRQn    = 51  /**< Number of peripheral IDs */
 } IRQn_Type;
@@ -301,7 +301,7 @@ typedef enum IRQn
 #define ID_DBGU      (47) /**< \brief DBGU - fGCLK < fMCK0 / 3 - False Path (DBGU) */
 #define ID_PMECC     (48) /**< \brief logical-OR interrupt of PMECC and PMERRLOC (PMECC) */
 #define ID_MPDDRC    (49) /**< \brief logical-OR interrupt of SDRAMC and MPDDRC and HSMC (SDRAMC) */
-#define ID_UTMI      (50) /**< \brief Unknown (UTMI) */
+#define ID_UTMI      (50) /**< \brief UTMI (UTMI) */
 
 #define ID_PERIPH_COUNT (51) /**< \brief Number of peripheral IDs */
 /*@}*/

@@ -46,10 +46,10 @@
   #define REG_OTPC_CAR                    (0xEFF00034U) /**< \brief (OTPC) Custom Address Register */
   #define REG_OTPC_UHC0R                  (0xEFF00050U) /**< \brief (OTPC) User Hardware Configuration 0 Register */
   #define REG_OTPC_UHC1R                  (0xEFF00054U) /**< \brief (OTPC) User Hardware Configuration 1 Register */
-  #define REG_OTPC_UID0R                  (0xEFF00060U) /**< \brief (OTPC) Product UID Register */
-  #define REG_OTPC_UID1R                  (0xEFF00064U) /**< \brief (OTPC) Product UID Register */
-  #define REG_OTPC_UID2R                  (0xEFF00068U) /**< \brief (OTPC) Product UID Register */
-  #define REG_OTPC_UID3R                  (0xEFF0006CU) /**< \brief (OTPC) Product UID Register */
+  #define REG_OTPC_UID0R                  (0xEFF00060U) /**< \brief (OTPC) Product UID 0 Register */
+  #define REG_OTPC_UID1R                  (0xEFF00064U) /**< \brief (OTPC) Product UID 1 Register */
+  #define REG_OTPC_UID2R                  (0xEFF00068U) /**< \brief (OTPC) Product UID 2 Register */
+  #define REG_OTPC_UID3R                  (0xEFF0006CU) /**< \brief (OTPC) Product UID 3 Register */
   #define REG_OTPC_WPMR                   (0xEFF000E4U) /**< \brief (OTPC) Write Protection Mode Register */
   #define REG_OTPC_WPSR                   (0xEFF000E8U) /**< \brief (OTPC) Write Protection Status Register */
 #else
@@ -67,10 +67,10 @@
   #define REG_OTPC_CAR   (*(__I  uint32_t*)0xEFF00034U) /**< \brief (OTPC) Custom Address Register */
   #define REG_OTPC_UHC0R (*(__I  uint32_t*)0xEFF00050U) /**< \brief (OTPC) User Hardware Configuration 0 Register */
   #define REG_OTPC_UHC1R (*(__I  uint32_t*)0xEFF00054U) /**< \brief (OTPC) User Hardware Configuration 1 Register */
-  #define REG_OTPC_UID0R (*(__I  uint32_t*)0xEFF00060U) /**< \brief (OTPC) Product UID Register */
-  #define REG_OTPC_UID1R (*(__I  uint32_t*)0xEFF00064U) /**< \brief (OTPC) Product UID Register */
-  #define REG_OTPC_UID2R (*(__I  uint32_t*)0xEFF00068U) /**< \brief (OTPC) Product UID Register */
-  #define REG_OTPC_UID3R (*(__I  uint32_t*)0xEFF0006CU) /**< \brief (OTPC) Product UID Register */
+  #define REG_OTPC_UID0R (*(__I  uint32_t*)0xEFF00060U) /**< \brief (OTPC) Product UID 0 Register */
+  #define REG_OTPC_UID1R (*(__I  uint32_t*)0xEFF00064U) /**< \brief (OTPC) Product UID 1 Register */
+  #define REG_OTPC_UID2R (*(__I  uint32_t*)0xEFF00068U) /**< \brief (OTPC) Product UID 2 Register */
+  #define REG_OTPC_UID3R (*(__I  uint32_t*)0xEFF0006CU) /**< \brief (OTPC) Product UID 3 Register */
   #define REG_OTPC_WPMR  (*(__IO uint32_t*)0xEFF000E4U) /**< \brief (OTPC) Write Protection Mode Register */
   #define REG_OTPC_WPSR  (*(__I  uint32_t*)0xEFF000E8U) /**< \brief (OTPC) Write Protection Status Register */
 #endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */

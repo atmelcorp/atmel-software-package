@@ -362,7 +362,7 @@ typedef struct {
 #define ADC_EMR_SRCCLK (0x1u << 21) /**< \brief (ADC_EMR) External Clock Selection */
 #define   ADC_EMR_SRCCLK_PERIPH_CLK (0x0u << 21) /**< \brief (ADC_EMR) The peripheral clock is the source for the ADC prescaler. */
 #define   ADC_EMR_SRCCLK_GCLK (0x1u << 21) /**< \brief (ADC_EMR) GCLK is the source clock for the ADC prescaler, thus the ADC clock can be independent of the core/peripheral clock. */
-#define ADC_EMR_TRACKX4 (0x1u << 22) /**< \brief (ADC_EMR) Tracking Time 44 */
+#define ADC_EMR_TRACKX4 (0x1u << 22) /**< \brief (ADC_EMR) Tracking Time x4 */
 #define ADC_EMR_TAG (0x1u << 24) /**< \brief (ADC_EMR) Tag of ADC_LCDR */
 #define ADC_EMR_SIGNMODE_Pos 25
 #define ADC_EMR_SIGNMODE_Msk (0x3u << ADC_EMR_SIGNMODE_Pos) /**< \brief (ADC_EMR) Sign Mode */

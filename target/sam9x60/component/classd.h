@@ -60,6 +60,8 @@ typedef struct {
 #define CLASSD_MR_REN (0x1u << 4) /**< \brief (CLASSD_MR) Right Channel Enable */
 #define CLASSD_MR_RMUTE (0x1u << 5) /**< \brief (CLASSD_MR) Right Channel Mute */
 #define CLASSD_MR_PWMTYP (0x1u << 8) /**< \brief (CLASSD_MR) PWM Modulation Type */
+#define   CLASSD_MR_PWMTYP_TRAILING_EDGE (0x0u << 8) /**< \brief (CLASSD_MR) The signal is single-ended. */
+#define   CLASSD_MR_PWMTYP_UNIFORM (0x1u << 8) /**< \brief (CLASSD_MR) The signal is differential. */
 #define CLASSD_MR_NON_OVERLAP (0x1u << 16) /**< \brief (CLASSD_MR) Non-Overlapping Enable */
 #define CLASSD_MR_NOVRVAL_Pos 20
 #define CLASSD_MR_NOVRVAL_Msk (0x3u << CLASSD_MR_NOVRVAL_Pos) /**< \brief (CLASSD_MR) Non-Overlapping Value */

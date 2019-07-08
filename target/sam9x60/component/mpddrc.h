@@ -100,10 +100,10 @@ typedef struct {
 #define MPDDRC_CR_NC_Pos 0
 #define MPDDRC_CR_NC_Msk (0x3u << MPDDRC_CR_NC_Pos) /**< \brief (MPDDRC_CR) Number of Column Bits */
 #define MPDDRC_CR_NC(value) ((MPDDRC_CR_NC_Msk & ((value) << MPDDRC_CR_NC_Pos)))
-#define   MPDDRC_CR_NC_DDR_9_COL_BITS (0x0u << 0) /**< \brief (MPDDRC_CR) 9 bits to define the column number, up to 512 columns */
-#define   MPDDRC_CR_NC_DDR_10_COL_BITS (0x1u << 0) /**< \brief (MPDDRC_CR) 10 bits to define the column number, up to 1024 columns */
-#define   MPDDRC_CR_NC_DDR_11_COL_BITS (0x2u << 0) /**< \brief (MPDDRC_CR) 11 bits to define the column number, up to 2048 columns */
-#define   MPDDRC_CR_NC_DDR_12_COL_BITS (0x3u << 0) /**< \brief (MPDDRC_CR) 12 bits to define the column number, up to 4096 columns */
+#define   MPDDRC_CR_NC_DDR_9_COL_BITS (0x0u << 0) /**< \brief (MPDDRC_CR) 9 bits to define the column number, up to 512 columns, for DDR2-SDRAM 8 bits to define the column number, up to 256 columns, for LPDDR1-SDRAM */
+#define   MPDDRC_CR_NC_DDR_10_COL_BITS (0x1u << 0) /**< \brief (MPDDRC_CR) 10 bits to define the column number, up to 1024 columns, for DDR2-SDRAM 9 bits to define the column number, up to 512 columns, for LPDDR1-SDRAM */
+#define   MPDDRC_CR_NC_DDR_11_COL_BITS (0x2u << 0) /**< \brief (MPDDRC_CR) 11 bits to define the column number, up to 2048 columns, for DDR2-SDRAM 10 bits to define the column number, up to 1024 columns, for LPDDR1-SDRAM */
+#define   MPDDRC_CR_NC_DDR_12_COL_BITS (0x3u << 0) /**< \brief (MPDDRC_CR) 12 bits to define the column number, up to 4096 columns, for DDR2-SDRAM 11 bits to define the column number, up to 2048 columns, for LPDDR1-SDRAM */
 #define MPDDRC_CR_NR_Pos 2
 #define MPDDRC_CR_NR_Msk (0x3u << MPDDRC_CR_NR_Pos) /**< \brief (MPDDRC_CR) Number of Row Bits. */
 #define MPDDRC_CR_NR(value) ((MPDDRC_CR_NR_Msk & ((value) << MPDDRC_CR_NR_Pos)))
@@ -138,8 +138,8 @@ typedef struct {
 #define   MPDDRC_CR_NB_4_BANKS (0x0u << 20) /**< \brief (MPDDRC_CR) 4-bank memory devices */
 #define   MPDDRC_CR_NB_8_BANKS (0x1u << 20) /**< \brief (MPDDRC_CR) 8 banks. Only possible when using DDR2-SDRAM devices. */
 #define MPDDRC_CR_NDQS (0x1u << 21) /**< \brief (MPDDRC_CR) Not DQS. */
-#define   MPDDRC_CR_NDQS_ENABLED (0x0u << 21) /**< \brief (MPDDRC_CR) Not DQS is enabled */
-#define   MPDDRC_CR_NDQS_DISABLED (0x1u << 21) /**< \brief (MPDDRC_CR) Not DQS is disabled */
+#define   MPDDRC_CR_NDQS_ENABLED (0x0u << 21) /**< \brief (MPDDRC_CR) 'Not DQS' is enabled. */
+#define   MPDDRC_CR_NDQS_DISABLED (0x1u << 21) /**< \brief (MPDDRC_CR) 'Not DQS' is disabled. */
 #define MPDDRC_CR_DECOD (0x1u << 22) /**< \brief (MPDDRC_CR) Type of Decoding */
 #define   MPDDRC_CR_DECOD_SEQUENTIAL (0x0u << 22) /**< \brief (MPDDRC_CR) Method for address mapping where banks alternate at each last DDR-SDRAM page of the current bank. */
 #define   MPDDRC_CR_DECOD_INTERLEAVED (0x1u << 22) /**< \brief (MPDDRC_CR) Method for address mapping where banks alternate at each DDR-SDRAM end of page of the current bank. */
@@ -171,7 +171,7 @@ typedef struct {
 #define MPDDRC_TPR0_TMRD(value) ((MPDDRC_TPR0_TMRD_Msk & ((value) << MPDDRC_TPR0_TMRD_Pos)))
 /* -------- MPDDRC_TPR1 : (MPDDRC Offset: 0x10) Timing Parameter 1 Register -------- */
 #define MPDDRC_TPR1_TRFC_Pos 0
-#define MPDDRC_TPR1_TRFC_Msk (0x7fu << MPDDRC_TPR1_TRFC_Pos) /**< \brief (MPDDRC_TPR1) Row Cycle Delay */
+#define MPDDRC_TPR1_TRFC_Msk (0x7fu << MPDDRC_TPR1_TRFC_Pos) /**< \brief (MPDDRC_TPR1) Row Refresh Cycle */
 #define MPDDRC_TPR1_TRFC(value) ((MPDDRC_TPR1_TRFC_Msk & ((value) << MPDDRC_TPR1_TRFC_Pos)))
 #define MPDDRC_TPR1_TXSNR_Pos 8
 #define MPDDRC_TPR1_TXSNR_Msk (0xffu << MPDDRC_TPR1_TXSNR_Pos) /**< \brief (MPDDRC_TPR1) Exit Self-refresh Delay to Non-Read Command */
@@ -354,37 +354,37 @@ typedef struct {
 #define   MPDDRC_MCFGR_INFO_MAX_WAIT_QOS23 (0x5u << 11) /**< \brief (MPDDRC_MCFGR) Information concerning the transfer with the longest waiting time, depending on QOS values (2 and 3) */
 /* -------- MPDDRC_MADDR0 : (MPDDRC Offset: 0x64) Monitor Address High/Low Port 0 Register -------- */
 #define MPDDRC_MADDR0_ADDR_LOW_PORT0_Pos 0
-#define MPDDRC_MADDR0_ADDR_LOW_PORT0_Msk (0xffffu << MPDDRC_MADDR0_ADDR_LOW_PORT0_Pos) /**< \brief (MPDDRC_MADDR0) Address Low on Port x [x = 0..3] */
+#define MPDDRC_MADDR0_ADDR_LOW_PORT0_Msk (0xffffu << MPDDRC_MADDR0_ADDR_LOW_PORT0_Pos) /**< \brief (MPDDRC_MADDR0) Address Low on Port 0 */
 #define MPDDRC_MADDR0_ADDR_LOW_PORT0(value) ((MPDDRC_MADDR0_ADDR_LOW_PORT0_Msk & ((value) << MPDDRC_MADDR0_ADDR_LOW_PORT0_Pos)))
 #define MPDDRC_MADDR0_ADDR_HIGH_PORT0_Pos 16
-#define MPDDRC_MADDR0_ADDR_HIGH_PORT0_Msk (0xffffu << MPDDRC_MADDR0_ADDR_HIGH_PORT0_Pos) /**< \brief (MPDDRC_MADDR0) Address High on Port x [x = 0..3] */
+#define MPDDRC_MADDR0_ADDR_HIGH_PORT0_Msk (0xffffu << MPDDRC_MADDR0_ADDR_HIGH_PORT0_Pos) /**< \brief (MPDDRC_MADDR0) Address High on Port 0 */
 #define MPDDRC_MADDR0_ADDR_HIGH_PORT0(value) ((MPDDRC_MADDR0_ADDR_HIGH_PORT0_Msk & ((value) << MPDDRC_MADDR0_ADDR_HIGH_PORT0_Pos)))
 /* -------- MPDDRC_MADDR1 : (MPDDRC Offset: 0x68) Monitor Address High/Low Port 1 Register -------- */
 #define MPDDRC_MADDR1_ADDR_LOW_PORT1_Pos 0
-#define MPDDRC_MADDR1_ADDR_LOW_PORT1_Msk (0xffffu << MPDDRC_MADDR1_ADDR_LOW_PORT1_Pos) /**< \brief (MPDDRC_MADDR1) Address Low on Port x [x = 0..3] */
+#define MPDDRC_MADDR1_ADDR_LOW_PORT1_Msk (0xffffu << MPDDRC_MADDR1_ADDR_LOW_PORT1_Pos) /**< \brief (MPDDRC_MADDR1) Address Low on Port 1 */
 #define MPDDRC_MADDR1_ADDR_LOW_PORT1(value) ((MPDDRC_MADDR1_ADDR_LOW_PORT1_Msk & ((value) << MPDDRC_MADDR1_ADDR_LOW_PORT1_Pos)))
 #define MPDDRC_MADDR1_ADDR_HIGH_PORT1_Pos 16
-#define MPDDRC_MADDR1_ADDR_HIGH_PORT1_Msk (0xffffu << MPDDRC_MADDR1_ADDR_HIGH_PORT1_Pos) /**< \brief (MPDDRC_MADDR1) Address High on Port x [x = 0..3] */
+#define MPDDRC_MADDR1_ADDR_HIGH_PORT1_Msk (0xffffu << MPDDRC_MADDR1_ADDR_HIGH_PORT1_Pos) /**< \brief (MPDDRC_MADDR1) Address High on Port 1 */
 #define MPDDRC_MADDR1_ADDR_HIGH_PORT1(value) ((MPDDRC_MADDR1_ADDR_HIGH_PORT1_Msk & ((value) << MPDDRC_MADDR1_ADDR_HIGH_PORT1_Pos)))
 /* -------- MPDDRC_MADDR2 : (MPDDRC Offset: 0x6C) Monitor Address High/Low Port 2 Register -------- */
 #define MPDDRC_MADDR2_ADDR_LOW_PORT2_Pos 0
-#define MPDDRC_MADDR2_ADDR_LOW_PORT2_Msk (0xffffu << MPDDRC_MADDR2_ADDR_LOW_PORT2_Pos) /**< \brief (MPDDRC_MADDR2) Address Low on Port x [x = 0..3] */
+#define MPDDRC_MADDR2_ADDR_LOW_PORT2_Msk (0xffffu << MPDDRC_MADDR2_ADDR_LOW_PORT2_Pos) /**< \brief (MPDDRC_MADDR2) Address Low on Port 2 */
 #define MPDDRC_MADDR2_ADDR_LOW_PORT2(value) ((MPDDRC_MADDR2_ADDR_LOW_PORT2_Msk & ((value) << MPDDRC_MADDR2_ADDR_LOW_PORT2_Pos)))
 #define MPDDRC_MADDR2_ADDR_HIGH_PORT2_Pos 16
-#define MPDDRC_MADDR2_ADDR_HIGH_PORT2_Msk (0xffffu << MPDDRC_MADDR2_ADDR_HIGH_PORT2_Pos) /**< \brief (MPDDRC_MADDR2) Address High on Port x [x = 0..3] */
+#define MPDDRC_MADDR2_ADDR_HIGH_PORT2_Msk (0xffffu << MPDDRC_MADDR2_ADDR_HIGH_PORT2_Pos) /**< \brief (MPDDRC_MADDR2) Address High on Port 2 */
 #define MPDDRC_MADDR2_ADDR_HIGH_PORT2(value) ((MPDDRC_MADDR2_ADDR_HIGH_PORT2_Msk & ((value) << MPDDRC_MADDR2_ADDR_HIGH_PORT2_Pos)))
 /* -------- MPDDRC_MADDR3 : (MPDDRC Offset: 0x70) Monitor Address High/Low Port 3 Register -------- */
 #define MPDDRC_MADDR3_ADDR_LOW_PORT3_Pos 0
-#define MPDDRC_MADDR3_ADDR_LOW_PORT3_Msk (0xffffu << MPDDRC_MADDR3_ADDR_LOW_PORT3_Pos) /**< \brief (MPDDRC_MADDR3) Address Low on Port x [x = 0..3] */
+#define MPDDRC_MADDR3_ADDR_LOW_PORT3_Msk (0xffffu << MPDDRC_MADDR3_ADDR_LOW_PORT3_Pos) /**< \brief (MPDDRC_MADDR3) Address Low on Port 3 */
 #define MPDDRC_MADDR3_ADDR_LOW_PORT3(value) ((MPDDRC_MADDR3_ADDR_LOW_PORT3_Msk & ((value) << MPDDRC_MADDR3_ADDR_LOW_PORT3_Pos)))
 #define MPDDRC_MADDR3_ADDR_HIGH_PORT3_Pos 16
-#define MPDDRC_MADDR3_ADDR_HIGH_PORT3_Msk (0xffffu << MPDDRC_MADDR3_ADDR_HIGH_PORT3_Pos) /**< \brief (MPDDRC_MADDR3) Address High on Port x [x = 0..3] */
+#define MPDDRC_MADDR3_ADDR_HIGH_PORT3_Msk (0xffffu << MPDDRC_MADDR3_ADDR_HIGH_PORT3_Pos) /**< \brief (MPDDRC_MADDR3) Address High on Port 3 */
 #define MPDDRC_MADDR3_ADDR_HIGH_PORT3(value) ((MPDDRC_MADDR3_ADDR_HIGH_PORT3_Msk & ((value) << MPDDRC_MADDR3_ADDR_HIGH_PORT3_Pos)))
 /* -------- MPDDRC_MINFO0 : (MPDDRC Offset: 0x84) Monitor Information Port 0 Register -------- */
 #define MPDDRC_MINFO0_MAX_PORT0_WAITING_Pos 0
-#define MPDDRC_MINFO0_MAX_PORT0_WAITING_Msk (0xffffu << MPDDRC_MINFO0_MAX_PORT0_WAITING_Pos) /**< \brief (MPDDRC_MINFO0) Address High on Port x [x = 0..3] */
+#define MPDDRC_MINFO0_MAX_PORT0_WAITING_Msk (0xffffu << MPDDRC_MINFO0_MAX_PORT0_WAITING_Pos) /**< \brief (MPDDRC_MINFO0) Address High on Port 0 */
 #define MPDDRC_MINFO0_BURST_Pos 16
-#define MPDDRC_MINFO0_BURST_Msk (0x7u << MPDDRC_MINFO0_BURST_Pos) /**< \brief (MPDDRC_MINFO0) Type of Burst on Port x [x = 0..3] */
+#define MPDDRC_MINFO0_BURST_Msk (0x7u << MPDDRC_MINFO0_BURST_Pos) /**< \brief (MPDDRC_MINFO0) Type of Burst on Port 0 */
 #define   MPDDRC_MINFO0_BURST_SINGLE (0x0u << 16) /**< \brief (MPDDRC_MINFO0) Single transfer */
 #define   MPDDRC_MINFO0_BURST_INCR (0x1u << 16) /**< \brief (MPDDRC_MINFO0) Incrementing burst of unspecified length */
 #define   MPDDRC_MINFO0_BURST_WRAP4 (0x2u << 16) /**< \brief (MPDDRC_MINFO0) 4-beat wrapping burst */
@@ -394,35 +394,35 @@ typedef struct {
 #define   MPDDRC_MINFO0_BURST_WRAP16 (0x6u << 16) /**< \brief (MPDDRC_MINFO0) 16-beat wrapping burst */
 #define   MPDDRC_MINFO0_BURST_INCR16 (0x7u << 16) /**< \brief (MPDDRC_MINFO0) 16-beat incrementing burst */
 #define MPDDRC_MINFO0_SIZE_Pos 20
-#define MPDDRC_MINFO0_SIZE_Msk (0x7u << MPDDRC_MINFO0_SIZE_Pos) /**< \brief (MPDDRC_MINFO0) Transfer Size on Port x [x = 0..3] */
+#define MPDDRC_MINFO0_SIZE_Msk (0x7u << MPDDRC_MINFO0_SIZE_Pos) /**< \brief (MPDDRC_MINFO0) Transfer Size on Port 0 */
 #define   MPDDRC_MINFO0_SIZE_8BITS (0x0u << 20) /**< \brief (MPDDRC_MINFO0) Byte transfer */
 #define   MPDDRC_MINFO0_SIZE_16BITS (0x1u << 20) /**< \brief (MPDDRC_MINFO0) Halfword transfer */
 #define   MPDDRC_MINFO0_SIZE_32BITS (0x2u << 20) /**< \brief (MPDDRC_MINFO0) Word transfer */
 #define   MPDDRC_MINFO0_SIZE_64BITS (0x3u << 20) /**< \brief (MPDDRC_MINFO0) Dword transfer */
-#define MPDDRC_MINFO0_READ_WRITE (0x1u << 24) /**< \brief (MPDDRC_MINFO0) Read or Write Access on Port x [x = 0..3] */
+#define MPDDRC_MINFO0_READ_WRITE (0x1u << 24) /**< \brief (MPDDRC_MINFO0) Read or Write Access on Port 0 */
 #define MPDDRC_MINFO0_LQOS_Pos 25
-#define MPDDRC_MINFO0_LQOS_Msk (0x3u << MPDDRC_MINFO0_LQOS_Pos) /**< \brief (MPDDRC_MINFO0) Value of Quality Of Service on Port x [x = 0..3] */
-#define   MPDDRC_MINFO0_LQOS_BACKGROUND (0x0u << 25) /**< \brief (MPDDRC_MINFO0) Background Transfers */
-#define   MPDDRC_MINFO0_LQOS_BANDWIDTH (0x1u << 25) /**< \brief (MPDDRC_MINFO0) Bandwidth Sensitive */
-#define   MPDDRC_MINFO0_LQOS_SENSITIVE_LAT (0x2u << 25) /**< \brief (MPDDRC_MINFO0) Latency Sensitive */
-#define   MPDDRC_MINFO0_LQOS_CRITICAL_LAT (0x3u << 25) /**< \brief (MPDDRC_MINFO0) Latency Critical */
+#define MPDDRC_MINFO0_LQOS_Msk (0x3u << MPDDRC_MINFO0_LQOS_Pos) /**< \brief (MPDDRC_MINFO0) Value of Quality Of Service on Port 0 */
+#define   MPDDRC_MINFO0_LQOS_BACKGROUND (0x0u << 25) /**< \brief (MPDDRC_MINFO0) Background transfers */
+#define   MPDDRC_MINFO0_LQOS_BANDWIDTH (0x1u << 25) /**< \brief (MPDDRC_MINFO0) Bandwidth sensitive */
+#define   MPDDRC_MINFO0_LQOS_SENSITIVE_LAT (0x2u << 25) /**< \brief (MPDDRC_MINFO0) Latency sensitive */
+#define   MPDDRC_MINFO0_LQOS_CRITICAL_LAT (0x3u << 25) /**< \brief (MPDDRC_MINFO0) Latency critical */
 #define MPDDRC_MINFO0_P0_NB_TRANSFERS_Pos 0
-#define MPDDRC_MINFO0_P0_NB_TRANSFERS_Msk (0xffffffffu << MPDDRC_MINFO0_P0_NB_TRANSFERS_Pos) /**< \brief (MPDDRC_MINFO0) Number of Transfers on Port x [x = 0..3] */
+#define MPDDRC_MINFO0_P0_NB_TRANSFERS_Msk (0xffffffffu << MPDDRC_MINFO0_P0_NB_TRANSFERS_Pos) /**< \brief (MPDDRC_MINFO0) Number of Transfers on Port 0 */
 #define MPDDRC_MINFO0_P0_TOTAL_LATENCY_Pos 0
-#define MPDDRC_MINFO0_P0_TOTAL_LATENCY_Msk (0xffffffffu << MPDDRC_MINFO0_P0_TOTAL_LATENCY_Pos) /**< \brief (MPDDRC_MINFO0) Total Latency on Port x [x = 0..3] */
+#define MPDDRC_MINFO0_P0_TOTAL_LATENCY_Msk (0xffffffffu << MPDDRC_MINFO0_P0_TOTAL_LATENCY_Pos) /**< \brief (MPDDRC_MINFO0) Total Latency on Port 0 */
 #define MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS0_Pos 0
-#define MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS0_Msk (0xffffu << MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS0_Pos) /**< \brief (MPDDRC_MINFO0) Total Latency on Port 0 [x = 0..3] when value of qos is 0 */
+#define MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS0_Msk (0xffffu << MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS0_Pos) /**< \brief (MPDDRC_MINFO0) Total Latency on Port 0 when value of qos is 0 */
 #define MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS1_Pos 16
-#define MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS1_Msk (0xffffu << MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS1_Pos) /**< \brief (MPDDRC_MINFO0) Total Latency on Port 1 [x = 0..3] when value of qos is 1 */
+#define MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS1_Msk (0xffffu << MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS1_Pos) /**< \brief (MPDDRC_MINFO0) Total Latency on Port 1 when value of qos is 1 */
 #define MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS2_Pos 0
-#define MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS2_Msk (0xffffu << MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS2_Pos) /**< \brief (MPDDRC_MINFO0) Total Latency on Port 2 [x = 0..3] when value of qos is 2 */
+#define MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS2_Msk (0xffffu << MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS2_Pos) /**< \brief (MPDDRC_MINFO0) Total Latency on Port 2 when value of qos is 2 */
 #define MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS3_Pos 16
-#define MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS3_Msk (0xffffu << MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS3_Pos) /**< \brief (MPDDRC_MINFO0) Total Latency on Port 3 [x = 0..3] when value of qos is 3 */
+#define MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS3_Msk (0xffffu << MPDDRC_MINFO0_P0_TOTAL_LATENCY_QOS3_Pos) /**< \brief (MPDDRC_MINFO0) Total Latency on Port 3 when value of qos is 3 */
 /* -------- MPDDRC_MINFO1 : (MPDDRC Offset: 0x88) Monitor Information Port 1 Register -------- */
 #define MPDDRC_MINFO1_MAX_PORT1_WAITING_Pos 0
-#define MPDDRC_MINFO1_MAX_PORT1_WAITING_Msk (0xffffu << MPDDRC_MINFO1_MAX_PORT1_WAITING_Pos) /**< \brief (MPDDRC_MINFO1) Address High on Port x [x = 0..3] */
+#define MPDDRC_MINFO1_MAX_PORT1_WAITING_Msk (0xffffu << MPDDRC_MINFO1_MAX_PORT1_WAITING_Pos) /**< \brief (MPDDRC_MINFO1) Address High on Port 1 */
 #define MPDDRC_MINFO1_BURST_Pos 16
-#define MPDDRC_MINFO1_BURST_Msk (0x7u << MPDDRC_MINFO1_BURST_Pos) /**< \brief (MPDDRC_MINFO1) Type of Burst on Port x [x = 0..3] */
+#define MPDDRC_MINFO1_BURST_Msk (0x7u << MPDDRC_MINFO1_BURST_Pos) /**< \brief (MPDDRC_MINFO1) Type of Burst on Port 1 */
 #define   MPDDRC_MINFO1_BURST_SINGLE (0x0u << 16) /**< \brief (MPDDRC_MINFO1) Single transfer */
 #define   MPDDRC_MINFO1_BURST_INCR (0x1u << 16) /**< \brief (MPDDRC_MINFO1) Incrementing burst of unspecified length */
 #define   MPDDRC_MINFO1_BURST_WRAP4 (0x2u << 16) /**< \brief (MPDDRC_MINFO1) 4-beat wrapping burst */
@@ -432,35 +432,35 @@ typedef struct {
 #define   MPDDRC_MINFO1_BURST_WRAP16 (0x6u << 16) /**< \brief (MPDDRC_MINFO1) 16-beat wrapping burst */
 #define   MPDDRC_MINFO1_BURST_INCR16 (0x7u << 16) /**< \brief (MPDDRC_MINFO1) 16-beat incrementing burst */
 #define MPDDRC_MINFO1_SIZE_Pos 20
-#define MPDDRC_MINFO1_SIZE_Msk (0x7u << MPDDRC_MINFO1_SIZE_Pos) /**< \brief (MPDDRC_MINFO1) Transfer Size on Port x [x = 0..3] */
+#define MPDDRC_MINFO1_SIZE_Msk (0x7u << MPDDRC_MINFO1_SIZE_Pos) /**< \brief (MPDDRC_MINFO1) Transfer Size on Port 1 */
 #define   MPDDRC_MINFO1_SIZE_8BITS (0x0u << 20) /**< \brief (MPDDRC_MINFO1) Byte transfer */
 #define   MPDDRC_MINFO1_SIZE_16BITS (0x1u << 20) /**< \brief (MPDDRC_MINFO1) Halfword transfer */
 #define   MPDDRC_MINFO1_SIZE_32BITS (0x2u << 20) /**< \brief (MPDDRC_MINFO1) Word transfer */
 #define   MPDDRC_MINFO1_SIZE_64BITS (0x3u << 20) /**< \brief (MPDDRC_MINFO1) Dword transfer */
-#define MPDDRC_MINFO1_READ_WRITE (0x1u << 24) /**< \brief (MPDDRC_MINFO1) Read or Write Access on Port x [x = 0..3] */
+#define MPDDRC_MINFO1_READ_WRITE (0x1u << 24) /**< \brief (MPDDRC_MINFO1) Read or Write Access on Port 1 */
 #define MPDDRC_MINFO1_LQOS_Pos 25
-#define MPDDRC_MINFO1_LQOS_Msk (0x3u << MPDDRC_MINFO1_LQOS_Pos) /**< \brief (MPDDRC_MINFO1) Value of Quality Of Service on Port x [x = 0..3] */
-#define   MPDDRC_MINFO1_LQOS_BACKGROUND (0x0u << 25) /**< \brief (MPDDRC_MINFO1) Background Transfers */
-#define   MPDDRC_MINFO1_LQOS_BANDWIDTH (0x1u << 25) /**< \brief (MPDDRC_MINFO1) Bandwidth Sensitive */
-#define   MPDDRC_MINFO1_LQOS_SENSITIVE_LAT (0x2u << 25) /**< \brief (MPDDRC_MINFO1) Latency Sensitive */
-#define   MPDDRC_MINFO1_LQOS_CRITICAL_LAT (0x3u << 25) /**< \brief (MPDDRC_MINFO1) Latency Critical */
+#define MPDDRC_MINFO1_LQOS_Msk (0x3u << MPDDRC_MINFO1_LQOS_Pos) /**< \brief (MPDDRC_MINFO1) Value of Quality Of Service on Port 1 */
+#define   MPDDRC_MINFO1_LQOS_BACKGROUND (0x0u << 25) /**< \brief (MPDDRC_MINFO1) Background transfers */
+#define   MPDDRC_MINFO1_LQOS_BANDWIDTH (0x1u << 25) /**< \brief (MPDDRC_MINFO1) Bandwidth sensitive */
+#define   MPDDRC_MINFO1_LQOS_SENSITIVE_LAT (0x2u << 25) /**< \brief (MPDDRC_MINFO1) Latency sensitive */
+#define   MPDDRC_MINFO1_LQOS_CRITICAL_LAT (0x3u << 25) /**< \brief (MPDDRC_MINFO1) Latency critical */
 #define MPDDRC_MINFO1_P1_NB_TRANSFERS_Pos 0
-#define MPDDRC_MINFO1_P1_NB_TRANSFERS_Msk (0xffffffffu << MPDDRC_MINFO1_P1_NB_TRANSFERS_Pos) /**< \brief (MPDDRC_MINFO1) Number of Transfers on Port x [x = 0..3] */
+#define MPDDRC_MINFO1_P1_NB_TRANSFERS_Msk (0xffffffffu << MPDDRC_MINFO1_P1_NB_TRANSFERS_Pos) /**< \brief (MPDDRC_MINFO1) Number of Transfers on Port 1 */
 #define MPDDRC_MINFO1_P1_TOTAL_LATENCY_Pos 0
-#define MPDDRC_MINFO1_P1_TOTAL_LATENCY_Msk (0xffffffffu << MPDDRC_MINFO1_P1_TOTAL_LATENCY_Pos) /**< \brief (MPDDRC_MINFO1) Total Latency on Port x [x = 0..3] */
+#define MPDDRC_MINFO1_P1_TOTAL_LATENCY_Msk (0xffffffffu << MPDDRC_MINFO1_P1_TOTAL_LATENCY_Pos) /**< \brief (MPDDRC_MINFO1) Total Latency on Port 1 */
 #define MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS0_Pos 0
-#define MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS0_Msk (0xffffu << MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS0_Pos) /**< \brief (MPDDRC_MINFO1) Total Latency on Port 0 [x = 0..3] when value of qos is 0 */
+#define MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS0_Msk (0xffffu << MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS0_Pos) /**< \brief (MPDDRC_MINFO1) Total Latency on Port 0 when value of qos is 0 */
 #define MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS1_Pos 16
-#define MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS1_Msk (0xffffu << MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS1_Pos) /**< \brief (MPDDRC_MINFO1) Total Latency on Port 1 [x = 0..3] when value of qos is 1 */
+#define MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS1_Msk (0xffffu << MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS1_Pos) /**< \brief (MPDDRC_MINFO1) Total Latency on Port 1 when value of qos is 1 */
 #define MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS2_Pos 0
-#define MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS2_Msk (0xffffu << MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS2_Pos) /**< \brief (MPDDRC_MINFO1) Total Latency on Port 2 [x = 0..3] when value of qos is 2 */
+#define MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS2_Msk (0xffffu << MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS2_Pos) /**< \brief (MPDDRC_MINFO1) Total Latency on Port 2 when value of qos is 2 */
 #define MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS3_Pos 16
-#define MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS3_Msk (0xffffu << MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS3_Pos) /**< \brief (MPDDRC_MINFO1) Total Latency on Port 3 [x = 0..3] when value of qos is 3 */
+#define MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS3_Msk (0xffffu << MPDDRC_MINFO1_P1_TOTAL_LATENCY_QOS3_Pos) /**< \brief (MPDDRC_MINFO1) Total Latency on Port 3 when value of qos is 3 */
 /* -------- MPDDRC_MINFO2 : (MPDDRC Offset: 0x8C) Monitor Information Port 2 Register -------- */
 #define MPDDRC_MINFO2_MAX_PORT2_WAITING_Pos 0
-#define MPDDRC_MINFO2_MAX_PORT2_WAITING_Msk (0xffffu << MPDDRC_MINFO2_MAX_PORT2_WAITING_Pos) /**< \brief (MPDDRC_MINFO2) Address High on Port x [x = 0..3] */
+#define MPDDRC_MINFO2_MAX_PORT2_WAITING_Msk (0xffffu << MPDDRC_MINFO2_MAX_PORT2_WAITING_Pos) /**< \brief (MPDDRC_MINFO2) Address High on Port 2 */
 #define MPDDRC_MINFO2_BURST_Pos 16
-#define MPDDRC_MINFO2_BURST_Msk (0x7u << MPDDRC_MINFO2_BURST_Pos) /**< \brief (MPDDRC_MINFO2) Type of Burst on Port x [x = 0..3] */
+#define MPDDRC_MINFO2_BURST_Msk (0x7u << MPDDRC_MINFO2_BURST_Pos) /**< \brief (MPDDRC_MINFO2) Type of Burst on Port 2 */
 #define   MPDDRC_MINFO2_BURST_SINGLE (0x0u << 16) /**< \brief (MPDDRC_MINFO2) Single transfer */
 #define   MPDDRC_MINFO2_BURST_INCR (0x1u << 16) /**< \brief (MPDDRC_MINFO2) Incrementing burst of unspecified length */
 #define   MPDDRC_MINFO2_BURST_WRAP4 (0x2u << 16) /**< \brief (MPDDRC_MINFO2) 4-beat wrapping burst */
@@ -470,35 +470,35 @@ typedef struct {
 #define   MPDDRC_MINFO2_BURST_WRAP16 (0x6u << 16) /**< \brief (MPDDRC_MINFO2) 16-beat wrapping burst */
 #define   MPDDRC_MINFO2_BURST_INCR16 (0x7u << 16) /**< \brief (MPDDRC_MINFO2) 16-beat incrementing burst */
 #define MPDDRC_MINFO2_SIZE_Pos 20
-#define MPDDRC_MINFO2_SIZE_Msk (0x7u << MPDDRC_MINFO2_SIZE_Pos) /**< \brief (MPDDRC_MINFO2) Transfer Size on Port x [x = 0..3] */
+#define MPDDRC_MINFO2_SIZE_Msk (0x7u << MPDDRC_MINFO2_SIZE_Pos) /**< \brief (MPDDRC_MINFO2) Transfer Size on Port 2 */
 #define   MPDDRC_MINFO2_SIZE_8BITS (0x0u << 20) /**< \brief (MPDDRC_MINFO2) Byte transfer */
 #define   MPDDRC_MINFO2_SIZE_16BITS (0x1u << 20) /**< \brief (MPDDRC_MINFO2) Halfword transfer */
 #define   MPDDRC_MINFO2_SIZE_32BITS (0x2u << 20) /**< \brief (MPDDRC_MINFO2) Word transfer */
 #define   MPDDRC_MINFO2_SIZE_64BITS (0x3u << 20) /**< \brief (MPDDRC_MINFO2) Dword transfer */
-#define MPDDRC_MINFO2_READ_WRITE (0x1u << 24) /**< \brief (MPDDRC_MINFO2) Read or Write Access on Port x [x = 0..3] */
+#define MPDDRC_MINFO2_READ_WRITE (0x1u << 24) /**< \brief (MPDDRC_MINFO2) Read or Write Access on Port 2 */
 #define MPDDRC_MINFO2_LQOS_Pos 25
-#define MPDDRC_MINFO2_LQOS_Msk (0x3u << MPDDRC_MINFO2_LQOS_Pos) /**< \brief (MPDDRC_MINFO2) Value of Quality Of Service on Port x [x = 0..3] */
-#define   MPDDRC_MINFO2_LQOS_BACKGROUND (0x0u << 25) /**< \brief (MPDDRC_MINFO2) Background Transfers */
-#define   MPDDRC_MINFO2_LQOS_BANDWIDTH (0x1u << 25) /**< \brief (MPDDRC_MINFO2) Bandwidth Sensitive */
-#define   MPDDRC_MINFO2_LQOS_SENSITIVE_LAT (0x2u << 25) /**< \brief (MPDDRC_MINFO2) Latency Sensitive */
-#define   MPDDRC_MINFO2_LQOS_CRITICAL_LAT (0x3u << 25) /**< \brief (MPDDRC_MINFO2) Latency Critical */
+#define MPDDRC_MINFO2_LQOS_Msk (0x3u << MPDDRC_MINFO2_LQOS_Pos) /**< \brief (MPDDRC_MINFO2) Value of Quality Of Service on Port 2 */
+#define   MPDDRC_MINFO2_LQOS_BACKGROUND (0x0u << 25) /**< \brief (MPDDRC_MINFO2) Background transfers */
+#define   MPDDRC_MINFO2_LQOS_BANDWIDTH (0x1u << 25) /**< \brief (MPDDRC_MINFO2) Bandwidth sensitive */
+#define   MPDDRC_MINFO2_LQOS_SENSITIVE_LAT (0x2u << 25) /**< \brief (MPDDRC_MINFO2) Latency sensitive */
+#define   MPDDRC_MINFO2_LQOS_CRITICAL_LAT (0x3u << 25) /**< \brief (MPDDRC_MINFO2) Latency critical */
 #define MPDDRC_MINFO2_P2_NB_TRANSFERS_Pos 0
-#define MPDDRC_MINFO2_P2_NB_TRANSFERS_Msk (0xffffffffu << MPDDRC_MINFO2_P2_NB_TRANSFERS_Pos) /**< \brief (MPDDRC_MINFO2) Number of Transfers on Port x [x = 0..3] */
+#define MPDDRC_MINFO2_P2_NB_TRANSFERS_Msk (0xffffffffu << MPDDRC_MINFO2_P2_NB_TRANSFERS_Pos) /**< \brief (MPDDRC_MINFO2) Number of Transfers on Port 2 */
 #define MPDDRC_MINFO2_P2_TOTAL_LATENCY_Pos 0
-#define MPDDRC_MINFO2_P2_TOTAL_LATENCY_Msk (0xffffffffu << MPDDRC_MINFO2_P2_TOTAL_LATENCY_Pos) /**< \brief (MPDDRC_MINFO2) Total Latency on Port x [x = 0..3] */
+#define MPDDRC_MINFO2_P2_TOTAL_LATENCY_Msk (0xffffffffu << MPDDRC_MINFO2_P2_TOTAL_LATENCY_Pos) /**< \brief (MPDDRC_MINFO2) Total Latency on Port 2 */
 #define MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS0_Pos 0
-#define MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS0_Msk (0xffffu << MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS0_Pos) /**< \brief (MPDDRC_MINFO2) Total Latency on Port 0 [x = 0..3] when value of qos is 0 */
+#define MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS0_Msk (0xffffu << MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS0_Pos) /**< \brief (MPDDRC_MINFO2) Total Latency on Port 0 when value of qos is 0 */
 #define MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS1_Pos 16
-#define MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS1_Msk (0xffffu << MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS1_Pos) /**< \brief (MPDDRC_MINFO2) Total Latency on Port 1 [x = 0..3] when value of qos is 1 */
+#define MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS1_Msk (0xffffu << MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS1_Pos) /**< \brief (MPDDRC_MINFO2) Total Latency on Port 1 when value of qos is 1 */
 #define MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS2_Pos 0
-#define MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS2_Msk (0xffffu << MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS2_Pos) /**< \brief (MPDDRC_MINFO2) Total Latency on Port 2 [x = 0..3] when value of qos is 2 */
+#define MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS2_Msk (0xffffu << MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS2_Pos) /**< \brief (MPDDRC_MINFO2) Total Latency on Port 2 when value of qos is 2 */
 #define MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS3_Pos 16
-#define MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS3_Msk (0xffffu << MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS3_Pos) /**< \brief (MPDDRC_MINFO2) Total Latency on Port 3 [x = 0..3] when value of qos is 3 */
+#define MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS3_Msk (0xffffu << MPDDRC_MINFO2_P2_TOTAL_LATENCY_QOS3_Pos) /**< \brief (MPDDRC_MINFO2) Total Latency on Port 3 when value of qos is 3 */
 /* -------- MPDDRC_MINFO3 : (MPDDRC Offset: 0x90) Monitor Information Port 3 Register -------- */
 #define MPDDRC_MINFO3_MAX_PORT3_WAITING_Pos 0
-#define MPDDRC_MINFO3_MAX_PORT3_WAITING_Msk (0xffffu << MPDDRC_MINFO3_MAX_PORT3_WAITING_Pos) /**< \brief (MPDDRC_MINFO3) Address High on Port x [x = 0..3] */
+#define MPDDRC_MINFO3_MAX_PORT3_WAITING_Msk (0xffffu << MPDDRC_MINFO3_MAX_PORT3_WAITING_Pos) /**< \brief (MPDDRC_MINFO3) Address High on Port 3 */
 #define MPDDRC_MINFO3_BURST_Pos 16
-#define MPDDRC_MINFO3_BURST_Msk (0x7u << MPDDRC_MINFO3_BURST_Pos) /**< \brief (MPDDRC_MINFO3) Type of Burst on Port x [x = 0..3] */
+#define MPDDRC_MINFO3_BURST_Msk (0x7u << MPDDRC_MINFO3_BURST_Pos) /**< \brief (MPDDRC_MINFO3) Type of Burst on Port 3 */
 #define   MPDDRC_MINFO3_BURST_SINGLE (0x0u << 16) /**< \brief (MPDDRC_MINFO3) Single transfer */
 #define   MPDDRC_MINFO3_BURST_INCR (0x1u << 16) /**< \brief (MPDDRC_MINFO3) Incrementing burst of unspecified length */
 #define   MPDDRC_MINFO3_BURST_WRAP4 (0x2u << 16) /**< \brief (MPDDRC_MINFO3) 4-beat wrapping burst */
@@ -508,30 +508,30 @@ typedef struct {
 #define   MPDDRC_MINFO3_BURST_WRAP16 (0x6u << 16) /**< \brief (MPDDRC_MINFO3) 16-beat wrapping burst */
 #define   MPDDRC_MINFO3_BURST_INCR16 (0x7u << 16) /**< \brief (MPDDRC_MINFO3) 16-beat incrementing burst */
 #define MPDDRC_MINFO3_SIZE_Pos 20
-#define MPDDRC_MINFO3_SIZE_Msk (0x7u << MPDDRC_MINFO3_SIZE_Pos) /**< \brief (MPDDRC_MINFO3) Transfer Size on Port x [x = 0..3] */
+#define MPDDRC_MINFO3_SIZE_Msk (0x7u << MPDDRC_MINFO3_SIZE_Pos) /**< \brief (MPDDRC_MINFO3) Transfer Size on Port 3 */
 #define   MPDDRC_MINFO3_SIZE_8BITS (0x0u << 20) /**< \brief (MPDDRC_MINFO3) Byte transfer */
 #define   MPDDRC_MINFO3_SIZE_16BITS (0x1u << 20) /**< \brief (MPDDRC_MINFO3) Halfword transfer */
 #define   MPDDRC_MINFO3_SIZE_32BITS (0x2u << 20) /**< \brief (MPDDRC_MINFO3) Word transfer */
 #define   MPDDRC_MINFO3_SIZE_64BITS (0x3u << 20) /**< \brief (MPDDRC_MINFO3) Dword transfer */
-#define MPDDRC_MINFO3_READ_WRITE (0x1u << 24) /**< \brief (MPDDRC_MINFO3) Read or Write Access on Port x [x = 0..3] */
+#define MPDDRC_MINFO3_READ_WRITE (0x1u << 24) /**< \brief (MPDDRC_MINFO3) Read or Write Access on Port 3 */
 #define MPDDRC_MINFO3_LQOS_Pos 25
-#define MPDDRC_MINFO3_LQOS_Msk (0x3u << MPDDRC_MINFO3_LQOS_Pos) /**< \brief (MPDDRC_MINFO3) Value of Quality Of Service on Port x [x = 0..3] */
-#define   MPDDRC_MINFO3_LQOS_BACKGROUND (0x0u << 25) /**< \brief (MPDDRC_MINFO3) Background Transfers */
-#define   MPDDRC_MINFO3_LQOS_BANDWIDTH (0x1u << 25) /**< \brief (MPDDRC_MINFO3) Bandwidth Sensitive */
-#define   MPDDRC_MINFO3_LQOS_SENSITIVE_LAT (0x2u << 25) /**< \brief (MPDDRC_MINFO3) Latency Sensitive */
-#define   MPDDRC_MINFO3_LQOS_CRITICAL_LAT (0x3u << 25) /**< \brief (MPDDRC_MINFO3) Latency Critical */
+#define MPDDRC_MINFO3_LQOS_Msk (0x3u << MPDDRC_MINFO3_LQOS_Pos) /**< \brief (MPDDRC_MINFO3) Value of Quality Of Service on Port 3 */
+#define   MPDDRC_MINFO3_LQOS_BACKGROUND (0x0u << 25) /**< \brief (MPDDRC_MINFO3) Background transfers */
+#define   MPDDRC_MINFO3_LQOS_BANDWIDTH (0x1u << 25) /**< \brief (MPDDRC_MINFO3) Bandwidth sensitive */
+#define   MPDDRC_MINFO3_LQOS_SENSITIVE_LAT (0x2u << 25) /**< \brief (MPDDRC_MINFO3) Latency sensitive */
+#define   MPDDRC_MINFO3_LQOS_CRITICAL_LAT (0x3u << 25) /**< \brief (MPDDRC_MINFO3) Latency critical */
 #define MPDDRC_MINFO3_P3_NB_TRANSFERS_Pos 0
-#define MPDDRC_MINFO3_P3_NB_TRANSFERS_Msk (0xffffffffu << MPDDRC_MINFO3_P3_NB_TRANSFERS_Pos) /**< \brief (MPDDRC_MINFO3) Number of Transfers on Port x [x = 0..3] */
+#define MPDDRC_MINFO3_P3_NB_TRANSFERS_Msk (0xffffffffu << MPDDRC_MINFO3_P3_NB_TRANSFERS_Pos) /**< \brief (MPDDRC_MINFO3) Number of Transfers on Port 3 */
 #define MPDDRC_MINFO3_P3_TOTAL_LATENCY_Pos 0
-#define MPDDRC_MINFO3_P3_TOTAL_LATENCY_Msk (0xffffffffu << MPDDRC_MINFO3_P3_TOTAL_LATENCY_Pos) /**< \brief (MPDDRC_MINFO3) Total Latency on Port x [x = 0..3] */
+#define MPDDRC_MINFO3_P3_TOTAL_LATENCY_Msk (0xffffffffu << MPDDRC_MINFO3_P3_TOTAL_LATENCY_Pos) /**< \brief (MPDDRC_MINFO3) Total Latency on Port 3 */
 #define MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS0_Pos 0
-#define MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS0_Msk (0xffffu << MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS0_Pos) /**< \brief (MPDDRC_MINFO3) Total Latency on Port 0 [x = 0..3] when value of qos is 0 */
+#define MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS0_Msk (0xffffu << MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS0_Pos) /**< \brief (MPDDRC_MINFO3) Total Latency on Port 0 when value of qos is 0 */
 #define MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS1_Pos 16
-#define MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS1_Msk (0xffffu << MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS1_Pos) /**< \brief (MPDDRC_MINFO3) Total Latency on Port 1 [x = 0..3] when value of qos is 1 */
+#define MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS1_Msk (0xffffu << MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS1_Pos) /**< \brief (MPDDRC_MINFO3) Total Latency on Port 1 when value of qos is 1 */
 #define MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS2_Pos 0
-#define MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS2_Msk (0xffffu << MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS2_Pos) /**< \brief (MPDDRC_MINFO3) Total Latency on Port 2 [x = 0..3] when value of qos is 2 */
+#define MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS2_Msk (0xffffu << MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS2_Pos) /**< \brief (MPDDRC_MINFO3) Total Latency on Port 2 when value of qos is 2 */
 #define MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS3_Pos 16
-#define MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS3_Msk (0xffffu << MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS3_Pos) /**< \brief (MPDDRC_MINFO3) Total Latency on Port 3 [x = 0..3] when value of qos is 3 */
+#define MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS3_Msk (0xffffu << MPDDRC_MINFO3_P3_TOTAL_LATENCY_QOS3_Pos) /**< \brief (MPDDRC_MINFO3) Total Latency on Port 3 when value of qos is 3 */
 /* -------- MPDDRC_IER : (MPDDRC Offset: 0xC0) Interrupt Enable Register -------- */
 #define MPDDRC_IER_SEC (0x1u << 0) /**< \brief (MPDDRC_IER) Security and /or Safety Interrupt Enable */
 #define MPDDRC_IER_RD_ERR (0x1u << 1) /**< \brief (MPDDRC_IER) Read Error Interrupt Enable */

@@ -54,6 +54,15 @@ typedef struct {
 /* -------- SHDW_MR : (SHDWC Offset: 0x04) Mode Register -------- */
 #define SHDW_MR_RTTWKEN (0x1u << 16) /**< \brief (SHDW_MR) Real-time Timer Wakeup Enable */
 #define SHDW_MR_RTCWKEN (0x1u << 17) /**< \brief (SHDW_MR) Real-time Clock Wakeup Enable */
+#define SHDW_MR_WKUPDBC_Pos 24
+#define SHDW_MR_WKUPDBC_Msk (0x7u << SHDW_MR_WKUPDBC_Pos) /**< \brief (SHDW_MR) Wakeup Inputs Debouncer Period */
+#define SHDW_MR_WKUPDBC(value) ((SHDW_MR_WKUPDBC_Msk & ((value) << SHDW_MR_WKUPDBC_Pos)))
+#define   SHDW_MR_WKUPDBC_IMMEDIATE (0x0u << 24) /**< \brief (SHDW_MR) Immediate, no debouncing, detected active at least on one MD_SLCK edge. */
+#define   SHDW_MR_WKUPDBC_3_SLCK (0x1u << 24) /**< \brief (SHDW_MR) WKUP shall be in its active state for at least 3 MD_SLCK periods */
+#define   SHDW_MR_WKUPDBC_32_SLCK (0x2u << 24) /**< \brief (SHDW_MR) WKUP shall be in its active state for at least 32 MD_SLCK periods */
+#define   SHDW_MR_WKUPDBC_512_SLCK (0x3u << 24) /**< \brief (SHDW_MR) WKUP shall be in its active state for at least 512 MD_SLCK periods */
+#define   SHDW_MR_WKUPDBC_4096_SLCK (0x4u << 24) /**< \brief (SHDW_MR) WKUP shall be in its active state for at least 4,096 MD_SLCK periods */
+#define   SHDW_MR_WKUPDBC_32768_SLCK (0x5u << 24) /**< \brief (SHDW_MR) WKUP shall be in its active state for at least 32,768 MD_SLCK periods */
 /* -------- SHDW_SR : (SHDWC Offset: 0x08) Status Register -------- */
 #define SHDW_SR_WKUPS (0x1u << 0) /**< \brief (SHDW_SR) WKUP Wakeup Status */
 #define   SHDW_SR_WKUPS_NO (0x0u << 0) /**< \brief (SHDW_SR) No wakeup due to the assertion of the WKUP pin has occurred since the last read of SHDW_SR. */

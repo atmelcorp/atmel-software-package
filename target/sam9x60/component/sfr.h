@@ -44,7 +44,9 @@ typedef struct {
   __I  uint32_t Reserved2[2];
   __IO uint32_t SFR_OHCIICR;     /**< \brief (Sfr Offset: 0x10) OHCI Interrupt Configuration Register */
   __I  uint32_t SFR_OHCIISR;     /**< \brief (Sfr Offset: 0x14) OHCI Interrupt Status Register */
-  __I  uint32_t Reserved3[9];
+  __I  uint32_t Reserved3[7];
+  __IO uint32_t SFR_UTMIHSTRIM;  /**< \brief (Sfr Offset: 0x34) UTMI High-Speed Trimming Register */
+  __IO uint32_t SFR_UTMIFSTRIM;  /**< \brief (Sfr Offset: 0x38) UTMI Full-Speed Trimming Register */
   __IO uint32_t SFR_UTMISWAP;    /**< \brief (Sfr Offset: 0x3C) UTMI DP/DM Pin Swapping Register */
   __I  uint32_t Reserved4[15];
   __IO uint32_t SFR_LS;          /**< \brief (Sfr Offset: 0x7C) Light Sleep Register */
@@ -80,6 +82,29 @@ typedef struct {
 #define SFR_OHCIISR_RIS0 (0x1u << 0) /**< \brief (SFR_OHCIISR) OHCI Resume Interrupt Status Port 0 */
 #define SFR_OHCIISR_RIS1 (0x1u << 1) /**< \brief (SFR_OHCIISR) OHCI Resume Interrupt Status Port 1 */
 #define SFR_OHCIISR_RIS2 (0x1u << 2) /**< \brief (SFR_OHCIISR) OHCI Resume Interrupt Status Port 2 */
+/* -------- SFR_UTMIHSTRIM : (SFR Offset: 0x34) UTMI High-Speed Trimming Register -------- */
+#define SFR_UTMIHSTRIM_SLOPE0_Pos 8
+#define SFR_UTMIHSTRIM_SLOPE0_Msk (0x7u << SFR_UTMIHSTRIM_SLOPE0_Pos) /**< \brief (SFR_UTMIHSTRIM) UTMI HS PORTx Transceiver Slope Trimming */
+#define SFR_UTMIHSTRIM_SLOPE0(value) ((SFR_UTMIHSTRIM_SLOPE0_Msk & ((value) << SFR_UTMIHSTRIM_SLOPE0_Pos)))
+#define SFR_UTMIHSTRIM_SLOPE1_Pos 12
+#define SFR_UTMIHSTRIM_SLOPE1_Msk (0x7u << SFR_UTMIHSTRIM_SLOPE1_Pos) /**< \brief (SFR_UTMIHSTRIM) UTMI HS PORTx Transceiver Slope Trimming */
+#define SFR_UTMIHSTRIM_SLOPE1(value) ((SFR_UTMIHSTRIM_SLOPE1_Msk & ((value) << SFR_UTMIHSTRIM_SLOPE1_Pos)))
+#define SFR_UTMIHSTRIM_SLOPE2_Pos 16
+#define SFR_UTMIHSTRIM_SLOPE2_Msk (0x7u << SFR_UTMIHSTRIM_SLOPE2_Pos) /**< \brief (SFR_UTMIHSTRIM) UTMI HS PORTx Transceiver Slope Trimming */
+#define SFR_UTMIHSTRIM_SLOPE2(value) ((SFR_UTMIHSTRIM_SLOPE2_Msk & ((value) << SFR_UTMIHSTRIM_SLOPE2_Pos)))
+/* -------- SFR_UTMIFSTRIM : (SFR Offset: 0x38) UTMI Full-Speed Trimming Register -------- */
+#define SFR_UTMIFSTRIM_ZN_Pos 16
+#define SFR_UTMIFSTRIM_ZN_Msk (0x7u << SFR_UTMIFSTRIM_ZN_Pos) /**< \brief (SFR_UTMIFSTRIM) FS Transceiver NMOS Impedance Trimming */
+#define SFR_UTMIFSTRIM_ZN(value) ((SFR_UTMIFSTRIM_ZN_Msk & ((value) << SFR_UTMIFSTRIM_ZN_Pos)))
+#define SFR_UTMIFSTRIM_ZP_Pos 20
+#define SFR_UTMIFSTRIM_ZP_Msk (0x7u << SFR_UTMIFSTRIM_ZP_Pos) /**< \brief (SFR_UTMIFSTRIM) FS Transceiver PMOS Impedance Trimming */
+#define SFR_UTMIFSTRIM_ZP(value) ((SFR_UTMIFSTRIM_ZP_Msk & ((value) << SFR_UTMIFSTRIM_ZP_Pos)))
+#define SFR_UTMIFSTRIM_ZN_CAL_Pos 24
+#define SFR_UTMIFSTRIM_ZN_CAL_Msk (0x7u << SFR_UTMIFSTRIM_ZN_CAL_Pos) /**< \brief (SFR_UTMIFSTRIM) FS Transceiver NMOS Impedance Calibration */
+#define SFR_UTMIFSTRIM_ZN_CAL(value) ((SFR_UTMIFSTRIM_ZN_CAL_Msk & ((value) << SFR_UTMIFSTRIM_ZN_CAL_Pos)))
+#define SFR_UTMIFSTRIM_ZP_CAL_Pos 28
+#define SFR_UTMIFSTRIM_ZP_CAL_Msk (0x7u << SFR_UTMIFSTRIM_ZP_CAL_Pos) /**< \brief (SFR_UTMIFSTRIM) FS Transceiver PMOS Impedance Calibration */
+#define SFR_UTMIFSTRIM_ZP_CAL(value) ((SFR_UTMIFSTRIM_ZP_CAL_Msk & ((value) << SFR_UTMIFSTRIM_ZP_CAL_Pos)))
 /* -------- SFR_UTMISWAP : (SFR Offset: 0x3C) UTMI DP/DM Pin Swapping Register -------- */
 #define SFR_UTMISWAP_PORT0 (0x1u << 0) /**< \brief (SFR_UTMISWAP) PORT 0 DP/DM Pin Swapping */
 #define   SFR_UTMISWAP_PORT0_NORMAL (0x0u << 0) /**< \brief (SFR_UTMISWAP) DP/DM normal pinout. */

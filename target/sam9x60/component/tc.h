@@ -299,8 +299,8 @@ typedef struct {
 #define TC_SSR_WPVSRC_Msk (0xffffu << TC_SSR_WPVSRC_Pos) /**< \brief (TC_SSR) Write Protection Violation Source (cleared on read) */
 #define TC_SSR_SWETYP_Pos 24
 #define TC_SSR_SWETYP_Msk (0xfu << TC_SSR_SWETYP_Pos) /**< \brief (TC_SSR) Software Error Type (cleared on read) */
-#define   TC_SSR_SWETYP_READ_WO (0x0u << 24) /**< \brief (TC_SSR) TC Channel x is enabled and a write-only register has been read (Warning). */
-#define   TC_SSR_SWETYP_WRITE_RO (0x1u << 24) /**< \brief (TC_SSR) TC Channel x is enabled and a write access has been performed on a read-only register (Warning). */
+#define   TC_SSR_SWETYP_READ_WO (0x0u << 24) /**< \brief (TC_SSR) TC Channel 0 is enabled and a write-only register has been read (Warning). */
+#define   TC_SSR_SWETYP_WRITE_RO (0x1u << 24) /**< \brief (TC_SSR) TC Channel 0 is enabled and a write access has been performed on a read-only register (Warning). */
 #define   TC_SSR_SWETYP_UNDEF_RW (0x2u << 24) /**< \brief (TC_SSR) Access to an undefined address of the TC (Warning). */
 #define   TC_SSR_SWETYP_W_RARB_CAPT (0x3u << 24) /**< \brief (TC_SSR) TC_RAx or TC_RBx are written while channel is enabled and configured in capture mode (Error). */
 #define TC_SSR_ECLASS (0x1u << 31) /**< \brief (TC_SSR) Software Error Class */

@@ -292,7 +292,7 @@ typedef struct {
 #define CAN_MCR_MDLC_Msk (0xfu << CAN_MCR_MDLC_Pos) /**< \brief (CAN_MCR) Mailbox Data Length Code */
 #define CAN_MCR_MDLC(value) ((CAN_MCR_MDLC_Msk & ((value) << CAN_MCR_MDLC_Pos)))
 #define CAN_MCR_MRTR (0x1u << 20) /**< \brief (CAN_MCR) Mailbox Remote Transmission Request */
-#define CAN_MCR_MACR (0x1u << 22) /**< \brief (CAN_MCR) Abort Request for Mailbox x */
+#define CAN_MCR_MACR (0x1u << 22) /**< \brief (CAN_MCR) Abort Request for Mailbox 0 */
 #define CAN_MCR_MTCR (0x1u << 23) /**< \brief (CAN_MCR) Mailbox Transfer Command */
 
 /*@}*/

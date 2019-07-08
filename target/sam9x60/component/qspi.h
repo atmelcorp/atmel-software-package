@@ -180,10 +180,8 @@ typedef struct {
 #define   QSPI_IFR_ADDRL_24_BIT (0x0u << 10) /**< \brief (QSPI_IFR) The address is 24 bits long. */
 #define   QSPI_IFR_ADDRL_32_BIT (0x1u << 10) /**< \brief (QSPI_IFR) The address is 32 bits long. */
 #define QSPI_IFR_TFRTYP (0x1u << 12) /**< \brief (QSPI_IFR) Data Transfer Type */
-#define   QSPI_IFR_TFRTYP_TRSFR_READ (0x0u << 12) /**< \brief (QSPI_IFR) Read transfer from the serial memory.Scrambling is not performed.Read at random location (fetch) in the serial Flash memory is not possible. */
-#define   QSPI_IFR_TFRTYP_TRSFR_READ_MEMORY (0x1u << 12) /**< \brief (QSPI_IFR) Read data transfer from the serial memory.If enabled, scrambling is performed.Read at random location (fetch) in the serial Flash memory is possible. */
-#define   QSPI_IFR_TFRTYP_TRSFR_WRITE (0x2u << 12) /**< \brief (QSPI_IFR) Write transfer into the serial memory.Scrambling is not performed. */
-#define   QSPI_IFR_TFRTYP_TRSFR_WRITE_MEMORY (0x3u << 12) /**< \brief (QSPI_IFR) Write data transfer into the serial memory.If enabled, scrambling is performed. */
+#define   QSPI_IFR_TFRTYP_TRSFR_REGISTER (0x0u << 12) /**< \brief (QSPI_IFR) Read/Write transfer from the serial memory. Scrambling is not performed. Read at random location (fetch) in the serial Flash memory is not possible. */
+#define   QSPI_IFR_TFRTYP_TRSFR_MEMORY (0x1u << 12) /**< \brief (QSPI_IFR) Read/Write data transfer from the serial memory. If enabled, scrambling is performed. Read at random location (fetch) in the serial Flash memory is possible. */
 #define QSPI_IFR_CRM (0x1u << 14) /**< \brief (QSPI_IFR) Continuous Read Mode */
 #define   QSPI_IFR_CRM_DISABLED (0x0u << 14) /**< \brief (QSPI_IFR) Continuous Read mode is disabled. */
 #define   QSPI_IFR_CRM_ENABLED (0x1u << 14) /**< \brief (QSPI_IFR) Continuous Read mode is enabled. */
@@ -193,6 +191,7 @@ typedef struct {
 #define QSPI_IFR_NBDUM_Pos 16
 #define QSPI_IFR_NBDUM_Msk (0x1fu << QSPI_IFR_NBDUM_Pos) /**< \brief (QSPI_IFR) Number Of Dummy Cycles */
 #define QSPI_IFR_NBDUM(value) ((QSPI_IFR_NBDUM_Msk & ((value) << QSPI_IFR_NBDUM_Pos)))
+#define QSPI_IFR_APBTFRTYP (0x1u << 24) /**< \brief (QSPI_IFR) APB Transfer Type */
 #define   QSPI_IFR_APBTFRTYP_WRITE (0x0u << 24) /**< \brief (QSPI_IFR) APB register transfer to the memory is a write transfer. */
 #define   QSPI_IFR_APBTFRTYP_READ (0x1u << 24) /**< \brief (QSPI_IFR) APB register transfer to the memory is a read transfer. */
 #define QSPI_IFR_DDRCMDEN (0x1u << 26) /**< \brief (QSPI_IFR) DDR Mode Command Enable */
