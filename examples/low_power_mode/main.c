@@ -143,10 +143,6 @@
 
 #include "clk-config.h"
 
-#ifndef MPDDRC_LPR_LPCB_DISABLED
-#define MPDDRC_LPR_LPCB_DISABLED			(MPDDRC_LPR_LPCB_NOLOWPOWER)
-#endif
-
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------
@@ -165,7 +161,7 @@ volatile unsigned int MenuChoice;
  *        Local functions
  *----------------------------------------------------------------------------
  */
-static void low_power_run(uint8_t clock_setting, bool idle_mode);
+static void low_power_run(uint8_t mode);
 
 /**
  *  \brief Handler for Buttons rising edge interrupt.
@@ -561,6 +557,7 @@ void menu_ulp0(void)
 {
 	printf("\n\r\n\r");
 	printf("  =========== Enter Ultra Low Power mode 0 ===========\n\r");
+	printf(" =========== Use PB_USER button to wake up ==========\n\r");
 	while(!console_is_tx_empty());
 	/* Set the interrupts to wake up the system. */
 	_configure_buttons();
@@ -571,7 +568,7 @@ void menu_ulp0(void)
 #endif
 
 	/* Run low power mode in sram */
-	low_power_run(use_clock_setting, true);
+	low_power_run(use_clock_setting | (true << 4));
 
 	_restore_console();
 	printf("  | | | | | | Leave Ultra Low Power mode | | | | | |\n\r");
@@ -601,7 +598,7 @@ void menu_ulp1(void)
 	pmc_set_fast_startup_mode(PMC_FSMR_RTCAL);
 
 	/* Run low power mode in sram */
-	low_power_run(ULP_CLOCK_SETTINGS, false);
+	low_power_run(ULP_CLOCK_SETTINGS | (false << 4));
 
 	_restore_console();
 	printf("  | | | | | | Leave Ultra Low Power mode | | | | | |\n\r");
@@ -683,7 +680,7 @@ static void menu_idle(void)
 	while(!console_is_tx_empty());
 #if defined(CONFIG_SOC_SAM9X60)
 	/* Run low power mode in sram */
-	low_power_run(use_clock_setting, true);
+	low_power_run(use_clock_setting | (true << 4));
 #else
 	/* config PCK and MCK */
 	pmc_set_custom_pck_mck(&clock_test_setting[use_clock_setting]);
@@ -780,7 +777,13 @@ RAMDATA uint32_t tmp_stack[128];
 	#pragma optimize=none
 #endif
 #endif
-RAMCODE static void low_power_run(uint8_t clock_setting, bool idle_mode)
+/**
+ *  \brief Run low power mode in sram.
+ *  \param mode   high four bits for idle_mode, low four bits for clock_setting.
+ *  \param idle_mode   true for idle and ulp0 mode, false for ulp1 mode. 
+ *  \param clock_setting   clock_test_setting index, range 0~7.
+ */
+RAMCODE static void low_power_run(uint8_t mode)
 {
 #ifdef VARIANT_DDRAM
 	uint32_t sp = (uint32_t)&tmp_stack[128];
@@ -791,8 +794,12 @@ RAMCODE static void low_power_run(uint8_t clock_setting, bool idle_mode)
 	{
 #endif /* VARIANT_DDRAM */
 		RAMDATA static struct pck_mck_cfg clock_cfg;
-		RAMDATA static volatile uint32_t i;
+		RAMDATA static uint32_t i;
+		RAMDATA static uint8_t idle_mode;
+		RAMDATA static uint8_t clock_setting;
 		i = 0;
+		idle_mode = mode & 0xf0;
+		clock_setting = mode & 0xf;
 		do {
 			*(uint8_t *)(((uint32_t)&clock_cfg) + i) =
 			    *(uint8_t *)(((uint32_t)&clock_test_setting[clock_setting]) + i);
@@ -815,23 +822,17 @@ RAMCODE static void low_power_run(uint8_t clock_setting, bool idle_mode)
 			/* wait for interrupt */
 			asm("mcr p15, 0, %0, c7, c0, 4" :: "r"(0) : "memory");
 
-			/* To capture wakeup time, we need to write the register */
-			/* directly instead of calling C function */
+			/* To capture wakeup time */
 			led_toggle(0);
 		} else {
 			pmc_disable_external_osc();
 			pmc_enable_external_osc(false);
 			pmc_enable_ulp1();
+			/* Restore default PCK and MCK */			
+			pmc_set_custom_pck_mck(&clock_setting_backup);		
 	#ifdef VARIANT_DDRAM
-			/* Restore default PCK and MCK */
-			pmc_set_custom_pck_mck(&clock_setting_backup);
 			check_ddr_ready();
 	#endif
-
-	#ifdef VARIANT_SRAM
-		/* Restore default PCK and MCK */
-		pmc_set_custom_pck_mck(&clock_setting_backup);
-	#endif /* VARIANT_SRAM */
 		}
 #ifdef VARIANT_DDRAM
 		_ddr_active_needed = 0;
