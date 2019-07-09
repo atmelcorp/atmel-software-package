@@ -128,6 +128,9 @@ fiqHandler:
 /// Handles incoming interrupt requests by branching to the corresponding
 /// handler, as defined in the AIC. Supports interrupt nesting.
 //------------------------------------------------------------------------------
+#ifdef CONFIG_RAMCODE
+	.section .ramcode_section
+#endif
 irqHandler:
 	/* Save interrupt context on the stack to allow nesting */
 
@@ -135,6 +138,15 @@ irqHandler:
 	stmfd   sp!, {lr}
 	mrs     lr, SPSR
 	stmfd   sp!, {r0, lr}
+
+#ifdef CONFIG_RAMCODE
+	ldr r0, =_ddr_active_needed
+	ldr r0, [r0]
+	cmp r0, #0x0
+	beq 1f
+	bl ddram_active
+1:
+#endif
 
 	/* Write in the IVR to support Protect Mode */
 
