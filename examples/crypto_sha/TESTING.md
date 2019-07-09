@@ -60,38 +60,151 @@ Press '2','l','d','s' | SHA256, long-msg, dma | Digest successfully verified | P
 Press '3','l','d','s' | SHA384, long-msg, dma | Digest successfully verified | PASSED
 Press '4','l','d','s' | SHA512, long-msg, dma | Digest successfully verified | PASSED
 
+press 'c' swtich HMAC
+Press '0','o','p','s' | SHA1, single block, polling | HMAC generated | PASSED
+Press '1','o','p','s' | SHA224, single block, polling | HMAC generated | PASSED
+Press '2','o','p','s' | SHA256, single block, polling | HMAC generated | PASSED
+Press '3','o','p','s' | SHA384, single block, polling | HMAC generated | PASSED
+Press '4','o','p','s' | SHA512, single block, polling | HMAC generated | PASSED
+Press '0','t','d','s' | SHA1, multi block, dma | HMAC generated | PASSED
+Press '1','t','d','s' | SHA224, multi block, dma | HMAC generated | PASSED
+Press '2','t','d','s' | SHA256, multi block, dma | HMAC generated | PASSED
+Press '3','t','d','s' | SHA384, multi block, dma | HMAC generated | PASSED
+Press '4','t','d','s' | SHA512, multi block, dma | HMAC generated | PASSED
+Press '0','l','d','s' | SHA1, long-msg, dma | HMAC generated | PASSED
+Press '1','l','d','s' | SHA224, long-msg, dma | HMAC generated | PASSED
+Press '2','l','d','s' | SHA256, long-msg, dma | HMAC generated | PASSED
+Press '3','l','d','s' | SHA384, long-msg, dma | HMAC generated | PASSED
+Press '4','l','d','s' | SHA512, long-msg, dma | HMAC generated | PASSED
+
 Press 'f'
 
 ```
-SHA1 one-block message polling passed
-SHA1 multi-block message polling passed
-SHA1 long message polling passed
-SHA224 one-block message polling passed
+========================
+Test SHA HASH generation
+========================
+SHA1   one-block message   polling passed
+SHA1   multi-block message polling passed
+SHA1   long message        polling passed
+SHA224 one-block message   polling passed
 SHA224 multi-block message polling passed
-SHA224 long message polling passed
-SHA256 one-block message polling passed
+SHA224 long message        polling passed
+SHA256 one-block message   polling passed
 SHA256 multi-block message polling passed
-SHA256 long message polling passed
-SHA384 one-block message polling passed
+SHA256 long message        polling passed
+SHA384 one-block message   polling passed
 SHA384 multi-block message polling passed
-SHA384 long message polling passed
-SHA512 one-block message polling passed
+SHA384 long message        polling passed
+SHA512 one-block message   polling passed
 SHA512 multi-block message polling passed
-SHA512 long message polling passed
-SHA1 one-block message dma passed
-SHA1 multi-block message dma passed
-SHA1 long message dma passed
-SHA224 one-block message dma passed
-SHA224 multi-block message dma passed
-SHA224 long message dma passed
-SHA256 one-block message dma passed
-SHA256 multi-block message dma passed
-SHA256 long message dma passed
-SHA384 one-block message dma passed
-SHA384 multi-block message dma passed
-SHA384 long message dma passed
-SHA512 one-block message dma passed
-SHA512 multi-block message dma passed
-SHA512 long message dma passed
-TEST SUCCESS 
+SHA512 long message        polling passed
+SHA1   one-block message   dma     passed
+SHA1   multi-block message dma     passed
+SHA1   long message        dma     passed
+SHA224 one-block message   dma     passed
+SHA224 multi-block message dma     passed
+SHA224 long message        dma     passed
+SHA256 one-block message   dma     passed
+SHA256 multi-block message dma     passed
+SHA256 long message        dma     passed
+SHA384 one-block message   dma     passed
+SHA384 multi-block message dma     passed
+SHA384 long message        dma     passed
+SHA512 one-block message   dma     passed
+SHA512 multi-block message dma     passed
+SHA512 long message        dma     passed
+========================
+Test SHA HMAC generation
+========================
+SHA1   one-block message   polling K < B passed
+SHA1   multi-block message polling K < B passed
+SHA1   long message        polling K < B passed
+SHA224 one-block message   polling K < B passed
+SHA224 multi-block message polling K < B passed
+SHA224 long message        polling K < B passed
+SHA256 one-block message   polling K < B passed
+SHA256 multi-block message polling K < B passed
+SHA256 long message        polling K < B passed
+SHA384 one-block message   polling K < B passed
+SHA384 multi-block message polling K < B passed
+SHA384 long message        polling K < B passed
+SHA512 one-block message   polling K < B passed
+SHA512 multi-block message polling K < B passed
+SHA512 long message        polling K < B passed
+SHA1   one-block message   dma     K < B passed
+SHA1   multi-block message dma     K < B passed
+SHA1   long message        dma     K < B passed
+SHA224 one-block message   dma     K < B passed
+SHA224 multi-block message dma     K < B passed
+SHA224 long message        dma     K < B passed
+SHA256 one-block message   dma     K < B passed
+SHA256 multi-block message dma     K < B passed
+SHA256 long message        dma     K < B passed
+SHA384 one-block message   dma     K < B passed
+SHA384 multi-block message dma     K < B passed
+SHA384 long message        dma     K < B passed
+SHA512 one-block message   dma     K < B passed
+SHA512 multi-block message dma     K < B passed
+SHA512 long message        dma     K < B passed
+SHA1   one-block message   polling K== B passed
+SHA1   multi-block message polling K== B passed
+SHA1   long message        polling K== B passed
+SHA224 one-block message   polling K== B passed
+SHA224 multi-block message polling K== B passed
+SHA224 long message        polling K== B passed
+SHA256 one-block message   polling K== B passed
+SHA256 multi-block message polling K== B passed
+SHA256 long message        polling K== B passed
+SHA384 one-block message   polling K== B passed
+SHA384 multi-block message polling K== B passed
+SHA384 long message        polling K== B passed
+SHA512 one-block message   polling K== B passed
+SHA512 multi-block message polling K== B passed
+SHA512 long message        polling K== B passed
+SHA1   one-block message   dma     K== B passed
+SHA1   multi-block message dma     K== B passed
+SHA1   long message        dma     K== B passed
+SHA224 one-block message   dma     K== B passed
+SHA224 multi-block message dma     K== B passed
+SHA224 long message        dma     K== B passed
+SHA256 one-block message   dma     K== B passed
+SHA256 multi-block message dma     K== B passed
+SHA256 long message        dma     K== B passed
+SHA384 one-block message   dma     K== B passed
+SHA384 multi-block message dma     K== B passed
+SHA384 long message        dma     K== B passed
+SHA512 one-block message   dma     K== B passed
+SHA512 multi-block message dma     K== B passed
+SHA512 long message        dma     K== B passed
+SHA1   one-block message   polling K > B passed
+SHA1   multi-block message polling K > B passed
+SHA1   long message        polling K > B passed
+SHA224 one-block message   polling K > B passed
+SHA224 multi-block message polling K > B passed
+SHA224 long message        polling K > B passed
+SHA256 one-block message   polling K > B passed
+SHA256 multi-block message polling K > B passed
+SHA256 long message        polling K > B passed
+SHA384 one-block message   polling K > B passed
+SHA384 multi-block message polling K > B passed
+SHA384 long message        polling K > B passed
+SHA512 one-block message   polling K > B passed
+SHA512 multi-block message polling K > B passed
+SHA512 long message        polling K > B passed
+SHA1   one-block message   dma     K > B passed
+SHA1   multi-block message dma     K > B passed
+SHA1   long message        dma     K > B passed
+SHA224 one-block message   dma     K > B passed
+SHA224 multi-block message dma     K > B passed
+SHA224 long message        dma     K > B passed
+SHA256 one-block message   dma     K > B passed
+SHA256 multi-block message dma     K > B passed
+SHA256 long message        dma     K > B passed
+SHA384 one-block message   dma     K > B passed
+SHA384 multi-block message dma     K > B passed
+SHA384 long message        dma     K > B passed
+SHA512 one-block message   dma     K > B passed
+SHA512 multi-block message dma     K > B passed
+SHA512 long message        dma     K > B passed
+TEST SUCCESS !
 ```

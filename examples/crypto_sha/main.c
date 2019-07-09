@@ -141,8 +141,6 @@
 #define LEN_MSG_2    112
 #define LEN_MSG_LONG 1000000
 
-#define SHA_UPDATE_LEN (128 * 1024) /* buffer length when spliting long message */
-
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
@@ -276,9 +274,42 @@ static uint32_t block_mode;
 /* shad instance */
 static struct _shad_desc shad;
 
+CACHE_ALIGNED static uint8_t testkey[200];
+uint8_t key_size;
+
+uint8_t hmac_key_type = 0;
+
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
+ /**
+ * \brief Generate test KEY for HMAC process.
+ */
+static void generate_test_key(void)
+{
+	uint32_t i;
+
+	switch(hmac_key_type) {
+	case 0:
+		key_size = 20;
+		for (i = 0; i < key_size; i++) {
+			testkey[i] = 0x30 + i;
+				}
+		break;
+	case 1:
+		key_size = 64;
+		for (i = 0; i < key_size; i++) {
+			testkey[i] = 0x0 + i;
+		}
+		break;
+	case 2:
+		key_size = 100;
+		for (i = 0; i < key_size; i++) {
+			testkey[i] = 0x50 + i;
+		}
+		break;
+	}
+}
 
 /**
  * \brief Start SHA process.
@@ -287,7 +318,7 @@ static bool start_sha(bool full_test)
 {
 	uint32_t rc = 0, i, val, ref = 0;
 	uint32_t len;
-	int output_size = shad_get_output_size(shad.cfg.algo);
+	int output_size = shad_get_digest_size(shad.cfg.algo);
 
 	if (output_size < 0) {
 		printf("-F- Unsupported SHA algorithm\r\n");
@@ -299,7 +330,7 @@ static bool start_sha(bool full_test)
 	if (full_test) {
 		switch(shad.cfg.algo) {
 		case ALGO_SHA_1:
-			printf("SHA1 ");
+			printf("SHA1   ");
 			break;
 		case ALGO_SHA_224:
 			printf("SHA224 ");
@@ -316,13 +347,13 @@ static bool start_sha(bool full_test)
 		}
 		switch(block_mode) {
 			case 0:
-				printf("one-block message ");
+				printf("one-block message   ");
 				break;
 			case 1:
 				printf("multi-block message ");
 			break;
 			case 2:
-				printf("long message ");
+				printf("long message        ");
 			break;
 		}
 		switch (shad.cfg.transfer_mode) {
@@ -330,11 +361,23 @@ static bool start_sha(bool full_test)
 			printf("polling ");
 			break;
 		case SHAD_TRANS_DMA:
-			printf("dma ");
+			printf("dma     ");
 			break;
 		}
+		if (shad.cfg._shad_generate_hmac) {
+			switch (hmac_key_type) {
+			case 0:
+				printf("K < B ");
+				break;
+			case 1:
+				printf("K== B ");
+				break;
+			case 2:
+				printf("K > B ");
+				break;
+			}
+		}
 	}
-
 	if (block_mode == SHA_ONE_BLOCK) {
 		len = LEN_MSG_0;
 		memcpy ((uint8_t*)message, msg0, len);
@@ -352,26 +395,27 @@ static bool start_sha(bool full_test)
 		memset((uint8_t*)message, msg_long_pattern, len);
 	}
 
-	struct _buffer buf_in = {
+	struct _buffer buf_message = {
 		.data = (uint8_t*)message,
 		.size = len,
 	};
-	struct _buffer buf_out = {
+	struct _buffer buf_digest = {
 		.data = (uint8_t*)digest,
 		.size = output_size,
 	};
-	shad_start(&shad);
-	while (len) {
-		buf_in.size = min_u32(len, SHA_UPDATE_LEN);
 
-		shad_update(&shad, &buf_in, NULL);
-		shad_wait_completion(&shad);
+	if (shad.cfg._shad_generate_hmac) {
+		generate_test_key();
 
-		buf_in.data += buf_in.size;
-		len -= buf_in.size;
+		struct _buffer buf_key = {
+		.data = (uint8_t*)testkey,
+		.size = key_size,
+		};
+		shad_hmac_set_key(&shad, &buf_key);
+		shad_compute_hmac(&shad, &buf_message, &buf_digest, NULL);
+	} else {
+		shad_compute_hash(&shad, &buf_message, &buf_digest, NULL);
 	}
-	shad_finish(&shad, &buf_out, NULL);
-	shad_wait_completion(&shad);
 
 	if (!full_test) {
 		printf("-I- Dump and compare digest result...\r\n");
@@ -395,10 +439,12 @@ static bool start_sha(bool full_test)
 			ref = ref_digests_512[block_mode][i];
 			break;
 		}
-		if (val != ref) {
-			if (!full_test)
-				printf(" [X]");
-			rc++;
+		if (!shad.cfg._shad_generate_hmac) {
+			if (val != ref) {
+				if (!full_test)
+					printf(" [X]");
+				rc++;
+			}
 		}
 		if (!full_test)
 			printf("   0x%08x\r\n", (unsigned)val);
@@ -426,12 +472,25 @@ static void display_menu(void)
 	uint8_t chk_box[5];
 
 	printf("\r\nSHA Menu :\r\n");
+
+	chk_box[0] = (shad.cfg._shad_generate_hmac == true) ? ' ' : 'X';
+	chk_box[1] = (shad.cfg._shad_generate_hmac == true) ? 'X' : ' ';
+	printf("Press 'c' to compute SHA or HMAC\r\n");
+	printf("   SHA[%c], HMAC[%c]\r\n", chk_box[0], chk_box[1]);
+
 	printf("Press [0|1|2|3|4] to set SHA Algorithm \r\n");
 	memset(chk_box, ' ', sizeof(chk_box));
 	chk_box[shad.cfg.algo] = 'X';
 	printf("   0: SHA1[%c] 1: SHA224[%c] 2: SHA256[%c] 3: SHA384[%c] 4: SHA512[%c]\r\n",
 	       chk_box[0], chk_box[1], chk_box[2], chk_box[3], chk_box[4]);
+	chk_box[0] = (shad.cfg._shad_generate_hmac == true) ? 'X' : ' ';
 
+	if (shad.cfg._shad_generate_hmac == true) {
+		memset(chk_box, ' ', sizeof(chk_box));
+		chk_box[hmac_key_type] = 'X';
+		printf("Press 'k' to set KEY size\r\n");
+		printf("   K < B[%c] K = B[%c] K > B[%c] \r\n", chk_box[0], chk_box[1], chk_box[2]);
+	}
 	printf("Press [o|t|l] to set one/multi-block or long message \r\n");
 	memset(chk_box, ' ', sizeof(chk_box));
 	chk_box[block_mode] = 'X';
@@ -442,18 +501,25 @@ static void display_menu(void)
 	chk_box[0] = (shad.cfg.transfer_mode == SHAD_TRANS_POLLING) ? 'X' : ' ';
 	chk_box[1] = (shad.cfg.transfer_mode == SHAD_TRANS_DMA) ? 'X' : ' ';
 	printf("   p: POLLING[%c] d: DMA[%c]\r\n", chk_box[0], chk_box[1]);
-	printf("   s: Start hash algorithm process \r\n");
+	if (shad.cfg._shad_generate_hmac)
+		printf("   s: Start hmac algorithm process \r\n");
+	else
+		printf("   s: Start hash algorithm process \r\n");
 	printf("   f: Full SHA test\r\n");
 	printf("   h: Display this menu\r\n");
 	printf("\r\n");
 }
-
 
 /**
  * \brief Start AES process.
  */
 static void full_sha_test(void)
 {
+	/* Test SHA HASH */
+	shad.cfg._shad_generate_hmac = false;
+	printf("========================\r\n");
+	printf("Test SHA HASH generation\r\n");
+	printf("========================\r\n");
 	for (shad.cfg.transfer_mode = SHAD_TRANS_POLLING;
 			shad.cfg.transfer_mode <= SHAD_TRANS_DMA;
 			shad.cfg.transfer_mode++) {
@@ -470,6 +536,29 @@ static void full_sha_test(void)
 			}
 		}
 	}
+	/* Test SHA HMAC */
+	printf("========================\r\n");
+	printf("Test SHA HMAC generation\r\n");
+	printf("========================\r\n");
+	shad.cfg._shad_generate_hmac = true;
+	for (hmac_key_type = 0; hmac_key_type < 3; hmac_key_type++) {
+		for (shad.cfg.transfer_mode = SHAD_TRANS_POLLING;
+				shad.cfg.transfer_mode <= SHAD_TRANS_DMA;
+				shad.cfg.transfer_mode++) {
+			for (shad.cfg.algo = ALGO_SHA_1;
+				shad.cfg.algo <= ALGO_SHA_512;
+				shad.cfg.algo++) {
+				for (uint8_t i = 0; i < 3; i++) {
+					block_mode = i;
+					if (!start_sha(true)){
+						printf("TEST FAILED !\r\n");
+						return;
+					}
+				}
+			}
+		}
+	}
+	hmac_key_type = 0;
 	printf("TEST SUCCESS !\r\n");
 }
 
@@ -502,6 +591,14 @@ int main(void)
 	while (true) {
 		user_key = tolower(console_get_char());
 		switch (user_key) {
+		case 'c':
+			if (shad.cfg._shad_generate_hmac) {
+				shad.cfg._shad_generate_hmac = false;
+			} else {
+				shad.cfg._shad_generate_hmac = true;
+			}
+			display_menu();
+			break;
 		case '0':
 		case '1':
 		case '2':
@@ -520,6 +617,12 @@ int main(void)
 			break;
 		case 'l':
 			block_mode = SHA_LONG_MESSAGE;
+			display_menu();
+			break;
+		case 'k':
+			hmac_key_type++;
+			if (hmac_key_type == 3)
+				hmac_key_type = 0;
 			display_menu();
 			break;
 		case 'p':
