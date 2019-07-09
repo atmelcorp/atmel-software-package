@@ -78,8 +78,7 @@
 
 #include "chip.h"
 #include "crypto/sha.h"
-#include "dma/dma.h"
-
+#include "intmath.h"
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
@@ -98,6 +97,7 @@ void sha_first_block(void)
 {
 	SHA->SHA_CR = SHA_CR_FIRST;
 }
+
 
 void sha_configure(uint32_t mode)
 {
@@ -124,7 +124,7 @@ void sha_set_input(const uint8_t* data, int len)
 	int i;
 	int32_t value;
 
-	for (i = 0; i < (len / 4) && i < 32; i++) {
+	for (i = 0; i < CEIL_INT_DIV(len , 4) && i < 32; i++) {
 		memcpy(&value, &data[i * 4], 4);
 		if (i < 16)
 			SHA->SHA_IDATAR[i] = value;
@@ -143,3 +143,41 @@ void sha_get_output(uint8_t* data, int len)
 		memcpy(&data[i * 4], &value, 4);
 	}
 }
+
+#ifdef CONFIG_HAVE_SHA_HMAC
+void sha_enable_hmac(void)
+{
+	SHA->SHA_MR |= SHA_MR_ALGO_HMAC_SHA1;
+}
+
+void sha_set_ir0(uint8_t ir)
+{
+	if (ir)
+		SHA->SHA_CR = SHA_CR_WUIHV;
+	else
+		SHA->SHA_CR = 0;
+}
+
+void sha_set_ir1(uint8_t ir)
+{
+	if (ir)
+		SHA->SHA_CR = SHA_CR_WUIEHV;
+	else
+		SHA->SHA_CR = 0;
+}
+
+void sha_set_start_algo(uint8_t ir)
+{
+	SHA->SHA_MR |= ir << 5;
+}
+
+void sha_set_msr(uint32_t size)
+{
+	SHA->SHA_MSR = size;
+}
+
+void sha_set_bcr(uint32_t size)
+{
+	SHA->SHA_BCR = size;
+}
+#endif

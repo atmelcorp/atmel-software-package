@@ -97,6 +97,42 @@ extern void sha_set_input(const uint8_t* data, int len);
  */
 extern void sha_get_output(uint8_t* data, int len);
 
+#ifdef CONFIG_HAVE_SHA_HMAC
+/**
+ * \brief Enable hmac.
+ */
+extern void sha_enable_hmac(void);
+
+/**
+ * \brief Write User Initial Hash Values in IR0 register
+ * \param ir 0: SHA_IDATARx accesses are routed to the data registers.
+ *           1: SHA_IDATARx accesses are routed to the internal registers (IR0).
+ */
+extern void sha_set_ir0(uint8_t ir);
+
+/**
+ * \brief Write User Initial or Expected Hash Values in IR1 register.
+ * \param ir 0: SHA_IDATARx accesses are routed to the data registers.
+ *           1: SHA_IDATARx accesses are routed to the internal registers (IR1).
+ */
+extern void sha_set_ir1(uint8_t ir);
+
+extern void sha_set_start_algo(uint8_t ir);
+/**
+ * \brief The size in bytes of the message. When MSGSIZE differs from 0, the SHA appends the corresponding 
+ *  value converted in bits after the padding section, To disable automatic padding, MSGSIZE field must 
+ *  be written to 0..
+ * \param size The size in bytes of the message..
+ */
+extern void sha_set_msr(uint32_t size);
+
+/**
+ * \brief Set the remaining Byte Count Before Auto Padding. .
+ * \param size The size in bytes of the remaining byte.
+ */
+extern void sha_set_bcr(uint32_t len);
+
+#endif
 #endif /* CONFIG_HAVE_SHA */
 
 #endif /* SHA_H_ */

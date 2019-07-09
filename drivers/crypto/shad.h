@@ -66,6 +66,7 @@ struct _shad_desc {
 	struct {
 		enum _shad_transfer_mode transfer_mode;
 		enum _shad_algo algo;
+		bool _shad_generate_hmac;
 	} cfg;
 
 	/* --- following fields are used internally --- */
@@ -97,7 +98,7 @@ extern void shad_init(struct _shad_desc* desc);
  * \param algo SHA algorithm: ALGO_SHA_1..ALGO_SHA_512
  * \return number of output bytes
  */
-extern int shad_get_output_size(enum _shad_algo algo);
+extern int shad_get_digest_size(enum _shad_algo algo);
 
 /**
  * \brief Start a new SHA computation.
@@ -110,22 +111,24 @@ extern int shad_start(struct _shad_desc* desc);
  * \brief Update the SHA computation with some data.
  * \param desc a SHA driver descriptor
  * \param buffer data buffer to process
+ * \param auto_padding true if automatic padding is required.
  * \param cb callback called when the data processing is done
  * \return 0 on success, <0 on error
  * \note When using DMA, the buffer data pointer must be aligned to a cache
  * line.  Additionally, the buffer size must be a multiple of 4 bytes except
  * for the last call to shad_update.
  */
-extern int shad_update(struct _shad_desc* desc, struct _buffer* buffer, struct _callback* cb);
+extern int shad_update(struct _shad_desc* desc, struct _buffer* buffer, bool auto_padding, struct _callback* cb);
 
 /**
  * \brief Finish the SHA computation and get resulting digest.
  * \param desc a SHA driver descriptor
  * \param buffer data buffer to store the resulting digest.
+ * \param auto_padding true if automatic padding is required.
  * \param cb callback called when the data processing is done
  * \return 0 on success, <0 on error
  */
-extern int shad_finish(struct _shad_desc* desc, struct _buffer* buffer, struct _callback* cb);
+extern int shad_finish(struct _shad_desc* desc, struct _buffer* buffer,  bool auto_padding, struct _callback* cb);
 
 /**
  * \brief Checks if the SHA driver is busy processing data.
@@ -140,4 +143,43 @@ extern bool shad_is_busy(struct _shad_desc* desc);
  */
 extern void shad_wait_completion(struct _shad_desc* desc);
 
+/**
+ * \brief the SHA computation with some data.
+ * \param desc a SHA driver descriptor
+ * \param buffer data buffer to process
+ * \param digest data buffer to store the resulting digest.
+ * \param cb callback called when the data processing is done
+ * \return 0 on success, <0 on error
+ * \note When using DMA, the buffer data pointer must be aligned to a cache
+ * line.  Additionally, the buffer size must be a multiple of 4 bytes except
+ * for the last call to shad_update.
+ */
+extern int shad_compute_hash(struct _shad_desc* desc,
+					  struct _buffer* text,
+					  struct _buffer* digest,
+					  struct _callback* cb);
+
+/**
+ * \brief the HMAC KEY computation.
+ * \param desc a SHA driver descriptor
+ * \param key key to process
+ */
+extern int shad_hmac_set_key(struct _shad_desc* desc,
+					  struct _buffer* key);
+
+/**
+ * \brief the HMAC computation with some data.
+ * \param desc a SHA driver descriptor
+ * \param buffer data buffer to process
+ * \param digest data buffer to store the resulting digest.
+ * \param cb callback called when the data processing is done
+ * \return 0 on success, <0 on error
+ * \note When using DMA, the buffer data pointer must be aligned to a cache
+ * line.  Additionally, the buffer size must be a multiple of 4 bytes except
+ * for the last call to shad_update.
+ */
+extern int shad_compute_hmac(struct _shad_desc* desc,
+					  struct _buffer* text,
+					  struct _buffer* digest,
+					  struct _callback* cb);
 #endif /* SHAD_H */

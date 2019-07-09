@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2016, Atmel Corporation
+ * Copyright (c) 2019, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -41,6 +41,7 @@
 #include "mm/cache.h"
 #include "peripherals/pmc.h"
 #include "serial/console.h"
+#include "swab.h"
 #include "trace.h"
 
 /*----------------------------------------------------------------------------
@@ -53,10 +54,9 @@
  *        Local variables
  *----------------------------------------------------------------------------*/
 
-CACHE_ALIGNED
-static uint8_t sha_buffer[SHA_MAX_PADDING_LEN];
-
-volatile static bool single_transfer_ready;
+CACHE_ALIGNED static uint8_t sha_buffer[SHA_MAX_PADDING_LEN];
+CACHE_ALIGNED uint8_t ipad[1024];
+CACHE_ALIGNED uint8_t opad[1024];
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -133,6 +133,7 @@ static void _shad_finish(struct _shad_desc* desc)
 
 	/* Release mutex and execute callback function */
 	mutex_unlock(&desc->mutex);
+
 	callback_call(&desc->xfer.callback, NULL);
 }
 
@@ -158,10 +159,10 @@ static void _shad_prepare_dma_sg(struct _dma_transfer_cfg* cfg, const uint8_t* d
 	memset(cfg, 0, sizeof(*cfg));
 	cfg->saddr = data;
 	cfg->daddr = (void*)&SHA->SHA_IDATAR[0];
-	cfg->len = len / sizeof(uint32_t);
+	cfg->len =  CEIL_INT_DIV(len , sizeof(uint32_t));
 }
 
-static void _shad_update_dma(struct _shad_desc* desc, const uint8_t* data, uint32_t data_size)
+static int _shad_update_dma(struct _shad_desc* desc, const uint8_t* data, uint32_t data_size, bool auto_padding)
 {
 	const uint32_t block_size = _shad_get_block_size(desc->cfg.algo);
 	uint32_t processed;
@@ -176,57 +177,81 @@ static void _shad_update_dma(struct _shad_desc* desc, const uint8_t* data, uint3
 	cfg_dma.data_width = DMA_DATA_WIDTH_WORD;
 	cfg_dma.chunk_size = _shad_get_dma_chunk_size(desc->cfg.algo);
 
-	callback_set(&_cb, _shad_dma_update_callback, (void*)desc);
-	dma_set_callback(desc->dma_channel, &_cb);
+	if (!auto_padding) {
+#ifdef CONFIG_HAVE_SHA_HMAC
+		sha_set_msr(0);
+		sha_set_bcr(0);
+#endif
+		callback_set(&_cb, _shad_dma_update_callback, (void*)desc);
+		dma_set_callback(desc->dma_channel, &_cb);
 
-	/* Check if remaining data to process from previous update */
-	if (desc->xfer.remaining) {
-		/* Append some data from current buffer to complete previous pending data */
-		uint32_t complement = min_u32(data_size, block_size - desc->xfer.remaining);
-		memcpy(&sha_buffer[desc->xfer.remaining], data, complement);
-		desc->xfer.remaining += complement;
-		data += complement;
-		data_size -= complement;
+		/* Check if remaining data to process from previous update */
+		if (desc->xfer.remaining) {
+			/* Append some data from current buffer to complete previous pending data */
+			uint32_t complement = min_u32(data_size, block_size - desc->xfer.remaining);
+			memcpy(&sha_buffer[desc->xfer.remaining], data, complement);
+			desc->xfer.remaining += complement;
+			data += complement;
+			data_size -= complement;
 
-		/* Do we have enough data to process? */
-		if (desc->xfer.remaining == block_size) {
-			/* Yes, process the block */
-			_shad_prepare_dma_sg(&cfg[sg_count], sha_buffer, desc->xfer.remaining);
+			/* Do we have enough data to process? */
+			if (desc->xfer.remaining == block_size) {
+				/* Yes, process the block */
+				_shad_prepare_dma_sg(&cfg[sg_count], sha_buffer, desc->xfer.remaining);
+				sg_count++;
+				desc->xfer.processed += block_size;
+				desc->xfer.remaining = 0;
+			} else {
+				/* Data will be processed on next shad_update or
+				* shad_finish call, consider processing done */
+				mutex_unlock(&desc->mutex);
+				callback_call(&desc->xfer.callback, NULL);
+				return 0;
+			}
+		}
+
+		/* Process data by blocks */
+		processed = data_size & ~(block_size - 1);
+		if (processed > 0) {
+			_shad_prepare_dma_sg(&cfg[sg_count], data, processed);
 			sg_count++;
-			desc->xfer.processed += block_size;
-			desc->xfer.remaining = 0;
-		} else {
-			/* Data will be processed on next shad_update or
-			 * shad_finish call, consider processing done */
+			desc->xfer.processed += processed;
+		}
+
+		/* If there is some data remaining, store it in sha_buffer for later
+		* processing */
+		desc->xfer.remaining = data_size - processed;
+		if (desc->xfer.remaining)
+			memcpy(sha_buffer, &data[processed], desc->xfer.remaining);
+
+		if (sg_count == 0) {
+			/* No more data, consider processing done */
 			mutex_unlock(&desc->mutex);
 			callback_call(&desc->xfer.callback, NULL);
-			return;
+		} else {
+			/* Configure & start DMA transfer */
+			dma_configure_transfer(desc->dma_channel, &cfg_dma, cfg, sg_count);
+			dma_start_transfer(desc->dma_channel);
 		}
-	}
-
-	/* Process data by blocks */
-	processed = data_size & ~(block_size - 1);
-	if (processed > 0) {
-		_shad_prepare_dma_sg(&cfg[sg_count], data, processed);
-		sg_count++;
-		desc->xfer.processed += processed;
-	}
-
-	/* If there is some data remaining, store it in sha_buffer for later
-	 * processing */
-	desc->xfer.remaining = data_size - processed;
-	if (desc->xfer.remaining)
-		memcpy(sha_buffer, &data[processed], desc->xfer.remaining);
-
-	if (sg_count == 0) {
-		/* No more data, consider processing done */
-		mutex_unlock(&desc->mutex);
-		callback_call(&desc->xfer.callback, NULL);
 	} else {
-		/* Configure & start DMA transfer */
-		dma_configure_transfer(desc->dma_channel, &cfg_dma, cfg, sg_count);
+#ifdef CONFIG_HAVE_SHA_HMAC
+		sg_count = 0;
+		sha_set_msr(data_size);
+		sha_set_bcr(data_size);
+		_shad_prepare_dma_sg(&cfg[sg_count], data, data_size);
+		dma_configure_transfer(desc->dma_channel, &cfg_dma, cfg, sg_count+1);
 		dma_start_transfer(desc->dma_channel);
+		/* If automatic padding is enabled, the end of SHA processing requires only one
+		interrupt to be verified . The DMA end of transfer is not required, so the SHA DATRDY
+		interrupt must be enabled prior to start the DMA and DATRDY interrupt is the only one
+		to be verified. */
+		while ((sha_get_status() & SHA_ISR_DATRDY) == 0);
+		mutex_unlock(&desc->mutex);
+#else
+		return -EINVAL;
+#endif
 	}
+	return 0;
 }
 
 static int _shad_dma_finish_callback(void *arg, void* arg2)
@@ -266,7 +291,7 @@ static void _shad_finish_dma(struct _shad_desc* desc, uint32_t data_len)
 	dma_start_transfer(desc->dma_channel);
 }
 
-static uint32_t _shad_process_blocks_polling(const uint8_t* data, uint32_t len, int block_size)
+static uint32_t _shad_process_blocks_polling(const uint8_t* data, uint32_t len, int block_size, bool auto_padding)
 {
 	uint32_t processed = 0;
 
@@ -279,52 +304,76 @@ static uint32_t _shad_process_blocks_polling(const uint8_t* data, uint32_t len, 
 
 		processed += block_size;
 	}
-
+	if (auto_padding) {
+#ifdef CONFIG_HAVE_SHA_HMAC
+		if (len - processed) {
+			/* Write the block to be processed in the Input Data Registers */
+			sha_set_input(&data[processed], len - - processed);
+			/* Wait for the DATRDY bit (Data Ready) in the status register */
+			while ((sha_get_status() & SHA_ISR_DATRDY) == 0);
+			processed += block_size;
+		}
+#endif
+	}
 	return processed;
 }
 
-static void _shad_update_polling(struct _shad_desc* desc, const uint8_t* data, uint32_t data_size)
+static int _shad_update_polling(struct _shad_desc* desc, const uint8_t* data, uint32_t data_size, bool auto_padding)
 {
 	const uint32_t block_size = _shad_get_block_size(desc->cfg.algo);
 	uint32_t processed;
 
-	/* Check if remaining data to process from previous update */
-	if (desc->xfer.remaining) {
-		/* Append some data from current buffer to complete previous pending data */
-		uint32_t complement = min_u32(data_size, block_size - desc->xfer.remaining);
-		memcpy(&sha_buffer[desc->xfer.remaining], data, complement);
-		desc->xfer.remaining += complement;
-		data += complement;
-		data_size -= complement;
+	if (!auto_padding) {
+		/* Check if remaining data to process from previous update */
+		if (desc->xfer.remaining) {
+			/* Append some data from current buffer to complete previous pending data */
+			uint32_t complement = min_u32(data_size, block_size - desc->xfer.remaining);
+			memcpy(&sha_buffer[desc->xfer.remaining], data, complement);
+			desc->xfer.remaining += complement;
+			data += complement;
+			data_size -= complement;
 
-		/* Do we have enough data to process? */
-		if (desc->xfer.remaining == block_size) {
-			/* Yes, process the block */
-			_shad_process_blocks_polling(sha_buffer, desc->xfer.remaining, block_size);
-			desc->xfer.processed += block_size;
-			desc->xfer.remaining = 0;
-		} else {
-			/* Data will be processed on next shad_update or
-			 * shad_finish call, consider processing done */
-			mutex_unlock(&desc->mutex);
-			callback_call(&desc->xfer.callback, NULL);
-			return;
+			/* Do we have enough data to process? */
+			if (desc->xfer.remaining == block_size) {
+				/* Yes, process the block */
+				_shad_process_blocks_polling(sha_buffer, desc->xfer.remaining, block_size, auto_padding);
+				desc->xfer.processed += block_size;
+				desc->xfer.remaining = 0;
+			} else {
+				/* Data will be processed on next shad_update or
+				* shad_finish call, consider processing done */
+				mutex_unlock(&desc->mutex);
+				callback_call(&desc->xfer.callback, NULL);
+				return 0;
+			}
 		}
+
+		/* Process data by blocks */
+		processed = _shad_process_blocks_polling(data, data_size, block_size, auto_padding);
+		desc->xfer.processed += processed;
+
+		/* If there is some data remaining, store it in sha_buffer for later
+		* processing */
+		desc->xfer.remaining = data_size - processed;
+		if (desc->xfer.remaining)
+			memcpy(sha_buffer, &data[processed], desc->xfer.remaining);
+
+		/* Release mutex and execute callback function */
+		mutex_unlock(&desc->mutex);
+		callback_call(&desc->xfer.callback, NULL);
+		return 0;
+	} else {
+#ifdef CONFIG_HAVE_SHA_HMAC
+		sha_set_msr(data_size);
+		sha_set_bcr(data_size);
+		_shad_process_blocks_polling(data, data_size, block_size, auto_padding);
+		while ((sha_get_status() & SHA_ISR_DATRDY) == 0);
+		mutex_unlock(&desc->mutex);
+		return 0;
+#else
+		return -EINVAL;
+#endif
 	}
-
-	/* Process data by blocks */
-	processed = _shad_process_blocks_polling(data, data_size, block_size);
-	desc->xfer.processed += processed;
-
-	/* If there is some data remaining, store it in sha_buffer for later
-	 * processing */
-	desc->xfer.remaining = data_size - processed;
-	if (desc->xfer.remaining)
-		memcpy(sha_buffer, &data[processed], desc->xfer.remaining);
-
-	/* Release mutex and execute callback function */
-	mutex_unlock(&desc->mutex);
-	callback_call(&desc->xfer.callback, NULL);
 }
 
 /*----------------------------------------------------------------------------
@@ -341,7 +390,7 @@ void shad_init(struct _shad_desc* desc)
 	assert(desc->dma_channel);
 }
 
-int shad_get_output_size(enum _shad_algo algo)
+int shad_get_digest_size(enum _shad_algo algo)
 {
 	switch (algo) {
 	case ALGO_SHA_1:
@@ -400,14 +449,13 @@ int shad_start(struct _shad_desc* desc)
 
 	sha_soft_reset();
 	sha_configure(algo | mode | SHA_MR_PROCDLY_LONGEST);
-
 	memset(&desc->xfer, 0, sizeof(desc->xfer));
 
 	return 0;
 }
 
-int shad_update(struct _shad_desc* desc, struct _buffer* buffer,
-                     struct _callback* cb)
+int shad_update(struct _shad_desc* desc, struct _buffer* buffer, bool auto_padding,
+					 struct _callback* cb)
 {
 	if (!mutex_try_lock(&desc->mutex)) {
 		trace_error("SHAD mutex already locked!\r\n");
@@ -427,31 +475,41 @@ int shad_update(struct _shad_desc* desc, struct _buffer* buffer,
 		 * aligned correctly */
 		assert((desc->xfer.remaining & 3) == 0);
 		assert((((uint32_t)buffer->data) & (L1_CACHE_BYTES - 1)) == 0);
-		_shad_update_dma(desc, buffer->data, buffer->size);
+		_shad_update_dma(desc, buffer->data, buffer->size, auto_padding);
 		break;
 	case SHAD_TRANS_POLLING:
-		_shad_update_polling(desc, buffer->data, buffer->size);
+		_shad_update_polling(desc, buffer->data, buffer->size, auto_padding);
 		break;
 	default:
 		mutex_unlock(&desc->mutex);
 		return -EINVAL;
 	}
-
 	return 0;
 }
 
 int shad_finish(struct _shad_desc* desc, struct _buffer* buffer,
-                     struct _callback* cb)
+				bool auto_padding, struct _callback* cb)
 {
 	const uint32_t block_size = _shad_get_block_size(desc->cfg.algo);
 	uint32_t padding_len;
+
+	if (auto_padding) {
+#ifdef CONFIG_HAVE_SHA_HMAC
+		/* Get output data */
+		sha_get_output(buffer->data, buffer->size);
+		callback_call(&desc->xfer.callback, NULL);
+		return 0;
+#else
+		return -EAGAIN;
+#endif
+	}
 
 	if (!mutex_try_lock(&desc->mutex)) {
 		trace_error("SHAD mutex already locked!\r\n");
 		return -EAGAIN;
 	}
 
-	if (buffer->size != shad_get_output_size(desc->cfg.algo))
+	if (buffer->size != shad_get_digest_size(desc->cfg.algo))
 		return -EINVAL;
 
 	callback_copy(&desc->xfer.callback, cb);
@@ -468,7 +526,7 @@ int shad_finish(struct _shad_desc* desc, struct _buffer* buffer,
 		_shad_finish_dma(desc, desc->xfer.remaining + padding_len);
 		break;
 	case SHAD_TRANS_POLLING:
-		_shad_process_blocks_polling(sha_buffer, desc->xfer.remaining + padding_len, block_size);
+		_shad_process_blocks_polling(sha_buffer, desc->xfer.remaining + padding_len, block_size, auto_padding);
 		_shad_finish(desc);
 		break;
 	default:
@@ -490,4 +548,218 @@ void shad_wait_completion(struct _shad_desc* desc)
 		if (desc->cfg.transfer_mode == SHAD_TRANS_DMA)
 			dma_poll();
 	}
+}
+
+static void hmac_precompute_key(struct _shad_desc* desc, struct _buffer* key)
+{
+	uint32_t digest_size = shad_get_digest_size(desc->cfg.algo);
+	struct _buffer key0 = {
+		.data = (uint8_t*)ipad,
+		.size = digest_size,
+	};
+	bool autopading;
+
+#ifdef CONFIG_HAVE_SHA_HMAC
+	autopading = true;
+#else
+	autopading = false;
+#endif
+	/* If the length of K > B: hash K to obtain an L byte string, then append (B-L)
+	   zeros to create a B-byte string K0 (i.e., K0 = H(K) || 00...00). */
+	shad_update(desc, key, autopading, NULL);
+	shad_wait_completion(desc);
+	shad_finish(desc, &key0, autopading, NULL);
+	shad_wait_completion(desc);
+}
+
+static void hmac_determine_k0(struct _shad_desc* desc, struct _buffer* key)
+{
+	const uint32_t B = _shad_get_block_size(desc->cfg.algo);
+	uint32_t K = key->size;
+
+	/* If the length of K = B: set K0 = K. */
+	if (K == B ) {
+		memcpy(ipad, key->data, K);
+	}
+	/* If the length of K < B: append zeros to the end of K to create a B-byte string K0
+	(e.g., if K is 20 bytes in length and B = 64, then K will be appended with 44 zero bytes 0x00). */
+	else if ( K < B) {
+		memset (ipad, 0x0, 1024);
+		memcpy((uint8_t *)ipad, key->data, K);
+	} else {
+	/* If the length of K > B: hash K to obtain an L byte string, then append (B-L)
+	   zeros to create a B-byte string K0 (i.e., K0 = H(K) || 00...00). */
+		memset (ipad, 0x0, 1024);
+		hmac_precompute_key(desc, key);
+	}
+}
+
+static void hmac_init_pad(uint32_t block_size)
+{
+	/* Conceptually, the intermediate results of the compression function on the B-byte blocks (K0 xor ipad)
+	and (K0 xor opad) can be precomputed once, at the time of generation of the key K, or before its first use.*/
+	memcpy(opad, ipad, block_size);
+	for (int i = 0; i < block_size; ++i) {
+		/* Exclusive-Or K0 with ipad to produce a B-byte string: K0 xor ipad */
+		ipad[i] ^= 0x36; /* ipad Inner pad; the byte 0x36 repeated B times */
+		/* Exclusive-Or K0 with opad: K0 xor opad. */
+		opad[i] ^= 0x5C; /* opad Outer pad; the byte 0x5C repeated B times.*/
+	}
+}
+
+#ifdef CONFIG_HAVE_SHA_HMAC
+static void hmac_precompute_intermediate(struct _shad_desc* desc)
+{
+	const uint32_t B = _shad_get_block_size(desc->cfg.algo);
+	uint32_t digest_size = shad_get_digest_size(desc->cfg.algo);
+	uint32_t mr;
+
+	shad_start(desc);
+	mr = SHA->SHA_MR;
+	sha_configure((mr & ~SHA_MR_SMOD_IDATAR0_START) | SHA_MR_SMOD_AUTO_START);
+
+	/* Apply H to the stream generated : H(K0 xor ipad) */
+	sha_first_block();
+	sha_set_input(ipad, B);
+	/* Wait for the DATRDY bit (Data Ready) in the status register */
+	while ((sha_get_status() & SHA_ISR_DATRDY) == 0);
+	sha_get_output(ipad, digest_size);
+
+	sha_first_block();
+	/* Apply H to the stream generated : H(K0 xor opad) */
+	sha_set_input(opad, B);
+	/* Wait for the DATRDY bit (Data Ready) in the status register */
+	while ((sha_get_status() & SHA_ISR_DATRDY) == 0);
+	sha_get_output(opad, digest_size);
+	sha_configure(mr);
+}
+
+static int hmac_computer_with_intermediate(struct _shad_desc* desc,
+                                           struct _buffer* text,
+                                           struct _buffer* hmac)
+{
+	const uint32_t B = _shad_get_block_size(desc->cfg.algo);
+	uint32_t digest_size = shad_get_digest_size(desc->cfg.algo);
+
+	shad_start(desc);
+	sha_set_ir0(1);
+	sha_set_input(ipad, digest_size);
+	sha_set_ir1(1);
+	sha_set_input(opad, digest_size);
+	sha_enable_hmac();
+	sha_first_block();
+	shad_update(desc, text, true, NULL);
+	shad_wait_completion(desc);
+	shad_finish(desc, hmac, true, NULL);
+	shad_wait_completion(desc);
+	return 0;
+}
+#else
+static void hmac_hash_ipad_text(struct _shad_desc* desc, struct _buffer* text)
+{
+	const uint32_t B = _shad_get_block_size(desc->cfg.algo);
+	uint32_t digest_size = shad_get_digest_size(desc->cfg.algo);
+	struct _buffer buf_io = {
+		.data = (uint8_t*)ipad,
+		.size = B,
+	};
+	shad_start(desc);
+	shad_update(desc, &buf_io, false, NULL);
+	shad_wait_completion(desc);
+	buf_io.data = text->data;
+	buf_io.size = text->size;
+	shad_update(desc, &buf_io, false, NULL);
+	shad_wait_completion(desc);
+	buf_io.data = ipad;
+	buf_io.size = digest_size;
+	shad_finish(desc, &buf_io, false, NULL);
+	shad_wait_completion(desc);
+}
+
+static void hmac_hash_opad_ipad_text(struct _shad_desc* desc,
+                                     struct _buffer* hmac)
+{
+	const uint32_t B = _shad_get_block_size(desc->cfg.algo);
+	uint32_t digest_size = shad_get_digest_size(desc->cfg.algo);
+
+	struct _buffer buf_io = {
+		.data = (uint8_t*)opad,
+		.size = B + digest_size,
+	};
+	/* Append the result from hmac_compute_ipad_hash(): (K0 xor opad) || H((K0 xor ipad) || text)*/
+	memcpy(opad + B, ipad, digest_size);
+	shad_start(desc);
+	shad_update(desc, &buf_io, false, NULL);
+	shad_wait_completion(desc);
+	shad_finish(desc, hmac, false, NULL);
+	shad_wait_completion(desc);
+}
+
+static int hmac_computer_without_intermediate(struct _shad_desc* desc,
+                                               struct _buffer* text,
+                                               struct _buffer* mac)
+{
+	/* FIPS Publication 198, Apply H to the stream generated in step 5: H((K0 xor ipad) || text). */
+	hmac_hash_ipad_text(desc, text);
+	/* FIPS Publication 198, Apply H to the result from step 8: H((K0 xor opad )|| H((K0 xor ipad) || text)). */
+	hmac_hash_opad_ipad_text(desc, mac);
+	return 0;
+}
+#endif
+
+int shad_compute_hash(struct _shad_desc* desc,
+					  struct _buffer* text,
+					  struct _buffer* digest,
+					  struct _callback* cb)
+{
+	bool autopading;
+
+	shad_start(desc);
+#ifdef CONFIG_HAVE_SHA_HMAC
+	autopading = true;
+#else
+	autopading = false;
+#endif
+	shad_update(desc, text, autopading, NULL);
+	shad_wait_completion(desc);
+	shad_finish(desc, digest, autopading, NULL);
+	shad_wait_completion(desc);
+	return 0;
+}
+
+int shad_hmac_set_key(struct _shad_desc* desc,
+					  struct _buffer* key)
+{
+	const uint32_t B = _shad_get_block_size(desc->cfg.algo);
+
+	/* FIPS Publication 198 :
+	To compute a MAC over the data ‘text’ using the HMAC function, the following operation is performed:
+	HMAC(text) = HMAC(K, text) = H((K0 xor opad )|| H((K0 xor ipad) || text)) */
+
+	/* Step 1 - 3 :
+		If the length of K = B: set K0 = K.
+		If the length of K > B: hash K to obtain an L byte string, then append (B-L) zeros to create a B-byte string K0.
+		If the length of K < B: append zeros to the end of K to create a B-byte string K0. */
+	shad_start(desc);
+	hmac_determine_k0(desc, key);
+	hmac_init_pad(B);
+#ifdef CONFIG_HAVE_SHA_HMAC
+	/* These pre-computed first blocks speed up the HMAC computation by saving the time to compute the intermediate
+		hash values of the first block which is constant while the secret key is constant */
+	hmac_precompute_intermediate(desc);
+#endif
+	return 0;
+}
+
+int shad_compute_hmac(struct _shad_desc* desc,
+					  struct _buffer* text,
+					  struct _buffer* digest,
+					  struct _callback* cb)
+{
+	shad_start(desc);
+#ifdef CONFIG_HAVE_SHA_HMAC
+	return hmac_computer_with_intermediate(desc, text, digest);
+#else
+	return hmac_computer_without_intermediate(desc, text, digest);
+#endif
 }
