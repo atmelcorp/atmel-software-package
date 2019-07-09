@@ -479,10 +479,10 @@ next:
 	(void)qspi->QSPI_IFR;
 
 #ifdef CONFIG_HAVE_QSPI_DMA
-	if (((cmd->flags == QSPI_IFR_TFRTYP_TRSFR_WRITE_MEMORY) &&
+	if ((((cmd->flags & SFLASH_TYPE_MASK) == SFLASH_TYPE_WRITE) &&
 	     IS_CACHE_ALIGNED(cmd->tx_data) &&
 	     IS_CACHE_ALIGNED(cmd->data_len)) ||
-	    ((cmd->flags == QSPI_IFR_TFRTYP_TRSFR_READ_MEMORY) &&
+	    (((cmd->flags & SFLASH_TYPE_MASK) == SFLASH_TYPE_READ) &&
 	     IS_CACHE_ALIGNED(cmd->rx_data) &&
 	     IS_CACHE_ALIGNED(cmd->data_len)))
 		use_dma = true;
