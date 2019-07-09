@@ -141,11 +141,12 @@ struct _console_cfg;
 #define ID_PIOD         (70) /**< \brief  (PIOD) */
 #define ID_SDMMC0_TIMER (71) /**< \brief  (SDMMC0_TIMER) */
 #define ID_SDMMC1_TIMER (72) /**< \brief  (SDMMC1_TIMER) */
+#define ID_RSTC         (73) /**< \brief Reset Controller (RSTC) */
 #define ID_SYSC         (74) /**< \brief System Controller Interrupt, RTC, RSTC, PMC (SYSC) */
 #define ID_RTC          (74) /**< \brief Real Time Clock (RTC) */
-#define ID_RSTC         (74) /**< \brief Reset Controller (RSTC) */
 #define ID_ACC          (75) /**< \brief Analog Comparator (ACC) */
 #define ID_RXLP         (76) /**< \brief Uart Low Power (RXLP) */
+#define ID_SFRBU        (77) /**< \brief Special Function Registers Backup (SFRBU) */
 #define ID_CHIPID       (78) /**< \brief Chip ID (CHIPID) */
 
 #define ID_PERIPH_COUNT (79) /**< \brief Number of peripheral IDs */

@@ -240,7 +240,9 @@ void board_save_misc_power(void)
 	pmc_disable_audio();
 
 	/* disable system clocks */
+#ifdef VARIANT_SRAM
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_DDR);
+#endif
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_LCD);
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_UHP);
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_UDP);
@@ -257,6 +259,12 @@ void board_save_misc_power(void)
 			continue;
 		if (i == tc_id)
 			continue;
+#ifdef VARIANT_DDRAM
+		if (i == ID_MPDDRC)
+			continue;
+		if (i == ID_SFRBU)
+			continue;
+#endif
 		pmc_disable_peripheral(i);
 	}
 }
