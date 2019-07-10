@@ -482,12 +482,12 @@ RAMCODE static void _pmc_configure_pll(const struct _pmc_plla_cfg* plla)
 
 	/* 11. Wait for the lock bit to rise by polling the PMC_PLL_ISR0 or by enabling the corresponding interrupt
 	in PMC_PLL_IER. */
-	while ((PMC->PMC_PLL_ISR0 & (PMC_PLL_ISR0_LOCK0 << plla->pll_id)) != (PMC_PLL_ISR0_LOCK0 << plla->pll_id));
+	while ((PMC->PMC_PLL_ISR0 & (PMC_PLL_ISR0_LOCKA << plla->pll_id)) != (PMC_PLL_ISR0_LOCKA << plla->pll_id));
 
 	/* 12. Disable the interrupt (if enabled) */
 
 	/* 13. Enable the unlock interrupt to quickly detect a failure on the generation of the clock of the PLL. */
-	PMC->PMC_PLL_IER |= (PMC_PLL_IER_UNLOCK0 << plla->pll_id);
+	PMC->PMC_PLL_IER |= (PMC_PLL_IER_UNLOCKA << plla->pll_id);
 }
 
 RAMCODE static void _pmc_disable_pll(uint32_t pll_id)
