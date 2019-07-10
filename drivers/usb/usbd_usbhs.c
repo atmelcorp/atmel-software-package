@@ -1899,8 +1899,12 @@ void usbd_hal_init(void)
 	uint32_t cfg = USBHS->USBHS_DEVCTRL;
 
 	if (force_full_speed){
+#if defined(PMC_USB_USBS_UPLL)
+		PMC->PMC_USB = (PMC_USB_USBS_UPLL | PMC_USB_USBDIV(10 - 1));
+#else
 		/* USB clock register: USB Clock Input is UTMI PLL */
 		PMC->PMC_USB = (PMC_USB_USBS | PMC_USB_USBDIV(10 - 1));
+#endif
 	} else {
 		/* USBCLK not used in this configuration (High Speed) */
 		PMC->PMC_SCDR = PMC_SCDR_USBCLK;
