@@ -44,6 +44,22 @@ On the computer, open and configure a terminal application
 ## Start the application
 ------------------------
 
+    TDES menu:
+    Press [s|t|x] to set tdesd.cfg.algorithm for encryption/decryption
+       s: SINGLE[X] t: TRIPLE[ ] x: XTEA[ ]
+    Press [k] set key algorithm (three key or two key mode, no need for DES)
+       Three key[X] Two key[ ]
+    Press [0|1|2|3] to set the Mode of Operation
+       0: Electronic Code Book    [X]
+       1: Cipher Block Chaining   [ ]
+       2: Output Feedback         [ ]
+       3: Cipher Feedback         [ ]
+    Press [m|a|d] to set Start Mode
+       m: MANUAL_START[X] a: AUTO_START[ ] d: DMA[ ]
+       p: Begin the encryption/decryption process
+       f: Full test of all TDES modes
+       h: Display this menu
+
 Tested with IAR and GCC (sram and ddram configuration)
 
 In order to test this example, the process is the following:

@@ -358,6 +358,7 @@ static void display_menu(void)
 	printf("   m: MANUAL_START[%c] a: AUTO_START[%c] d: DMA[%c]\n\r",
 	       chk_box[0], chk_box[1], chk_box[2]);
 	printf("   p: Begin the encryption/decryption process\n\r");
+	printf("   f: Full test of all TDES modes\n\r");
 	printf("   h: Display this menu\n\r");
 	printf("\n\r");
 }
