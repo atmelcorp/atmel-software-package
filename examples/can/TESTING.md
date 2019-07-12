@@ -34,8 +34,12 @@ The demonstration program transmits several different CAN/MCAN messages. The
 --------
 Step needed to set up the example.
 * For the SAM9X60-EK boards:
-  connect J7 pin 1 (CAN0/CANH) to J7 pin 4 (CAN1/CANH)
-  connect J7 pin 2 (CAN0/CANL) to J7 pin 5 (CAN1/CANL)
+  On the 5-way CAN terminal block:
+    connect pin 1 (CAN0/CANH) to pin 4 (CAN1/CANH)
+    connect pin 2 (CAN0/CANL) to pin 5 (CAN1/CANL)
+  Since the DBGU pins are allocated to the CAN peripheral, in this example the 
+  console port is moved to the 40-pin GPIO/Raspberry Pi header. Please find TXD 
+  on pin 24, RXD on pin 26, GND on pin 30.
 * For the OTHER EK boards: Connect CAN0 and CAN1 together using a cable
 * For the EXPLAINED boards: Mount a FIELDBUS-SHEELD-XULT board and connect CAN0
  and CAN1 together
