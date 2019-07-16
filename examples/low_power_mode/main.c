@@ -455,6 +455,7 @@ static void menu_ulp0(void)
 
 	printf("\n\r\n\r");
 	printf("  =========== Enter Ultra Low Power mode 0 ===========\n\r");
+	printf(" =========== Use PB_USER button to wake up ==========\n\r");
 	while(!console_is_tx_empty());
 	/* Back up IOs and USB transceivers */
 	read_reg[0] = PMC->PMC_PCSR0;
@@ -476,14 +477,9 @@ static void menu_ulp0(void)
 	board_cfg_led();
 #endif
 
-	/* config PCK and MCK */
-	pmc_set_custom_pck_mck(&clock_test_setting[use_clock_setting]);
+	/* Run low power mode in sram */
+	low_power_run(use_clock_setting | (true << 4));
 
-	/* enter IDLE mode */
-	cpu_idle();
-
-	/* Restore default PCK and MCK */
-	pmc_set_custom_pck_mck(&clock_test_setting[0]);
 	_restore_console();
 
 	/* Restore IOs and USB transceivers */
@@ -521,10 +517,6 @@ static void menu_ulp1(void)
 	board_cfg_led();
 #endif
 
-	/* ultra low power mode 1, RC12 is selected for Main Clock */
-	/* Disable the PLLs and the main oscillator */
-	pmc_set_custom_pck_mck(&clock_test_setting[6]);
-
 	/* set RTC alarm for wake up */
 	_start_rtc_timer_for_wakeup(30);
 
@@ -533,20 +525,9 @@ static void menu_ulp1(void)
 	pmc_set_fast_startup_mode(PMC_FSMR_FSTT0 | PMC_FSMR_FSTT2 |
 		PMC_FSMR_RTCAL | PMC_FSMR_LPM);
 
-	/* enter ULP1 */
-	asm("WFE");
-	asm("WFE");
+	/* Run low power mode in sram */
+	low_power_run(ULP_CLOCK_SETTINGS | (false << 4));
 
-	/* wait for the PMC_SR.MCKRDY bit to be set. */
-	while ((PMC->PMC_SR & PMC_SR_MCKRDY) == 0);
-
-	/* To capture wakeup time, we need to write the register */
-	/* directly instead of calling C function */
-	/* led_set(0); pio_clear(&pinsLeds[led]);*/
-	PIOA->PIO_IO[1].PIO_CODR = PIO_PB6;
-
-	/* Restore default PCK and MCK */
-	pmc_set_custom_pck_mck(&clock_test_setting[0]);
 	_restore_console();
 
 	/* Restore IOs and USB transceivers */
@@ -683,14 +664,9 @@ static void menu_idle(void)
 
 	printf("=========== Enter Idle mode ===========\n\r");
 	while(!console_is_tx_empty());
-#if defined(CONFIG_SOC_SAM9X60)
+
 	/* Run low power mode in sram */
 	low_power_run(use_clock_setting | (true << 4));
-#else
-	/* config PCK and MCK */
-	pmc_set_custom_pck_mck(&clock_test_setting[use_clock_setting]);
-	cpu_idle();
-#endif
 	printf("| | | | | | Leave Idle mode | | | | | |\n\r");
 }
 
@@ -774,7 +750,7 @@ static void ramcode_init(void)
 
 extern struct pck_mck_cfg clock_setting_backup;
 #ifdef VARIANT_DDRAM
-extern int _ddr_active_needed;
+extern volatile int _ddr_active_needed;
 RAMDATA uint32_t tmp_stack[128];
 #if defined(__GNUC__)
 	__attribute__((optimize("O0")))
@@ -822,23 +798,45 @@ RAMCODE static void low_power_run(uint8_t mode)
 		pmc_set_custom_pck_mck(&clock_cfg);
 
 		if (idle_mode) {
+	#ifdef  CONFIG_SOC_SAM9X60
 			/* drain write buffer */
 			asm("mcr p15, 0, %0, c7, c10, 4" :: "r"(0) : "memory");
 			/* wait for interrupt */
 			asm("mcr p15, 0, %0, c7, c0, 4" :: "r"(0) : "memory");
-
-			/* To capture wakeup time */
-			led_toggle(0);
+	#else
+			asm("dsb" ::: "memory");
+			asm("wfi" ::: "memory");
+			/* wait for the PMC_SR.MCKRDY bit to be set. */
+			while ((PMC->PMC_SR & PMC_SR_MCKRDY) == 0);
+	#endif /* CONFIG_SOC_SAM9X60 */
 		} else {
+	#if defined(CONFIG_SOC_SAM9X60)
 			pmc_disable_external_osc();
 			pmc_enable_external_osc(false);
 			pmc_enable_ulp1();
-			/* Restore default PCK and MCK */			
-			pmc_set_custom_pck_mck(&clock_setting_backup);		
 	#ifdef VARIANT_DDRAM
+			/* Restore default PCK and MCK */
+			pmc_set_custom_pck_mck(&clock_setting_backup);
 			check_ddr_ready();
 	#endif
+	#elif defined(CONFIG_SOC_SAMA5D2)
+			asm("WFE");
+			asm("WFE");
+			while ((PMC->PMC_SR & PMC_SR_MCKRDY) == 0);
+	#ifdef VARIANT_DDRAM
+			if (_ddr_active_needed == 1) {
+				pmc_set_custom_pck_mck(&clock_setting_backup);
+				check_ddr_ready();
+			}
+	#endif
+	#endif /* defined(CONFIG_SOC_SAM9X60) */
 		}
+		/* To capture wakeup time */
+		led_toggle(0);
+#ifdef VARIANT_SRAM
+		/* Restore default PCK and MCK */
+		pmc_set_custom_pck_mck(&clock_setting_backup);
+#endif
 #ifdef VARIANT_DDRAM
 		_ddr_active_needed = 0;
 	}
