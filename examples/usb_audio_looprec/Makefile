@@ -32,6 +32,10 @@ AVAILABLE_TARGETS = sam9g15-ek sam9g25-ek sam9g35-ek sam9x25-ek sam9x35-ek \
 		    sama5d3-ek sama5d3-xplained \
 		    sama5d4-ek sama5d4-xplained
 
+ifneq (,$(filter $(TARGET), sam9g15-ek sam9g25-ek sam9g35-ek sam9x25-ek sam9x35-ek))
+	AVAILABLE_VARIANTS = ddram
+endif
+
 TOP := ../..
 
 BINNAME = usb_audio_looprec

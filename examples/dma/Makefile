@@ -28,6 +28,10 @@
 
 # Makefile for compiling the dma example
 
+ifneq (,$(filter $(TARGET), sam9g15-ek sam9g25-ek sam9g35-ek sam9x25-ek sam9x35-ek))
+	AVAILABLE_VARIANTS = ddram
+endif
+
 TOP := ../..
 
 BINNAME = dma

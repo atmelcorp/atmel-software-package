@@ -34,6 +34,10 @@ AVAILABLE_TARGETS = sam9x60-ek \
                     sam9x25-ek sam9x35-ek \
                     same70-xplained samv71-xplained
 
+ifneq (,$(filter $(TARGET), sam9x25-ek sam9x35-ek))
+	AVAILABLE_VARIANTS = ddram
+endif
+
 TOP := ../..
 
 BINNAME = can

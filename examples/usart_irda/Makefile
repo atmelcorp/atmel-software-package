@@ -32,6 +32,10 @@ AVAILABLE_TARGETS = sama5d2-ptc-ek sama5d2-xplained \
                     sam9g15-ek sam9g25-ek sam9g35-ek sam9x25-ek sam9x35-ek \
                     sam9x60-ek
 
+ifneq (,$(filter $(TARGET), sam9g15-ek sam9g25-ek sam9g35-ek sam9x25-ek sam9x35-ek))
+	AVAILABLE_VARIANTS = ddram
+endif
+
 TOP := ../..
 
 BINNAME = usart_irda
