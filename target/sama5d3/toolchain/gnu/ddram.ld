@@ -47,6 +47,7 @@ MEMORY
 /* Sizes of the stacks used by the application. NOTE: you need to adjust */
 C_STACK_SIZE   = 0x800;
 IRQ_STACK_SIZE = 0x60;
+FIQ_STACK_SIZE = 0x60;
 SYS_STACK_SIZE = 0x40;
 ABT_STACK_SIZE = 0x40;
 UND_STACK_SIZE = 0x40;
@@ -139,6 +140,9 @@ SECTIONS
 	{
 		. = ALIGN(4);
 		*(.region_sram)
+		. += IRQ_STACK_SIZE;
+		. = ALIGN(8);
+		_irqstack = .;
 	} >sram
 
 	.region_ddr (NOLOAD) :
@@ -183,9 +187,9 @@ SECTIONS
 
 	.stack (NOLOAD) :
 	{
-		. += IRQ_STACK_SIZE;
+		. += FIQ_STACK_SIZE;
 		. = ALIGN(8);
-		_irqstack = .;
+		_fiqstack = .;
 
 		. += ABT_STACK_SIZE;
 		. = ALIGN(8);
@@ -203,4 +207,17 @@ SECTIONS
 		. = ALIGN(8);
 		_cstack = .;
 	} >ddr
+	_end = .;
+	_ramcode_lma = _end;
+	.ramcode :
+	AT ( _ramcode_lma )
+	{
+		_sramcode = .; *(.ramcode_section); _eramcode = .;
+	} > sram
+	_ramdata_lma = _end + _eramcode - _sramcode;
+	.ramdata :
+	AT ( _ramdata_lma )
+	{
+		_sramdata = .; *(.ramdata_section); _eramdata = .;
+	} > sram
 }
