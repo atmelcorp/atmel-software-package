@@ -30,20 +30,20 @@
 #include "clk-config.h"
 
 struct pck_mck_cfg clock_test_setting[8] = {
-	/* PLLA = 12*83/2 = 498 Mhz, PCK = PLLA = 498 Mhz, MCK = PCK/3 = 166 MHz */
-	/* PLLA EXT12M EXT32K MULA=82 DIV=1 DIV2ON=1 PRES=0 MDIV=3 */
+	/* PLLA = 12*88/2 = 528 Mhz, PCK = PLLA = 528 Mhz, MCK = PCK/4 = 132 MHz */
+	/* PLLA EXT12M EXT32K MULA=88 DIV=1 DIV2ON=1 PRES=0 MDIV=4 */
 	{
 		.pck_input = PMC_MCKR_CSS_PLLA_CLK,
 		.ext12m = true,
 		.ext32k = true,
 		.plla = {
-			.mul = 82,
+			.mul = 88,
 			.div = 1,
 			.count = 0x3f,
-			.icp = 3,
+			.icp = 4,
 		},
 		.pck_pres = PMC_MCKR_PRES_CLOCK,
-		.mck_div = PMC_MCKR_MDIV_PCK_DIV3,
+		.mck_div = PMC_MCKR_MDIV_PCK_DIV4,
 		.plla_div2 = true,
 	},
 	/* PCK = MCK = 12 MHz */
