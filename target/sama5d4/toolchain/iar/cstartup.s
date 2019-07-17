@@ -80,6 +80,10 @@ F_BIT           DEFINE 0x40
         EXTERN  prefetch_abort_irq_handler
         EXTERN  data_abort_irq_handler
         EXTERN  software_interrupt_irq_handler
+#ifdef CONFIG_RAMCODE
+        EXTERN  _ddr_active_needed
+        EXTERN  ddram_active
+#endif
 
         DATA
 
@@ -155,7 +159,11 @@ fiqHandler:
 ; Handles incoming interrupt requests by branching to the corresponding
 ; handler, as defined in the AIC. Supports interrupt nesting.
 ;------------------------------------------------------------------------------
+#ifdef CONFIG_RAMCODE
+        SECTION .ramcode_section:CODE:NOROOT(2)
+#else
         SECTION .text:CODE:NOROOT(2)
+#endif
         ARM
 irqHandler:
         ; Save interrupt context on the stack to allow nesting
@@ -165,6 +173,14 @@ irqHandler:
         mrs         lr, SPSR
         stmfd       sp!, {r0, lr}
 
+#ifdef CONFIG_RAMCODE
+        ldr r0, =_ddr_active_needed
+        ldr r0, [r0]
+        cmp r0, #0x0
+        beq _irq
+        bl ddram_active
+_irq:
+#endif
         ; Write in the IVR to support Protect Mode
 
         ldr         lr, =AT91C_BASE_AIC
