@@ -530,7 +530,7 @@ static bool read_file(uint8_t slot_ix, sSdCard *pSd, FATFS *fs)
 			sha_buf.attr = 0;
 			sha_buf.data = (uint8_t*)data_buf;
 			sha_buf.size = len;
-			shad_update(&shad, &sha_buf, NULL);
+			shad_update(&shad, &sha_buf, false, NULL);
 			shad_wait_completion(&shad);
 #endif
 		}
@@ -542,8 +542,8 @@ static bool read_file(uint8_t slot_ix, sSdCard *pSd, FATFS *fs)
 	if (res == FR_OK) {
 		sha_buf.attr = 0;
 		sha_buf.data = (uint8_t*)hash;
-		sha_buf.size = shad_get_output_size(shad.cfg.algo);
-		shad_finish(&shad, &sha_buf, NULL);
+		sha_buf.size = shad_get_digest_size(shad.cfg.algo);
+		shad_finish(&shad, &sha_buf, false, NULL);
 		shad_wait_completion(&shad);
 		printf("Read %lu bytes. Their SHA-1 was %08lx%08lx%08lx%08lx"
 		    "%08lx.\n\r", file_size,
