@@ -617,25 +617,12 @@ static void menu_ulp(void)
 	/* config a led for indicator to capture wake-up time */
 	board_cfg_led();
 
-	/* ultra low power mode 1, RC12 is selected for Main Clock */
-	/* Disable the PLLs and the main oscillator */
-	pmc_set_custom_pck_mck(&clock_test_setting[6]);
-
 	/* set RTC alarm for wake up */
 	_start_rtc_timer_for_wakeup(30);
 
-	/* enter ULP */
-	cpu_idle();
+	/* Run low power mode in sram */
+	low_power_run(ULP_CLOCK_SETTINGS | (true << 4));
 
-	/* wait for the PMC_SR.MCKRDY bit to be set. */
-	while ((PMC->PMC_SR & PMC_SR_MCKRDY) == 0);
-
-	/* To capture wakeup time, we need to write the register */
-	/* directly instead of calling C function */
-	led_toggle(0);
-
-	/* Restore default PCK and MCK */
-	pmc_set_custom_pck_mck(&clock_test_setting[0]);
 	_restore_console();
 
 	/* Restore IOs and USB transceivers */
@@ -953,7 +940,7 @@ int main(void)
 			MenuChoice = 0;
 			_print_menu();
 			break;
-#elif defined(CONFIG_SOC_SAMA5D3) || defined(CONFIG_SAMA5D4)
+#elif defined(CONFIG_SOC_SAMA5D3) || defined(CONFIG_SOC_SAMA5D4)
 		case '2':
 			printf("2");
 			menu_ulp();
