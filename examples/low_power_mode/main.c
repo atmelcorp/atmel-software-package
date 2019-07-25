@@ -894,6 +894,7 @@ int main(void)
 {
 	/* Output example information */
 	console_example_info("Low Power Mode Example");
+	while(!console_is_tx_empty());
 
 #ifdef CONFIG_HAVE_L2CC
 	/* set a default state at the beginning to save power */
