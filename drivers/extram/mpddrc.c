@@ -604,11 +604,10 @@ RAMCODE void mpddrc_issue_low_power_command(uint32_t cmd)
 
 RAMCODE void ddr_self_refresh(void)
 {
+	mpddrc_issue_low_power_command(MPDDRC_LPR_LPCB_SELFREFRESH);
+
 #ifdef CONFIG_HAVE_SFRBU
 	if (!sfrbu_is_ddr_backup_enabled()) {
-		/* Wait DDR into self-refresh mode*/
-		while (!((MPDDRC->MPDDRC_LPR) & MPDDRC_LPR_SELF_DONE));
-
 		/* Disable the DDR Controller clock signal at PMC level*/
 		pmc_disable_peripheral(ID_MPDDRC);
 		/* Disable ddrclk */
@@ -616,8 +615,6 @@ RAMCODE void ddr_self_refresh(void)
 
 		sfrbu_enable_ddr_backup();
 	}
-#else
-	mpddrc_issue_low_power_command(MPDDRC_LPR_LPCB_SELFREFRESH);
 #endif
 }
 
@@ -632,18 +629,14 @@ RAMCODE void check_ddr_ready(void)
 		/* Disable DDR Backup mode */
 		sfrbu_disable_ddr_backup();
 	}
-#else
-  #ifdef CONFIG_SOC_SAM9X60
-	mpddrc_issue_low_power_command(MPDDRC_LPR_LPCB_NOLOWPOWER);
-  #else
-	mpddrc_issue_low_power_command(MPDDRC_LPR_LPCB_DISABLED);
-  #endif
 #endif
+
+	mpddrc_issue_low_power_command(MPDDRC_LPR_LPCB_DISABLED);
 }
 
 RAMDATA struct pck_mck_cfg clock_setting_backup = {0};
 #ifdef CONFIG_RAMCODE
-RAMDATA int _ddr_active_needed = 0;
+RAMDATA volatile int _ddr_active_needed = 0;
 
 RAMCODE void ddram_active(void) {
 	/* Restore default PCK and MCK */
