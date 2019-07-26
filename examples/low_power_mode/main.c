@@ -370,6 +370,7 @@ static void menu_pck_mck(void)
 /**
  * \brief Interrupt handler for the RTC. Refreshes the display.
  */
+#ifndef CONFIG_SOC_SAM9X60
 static void _rtc_handler(uint32_t source, void* user_arg)
 {
 	uint32_t dwStatus = RTC->RTC_SR;
@@ -392,6 +393,7 @@ static void _rtc_handler(uint32_t source, void* user_arg)
 		}
 	}
 }
+#endif
 
 static void _start_rtc_timer_for_wakeup(unsigned int wakup_in_seconds)
 {
