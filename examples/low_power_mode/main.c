@@ -318,8 +318,11 @@ static void menu_pck_mck(void)
 		if (clock_test_setting[0].plla_div2)
 			pck /= 2;
 #endif
+#ifdef PMC_PLL_CTRL0_DIVPMC
+		pck /= (clock_test_setting[0].plla.div + 1);
+#endif
 		printf("PCK = %luMHz, MCK = %luMHz\n\r", pck,
-			pck / ((clock_test_setting[0].mck_div >> PMC_MCKR_MDIV_Pos) + 1));
+			pck / (clock_test_setting[0].mck_div >> PMC_MCKR_MDIV_Pos));
 		break;
 	}
 	case 1:
