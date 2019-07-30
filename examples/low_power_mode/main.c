@@ -596,6 +596,7 @@ static void menu_ulp(void)
 
 	printf("\n\r\n\r");
 	printf("  =========== Enter Ultra Low Power mode  ============\n\r");
+	printf(" =========== Use PB_USER button to wake up ==========\n\r");
 	printf("  === Auto wakeup from RTC alarm after 30 second =====\n\r");
 	while(!console_is_tx_empty());
 	/* Back up IOs and USB transceivers */
@@ -609,6 +610,9 @@ static void menu_ulp(void)
 
 	/* Disable the USB transceivers and all peripheral clocks */
 	board_save_misc_power();
+
+	/* config a button to wakeup*/
+	_configure_buttons();
 
 	/* config a led for indicator to capture wake-up time */
 	board_cfg_led();
