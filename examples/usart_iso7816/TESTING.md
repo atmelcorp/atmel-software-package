@@ -44,6 +44,7 @@ definitions according to the hardware used.
      - No flow control
 
  - Connect the smart card to the board.
+
 Smart Card | Board     | SAMA5D2-PTC-EK    | SAMA5D2-XPLAINED  | SAMA5D27-SOM1-EK  | SAMA5D3-XPLAINED | SAMA5D3-EK       | SAMA5D4-XPLAINED | SAMA5D4-EK        | SAM9XX5-EK       |
 -----------|-----------|-------------------|-------------------|-------------------|------------------|------------------|------------------|-------------------|------------------|
 C1 (Vcc)   | 7816_3V5V | PD22 (J15B pin 5) | PB29 (J17 pin 13) | PC19 (ISC pin 28) | PE25(J19 pin 27) | PB28 (J3 pin 31) | PD16 (J19 pin 4) | PD16 (J11 pin 13) | PA1A (J1 pin 7)  |
@@ -56,6 +57,7 @@ C4 (RFU)   |
 C8 (RFU)   |
 
  - Connect the smart card to the board (Cont.)
+
 Smart Card | Board     | SAMV71-XPLAINED   | SAM9X60-EK        |
 -----------|-----------|-------------------|-------------------|
 C1 (Vcc)   | 7816_3V5V | PB0 (EXT1 pin 13) | PA11 (J15 pin 5)  |
