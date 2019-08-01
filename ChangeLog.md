@@ -2,6 +2,22 @@
 
 The Atmel Softpack can be found on [GitHub](https://github.com/atmelcorp/atmel-software-package).
 
+## Version 2.17 - 2019-08
+
+### New drivers/examples
+
+- Add ddram configuration support for low_power_mode example
+- Add SHA HMAC support
+
+### Fixes
+
+- Fix the support for transmit un-aligned CAN buffers
+
+### Enhancements
+
+- Remove sram configuration for examples which memory for code is too small
+- Update documents for crypto_tdes/classd/can/low_power_mode examples
+
 ## Version 2.16 - 2019-07
 
 - Update SAM9X60 header files to the latest version
