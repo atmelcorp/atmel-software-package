@@ -267,8 +267,9 @@
 
 /* =================== ISI device definition =================== */
 
-#define BOARD_ISI_TWI_BUS     BUS(BUS_TYPE_I2C, 1)
+#define BOARD_ISI_TWI_BUS     BUS(BUS_TYPE_I2C, 0)
 #define BOARD_ISI_PINS        PINS_ISI
+#define BOARD_ISI_RST_PIN     { PIO_GROUP_C, PIO_PC16, PIO_OUTPUT_1, PIO_DEFAULT }
 #define BOARD_ISI_PWD_PIN     { PIO_GROUP_C, PIO_PC24, PIO_OUTPUT_1, PIO_DEFAULT }
 
 /* ISI_MCK actually reflects Programmable Clock Output PCK0.
