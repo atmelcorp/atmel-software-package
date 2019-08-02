@@ -58,13 +58,13 @@ C8 (RFU)   |
 
  - Connect the smart card to the board (Cont.)
 
-Smart Card | Board     | SAMV71-XPLAINED   | SAM9X60-EK        |
------------|-----------|-------------------|-------------------|
-C1 (Vcc)   | 7816_3V5V | PB0 (EXT1 pin 13) | PA11 (J15 pin 5)  |
-C2 (Reset) | 7816_RST  | PB3 (EXT1 pin 5)  | PA0  (J15 pin 11) |
-C3 (Clock) | 7816_CLK  | PB13(ADCH pin 5)  | PA13 (J15 pin 4)  |
-C5 (GND)   | GND       | GND               | GND               |
-C7 (I/O)   | 7816_IO   | PB1 (EXT1 pin 14) | PA12 (J15 pin 6)  |
+Smart Card | Board     | SAMV71-XPLAINED   | SAM9X60-EK Rev A  | SAM9X60-EK rev. B |
+-----------|-----------|-------------------|-------------------|-------------------|
+C1 (Vcc)   | 7816_3V5V | PB0 (EXT1 pin 13) | PA11 (J15 pin 5)  | PA11 (J14 pin 5)  |
+C2 (Reset) | 7816_RST  | PB3 (EXT1 pin 5)  | PA0  (J15 pin 11) | PA0  (J16 pin 3)  |
+C3 (Clock) | 7816_CLK  | PB13(ADCH pin 5)  | PA13 (J15 pin 4)  | PA13 (J14 pin 4)  |
+C5 (GND)   | GND       | GND               | GND               | GND               |
+C7 (I/O)   | 7816_IO   | PB1 (EXT1 pin 14) | PA12 (J15 pin 6)  | PA12 (J14 pin 6)  |
 C6 (Vpp)   |
 C4 (RFU)   |
 C8 (RFU)   |
