@@ -37,7 +37,7 @@ On the computer, open and configure a terminal application
 
 ### sam9x60-ek
 --------------------
-Connect FLEXUSART2 (RX on J17:26, TX on J17:24)
+Connect FLEXUSART2 (40-pin GPIO/RPi connector: RX on pin 26, TX on pin 24)
 
 ### sama5d2-ptc-ek
 --------------------
