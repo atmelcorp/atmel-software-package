@@ -45,29 +45,20 @@ definitions according to the hardware used.
 
  - Connect the smart card to the board.
 
-Smart Card | Board     | SAMA5D2-PTC-EK    | SAMA5D2-XPLAINED  | SAMA5D27-SOM1-EK  | SAMA5D3-XPLAINED | SAMA5D3-EK       | SAMA5D4-XPLAINED | SAMA5D4-EK        | SAM9XX5-EK       |
------------|-----------|-------------------|-------------------|-------------------|------------------|------------------|------------------|-------------------|------------------|
-C1 (Vcc)   | 7816_3V5V | PD22 (J15B pin 5) | PB29 (J17 pin 13) | PC19 (ISC pin 28) | PE25(J19 pin 27) | PB28 (J3 pin 31) | PD16 (J19 pin 4) | PD16 (J11 pin 13) | PA1A (J1 pin 7)  |
-C2 (Reset) | 7816_RST  | PD25 (J15A pin 1) | PC0  (J17 pin 8)  | PC22 (ISC pin 12) | PD24(J19 pin 26) | PB27 (J3 pin 29) | PD15 (J15 pin 8) | PD15 (J11 pin 18) | PA2A (J1 pin 9)  |
-C3 (Clock) | 7816_CLK  | PD23 (J15B pin 3) | PB30 (J17 pin 6)  | PC18 (ISC pin 27) | PE20(J19 pin 22) | PB25 (J3 pin 25) | PD29 (J15 pin 6) | PD29 (J11 pin 9)  | PA4A (J1 pin 13) |
-C5 (GND)   | GND       | GND               | GND               | GND               | GND              | GND              | GND              | GND               | GND              |
-C7 (I/O)   | 7816_IO   | PD21 (J15B pin 6) | PB28 (J17 pin 14) | PC20 (ISC pin 29) | PE26(J19 pin 28) | PB29 (J3 pin 33) | PD17 (J19 pin 3) | PD17 (J11 pin 14) | PA0A (J1 pin 5)  |
-C6 (Vpp)   |
-C4 (RFU)   |
-C8 (RFU)   |
-
- - Connect the smart card to the board (Cont.)
-
-Smart Card | Board     | SAMV71-XPLAINED   | SAM9X60-EK Rev A  | SAM9X60-EK rev. B |
------------|-----------|-------------------|-------------------|-------------------|
-C1 (Vcc)   | 7816_3V5V | PB0 (EXT1 pin 13) | PA11 (J15 pin 5)  | PA11 (J14 pin 5)  |
-C2 (Reset) | 7816_RST  | PB3 (EXT1 pin 5)  | PA0  (J15 pin 11) | PA0  (J16 pin 3)  |
-C3 (Clock) | 7816_CLK  | PB13(ADCH pin 5)  | PA13 (J15 pin 4)  | PA13 (J14 pin 4)  |
-C5 (GND)   | GND       | GND               | GND               | GND               |
-C7 (I/O)   | 7816_IO   | PB1 (EXT1 pin 14) | PA12 (J15 pin 6)  | PA12 (J14 pin 6)  |
-C6 (Vpp)   |
-C4 (RFU)   |
-C8 (RFU)   |
+Smart Card        | C1 (Vcc)          | C2 (Reset)        | C3 (Clock)        | C5 (GND) | C7 (I/O)          | C6 (Vpp) | C4 (RFU) | C8 (RFU) |
+------------------|-------------------|-------------------|-------------------|----------|-------------------|----------|----------|----------|
+Board             | 7816_3V5V         | 7816_RST          | 7816_CLK          | GND      | 7816_IO           |
+SAMA5D2-PTC-EK    | PD22 (J15B pin 5) | PD25 (J15A pin 1) | PD23 (J15B pin 3) | GND      | PD21 (J15B pin 6) |
+SAMA5D2-XPLAINED  | PB29 (J17 pin 13) | PC0  (J17 pin 8)  | PB30 (J17 pin 6)  | GND      | PB28 (J17 pin 14) |
+SAMA5D27-SOM1-EK  | PC19 (ISC pin 28) | PC22 (ISC pin 12) | PC18 (ISC pin 27) | GND      | PC20 (ISC pin 29) |
+SAMA5D3-XPLAINED  | PE25(J19 pin 27)  | PD24(J19 pin 26)  | PE20(J19 pin 22)  | GND      | PE26(J19 pin 28)  |
+SAMA5D3-EK        | PB28 (J3 pin 31)  | PB27 (J3 pin 29)  | PB25 (J3 pin 25)  | GND      | PB29 (J3 pin 33)  |
+SAMA5D4-XPLAINED  | PD16 (J19 pin 4)  | PD15 (J15 pin 8)  | PD29 (J15 pin 6)  | GND      | PD17 (J19 pin 3)  |
+SAMA5D4-EK        | PD16 (J11 pin 13) | PD15 (J11 pin 18) | PD29 (J11 pin 9)  | GND      | PD17 (J11 pin 14) |
+SAM9XX5-EK        | PA1A (J1 pin 7)   | PA2A (J1 pin 9)   | PA4A (J1 pin 13)  | GND      | PA0A (J1 pin 5)   |
+SAMV71-XPLAINED   | PB0 (EXT1 pin 13) | PB3 (EXT1 pin 5)  | PB13(ADCH pin 5)  | GND      | PB1 (EXT1 pin 14) |
+SAM9X60-EK Rev A  | PA11 (J15 pin 5)  | PA0 (J15 pin 11)  | PA13 (J15 pin 4)  | GND      | PA12 (J15 pin 6)  |
+SAM9X60-EK rev. B | PA11 (J14 pin 5)  | PA0 (J16 pin 3)   | PA13 (J14 pin 4)  | GND      | PA12 (J14 pin 6)  |
 
 If necessary, another pin can be connected on the card reader for detecting the
 insertion and removal: 7816_IRQ.
