@@ -68,7 +68,10 @@ Connect PC11 (J2 pin 27) and PA22 (J1 pin 18) on the board.
 
 ### SAM9X60-EK
 ----------------
+Pins for SAM9X60 Evaluation Kit(rev. A):
 Connect PB11 (J17 pin 32) and PA21 (J15 pin 14) on the board.
+Pins for SAM9X60 Evaluation Kit(rev. B):
+Connect PB11 (J16 pin 32) and PA21 (J14 pin 14) on the board.
 
 ### SAME70-XPLAINED
 ----------------
