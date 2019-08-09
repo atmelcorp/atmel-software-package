@@ -180,7 +180,7 @@
 
 /** USB VBus pin */
 #define PIN_USB_VBUS \
-	{ PIO_GROUP_B, PIO_PB16, PIO_INPUT, PIO_DEFAULT }
+	{ PIO_GROUP_B, PIO_PB16, PIO_INPUT, PIO_IT_BOTH_EDGE }
 
 /** USB Power Enable A:MicroAB:Active Low  */
 #define PIN_USB_POWER_ENA \
