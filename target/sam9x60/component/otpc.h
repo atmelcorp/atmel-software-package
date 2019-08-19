@@ -39,10 +39,10 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Otpc hardware registers */
 typedef struct {
-  __O  uint32_t OTPC_CR;       /**< \brief (Otpc Offset: 0x00) Control Register */
-  __IO uint32_t OTPC_MR;       /**< \brief (Otpc Offset: 0x04) Mode Register */
-  __IO uint32_t OTPC_AR;       /**< \brief (Otpc Offset: 0x08) Address Register */
-  __I  uint32_t OTPC_SR;       /**< \brief (Otpc Offset: 0x0C) Status Register */
+  __O  uint32_t OTPC_CR;       /**< \brief (Otpc Offset: 0x0) Control Register */
+  __IO uint32_t OTPC_MR;       /**< \brief (Otpc Offset: 0x4) Mode Register */
+  __IO uint32_t OTPC_AR;       /**< \brief (Otpc Offset: 0x8) Address Register */
+  __I  uint32_t OTPC_SR;       /**< \brief (Otpc Offset: 0xC) Status Register */
   __O  uint32_t OTPC_IER;      /**< \brief (Otpc Offset: 0x10) Interrupt Enable Register */
   __O  uint32_t OTPC_IDR;      /**< \brief (Otpc Offset: 0x14) Interrupt Disable Register */
   __I  uint32_t OTPC_IMR;      /**< \brief (Otpc Offset: 0x18) Interrupt Mask Register */
@@ -62,7 +62,7 @@ typedef struct {
   __I  uint32_t OTPC_WPSR;     /**< \brief (Otpc Offset: 0xE8) Write Protection Status Register */
 } Otpc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- OTPC_CR : (OTPC Offset: 0x00) Control Register -------- */
+/* -------- OTPC_CR : (OTPC Offset: 0x0) Control Register -------- */
 #define OTPC_CR_PGM (0x1u << 0) /**< \brief (OTPC_CR) Program Packet */
 #define OTPC_CR_CKSGEN (0x1u << 1) /**< \brief (OTPC_CR) Generate Checksum */
 #define OTPC_CR_INVLD (0x1u << 2) /**< \brief (OTPC_CR) Invalidate Packet */
@@ -75,7 +75,7 @@ typedef struct {
 #define OTPC_CR_KEY_Pos 16
 #define OTPC_CR_KEY_Msk (0xffffu << OTPC_CR_KEY_Pos) /**< \brief (OTPC_CR) Programming Key */
 #define OTPC_CR_KEY(value) ((OTPC_CR_KEY_Msk & ((value) << OTPC_CR_KEY_Pos)))
-/* -------- OTPC_MR : (OTPC Offset: 0x04) Mode Register -------- */
+/* -------- OTPC_MR : (OTPC Offset: 0x4) Mode Register -------- */
 #define OTPC_MR_UHCRRDIS (0x1u << 0) /**< \brief (OTPC_MR) User Hardware Configuration Register Read Disable */
 #define OTPC_MR_NPCKT (0x1u << 4) /**< \brief (OTPC_MR) New Packet */
 #define OTPC_MR_EMUL (0x1u << 7) /**< \brief (OTPC_MR) Emulation Enable */
@@ -88,14 +88,14 @@ typedef struct {
 #define OTPC_MR_ADDR_Pos 16
 #define OTPC_MR_ADDR_Msk (0xffffu << OTPC_MR_ADDR_Pos) /**< \brief (OTPC_MR) Address */
 #define OTPC_MR_ADDR(value) ((OTPC_MR_ADDR_Msk & ((value) << OTPC_MR_ADDR_Pos)))
-/* -------- OTPC_AR : (OTPC Offset: 0x08) Address Register -------- */
+/* -------- OTPC_AR : (OTPC Offset: 0x8) Address Register -------- */
 #define OTPC_AR_DADDR_Pos 0
 #define OTPC_AR_DADDR_Msk (0xffu << OTPC_AR_DADDR_Pos) /**< \brief (OTPC_AR) Data Address */
 #define OTPC_AR_DADDR(value) ((OTPC_AR_DADDR_Msk & ((value) << OTPC_AR_DADDR_Pos)))
 #define OTPC_AR_INCRT (0x1u << 16) /**< \brief (OTPC_AR) Increment Type */
 #define   OTPC_AR_INCRT_AFTER_READ (0x0u << 16) /**< \brief (OTPC_AR) Increment DADDR after a read of OTPC_DR. */
 #define   OTPC_AR_INCRT_AFTER_WRITE (0x1u << 16) /**< \brief (OTPC_AR) Increment DADDR after a write of OTPC_DR. */
-/* -------- OTPC_SR : (OTPC Offset: 0x0C) Status Register -------- */
+/* -------- OTPC_SR : (OTPC Offset: 0xC) Status Register -------- */
 #define OTPC_SR_PGM (0x1u << 0) /**< \brief (OTPC_SR) Programming On-Going */
 #define OTPC_SR_LOCK (0x1u << 1) /**< \brief (OTPC_SR) Lock On-Going */
 #define OTPC_SR_INVLD (0x1u << 2) /**< \brief (OTPC_SR) Invalidation On-Going */

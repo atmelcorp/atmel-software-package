@@ -39,10 +39,10 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Mpddrc hardware registers */
 typedef struct {
-  __IO uint32_t MPDDRC_MR;            /**< \brief (Mpddrc Offset: 0x00) Mode Register */
-  __IO uint32_t MPDDRC_RTR;           /**< \brief (Mpddrc Offset: 0x04) Refresh Timer Register */
-  __IO uint32_t MPDDRC_CR;            /**< \brief (Mpddrc Offset: 0x08) Configuration Register */
-  __IO uint32_t MPDDRC_TPR0;          /**< \brief (Mpddrc Offset: 0x0C) Timing Parameter 0 Register */
+  __IO uint32_t MPDDRC_MR;            /**< \brief (Mpddrc Offset: 0x0) Mode Register */
+  __IO uint32_t MPDDRC_RTR;           /**< \brief (Mpddrc Offset: 0x4) Refresh Timer Register */
+  __IO uint32_t MPDDRC_CR;            /**< \brief (Mpddrc Offset: 0x8) Configuration Register */
+  __IO uint32_t MPDDRC_TPR0;          /**< \brief (Mpddrc Offset: 0xC) Timing Parameter 0 Register */
   __IO uint32_t MPDDRC_TPR1;          /**< \brief (Mpddrc Offset: 0x10) Timing Parameter 1 Register */
   __IO uint32_t MPDDRC_TPR2;          /**< \brief (Mpddrc Offset: 0x14) Timing Parameter 2 Register */
   __I  uint32_t Reserved1[1];
@@ -81,7 +81,7 @@ typedef struct {
   __I  uint32_t MPDDRC_WPSR;          /**< \brief (Mpddrc Offset: 0xE8) Write Protection Status Register */
 } Mpddrc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- MPDDRC_MR : (MPDDRC Offset: 0x00) Mode Register -------- */
+/* -------- MPDDRC_MR : (MPDDRC Offset: 0x0) Mode Register -------- */
 #define MPDDRC_MR_MODE_Pos 0
 #define MPDDRC_MR_MODE_Msk (0x7u << MPDDRC_MR_MODE_Pos) /**< \brief (MPDDRC_MR) MPDDRC Command Mode */
 #define MPDDRC_MR_MODE(value) ((MPDDRC_MR_MODE_Msk & ((value) << MPDDRC_MR_MODE_Pos)))
@@ -92,11 +92,11 @@ typedef struct {
 #define   MPDDRC_MR_MODE_RFSH_CMD (0x4u << 0) /**< \brief (MPDDRC_MR) The MPDDRC issues an Autorefresh command when the DDR-SDRAM device is accessed regardless of the cycle. Previously, an All Banks Precharge command must be issued. To activate this mode, the command must be followed by a write to the DDR-SDRAM. */
 #define   MPDDRC_MR_MODE_EXT_LMR_CMD (0x5u << 0) /**< \brief (MPDDRC_MR) The MPDDRC issues an Extended Load Mode Register command when the SDRAM device is accessed regardless of the cycle. To activate this mode, the command must be followed by a write to the DDR-SDRAM. The write in the DDR-SDRAM must be done in the appropriate bank. */
 #define   MPDDRC_MR_MODE_DEEP_MD (0x6u << 0) /**< \brief (MPDDRC_MR) Deep Power mode: Access to Deep Powerdown mode */
-/* -------- MPDDRC_RTR : (MPDDRC Offset: 0x04) Refresh Timer Register -------- */
+/* -------- MPDDRC_RTR : (MPDDRC Offset: 0x4) Refresh Timer Register -------- */
 #define MPDDRC_RTR_COUNT_Pos 0
 #define MPDDRC_RTR_COUNT_Msk (0xfffu << MPDDRC_RTR_COUNT_Pos) /**< \brief (MPDDRC_RTR) MPDDRC Refresh Timer Count */
 #define MPDDRC_RTR_COUNT(value) ((MPDDRC_RTR_COUNT_Msk & ((value) << MPDDRC_RTR_COUNT_Pos)))
-/* -------- MPDDRC_CR : (MPDDRC Offset: 0x08) Configuration Register -------- */
+/* -------- MPDDRC_CR : (MPDDRC Offset: 0x8) Configuration Register -------- */
 #define MPDDRC_CR_NC_Pos 0
 #define MPDDRC_CR_NC_Msk (0x3u << MPDDRC_CR_NC_Pos) /**< \brief (MPDDRC_CR) Number of Column Bits */
 #define MPDDRC_CR_NC(value) ((MPDDRC_CR_NC_Msk & ((value) << MPDDRC_CR_NC_Pos)))
@@ -144,7 +144,7 @@ typedef struct {
 #define   MPDDRC_CR_DECOD_SEQUENTIAL (0x0u << 22) /**< \brief (MPDDRC_CR) Method for address mapping where banks alternate at each last DDR-SDRAM page of the current bank. */
 #define   MPDDRC_CR_DECOD_INTERLEAVED (0x1u << 22) /**< \brief (MPDDRC_CR) Method for address mapping where banks alternate at each DDR-SDRAM end of page of the current bank. */
 #define MPDDRC_CR_UNAL (0x1u << 23) /**< \brief (MPDDRC_CR) This bit must always be written to 1 */
-/* -------- MPDDRC_TPR0 : (MPDDRC Offset: 0x0C) Timing Parameter 0 Register -------- */
+/* -------- MPDDRC_TPR0 : (MPDDRC Offset: 0xC) Timing Parameter 0 Register -------- */
 #define MPDDRC_TPR0_TRAS_Pos 0
 #define MPDDRC_TPR0_TRAS_Msk (0xfu << MPDDRC_TPR0_TRAS_Pos) /**< \brief (MPDDRC_TPR0) Active to Precharge Delay */
 #define MPDDRC_TPR0_TRAS(value) ((MPDDRC_TPR0_TRAS_Msk & ((value) << MPDDRC_TPR0_TRAS_Pos)))

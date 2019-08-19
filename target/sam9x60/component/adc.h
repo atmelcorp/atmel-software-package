@@ -39,10 +39,10 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Adc hardware registers */
 typedef struct {
-  __O  uint32_t ADC_CR;       /**< \brief (Adc Offset: 0x00) Control Register */
-  __IO uint32_t ADC_MR;       /**< \brief (Adc Offset: 0x04) Mode Register */
-  __IO uint32_t ADC_SEQR1;    /**< \brief (Adc Offset: 0x08) Channel Sequence Register 1 */
-  __IO uint32_t ADC_SEQR2;    /**< \brief (Adc Offset: 0x0C) Channel Sequence Register 2 */
+  __O  uint32_t ADC_CR;       /**< \brief (Adc Offset: 0x0) Control Register */
+  __IO uint32_t ADC_MR;       /**< \brief (Adc Offset: 0x4) Mode Register */
+  __IO uint32_t ADC_SEQR1;    /**< \brief (Adc Offset: 0x8) Channel Sequence Register 1 */
+  __IO uint32_t ADC_SEQR2;    /**< \brief (Adc Offset: 0xC) Channel Sequence Register 2 */
   __O  uint32_t ADC_CHER;     /**< \brief (Adc Offset: 0x10) Channel Enable Register */
   __O  uint32_t ADC_CHDR;     /**< \brief (Adc Offset: 0x14) Channel Disable Register */
   __I  uint32_t ADC_CHSR;     /**< \brief (Adc Offset: 0x18) Channel Status Register */
@@ -79,12 +79,12 @@ typedef struct {
   __I  uint32_t ADC_WPSR;     /**< \brief (Adc Offset: 0xE8) Write Protection Status Register */
 } Adc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- ADC_CR : (ADC Offset: 0x00) Control Register -------- */
+/* -------- ADC_CR : (ADC Offset: 0x0) Control Register -------- */
 #define ADC_CR_SWRST (0x1u << 0) /**< \brief (ADC_CR) Software Reset */
 #define ADC_CR_START (0x1u << 1) /**< \brief (ADC_CR) Start Conversion */
 #define ADC_CR_TSCALIB (0x1u << 2) /**< \brief (ADC_CR) Touchscreen Calibration */
 #define ADC_CR_CMPRST (0x1u << 4) /**< \brief (ADC_CR) Comparison Restart */
-/* -------- ADC_MR : (ADC Offset: 0x04) Mode Register -------- */
+/* -------- ADC_MR : (ADC Offset: 0x4) Mode Register -------- */
 #define ADC_MR_TRGSEL_Pos 1
 #define ADC_MR_TRGSEL_Msk (0x7u << ADC_MR_TRGSEL_Pos) /**< \brief (ADC_MR) Trigger Selection */
 #define ADC_MR_TRGSEL(value) ((ADC_MR_TRGSEL_Msk & ((value) << ADC_MR_TRGSEL_Pos)))
@@ -133,7 +133,7 @@ typedef struct {
 #define ADC_MR_USEQ (0x1u << 31) /**< \brief (ADC_MR) User Sequence Enable */
 #define   ADC_MR_USEQ_NUM_ORDER (0x0u << 31) /**< \brief (ADC_MR) Normal mode: The controller converts channels in a simple numeric order depending only on the channel index. */
 #define   ADC_MR_USEQ_REG_ORDER (0x1u << 31) /**< \brief (ADC_MR) User Sequence mode: The sequence respects what is defined in ADC_SEQR1 and ADC_SEQR2 registers and can be used to convert the same channel several times. */
-/* -------- ADC_SEQR1 : (ADC Offset: 0x08) Channel Sequence Register 1 -------- */
+/* -------- ADC_SEQR1 : (ADC Offset: 0x8) Channel Sequence Register 1 -------- */
 #define ADC_SEQR1_USCH1_Pos 0
 #define ADC_SEQR1_USCH1_Msk (0xfu << ADC_SEQR1_USCH1_Pos) /**< \brief (ADC_SEQR1) User Sequence Number 1 */
 #define ADC_SEQR1_USCH1(value) ((ADC_SEQR1_USCH1_Msk & ((value) << ADC_SEQR1_USCH1_Pos)))
@@ -158,7 +158,7 @@ typedef struct {
 #define ADC_SEQR1_USCH8_Pos 28
 #define ADC_SEQR1_USCH8_Msk (0xfu << ADC_SEQR1_USCH8_Pos) /**< \brief (ADC_SEQR1) User Sequence Number 8 */
 #define ADC_SEQR1_USCH8(value) ((ADC_SEQR1_USCH8_Msk & ((value) << ADC_SEQR1_USCH8_Pos)))
-/* -------- ADC_SEQR2 : (ADC Offset: 0x0C) Channel Sequence Register 2 -------- */
+/* -------- ADC_SEQR2 : (ADC Offset: 0xC) Channel Sequence Register 2 -------- */
 #define ADC_SEQR2_USCH9_Pos 0
 #define ADC_SEQR2_USCH9_Msk (0xfu << ADC_SEQR2_USCH9_Pos) /**< \brief (ADC_SEQR2) User Sequence Number 9 */
 #define ADC_SEQR2_USCH9(value) ((ADC_SEQR2_USCH9_Msk & ((value) << ADC_SEQR2_USCH9_Pos)))

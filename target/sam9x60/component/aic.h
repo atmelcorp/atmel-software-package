@@ -39,9 +39,9 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Aic hardware registers */
 typedef struct {
-  __IO uint32_t AIC_SSR;       /**< \brief (Aic Offset: 0x00) Source Select Register */
-  __IO uint32_t AIC_SMR;       /**< \brief (Aic Offset: 0x04) Source Mode Register */
-  __IO uint32_t AIC_SVR;       /**< \brief (Aic Offset: 0x08) Source Vector Register */
+  __IO uint32_t AIC_SSR;       /**< \brief (Aic Offset: 0x0) Source Select Register */
+  __IO uint32_t AIC_SMR;       /**< \brief (Aic Offset: 0x4) Source Mode Register */
+  __IO uint32_t AIC_SVR;       /**< \brief (Aic Offset: 0x8) Source Vector Register */
   __I  uint32_t Reserved1[1];
   __I  uint32_t AIC_IVR;       /**< \brief (Aic Offset: 0x10) Interrupt Vector Register */
   __I  uint32_t AIC_FVR;       /**< \brief (Aic Offset: 0x14) FIQ Vector Register */
@@ -72,11 +72,11 @@ typedef struct {
   __I  uint32_t AIC_WPSR;      /**< \brief (Aic Offset: 0xE8) Write Protection Status Register */
 } Aic;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- AIC_SSR : (AIC Offset: 0x00) Source Select Register -------- */
+/* -------- AIC_SSR : (AIC Offset: 0x0) Source Select Register -------- */
 #define AIC_SSR_INTSEL_Pos 0
 #define AIC_SSR_INTSEL_Msk (0x7fu << AIC_SSR_INTSEL_Pos) /**< \brief (AIC_SSR) Interrupt Line Selection */
 #define AIC_SSR_INTSEL(value) ((AIC_SSR_INTSEL_Msk & ((value) << AIC_SSR_INTSEL_Pos)))
-/* -------- AIC_SMR : (AIC Offset: 0x04) Source Mode Register -------- */
+/* -------- AIC_SMR : (AIC Offset: 0x4) Source Mode Register -------- */
 #define AIC_SMR_PRIOR_Pos 0
 #define AIC_SMR_PRIOR_Msk (0x7u << AIC_SMR_PRIOR_Pos) /**< \brief (AIC_SMR) Priority Level */
 #define AIC_SMR_PRIOR(value) ((AIC_SMR_PRIOR_Msk & ((value) << AIC_SMR_PRIOR_Pos)))
@@ -87,7 +87,7 @@ typedef struct {
 #define   AIC_SMR_SRCTYPE_INT_EDGE_TRIGGERED (0x1u << 5) /**< \brief (AIC_SMR) Negative-edge triggered for external source */
 #define   AIC_SMR_SRCTYPE_EXT_HIGH_LEVEL (0x2u << 5) /**< \brief (AIC_SMR) High-level sensitive for internal source High-level sensitive for external source */
 #define   AIC_SMR_SRCTYPE_EXT_POSITIVE_EDGE (0x3u << 5) /**< \brief (AIC_SMR) Positive-edge triggered for external source */
-/* -------- AIC_SVR : (AIC Offset: 0x08) Source Vector Register -------- */
+/* -------- AIC_SVR : (AIC Offset: 0x8) Source Vector Register -------- */
 #define AIC_SVR_VECTOR_Pos 0
 #define AIC_SVR_VECTOR_Msk (0xffffffffu << AIC_SVR_VECTOR_Pos) /**< \brief (AIC_SVR) Source Vector */
 #define AIC_SVR_VECTOR(value) ((AIC_SVR_VECTOR_Msk & ((value) << AIC_SVR_VECTOR_Pos)))

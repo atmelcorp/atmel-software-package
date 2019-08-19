@@ -40,7 +40,7 @@
 /** \brief Sfr hardware registers */
 typedef struct {
   __I  uint32_t Reserved1[1];
-  __IO uint32_t SFR_CCFG_EBICSA; /**< \brief (Sfr Offset: 0x04) EBI Chip Select Register */
+  __IO uint32_t SFR_CCFG_EBICSA; /**< \brief (Sfr Offset: 0x4) EBI Chip Select Register */
   __I  uint32_t Reserved2[2];
   __IO uint32_t SFR_OHCIICR;     /**< \brief (Sfr Offset: 0x10) OHCI Interrupt Configuration Register */
   __I  uint32_t SFR_OHCIISR;     /**< \brief (Sfr Offset: 0x14) OHCI Interrupt Status Register */
@@ -57,7 +57,7 @@ typedef struct {
   __IO uint32_t SFR_WPMR;        /**< \brief (Sfr Offset: 0xE4) Write Protection Mode Register */
 } Sfr;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- SFR_CCFG_EBICSA : (SFR Offset: 0x04) EBI Chip Select Register -------- */
+/* -------- SFR_CCFG_EBICSA : (SFR Offset: 0x4) EBI Chip Select Register -------- */
 #define SFR_CCFG_EBICSA_EBI_CS1A (0x1u << 1) /**< \brief (SFR_CCFG_EBICSA) EBI Chip Select 1 Assignment */
 #define SFR_CCFG_EBICSA_EBI_CS3A (0x1u << 3) /**< \brief (SFR_CCFG_EBICSA) EBI Chip Select 3 Assignment */
 #define SFR_CCFG_EBICSA_EBI_CS4A (0x1u << 4) /**< \brief (SFR_CCFG_EBICSA) EBI Chip Select 4 Assignment */

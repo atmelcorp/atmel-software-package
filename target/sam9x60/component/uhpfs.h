@@ -39,10 +39,10 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Uhpfs hardware registers */
 typedef struct {
-  __I  uint32_t UHPFS_HcRevision;         /**< \brief (Uhpfs Offset: 0x00) OHCI Revision Number Register */
-  __IO uint32_t UHPFS_HcControl;          /**< \brief (Uhpfs Offset: 0x04) HC Operating Mode Register */
-  __IO uint32_t UHPFS_HcCommandStatus;    /**< \brief (Uhpfs Offset: 0x08) HC Command and Status Register */
-  __IO uint32_t UHPFS_HcInterruptStatus;  /**< \brief (Uhpfs Offset: 0x0C) HC Interrupt and Status Register */
+  __I  uint32_t UHPFS_HcRevision;         /**< \brief (Uhpfs Offset: 0x0) OHCI Revision Number Register */
+  __IO uint32_t UHPFS_HcControl;          /**< \brief (Uhpfs Offset: 0x4) HC Operating Mode Register */
+  __IO uint32_t UHPFS_HcCommandStatus;    /**< \brief (Uhpfs Offset: 0x8) HC Command and Status Register */
+  __IO uint32_t UHPFS_HcInterruptStatus;  /**< \brief (Uhpfs Offset: 0xC) HC Interrupt and Status Register */
   __IO uint32_t UHPFS_HcInterruptEnable;  /**< \brief (Uhpfs Offset: 0x10) HC Interrupt Enable Register */
   __IO uint32_t UHPFS_HcInterruptDisable; /**< \brief (Uhpfs Offset: 0x14) HC Interrupt Disable Register */
   __IO uint32_t UHPFS_HcHCCA;             /**< \brief (Uhpfs Offset: 0x18) HC HCCA Address Register */
@@ -63,10 +63,10 @@ typedef struct {
   __IO uint32_t UHPFS_HcRhPortStatus[3];  /**< \brief (Uhpfs Offset: 0x54) HC Port Status and Control Register (ndp = 0) */
 } Uhpfs;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- UHPFS_HcRevision : (UHPFS Offset: 0x00) OHCI Revision Number Register -------- */
+/* -------- UHPFS_HcRevision : (UHPFS Offset: 0x0) OHCI Revision Number Register -------- */
 #define UHPFS_HcRevision_REV_Pos 0
 #define UHPFS_HcRevision_REV_Msk (0xffu << UHPFS_HcRevision_REV_Pos) /**< \brief (UHPFS_HcRevision) OHCI Revision Number */
-/* -------- UHPFS_HcControl : (UHPFS Offset: 0x04) HC Operating Mode Register -------- */
+/* -------- UHPFS_HcControl : (UHPFS Offset: 0x4) HC Operating Mode Register -------- */
 #define UHPFS_HcControl_CBSR_Pos 0
 #define UHPFS_HcControl_CBSR_Msk (0x3u << UHPFS_HcControl_CBSR_Pos) /**< \brief (UHPFS_HcControl) Control/Bulk Service Ratio */
 #define UHPFS_HcControl_CBSR(value) ((UHPFS_HcControl_CBSR_Msk & ((value) << UHPFS_HcControl_CBSR_Pos)))
@@ -80,7 +80,7 @@ typedef struct {
 #define UHPFS_HcControl_IR (0x1u << 8) /**< \brief (UHPFS_HcControl) Interrupt Routing */
 #define UHPFS_HcControl_RWC (0x1u << 9) /**< \brief (UHPFS_HcControl) Remote Wakeup Connected */
 #define UHPFS_HcControl_RWE (0x1u << 10) /**< \brief (UHPFS_HcControl) Remote Wakeup Enable */
-/* -------- UHPFS_HcCommandStatus : (UHPFS Offset: 0x08) HC Command and Status Register -------- */
+/* -------- UHPFS_HcCommandStatus : (UHPFS Offset: 0x8) HC Command and Status Register -------- */
 #define UHPFS_HcCommandStatus_HCR (0x1u << 0) /**< \brief (UHPFS_HcCommandStatus) Host Controller Reset (read/write) */
 #define UHPFS_HcCommandStatus_CLF (0x1u << 1) /**< \brief (UHPFS_HcCommandStatus) Control List Filled (read/write) */
 #define UHPFS_HcCommandStatus_BLF (0x1u << 2) /**< \brief (UHPFS_HcCommandStatus) Bulk List Filled (read/write) */
@@ -88,7 +88,7 @@ typedef struct {
 #define UHPFS_HcCommandStatus_SOC_Pos 16
 #define UHPFS_HcCommandStatus_SOC_Msk (0x3u << UHPFS_HcCommandStatus_SOC_Pos) /**< \brief (UHPFS_HcCommandStatus) Scheduling Overrun Count (read-only) */
 #define UHPFS_HcCommandStatus_SOC(value) ((UHPFS_HcCommandStatus_SOC_Msk & ((value) << UHPFS_HcCommandStatus_SOC_Pos)))
-/* -------- UHPFS_HcInterruptStatus : (UHPFS Offset: 0x0C) HC Interrupt and Status Register -------- */
+/* -------- UHPFS_HcInterruptStatus : (UHPFS Offset: 0xC) HC Interrupt and Status Register -------- */
 #define UHPFS_HcInterruptStatus_SO (0x1u << 0) /**< \brief (UHPFS_HcInterruptStatus) Scheduling Overrun (read/write, write '1' to clear) */
 #define UHPFS_HcInterruptStatus_WDH (0x1u << 1) /**< \brief (UHPFS_HcInterruptStatus) Write Done Head (read/write, write '1' to clear) */
 #define UHPFS_HcInterruptStatus_SF (0x1u << 2) /**< \brief (UHPFS_HcInterruptStatus) Start of Frame (read/write, write '1' to clear) */

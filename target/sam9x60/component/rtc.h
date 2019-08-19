@@ -46,10 +46,10 @@ typedef struct {
 /** \brief Rtc hardware registers */
 #define RTCTS_NUMBER 2
 typedef struct {
-  __IO uint32_t RTC_CR;               /**< \brief (Rtc Offset: 0x00) Control Register */
-  __IO uint32_t RTC_MR;               /**< \brief (Rtc Offset: 0x04) Mode Register */
-  __IO uint32_t RTC_TIMR;             /**< \brief (Rtc Offset: 0x08) Time Register */
-  __IO uint32_t RTC_CALR;             /**< \brief (Rtc Offset: 0x0C) Calendar Register */
+  __IO uint32_t RTC_CR;               /**< \brief (Rtc Offset: 0x0) Control Register */
+  __IO uint32_t RTC_MR;               /**< \brief (Rtc Offset: 0x4) Mode Register */
+  __IO uint32_t RTC_TIMR;             /**< \brief (Rtc Offset: 0x8) Time Register */
+  __IO uint32_t RTC_CALR;             /**< \brief (Rtc Offset: 0xC) Calendar Register */
   __IO uint32_t RTC_TIMALR;           /**< \brief (Rtc Offset: 0x10) Time Alarm Register */
   __IO uint32_t RTC_CALALR;           /**< \brief (Rtc Offset: 0x14) Calendar Alarm Register */
   __I  uint32_t RTC_SR;               /**< \brief (Rtc Offset: 0x18) Status Register */
@@ -65,7 +65,7 @@ typedef struct {
        RtcTs    RTC_TS[RTCTS_NUMBER]; /**< \brief (Rtc Offset: 0xB0) 0 .. 1 */
 } Rtc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- RTC_CR : (RTC Offset: 0x00) Control Register -------- */
+/* -------- RTC_CR : (RTC Offset: 0x0) Control Register -------- */
 #define RTC_CR_UPDTIM (0x1u << 0) /**< \brief (RTC_CR) Update Request Time Register */
 #define RTC_CR_UPDCAL (0x1u << 1) /**< \brief (RTC_CR) Update Request Calendar Register */
 #define RTC_CR_TIMEVSEL_Pos 8
@@ -81,7 +81,7 @@ typedef struct {
 #define   RTC_CR_CALEVSEL_WEEK (0x0u << 16) /**< \brief (RTC_CR) Week change (every Monday at time 00:00:00) */
 #define   RTC_CR_CALEVSEL_MONTH (0x1u << 16) /**< \brief (RTC_CR) Month change (every 01 of each month at time 00:00:00) */
 #define   RTC_CR_CALEVSEL_YEAR (0x2u << 16) /**< \brief (RTC_CR) Year change (every January 1 at time 00:00:00) */
-/* -------- RTC_MR : (RTC Offset: 0x04) Mode Register -------- */
+/* -------- RTC_MR : (RTC Offset: 0x4) Mode Register -------- */
 #define RTC_MR_HRMOD (0x1u << 0) /**< \brief (RTC_MR) 12-/24-hour Mode */
 #define RTC_MR_PERSIAN (0x1u << 1) /**< \brief (RTC_MR) PERSIAN Calendar */
 #define RTC_MR_UTC (0x1u << 2) /**< \brief (RTC_MR) UTC Time Format */
@@ -130,7 +130,7 @@ typedef struct {
 #define   RTC_MR_TPERIOD_P_500MS (0x1u << 28) /**< \brief (RTC_MR) 500 ms */
 #define   RTC_MR_TPERIOD_P_250MS (0x2u << 28) /**< \brief (RTC_MR) 250 ms */
 #define   RTC_MR_TPERIOD_P_125MS (0x3u << 28) /**< \brief (RTC_MR) 125 ms */
-/* -------- RTC_TIMR : (RTC Offset: 0x08) Time Register -------- */
+/* -------- RTC_TIMR : (RTC Offset: 0x8) Time Register -------- */
 #define RTC_TIMR_SEC_Pos 0
 #define RTC_TIMR_SEC_Msk (0x7fu << RTC_TIMR_SEC_Pos) /**< \brief (RTC_TIMR) Current Second */
 #define RTC_TIMR_SEC(value) ((RTC_TIMR_SEC_Msk & ((value) << RTC_TIMR_SEC_Pos)))
@@ -144,7 +144,7 @@ typedef struct {
 #define RTC_TIMR_UTC_TIME_Pos 0
 #define RTC_TIMR_UTC_TIME_Msk (0xffffffffu << RTC_TIMR_UTC_TIME_Pos) /**< \brief (RTC_TIMR) Current UTC Time */
 #define RTC_TIMR_UTC_TIME(value) ((RTC_TIMR_UTC_TIME_Msk & ((value) << RTC_TIMR_UTC_TIME_Pos)))
-/* -------- RTC_CALR : (RTC Offset: 0x0C) Calendar Register -------- */
+/* -------- RTC_CALR : (RTC Offset: 0xC) Calendar Register -------- */
 #define RTC_CALR_CENT_Pos 0
 #define RTC_CALR_CENT_Msk (0x7fu << RTC_CALR_CENT_Pos) /**< \brief (RTC_CALR) Current Century */
 #define RTC_CALR_CENT(value) ((RTC_CALR_CENT_Msk & ((value) << RTC_CALR_CENT_Pos)))

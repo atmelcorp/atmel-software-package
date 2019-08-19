@@ -51,23 +51,23 @@ typedef struct {
 #define PMECCECC_NUMBER 8
 #define PMECCREM_NUMBER 8
 typedef struct {
-  __IO uint32_t PMECC_CFG;                  /**< \brief (Pmecc Offset: 0x000) PMECC Configuration Register */
-  __IO uint32_t PMECC_SAREA;                /**< \brief (Pmecc Offset: 0x004) PMECC Spare Area Size Register */
-  __IO uint32_t PMECC_SADDR;                /**< \brief (Pmecc Offset: 0x008) PMECC Start Address Register */
-  __IO uint32_t PMECC_EADDR;                /**< \brief (Pmecc Offset: 0x00C) PMECC End Address Register */
-  __IO uint32_t PMECC_CLK;                  /**< \brief (Pmecc Offset: 0x010) PMECC Clock Control Register */
-  __O  uint32_t PMECC_CTRL;                 /**< \brief (Pmecc Offset: 0x014) PMECC Control Register */
-  __I  uint32_t PMECC_SR;                   /**< \brief (Pmecc Offset: 0x018) PMECC Status Register */
-  __O  uint32_t PMECC_IER;                  /**< \brief (Pmecc Offset: 0x01C) PMECC Interrupt Enable register */
-  __O  uint32_t PMECC_IDR;                  /**< \brief (Pmecc Offset: 0x020) PMECC Interrupt Disable Register */
-  __I  uint32_t PMECC_IMR;                  /**< \brief (Pmecc Offset: 0x024) PMECC Interrupt Mask Register */
-  __I  uint32_t PMECC_ISR;                  /**< \brief (Pmecc Offset: 0x028) PMECC Interrupt Status Register */
+  __IO uint32_t PMECC_CFG;                  /**< \brief (Pmecc Offset: 0x0) PMECC Configuration Register */
+  __IO uint32_t PMECC_SAREA;                /**< \brief (Pmecc Offset: 0x4) PMECC Spare Area Size Register */
+  __IO uint32_t PMECC_SADDR;                /**< \brief (Pmecc Offset: 0x8) PMECC Start Address Register */
+  __IO uint32_t PMECC_EADDR;                /**< \brief (Pmecc Offset: 0xC) PMECC End Address Register */
+  __IO uint32_t PMECC_CLK;                  /**< \brief (Pmecc Offset: 0x10) PMECC Clock Control Register */
+  __O  uint32_t PMECC_CTRL;                 /**< \brief (Pmecc Offset: 0x14) PMECC Control Register */
+  __I  uint32_t PMECC_SR;                   /**< \brief (Pmecc Offset: 0x18) PMECC Status Register */
+  __O  uint32_t PMECC_IER;                  /**< \brief (Pmecc Offset: 0x1C) PMECC Interrupt Enable register */
+  __O  uint32_t PMECC_IDR;                  /**< \brief (Pmecc Offset: 0x20) PMECC Interrupt Disable Register */
+  __I  uint32_t PMECC_IMR;                  /**< \brief (Pmecc Offset: 0x24) PMECC Interrupt Mask Register */
+  __I  uint32_t PMECC_ISR;                  /**< \brief (Pmecc Offset: 0x28) PMECC Interrupt Status Register */
   __I  uint32_t Reserved1[5];
        PmeccEcc PMECC_ECC[PMECCECC_NUMBER]; /**< \brief (Pmecc Offset: 0x40) sec_num = 0 .. 7 */
        PmeccRem PMECC_REM[PMECCREM_NUMBER]; /**< \brief (Pmecc Offset: 0x240) sec_num = 0 .. 7 */
 } Pmecc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- PMECC_CFG : (PMECC Offset: 0x000) PMECC Configuration Register -------- */
+/* -------- PMECC_CFG : (PMECC Offset: 0x0) PMECC Configuration Register -------- */
 #define PMECC_CFG_BCH_ERR_Pos 0
 #define PMECC_CFG_BCH_ERR_Msk (0x7u << PMECC_CFG_BCH_ERR_Pos) /**< \brief (PMECC_CFG) Error Correct Capability */
 #define PMECC_CFG_BCH_ERR(value) ((PMECC_CFG_BCH_ERR_Msk & ((value) << PMECC_CFG_BCH_ERR_Pos)))
@@ -87,38 +87,38 @@ typedef struct {
 #define PMECC_CFG_NANDWR (0x1u << 12) /**< \brief (PMECC_CFG) NAND Write Access */
 #define PMECC_CFG_SPAREEN (0x1u << 16) /**< \brief (PMECC_CFG) Spare Enable */
 #define PMECC_CFG_AUTO (0x1u << 20) /**< \brief (PMECC_CFG) Automatic Mode Enable */
-/* -------- PMECC_SAREA : (PMECC Offset: 0x004) PMECC Spare Area Size Register -------- */
+/* -------- PMECC_SAREA : (PMECC Offset: 0x4) PMECC Spare Area Size Register -------- */
 #define PMECC_SAREA_SPARESIZE_Pos 0
 #define PMECC_SAREA_SPARESIZE_Msk (0x1ffu << PMECC_SAREA_SPARESIZE_Pos) /**< \brief (PMECC_SAREA) Spare Area Size */
 #define PMECC_SAREA_SPARESIZE(value) ((PMECC_SAREA_SPARESIZE_Msk & ((value) << PMECC_SAREA_SPARESIZE_Pos)))
-/* -------- PMECC_SADDR : (PMECC Offset: 0x008) PMECC Start Address Register -------- */
+/* -------- PMECC_SADDR : (PMECC Offset: 0x8) PMECC Start Address Register -------- */
 #define PMECC_SADDR_STARTADDR_Pos 0
 #define PMECC_SADDR_STARTADDR_Msk (0x1ffu << PMECC_SADDR_STARTADDR_Pos) /**< \brief (PMECC_SADDR) ECC Area Start Address (byte oriented address) */
 #define PMECC_SADDR_STARTADDR(value) ((PMECC_SADDR_STARTADDR_Msk & ((value) << PMECC_SADDR_STARTADDR_Pos)))
-/* -------- PMECC_EADDR : (PMECC Offset: 0x00C) PMECC End Address Register -------- */
+/* -------- PMECC_EADDR : (PMECC Offset: 0xC) PMECC End Address Register -------- */
 #define PMECC_EADDR_ENDADDR_Pos 0
 #define PMECC_EADDR_ENDADDR_Msk (0x1ffu << PMECC_EADDR_ENDADDR_Pos) /**< \brief (PMECC_EADDR) ECC Area End Address (byte oriented address) */
 #define PMECC_EADDR_ENDADDR(value) ((PMECC_EADDR_ENDADDR_Msk & ((value) << PMECC_EADDR_ENDADDR_Pos)))
-/* -------- PMECC_CLK : (PMECC Offset: 0x010) PMECC Clock Control Register -------- */
+/* -------- PMECC_CLK : (PMECC Offset: 0x10) PMECC Clock Control Register -------- */
 #define PMECC_CLK_CLKCTRL_Pos 0
 #define PMECC_CLK_CLKCTRL_Msk (0x7u << PMECC_CLK_CLKCTRL_Pos) /**< \brief (PMECC_CLK) Clock Control Register */
 #define PMECC_CLK_CLKCTRL(value) ((PMECC_CLK_CLKCTRL_Msk & ((value) << PMECC_CLK_CLKCTRL_Pos)))
-/* -------- PMECC_CTRL : (PMECC Offset: 0x014) PMECC Control Register -------- */
+/* -------- PMECC_CTRL : (PMECC Offset: 0x14) PMECC Control Register -------- */
 #define PMECC_CTRL_RST (0x1u << 0) /**< \brief (PMECC_CTRL) Reset the PMECC Module */
 #define PMECC_CTRL_DATA (0x1u << 1) /**< \brief (PMECC_CTRL) Start a Data Phase */
 #define PMECC_CTRL_USER (0x1u << 2) /**< \brief (PMECC_CTRL) Start a User Mode Phase */
 #define PMECC_CTRL_ENABLE (0x1u << 4) /**< \brief (PMECC_CTRL) PMECC Module Enable */
 #define PMECC_CTRL_DISABLE (0x1u << 5) /**< \brief (PMECC_CTRL) PMECC Module Disable */
-/* -------- PMECC_SR : (PMECC Offset: 0x018) PMECC Status Register -------- */
+/* -------- PMECC_SR : (PMECC Offset: 0x18) PMECC Status Register -------- */
 #define PMECC_SR_BUSY (0x1u << 0) /**< \brief (PMECC_SR) The Kernel of the PMECC is Busy */
 #define PMECC_SR_ENABLE (0x1u << 4) /**< \brief (PMECC_SR) PMECC Module Status */
-/* -------- PMECC_IER : (PMECC Offset: 0x01C) PMECC Interrupt Enable register -------- */
+/* -------- PMECC_IER : (PMECC Offset: 0x1C) PMECC Interrupt Enable register -------- */
 #define PMECC_IER_ERRIE (0x1u << 0) /**< \brief (PMECC_IER) Error Interrupt Enable */
-/* -------- PMECC_IDR : (PMECC Offset: 0x020) PMECC Interrupt Disable Register -------- */
+/* -------- PMECC_IDR : (PMECC Offset: 0x20) PMECC Interrupt Disable Register -------- */
 #define PMECC_IDR_ERRID (0x1u << 0) /**< \brief (PMECC_IDR) Error Interrupt Disable */
-/* -------- PMECC_IMR : (PMECC Offset: 0x024) PMECC Interrupt Mask Register -------- */
+/* -------- PMECC_IMR : (PMECC Offset: 0x24) PMECC Interrupt Mask Register -------- */
 #define PMECC_IMR_ERRIM (0x1u << 0) /**< \brief (PMECC_IMR) Error Interrupt Mask */
-/* -------- PMECC_ISR : (PMECC Offset: 0x028) PMECC Interrupt Status Register -------- */
+/* -------- PMECC_ISR : (PMECC Offset: 0x28) PMECC Interrupt Status Register -------- */
 #define PMECC_ISR_ERRIS_Pos 0
 #define PMECC_ISR_ERRIS_Msk (0xffu << PMECC_ISR_ERRIS_Pos) /**< \brief (PMECC_ISR) Error Interrupt Status */
 /* -------- PMECC_ECC[11] : (PMECC Offset: N/A) PMECC ECC x Register -------- */

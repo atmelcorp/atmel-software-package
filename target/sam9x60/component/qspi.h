@@ -39,10 +39,10 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Qspi hardware registers */
 typedef struct {
-  __O  uint32_t QSPI_CR;       /**< \brief (Qspi Offset: 0x00) Control Register */
-  __IO uint32_t QSPI_MR;       /**< \brief (Qspi Offset: 0x04) Mode Register */
-  __I  uint32_t QSPI_RDR;      /**< \brief (Qspi Offset: 0x08) Receive Data Register */
-  __O  uint32_t QSPI_TDR;      /**< \brief (Qspi Offset: 0x0C) Transmit Data Register */
+  __O  uint32_t QSPI_CR;       /**< \brief (Qspi Offset: 0x0) Control Register */
+  __IO uint32_t QSPI_MR;       /**< \brief (Qspi Offset: 0x4) Mode Register */
+  __I  uint32_t QSPI_RDR;      /**< \brief (Qspi Offset: 0x8) Receive Data Register */
+  __O  uint32_t QSPI_TDR;      /**< \brief (Qspi Offset: 0xC) Transmit Data Register */
   __I  uint32_t QSPI_SR;       /**< \brief (Qspi Offset: 0x10) Status Register */
   __O  uint32_t QSPI_IER;      /**< \brief (Qspi Offset: 0x14) Interrupt Enable Register */
   __O  uint32_t QSPI_IDR;      /**< \brief (Qspi Offset: 0x18) Interrupt Disable Register */
@@ -60,12 +60,12 @@ typedef struct {
   __I  uint32_t QSPI_WPSR;     /**< \brief (Qspi Offset: 0xE8) Write Protection Status Register */
 } Qspi;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- QSPI_CR : (QSPI Offset: 0x00) Control Register -------- */
+/* -------- QSPI_CR : (QSPI Offset: 0x0) Control Register -------- */
 #define QSPI_CR_QSPIEN (0x1u << 0) /**< \brief (QSPI_CR) QSPI Enable */
 #define QSPI_CR_QSPIDIS (0x1u << 1) /**< \brief (QSPI_CR) QSPI Disable */
 #define QSPI_CR_SWRST (0x1u << 7) /**< \brief (QSPI_CR) QSPI Software Reset */
 #define QSPI_CR_LASTXFER (0x1u << 24) /**< \brief (QSPI_CR) Last Transfer */
-/* -------- QSPI_MR : (QSPI Offset: 0x04) Mode Register -------- */
+/* -------- QSPI_MR : (QSPI Offset: 0x4) Mode Register -------- */
 #define QSPI_MR_SMM (0x1u << 0) /**< \brief (QSPI_MR) Serial Memory Mode */
 #define   QSPI_MR_SMM_SPI (0x0u << 0) /**< \brief (QSPI_MR) The QSPI is in SPI mode. */
 #define   QSPI_MR_SMM_MEMORY (0x1u << 0) /**< \brief (QSPI_MR) The QSPI is in Serial Memory mode. */
@@ -94,10 +94,10 @@ typedef struct {
 #define QSPI_MR_DLYCS_Pos 24
 #define QSPI_MR_DLYCS_Msk (0xffu << QSPI_MR_DLYCS_Pos) /**< \brief (QSPI_MR) Minimum Inactive QCS Delay */
 #define QSPI_MR_DLYCS(value) ((QSPI_MR_DLYCS_Msk & ((value) << QSPI_MR_DLYCS_Pos)))
-/* -------- QSPI_RDR : (QSPI Offset: 0x08) Receive Data Register -------- */
+/* -------- QSPI_RDR : (QSPI Offset: 0x8) Receive Data Register -------- */
 #define QSPI_RDR_RD_Pos 0
 #define QSPI_RDR_RD_Msk (0xffffu << QSPI_RDR_RD_Pos) /**< \brief (QSPI_RDR) Receive Data */
-/* -------- QSPI_TDR : (QSPI Offset: 0x0C) Transmit Data Register -------- */
+/* -------- QSPI_TDR : (QSPI Offset: 0xC) Transmit Data Register -------- */
 #define QSPI_TDR_TD_Pos 0
 #define QSPI_TDR_TD_Msk (0xffffu << QSPI_TDR_TD_Pos) /**< \brief (QSPI_TDR) Transmit Data */
 #define QSPI_TDR_TD(value) ((QSPI_TDR_TD_Msk & ((value) << QSPI_TDR_TD_Pos)))

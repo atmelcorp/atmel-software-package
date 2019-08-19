@@ -39,9 +39,9 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Uhphs hardware registers */
 typedef struct {
-  __I  uint32_t UHPHS_HCCAPBASE;        /**< \brief (Uhphs Offset: 0x00) UHPHS Host Controller Capability Register */
-  __I  uint32_t UHPHS_HCSPARAMS;        /**< \brief (Uhphs Offset: 0x04) UHPHS Host Controller Structural Parameters Register */
-  __I  uint32_t UHPHS_HCCPARAMS;        /**< \brief (Uhphs Offset: 0x08) UHPHS Host Controller Capability Parameters Register */
+  __I  uint32_t UHPHS_HCCAPBASE;        /**< \brief (Uhphs Offset: 0x0) UHPHS Host Controller Capability Register */
+  __I  uint32_t UHPHS_HCSPARAMS;        /**< \brief (Uhphs Offset: 0x4) UHPHS Host Controller Structural Parameters Register */
+  __I  uint32_t UHPHS_HCCPARAMS;        /**< \brief (Uhphs Offset: 0x8) UHPHS Host Controller Capability Parameters Register */
   __I  uint32_t Reserved1[1];
   __IO uint32_t UHPHS_USBCMD;           /**< \brief (Uhphs Offset: 0x10) UHPHS USB Command Register */
   __IO uint32_t UHPHS_USBSTS;           /**< \brief (Uhphs Offset: 0x14) UHPHS USB Status Register */
@@ -58,12 +58,12 @@ typedef struct {
   __IO uint32_t UHPHS_INSNREG07;        /**< \brief (Uhphs Offset: 0xAC) EHCI Specific Registers 07 */
 } Uhphs;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- UHPHS_HCCAPBASE : (UHPHS Offset: 0x00) UHPHS Host Controller Capability Register -------- */
+/* -------- UHPHS_HCCAPBASE : (UHPHS Offset: 0x0) UHPHS Host Controller Capability Register -------- */
 #define UHPHS_HCCAPBASE_CAPLENGTH_Pos 0
 #define UHPHS_HCCAPBASE_CAPLENGTH_Msk (0xffu << UHPHS_HCCAPBASE_CAPLENGTH_Pos) /**< \brief (UHPHS_HCCAPBASE) Capability Registers Length */
 #define UHPHS_HCCAPBASE_HCIVERSION_Pos 16
 #define UHPHS_HCCAPBASE_HCIVERSION_Msk (0xffffu << UHPHS_HCCAPBASE_HCIVERSION_Pos) /**< \brief (UHPHS_HCCAPBASE) Host Controller Interface Version Number */
-/* -------- UHPHS_HCSPARAMS : (UHPHS Offset: 0x04) UHPHS Host Controller Structural Parameters Register -------- */
+/* -------- UHPHS_HCSPARAMS : (UHPHS Offset: 0x4) UHPHS Host Controller Structural Parameters Register -------- */
 #define UHPHS_HCSPARAMS_N_PORTS_Pos 0
 #define UHPHS_HCSPARAMS_N_PORTS_Msk (0xfu << UHPHS_HCSPARAMS_N_PORTS_Pos) /**< \brief (UHPHS_HCSPARAMS) Number of Ports */
 #define UHPHS_HCSPARAMS_PPC (0x1u << 4) /**< \brief (UHPHS_HCSPARAMS) Port Power Control */
@@ -74,7 +74,7 @@ typedef struct {
 #define UHPHS_HCSPARAMS_P_INDICATOR (0x1u << 16) /**< \brief (UHPHS_HCSPARAMS) Port Indicators */
 #define UHPHS_HCSPARAMS_N_DP_Pos 20
 #define UHPHS_HCSPARAMS_N_DP_Msk (0xfu << UHPHS_HCSPARAMS_N_DP_Pos) /**< \brief (UHPHS_HCSPARAMS) Debug Port Number */
-/* -------- UHPHS_HCCPARAMS : (UHPHS Offset: 0x08) UHPHS Host Controller Capability Parameters Register -------- */
+/* -------- UHPHS_HCCPARAMS : (UHPHS Offset: 0x8) UHPHS Host Controller Capability Parameters Register -------- */
 #define UHPHS_HCCPARAMS_AC (0x1u << 0) /**< \brief (UHPHS_HCCPARAMS) 64-bit Addressing Capability */
 #define UHPHS_HCCPARAMS_PFLF (0x1u << 1) /**< \brief (UHPHS_HCCPARAMS) Programmable Frame List Flag */
 #define UHPHS_HCCPARAMS_ASPC (0x1u << 2) /**< \brief (UHPHS_HCCPARAMS) Asynchronous Schedule Park Capability */

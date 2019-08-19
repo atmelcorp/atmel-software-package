@@ -49,10 +49,10 @@ typedef struct {
 /** \brief Pwm hardware registers */
 #define PWMCH_NUM_NUMBER 4
 typedef struct {
-  __IO uint32_t  PWM_CLK;                      /**< \brief (Pwm Offset: 0x00) PWM Mode Register */
-  __O  uint32_t  PWM_ENA;                      /**< \brief (Pwm Offset: 0x04) PWM Enable Register */
-  __O  uint32_t  PWM_DIS;                      /**< \brief (Pwm Offset: 0x08) PWM Disable Register */
-  __I  uint32_t  PWM_SR;                       /**< \brief (Pwm Offset: 0x0C) PWM Status Register */
+  __IO uint32_t  PWM_CLK;                      /**< \brief (Pwm Offset: 0x0) PWM Mode Register */
+  __O  uint32_t  PWM_ENA;                      /**< \brief (Pwm Offset: 0x4) PWM Enable Register */
+  __O  uint32_t  PWM_DIS;                      /**< \brief (Pwm Offset: 0x8) PWM Disable Register */
+  __I  uint32_t  PWM_SR;                       /**< \brief (Pwm Offset: 0xC) PWM Status Register */
   __O  uint32_t  PWM_IER1;                     /**< \brief (Pwm Offset: 0x10) PWM Interrupt Enable Register */
   __O  uint32_t  PWM_IDR1;                     /**< \brief (Pwm Offset: 0x14) PWM Interrupt Disable Register */
   __I  uint32_t  PWM_IMR1;                     /**< \brief (Pwm Offset: 0x18) PWM Interrupt Mask Register */
@@ -61,7 +61,7 @@ typedef struct {
        PwmCh_num PWM_CH[PWMCH_NUM_NUMBER];     /**< \brief (Pwm Offset: 0x200) ch_num = 0 .. 3 */
 } Pwm;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- PWM_MR : (PWM Offset: 0x00) PWM Mode Register -------- */
+/* -------- PWM_MR : (PWM Offset: 0x0) PWM Mode Register -------- */
 #define PWM_CLK_DIVA_Pos 0
 #define PWM_CLK_DIVA_Msk (0xffu << PWM_CLK_DIVA_Pos) /**< \brief (PWM_CLK) CLKA Divide Factor */
 #define PWM_CLK_DIVA(value) ((PWM_CLK_DIVA_Msk & ((value) << PWM_CLK_DIVA_Pos)))
@@ -100,17 +100,17 @@ typedef struct {
 #define   PWM_CLK_PREB_CLK_DIV256 (0x8u << 24) /**< \brief (PWM_CLK) Master Clock divided by 256 */
 #define   PWM_CLK_PREB_CLK_DIV512 (0x9u << 24) /**< \brief (PWM_CLK) Master Clock divided by 512 */
 #define   PWM_CLK_PREB_CLK_DIV1024 (0xAu << 24) /**< \brief (PWM_CLK) Master Clock divided by 1024 */
-/* -------- PWM_ENA : (PWM Offset: 0x04) PWM Enable Register -------- */
+/* -------- PWM_ENA : (PWM Offset: 0x4) PWM Enable Register -------- */
 #define PWM_ENA_CHID0 (0x1u << 0) /**< \brief (PWM_ENA) Channel ID */
 #define PWM_ENA_CHID1 (0x1u << 1) /**< \brief (PWM_ENA) Channel ID */
 #define PWM_ENA_CHID2 (0x1u << 2) /**< \brief (PWM_ENA) Channel ID */
 #define PWM_ENA_CHID3 (0x1u << 3) /**< \brief (PWM_ENA) Channel ID */
-/* -------- PWM_DIS : (PWM Offset: 0x08) PWM Disable Register -------- */
+/* -------- PWM_DIS : (PWM Offset: 0x8) PWM Disable Register -------- */
 #define PWM_DIS_CHID0 (0x1u << 0) /**< \brief (PWM_DIS) Channel ID */
 #define PWM_DIS_CHID1 (0x1u << 1) /**< \brief (PWM_DIS) Channel ID */
 #define PWM_DIS_CHID2 (0x1u << 2) /**< \brief (PWM_DIS) Channel ID */
 #define PWM_DIS_CHID3 (0x1u << 3) /**< \brief (PWM_DIS) Channel ID */
-/* -------- PWM_SR : (PWM Offset: 0x0C) PWM Status Register -------- */
+/* -------- PWM_SR : (PWM Offset: 0xC) PWM Status Register -------- */
 #define PWM_SR_CHID0 (0x1u << 0) /**< \brief (PWM_SR) Channel ID */
 #define PWM_SR_CHID1 (0x1u << 1) /**< \brief (PWM_SR) Channel ID */
 #define PWM_SR_CHID2 (0x1u << 2) /**< \brief (PWM_SR) Channel ID */

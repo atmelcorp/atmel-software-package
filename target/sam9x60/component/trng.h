@@ -39,9 +39,9 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Trng hardware registers */
 typedef struct {
-  __O  uint32_t TRNG_CR;       /**< \brief (Trng Offset: 0x00) Control Register */
-  __IO uint32_t TRNG_MR;       /**< \brief (Trng Offset: 0x04) Mode Register */
-  __O  uint32_t TRNG_PKBCR;    /**< \brief (Trng Offset: 0x08) Private Key Bus Control Register */
+  __O  uint32_t TRNG_CR;       /**< \brief (Trng Offset: 0x0) Control Register */
+  __IO uint32_t TRNG_MR;       /**< \brief (Trng Offset: 0x4) Mode Register */
+  __O  uint32_t TRNG_PKBCR;    /**< \brief (Trng Offset: 0x8) Private Key Bus Control Register */
   __I  uint32_t Reserved1[1];
   __O  uint32_t TRNG_IER;      /**< \brief (Trng Offset: 0x10) Interrupt Enable Register */
   __O  uint32_t TRNG_IDR;      /**< \brief (Trng Offset: 0x14) Interrupt Disable Register */
@@ -54,15 +54,15 @@ typedef struct {
   __I  uint32_t TRNG_WPSR;     /**< \brief (Trng Offset: 0xE8) Write Protection Status Register */
 } Trng;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- TRNG_CR : (TRNG Offset: 0x00) Control Register -------- */
+/* -------- TRNG_CR : (TRNG Offset: 0x0) Control Register -------- */
 #define TRNG_CR_ENABLE (0x1u << 0) /**< \brief (TRNG_CR) Enable TRNG to Provide Random Values */
 #define TRNG_CR_KEY_Pos 8
 #define TRNG_CR_KEY_Msk (0xffffffu << TRNG_CR_KEY_Pos) /**< \brief (TRNG_CR) Register Write Access Key */
 #define TRNG_CR_KEY(value) ((TRNG_CR_KEY_Msk & ((value) << TRNG_CR_KEY_Pos)))
 #define   TRNG_CR_KEY_PASSWD (0x524E47u << 8) /**< \brief (TRNG_CR) Writing any other value in this field aborts the write operation. */
-/* -------- TRNG_MR : (TRNG Offset: 0x04) Mode Register -------- */
+/* -------- TRNG_MR : (TRNG Offset: 0x4) Mode Register -------- */
 #define TRNG_MR_HALFR (0x1u << 0) /**< \brief (TRNG_MR) Half Rate Enable */
-/* -------- TRNG_PKBCR : (TRNG Offset: 0x08) Private Key Bus Control Register -------- */
+/* -------- TRNG_PKBCR : (TRNG Offset: 0x8) Private Key Bus Control Register -------- */
 #define TRNG_PKBCR_KID (0x1u << 0) /**< \brief (TRNG_PKBCR) Key ID (Must be Always Written to 0) */
 #define TRNG_PKBCR_KSLAVE_Pos 4
 #define TRNG_PKBCR_KSLAVE_Msk (0x3u << TRNG_PKBCR_KSLAVE_Pos) /**< \brief (TRNG_PKBCR) Key Bus Slave */

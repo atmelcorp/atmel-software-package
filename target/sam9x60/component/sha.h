@@ -39,8 +39,8 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Sha hardware registers */
 typedef struct {
-  __O  uint32_t SHA_CR;          /**< \brief (Sha Offset: 0x00) Control Register */
-  __IO uint32_t SHA_MR;          /**< \brief (Sha Offset: 0x04) Mode Register */
+  __O  uint32_t SHA_CR;          /**< \brief (Sha Offset: 0x0) Control Register */
+  __IO uint32_t SHA_MR;          /**< \brief (Sha Offset: 0x4) Mode Register */
   __I  uint32_t Reserved1[2];
   __O  uint32_t SHA_IER;         /**< \brief (Sha Offset: 0x10) Interrupt Enable Register */
   __O  uint32_t SHA_IDR;         /**< \brief (Sha Offset: 0x14) Interrupt Disable Register */
@@ -57,14 +57,14 @@ typedef struct {
   __I  uint32_t SHA_WPSR;        /**< \brief (Sha Offset: 0xE8) Write Protection Status Register */
 } Sha;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- SHA_CR : (SHA Offset: 0x00) Control Register -------- */
+/* -------- SHA_CR : (SHA Offset: 0x0) Control Register -------- */
 #define SHA_CR_START (0x1u << 0) /**< \brief (SHA_CR) Start Processing */
 #define SHA_CR_FIRST (0x1u << 4) /**< \brief (SHA_CR) First Block of a Message */
 #define SHA_CR_SWRST (0x1u << 8) /**< \brief (SHA_CR) Software Reset */
 #define SHA_CR_WUIHV (0x1u << 12) /**< \brief (SHA_CR) Write User Initial Hash Values */
 #define SHA_CR_WUIEHV (0x1u << 13) /**< \brief (SHA_CR) Write User Initial or Expected Hash Values */
 #define SHA_CR_UNLOCK (0x1u << 24) /**< \brief (SHA_CR) Unlock Processing */
-/* -------- SHA_MR : (SHA Offset: 0x04) Mode Register -------- */
+/* -------- SHA_MR : (SHA Offset: 0x4) Mode Register -------- */
 #define SHA_MR_SMOD_Pos 0
 #define SHA_MR_SMOD_Msk (0x3u << SHA_MR_SMOD_Pos) /**< \brief (SHA_MR) Start Mode */
 #define SHA_MR_SMOD(value) ((SHA_MR_SMOD_Msk & ((value) << SHA_MR_SMOD_Pos)))

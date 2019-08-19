@@ -39,15 +39,15 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Rtt hardware registers */
 typedef struct {
-  __IO uint32_t RTT_MR;   /**< \brief (Rtt Offset: 0x00) Mode Register */
-  __IO uint32_t RTT_AR;   /**< \brief (Rtt Offset: 0x04) Alarm Register */
-  __I  uint32_t RTT_VR;   /**< \brief (Rtt Offset: 0x08) Value Register */
-  __I  uint32_t RTT_SR;   /**< \brief (Rtt Offset: 0x0C) Status Register */
+  __IO uint32_t RTT_MR;   /**< \brief (Rtt Offset: 0x0) Mode Register */
+  __IO uint32_t RTT_AR;   /**< \brief (Rtt Offset: 0x4) Alarm Register */
+  __I  uint32_t RTT_VR;   /**< \brief (Rtt Offset: 0x8) Value Register */
+  __I  uint32_t RTT_SR;   /**< \brief (Rtt Offset: 0xC) Status Register */
   __IO uint32_t RTT_MODR; /**< \brief (Rtt Offset: 0x10) Modulo Selection Register */
   __I  uint32_t RTT_TSR;  /**< \brief (Rtt Offset: 0x14) TimeStamp Register */
 } Rtt;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- RTT_MR : (RTT Offset: 0x00) Mode Register -------- */
+/* -------- RTT_MR : (RTT Offset: 0x0) Mode Register -------- */
 #define RTT_MR_RTPRES_Pos 0
 #define RTT_MR_RTPRES_Msk (0xffffu << RTT_MR_RTPRES_Pos) /**< \brief (RTT_MR) Real-time Timer Prescaler Value */
 #define RTT_MR_RTPRES(value) ((RTT_MR_RTPRES_Msk & ((value) << RTT_MR_RTPRES_Pos)))
@@ -57,14 +57,14 @@ typedef struct {
 #define RTT_MR_RTTDIS (0x1u << 20) /**< \brief (RTT_MR) Real-time Timer Disable */
 #define RTT_MR_INC2AEN (0x1u << 21) /**< \brief (RTT_MR) RTTINC2 Alarm and Interrupt Enable */
 #define RTT_MR_RTC1HZ (0x1u << 24) /**< \brief (RTT_MR) Real-Time Clock 1Hz Clock Selection */
-/* -------- RTT_AR : (RTT Offset: 0x04) Alarm Register -------- */
+/* -------- RTT_AR : (RTT Offset: 0x4) Alarm Register -------- */
 #define RTT_AR_ALMV_Pos 0
 #define RTT_AR_ALMV_Msk (0xffffffffu << RTT_AR_ALMV_Pos) /**< \brief (RTT_AR) Alarm Value */
 #define RTT_AR_ALMV(value) ((RTT_AR_ALMV_Msk & ((value) << RTT_AR_ALMV_Pos)))
-/* -------- RTT_VR : (RTT Offset: 0x08) Value Register -------- */
+/* -------- RTT_VR : (RTT Offset: 0x8) Value Register -------- */
 #define RTT_VR_CRTV_Pos 0
 #define RTT_VR_CRTV_Msk (0xffffffffu << RTT_VR_CRTV_Pos) /**< \brief (RTT_VR) Current Real-time Value */
-/* -------- RTT_SR : (RTT Offset: 0x0C) Status Register -------- */
+/* -------- RTT_SR : (RTT Offset: 0xC) Status Register -------- */
 #define RTT_SR_ALMS (0x1u << 0) /**< \brief (RTT_SR) Real-time Alarm Status (cleared on read) */
 #define RTT_SR_RTTINC (0x1u << 1) /**< \brief (RTT_SR) Prescaler Roll-over Status (cleared on read) */
 #define RTT_SR_RTTINC2 (0x1u << 2) /**< \brief (RTT_SR) Predefined Number of Prescaler Roll-overs Status (cleared on read) */

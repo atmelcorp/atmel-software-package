@@ -39,19 +39,19 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Shdwc hardware registers */
 typedef struct {
-  __O  uint32_t SHDW_CR;   /**< \brief (Shdwc Offset: 0x00) Control Register */
-  __IO uint32_t SHDW_MR;   /**< \brief (Shdwc Offset: 0x04) Mode Register */
-  __I  uint32_t SHDW_SR;   /**< \brief (Shdwc Offset: 0x08) Status Register */
-  __IO uint32_t SHDW_WUIR; /**< \brief (Shdwc Offset: 0x0C) Wakeup Inputs Register */
+  __O  uint32_t SHDW_CR;   /**< \brief (Shdwc Offset: 0x0) Control Register */
+  __IO uint32_t SHDW_MR;   /**< \brief (Shdwc Offset: 0x4) Mode Register */
+  __I  uint32_t SHDW_SR;   /**< \brief (Shdwc Offset: 0x8) Status Register */
+  __IO uint32_t SHDW_WUIR; /**< \brief (Shdwc Offset: 0xC) Wakeup Inputs Register */
 } Shdwc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- SHDW_CR : (SHDWC Offset: 0x00) Control Register -------- */
+/* -------- SHDW_CR : (SHDWC Offset: 0x0) Control Register -------- */
 #define SHDW_CR_SHDW (0x1u << 0) /**< \brief (SHDW_CR) Shutdown Command */
 #define SHDW_CR_KEY_Pos 24
 #define SHDW_CR_KEY_Msk (0xffu << SHDW_CR_KEY_Pos) /**< \brief (SHDW_CR) Password */
 #define SHDW_CR_KEY(value) ((SHDW_CR_KEY_Msk & ((value) << SHDW_CR_KEY_Pos)))
 #define   SHDW_CR_KEY_PASSWD (0xA5u << 24) /**< \brief (SHDW_CR) Writing any other value in this field aborts the write operation. */
-/* -------- SHDW_MR : (SHDWC Offset: 0x04) Mode Register -------- */
+/* -------- SHDW_MR : (SHDWC Offset: 0x4) Mode Register -------- */
 #define SHDW_MR_RTTWKEN (0x1u << 16) /**< \brief (SHDW_MR) Real-time Timer Wakeup Enable */
 #define SHDW_MR_RTCWKEN (0x1u << 17) /**< \brief (SHDW_MR) Real-time Clock Wakeup Enable */
 #define SHDW_MR_WKUPDBC_Pos 24
@@ -63,7 +63,7 @@ typedef struct {
 #define   SHDW_MR_WKUPDBC_512_SLCK (0x3u << 24) /**< \brief (SHDW_MR) WKUP shall be in its active state for at least 512 MD_SLCK periods */
 #define   SHDW_MR_WKUPDBC_4096_SLCK (0x4u << 24) /**< \brief (SHDW_MR) WKUP shall be in its active state for at least 4,096 MD_SLCK periods */
 #define   SHDW_MR_WKUPDBC_32768_SLCK (0x5u << 24) /**< \brief (SHDW_MR) WKUP shall be in its active state for at least 32,768 MD_SLCK periods */
-/* -------- SHDW_SR : (SHDWC Offset: 0x08) Status Register -------- */
+/* -------- SHDW_SR : (SHDWC Offset: 0x8) Status Register -------- */
 #define SHDW_SR_WKUPS (0x1u << 0) /**< \brief (SHDW_SR) WKUP Wakeup Status */
 #define   SHDW_SR_WKUPS_NO (0x0u << 0) /**< \brief (SHDW_SR) No wakeup due to the assertion of the WKUP pin has occurred since the last read of SHDW_SR. */
 #define   SHDW_SR_WKUPS_PRESENT (0x1u << 0) /**< \brief (SHDW_SR) At least one wakeup due to the assertion of the WKUP pin has occurred since the last read of SHDW_SR. */
@@ -72,7 +72,7 @@ typedef struct {
 #define SHDW_SR_WKUPIS0 (0x1u << 16) /**< \brief (SHDW_SR) Wakeup 0 Input Status */
 #define   SHDW_SR_WKUPIS0_DISABLE (0x0u << 16) /**< \brief (SHDW_SR) The wakeup 0 input is disabled, or was inactive at the time the debouncer triggered a wakeup event. */
 #define   SHDW_SR_WKUPIS0_ENABLE (0x1u << 16) /**< \brief (SHDW_SR) The wakeup 0 input was active at the time the debouncer triggered a wakeup event. */
-/* -------- SHDW_WUIR : (SHDWC Offset: 0x0C) Wakeup Inputs Register -------- */
+/* -------- SHDW_WUIR : (SHDWC Offset: 0xC) Wakeup Inputs Register -------- */
 #define SHDW_WUIR_WKUPEN0 (0x1u << 0) /**< \brief (SHDW_WUIR) Wakeup 0 Input Enable */
 #define   SHDW_WUIR_WKUPEN0_DISABLE (0x0u << 0) /**< \brief (SHDW_WUIR) The wakeup 0 input has no wakeup effect. */
 #define   SHDW_WUIR_WKUPEN0_ENABLE (0x1u << 0) /**< \brief (SHDW_WUIR) The wakeup 0 input forces wakeup of the core power supply. */

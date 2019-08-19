@@ -39,10 +39,10 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Pit64b hardware registers */
 typedef struct {
-  __O  uint32_t PIT64B_CR;     /**< \brief (Pit64b Offset: 0x00) Control Register */
-  __IO uint32_t PIT64B_MR;     /**< \brief (Pit64b Offset: 0x04) Mode Register */
-  __IO uint32_t PIT64B_LSBPR;  /**< \brief (Pit64b Offset: 0x08) LSB Period Register */
-  __IO uint32_t PIT64B_MSBPR;  /**< \brief (Pit64b Offset: 0x0C) MSB Period Register */
+  __O  uint32_t PIT64B_CR;     /**< \brief (Pit64b Offset: 0x0) Control Register */
+  __IO uint32_t PIT64B_MR;     /**< \brief (Pit64b Offset: 0x4) Mode Register */
+  __IO uint32_t PIT64B_LSBPR;  /**< \brief (Pit64b Offset: 0x8) LSB Period Register */
+  __IO uint32_t PIT64B_MSBPR;  /**< \brief (Pit64b Offset: 0xC) MSB Period Register */
   __O  uint32_t PIT64B_IER;    /**< \brief (Pit64b Offset: 0x10) Interrupt Enable Register */
   __O  uint32_t PIT64B_IDR;    /**< \brief (Pit64b Offset: 0x14) Interrupt Disable Register */
   __I  uint32_t PIT64B_IMR;    /**< \brief (Pit64b Offset: 0x18) Interrupt Mask Register */
@@ -54,21 +54,21 @@ typedef struct {
   __I  uint32_t PIT64B_WPSR;   /**< \brief (Pit64b Offset: 0xE8) Write Protection Status Register */
 } Pit64b;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- PIT64B_CR : (PIT64B Offset: 0x00) Control Register -------- */
+/* -------- PIT64B_CR : (PIT64B Offset: 0x0) Control Register -------- */
 #define PIT64B_CR_START (0x1u << 0) /**< \brief (PIT64B_CR) Start Timer */
 #define PIT64B_CR_SWRST (0x1u << 8) /**< \brief (PIT64B_CR) Software Reset */
-/* -------- PIT64B_MR : (PIT64B Offset: 0x04) Mode Register -------- */
+/* -------- PIT64B_MR : (PIT64B Offset: 0x4) Mode Register -------- */
 #define PIT64B_MR_CONT (0x1u << 0) /**< \brief (PIT64B_MR) Continuous Mode */
 #define PIT64B_MR_SGCLK (0x1u << 3) /**< \brief (PIT64B_MR) Generic Clock Selection Enable */
 #define PIT64B_MR_SMOD (0x1u << 4) /**< \brief (PIT64B_MR) Start Mode */
 #define PIT64B_MR_PRESCALER_Pos 8
 #define PIT64B_MR_PRESCALER_Msk (0xfu << PIT64B_MR_PRESCALER_Pos) /**< \brief (PIT64B_MR) Prescaler Period */
 #define PIT64B_MR_PRESCALER(value) ((PIT64B_MR_PRESCALER_Msk & ((value) << PIT64B_MR_PRESCALER_Pos)))
-/* -------- PIT64B_LSBPR : (PIT64B Offset: 0x08) LSB Period Register -------- */
+/* -------- PIT64B_LSBPR : (PIT64B Offset: 0x8) LSB Period Register -------- */
 #define PIT64B_LSBPR_LSBPERIOD_Pos 0
 #define PIT64B_LSBPR_LSBPERIOD_Msk (0xffffffffu << PIT64B_LSBPR_LSBPERIOD_Pos) /**< \brief (PIT64B_LSBPR) 32 LSB of the Timer Period */
 #define PIT64B_LSBPR_LSBPERIOD(value) ((PIT64B_LSBPR_LSBPERIOD_Msk & ((value) << PIT64B_LSBPR_LSBPERIOD_Pos)))
-/* -------- PIT64B_MSBPR : (PIT64B Offset: 0x0C) MSB Period Register -------- */
+/* -------- PIT64B_MSBPR : (PIT64B Offset: 0xC) MSB Period Register -------- */
 #define PIT64B_MSBPR_MSBPERIOD_Pos 0
 #define PIT64B_MSBPR_MSBPERIOD_Msk (0xffffffffu << PIT64B_MSBPR_MSBPERIOD_Pos) /**< \brief (PIT64B_MSBPR) 32 MSB of the Timer Period */
 #define PIT64B_MSBPR_MSBPERIOD(value) ((PIT64B_MSBPR_MSBPERIOD_Msk & ((value) << PIT64B_MSBPR_MSBPERIOD_Pos)))

@@ -39,10 +39,10 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Isi hardware registers */
 typedef struct {
-  __IO uint32_t ISI_CFG1;       /**< \brief (Isi Offset: 0x00) ISI Configuration 1 Register */
-  __IO uint32_t ISI_CFG2;       /**< \brief (Isi Offset: 0x04) ISI Configuration 2 Register */
-  __IO uint32_t ISI_PSIZE;      /**< \brief (Isi Offset: 0x08) ISI Preview Size Register */
-  __IO uint32_t ISI_PDECF;      /**< \brief (Isi Offset: 0x0C) ISI Preview Decimation Factor Register */
+  __IO uint32_t ISI_CFG1;       /**< \brief (Isi Offset: 0x0) ISI Configuration 1 Register */
+  __IO uint32_t ISI_CFG2;       /**< \brief (Isi Offset: 0x4) ISI Configuration 2 Register */
+  __IO uint32_t ISI_PSIZE;      /**< \brief (Isi Offset: 0x8) ISI Preview Size Register */
+  __IO uint32_t ISI_PDECF;      /**< \brief (Isi Offset: 0xC) ISI Preview Decimation Factor Register */
   __IO uint32_t ISI_Y2R_SET0;   /**< \brief (Isi Offset: 0x10) ISI Color Space Conversion YCrCb To RGB Set 0 Register */
   __IO uint32_t ISI_Y2R_SET1;   /**< \brief (Isi Offset: 0x14) ISI Color Space Conversion YCrCb To RGB Set 1 Register */
   __IO uint32_t ISI_R2Y_SET0;   /**< \brief (Isi Offset: 0x18) ISI Color Space Conversion RGB To YCrCb Set 0 Register */
@@ -67,7 +67,7 @@ typedef struct {
   __I  uint32_t ISI_WPSR;       /**< \brief (Isi Offset: 0xE8) Write Protection Status Register */
 } Isi;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- ISI_CFG1 : (ISI Offset: 0x00) ISI Configuration 1 Register -------- */
+/* -------- ISI_CFG1 : (ISI Offset: 0x0) ISI Configuration 1 Register -------- */
 #define ISI_CFG1_HSYNC_POL (0x1u << 2) /**< \brief (ISI_CFG1) Horizontal Synchronization Polarity */
 #define ISI_CFG1_VSYNC_POL (0x1u << 3) /**< \brief (ISI_CFG1) Vertical Synchronization Polarity */
 #define ISI_CFG1_PIXCLK_POL (0x1u << 4) /**< \brief (ISI_CFG1) Pixel Clock Polarity */
@@ -90,7 +90,7 @@ typedef struct {
 #define ISI_CFG1_SFD_Pos 24
 #define ISI_CFG1_SFD_Msk (0xffu << ISI_CFG1_SFD_Pos) /**< \brief (ISI_CFG1) Start of Frame Delay */
 #define ISI_CFG1_SFD(value) ((ISI_CFG1_SFD_Msk & ((value) << ISI_CFG1_SFD_Pos)))
-/* -------- ISI_CFG2 : (ISI Offset: 0x04) ISI Configuration 2 Register -------- */
+/* -------- ISI_CFG2 : (ISI Offset: 0x4) ISI Configuration 2 Register -------- */
 #define ISI_CFG2_IM_VSIZE_Pos 0
 #define ISI_CFG2_IM_VSIZE_Msk (0x7ffu << ISI_CFG2_IM_VSIZE_Pos) /**< \brief (ISI_CFG2) Vertical Size of the Image Sensor [0..2047] */
 #define ISI_CFG2_IM_VSIZE(value) ((ISI_CFG2_IM_VSIZE_Msk & ((value) << ISI_CFG2_IM_VSIZE_Pos)))
@@ -116,14 +116,14 @@ typedef struct {
 #define   ISI_CFG2_RGB_CFG_MODE1 (0x1u << 30) /**< \brief (ISI_CFG2) Byte 0 B/G(MSB) Byte 1 G(LSB)/R Byte 2 B/G(MSB) Byte 3 G(LSB)/R */
 #define   ISI_CFG2_RGB_CFG_MODE2 (0x2u << 30) /**< \brief (ISI_CFG2) Byte 0 G(LSB)/R Byte 1 B/G(MSB) Byte 2 G(LSB)/R Byte 3 B/G(MSB) */
 #define   ISI_CFG2_RGB_CFG_MODE3 (0x3u << 30) /**< \brief (ISI_CFG2) Byte 0 G(LSB)/B Byte 1 R/G(MSB) Byte 2 G(LSB)/B Byte 3 R/G(MSB) */
-/* -------- ISI_PSIZE : (ISI Offset: 0x08) ISI Preview Size Register -------- */
+/* -------- ISI_PSIZE : (ISI Offset: 0x8) ISI Preview Size Register -------- */
 #define ISI_PSIZE_PREV_VSIZE_Pos 0
 #define ISI_PSIZE_PREV_VSIZE_Msk (0x3ffu << ISI_PSIZE_PREV_VSIZE_Pos) /**< \brief (ISI_PSIZE) Vertical Size for the Preview Path */
 #define ISI_PSIZE_PREV_VSIZE(value) ((ISI_PSIZE_PREV_VSIZE_Msk & ((value) << ISI_PSIZE_PREV_VSIZE_Pos)))
 #define ISI_PSIZE_PREV_HSIZE_Pos 16
 #define ISI_PSIZE_PREV_HSIZE_Msk (0x3ffu << ISI_PSIZE_PREV_HSIZE_Pos) /**< \brief (ISI_PSIZE) Horizontal Size for the Preview Path */
 #define ISI_PSIZE_PREV_HSIZE(value) ((ISI_PSIZE_PREV_HSIZE_Msk & ((value) << ISI_PSIZE_PREV_HSIZE_Pos)))
-/* -------- ISI_PDECF : (ISI Offset: 0x0C) ISI Preview Decimation Factor Register -------- */
+/* -------- ISI_PDECF : (ISI Offset: 0xC) ISI Preview Decimation Factor Register -------- */
 #define ISI_PDECF_DEC_FACTOR_Pos 0
 #define ISI_PDECF_DEC_FACTOR_Msk (0xffu << ISI_PDECF_DEC_FACTOR_Pos) /**< \brief (ISI_PDECF) Decimation Factor */
 #define ISI_PDECF_DEC_FACTOR(value) ((ISI_PDECF_DEC_FACTOR_Msk & ((value) << ISI_PDECF_DEC_FACTOR_Pos)))

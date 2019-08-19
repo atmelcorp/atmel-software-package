@@ -31,9 +31,9 @@
 #define _SAM9X_UDPHS_COMPONENT_
 
 /* ============================================================================= */
-/**  SOFTWARE API DEFINITION FOR OTP Memory Controller */
+/**  SOFTWARE API DEFINITION FOR USB High Speed Device Port */
 /* ============================================================================= */
-/** \addtogroup SAM9X_UDPHS OTP Memory Controller */
+/** \addtogroup SAM9X_UDPHS USB High Speed Device Port */
 /*@{*/
 
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -59,8 +59,8 @@ typedef struct {
 #define UDPHSEPT_NUMBER 7
 #define UDPHSDMA_NUMBER 7
 typedef struct {
-  __IO uint32_t UDPHS_CTRL;                 /**< \brief (Udphs Offset: 0x00) UDPHS Control Register */
-  __I  uint32_t UDPHS_FNUM;                 /**< \brief (Udphs Offset: 0x04) UDPHS Frame Number Register */
+  __IO uint32_t UDPHS_CTRL;                 /**< \brief (Udphs Offset: 0x0) UDPHS Control Register */
+  __I  uint32_t UDPHS_FNUM;                 /**< \brief (Udphs Offset: 0x4) UDPHS Frame Number Register */
   __I  uint32_t Reserved1[2];
   __IO uint32_t UDPHS_IEN;                  /**< \brief (Udphs Offset: 0x10) UDPHS Interrupt Enable Register */
   __I  uint32_t UDPHS_INTSTA;               /**< \brief (Udphs Offset: 0x14) UDPHS Interrupt Status Register */
@@ -78,7 +78,7 @@ typedef struct {
        UdphsDma UDPHS_DMA[UDPHSDMA_NUMBER]; /**< \brief (Udphs Offset: 0x300) channel = 0 .. 6 */
 } Udphs;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- UDPHS_CTRL : (UDPHS Offset: 0x00) UDPHS Control Register -------- */
+/* -------- UDPHS_CTRL : (UDPHS Offset: 0x0) UDPHS Control Register -------- */
 #define UDPHS_CTRL_DEV_ADDR_Pos 0
 #define UDPHS_CTRL_DEV_ADDR_Msk (0x7fu << UDPHS_CTRL_DEV_ADDR_Pos) /**< \brief (UDPHS_CTRL) UDPHS Address (cleared upon USB reset) */
 #define UDPHS_CTRL_DEV_ADDR(value) ((UDPHS_CTRL_DEV_ADDR_Msk & ((value) << UDPHS_CTRL_DEV_ADDR_Pos)))
@@ -87,7 +87,7 @@ typedef struct {
 #define UDPHS_CTRL_DETACH (0x1u << 9) /**< \brief (UDPHS_CTRL) Detach Command */
 #define UDPHS_CTRL_REWAKEUP (0x1u << 10) /**< \brief (UDPHS_CTRL) Send Remote Wakeup (cleared upon USB reset) */
 #define UDPHS_CTRL_PULLD_DIS (0x1u << 11) /**< \brief (UDPHS_CTRL) Pulldown Disable (cleared upon USB reset) */
-/* -------- UDPHS_FNUM : (UDPHS Offset: 0x04) UDPHS Frame Number Register -------- */
+/* -------- UDPHS_FNUM : (UDPHS Offset: 0x4) UDPHS Frame Number Register -------- */
 #define UDPHS_FNUM_MICRO_FRAME_NUM_Pos 0
 #define UDPHS_FNUM_MICRO_FRAME_NUM_Msk (0x7u << UDPHS_FNUM_MICRO_FRAME_NUM_Pos) /**< \brief (UDPHS_FNUM) Microframe Number (cleared upon USB reset) */
 #define UDPHS_FNUM_FRAME_NUMBER_Pos 3

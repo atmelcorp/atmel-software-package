@@ -39,10 +39,10 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Sdramc hardware registers */
 typedef struct {
-  __IO uint32_t SDRAMC_MR;        /**< \brief (Sdramc Offset: 0x00) Mode Register */
-  __IO uint32_t SDRAMC_TR;        /**< \brief (Sdramc Offset: 0x04) Refresh Timer Register */
-  __IO uint32_t SDRAMC_CR;        /**< \brief (Sdramc Offset: 0x08) Configuration Register */
-  __IO uint32_t SDRAMC_HSR;       /**< \brief (Sdramc Offset: 0x0C) High-Speed Register */
+  __IO uint32_t SDRAMC_MR;        /**< \brief (Sdramc Offset: 0x0) Mode Register */
+  __IO uint32_t SDRAMC_TR;        /**< \brief (Sdramc Offset: 0x4) Refresh Timer Register */
+  __IO uint32_t SDRAMC_CR;        /**< \brief (Sdramc Offset: 0x8) Configuration Register */
+  __IO uint32_t SDRAMC_HSR;       /**< \brief (Sdramc Offset: 0xC) High-Speed Register */
   __IO uint32_t SDRAMC_LPR;       /**< \brief (Sdramc Offset: 0x10) Low-Power Register */
   __O  uint32_t SDRAMC_IER;       /**< \brief (Sdramc Offset: 0x14) Interrupt Enable Register */
   __O  uint32_t SDRAMC_IDR;       /**< \brief (Sdramc Offset: 0x18) Interrupt Disable Register */
@@ -58,7 +58,7 @@ typedef struct {
   __I  uint32_t SDRAMC_WPSR;      /**< \brief (Sdramc Offset: 0x40) Write Protection Status Register */
 } Sdramc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- SDRAMC_MR : (SDRAMC Offset: 0x00) Mode Register -------- */
+/* -------- SDRAMC_MR : (SDRAMC Offset: 0x0) Mode Register -------- */
 #define SDRAMC_MR_MODE_Pos 0
 #define SDRAMC_MR_MODE_Msk (0x7u << SDRAMC_MR_MODE_Pos) /**< \brief (SDRAMC_MR) SDRAMC Command Mode */
 #define SDRAMC_MR_MODE(value) ((SDRAMC_MR_MODE_Msk & ((value) << SDRAMC_MR_MODE_Pos)))
@@ -69,11 +69,11 @@ typedef struct {
 #define   SDRAMC_MR_MODE_AUTO_REFRESH (0x4u << 0) /**< \brief (SDRAMC_MR) The SDRAMC issues an "Autorefresh" Command when the SDRAM device is accessed regardless of the cycle. Previously, an "All Banks Precharge" command must be issued. To activate this mode, the command must be followed by a write to the SDRAM. */
 #define   SDRAMC_MR_MODE_EXT_LOAD_MODEREG (0x5u << 0) /**< \brief (SDRAMC_MR) The SDRAMC issues an "Extended Load Mode Register" command when the SDRAM device is accessed regardless of the cycle. To activate this mode, the "Extended Load Mode Register" command must be followed by a write to the SDRAM. The write in the SDRAM must be done in the appropriate bank; most low-power SDRAM devices use the bank 1. */
 #define   SDRAMC_MR_MODE_DEEP_POWERDOWN (0x6u << 0) /**< \brief (SDRAMC_MR) Deep Powerdown mode. Enters Deep Powerdown mode. */
-/* -------- SDRAMC_TR : (SDRAMC Offset: 0x04) Refresh Timer Register -------- */
+/* -------- SDRAMC_TR : (SDRAMC Offset: 0x4) Refresh Timer Register -------- */
 #define SDRAMC_TR_COUNT_Pos 0
 #define SDRAMC_TR_COUNT_Msk (0xfffu << SDRAMC_TR_COUNT_Pos) /**< \brief (SDRAMC_TR) SDRAMC Refresh Timer Count */
 #define SDRAMC_TR_COUNT(value) ((SDRAMC_TR_COUNT_Msk & ((value) << SDRAMC_TR_COUNT_Pos)))
-/* -------- SDRAMC_CR : (SDRAMC Offset: 0x08) Configuration Register -------- */
+/* -------- SDRAMC_CR : (SDRAMC Offset: 0x8) Configuration Register -------- */
 #define SDRAMC_CR_NC_Pos 0
 #define SDRAMC_CR_NC_Msk (0x3u << SDRAMC_CR_NC_Pos) /**< \brief (SDRAMC_CR) Number of Column Bits */
 #define SDRAMC_CR_NC(value) ((SDRAMC_CR_NC_Msk & ((value) << SDRAMC_CR_NC_Pos)))
@@ -114,7 +114,7 @@ typedef struct {
 #define SDRAMC_CR_TXSR_Pos 28
 #define SDRAMC_CR_TXSR_Msk (0xfu << SDRAMC_CR_TXSR_Pos) /**< \brief (SDRAMC_CR) Exit Self-Refresh to Active Delay */
 #define SDRAMC_CR_TXSR(value) ((SDRAMC_CR_TXSR_Msk & ((value) << SDRAMC_CR_TXSR_Pos)))
-/* -------- SDRAMC_HSR : (SDRAMC Offset: 0x0C) High-Speed Register -------- */
+/* -------- SDRAMC_HSR : (SDRAMC Offset: 0xC) High-Speed Register -------- */
 #define SDRAMC_HSR_DA (0x1u << 0) /**< \brief (SDRAMC_HSR) Decode Cycle Enable */
 /* -------- SDRAMC_LPR : (SDRAMC Offset: 0x10) Low-Power Register -------- */
 #define SDRAMC_LPR_LPCB_Pos 0

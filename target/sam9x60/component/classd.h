@@ -39,10 +39,10 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Classd hardware registers */
 typedef struct {
-  __O  uint32_t CLASSD_CR;     /**< \brief (Classd Offset: 0x00) Control Register */
-  __IO uint32_t CLASSD_MR;     /**< \brief (Classd Offset: 0x04) Mode Register */
-  __IO uint32_t CLASSD_INTPMR; /**< \brief (Classd Offset: 0x08) Interpolator Mode Register */
-  __I  uint32_t CLASSD_INTSR;  /**< \brief (Classd Offset: 0x0C) Interpolator Status Register */
+  __O  uint32_t CLASSD_CR;     /**< \brief (Classd Offset: 0x0) Control Register */
+  __IO uint32_t CLASSD_MR;     /**< \brief (Classd Offset: 0x4) Mode Register */
+  __IO uint32_t CLASSD_INTPMR; /**< \brief (Classd Offset: 0x8) Interpolator Mode Register */
+  __I  uint32_t CLASSD_INTSR;  /**< \brief (Classd Offset: 0xC) Interpolator Status Register */
   __IO uint32_t CLASSD_THR;    /**< \brief (Classd Offset: 0x10) Transmit Holding Register */
   __O  uint32_t CLASSD_IER;    /**< \brief (Classd Offset: 0x14) Interrupt Enable Register */
   __O  uint32_t CLASSD_IDR;    /**< \brief (Classd Offset: 0x18) Interrupt Disable Register */
@@ -52,9 +52,9 @@ typedef struct {
   __IO uint32_t CLASSD_WPMR;   /**< \brief (Classd Offset: 0xE4) Write Protection Mode Register */
 } Classd;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- CLASSD_CR : (CLASSD Offset: 0x00) Control Register -------- */
+/* -------- CLASSD_CR : (CLASSD Offset: 0x0) Control Register -------- */
 #define CLASSD_CR_SWRST (0x1u << 0) /**< \brief (CLASSD_CR) Software Reset */
-/* -------- CLASSD_MR : (CLASSD Offset: 0x04) Mode Register -------- */
+/* -------- CLASSD_MR : (CLASSD Offset: 0x4) Mode Register -------- */
 #define CLASSD_MR_LEN (0x1u << 0) /**< \brief (CLASSD_MR) Left Channel Enable */
 #define CLASSD_MR_LMUTE (0x1u << 1) /**< \brief (CLASSD_MR) Left Channel Mute */
 #define CLASSD_MR_REN (0x1u << 4) /**< \brief (CLASSD_MR) Right Channel Enable */
@@ -70,7 +70,7 @@ typedef struct {
 #define   CLASSD_MR_NOVRVAL_10NS (0x1u << 20) /**< \brief (CLASSD_MR) Non-overlapping time is 10 ns */
 #define   CLASSD_MR_NOVRVAL_15NS (0x2u << 20) /**< \brief (CLASSD_MR) Non-overlapping time is 15 ns */
 #define   CLASSD_MR_NOVRVAL_20NS (0x3u << 20) /**< \brief (CLASSD_MR) Non-overlapping time is 20 ns */
-/* -------- CLASSD_INTPMR : (CLASSD Offset: 0x08) Interpolator Mode Register -------- */
+/* -------- CLASSD_INTPMR : (CLASSD Offset: 0x8) Interpolator Mode Register -------- */
 #define CLASSD_INTPMR_ATTL_Pos 0
 #define CLASSD_INTPMR_ATTL_Msk (0x7fu << CLASSD_INTPMR_ATTL_Pos) /**< \brief (CLASSD_INTPMR) Left Channel Attenuation */
 #define CLASSD_INTPMR_ATTL(value) ((CLASSD_INTPMR_ATTL_Msk & ((value) << CLASSD_INTPMR_ATTL_Pos)))
@@ -123,7 +123,7 @@ typedef struct {
 #define   CLASSD_INTPMR_MONOMODE_MONOSAT (0x1u << 29) /**< \brief (CLASSD_INTPMR) (left + right) is sent to both channels. If the sum is too high, the result is saturated. */
 #define   CLASSD_INTPMR_MONOMODE_MONOLEFT (0x2u << 29) /**< \brief (CLASSD_INTPMR) THR[15:0] is sent on both left and right channels */
 #define   CLASSD_INTPMR_MONOMODE_MONORIGHT (0x3u << 29) /**< \brief (CLASSD_INTPMR) THR[31:16] is sent on both left and right channels */
-/* -------- CLASSD_INTSR : (CLASSD Offset: 0x0C) Interpolator Status Register -------- */
+/* -------- CLASSD_INTSR : (CLASSD Offset: 0xC) Interpolator Status Register -------- */
 #define CLASSD_INTSR_CFGERR (0x1u << 0) /**< \brief (CLASSD_INTSR) Configuration Error */
 /* -------- CLASSD_THR : (CLASSD Offset: 0x10) Transmit Holding Register -------- */
 #define CLASSD_THR_LDATA_Pos 0

@@ -39,71 +39,71 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Pio hardware registers */
 typedef struct {
-  __O  uint32_t PIO_PER;       /**< \brief (Pio Offset: 0x0000) PIO Enable Register */
-  __O  uint32_t PIO_PDR;       /**< \brief (Pio Offset: 0x0004) PIO Disable Register */
-  __I  uint32_t PIO_PSR;       /**< \brief (Pio Offset: 0x0008) PIO Status Register */
+  __O  uint32_t PIO_PER;       /**< \brief (Pio Offset: 0x0) PIO Enable Register */
+  __O  uint32_t PIO_PDR;       /**< \brief (Pio Offset: 0x4) PIO Disable Register */
+  __I  uint32_t PIO_PSR;       /**< \brief (Pio Offset: 0x8) PIO Status Register */
   __I  uint32_t Reserved1[1];
-  __O  uint32_t PIO_OER;       /**< \brief (Pio Offset: 0x0010) Output Enable Register */
-  __O  uint32_t PIO_ODR;       /**< \brief (Pio Offset: 0x0014) Output Disable Register */
-  __I  uint32_t PIO_OSR;       /**< \brief (Pio Offset: 0x0018) Output Status Register */
+  __O  uint32_t PIO_OER;       /**< \brief (Pio Offset: 0x10) Output Enable Register */
+  __O  uint32_t PIO_ODR;       /**< \brief (Pio Offset: 0x14) Output Disable Register */
+  __I  uint32_t PIO_OSR;       /**< \brief (Pio Offset: 0x18) Output Status Register */
   __I  uint32_t Reserved2[1];
-  __O  uint32_t PIO_IFER;      /**< \brief (Pio Offset: 0x0020) Glitch Input Filter Enable Register */
-  __O  uint32_t PIO_IFDR;      /**< \brief (Pio Offset: 0x0024) Glitch Input Filter Disable Register */
-  __I  uint32_t PIO_IFSR;      /**< \brief (Pio Offset: 0x0028) Glitch Input Filter Status Register */
+  __O  uint32_t PIO_IFER;      /**< \brief (Pio Offset: 0x20) Glitch Input Filter Enable Register */
+  __O  uint32_t PIO_IFDR;      /**< \brief (Pio Offset: 0x24) Glitch Input Filter Disable Register */
+  __I  uint32_t PIO_IFSR;      /**< \brief (Pio Offset: 0x28) Glitch Input Filter Status Register */
   __I  uint32_t Reserved3[1];
-  __O  uint32_t PIO_SODR;      /**< \brief (Pio Offset: 0x0030) Set Output Data Register */
-  __O  uint32_t PIO_CODR;      /**< \brief (Pio Offset: 0x0034) Clear Output Data Register */
-  __IO uint32_t PIO_ODSR;      /**< \brief (Pio Offset: 0x0038) Output Data Status Register */
-  __I  uint32_t PIO_PDSR;      /**< \brief (Pio Offset: 0x003C) Pin Data Status Register */
-  __O  uint32_t PIO_IER;       /**< \brief (Pio Offset: 0x0040) Interrupt Enable Register */
-  __O  uint32_t PIO_IDR;       /**< \brief (Pio Offset: 0x0044) Interrupt Disable Register */
-  __I  uint32_t PIO_IMR;       /**< \brief (Pio Offset: 0x0048) Interrupt Mask Register */
-  __I  uint32_t PIO_ISR;       /**< \brief (Pio Offset: 0x004C) Interrupt Status Register */
-  __O  uint32_t PIO_MDER;      /**< \brief (Pio Offset: 0x0050) Multi-driver Enable Register */
-  __O  uint32_t PIO_MDDR;      /**< \brief (Pio Offset: 0x0054) Multi-driver Disable Register */
-  __I  uint32_t PIO_MDSR;      /**< \brief (Pio Offset: 0x0058) Multi-driver Status Register */
+  __O  uint32_t PIO_SODR;      /**< \brief (Pio Offset: 0x30) Set Output Data Register */
+  __O  uint32_t PIO_CODR;      /**< \brief (Pio Offset: 0x34) Clear Output Data Register */
+  __IO uint32_t PIO_ODSR;      /**< \brief (Pio Offset: 0x38) Output Data Status Register */
+  __I  uint32_t PIO_PDSR;      /**< \brief (Pio Offset: 0x3C) Pin Data Status Register */
+  __O  uint32_t PIO_IER;       /**< \brief (Pio Offset: 0x40) Interrupt Enable Register */
+  __O  uint32_t PIO_IDR;       /**< \brief (Pio Offset: 0x44) Interrupt Disable Register */
+  __I  uint32_t PIO_IMR;       /**< \brief (Pio Offset: 0x48) Interrupt Mask Register */
+  __I  uint32_t PIO_ISR;       /**< \brief (Pio Offset: 0x4C) Interrupt Status Register */
+  __O  uint32_t PIO_MDER;      /**< \brief (Pio Offset: 0x50) Multi-driver Enable Register */
+  __O  uint32_t PIO_MDDR;      /**< \brief (Pio Offset: 0x54) Multi-driver Disable Register */
+  __I  uint32_t PIO_MDSR;      /**< \brief (Pio Offset: 0x58) Multi-driver Status Register */
   __I  uint32_t Reserved4[1];
-  __O  uint32_t PIO_PUDR;      /**< \brief (Pio Offset: 0x0060) Pull-Up Disable Register */
-  __O  uint32_t PIO_PUER;      /**< \brief (Pio Offset: 0x0064) Pull-Up Enable Register */
-  __I  uint32_t PIO_PUSR;      /**< \brief (Pio Offset: 0x0068) Pad Pull-Up Status Register */
+  __O  uint32_t PIO_PUDR;      /**< \brief (Pio Offset: 0x60) Pull-Up Disable Register */
+  __O  uint32_t PIO_PUER;      /**< \brief (Pio Offset: 0x64) Pull-Up Enable Register */
+  __I  uint32_t PIO_PUSR;      /**< \brief (Pio Offset: 0x68) Pad Pull-Up Status Register */
   __I  uint32_t Reserved5[1];
-  __IO uint32_t PIO_ABCDSR[2]; /**< \brief (Pio Offset: 0x0070) Peripheral ABCD Select Register */
+  __IO uint32_t PIO_ABCDSR[2]; /**< \brief (Pio Offset: 0x70) Peripheral ABCD Select Register */
   __I  uint32_t Reserved6[2];
-  __O  uint32_t PIO_IFSCDR;    /**< \brief (Pio Offset: 0x0080) Input Filter Slow Clock Disable Register */
-  __O  uint32_t PIO_IFSCER;    /**< \brief (Pio Offset: 0x0084) Input Filter Slow Clock Enable Register */
-  __I  uint32_t PIO_IFSCSR;    /**< \brief (Pio Offset: 0x0088) Input Filter Slow Clock Status Register */
-  __IO uint32_t PIO_SCDR;      /**< \brief (Pio Offset: 0x008C) Slow Clock Divider Debouncing Register */
-  __O  uint32_t PIO_PPDDR;     /**< \brief (Pio Offset: 0x0090) Pad Pull-Down Disable Register */
-  __O  uint32_t PIO_PPDER;     /**< \brief (Pio Offset: 0x0094) Pad Pull-Down Enable Register */
-  __I  uint32_t PIO_PPDSR;     /**< \brief (Pio Offset: 0x0098) Pad Pull-Down Status Register */
+  __O  uint32_t PIO_IFSCDR;    /**< \brief (Pio Offset: 0x80) Input Filter Slow Clock Disable Register */
+  __O  uint32_t PIO_IFSCER;    /**< \brief (Pio Offset: 0x84) Input Filter Slow Clock Enable Register */
+  __I  uint32_t PIO_IFSCSR;    /**< \brief (Pio Offset: 0x88) Input Filter Slow Clock Status Register */
+  __IO uint32_t PIO_SCDR;      /**< \brief (Pio Offset: 0x8C) Slow Clock Divider Debouncing Register */
+  __O  uint32_t PIO_PPDDR;     /**< \brief (Pio Offset: 0x90) Pad Pull-Down Disable Register */
+  __O  uint32_t PIO_PPDER;     /**< \brief (Pio Offset: 0x94) Pad Pull-Down Enable Register */
+  __I  uint32_t PIO_PPDSR;     /**< \brief (Pio Offset: 0x98) Pad Pull-Down Status Register */
   __I  uint32_t Reserved7[1];
-  __O  uint32_t PIO_OWER;      /**< \brief (Pio Offset: 0x00A0) Output Write Enable */
-  __O  uint32_t PIO_OWDR;      /**< \brief (Pio Offset: 0x00A4) Output Write Disable */
-  __I  uint32_t PIO_OWSR;      /**< \brief (Pio Offset: 0x00A8) Output Write Status Register */
+  __O  uint32_t PIO_OWER;      /**< \brief (Pio Offset: 0xA0) Output Write Enable */
+  __O  uint32_t PIO_OWDR;      /**< \brief (Pio Offset: 0xA4) Output Write Disable */
+  __I  uint32_t PIO_OWSR;      /**< \brief (Pio Offset: 0xA8) Output Write Status Register */
   __I  uint32_t Reserved8[1];
-  __O  uint32_t PIO_AIMER;     /**< \brief (Pio Offset: 0x00B0) Additional Interrupt Modes Enable Register */
-  __O  uint32_t PIO_AIMDR;     /**< \brief (Pio Offset: 0x00B4) Additional Interrupt Modes Disable Register */
-  __I  uint32_t PIO_AIMMR;     /**< \brief (Pio Offset: 0x00B8) Additional Interrupt Modes Mask Register */
+  __O  uint32_t PIO_AIMER;     /**< \brief (Pio Offset: 0xB0) Additional Interrupt Modes Enable Register */
+  __O  uint32_t PIO_AIMDR;     /**< \brief (Pio Offset: 0xB4) Additional Interrupt Modes Disable Register */
+  __I  uint32_t PIO_AIMMR;     /**< \brief (Pio Offset: 0xB8) Additional Interrupt Modes Mask Register */
   __I  uint32_t Reserved9[1];
-  __O  uint32_t PIO_ESR;       /**< \brief (Pio Offset: 0x00C0) Edge Select Register */
-  __O  uint32_t PIO_LSR;       /**< \brief (Pio Offset: 0x00C4) Level Select Register */
-  __I  uint32_t PIO_ELSR;      /**< \brief (Pio Offset: 0x00C8) Edge/Level Status Register */
+  __O  uint32_t PIO_ESR;       /**< \brief (Pio Offset: 0xC0) Edge Select Register */
+  __O  uint32_t PIO_LSR;       /**< \brief (Pio Offset: 0xC4) Level Select Register */
+  __I  uint32_t PIO_ELSR;      /**< \brief (Pio Offset: 0xC8) Edge/Level Status Register */
   __I  uint32_t Reserved10[1];
-  __O  uint32_t PIO_FELLSR;    /**< \brief (Pio Offset: 0x00D0) Falling Edge/Low-Level Select Register */
-  __O  uint32_t PIO_REHLSR;    /**< \brief (Pio Offset: 0x00D4) Rising Edge/High-Level Select Register */
-  __I  uint32_t PIO_FRLHSR;    /**< \brief (Pio Offset: 0x00D8) Fall/Rise - Low/High Status Register */
+  __O  uint32_t PIO_FELLSR;    /**< \brief (Pio Offset: 0xD0) Falling Edge/Low-Level Select Register */
+  __O  uint32_t PIO_REHLSR;    /**< \brief (Pio Offset: 0xD4) Rising Edge/High-Level Select Register */
+  __I  uint32_t PIO_FRLHSR;    /**< \brief (Pio Offset: 0xD8) Fall/Rise - Low/High Status Register */
   __I  uint32_t Reserved11[2];
-  __IO uint32_t PIO_WPMR;      /**< \brief (Pio Offset: 0x00E4) Write Protection Mode Register */
-  __I  uint32_t PIO_WPSR;      /**< \brief (Pio Offset: 0x00E8) Write Protection Status Register */
+  __IO uint32_t PIO_WPMR;      /**< \brief (Pio Offset: 0xE4) Write Protection Mode Register */
+  __I  uint32_t PIO_WPSR;      /**< \brief (Pio Offset: 0xE8) Write Protection Status Register */
   __I  uint32_t Reserved12[5];
-  __IO uint32_t PIO_SCHMITT;   /**< \brief (Pio Offset: 0x0100) Schmitt Trigger Register */
+  __IO uint32_t PIO_SCHMITT;   /**< \brief (Pio Offset: 0x100) Schmitt Trigger Register */
   __I  uint32_t Reserved13[3];
-  __IO uint32_t PIO_SLEWR;     /**< \brief (Pio Offset: 0x0110) I/O Slewrate Control Register */
+  __IO uint32_t PIO_SLEWR;     /**< \brief (Pio Offset: 0x110) I/O Slewrate Control Register */
   __I  uint32_t Reserved14[1];
-  __IO uint32_t PIO_DRIVER;    /**< \brief (Pio Offset: 0x0118) I/O Drive Register */
+  __IO uint32_t PIO_DRIVER;    /**< \brief (Pio Offset: 0x118) I/O Drive Register */
 } Pio;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- PIO_PER : (PIO Offset: 0x0000) PIO Enable Register -------- */
+/* -------- PIO_PER : (PIO Offset: 0x0) PIO Enable Register -------- */
 #define PIO_PER_P0 (0x1u << 0) /**< \brief (PIO_PER) PIO Enable */
 #define PIO_PER_P1 (0x1u << 1) /**< \brief (PIO_PER) PIO Enable */
 #define PIO_PER_P2 (0x1u << 2) /**< \brief (PIO_PER) PIO Enable */
@@ -136,7 +136,7 @@ typedef struct {
 #define PIO_PER_P29 (0x1u << 29) /**< \brief (PIO_PER) PIO Enable */
 #define PIO_PER_P30 (0x1u << 30) /**< \brief (PIO_PER) PIO Enable */
 #define PIO_PER_P31 (0x1u << 31) /**< \brief (PIO_PER) PIO Enable */
-/* -------- PIO_PDR : (PIO Offset: 0x0004) PIO Disable Register -------- */
+/* -------- PIO_PDR : (PIO Offset: 0x4) PIO Disable Register -------- */
 #define PIO_PDR_P0 (0x1u << 0) /**< \brief (PIO_PDR) PIO Disable */
 #define PIO_PDR_P1 (0x1u << 1) /**< \brief (PIO_PDR) PIO Disable */
 #define PIO_PDR_P2 (0x1u << 2) /**< \brief (PIO_PDR) PIO Disable */
@@ -169,7 +169,7 @@ typedef struct {
 #define PIO_PDR_P29 (0x1u << 29) /**< \brief (PIO_PDR) PIO Disable */
 #define PIO_PDR_P30 (0x1u << 30) /**< \brief (PIO_PDR) PIO Disable */
 #define PIO_PDR_P31 (0x1u << 31) /**< \brief (PIO_PDR) PIO Disable */
-/* -------- PIO_PSR : (PIO Offset: 0x0008) PIO Status Register -------- */
+/* -------- PIO_PSR : (PIO Offset: 0x8) PIO Status Register -------- */
 #define PIO_PSR_P0 (0x1u << 0) /**< \brief (PIO_PSR) PIO Status */
 #define PIO_PSR_P1 (0x1u << 1) /**< \brief (PIO_PSR) PIO Status */
 #define PIO_PSR_P2 (0x1u << 2) /**< \brief (PIO_PSR) PIO Status */
@@ -202,7 +202,7 @@ typedef struct {
 #define PIO_PSR_P29 (0x1u << 29) /**< \brief (PIO_PSR) PIO Status */
 #define PIO_PSR_P30 (0x1u << 30) /**< \brief (PIO_PSR) PIO Status */
 #define PIO_PSR_P31 (0x1u << 31) /**< \brief (PIO_PSR) PIO Status */
-/* -------- PIO_OER : (PIO Offset: 0x0010) Output Enable Register -------- */
+/* -------- PIO_OER : (PIO Offset: 0x10) Output Enable Register -------- */
 #define PIO_OER_P0 (0x1u << 0) /**< \brief (PIO_OER) Output Enable */
 #define PIO_OER_P1 (0x1u << 1) /**< \brief (PIO_OER) Output Enable */
 #define PIO_OER_P2 (0x1u << 2) /**< \brief (PIO_OER) Output Enable */
@@ -235,7 +235,7 @@ typedef struct {
 #define PIO_OER_P29 (0x1u << 29) /**< \brief (PIO_OER) Output Enable */
 #define PIO_OER_P30 (0x1u << 30) /**< \brief (PIO_OER) Output Enable */
 #define PIO_OER_P31 (0x1u << 31) /**< \brief (PIO_OER) Output Enable */
-/* -------- PIO_ODR : (PIO Offset: 0x0014) Output Disable Register -------- */
+/* -------- PIO_ODR : (PIO Offset: 0x14) Output Disable Register -------- */
 #define PIO_ODR_P0 (0x1u << 0) /**< \brief (PIO_ODR) Output Disable */
 #define PIO_ODR_P1 (0x1u << 1) /**< \brief (PIO_ODR) Output Disable */
 #define PIO_ODR_P2 (0x1u << 2) /**< \brief (PIO_ODR) Output Disable */
@@ -268,7 +268,7 @@ typedef struct {
 #define PIO_ODR_P29 (0x1u << 29) /**< \brief (PIO_ODR) Output Disable */
 #define PIO_ODR_P30 (0x1u << 30) /**< \brief (PIO_ODR) Output Disable */
 #define PIO_ODR_P31 (0x1u << 31) /**< \brief (PIO_ODR) Output Disable */
-/* -------- PIO_OSR : (PIO Offset: 0x0018) Output Status Register -------- */
+/* -------- PIO_OSR : (PIO Offset: 0x18) Output Status Register -------- */
 #define PIO_OSR_P0 (0x1u << 0) /**< \brief (PIO_OSR) Output Status */
 #define PIO_OSR_P1 (0x1u << 1) /**< \brief (PIO_OSR) Output Status */
 #define PIO_OSR_P2 (0x1u << 2) /**< \brief (PIO_OSR) Output Status */
@@ -301,7 +301,7 @@ typedef struct {
 #define PIO_OSR_P29 (0x1u << 29) /**< \brief (PIO_OSR) Output Status */
 #define PIO_OSR_P30 (0x1u << 30) /**< \brief (PIO_OSR) Output Status */
 #define PIO_OSR_P31 (0x1u << 31) /**< \brief (PIO_OSR) Output Status */
-/* -------- PIO_IFER : (PIO Offset: 0x0020) Glitch Input Filter Enable Register -------- */
+/* -------- PIO_IFER : (PIO Offset: 0x20) Glitch Input Filter Enable Register -------- */
 #define PIO_IFER_P0 (0x1u << 0) /**< \brief (PIO_IFER) Input Filter Enable */
 #define PIO_IFER_P1 (0x1u << 1) /**< \brief (PIO_IFER) Input Filter Enable */
 #define PIO_IFER_P2 (0x1u << 2) /**< \brief (PIO_IFER) Input Filter Enable */
@@ -334,7 +334,7 @@ typedef struct {
 #define PIO_IFER_P29 (0x1u << 29) /**< \brief (PIO_IFER) Input Filter Enable */
 #define PIO_IFER_P30 (0x1u << 30) /**< \brief (PIO_IFER) Input Filter Enable */
 #define PIO_IFER_P31 (0x1u << 31) /**< \brief (PIO_IFER) Input Filter Enable */
-/* -------- PIO_IFDR : (PIO Offset: 0x0024) Glitch Input Filter Disable Register -------- */
+/* -------- PIO_IFDR : (PIO Offset: 0x24) Glitch Input Filter Disable Register -------- */
 #define PIO_IFDR_P0 (0x1u << 0) /**< \brief (PIO_IFDR) Input Filter Disable */
 #define PIO_IFDR_P1 (0x1u << 1) /**< \brief (PIO_IFDR) Input Filter Disable */
 #define PIO_IFDR_P2 (0x1u << 2) /**< \brief (PIO_IFDR) Input Filter Disable */
@@ -367,7 +367,7 @@ typedef struct {
 #define PIO_IFDR_P29 (0x1u << 29) /**< \brief (PIO_IFDR) Input Filter Disable */
 #define PIO_IFDR_P30 (0x1u << 30) /**< \brief (PIO_IFDR) Input Filter Disable */
 #define PIO_IFDR_P31 (0x1u << 31) /**< \brief (PIO_IFDR) Input Filter Disable */
-/* -------- PIO_IFSR : (PIO Offset: 0x0028) Glitch Input Filter Status Register -------- */
+/* -------- PIO_IFSR : (PIO Offset: 0x28) Glitch Input Filter Status Register -------- */
 #define PIO_IFSR_P0 (0x1u << 0) /**< \brief (PIO_IFSR) Input Filter Status */
 #define PIO_IFSR_P1 (0x1u << 1) /**< \brief (PIO_IFSR) Input Filter Status */
 #define PIO_IFSR_P2 (0x1u << 2) /**< \brief (PIO_IFSR) Input Filter Status */
@@ -400,7 +400,7 @@ typedef struct {
 #define PIO_IFSR_P29 (0x1u << 29) /**< \brief (PIO_IFSR) Input Filter Status */
 #define PIO_IFSR_P30 (0x1u << 30) /**< \brief (PIO_IFSR) Input Filter Status */
 #define PIO_IFSR_P31 (0x1u << 31) /**< \brief (PIO_IFSR) Input Filter Status */
-/* -------- PIO_SODR : (PIO Offset: 0x0030) Set Output Data Register -------- */
+/* -------- PIO_SODR : (PIO Offset: 0x30) Set Output Data Register -------- */
 #define PIO_SODR_P0 (0x1u << 0) /**< \brief (PIO_SODR) Set Output Data */
 #define PIO_SODR_P1 (0x1u << 1) /**< \brief (PIO_SODR) Set Output Data */
 #define PIO_SODR_P2 (0x1u << 2) /**< \brief (PIO_SODR) Set Output Data */
@@ -433,7 +433,7 @@ typedef struct {
 #define PIO_SODR_P29 (0x1u << 29) /**< \brief (PIO_SODR) Set Output Data */
 #define PIO_SODR_P30 (0x1u << 30) /**< \brief (PIO_SODR) Set Output Data */
 #define PIO_SODR_P31 (0x1u << 31) /**< \brief (PIO_SODR) Set Output Data */
-/* -------- PIO_CODR : (PIO Offset: 0x0034) Clear Output Data Register -------- */
+/* -------- PIO_CODR : (PIO Offset: 0x34) Clear Output Data Register -------- */
 #define PIO_CODR_P0 (0x1u << 0) /**< \brief (PIO_CODR) Clear Output Data */
 #define PIO_CODR_P1 (0x1u << 1) /**< \brief (PIO_CODR) Clear Output Data */
 #define PIO_CODR_P2 (0x1u << 2) /**< \brief (PIO_CODR) Clear Output Data */
@@ -466,7 +466,7 @@ typedef struct {
 #define PIO_CODR_P29 (0x1u << 29) /**< \brief (PIO_CODR) Clear Output Data */
 #define PIO_CODR_P30 (0x1u << 30) /**< \brief (PIO_CODR) Clear Output Data */
 #define PIO_CODR_P31 (0x1u << 31) /**< \brief (PIO_CODR) Clear Output Data */
-/* -------- PIO_ODSR : (PIO Offset: 0x0038) Output Data Status Register -------- */
+/* -------- PIO_ODSR : (PIO Offset: 0x38) Output Data Status Register -------- */
 #define PIO_ODSR_P0 (0x1u << 0) /**< \brief (PIO_ODSR) Output Data Status */
 #define PIO_ODSR_P1 (0x1u << 1) /**< \brief (PIO_ODSR) Output Data Status */
 #define PIO_ODSR_P2 (0x1u << 2) /**< \brief (PIO_ODSR) Output Data Status */
@@ -499,7 +499,7 @@ typedef struct {
 #define PIO_ODSR_P29 (0x1u << 29) /**< \brief (PIO_ODSR) Output Data Status */
 #define PIO_ODSR_P30 (0x1u << 30) /**< \brief (PIO_ODSR) Output Data Status */
 #define PIO_ODSR_P31 (0x1u << 31) /**< \brief (PIO_ODSR) Output Data Status */
-/* -------- PIO_PDSR : (PIO Offset: 0x003C) Pin Data Status Register -------- */
+/* -------- PIO_PDSR : (PIO Offset: 0x3C) Pin Data Status Register -------- */
 #define PIO_PDSR_P0 (0x1u << 0) /**< \brief (PIO_PDSR) Output Data Status */
 #define PIO_PDSR_P1 (0x1u << 1) /**< \brief (PIO_PDSR) Output Data Status */
 #define PIO_PDSR_P2 (0x1u << 2) /**< \brief (PIO_PDSR) Output Data Status */
@@ -532,7 +532,7 @@ typedef struct {
 #define PIO_PDSR_P29 (0x1u << 29) /**< \brief (PIO_PDSR) Output Data Status */
 #define PIO_PDSR_P30 (0x1u << 30) /**< \brief (PIO_PDSR) Output Data Status */
 #define PIO_PDSR_P31 (0x1u << 31) /**< \brief (PIO_PDSR) Output Data Status */
-/* -------- PIO_IER : (PIO Offset: 0x0040) Interrupt Enable Register -------- */
+/* -------- PIO_IER : (PIO Offset: 0x40) Interrupt Enable Register -------- */
 #define PIO_IER_P0 (0x1u << 0) /**< \brief (PIO_IER) Input Change Interrupt Enable */
 #define PIO_IER_P1 (0x1u << 1) /**< \brief (PIO_IER) Input Change Interrupt Enable */
 #define PIO_IER_P2 (0x1u << 2) /**< \brief (PIO_IER) Input Change Interrupt Enable */
@@ -565,7 +565,7 @@ typedef struct {
 #define PIO_IER_P29 (0x1u << 29) /**< \brief (PIO_IER) Input Change Interrupt Enable */
 #define PIO_IER_P30 (0x1u << 30) /**< \brief (PIO_IER) Input Change Interrupt Enable */
 #define PIO_IER_P31 (0x1u << 31) /**< \brief (PIO_IER) Input Change Interrupt Enable */
-/* -------- PIO_IDR : (PIO Offset: 0x0044) Interrupt Disable Register -------- */
+/* -------- PIO_IDR : (PIO Offset: 0x44) Interrupt Disable Register -------- */
 #define PIO_IDR_P0 (0x1u << 0) /**< \brief (PIO_IDR) Input Change Interrupt Disable */
 #define PIO_IDR_P1 (0x1u << 1) /**< \brief (PIO_IDR) Input Change Interrupt Disable */
 #define PIO_IDR_P2 (0x1u << 2) /**< \brief (PIO_IDR) Input Change Interrupt Disable */
@@ -598,7 +598,7 @@ typedef struct {
 #define PIO_IDR_P29 (0x1u << 29) /**< \brief (PIO_IDR) Input Change Interrupt Disable */
 #define PIO_IDR_P30 (0x1u << 30) /**< \brief (PIO_IDR) Input Change Interrupt Disable */
 #define PIO_IDR_P31 (0x1u << 31) /**< \brief (PIO_IDR) Input Change Interrupt Disable */
-/* -------- PIO_IMR : (PIO Offset: 0x0048) Interrupt Mask Register -------- */
+/* -------- PIO_IMR : (PIO Offset: 0x48) Interrupt Mask Register -------- */
 #define PIO_IMR_P0 (0x1u << 0) /**< \brief (PIO_IMR) Input Change Interrupt Mask */
 #define PIO_IMR_P1 (0x1u << 1) /**< \brief (PIO_IMR) Input Change Interrupt Mask */
 #define PIO_IMR_P2 (0x1u << 2) /**< \brief (PIO_IMR) Input Change Interrupt Mask */
@@ -631,7 +631,7 @@ typedef struct {
 #define PIO_IMR_P29 (0x1u << 29) /**< \brief (PIO_IMR) Input Change Interrupt Mask */
 #define PIO_IMR_P30 (0x1u << 30) /**< \brief (PIO_IMR) Input Change Interrupt Mask */
 #define PIO_IMR_P31 (0x1u << 31) /**< \brief (PIO_IMR) Input Change Interrupt Mask */
-/* -------- PIO_ISR : (PIO Offset: 0x004C) Interrupt Status Register -------- */
+/* -------- PIO_ISR : (PIO Offset: 0x4C) Interrupt Status Register -------- */
 #define PIO_ISR_P0 (0x1u << 0) /**< \brief (PIO_ISR) Input Change Interrupt Status */
 #define PIO_ISR_P1 (0x1u << 1) /**< \brief (PIO_ISR) Input Change Interrupt Status */
 #define PIO_ISR_P2 (0x1u << 2) /**< \brief (PIO_ISR) Input Change Interrupt Status */
@@ -664,7 +664,7 @@ typedef struct {
 #define PIO_ISR_P29 (0x1u << 29) /**< \brief (PIO_ISR) Input Change Interrupt Status */
 #define PIO_ISR_P30 (0x1u << 30) /**< \brief (PIO_ISR) Input Change Interrupt Status */
 #define PIO_ISR_P31 (0x1u << 31) /**< \brief (PIO_ISR) Input Change Interrupt Status */
-/* -------- PIO_MDER : (PIO Offset: 0x0050) Multi-driver Enable Register -------- */
+/* -------- PIO_MDER : (PIO Offset: 0x50) Multi-driver Enable Register -------- */
 #define PIO_MDER_P0 (0x1u << 0) /**< \brief (PIO_MDER) Multi-drive Enable */
 #define PIO_MDER_P1 (0x1u << 1) /**< \brief (PIO_MDER) Multi-drive Enable */
 #define PIO_MDER_P2 (0x1u << 2) /**< \brief (PIO_MDER) Multi-drive Enable */
@@ -697,7 +697,7 @@ typedef struct {
 #define PIO_MDER_P29 (0x1u << 29) /**< \brief (PIO_MDER) Multi-drive Enable */
 #define PIO_MDER_P30 (0x1u << 30) /**< \brief (PIO_MDER) Multi-drive Enable */
 #define PIO_MDER_P31 (0x1u << 31) /**< \brief (PIO_MDER) Multi-drive Enable */
-/* -------- PIO_MDDR : (PIO Offset: 0x0054) Multi-driver Disable Register -------- */
+/* -------- PIO_MDDR : (PIO Offset: 0x54) Multi-driver Disable Register -------- */
 #define PIO_MDDR_P0 (0x1u << 0) /**< \brief (PIO_MDDR) Multi-drive Disable */
 #define PIO_MDDR_P1 (0x1u << 1) /**< \brief (PIO_MDDR) Multi-drive Disable */
 #define PIO_MDDR_P2 (0x1u << 2) /**< \brief (PIO_MDDR) Multi-drive Disable */
@@ -730,7 +730,7 @@ typedef struct {
 #define PIO_MDDR_P29 (0x1u << 29) /**< \brief (PIO_MDDR) Multi-drive Disable */
 #define PIO_MDDR_P30 (0x1u << 30) /**< \brief (PIO_MDDR) Multi-drive Disable */
 #define PIO_MDDR_P31 (0x1u << 31) /**< \brief (PIO_MDDR) Multi-drive Disable */
-/* -------- PIO_MDSR : (PIO Offset: 0x0058) Multi-driver Status Register -------- */
+/* -------- PIO_MDSR : (PIO Offset: 0x58) Multi-driver Status Register -------- */
 #define PIO_MDSR_P0 (0x1u << 0) /**< \brief (PIO_MDSR) Multi-drive Status */
 #define PIO_MDSR_P1 (0x1u << 1) /**< \brief (PIO_MDSR) Multi-drive Status */
 #define PIO_MDSR_P2 (0x1u << 2) /**< \brief (PIO_MDSR) Multi-drive Status */
@@ -763,7 +763,7 @@ typedef struct {
 #define PIO_MDSR_P29 (0x1u << 29) /**< \brief (PIO_MDSR) Multi-drive Status */
 #define PIO_MDSR_P30 (0x1u << 30) /**< \brief (PIO_MDSR) Multi-drive Status */
 #define PIO_MDSR_P31 (0x1u << 31) /**< \brief (PIO_MDSR) Multi-drive Status */
-/* -------- PIO_PUDR : (PIO Offset: 0x0060) Pull-Up Disable Register -------- */
+/* -------- PIO_PUDR : (PIO Offset: 0x60) Pull-Up Disable Register -------- */
 #define PIO_PUDR_P0 (0x1u << 0) /**< \brief (PIO_PUDR) Pull-Up Disable */
 #define PIO_PUDR_P1 (0x1u << 1) /**< \brief (PIO_PUDR) Pull-Up Disable */
 #define PIO_PUDR_P2 (0x1u << 2) /**< \brief (PIO_PUDR) Pull-Up Disable */
@@ -796,7 +796,7 @@ typedef struct {
 #define PIO_PUDR_P29 (0x1u << 29) /**< \brief (PIO_PUDR) Pull-Up Disable */
 #define PIO_PUDR_P30 (0x1u << 30) /**< \brief (PIO_PUDR) Pull-Up Disable */
 #define PIO_PUDR_P31 (0x1u << 31) /**< \brief (PIO_PUDR) Pull-Up Disable */
-/* -------- PIO_PUER : (PIO Offset: 0x0064) Pull-Up Enable Register -------- */
+/* -------- PIO_PUER : (PIO Offset: 0x64) Pull-Up Enable Register -------- */
 #define PIO_PUER_P0 (0x1u << 0) /**< \brief (PIO_PUER) Pull-Up Enable */
 #define PIO_PUER_P1 (0x1u << 1) /**< \brief (PIO_PUER) Pull-Up Enable */
 #define PIO_PUER_P2 (0x1u << 2) /**< \brief (PIO_PUER) Pull-Up Enable */
@@ -829,7 +829,7 @@ typedef struct {
 #define PIO_PUER_P29 (0x1u << 29) /**< \brief (PIO_PUER) Pull-Up Enable */
 #define PIO_PUER_P30 (0x1u << 30) /**< \brief (PIO_PUER) Pull-Up Enable */
 #define PIO_PUER_P31 (0x1u << 31) /**< \brief (PIO_PUER) Pull-Up Enable */
-/* -------- PIO_PUSR : (PIO Offset: 0x0068) Pad Pull-Up Status Register -------- */
+/* -------- PIO_PUSR : (PIO Offset: 0x68) Pad Pull-Up Status Register -------- */
 #define PIO_PUSR_P0 (0x1u << 0) /**< \brief (PIO_PUSR) Pull-Up Status */
 #define PIO_PUSR_P1 (0x1u << 1) /**< \brief (PIO_PUSR) Pull-Up Status */
 #define PIO_PUSR_P2 (0x1u << 2) /**< \brief (PIO_PUSR) Pull-Up Status */
@@ -862,7 +862,7 @@ typedef struct {
 #define PIO_PUSR_P29 (0x1u << 29) /**< \brief (PIO_PUSR) Pull-Up Status */
 #define PIO_PUSR_P30 (0x1u << 30) /**< \brief (PIO_PUSR) Pull-Up Status */
 #define PIO_PUSR_P31 (0x1u << 31) /**< \brief (PIO_PUSR) Pull-Up Status */
-/* -------- PIO_ABCDSR[2] : (PIO Offset: 0x0070) Peripheral ABCD Select Register -------- */
+/* -------- PIO_ABCDSR[2] : (PIO Offset: 0x70) Peripheral ABCD Select Register -------- */
 #define PIO_ABCDSR_P0 (0x1u << 0) /**< \brief (PIO_ABCDSR[2]) Peripheral Select */
 #define PIO_ABCDSR_P1 (0x1u << 1) /**< \brief (PIO_ABCDSR[2]) Peripheral Select */
 #define PIO_ABCDSR_P2 (0x1u << 2) /**< \brief (PIO_ABCDSR[2]) Peripheral Select */
@@ -895,7 +895,7 @@ typedef struct {
 #define PIO_ABCDSR_P29 (0x1u << 29) /**< \brief (PIO_ABCDSR[2]) Peripheral Select */
 #define PIO_ABCDSR_P30 (0x1u << 30) /**< \brief (PIO_ABCDSR[2]) Peripheral Select */
 #define PIO_ABCDSR_P31 (0x1u << 31) /**< \brief (PIO_ABCDSR[2]) Peripheral Select */
-/* -------- PIO_IFSCDR : (PIO Offset: 0x0080) Input Filter Slow Clock Disable Register -------- */
+/* -------- PIO_IFSCDR : (PIO Offset: 0x80) Input Filter Slow Clock Disable Register -------- */
 #define PIO_IFSCDR_P0 (0x1u << 0) /**< \brief (PIO_IFSCDR) Peripheral Clock Glitch Filtering Select */
 #define PIO_IFSCDR_P1 (0x1u << 1) /**< \brief (PIO_IFSCDR) Peripheral Clock Glitch Filtering Select */
 #define PIO_IFSCDR_P2 (0x1u << 2) /**< \brief (PIO_IFSCDR) Peripheral Clock Glitch Filtering Select */
@@ -928,7 +928,7 @@ typedef struct {
 #define PIO_IFSCDR_P29 (0x1u << 29) /**< \brief (PIO_IFSCDR) Peripheral Clock Glitch Filtering Select */
 #define PIO_IFSCDR_P30 (0x1u << 30) /**< \brief (PIO_IFSCDR) Peripheral Clock Glitch Filtering Select */
 #define PIO_IFSCDR_P31 (0x1u << 31) /**< \brief (PIO_IFSCDR) Peripheral Clock Glitch Filtering Select */
-/* -------- PIO_IFSCER : (PIO Offset: 0x0084) Input Filter Slow Clock Enable Register -------- */
+/* -------- PIO_IFSCER : (PIO Offset: 0x84) Input Filter Slow Clock Enable Register -------- */
 #define PIO_IFSCER_P0 (0x1u << 0) /**< \brief (PIO_IFSCER) Slow Clock Debouncing Filtering Select */
 #define PIO_IFSCER_P1 (0x1u << 1) /**< \brief (PIO_IFSCER) Slow Clock Debouncing Filtering Select */
 #define PIO_IFSCER_P2 (0x1u << 2) /**< \brief (PIO_IFSCER) Slow Clock Debouncing Filtering Select */
@@ -961,7 +961,7 @@ typedef struct {
 #define PIO_IFSCER_P29 (0x1u << 29) /**< \brief (PIO_IFSCER) Slow Clock Debouncing Filtering Select */
 #define PIO_IFSCER_P30 (0x1u << 30) /**< \brief (PIO_IFSCER) Slow Clock Debouncing Filtering Select */
 #define PIO_IFSCER_P31 (0x1u << 31) /**< \brief (PIO_IFSCER) Slow Clock Debouncing Filtering Select */
-/* -------- PIO_IFSCSR : (PIO Offset: 0x0088) Input Filter Slow Clock Status Register -------- */
+/* -------- PIO_IFSCSR : (PIO Offset: 0x88) Input Filter Slow Clock Status Register -------- */
 #define PIO_IFSCSR_P0 (0x1u << 0) /**< \brief (PIO_IFSCSR) Glitch or Debouncing Filter Selection Status */
 #define PIO_IFSCSR_P1 (0x1u << 1) /**< \brief (PIO_IFSCSR) Glitch or Debouncing Filter Selection Status */
 #define PIO_IFSCSR_P2 (0x1u << 2) /**< \brief (PIO_IFSCSR) Glitch or Debouncing Filter Selection Status */
@@ -994,11 +994,11 @@ typedef struct {
 #define PIO_IFSCSR_P29 (0x1u << 29) /**< \brief (PIO_IFSCSR) Glitch or Debouncing Filter Selection Status */
 #define PIO_IFSCSR_P30 (0x1u << 30) /**< \brief (PIO_IFSCSR) Glitch or Debouncing Filter Selection Status */
 #define PIO_IFSCSR_P31 (0x1u << 31) /**< \brief (PIO_IFSCSR) Glitch or Debouncing Filter Selection Status */
-/* -------- PIO_SCDR : (PIO Offset: 0x008C) Slow Clock Divider Debouncing Register -------- */
+/* -------- PIO_SCDR : (PIO Offset: 0x8C) Slow Clock Divider Debouncing Register -------- */
 #define PIO_SCDR_DIV_Pos 0
 #define PIO_SCDR_DIV_Msk (0x3fffu << PIO_SCDR_DIV_Pos) /**< \brief (PIO_SCDR) Slow Clock Divider Selection for Debouncing */
 #define PIO_SCDR_DIV(value) ((PIO_SCDR_DIV_Msk & ((value) << PIO_SCDR_DIV_Pos)))
-/* -------- PIO_PPDDR : (PIO Offset: 0x0090) Pad Pull-Down Disable Register -------- */
+/* -------- PIO_PPDDR : (PIO Offset: 0x90) Pad Pull-Down Disable Register -------- */
 #define PIO_PPDDR_P0 (0x1u << 0) /**< \brief (PIO_PPDDR) Pull-Down Disable */
 #define PIO_PPDDR_P1 (0x1u << 1) /**< \brief (PIO_PPDDR) Pull-Down Disable */
 #define PIO_PPDDR_P2 (0x1u << 2) /**< \brief (PIO_PPDDR) Pull-Down Disable */
@@ -1031,7 +1031,7 @@ typedef struct {
 #define PIO_PPDDR_P29 (0x1u << 29) /**< \brief (PIO_PPDDR) Pull-Down Disable */
 #define PIO_PPDDR_P30 (0x1u << 30) /**< \brief (PIO_PPDDR) Pull-Down Disable */
 #define PIO_PPDDR_P31 (0x1u << 31) /**< \brief (PIO_PPDDR) Pull-Down Disable */
-/* -------- PIO_PPDER : (PIO Offset: 0x0094) Pad Pull-Down Enable Register -------- */
+/* -------- PIO_PPDER : (PIO Offset: 0x94) Pad Pull-Down Enable Register -------- */
 #define PIO_PPDER_P0 (0x1u << 0) /**< \brief (PIO_PPDER) Pull-Down Enable */
 #define PIO_PPDER_P1 (0x1u << 1) /**< \brief (PIO_PPDER) Pull-Down Enable */
 #define PIO_PPDER_P2 (0x1u << 2) /**< \brief (PIO_PPDER) Pull-Down Enable */
@@ -1064,7 +1064,7 @@ typedef struct {
 #define PIO_PPDER_P29 (0x1u << 29) /**< \brief (PIO_PPDER) Pull-Down Enable */
 #define PIO_PPDER_P30 (0x1u << 30) /**< \brief (PIO_PPDER) Pull-Down Enable */
 #define PIO_PPDER_P31 (0x1u << 31) /**< \brief (PIO_PPDER) Pull-Down Enable */
-/* -------- PIO_PPDSR : (PIO Offset: 0x0098) Pad Pull-Down Status Register -------- */
+/* -------- PIO_PPDSR : (PIO Offset: 0x98) Pad Pull-Down Status Register -------- */
 #define PIO_PPDSR_P0 (0x1u << 0) /**< \brief (PIO_PPDSR) Pull-Down Status */
 #define PIO_PPDSR_P1 (0x1u << 1) /**< \brief (PIO_PPDSR) Pull-Down Status */
 #define PIO_PPDSR_P2 (0x1u << 2) /**< \brief (PIO_PPDSR) Pull-Down Status */
@@ -1097,7 +1097,7 @@ typedef struct {
 #define PIO_PPDSR_P29 (0x1u << 29) /**< \brief (PIO_PPDSR) Pull-Down Status */
 #define PIO_PPDSR_P30 (0x1u << 30) /**< \brief (PIO_PPDSR) Pull-Down Status */
 #define PIO_PPDSR_P31 (0x1u << 31) /**< \brief (PIO_PPDSR) Pull-Down Status */
-/* -------- PIO_OWER : (PIO Offset: 0x00A0) Output Write Enable -------- */
+/* -------- PIO_OWER : (PIO Offset: 0xA0) Output Write Enable -------- */
 #define PIO_OWER_P0 (0x1u << 0) /**< \brief (PIO_OWER) Output Write Enable */
 #define PIO_OWER_P1 (0x1u << 1) /**< \brief (PIO_OWER) Output Write Enable */
 #define PIO_OWER_P2 (0x1u << 2) /**< \brief (PIO_OWER) Output Write Enable */
@@ -1130,7 +1130,7 @@ typedef struct {
 #define PIO_OWER_P29 (0x1u << 29) /**< \brief (PIO_OWER) Output Write Enable */
 #define PIO_OWER_P30 (0x1u << 30) /**< \brief (PIO_OWER) Output Write Enable */
 #define PIO_OWER_P31 (0x1u << 31) /**< \brief (PIO_OWER) Output Write Enable */
-/* -------- PIO_OWDR : (PIO Offset: 0x00A4) Output Write Disable -------- */
+/* -------- PIO_OWDR : (PIO Offset: 0xA4) Output Write Disable -------- */
 #define PIO_OWDR_P0 (0x1u << 0) /**< \brief (PIO_OWDR) Output Write Disable */
 #define PIO_OWDR_P1 (0x1u << 1) /**< \brief (PIO_OWDR) Output Write Disable */
 #define PIO_OWDR_P2 (0x1u << 2) /**< \brief (PIO_OWDR) Output Write Disable */
@@ -1163,7 +1163,7 @@ typedef struct {
 #define PIO_OWDR_P29 (0x1u << 29) /**< \brief (PIO_OWDR) Output Write Disable */
 #define PIO_OWDR_P30 (0x1u << 30) /**< \brief (PIO_OWDR) Output Write Disable */
 #define PIO_OWDR_P31 (0x1u << 31) /**< \brief (PIO_OWDR) Output Write Disable */
-/* -------- PIO_OWSR : (PIO Offset: 0x00A8) Output Write Status Register -------- */
+/* -------- PIO_OWSR : (PIO Offset: 0xA8) Output Write Status Register -------- */
 #define PIO_OWSR_P0 (0x1u << 0) /**< \brief (PIO_OWSR) Output Write Status */
 #define PIO_OWSR_P1 (0x1u << 1) /**< \brief (PIO_OWSR) Output Write Status */
 #define PIO_OWSR_P2 (0x1u << 2) /**< \brief (PIO_OWSR) Output Write Status */
@@ -1196,7 +1196,7 @@ typedef struct {
 #define PIO_OWSR_P29 (0x1u << 29) /**< \brief (PIO_OWSR) Output Write Status */
 #define PIO_OWSR_P30 (0x1u << 30) /**< \brief (PIO_OWSR) Output Write Status */
 #define PIO_OWSR_P31 (0x1u << 31) /**< \brief (PIO_OWSR) Output Write Status */
-/* -------- PIO_AIMER : (PIO Offset: 0x00B0) Additional Interrupt Modes Enable Register -------- */
+/* -------- PIO_AIMER : (PIO Offset: 0xB0) Additional Interrupt Modes Enable Register -------- */
 #define PIO_AIMER_P0 (0x1u << 0) /**< \brief (PIO_AIMER) Additional Interrupt Modes Enable */
 #define PIO_AIMER_P1 (0x1u << 1) /**< \brief (PIO_AIMER) Additional Interrupt Modes Enable */
 #define PIO_AIMER_P2 (0x1u << 2) /**< \brief (PIO_AIMER) Additional Interrupt Modes Enable */
@@ -1229,7 +1229,7 @@ typedef struct {
 #define PIO_AIMER_P29 (0x1u << 29) /**< \brief (PIO_AIMER) Additional Interrupt Modes Enable */
 #define PIO_AIMER_P30 (0x1u << 30) /**< \brief (PIO_AIMER) Additional Interrupt Modes Enable */
 #define PIO_AIMER_P31 (0x1u << 31) /**< \brief (PIO_AIMER) Additional Interrupt Modes Enable */
-/* -------- PIO_AIMDR : (PIO Offset: 0x00B4) Additional Interrupt Modes Disable Register -------- */
+/* -------- PIO_AIMDR : (PIO Offset: 0xB4) Additional Interrupt Modes Disable Register -------- */
 #define PIO_AIMDR_P0 (0x1u << 0) /**< \brief (PIO_AIMDR) Additional Interrupt Modes Disable */
 #define PIO_AIMDR_P1 (0x1u << 1) /**< \brief (PIO_AIMDR) Additional Interrupt Modes Disable */
 #define PIO_AIMDR_P2 (0x1u << 2) /**< \brief (PIO_AIMDR) Additional Interrupt Modes Disable */
@@ -1262,7 +1262,7 @@ typedef struct {
 #define PIO_AIMDR_P29 (0x1u << 29) /**< \brief (PIO_AIMDR) Additional Interrupt Modes Disable */
 #define PIO_AIMDR_P30 (0x1u << 30) /**< \brief (PIO_AIMDR) Additional Interrupt Modes Disable */
 #define PIO_AIMDR_P31 (0x1u << 31) /**< \brief (PIO_AIMDR) Additional Interrupt Modes Disable */
-/* -------- PIO_AIMMR : (PIO Offset: 0x00B8) Additional Interrupt Modes Mask Register -------- */
+/* -------- PIO_AIMMR : (PIO Offset: 0xB8) Additional Interrupt Modes Mask Register -------- */
 #define PIO_AIMMR_P0 (0x1u << 0) /**< \brief (PIO_AIMMR) IO Line Index */
 #define PIO_AIMMR_P1 (0x1u << 1) /**< \brief (PIO_AIMMR) IO Line Index */
 #define PIO_AIMMR_P2 (0x1u << 2) /**< \brief (PIO_AIMMR) IO Line Index */
@@ -1295,7 +1295,7 @@ typedef struct {
 #define PIO_AIMMR_P29 (0x1u << 29) /**< \brief (PIO_AIMMR) IO Line Index */
 #define PIO_AIMMR_P30 (0x1u << 30) /**< \brief (PIO_AIMMR) IO Line Index */
 #define PIO_AIMMR_P31 (0x1u << 31) /**< \brief (PIO_AIMMR) IO Line Index */
-/* -------- PIO_ESR : (PIO Offset: 0x00C0) Edge Select Register -------- */
+/* -------- PIO_ESR : (PIO Offset: 0xC0) Edge Select Register -------- */
 #define PIO_ESR_P0 (0x1u << 0) /**< \brief (PIO_ESR) Edge Interrupt Selection */
 #define PIO_ESR_P1 (0x1u << 1) /**< \brief (PIO_ESR) Edge Interrupt Selection */
 #define PIO_ESR_P2 (0x1u << 2) /**< \brief (PIO_ESR) Edge Interrupt Selection */
@@ -1328,7 +1328,7 @@ typedef struct {
 #define PIO_ESR_P29 (0x1u << 29) /**< \brief (PIO_ESR) Edge Interrupt Selection */
 #define PIO_ESR_P30 (0x1u << 30) /**< \brief (PIO_ESR) Edge Interrupt Selection */
 #define PIO_ESR_P31 (0x1u << 31) /**< \brief (PIO_ESR) Edge Interrupt Selection */
-/* -------- PIO_LSR : (PIO Offset: 0x00C4) Level Select Register -------- */
+/* -------- PIO_LSR : (PIO Offset: 0xC4) Level Select Register -------- */
 #define PIO_LSR_P0 (0x1u << 0) /**< \brief (PIO_LSR) Level Interrupt Selection */
 #define PIO_LSR_P1 (0x1u << 1) /**< \brief (PIO_LSR) Level Interrupt Selection */
 #define PIO_LSR_P2 (0x1u << 2) /**< \brief (PIO_LSR) Level Interrupt Selection */
@@ -1361,7 +1361,7 @@ typedef struct {
 #define PIO_LSR_P29 (0x1u << 29) /**< \brief (PIO_LSR) Level Interrupt Selection */
 #define PIO_LSR_P30 (0x1u << 30) /**< \brief (PIO_LSR) Level Interrupt Selection */
 #define PIO_LSR_P31 (0x1u << 31) /**< \brief (PIO_LSR) Level Interrupt Selection */
-/* -------- PIO_ELSR : (PIO Offset: 0x00C8) Edge/Level Status Register -------- */
+/* -------- PIO_ELSR : (PIO Offset: 0xC8) Edge/Level Status Register -------- */
 #define PIO_ELSR_P0 (0x1u << 0) /**< \brief (PIO_ELSR) Edge/Level Interrupt Source Selection */
 #define PIO_ELSR_P1 (0x1u << 1) /**< \brief (PIO_ELSR) Edge/Level Interrupt Source Selection */
 #define PIO_ELSR_P2 (0x1u << 2) /**< \brief (PIO_ELSR) Edge/Level Interrupt Source Selection */
@@ -1394,7 +1394,7 @@ typedef struct {
 #define PIO_ELSR_P29 (0x1u << 29) /**< \brief (PIO_ELSR) Edge/Level Interrupt Source Selection */
 #define PIO_ELSR_P30 (0x1u << 30) /**< \brief (PIO_ELSR) Edge/Level Interrupt Source Selection */
 #define PIO_ELSR_P31 (0x1u << 31) /**< \brief (PIO_ELSR) Edge/Level Interrupt Source Selection */
-/* -------- PIO_FELLSR : (PIO Offset: 0x00D0) Falling Edge/Low-Level Select Register -------- */
+/* -------- PIO_FELLSR : (PIO Offset: 0xD0) Falling Edge/Low-Level Select Register -------- */
 #define PIO_FELLSR_P0 (0x1u << 0) /**< \brief (PIO_FELLSR) Falling Edge/Low-Level Interrupt Selection */
 #define PIO_FELLSR_P1 (0x1u << 1) /**< \brief (PIO_FELLSR) Falling Edge/Low-Level Interrupt Selection */
 #define PIO_FELLSR_P2 (0x1u << 2) /**< \brief (PIO_FELLSR) Falling Edge/Low-Level Interrupt Selection */
@@ -1427,7 +1427,7 @@ typedef struct {
 #define PIO_FELLSR_P29 (0x1u << 29) /**< \brief (PIO_FELLSR) Falling Edge/Low-Level Interrupt Selection */
 #define PIO_FELLSR_P30 (0x1u << 30) /**< \brief (PIO_FELLSR) Falling Edge/Low-Level Interrupt Selection */
 #define PIO_FELLSR_P31 (0x1u << 31) /**< \brief (PIO_FELLSR) Falling Edge/Low-Level Interrupt Selection */
-/* -------- PIO_REHLSR : (PIO Offset: 0x00D4) Rising Edge/High-Level Select Register -------- */
+/* -------- PIO_REHLSR : (PIO Offset: 0xD4) Rising Edge/High-Level Select Register -------- */
 #define PIO_REHLSR_P0 (0x1u << 0) /**< \brief (PIO_REHLSR) Rising Edge/High-Level Interrupt Selection */
 #define PIO_REHLSR_P1 (0x1u << 1) /**< \brief (PIO_REHLSR) Rising Edge/High-Level Interrupt Selection */
 #define PIO_REHLSR_P2 (0x1u << 2) /**< \brief (PIO_REHLSR) Rising Edge/High-Level Interrupt Selection */
@@ -1460,7 +1460,7 @@ typedef struct {
 #define PIO_REHLSR_P29 (0x1u << 29) /**< \brief (PIO_REHLSR) Rising Edge/High-Level Interrupt Selection */
 #define PIO_REHLSR_P30 (0x1u << 30) /**< \brief (PIO_REHLSR) Rising Edge/High-Level Interrupt Selection */
 #define PIO_REHLSR_P31 (0x1u << 31) /**< \brief (PIO_REHLSR) Rising Edge/High-Level Interrupt Selection */
-/* -------- PIO_FRLHSR : (PIO Offset: 0x00D8) Fall/Rise - Low/High Status Register -------- */
+/* -------- PIO_FRLHSR : (PIO Offset: 0xD8) Fall/Rise - Low/High Status Register -------- */
 #define PIO_FRLHSR_P0 (0x1u << 0) /**< \brief (PIO_FRLHSR) Edge/Level Interrupt Source Selection */
 #define PIO_FRLHSR_P1 (0x1u << 1) /**< \brief (PIO_FRLHSR) Edge/Level Interrupt Source Selection */
 #define PIO_FRLHSR_P2 (0x1u << 2) /**< \brief (PIO_FRLHSR) Edge/Level Interrupt Source Selection */
@@ -1493,17 +1493,17 @@ typedef struct {
 #define PIO_FRLHSR_P29 (0x1u << 29) /**< \brief (PIO_FRLHSR) Edge/Level Interrupt Source Selection */
 #define PIO_FRLHSR_P30 (0x1u << 30) /**< \brief (PIO_FRLHSR) Edge/Level Interrupt Source Selection */
 #define PIO_FRLHSR_P31 (0x1u << 31) /**< \brief (PIO_FRLHSR) Edge/Level Interrupt Source Selection */
-/* -------- PIO_WPMR : (PIO Offset: 0x00E4) Write Protection Mode Register -------- */
+/* -------- PIO_WPMR : (PIO Offset: 0xE4) Write Protection Mode Register -------- */
 #define PIO_WPMR_WPEN (0x1u << 0) /**< \brief (PIO_WPMR) Write Protection Enable */
 #define PIO_WPMR_WPKEY_Pos 8
 #define PIO_WPMR_WPKEY_Msk (0xffffffu << PIO_WPMR_WPKEY_Pos) /**< \brief (PIO_WPMR) Write Protection Key */
 #define PIO_WPMR_WPKEY(value) ((PIO_WPMR_WPKEY_Msk & ((value) << PIO_WPMR_WPKEY_Pos)))
 #define   PIO_WPMR_WPKEY_PASSWD (0x50494Fu << 8) /**< \brief (PIO_WPMR) Writing any other value in this field aborts the write operation of the WPEN bit. Always reads as 0. */
-/* -------- PIO_WPSR : (PIO Offset: 0x00E8) Write Protection Status Register -------- */
+/* -------- PIO_WPSR : (PIO Offset: 0xE8) Write Protection Status Register -------- */
 #define PIO_WPSR_WPVS (0x1u << 0) /**< \brief (PIO_WPSR) Write Protection Violation Status */
 #define PIO_WPSR_WPVSRC_Pos 8
 #define PIO_WPSR_WPVSRC_Msk (0xffffu << PIO_WPSR_WPVSRC_Pos) /**< \brief (PIO_WPSR) Write Protection Violation Source */
-/* -------- PIO_SCHMITT : (PIO Offset: 0x0100) Schmitt Trigger Register -------- */
+/* -------- PIO_SCHMITT : (PIO Offset: 0x100) Schmitt Trigger Register -------- */
 #define PIO_SCHMITT_SCHMITT0 (0x1u << 0) /**< \brief (PIO_SCHMITT) Schmitt Trigger Control */
 #define PIO_SCHMITT_SCHMITT1 (0x1u << 1) /**< \brief (PIO_SCHMITT) Schmitt Trigger Control */
 #define PIO_SCHMITT_SCHMITT2 (0x1u << 2) /**< \brief (PIO_SCHMITT) Schmitt Trigger Control */
@@ -1536,7 +1536,7 @@ typedef struct {
 #define PIO_SCHMITT_SCHMITT29 (0x1u << 29) /**< \brief (PIO_SCHMITT) Schmitt Trigger Control */
 #define PIO_SCHMITT_SCHMITT30 (0x1u << 30) /**< \brief (PIO_SCHMITT) Schmitt Trigger Control */
 #define PIO_SCHMITT_SCHMITT31 (0x1u << 31) /**< \brief (PIO_SCHMITT) Schmitt Trigger Control */
-/* -------- PIO_SLEWR : (PIO Offset: 0x0110) I/O Slewrate Control Register -------- */
+/* -------- PIO_SLEWR : (PIO Offset: 0x110) I/O Slewrate Control Register -------- */
 #define PIO_SLEWR_SR0 (0x1u << 0) /**< \brief (PIO_SLEWR) Slewrate Control for IO line 0 */
 #define   PIO_SLEWR_SR0_DISABLED (0x0u << 0) /**< \brief (PIO_SLEWR) No slewrate control. */
 #define   PIO_SLEWR_SR0_ENABLED (0x1u << 0) /**< \brief (PIO_SLEWR) Slewrate controlled. */
@@ -1633,7 +1633,7 @@ typedef struct {
 #define PIO_SLEWR_SR31 (0x1u << 31) /**< \brief (PIO_SLEWR) Slewrate Control for IO line 31 */
 #define   PIO_SLEWR_SR31_DISABLED (0x0u << 31) /**< \brief (PIO_SLEWR) No slewrate control. */
 #define   PIO_SLEWR_SR31_ENABLED (0x1u << 31) /**< \brief (PIO_SLEWR) Slewrate controlled. */
-/* -------- PIO_DRIVER : (PIO Offset: 0x0118) I/O Drive Register -------- */
+/* -------- PIO_DRIVER : (PIO Offset: 0x118) I/O Drive Register -------- */
 #define PIO_DRIVER_DR0 (0x1u << 0) /**< \brief (PIO_DRIVER) Drive of I/O Line 0 */
 #define   PIO_DRIVER_DR0_LOW (0x0u << 0) /**< \brief (PIO_DRIVER) Lowest drive */
 #define   PIO_DRIVER_DR0_HIGH (0x1u << 0) /**< \brief (PIO_DRIVER) Highest drive */

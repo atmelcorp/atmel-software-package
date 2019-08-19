@@ -45,25 +45,25 @@ typedef struct {
 /** \brief Matrix hardware registers */
 #define MATRIXPR_NUMBER 13
 typedef struct {
-  __IO uint32_t MATRIX_MCFG[15];            /**< \brief (Matrix Offset: 0x0000) Master Configuration Register */
+  __IO uint32_t MATRIX_MCFG[15];            /**< \brief (Matrix Offset: 0x0) Master Configuration Register */
   __I  uint32_t Reserved1[1];
-  __IO uint32_t MATRIX_SCFG[13];            /**< \brief (Matrix Offset: 0x0040) Slave Configuration Register */
+  __IO uint32_t MATRIX_SCFG[13];            /**< \brief (Matrix Offset: 0x40) Slave Configuration Register */
   __I  uint32_t Reserved2[3];
        MatrixPr MATRIX_PR[MATRIXPR_NUMBER]; /**< \brief (Matrix Offset: 0x0080) 0 .. 12 */
   __I  uint32_t Reserved3[6];
-  __IO uint32_t MATRIX_MRCR;                /**< \brief (Matrix Offset: 0x0100) Master Remap Control Register */
+  __IO uint32_t MATRIX_MRCR;                /**< \brief (Matrix Offset: 0x100) Master Remap Control Register */
   __I  uint32_t Reserved4[19];
-  __O  uint32_t MATRIX_MEIER;               /**< \brief (Matrix Offset: 0x0150) Master Error Interrupt Enable Register */
-  __O  uint32_t MATRIX_MEIDR;               /**< \brief (Matrix Offset: 0x0154) Master Error Interrupt Disable Register */
-  __I  uint32_t MATRIX_MEIMR;               /**< \brief (Matrix Offset: 0x0158) Master Error Interrupt Mask Register */
-  __I  uint32_t MATRIX_MESR;                /**< \brief (Matrix Offset: 0x015C) Master Error Status Register */
-  __I  uint32_t MATRIX_MEAR[15];            /**< \brief (Matrix Offset: 0x0160) Master 0 Error Address Register */
+  __O  uint32_t MATRIX_MEIER;               /**< \brief (Matrix Offset: 0x150) Master Error Interrupt Enable Register */
+  __O  uint32_t MATRIX_MEIDR;               /**< \brief (Matrix Offset: 0x154) Master Error Interrupt Disable Register */
+  __I  uint32_t MATRIX_MEIMR;               /**< \brief (Matrix Offset: 0x158) Master Error Interrupt Mask Register */
+  __I  uint32_t MATRIX_MESR;                /**< \brief (Matrix Offset: 0x15C) Master Error Status Register */
+  __I  uint32_t MATRIX_MEAR[15];            /**< \brief (Matrix Offset: 0x160) Master 0 Error Address Register */
   __I  uint32_t Reserved5[18];
-  __IO uint32_t MATRIX_WPMR;                /**< \brief (Matrix Offset: 0x01E4) Write Protect Mode Register */
-  __I  uint32_t MATRIX_WPSR;                /**< \brief (Matrix Offset: 0x01E8) Write Protect Status Register */
+  __IO uint32_t MATRIX_WPMR;                /**< \brief (Matrix Offset: 0x1E4) Write Protect Mode Register */
+  __I  uint32_t MATRIX_WPSR;                /**< \brief (Matrix Offset: 0x1E8) Write Protect Status Register */
 } Matrix;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- MATRIX_MCFG[15] : (MATRIX Offset: 0x0000) Master Configuration Register -------- */
+/* -------- MATRIX_MCFG[15] : (MATRIX Offset: 0x0) Master Configuration Register -------- */
 #define MATRIX_MCFG_ULBT_Pos 0
 #define MATRIX_MCFG_ULBT_Msk (0x7u << MATRIX_MCFG_ULBT_Pos) /**< \brief (MATRIX_MCFG[15]) Undefined Length Burst Type */
 #define MATRIX_MCFG_ULBT(value) ((MATRIX_MCFG_ULBT_Msk & ((value) << MATRIX_MCFG_ULBT_Pos)))
@@ -75,7 +75,7 @@ typedef struct {
 #define   MATRIX_MCFG_ULBT_32_BEAT (0x5u << 0) /**< \brief (MATRIX_MCFG[15]) 32-beat Burst-The undefined length burst or bursts sequence is split into 32-beat bursts or less, allowing re-arbitration every 32 beats. */
 #define   MATRIX_MCFG_ULBT_64_BEAT (0x6u << 0) /**< \brief (MATRIX_MCFG[15]) 64-beat Burst-The undefined length burst or bursts sequence is split into 64-beat bursts or less, allowing re-arbitration every 64 beats. */
 #define   MATRIX_MCFG_ULBT_128_BEAT (0x7u << 0) /**< \brief (MATRIX_MCFG[15]) 128-beat Burst-The undefined length burst or bursts sequence is split into 128-beat bursts or less, allowing re-arbitration every 128 beats. Unless duly needed, the ULBT should be left at its default 0 value for power saving. */
-/* -------- MATRIX_SCFG[13] : (MATRIX Offset: 0x0040) Slave Configuration Register -------- */
+/* -------- MATRIX_SCFG[13] : (MATRIX Offset: 0x40) Slave Configuration Register -------- */
 #define MATRIX_SCFG_SLOT_CYCLE_Pos 0
 #define MATRIX_SCFG_SLOT_CYCLE_Msk (0x1ffu << MATRIX_SCFG_SLOT_CYCLE_Pos) /**< \brief (MATRIX_SCFG[13]) Maximum Bus Grant Duration for Masters */
 #define MATRIX_SCFG_SLOT_CYCLE(value) ((MATRIX_SCFG_SLOT_CYCLE_Msk & ((value) << MATRIX_SCFG_SLOT_CYCLE_Pos)))
@@ -150,7 +150,7 @@ typedef struct {
 #define MATRIX_PRBS_M14PR_Msk (0x3u << MATRIX_PRBS_M14PR_Pos) /**< \brief (MATRIX_PRBS) Master 14 Priority */
 #define MATRIX_PRBS_M14PR(value) ((MATRIX_PRBS_M14PR_Msk & ((value) << MATRIX_PRBS_M14PR_Pos)))
 #define MATRIX_PRBS_LQOSEN14 (0x1u << 26) /**< \brief (MATRIX_PRBS) Latency Quality of Service Enable for Master 14 */
-/* -------- MATRIX_MRCR : (MATRIX Offset: 0x0100) Master Remap Control Register -------- */
+/* -------- MATRIX_MRCR : (MATRIX Offset: 0x100) Master Remap Control Register -------- */
 #define MATRIX_MRCR_RCB0 (0x1u << 0) /**< \brief (MATRIX_MRCR) Remap Command Bit for Master 0 */
 #define MATRIX_MRCR_RCB1 (0x1u << 1) /**< \brief (MATRIX_MRCR) Remap Command Bit for Master 1 */
 #define MATRIX_MRCR_RCB2 (0x1u << 2) /**< \brief (MATRIX_MRCR) Remap Command Bit for Master 2 */
@@ -166,7 +166,7 @@ typedef struct {
 #define MATRIX_MRCR_RCB12 (0x1u << 12) /**< \brief (MATRIX_MRCR) Remap Command Bit for Master 12 */
 #define MATRIX_MRCR_RCB13 (0x1u << 13) /**< \brief (MATRIX_MRCR) Remap Command Bit for Master 13 */
 #define MATRIX_MRCR_RCB14 (0x1u << 14) /**< \brief (MATRIX_MRCR) Remap Command Bit for Master 14 */
-/* -------- MATRIX_MEIER : (MATRIX Offset: 0x0150) Master Error Interrupt Enable Register -------- */
+/* -------- MATRIX_MEIER : (MATRIX Offset: 0x150) Master Error Interrupt Enable Register -------- */
 #define MATRIX_MEIER_MERR0 (0x1u << 0) /**< \brief (MATRIX_MEIER) Master 0 Access Error */
 #define MATRIX_MEIER_MERR1 (0x1u << 1) /**< \brief (MATRIX_MEIER) Master 1 Access Error */
 #define MATRIX_MEIER_MERR2 (0x1u << 2) /**< \brief (MATRIX_MEIER) Master 2 Access Error */
@@ -182,7 +182,7 @@ typedef struct {
 #define MATRIX_MEIER_MERR12 (0x1u << 12) /**< \brief (MATRIX_MEIER) Master 12 Access Error */
 #define MATRIX_MEIER_MERR13 (0x1u << 13) /**< \brief (MATRIX_MEIER) Master 13 Access Error */
 #define MATRIX_MEIER_MERR14 (0x1u << 14) /**< \brief (MATRIX_MEIER) Master 14 Access Error */
-/* -------- MATRIX_MEIDR : (MATRIX Offset: 0x0154) Master Error Interrupt Disable Register -------- */
+/* -------- MATRIX_MEIDR : (MATRIX Offset: 0x154) Master Error Interrupt Disable Register -------- */
 #define MATRIX_MEIDR_MERR0 (0x1u << 0) /**< \brief (MATRIX_MEIDR) Master 0 Access Error */
 #define MATRIX_MEIDR_MERR1 (0x1u << 1) /**< \brief (MATRIX_MEIDR) Master 1 Access Error */
 #define MATRIX_MEIDR_MERR2 (0x1u << 2) /**< \brief (MATRIX_MEIDR) Master 2 Access Error */
@@ -198,7 +198,7 @@ typedef struct {
 #define MATRIX_MEIDR_MERR12 (0x1u << 12) /**< \brief (MATRIX_MEIDR) Master 12 Access Error */
 #define MATRIX_MEIDR_MERR13 (0x1u << 13) /**< \brief (MATRIX_MEIDR) Master 13 Access Error */
 #define MATRIX_MEIDR_MERR14 (0x1u << 14) /**< \brief (MATRIX_MEIDR) Master 14 Access Error */
-/* -------- MATRIX_MEIMR : (MATRIX Offset: 0x0158) Master Error Interrupt Mask Register -------- */
+/* -------- MATRIX_MEIMR : (MATRIX Offset: 0x158) Master Error Interrupt Mask Register -------- */
 #define MATRIX_MEIMR_MERR0 (0x1u << 0) /**< \brief (MATRIX_MEIMR) Master 0 Access Error */
 #define MATRIX_MEIMR_MERR1 (0x1u << 1) /**< \brief (MATRIX_MEIMR) Master 1 Access Error */
 #define MATRIX_MEIMR_MERR2 (0x1u << 2) /**< \brief (MATRIX_MEIMR) Master 2 Access Error */
@@ -214,7 +214,7 @@ typedef struct {
 #define MATRIX_MEIMR_MERR12 (0x1u << 12) /**< \brief (MATRIX_MEIMR) Master 12 Access Error */
 #define MATRIX_MEIMR_MERR13 (0x1u << 13) /**< \brief (MATRIX_MEIMR) Master 13 Access Error */
 #define MATRIX_MEIMR_MERR14 (0x1u << 14) /**< \brief (MATRIX_MEIMR) Master 14 Access Error */
-/* -------- MATRIX_MESR : (MATRIX Offset: 0x015C) Master Error Status Register -------- */
+/* -------- MATRIX_MESR : (MATRIX Offset: 0x15C) Master Error Status Register -------- */
 #define MATRIX_MESR_MERR0 (0x1u << 0) /**< \brief (MATRIX_MESR) Master 0 Access Error */
 #define MATRIX_MESR_MERR1 (0x1u << 1) /**< \brief (MATRIX_MESR) Master 1 Access Error */
 #define MATRIX_MESR_MERR2 (0x1u << 2) /**< \brief (MATRIX_MESR) Master 2 Access Error */
@@ -230,17 +230,17 @@ typedef struct {
 #define MATRIX_MESR_MERR12 (0x1u << 12) /**< \brief (MATRIX_MESR) Master 12 Access Error */
 #define MATRIX_MESR_MERR13 (0x1u << 13) /**< \brief (MATRIX_MESR) Master 13 Access Error */
 #define MATRIX_MESR_MERR14 (0x1u << 14) /**< \brief (MATRIX_MESR) Master 14 Access Error */
-/* -------- MATRIX_MEAR[15] : (MATRIX Offset: 0x0160) Master 0 Error Address Register -------- */
+/* -------- MATRIX_MEAR[15] : (MATRIX Offset: 0x160) Master 0 Error Address Register -------- */
 #define MATRIX_MEAR_ERRADD_Pos 0
 #define MATRIX_MEAR_ERRADD_Msk (0xffffffffu << MATRIX_MEAR_ERRADD_Pos) /**< \brief (MATRIX_MEAR[15]) Master Error Address */
-/* -------- MATRIX_WPMR : (MATRIX Offset: 0x01E4) Write Protect Mode Register -------- */
+/* -------- MATRIX_WPMR : (MATRIX Offset: 0x1E4) Write Protect Mode Register -------- */
 #define MATRIX_WPMR_WPEN (0x1u << 0) /**< \brief (MATRIX_WPMR) Write Protection Enable */
 #define MATRIX_WPMR_CFGFRZ (0x1u << 7) /**< \brief (MATRIX_WPMR) Configuration Freeze */
 #define MATRIX_WPMR_WPKEY_Pos 8
 #define MATRIX_WPMR_WPKEY_Msk (0xffffffu << MATRIX_WPMR_WPKEY_Pos) /**< \brief (MATRIX_WPMR) Write Protection Key */
 #define MATRIX_WPMR_WPKEY(value) ((MATRIX_WPMR_WPKEY_Msk & ((value) << MATRIX_WPMR_WPKEY_Pos)))
 #define   MATRIX_WPMR_WPKEY_PASSWD (0x4D4154u << 8) /**< \brief (MATRIX_WPMR) Writing any other value in this field aborts the write operation of the WPEN and CFGFRZ bits. Always reads as 0. */
-/* -------- MATRIX_WPSR : (MATRIX Offset: 0x01E8) Write Protect Status Register -------- */
+/* -------- MATRIX_WPSR : (MATRIX Offset: 0x1E8) Write Protect Status Register -------- */
 #define MATRIX_WPSR_WPVS (0x1u << 0) /**< \brief (MATRIX_WPSR) Write Protection Violation Status */
 #define MATRIX_WPSR_WPVSRC_Pos 8
 #define MATRIX_WPSR_WPVSRC_Msk (0xffffu << MATRIX_WPSR_WPVSRC_Pos) /**< \brief (MATRIX_WPSR) Write Protection Violation Source */

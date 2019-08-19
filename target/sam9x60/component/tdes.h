@@ -39,8 +39,8 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Tdes hardware registers */
 typedef struct {
-  __O  uint32_t TDES_CR;        /**< \brief (Tdes Offset: 0x00) Control Register */
-  __IO uint32_t TDES_MR;        /**< \brief (Tdes Offset: 0x04) Mode Register */
+  __O  uint32_t TDES_CR;        /**< \brief (Tdes Offset: 0x0) Control Register */
+  __IO uint32_t TDES_MR;        /**< \brief (Tdes Offset: 0x4) Mode Register */
   __I  uint32_t Reserved1[2];
   __O  uint32_t TDES_IER;       /**< \brief (Tdes Offset: 0x10) Interrupt Enable Register */
   __O  uint32_t TDES_IDR;       /**< \brief (Tdes Offset: 0x14) Interrupt Disable Register */
@@ -62,12 +62,12 @@ typedef struct {
   __I  uint32_t TDES_WPSR;      /**< \brief (Tdes Offset: 0xE8) Write Protection Status Register */
 } Tdes;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- TDES_CR : (TDES Offset: 0x00) Control Register -------- */
+/* -------- TDES_CR : (TDES Offset: 0x0) Control Register -------- */
 #define TDES_CR_START (0x1u << 0) /**< \brief (TDES_CR) Start Processing */
 #define TDES_CR_SWRST (0x1u << 8) /**< \brief (TDES_CR) Software Reset */
 #define TDES_CR_LOADSEED (0x1u << 16) /**< \brief (TDES_CR) Loadseed */
 #define TDES_CR_UNLOCK (0x1u << 24) /**< \brief (TDES_CR) Unlock Processing */
-/* -------- TDES_MR : (TDES Offset: 0x04) Mode Register -------- */
+/* -------- TDES_MR : (TDES Offset: 0x4) Mode Register -------- */
 #define TDES_MR_CIPHER (0x1u << 0) /**< \brief (TDES_MR) Processing Mode */
 #define   TDES_MR_CIPHER_DECRYPT (0x0u << 0) /**< \brief (TDES_MR) Decrypts data. */
 #define   TDES_MR_CIPHER_ENCRYPT (0x1u << 0) /**< \brief (TDES_MR) Encrypts data. */

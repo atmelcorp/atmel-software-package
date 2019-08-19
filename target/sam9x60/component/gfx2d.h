@@ -53,10 +53,10 @@ typedef struct {
 #define GFX2DSUB0_NUMBER 2
 #define GFX2DCHID_NUMBER 4
 typedef struct {
-  __IO uint32_t  GFX2D_GC;                     /**< \brief (Gfx2d Offset: 0x00) Global Configuration Register */
-  __O  uint32_t  GFX2D_GE;                     /**< \brief (Gfx2d Offset: 0x04) Global Enable Register */
-  __O  uint32_t  GFX2D_GD;                     /**< \brief (Gfx2d Offset: 0x08) Global Disable Register */
-  __I  uint32_t  GFX2D_GS;                     /**< \brief (Gfx2d Offset: 0x0C) Global Status Register */
+  __IO uint32_t  GFX2D_GC;                     /**< \brief (Gfx2d Offset: 0x0) Global Configuration Register */
+  __O  uint32_t  GFX2D_GE;                     /**< \brief (Gfx2d Offset: 0x4) Global Enable Register */
+  __O  uint32_t  GFX2D_GD;                     /**< \brief (Gfx2d Offset: 0x8) Global Disable Register */
+  __I  uint32_t  GFX2D_GS;                     /**< \brief (Gfx2d Offset: 0xC) Global Status Register */
   __O  uint32_t  GFX2D_IE;                     /**< \brief (Gfx2d Offset: 0x10) Interrupt Enable Register */
   __O  uint32_t  GFX2D_ID;                     /**< \brief (Gfx2d Offset: 0x14) Interrupt Disable Register */
   __I  uint32_t  GFX2D_IM;                     /**< \brief (Gfx2d Offset: 0x18) Interrupt Mask Register */
@@ -69,7 +69,7 @@ typedef struct {
        Gfx2dChid GFX2D_CHID[GFX2DCHID_NUMBER]; /**< \brief (Gfx2d Offset: 0x40) chid = 0 .. 3 */
 } Gfx2d;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- GFX2D_GC : (GFX2D Offset: 0x00) Global Configuration Register -------- */
+/* -------- GFX2D_GC : (GFX2D Offset: 0x0) Global Configuration Register -------- */
 #define GFX2D_GC_CGDISCORE (0x1u << 0) /**< \brief (GFX2D_GC) Clock Gating Disable Core */
 #define GFX2D_GC_CGDISAXI (0x1u << 1) /**< \brief (GFX2D_GC) Clock Gating Disable AXI */
 #define GFX2D_GC_CGDISFIFO (0x1u << 2) /**< \brief (GFX2D_GC) Clock Gating Disable FIFO */
@@ -84,12 +84,12 @@ typedef struct {
 #define GFX2D_GC_REGQOS3_Pos 16
 #define GFX2D_GC_REGQOS3_Msk (0xfu << GFX2D_GC_REGQOS3_Pos) /**< \brief (GFX2D_GC) Regulation for QoS Level 3 */
 #define GFX2D_GC_REGQOS3(value) ((GFX2D_GC_REGQOS3_Msk & ((value) << GFX2D_GC_REGQOS3_Pos)))
-/* -------- GFX2D_GE : (GFX2D Offset: 0x04) Global Enable Register -------- */
+/* -------- GFX2D_GE : (GFX2D Offset: 0x4) Global Enable Register -------- */
 #define GFX2D_GE_ENABLE (0x1u << 0) /**< \brief (GFX2D_GE) GFX2D Enable */
-/* -------- GFX2D_GD : (GFX2D Offset: 0x08) Global Disable Register -------- */
+/* -------- GFX2D_GD : (GFX2D Offset: 0x8) Global Disable Register -------- */
 #define GFX2D_GD_DISABLE (0x1u << 0) /**< \brief (GFX2D_GD) GFX2D Disable Bit */
 #define GFX2D_GD_WFERES (0x1u << 8) /**< \brief (GFX2D_GD) WFE Software Resume bit */
-/* -------- GFX2D_GS : (GFX2D Offset: 0x0C) Global Status Register -------- */
+/* -------- GFX2D_GS : (GFX2D Offset: 0xC) Global Status Register -------- */
 #define GFX2D_GS_STATUS (0x1u << 0) /**< \brief (GFX2D_GS) GFX2D Status Bit */
 #define GFX2D_GS_BUSY (0x1u << 4) /**< \brief (GFX2D_GS) GFX2D Busy Bit */
 #define GFX2D_GS_WFEIP (0x1u << 8) /**< \brief (GFX2D_GS) Wait For Event Status bit */

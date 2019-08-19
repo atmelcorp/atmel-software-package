@@ -39,18 +39,18 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Syscwp hardware registers */
 typedef struct {
-  __IO uint32_t SYSC_WPMR; /**< \brief (Syscwp Offset: 0x00) Write Protection Mode Register */
-  __I  uint32_t SYSC_WPSR; /**< \brief (Syscwp Offset: 0x04) Write Protection Status Register */
+  __IO uint32_t SYSC_WPMR; /**< \brief (Syscwp Offset: 0x0) Write Protection Mode Register */
+  __I  uint32_t SYSC_WPSR; /**< \brief (Syscwp Offset: 0x4) Write Protection Status Register */
 } Syscwp;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- SYSC_WPMR : (SYSCWP Offset: 0x00) Write Protection Mode Register -------- */
+/* -------- SYSC_WPMR : (SYSCWP Offset: 0x0) Write Protection Mode Register -------- */
 #define SYSC_WPMR_WPEN (0x1u << 0) /**< \brief (SYSC_WPMR) Write Protection Enable */
 #define SYSC_WPMR_WPITEN (0x1u << 1) /**< \brief (SYSC_WPMR) Write Protection RTC Interrupt Enable */
 #define SYSC_WPMR_WPKEY_Pos 8
 #define SYSC_WPMR_WPKEY_Msk (0xffffffu << SYSC_WPMR_WPKEY_Pos) /**< \brief (SYSC_WPMR) Write Protection Key */
 #define SYSC_WPMR_WPKEY(value) ((SYSC_WPMR_WPKEY_Msk & ((value) << SYSC_WPMR_WPKEY_Pos)))
 #define   SYSC_WPMR_WPKEY_PASSWD (0x535943u << 8) /**< \brief (SYSC_WPMR) Writing any other value in this field aborts the write operation of the WPEN and WPITEN bits. Always reads as 0. */
-/* -------- SYSC_WPSR : (SYSCWP Offset: 0x04) Write Protection Status Register -------- */
+/* -------- SYSC_WPSR : (SYSCWP Offset: 0x4) Write Protection Status Register -------- */
 #define SYSC_WPSR_WPVS (0x1u << 0) /**< \brief (SYSC_WPSR) Write Protection Register Violation Status */
 #define SYSC_WPSR_WVSRC_Pos 8
 #define SYSC_WPSR_WVSRC_Msk (0xffu << SYSC_WPSR_WVSRC_Pos) /**< \brief (SYSC_WPSR) Write Violation Source */

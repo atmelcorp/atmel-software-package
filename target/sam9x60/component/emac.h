@@ -45,9 +45,9 @@ typedef struct {
 /** \brief Emac hardware registers */
 #define EMACSA_NUMBER 4
 typedef struct {
-  __IO uint32_t EMAC_NCR;               /**< \brief (Emac Offset: 0x00) Network Control Register */
-  __IO uint32_t EMAC_NCFGR;             /**< \brief (Emac Offset: 0x04) Network Configuration Register */
-  __I  uint32_t EMAC_NSR;               /**< \brief (Emac Offset: 0x08) Network Status Register */
+  __IO uint32_t EMAC_NCR;               /**< \brief (Emac Offset: 0x0) Network Control Register */
+  __IO uint32_t EMAC_NCFGR;             /**< \brief (Emac Offset: 0x4) Network Configuration Register */
+  __I  uint32_t EMAC_NSR;               /**< \brief (Emac Offset: 0x8) Network Status Register */
   __I  uint32_t Reserved1[2];
   __IO uint32_t EMAC_TSR;               /**< \brief (Emac Offset: 0x14) Transmit Status Register */
   __IO uint32_t EMAC_RBQP;              /**< \brief (Emac Offset: 0x18) Receive Buffer Queue Pointer Register */
@@ -89,7 +89,7 @@ typedef struct {
   __IO uint32_t EMAC_WOL;               /**< \brief (Emac Offset: 0xC4) Wake-on-LAN Register */
 } Emac;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- EMAC_NCR : (EMAC Offset: 0x00) Network Control Register -------- */
+/* -------- EMAC_NCR : (EMAC Offset: 0x0) Network Control Register -------- */
 #define EMAC_NCR_LB (0x1u << 0) /**< \brief (EMAC_NCR) LoopBack */
 #define EMAC_NCR_LLB (0x1u << 1) /**< \brief (EMAC_NCR) Loopback Local */
 #define EMAC_NCR_RE (0x1u << 2) /**< \brief (EMAC_NCR) Receive Enable */
@@ -103,7 +103,7 @@ typedef struct {
 #define EMAC_NCR_THALT (0x1u << 10) /**< \brief (EMAC_NCR) Transmit Halt */
 #define EMAC_NCR_TPFR (0x1u << 11) /**< \brief (EMAC_NCR) Transmit Pause Frame */
 #define EMAC_NCR_TZQ (0x1u << 12) /**< \brief (EMAC_NCR) Transmit Zero Quantum Pause Frame */
-/* -------- EMAC_NCFGR : (EMAC Offset: 0x04) Network Configuration Register -------- */
+/* -------- EMAC_NCFGR : (EMAC Offset: 0x4) Network Configuration Register -------- */
 #define EMAC_NCFGR_SPD (0x1u << 0) /**< \brief (EMAC_NCFGR) Speed */
 #define EMAC_NCFGR_FD (0x1u << 1) /**< \brief (EMAC_NCFGR) Full Duplex */
 #define EMAC_NCFGR_JFRAME (0x1u << 3) /**< \brief (EMAC_NCFGR) Jumbo Frames */
@@ -133,7 +133,7 @@ typedef struct {
 #define EMAC_NCFGR_DRFCS (0x1u << 17) /**< \brief (EMAC_NCFGR) Discard Receive FCS */
 #define EMAC_NCFGR_EFRHD (0x1u << 18) /**< \brief (EMAC_NCFGR) Enable Frames Received in Half Duplex */
 #define EMAC_NCFGR_IRXFCS (0x1u << 19) /**< \brief (EMAC_NCFGR) Ignore RX FCS */
-/* -------- EMAC_NSR : (EMAC Offset: 0x08) Network Status Register -------- */
+/* -------- EMAC_NSR : (EMAC Offset: 0x8) Network Status Register -------- */
 #define EMAC_NSR_LINKR (0x1u << 0) /**< \brief (EMAC_NSR) Link Pin Status */
 #define EMAC_NSR_MDIO (0x1u << 1) /**< \brief (EMAC_NSR) MDIO Input Status */
 #define EMAC_NSR_IDLE (0x1u << 2) /**< \brief (EMAC_NSR) PHY Management Logic Status */

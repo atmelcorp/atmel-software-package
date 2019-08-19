@@ -39,12 +39,12 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Sdmmc hardware registers */
 typedef struct {
-  __IO uint32_t SDMMC_SSAR;     /**< \brief (Sdmmc Offset: 0x00) SDMA System Address / Argument 2 Register */
-  __IO uint16_t SDMMC_BSR;      /**< \brief (Sdmmc Offset: 0x04) Block Size Register */
-  __IO uint16_t SDMMC_BCR;      /**< \brief (Sdmmc Offset: 0x06) Block Count Register */
-  __IO uint32_t SDMMC_ARG1R;    /**< \brief (Sdmmc Offset: 0x08) Argument 1 Register */
-  __IO uint16_t SDMMC_TMR;      /**< \brief (Sdmmc Offset: 0x0C) Transfer Mode Register */
-  __IO uint16_t SDMMC_CR;       /**< \brief (Sdmmc Offset: 0x0E) Command Register */
+  __IO uint32_t SDMMC_SSAR;     /**< \brief (Sdmmc Offset: 0x0) SDMA System Address / Argument 2 Register */
+  __IO uint16_t SDMMC_BSR;      /**< \brief (Sdmmc Offset: 0x4) Block Size Register */
+  __IO uint16_t SDMMC_BCR;      /**< \brief (Sdmmc Offset: 0x6) Block Count Register */
+  __IO uint32_t SDMMC_ARG1R;    /**< \brief (Sdmmc Offset: 0x8) Argument 1 Register */
+  __IO uint16_t SDMMC_TMR;      /**< \brief (Sdmmc Offset: 0xC) Transfer Mode Register */
+  __IO uint16_t SDMMC_CR;       /**< \brief (Sdmmc Offset: 0xE) Command Register */
   __I  uint32_t SDMMC_RR[4];    /**< \brief (Sdmmc Offset: 0x10) Response Register */
   __IO uint32_t SDMMC_BDPR;     /**< \brief (Sdmmc Offset: 0x20) Buffer Data Port Register */
   __I  uint32_t SDMMC_PSR;      /**< \brief (Sdmmc Offset: 0x24) Present State Register */
@@ -91,14 +91,14 @@ typedef struct {
   __IO uint32_t SDMMC_DBGR;     /**< \brief (Sdmmc Offset: 0x234) Debug Register */
 } Sdmmc;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- SDMMC_SSAR : (SDMMC Offset: 0x00) SDMA System Address / Argument 2 Register -------- */
+/* -------- SDMMC_SSAR : (SDMMC Offset: 0x0) SDMA System Address / Argument 2 Register -------- */
 #define SDMMC_SSAR_ADDR_Pos 0
 #define SDMMC_SSAR_ADDR_Msk (0xffffffffu << SDMMC_SSAR_ADDR_Pos) /**< \brief (SDMMC_SSAR) SDMA System Address */
 #define SDMMC_SSAR_ADDR(value) ((SDMMC_SSAR_ADDR_Msk & ((value) << SDMMC_SSAR_ADDR_Pos)))
 #define SDMMC_SSAR_ARG2_Pos 0
 #define SDMMC_SSAR_ARG2_Msk (0xffffffffu << SDMMC_SSAR_ARG2_Pos) /**< \brief (SDMMC_SSAR) Argument 2 */
 #define SDMMC_SSAR_ARG2(value) ((SDMMC_SSAR_ARG2_Msk & ((value) << SDMMC_SSAR_ARG2_Pos)))
-/* -------- SDMMC_BSR : (SDMMC Offset: 0x04) Block Size Register -------- */
+/* -------- SDMMC_BSR : (SDMMC Offset: 0x4) Block Size Register -------- */
 #define SDMMC_BSR_BLKSIZE_Pos 0
 #define SDMMC_BSR_BLKSIZE_Msk (0x3ffu << SDMMC_BSR_BLKSIZE_Pos) /**< \brief (SDMMC_BSR) Transfer Block Size */
 #define SDMMC_BSR_BLKSIZE(value) ((SDMMC_BSR_BLKSIZE_Msk & ((value) << SDMMC_BSR_BLKSIZE_Pos)))
@@ -113,15 +113,15 @@ typedef struct {
 #define   SDMMC_BSR_BOUNDARY_128K (0x5u << 12) /**< \brief (SDMMC_BSR) 128-Kbyte boundary */
 #define   SDMMC_BSR_BOUNDARY_256k (0x6u << 12) /**< \brief (SDMMC_BSR) 256-Kbyte boundary */
 #define   SDMMC_BSR_BOUNDARY_512K (0x7u << 12) /**< \brief (SDMMC_BSR) 512-Kbyte boundary */
-/* -------- SDMMC_BCR : (SDMMC Offset: 0x06) Block Count Register -------- */
+/* -------- SDMMC_BCR : (SDMMC Offset: 0x6) Block Count Register -------- */
 #define SDMMC_BCR_BLKCNT_Pos 0
 #define SDMMC_BCR_BLKCNT_Msk (0xffffu << SDMMC_BCR_BLKCNT_Pos) /**< \brief (SDMMC_BCR) Block Count for Current Transfer */
 #define SDMMC_BCR_BLKCNT(value) ((SDMMC_BCR_BLKCNT_Msk & ((value) << SDMMC_BCR_BLKCNT_Pos)))
-/* -------- SDMMC_ARG1R : (SDMMC Offset: 0x08) Argument 1 Register -------- */
+/* -------- SDMMC_ARG1R : (SDMMC Offset: 0x8) Argument 1 Register -------- */
 #define SDMMC_ARG1R_ARG1_Pos 0
 #define SDMMC_ARG1R_ARG1_Msk (0xffffffffu << SDMMC_ARG1R_ARG1_Pos) /**< \brief (SDMMC_ARG1R) Argument 1 */
 #define SDMMC_ARG1R_ARG1(value) ((SDMMC_ARG1R_ARG1_Msk & ((value) << SDMMC_ARG1R_ARG1_Pos)))
-/* -------- SDMMC_TMR : (SDMMC Offset: 0x0C) Transfer Mode Register -------- */
+/* -------- SDMMC_TMR : (SDMMC Offset: 0xC) Transfer Mode Register -------- */
 #define SDMMC_TMR_DMAEN (0x1u << 0) /**< \brief (SDMMC_TMR) DMA Enable */
 #define   SDMMC_TMR_DMAEN_DISABLED (0x0u << 0) /**< \brief (SDMMC_TMR) DMA functionality is disabled. */
 #define   SDMMC_TMR_DMAEN_ENABLED (0x1u << 0) /**< \brief (SDMMC_TMR) DMA functionality is enabled. */
@@ -138,7 +138,7 @@ typedef struct {
 #define   SDMMC_TMR_DTDSEL_WR (0x0u << 4) /**< \brief (SDMMC_TMR) Writes data from the SDMMC to the device. */
 #define   SDMMC_TMR_DTDSEL_RD (0x1u << 4) /**< \brief (SDMMC_TMR) Reads data from the device to the SDMMC. */
 #define SDMMC_TMR_MSBSEL (0x1u << 5) /**< \brief (SDMMC_TMR) Multi/Single Block Selection */
-/* -------- SDMMC_CR : (SDMMC Offset: 0x0E) Command Register -------- */
+/* -------- SDMMC_CR : (SDMMC Offset: 0xE) Command Register -------- */
 #define SDMMC_CR_RESPTYP_Pos 0
 #define SDMMC_CR_RESPTYP_Msk (0x3u << SDMMC_CR_RESPTYP_Pos) /**< \brief (SDMMC_CR) Response Type */
 #define SDMMC_CR_RESPTYP(value) ((SDMMC_CR_RESPTYP_Msk & ((value) << SDMMC_CR_RESPTYP_Pos)))
