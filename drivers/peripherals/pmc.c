@@ -421,15 +421,16 @@ RAMCODE static void _pmc_configure_pll(const struct _pmc_plla_cfg* plla)
 	/* 1. Define the ID (ID=n) and startup time by configuring the fields PMC_PLL_UPDT.ID and
 	PMC_PLL_UPDT.STUPTIM. Set PMC_PLL_UPDT.UPDATE to '0'. */
 	reg = PMC->PMC_PLL_UPDT;
-	reg &= ~(PMC_PLL_UPDT_STUPTIM_Msk | PMC_PLL_UPDT_UPDATE | PMC_PLL_UPDT_ID_Msk);
-	reg |= PMC_PLL_UPDT_STUPTIM(plla->count) | PMC_PLL_UPDT_ID(plla->pll_id);
+	reg &= ~(PMC_PLL_UPDT_STUPTIM_Msk | PMC_PLL_UPDT_UPDATE | PMC_PLL_UPDT_ID);
+	reg |= PMC_PLL_UPDT_STUPTIM(plla->count);
+	if (plla->pll_id)
+		reg |= PMC_PLL_UPDT_ID;
 	PMC->PMC_PLL_UPDT = reg;
 	
 	if ((PMC -> PMC_PLL_ACR & PMC_PLL_ACR_UTMIBG) != PMC_PLL_ACR_UTMIBG) {
 		/* 2. Write PMC_PLL_ACR.UTMIBG to '1' to enable the UTMI internal bandgap. */
 		reg = PMC->PMC_PLL_ACR;
 		reg |= PMC_PLL_ACR_UTMIBG;
-		reg |= PMC_PLL_ACR_DEFAULT;
 		PMC->PMC_PLL_ACR = reg;
 		/* 3. Wait 10 us. */
 		_SLEEP(10);
@@ -439,7 +440,6 @@ RAMCODE static void _pmc_configure_pll(const struct _pmc_plla_cfg* plla)
 	reg = PMC->PMC_PLL_ACR;
 	reg &= ~PMC_PLL_ACR_LOOP_FILTER_Msk;
 	reg |= PMC_PLL_ACR_LOOP_FILTER(plla->loop_filter);
-	reg |= PMC_PLL_ACR_DEFAULT;
 	PMC->PMC_PLL_ACR = reg;
 
 	/* 3. Define the MUL and FRACR to be applied to PLL(n) in PMC_PLL_CTRL1. */
@@ -450,7 +450,6 @@ RAMCODE static void _pmc_configure_pll(const struct _pmc_plla_cfg* plla)
 		/* 4. Write PMC_PLL_ACR.UTMIBG to '1' to enable the UTMI internal bandgap. */
 		reg = PMC->PMC_PLL_ACR;
 		reg |= PMC_PLL_ACR_UTMIBG;
-		reg |= PMC_PLL_ACR_DEFAULT;
 		PMC->PMC_PLL_ACR = reg;
 		/* 5. Wait 10 us. */
 		_SLEEP(10);
@@ -458,7 +457,6 @@ RAMCODE static void _pmc_configure_pll(const struct _pmc_plla_cfg* plla)
 		/* 6. Write PMC_PLL_ACR.UTMIVR to '1' to enable the UTMI internal regulator. */
 		reg = PMC->PMC_PLL_ACR;
 		reg |= PMC_PLL_ACR_UTMIVR;
-		reg |= PMC_PLL_ACR_DEFAULT;
 		PMC->PMC_PLL_ACR = reg;
 
 		/* 7. Wait 10 us. */
@@ -506,8 +504,9 @@ RAMCODE static void _pmc_disable_pll(uint32_t pll_id)
 	/* 2. Define the ID (ID=n) of the PLL to be switched off in PMC_UPDT. The bit UPDATE in this register
 	must be set at 0 in this step. */
 	reg = PMC->PMC_PLL_UPDT;
-	reg &= ~(PMC_PLL_UPDT_UPDATE | PMC_PLL_UPDT_ID_Msk);
-	reg |= PMC_PLL_UPDT_ID(pll_id);
+	reg &= ~(PMC_PLL_UPDT_UPDATE | PMC_PLL_UPDT_ID);
+	if (pll_id)
+		reg |= PMC_PLL_UPDT_ID;
 	PMC->PMC_PLL_UPDT = reg;
 
 	/* 3. In PMC_PLL_CTRL0, set ENPLLCK to 0 and leave ENPLL at '1'. */
@@ -526,7 +525,6 @@ RAMCODE static void _pmc_disable_pll(uint32_t pll_id)
 	if (pll_id == PLL_ID_UPLL) {
 		reg = PMC->PMC_PLL_ACR;
 		reg &= ~(PMC_PLL_ACR_UTMIBG | PMC_PLL_ACR_UTMIVR);
-		reg |= PMC_PLL_ACR_DEFAULT;
 		PMC->PMC_PLL_ACR = reg;
 	}
 }
@@ -541,7 +539,10 @@ RAMCODE static uint32_t _pmc_get_pll_clock(uint32_t pll_id)
 	uint32_t mul, fracr, divpmc;
 	uint32_t f_core, f_ref;
 
-	PMC->PMC_PLL_UPDT = (PMC->PMC_PLL_UPDT & (~PMC_PLL_UPDT_ID_Msk)) | PMC_PLL_UPDT_ID(pll_id);
+	if (pll_id)
+		PMC->PMC_PLL_UPDT = (PMC->PMC_PLL_UPDT | PMC_PLL_UPDT_ID);
+	else 
+		PMC->PMC_PLL_UPDT &= ~PMC_PLL_UPDT_ID;
 
 	mul = (PMC->PMC_PLL_CTRL1 & PMC_PLL_CTRL1_MUL_Msk) >> PMC_PLL_CTRL1_MUL_Pos;
 	fracr = (PMC->PMC_PLL_CTRL1 & PMC_PLL_CTRL1_FRACR_Msk) >> PMC_PLL_CTRL1_FRACR_Pos;
