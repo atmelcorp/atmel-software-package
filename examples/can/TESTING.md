@@ -87,7 +87,8 @@ Press 'c'.'p' | ISO 11898-1 CAN,| PASSED | PASSED
 Press 'f'.'p' | ISO 11898-7 CAN FD, 64-byte data| PASSED | PASSED
 Press 's'.'p' | ISO 11898-7 CAN FD, 64-byte data, 2 Mbps data bit| PASSED | PASSED
 Press 'l'.'p' | toggle the integrated MCAN loop-back off| PASSED | PASSED
+Disconnect CAN1 from CAN0; connect CAN1 to remote board's CAN1 | setup a two-node network | N/A | N/A
 Press 'r' on one board | prepare to receive the specified message | PASSED | PASSED
-Press 't' on the other board | send out the specified message| PASSED | PASSED
+Within 5 seconds, press 't' on the other board | send out the specified message| PASSED | PASSED
 Press 'l' | toggle the integrated MCAN loop-back on| PASSED | PASSED
 
