@@ -3,13 +3,13 @@ USB_UVC_ISI EXAMPLE
 
 # Objectives
 ------------
-This example aims to manage incoming data from CMOS sensor with the Image Sensor Interface (ISI).  
+This example aims to manage incoming data from CMOS sensor with the Image Sensor Interface (ISI).
 Running this example, the kit operates as a USB webcam.
 
 # Example Description
 ---------------------
-This example shows how to configure the internal image processor.  
-It introduces how to sample data stream to expected data format and transfer with DMA master module.  
+This example shows how to configure the internal image processor.
+It introduces how to sample data stream to expected data format and transfer with DMA master module.
 The example supports the image sensor with a data width of 8 bits in YUV format.
 
 # Test
@@ -18,7 +18,7 @@ The example supports the image sensor with a data width of 8 bits in YUV format.
 --------------------
 
 * SAM9XX5-EK with the ++AT91SAM9G25-CM++ CPU Module (sam9g25-ek)
-* SAM9X60-EK with the ++SAM9X60-EK LCD to ISI Adapter++ standalone board (sam9x60-ek)
+* SAM9X60-EK Rev. B (sam9x60-ek)
 * SAMA5D3-EK
 * SAMA5D4-EK
 
@@ -41,18 +41,16 @@ On the computer, open and configure a terminal application
  - No flow control
 
 -- SAM9XX5-EK
-Plug a male-to-male header on the J21 ISI/LCD connector. Plug the ISI Module on top of it.
+Plug a male-to-male header on the ISI/LCD connector (J21). Plug the ISI Module on top of it.
 
--- SAM9X60-EK
-Insert the flat flexible cable into the J16 LCD ZIF connector, located on the bottom side of the board.  
-Insert the other end of the FFC into the J1 ZIF connector of the standalone *SAM9X60-EK LCD to ISI Adapter*.  
-Plug the ISI Module on the J2 connector of the adapter.
+-- SAM9X60-EK Rev. B
+Plug the ISI Module on the ISI connector (J17).
 
 -- SAMA5D3-EK
-Plug the ISI Module on the J11 ISI connector.
+Plug the ISI Module on the ISI connector (J11).
 
 -- SAMA5D4-EK
-Plug the ISI Module on the J15 ISI connector.
+Plug the ISI Module on the ISI connector (J15).
 
 ## Start the application
 --------
@@ -60,7 +58,7 @@ Plug the ISI Module on the J15 ISI connector.
 Tested with IAR<sup>®</sup> and GCC (ddram configration)
 In order to test this example, the process is the following:
 
-Begin with the board's USB device port left disconnected from the host computer.
+Begin with the board's USB device port disconnected from the host computer.
 
 Step | Description | Expected Result | Result
 -----|-------------|-----------------|-------
@@ -68,6 +66,6 @@ Step | Description | Expected Result | Result
 Connect to the USB host computer | Host computer enumerates the USB Video Device | The USB Video Device shows up in Device Manager<sup>®</sup> | PASS
 Have Skype<sup>®</sup> / Camera<sup>®</sup> or equivalent SW open the USB Video Device | The board streams video to the host computer | The webcam application plays the live stream from the image sensor | PASS
 
-The example offers to stream the video in QVGA (320x240) or VGA (640x480) resolution.  
-Skype<sup>®</sup> may select QVGA resolution by default.  
+The example offers to stream the video in QVGA (320x240) or VGA (640x480) resolution.
+Skype<sup>®</sup> may select QVGA resolution by default.
 The Camera<sup>®</sup> app may select VGA resolution by default.
