@@ -69,7 +69,7 @@ struct pck_mck_cfg {
 	uint32_t pck_input;
 
 	/** RC12M (false) or EXT12M (true) */
-	bool ext12m;
+	bool extosc;
 
 	/** Use BYPASS */
 	bool ext_bypass;

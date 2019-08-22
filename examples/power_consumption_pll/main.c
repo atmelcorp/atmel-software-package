@@ -144,7 +144,7 @@ static const struct pck_mck_cfg clock_test_setting[] = {
 	/* MAIN RC12M RC32K MULA=0 DIV2ON=0 PRES=0 MDIV=0 */
 	{
 		.pck_input = PMC_MCKR_CSS_MAIN_CLK,
-		.ext12m = true,
+		.extosc = true,
 		.ext32k = false,
 		.plla = {
 			.mul = 0,

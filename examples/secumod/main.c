@@ -317,7 +317,7 @@ static uint32_t memory_erased = 0;
 /* PLLA EXT12M/24M RC32K MULA=59 DIV2ON=1 PRES=1 DIV=2 */
 struct pck_mck_cfg clock_setting = {
 		.pck_input = PMC_MCKR_CSS_PLLA_CLK,
-		.ext12m = true,
+		.extosc = true,
 		.ext32k = false,
 		.plla = {
 #if BOARD_MAIN_CLOCK_EXT_OSC == 12000000

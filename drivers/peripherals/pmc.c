@@ -1196,7 +1196,7 @@ RAMCODE void pmc_set_custom_pck_mck(const struct pck_mck_cfg *cfg)
 {
 	pmc_switch_mck_to_slck();
 
-	if (cfg->ext12m)
+	if (cfg->extosc)
 		pmc_select_external_osc(cfg->ext_bypass);
 	else
 		pmc_select_internal_osc();

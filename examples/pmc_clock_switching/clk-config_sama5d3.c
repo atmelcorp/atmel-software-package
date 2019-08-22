@@ -34,7 +34,7 @@ struct pck_mck_cfg clock_test_setting[4] = {
 	/* EXT12M EXT32K */
 	{
 		.pck_input = PMC_MCKR_CSS_PLLA_CLK,
-		.ext12m = true,
+		.extosc = true,
 		.ext32k = true,
 		.plla = {
 			.mul = 87,
@@ -50,7 +50,7 @@ struct pck_mck_cfg clock_test_setting[4] = {
 	/* EXT12M EXT32K */
 	{
 		.pck_input = PMC_MCKR_CSS_UPLL_CLK,
-		.ext12m = true,
+		.extosc = true,
 		.ext32k = true,
 		.plla = {
 			.mul = 0,
@@ -63,7 +63,7 @@ struct pck_mck_cfg clock_test_setting[4] = {
 	/* EXT12M EXT32K */
 	{
 		.pck_input = PMC_MCKR_CSS_MAIN_CLK,
-		.ext12m = true,
+		.extosc = true,
 		.ext32k = true,
 		.plla = {
 			.mul = 0,
@@ -76,7 +76,7 @@ struct pck_mck_cfg clock_test_setting[4] = {
 	/* EXT12M EXT32K */
 	{
 		.pck_input = PMC_MCKR_CSS_SLOW_CLK,
-		.ext12m = true,
+		.extosc = true,
 		.ext32k = true,
 		.plla = {
 			.mul = 0,

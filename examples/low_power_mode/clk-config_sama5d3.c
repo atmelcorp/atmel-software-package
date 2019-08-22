@@ -34,7 +34,7 @@ struct pck_mck_cfg clock_test_setting[8] = {
 	/* PLLA EXT12M EXT32K MULA=88 DIV=1 DIV2ON=1 PRES=0 MDIV=4 */
 	{
 		.pck_input = PMC_MCKR_CSS_PLLA_CLK,
-		.ext12m = true,
+		.extosc = true,
 		.ext32k = true,
 		.plla = {
 			.mul = 88,
@@ -50,7 +50,7 @@ struct pck_mck_cfg clock_test_setting[8] = {
 	/* MAIN EXT12M EXT32K MULA=0 DIV=1 DIV2ON=0 PRES=0 MDIV=0 */
 	{
 		.pck_input = PMC_MCKR_CSS_MAIN_CLK,
-		.ext12m = true,
+		.extosc = true,
 		.ext32k = true,
 		.plla = {
 			.mul = 0,
@@ -63,7 +63,7 @@ struct pck_mck_cfg clock_test_setting[8] = {
 	/* MAIN EXT12M EXT32K MULA=0 DIV=1 DIV2ON=0 PRES=16 MDIV=0 */
 	{
 		.pck_input = PMC_MCKR_CSS_MAIN_CLK,
-		.ext12m = true,
+		.extosc = true,
 		.ext32k = true,
 		.plla = {
 			.mul = 0,
@@ -76,7 +76,7 @@ struct pck_mck_cfg clock_test_setting[8] = {
 	/* MAIN EXT12M EXT32K MULA=0 DIV=1 DIV2ON=0 PRES=64 MDIV=0 */
 	{
 		.pck_input = PMC_MCKR_CSS_MAIN_CLK,
-		.ext12m = true,
+		.extosc = true,
 		.ext32k = true,
 		.plla = {
 			.mul = 0,
@@ -89,7 +89,7 @@ struct pck_mck_cfg clock_test_setting[8] = {
 	/* slow clock EXT12M EXT32K MULA=0 DIV=1 DIV2ON=0 PRES=0 MDIV=0 */
 	{
 		.pck_input = PMC_MCKR_CSS_SLOW_CLK,
-		.ext12m = true,
+		.extosc = true,
 		.ext32k = true,
 		.plla = {
 			.mul = 0,
@@ -102,7 +102,7 @@ struct pck_mck_cfg clock_test_setting[8] = {
 	/* slow clock EXT12M EXT32K MULA=0 DIV=1 DIV2ON=0 PRES=64 MDIV=0 */
 	{
 		.pck_input = PMC_MCKR_CSS_SLOW_CLK,
-		.ext12m = true,
+		.extosc = true,
 		.ext32k = true,
 		.plla = {
 			.mul = 0,
@@ -115,7 +115,7 @@ struct pck_mck_cfg clock_test_setting[8] = {
 	/* MAIN RC12M RC32K MULA=0 DIV=1 DIV2ON=0 PRES=0 MDIV=0 */
 	{
 		.pck_input = PMC_MCKR_CSS_MAIN_CLK,
-		.ext12m = false,
+		.extosc = false,
 		.ext32k = false,
 		.plla = {
 			.mul = 0,
@@ -128,7 +128,7 @@ struct pck_mck_cfg clock_test_setting[8] = {
 	/* MAIN EXT12M EXT32K MULA=66 DIV=1 DIV2ON=1 PRES=0 MDIV=3 */
 	{
 		.pck_input = PMC_MCKR_CSS_PLLA_CLK,
-		.ext12m = true,
+		.extosc = true,
 		.ext32k = true,
 		.plla = {
 			.mul = 65,
