@@ -469,6 +469,11 @@ extern bool pmc_is_upll_clock_enabled(void);
  */
 extern uint32_t pmc_get_upll_clock(void);
 
+/**
+ * \brief get PCK and MCK setting
+ */
+extern struct pck_mck_cfg pmc_get_pck_mck_cfg(void);
+
 #ifdef CONFIG_HAVE_PMC_UPLL_BIAS
 /**
  * \brief Enable the UPLL clock bias

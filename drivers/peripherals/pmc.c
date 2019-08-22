@@ -1642,6 +1642,67 @@ uint32_t pmc_get_utmi_clock_trim(void)
  *        Exported functions (Generated clocks)
  *----------------------------------------------------------------------------*/
 
+struct pck_mck_cfg pmc_get_pck_mck_cfg(void)
+{
+	struct pck_mck_cfg cfg = { 0 };
+	cfg.pck_input = PMC->PMC_MCKR & PMC_MCKR_CSS_Msk;
+	if ((PMC->CKGR_MOR & CKGR_MOR_MOSCXTEN) == CKGR_MOR_MOSCXTEN) {
+		cfg.extosc = true;
+	} else {
+		cfg.extosc = false;
+	}
+	if (!slowclock_is_internal(SLOWCLOCK_DOMAIN_DEFAULT)) {
+		cfg.ext32k = true;
+	} else {
+		cfg.ext32k = false;
+	}
+	cfg.pck_pres = (PMC->PMC_MCKR & PMC_MCKR_PRES_Msk);
+	cfg.mck_div = (PMC->PMC_MCKR & PMC_MCKR_MDIV_Msk);
+
+#ifdef PMC_PLL_UPDT_ID
+	if ((cfg.pck_input == PMC_MCKR_CSS_PLLA_CLK) | (cfg.pck_input == PMC_MCKR_CSS_UPLL_CLK)) {
+		if (cfg.pck_input == PMC_MCKR_CSS_PLLA_CLK) {
+			cfg.plla.pll_id = PLL_ID_PLLA;
+		} else {
+			cfg.plla.pll_id = PLL_ID_UPLL;
+		}
+		PMC->PMC_PLL_UPDT = (PMC->PMC_PLL_UPDT & ~PMC_PLL_UPDT_ID) | cfg.plla.pll_id;
+		cfg.plla.mul = (PMC->PMC_PLL_CTRL1 & PMC_PLL_CTRL1_MUL_Msk) >> PMC_PLL_CTRL1_MUL_Pos;
+		cfg.plla.div = (PMC->PMC_PLL_CTRL0 & PMC_PLL_CTRL0_DIVPMC_Msk) >> PMC_PLL_CTRL0_DIVPMC_Pos;
+	}
+#else
+	if(cfg.pck_input == PMC_MCKR_CSS_PLLA_CLK) {
+		cfg.plla.mul = (PMC->CKGR_PLLAR & CKGR_PLLAR_MULA_Msk) >> CKGR_PLLAR_MULA_Pos;
+		cfg.plla.div = (PMC->CKGR_PLLAR & CKGR_PLLAR_DIVA_Msk) >> CKGR_PLLAR_DIVA_Pos;
+		cfg.plla.count = (PMC->CKGR_PLLAR & CKGR_PLLAR_PLLACOUNT_Msk) >> CKGR_PLLAR_PLLACOUNT_Pos;
+	}
+#endif
+#ifdef CKGR_MOR_MOSCXTBY	
+	if((PMC->CKGR_MOR & CKGR_MOR_MOSCXTBY) == CKGR_MOR_MOSCXTBY) {
+		cfg.ext_bypass = true;
+	} else {
+		cfg.ext_bypass = false;
+	}
+#endif
+
+#ifdef CONFIG_HAVE_PMC_PLLADIV2
+	if((PMC->PMC_MCKR & PMC_MCKR_PLLADIV2) == PMC_MCKR_PLLADIV2) {
+		cfg.plla_div2 = true;
+	} else {
+		cfg.plla_div2 = false;
+	}
+#endif
+
+#ifdef CONFIG_HAVE_PMC_H32MXDIV
+	if ((PMC->PMC_MCKR & PMC_MCKR_H32MXDIV_H32MXDIV2) == PMC_MCKR_H32MXDIV_H32MXDIV2) {
+		cfg.h32mx_div2 = true;
+	} else {
+		cfg.h32mx_div2 = false;
+	}
+#endif
+	return cfg;
+}
+
 #ifdef CONFIG_HAVE_PMC_GENERATED_CLOCKS
 
 void pmc_configure_gck(uint32_t id, uint32_t clock_source, uint32_t div)
