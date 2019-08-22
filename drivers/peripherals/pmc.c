@@ -356,7 +356,7 @@ RAMCODE static bool _pmc_get_system_clock_bits(enum _pmc_system_clock clock,
 }
 
 #ifdef CONFIG_HAVE_PMC_PERIPH_DIV
-RAMCODE static void _pmc_configure_peripheral_div(uint32_t id, uint32_t div)
+static void _pmc_configure_peripheral_div(uint32_t id, uint32_t div)
 {
 	uint32_t clk_max;
 	bool can_divide;
@@ -529,12 +529,12 @@ RAMCODE static void _pmc_disable_pll(uint32_t pll_id)
 	}
 }
 
-RAMCODE static bool _pmc_pll_enabled(uint32_t pll_id)
+static bool _pmc_pll_enabled(uint32_t pll_id)
 {
 	return (PMC->PMC_PLL_ISR0 & (1 << (pll_id & 0xf))) != 0;
 }
 
-RAMCODE static uint32_t _pmc_get_pll_clock(uint32_t pll_id)
+static uint32_t _pmc_get_pll_clock(uint32_t pll_id)
 {
 	uint32_t mul, fracr, divpmc;
 	uint32_t f_core, f_ref;
@@ -1165,6 +1165,8 @@ void pmc_set_fast_startup_polarity(uint32_t high_level, uint32_t low_level)
 }
 #endif /* CONFIG_HAVE_PMC_FAST_STARTUP */
 
+/* About CONFIG_RAMCODE: when relocated in SRAM this function is limited,
+ * it doesn't support samv71 targets. */
 RAMCODE void pmc_set_custom_pck_mck(const struct pck_mck_cfg *cfg)
 {
 	pmc_switch_mck_to_slck();
@@ -1219,6 +1221,8 @@ RAMCODE void pmc_set_custom_pck_mck(const struct pck_mck_cfg *cfg)
  *        Exported functions (Peripherals)
  *----------------------------------------------------------------------------*/
 
+/* About CONFIG_RAMCODE: when relocated in SRAM this function is limited,
+ * it only supports a NULL (struct _pmc_periph_cfg*) parameter. */
 RAMCODE void pmc_configure_peripheral(uint32_t id, const struct _pmc_periph_cfg* cfg, bool enable)
 {
 	_ASSERT(id < ID_PERIPH_COUNT);
