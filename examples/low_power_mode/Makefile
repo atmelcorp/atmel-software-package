@@ -44,5 +44,6 @@ CONFIG_RAMCODE = y
 
 obj-y += examples/low_power_mode/main.o
 obj-y += examples/low_power_mode/clk-config.o
+obj-y += examples/low_power_mode/event-config.o
 
 include $(TOP)/scripts/Makefile.rules
