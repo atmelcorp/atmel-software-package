@@ -29,8 +29,44 @@
 #ifndef CLK_CONFIG_H
 #define CLK_CONFIG_H
 
+/*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
+
 #include "peripherals/pmc.h"
 
-extern struct pck_mck_cfg clock_test_setting[8];
+/*----------------------------------------------------------------------------
+ *        Defined low power mode
+ *----------------------------------------------------------------------------*/
+
+#define IDLE 0
+#define ULP0 1  //used as ULP for sama5d3/4
+#if  defined(CONFIG_SOC_SAMA5D2) || defined(CONFIG_SOC_SAM9X60)
+#define ULP1 2
+#endif
+
+/*----------------------------------------------------------------------------
+ *        Types
+ *----------------------------------------------------------------------------*/
+
+struct test_mode {
+	/** Test name */
+	const char *name;
+
+	/** Low power mode */
+	uint8_t mode;
+
+	/** Wake up event */
+	uint8_t event;
+
+	/** PCK MCK clock setting*/
+	struct pck_mck_cfg clock_test_setting;
+};
+
+/*----------------------------------------------------------------------------
+ *        Exported constants
+ *----------------------------------------------------------------------------*/
+ 
+extern struct test_mode test_setting[];
 
 #endif /* CLK_CONFIG_H */

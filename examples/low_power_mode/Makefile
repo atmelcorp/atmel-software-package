@@ -43,6 +43,6 @@ CONFIG_LED = y
 CONFIG_RAMCODE = y
 
 obj-y += examples/low_power_mode/main.o
-obj-y += examples/low_power_mode/clk-config_$(chip-family).o
+obj-y += examples/low_power_mode/clk-config.o
 
 include $(TOP)/scripts/Makefile.rules
