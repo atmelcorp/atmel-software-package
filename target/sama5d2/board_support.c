@@ -37,7 +37,7 @@
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
-
+#include "string.h"
 #include "board.h"
 #include "board_timer.h"
 #include "trace.h"
@@ -206,21 +206,8 @@ void board_restore_pio_reset_state(void)
 		{ PIO_GROUP_A, 0xFFFFFFFF, PIO_INPUT, PIO_PULLUP },
 		{ PIO_GROUP_B, 0xFFFFFFFF, PIO_INPUT, PIO_PULLUP },
 		{ PIO_GROUP_C, 0xFFFFFFFF, PIO_INPUT, PIO_PULLUP },
-		{ PIO_GROUP_D, 0xFFF83FFF, PIO_INPUT, PIO_PULLUP },
+		{ PIO_GROUP_D, 0xFFFFFFFF ^ PIN_JTAG, PIO_INPUT, PIO_PULLUP },
 	};
-
-	/* For low_power_mode example, power consumption results can be affected
-	* by IOs setting. To generate power consumption numbers in datasheet,
-	* most IOs must be disconnected from external devices just like on
-	* VB board. Then putting IOs to reset state are OK.
-	* On SAMA5D2-XULT board, please put IOs to output state as below.
-	*/
-	//struct _pin pins[] = {
-	//	{ PIO_GROUP_A, 0xFFFFFFFF, PIO_OUTPUT, PIO_PULLUP },
-	//	{ PIO_GROUP_B, 0xFFFFFFFF, PIO_OUTPUT, PIO_PULLUP },
-	//	{ PIO_GROUP_C, 0xFFFFFFFF, PIO_OUTPUT, PIO_PULLUP },
-	//	{ PIO_GROUP_D, 0xFFF83FFF, PIO_OUTPUT, PIO_PULLUP },
-	//};
 
 	pio_configure(pins, ARRAY_SIZE(pins));
 	for (i = 0; i < ARRAY_SIZE(pins); i++)

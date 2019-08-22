@@ -242,6 +242,11 @@
 #define BOARD_CLASSD0_MONO      true
 #define BOARD_CLASSD0_MONO_MODE CLASSD_MONO_MIXED
 
+/* ================== PIN JTAG definition ======================= */
+
+/* JTAG TCK/TDI/TDO/TMS/NTRST -> PIOD14/15/16/17/18 */
+#define PIN_JTAG   0x7c000
+
 /* ================== SSC definition ====================== */
 
 #define BOARD_SSC1_PINS PINS_SSC1_IOS1

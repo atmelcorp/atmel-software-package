@@ -176,6 +176,11 @@
 #define CAN1_PINS          PINS_CAN1_IOS0
 #endif
 
+/* ================== PIN JTAG definition ======================= */
+
+/* JTAG TCK/TDI/TDO/TMS/NTRST -> PIOD14/15/16/17/18 */
+#define PIN_JTAG   0x7c000
+
 /* =================== NANDFLASH device definition =================== */
 
 #define BOARD_NANDFLASH_PINS      PINS_NAND16_IOS1

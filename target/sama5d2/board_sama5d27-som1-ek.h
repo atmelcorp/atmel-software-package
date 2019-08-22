@@ -335,6 +335,11 @@
 #define BOARD_MBUS2_SERIAL_ADDR     UART2
 #define BOARD_MBUS2_SERIAL_BAUDRATE 115200
 
+/* ================== PIN JTAG definition ======================= */
+
+/* JTAG TCK/TDI/TDO/TMS/NTRST -> PIOD14/15/16/17/18 */
+#define PIN_JTAG   0x78000000
+
 /* =========================== BOARD INFO  ============================= */
 
 #define SIZE_SUBC 6
