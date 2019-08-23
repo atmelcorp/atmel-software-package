@@ -175,6 +175,10 @@
 /** LCD BASE buffer */
 CACHE_ALIGNED_DDR static uint8_t _base_buffer[SIZE_LCD_BUFFER_BASE];
 
+#ifdef CONFIG_HAVE_LCDC_PP
+CACHE_ALIGNED_DDR static uint8_t _pp_buffer[SIZE_LCD_BUFFER_BASE];
+#endif
+
 #ifdef CONFIG_HAVE_LCDC_OVR1
 /** Overlay 1 buffer */
 CACHE_ALIGNED_DDR static uint8_t _ovr1_buffer[SIZE_LCD_BUFFER_OVR1];
@@ -376,6 +380,9 @@ static void _LcdOn(void)
 #endif /* CONFIG_HAVE_LCDC_OVR1 */
 
 	printf("- LCD ON\r\n");
+#ifdef CONFIG_HAVE_LCDC_PP
+	lcdc_configure_pp(_pp_buffer, LCDC_PPCFG1_PPMODE_PPMODE_RGB_24BPP_UNPACKED);
+#endif
 }
 
 /**
@@ -536,6 +543,12 @@ static void _rotates(void)
 #ifdef LCDC_HEOCFG1_YUVEN
 		printf(" Use 'a' to change HEO YUV or RGB\r\n");
 #endif
+
+
+#ifdef CONFIG_HAVE_LCDC_PP
+		printf(" Use 'p' to enable PPC\r\n");
+		printf(" Use 'r' to disable PPC\r\n");
+#endif
 		printf("------------------------------------\r\n");
 	}
 }
@@ -686,6 +699,17 @@ static void dbg_events(void)
 										SCR_Y(heo_y), heo_w, heo_h, heo_img_w,
 										heo_img_h, 0);
 				break;
+#endif
+
+#ifdef CONFIG_HAVE_LCDC_PP
+			case 'p':
+				printf("Post processing (PPC) enabled, the output stream is written to the PP memory\r\n");
+				lcdc_enable_layer(LCDC_PP, true);
+				break;
+			case 'r':
+				printf("Post processing (PPC) disable PPC\r\n");
+				lcdc_enable_layer(LCDC_PP, false);
+			break;
 #endif
 		}
 	}
