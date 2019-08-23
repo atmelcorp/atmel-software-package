@@ -109,6 +109,9 @@ enum {
 #ifdef CONFIG_HAVE_LCDC_OVR2
 	LCDC_OVR2 = 4,       /**< Overlay 2 */
 #endif
+#ifdef CONFIG_HAVE_LCDC_PP
+	LCDC_PP = 5,         /**< PP layer */
+#endif
 };
 /**     @}*/
 
@@ -226,7 +229,9 @@ extern void *lcdc_create_canvas_yuv_planar(uint8_t layer,
 extern void *lcdc_create_canvas_yuv_semiplanar(uint8_t layer,
 		void *buffer_y, void *buffer_uv, uint8_t bpp,
 		uint16_t x, uint16_t y, uint16_t w, uint16_t h);
-
+#ifdef CONFIG_HAVE_LCDC_PP
+extern void lcdc_configure_pp(void *buffer, uint32_t output_mode);
+#endif
 /**  @}*/
 
 #endif /* CONFIG_HAVE_LCDC */

@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2012, Atmel Corporation
+ * Copyright (c) 2019, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -126,6 +126,13 @@ static struct _lcdc_dma_desc heo_dma_v_desc; /**< DMA desc. for HEO V Layer */
 
 static struct _layer_data lcdc_heo;          /**< HEO Layer */
 
+#ifdef CONFIG_HAVE_LCDC_PP
+CACHE_ALIGNED_DDR
+static struct _lcdc_dma_desc pp_dma_desc;    /**< DMA desc. for PP Layer */
+
+static struct _layer_data lcdc_pp;           /**< PP Layer */
+#endif
+
 /*----------------------------------------------------------------------------
  *        Local constants
  *----------------------------------------------------------------------------*/
@@ -201,6 +208,22 @@ static const struct _layer_info lcdc_layers[] = {
 	},
 #else
 	/* 4: N/A */
+	{
+		.data = NULL,
+	},
+#endif
+#ifdef CONFIG_HAVE_LCDC_PP
+
+	{
+		.data = &lcdc_pp,
+		.stride_supported = true,
+		.reg_enable = &LCDC->LCDC_PPCHER,
+		.reg_dma_head = &LCDC->LCDC_PPHEAD,
+		.reg_cfg = &LCDC->LCDC_PPCFG0,
+		.reg_stride = &LCDC->LCDC_PPCFG2,
+	},
+#else
+	/* 5: N/A */
 	{
 		.data = NULL,
 	},
@@ -438,7 +461,12 @@ void lcdc_configure(const struct _lcdc_desc *desc)
 	lcdc_heo.dma_desc = &heo_dma_desc;
 	lcdc_heo.dma_u_desc = &heo_dma_u_desc;
 	lcdc_heo.dma_v_desc = &heo_dma_v_desc;
-
+#ifdef CONFIG_HAVE_LCDC_PP
+	/* Reset layer information */
+	lcdc_pp.bpp = 0;
+	lcdc_pp.buffer = NULL;
+	lcdc_pp.dma_desc = &pp_dma_desc;
+#endif
 	/* No canvas selected */
 	lcdc_canvas.buffer = NULL;
 
@@ -529,16 +557,35 @@ uint8_t lcdc_is_layer_on(uint8_t layer_id)
 void lcdc_enable_layer(uint8_t layer_id, bool enable)
 {
 	const struct _layer_info *layer = &lcdc_layers[layer_id];
+#ifdef CONFIG_HAVE_LCDC_PP
+	if (layer_id == LCDC_PP) {
+		if (enable) {
+			/* Disable the display by setting LCDC_LCDDIS.SYNCDIS bit */
+			LCDC->LCDC_LCDDIS = LCDC_LCDDIS_SYNCDIS;
+			/* select the PP layer */
+			LCDC->LCDC_LCDCFG5 |= LCDC_LCDCFG5_PP;
+			LCDC->LCDC_PPCHER = LCDC_PPCHER_CHEN | LCDC_PPCHER_UPDATEEN;
+			while(LCDC->LCDC_PPCHSR & LCDC_PPCHSR_CHSR != LCDC_PPCHSR_CHSR);
+			LCDC->LCDC_LCDEN = LCDC_LCDEN_SYNCEN;
+		} else {
+			LCDC->LCDC_LCDDIS = LCDC_LCDDIS_SYNCDIS;
+			LCDC->LCDC_LCDCFG5 = 0;
+			LCDC->LCDC_PPCHDR = LCDC_PPCHDR_CHDIS;
+			LCDC->LCDC_LCDEN = LCDC_LCDEN_SYNCEN;
+		}
+	} else
+#endif
+	{
+		if (!layer->reg_enable || !layer->reg_blender)
+			return;
 
-	if (!layer->reg_enable || !layer->reg_blender)
-		return;
-
-	if (enable) {
-		layer->reg_enable[0] = LCDC_BASECHER_CHEN | LCDC_BASECHER_UPDATEEN;
-		layer->reg_blender[0] |= LCDC_HEOCFG12_DMA | LCDC_HEOCFG12_OVR;
-	} else {
-		layer->reg_enable[1] = LCDC_BASECHDR_CHDIS;
-		layer->reg_blender[0] &= ~(LCDC_HEOCFG12_DMA | LCDC_HEOCFG12_OVR);
+		if (enable) {
+			layer->reg_enable[0] = LCDC_BASECHER_CHEN | LCDC_BASECHER_UPDATEEN;
+			layer->reg_blender[0] |= LCDC_HEOCFG12_DMA | LCDC_HEOCFG12_OVR;
+		} else {
+			layer->reg_enable[1] = LCDC_BASECHDR_CHDIS;
+			layer->reg_blender[0] &= ~(LCDC_HEOCFG12_DMA | LCDC_HEOCFG12_OVR);
+		}
 	}
 }
 
@@ -1779,6 +1826,22 @@ void *lcdc_create_canvas_yuv_semiplanar(uint8_t layer_id,
 
 	return 0;
 }
+
+#ifdef CONFIG_HAVE_LCDC_PP
+/**
+ * Connfigure PPC with DMA enabled.
+ * \param buffer       Pointer to buffer.
+ * \param output_mode  Post Processing output format selection.
+ */
+void lcdc_configure_pp(void *buffer, uint32_t output_mode)
+{
+	const struct _layer_info *layer = &lcdc_layers[LCDC_PP];
+
+	_set_dma_desc(buffer, layer->data->dma_desc, layer->reg_dma_head);
+	layer->reg_dma_head[0] = (uint32_t)layer->data->dma_desc;
+	LCDC->LCDC_PPCFG1 = output_mode;
+}
+#endif
 
 /**
  * \brief Change RGB Input Mode Selection for given layer.
