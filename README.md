@@ -20,6 +20,7 @@ at this address: [launchpad.net/gcc-arm-embedded](https://launchpad.net/gcc-arm-
 Dependencies:
 - GNU make (from MinGW, Cygwin or GnuWin32 for Windows architectures)
 - bash (from MinGW, Cygwin for Windows architectures)
+- *recommended on Windows architectures:* winpty (from MSYS2's package manager)
 
 Windows with **IAR Embedded Workbench**.
 Dependencies:
