@@ -186,12 +186,12 @@ void board_restore_pio_reset_state(void)
 {
 	int i;
 
-	/* all pins, excluding JTAG and NTRST */
+	/* all pins */
 	struct _pin pins[] = {
 		{ PIO_GROUP_A, 0xFFFFFFFF, PIO_INPUT, PIO_PULLUP },
 		{ PIO_GROUP_B, 0xFFFFFFFF, PIO_INPUT, PIO_PULLUP },
 		{ PIO_GROUP_C, 0xFFFFFFFF, PIO_INPUT, PIO_PULLUP },
-		{ PIO_GROUP_D, 0xFFF83FFF, PIO_INPUT, PIO_PULLUP },
+		{ PIO_GROUP_D, 0xFFFFFFFF, PIO_INPUT, PIO_PULLUP },
 	};
 
 	pio_configure(pins, ARRAY_SIZE(pins));
