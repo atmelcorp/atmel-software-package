@@ -190,6 +190,8 @@ extern void *lcdc_put_image(uint8_t layer, void *buffer, uint8_t bpp,
 
 extern void *lcdc_show_base(void *buffer, uint8_t bpp, bool bottom_up);
 
+extern void lcdc_base_auto_loop(void *buffer, uint32_t offset, uint32_t slides);
+
 extern void lcdc_stop_base(void);
 
 extern void *lcdc_show_ovr1(void *buffer, uint8_t bpp,

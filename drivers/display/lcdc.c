@@ -43,6 +43,7 @@
 #include "gpio/pio.h"
 #include "mm/cache.h"
 #include "peripherals/pmc.h"
+#include "trace.h"
 
 /** \addtogroup lcdc_base
  * Implementation of LCD driver, Include LCD initialization,
@@ -77,6 +78,7 @@ struct _lcdc_dma_desc {
 	uint32_t addr;
 	uint32_t ctrl;
 	uint32_t next;
+	uint32_t for_alignment_only;
 };
 
 /** Variable layer data */
@@ -1295,6 +1297,25 @@ void * lcdc_show_base(void *buffer, uint8_t bpp, bool bottom_up)
 {
 	return lcdc_put_image(LCDC_BASE, buffer, bpp, 0, 0, lcdc_config.width,
 			bottom_up ? -lcdc_config.height : lcdc_config.height);
+}
+
+void lcdc_base_auto_loop(void *buffer, uint32_t size, uint32_t slides)
+{
+	uint32_t i;
+	ALIGNED(16) static struct _lcdc_dma_desc dma_desc[40];
+	if (ARRAY_SIZE(dma_desc) < slides * 10) {
+		trace_warning("The DMA link size is not suitable for showing the loop effects on the base layer!");
+		return;
+	}
+	for (i = 0; i < ARRAY_SIZE(dma_desc); i++) {
+		dma_desc[i].addr = (uint32_t)buffer + (i / 10) * (size / slides);
+		dma_desc[i].ctrl = LCDC_HEOCTRL_DFETCH;
+		dma_desc[i].next = (uint32_t)&dma_desc[i+1];
+	}
+	dma_desc[i-1].next = (uint32_t)&dma_desc[0];
+	cache_clean_region(dma_desc, sizeof(dma_desc));
+	lcdc_layers[LCDC_BASE].reg_dma_head[0] = (uint32_t)dma_desc;
+	lcdc_layers[LCDC_BASE].reg_enable[0] = LCDC_HEOCHER_A2QEN;
 }
 
 /**
