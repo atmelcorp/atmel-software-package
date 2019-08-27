@@ -173,7 +173,7 @@
  *----------------------------------------------------------------------------*/
 
 /** LCD BASE buffer */
-CACHE_ALIGNED_DDR static uint8_t _base_buffer[SIZE_LCD_BUFFER_BASE];
+CACHE_ALIGNED_DDR static uint8_t _base_buffer[2][BOARD_LCD_WIDTH * BOARD_LCD_HEIGHT * 3];
 
 #ifdef CONFIG_HAVE_LCDC_PP
 CACHE_ALIGNED_DDR static uint8_t _pp_buffer[SIZE_LCD_BUFFER_BASE];
@@ -301,14 +301,17 @@ static void test_pattern_24RGB (uint8_t *lcd_base)
  */
 static void _LcdOn(void)
 {
-	test_pattern_24RGB(_base_buffer);
+	test_pattern_24RGB(_base_buffer[0]);
+	test_pattern_24RGB(_base_buffer[1]);
 	cache_clean_region(_base_buffer, sizeof(_base_buffer));
 
 	lcdc_on();
 
 	lcdc_set_backlight(bBackLight);
 	/* Display base layer */
-	lcdc_show_base(_base_buffer, 24, 0);
+	lcdc_show_base(_base_buffer[0], 24, 0);
+
+	lcdc_base_auto_loop(_base_buffer[0], sizeof(_base_buffer[0]), N_BLK_VERT);
 
 	/* Display HEO layer */
 #ifdef LCDC_HEOCFG1_YUVEN	
