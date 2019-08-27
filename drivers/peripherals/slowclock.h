@@ -81,6 +81,13 @@ extern void slowclock_select_external(enum _slowclock_domain domain);
  */
 extern uint32_t slowclock_get_clock(enum _slowclock_domain domain);
 
+/**
+ * \brief configure external slow clock crystal oscillator bypass.
+ * \param bypass external slow clock crystal oscillator bypass.
+ * bypass is true, external slow clock accepts an clock on XIN32 pin.
+ * bypass is false, extern slow clock is 32.768kHz crystal oscillator.
+ */
+extern void slowclock_set_bypass(bool bypass);
 
 #ifdef __cplusplus
 }

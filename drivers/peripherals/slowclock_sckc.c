@@ -100,3 +100,14 @@ uint32_t slowclock_get_clock(enum _slowclock_domain domain)
 	else
 		return 32768;
 }
+
+
+RAMCODE void slowclock_set_bypass(bool bypass)
+{
+#ifdef SCKC_CR_OSC32BYP
+	uint32_t mask = bypass ? SCKC_CR_OSC32BYP : SCKC_CR_OSC32EN;
+
+	/* set bypass or not */
+	SCKC->SCKC_CR = (SCKC->SCKC_CR & ~(SCKC_CR_OSC32BYP | SCKC_CR_OSC32EN)) | mask;
+#endif
+}

@@ -68,7 +68,7 @@ struct pck_mck_cfg {
 	/** PLL A, SLCK, MAIN, UPLL */
 	uint32_t pck_input;
 
-	/** RC12M (false) or EXT12M (true) */
+	/** RC12M (false) or EXTOSC (true) */
 	bool extosc;
 
 	/** Use BYPASS */
@@ -77,6 +77,10 @@ struct pck_mck_cfg {
 	/** RC32K (false) or EXT32K (true) */
 	bool ext32k;
 
+	/** Use BYPASS */
+#if defined(CKGR_MOR_XT32KFME) && defined(SCKC_CR_OSC32BYP)
+	bool ext32k_bypass;
+#endif
 	/** PLLA configuration */
 	struct _pmc_plla_cfg plla;
 
@@ -473,6 +477,12 @@ extern uint32_t pmc_get_upll_clock(void);
  * \brief get PCK and MCK setting
  */
 extern struct pck_mck_cfg pmc_get_pck_mck_cfg(void);
+
+/**
+ * \brief 32.768kHz crystal oscillator frequency monitor
+ * \param pck  processor clock
+ */
+extern bool pmc_ext32k_monitor(void);
 
 #ifdef CONFIG_HAVE_PMC_UPLL_BIAS
 /**

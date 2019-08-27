@@ -1203,8 +1203,12 @@ RAMCODE void pmc_set_custom_pck_mck(const struct pck_mck_cfg *cfg)
 
 	pmc_switch_mck_to_main();
 
-	if (cfg->ext32k)
+	if (cfg->ext32k) {
 		pmc_select_external_crystal();
+#if defined(CKGR_MOR_XT32KFME) && defined(SCKC_CR_OSC32BYP)
+		slowclock_set_bypass(cfg->ext32k_bypass);
+#endif
+	}
 	else
 		pmc_select_internal_crystal();
 
@@ -1592,6 +1596,36 @@ uint32_t pmc_get_upll_clock(void)
 #endif
 }
 
+RAMCODE bool pmc_ext32k_monitor(void)
+{
+	bool bypass = false;
+	volatile int count;
+	/* 32.768kHz crystal oscillator frequency monitor  */
+#if defined(CKGR_MOR_XT32KFME) && defined(SCKC_CR_OSC32BYP)
+	if(!slowclock_is_internal(SLOWCLOCK_DOMAIN_DEFAULT)) {
+		slowclock_set_bypass(false);
+
+		/* Wait 5 slow clock cycles for internal resynchronization. */
+		for (count = 0; count < 0x100000; count++);
+
+		/* 32.768 kHz Crystal Oscillator Frequency Monitoring Enabled */
+		PMC->CKGR_MOR = PMC->CKGR_MOR | CKGR_MOR_KEY_PASSWD | CKGR_MOR_XT32KFME;
+
+		/* Wait 4 slow clock cycles for internal resynchronization */
+		for (count = 0; count < 0x1000; count++);
+
+		/* check if the 32.768 kHz crystal oscillator was correct */
+		if((PMC->PMC_SR & PMC_SR_XT32KERR) == PMC_SR_XT32KERR) {
+			slowclock_select_external(SLOWCLOCK_DOMAIN_DEFAULT);
+			slowclock_set_bypass(true);
+			bypass = true;
+		}
+		PMC->CKGR_MOR = (PMC->CKGR_MOR & ~CKGR_MOR_XT32KFME) | CKGR_MOR_KEY_PASSWD;
+	}
+#endif
+	return bypass;
+}
+
 #ifdef CONFIG_HAVE_PMC_UPLL_BIAS
 void pmc_enable_upll_bias(void)
 {
@@ -1646,7 +1680,7 @@ struct pck_mck_cfg pmc_get_pck_mck_cfg(void)
 {
 	struct pck_mck_cfg cfg = { 0 };
 	cfg.pck_input = PMC->PMC_MCKR & PMC_MCKR_CSS_Msk;
-	if ((PMC->CKGR_MOR & CKGR_MOR_MOSCXTEN) == CKGR_MOR_MOSCXTEN) {
+	if ((PMC->CKGR_MOR & CKGR_MOR_MOSCSEL) == CKGR_MOR_MOSCSEL) {
 		cfg.extosc = true;
 	} else {
 		cfg.extosc = false;
@@ -1656,6 +1690,18 @@ struct pck_mck_cfg pmc_get_pck_mck_cfg(void)
 	} else {
 		cfg.ext32k = false;
 	}
+#if defined(CKGR_MOR_XT32KFME) && defined(SCKC_CR_OSC32BYP)
+	/* Get ext32k bypass state*/
+	if(slowclock_is_internal(SLOWCLOCK_DOMAIN_DEFAULT)) {
+		slowclock_select_external(SLOWCLOCK_DOMAIN_DEFAULT);
+		cfg.ext32k_bypass = pmc_ext32k_monitor();
+		slowclock_select_internal(SLOWCLOCK_DOMAIN_DEFAULT);
+	} else {
+		slowclock_select_internal(SLOWCLOCK_DOMAIN_DEFAULT);
+		slowclock_select_external(SLOWCLOCK_DOMAIN_DEFAULT);
+		cfg.ext32k_bypass = pmc_ext32k_monitor();
+	}
+#endif
 	cfg.pck_pres = (PMC->PMC_MCKR & PMC_MCKR_PRES_Msk);
 	cfg.mck_div = (PMC->PMC_MCKR & PMC_MCKR_MDIV_Msk);
 
