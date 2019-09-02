@@ -34,6 +34,7 @@
 #include "qt1_sc_support.h"
 #include "gpio/pio.h"
 #include "trace.h"
+#include "timer.h"
 
 /*----------------------------------------------------------------------------
  *        Local definitions
