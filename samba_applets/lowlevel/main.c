@@ -41,8 +41,10 @@
 /*----------------------------------------------------------------------------
  *         Private definitions
  *----------------------------------------------------------------------------*/
-
-#if defined(CONFIG_SOC_SAM9XX5)
+#if defined(CONFIG_SOC_SAM9X60)
+#define MAX_PRESET 2
+static const uint32_t expected_proc_clock[MAX_PRESET] = { 600, 498 };
+#elif defined(CONFIG_SOC_SAM9XX5)
 #define EXPECTED_PROC_CLOCK 399
 #elif defined(CONFIG_SOC_SAMA5D2)
 #define EXPECTED_PROC_CLOCK 498
@@ -56,6 +58,13 @@
 #error Unsupported SoC!
 #endif
 
+#if defined(EXPECTED_PROC_CLOCK)
+static inline void board_cfg_clocks_for_preset(uint32_t preset)
+{
+	board_cfg_clocks();
+}
+#endif
+
 /*----------------------------------------------------------------------------
  *         Private functions
  *----------------------------------------------------------------------------*/
@@ -63,7 +72,7 @@
 static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 {
 	union initialize_mailbox *mbx = (union initialize_mailbox*)mailbox;
-	uint32_t pck;
+	uint32_t pck, expected_pck, preset = 0;
 
 	assert(cmd == APPLET_CMD_INITIALIZE);
 
@@ -75,11 +84,24 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	pck = pmc_get_processor_clock() / 1000000;
 	trace_warning_wp("Current processor clock: %d MHz\r\n", (unsigned)pck);
 
-	if (pck >= EXPECTED_PROC_CLOCK) {
+#if defined(EXPECTED_PROC_CLOCK)
+	expected_pck = EXPECTED_PROC_CLOCK;
+#elif defined(MAX_PRESET)
+	preset = mbx->in.parameters[0];
+
+	if (preset >= MAX_PRESET) {
+		trace_error_wp("Invalid preset value: %lu\r\n", preset);
+		return APPLET_FAIL;
+	}
+
+	expected_pck = expected_proc_clock[preset];
+#endif
+
+	if (pck >= expected_pck) {
 		trace_warning_wp("Clocks are already configured.\r\n");
 	} else {
 		/* setup clocks */
-		board_cfg_clocks();
+		board_cfg_clocks_for_preset(preset);
 
 		/* re-inititialize console after clock setup */
 		if (!applet_set_init_params(mbx))

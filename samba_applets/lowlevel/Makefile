@@ -31,6 +31,7 @@ AVAILABLE_TARGETS = sama5d2-generic \
                     sama5d3-generic \
                     sama5d4-generic \
                     sam9x25-generic \
+                    sam9x60-generic \
                     samv71-generic
 
 AVAILABLE_VARIANTS = sram
