@@ -68,7 +68,8 @@
 #if !defined(CONFIG_SOC_SAMA5D2) && \
     !defined(CONFIG_SOC_SAMA5D3) && \
     !defined(CONFIG_SOC_SAMA5D4) && \
-    !defined(CONFIG_SOC_SAM9XX5)
+    !defined(CONFIG_SOC_SAM9XX5) && \
+    !defined(CONFIG_SOC_SAM9X60)
 #error Unsupported SOC!
 #endif
 
@@ -112,13 +113,19 @@ static uint8_t ecc_bit_req_2_tt[] = {
  *         Local functions
  *----------------------------------------------------------------------------*/
 
-static bool configure_instance_pio(uint32_t ioset, uint8_t bus_width)
+static bool configure_instance_pio(uint32_t ioset, uint8_t bus_width,
+				   bool *nfd0_on_d16)
 {
 	int i;
+
+	*nfd0_on_d16 = false;
 	for (i = 0; i < num_nandflash_pin_defs; i++) {
 		const struct nandflash_pin_definition* def = &nandflash_pin_defs[i];
 		if (def->ioset == ioset && def->bus_width == bus_width) {
 			pio_configure(def->pins, def->num_pins);
+#ifdef CONFIG_HAVE_NFD0_ON_D16
+			*nfd0_on_d16 = def->nfd0_on_d16;
+#endif
 			return true;
 		}
 	}
@@ -251,6 +258,12 @@ static bool pmecc_set_header(uint32_t header, uint8_t correctability)
 	return true;
 }
 
+#ifndef CONFIG_HAVE_NFD0_ON_D16
+static void board_cfg_matrix_for_nand_ex(bool nfd0_on_d16)
+{
+	board_cfg_matrix_for_nand();
+}
+#endif
 
 static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 {
@@ -260,6 +273,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	uint32_t header = mbx->in.parameters[2];
 	struct _nand_flash_model *model, model_from_onfi;
 	uint8_t correctability;
+	bool nfd0_on_d16 = false;
 
 	assert(cmd == APPLET_CMD_INITIALIZE);
 
@@ -278,14 +292,15 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 		return APPLET_FAIL;
 	}
 
-	board_cfg_matrix_for_nand();
 	smc_nand_configure(bus_width);
 
-	if (!configure_instance_pio(ioset, bus_width)) {
+	if (!configure_instance_pio(ioset, bus_width, &nfd0_on_d16)) {
 		trace_error("Invalid configuration: NFC ioSet%u Bus Width %u\r\n",
 			(unsigned)ioset, (unsigned)bus_width);
 		return APPLET_FAIL;
 	}
+
+	board_cfg_matrix_for_nand_ex(nfd0_on_d16);
 
 	nand_initialize(&nand);
 

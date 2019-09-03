@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support
+ *         MICROCHIP Microcontroller Software Support
  * ----------------------------------------------------------------------------
- * Copyright (c) 2016, Atmel Corporation
+ * Copyright (c) 2018, Microchip
  *
  * All rights reserved.
  *
@@ -27,26 +27,45 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef _PIN_DEFS_H_
-#define _PIN_DEFS_H_
+/*----------------------------------------------------------------------------
+ *        Headers
+ *----------------------------------------------------------------------------*/
 
-#include "gpio/pio.h"
-#include <stdbool.h>
-#include <stdint.h>
+#include "chip.h"
+#include "compiler.h"
 
-/* Instance/IOSet PIO configuration */
-struct nandflash_pin_definition
-{
-	uint32_t           ioset;
-	uint32_t           bus_width;
-	uint32_t           num_pins;
-	const struct _pin *pins;
-#ifdef CONFIG_HAVE_NFD0_ON_D16
-	bool               nfd0_on_d16;
-#endif
+#include "pin_defs.h"
+
+/*----------------------------------------------------------------------------
+ *        Local constants
+ *----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+ *        Local constants
+ *----------------------------------------------------------------------------*/
+
+static const struct _pin pins_nand_d0_d7[] = PINS_NAND8;
+static const struct _pin pins_nand_d16_d23[] = PINS_NAND16;
+
+/*----------------------------------------------------------------------------
+ *        Public constants
+ *----------------------------------------------------------------------------*/
+
+const struct nandflash_pin_definition nandflash_pin_defs[] = {
+	{
+		.ioset = 1,
+		.bus_width = 8,
+		.num_pins = ARRAY_SIZE(pins_nand_d16_d23),
+		.pins = pins_nand_d16_d23,
+		.nfd0_on_d16 = true,
+	},
+	{
+		.ioset = 2,
+		.bus_width = 8,
+		.num_pins = ARRAY_SIZE(pins_nand_d0_d7),
+		.pins = pins_nand_d0_d7,
+		.nfd0_on_d16 = false,
+	},
 };
 
-extern const struct nandflash_pin_definition nandflash_pin_defs[];
-extern const int num_nandflash_pin_defs;
-
-#endif /* _PIN_DEFS_H_ */
+const int num_nandflash_pin_defs = ARRAY_SIZE(nandflash_pin_defs);
