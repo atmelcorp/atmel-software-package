@@ -39,12 +39,6 @@ void Fl2FlashChecksumEntry(void);
 void Fl2FlashSignoffEntry(void);
 void FlashBreak(void);
 
-#if CODE_ADDR_AS_VOID_PTR
-extern uint32_t FlashChecksum(void const *begin, uint32_t count);
-#else
-extern uint32_t FlashChecksum(uint32_t begin, uint32_t count);
-#endif
-extern uint32_t FlashSignoff();
 
 uint16_t Crc16_helper(uint8_t const *p, uint32_t len, uint16_t sum);
 
