@@ -96,8 +96,8 @@ static bool init_extram_from_preset(uint32_t preset)
 		trace_warning_wp("Preset 4 (2 x MT41K128M16)\r\n");
 		device = MT41K128M16;
 		break;
-	case 12:
-		trace_warning_wp("Preset 12 (1 x MT41K128M16)\r\n");
+	case 11:
+		trace_warning_wp("Preset 11 (1 x MT41K128M16)\r\n");
 		device = MT41K128M16_16;
 		break;
 #endif
@@ -130,8 +130,8 @@ static bool init_extram_from_preset(uint32_t preset)
 		trace_warning_wp("Preset 9 (W972GG6KB)\r\n");
 		device = W972GG6KB;
 		break;
-	case 11:
-		trace_warning_wp("Preset 11 (W972GG6KB_16)\r\n");
+	case 12:
+		trace_warning_wp("Preset 12 (W972GG6KB_16)\r\n");
 		device = W972GG6KB_16;
 		break;
 #endif
