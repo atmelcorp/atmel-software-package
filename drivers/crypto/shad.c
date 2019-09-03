@@ -55,8 +55,8 @@
  *----------------------------------------------------------------------------*/
 
 CACHE_ALIGNED static uint8_t sha_buffer[SHA_MAX_PADDING_LEN];
-CACHE_ALIGNED uint8_t ipad[1024];
-CACHE_ALIGNED uint8_t opad[1024];
+CACHE_ALIGNED static uint8_t ipad[1024];
+CACHE_ALIGNED static uint8_t opad[1024];
 
 /*----------------------------------------------------------------------------
  *        Local functions

@@ -41,7 +41,7 @@
  *        Local variables
  *----------------------------------------------------------------------------*/
 
-struct _ppp ppp = {
+static struct _ppp ppp = {
 	.addr = PPP,
 	.sram = {
 		.code = {

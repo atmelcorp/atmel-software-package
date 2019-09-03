@@ -66,7 +66,7 @@
  *----------------------------------------------------------------------------*/
 
 #ifdef CONFIG_HAVE_PMIC_ACT8865
-struct _act8865 pmic = {
+static struct _act8865 pmic = {
 	.bus = BOARD_ACT8865_TWI_BUS,
 	.addr = BOARD_ACT8865_TWI_ADDR,
 };

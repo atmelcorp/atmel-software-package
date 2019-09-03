@@ -66,7 +66,7 @@ typedef struct _DualCdcdSerialDriver {
  *---------------------------------------------------------------------------*/
 
 /** Dual CDC Serial device driver instance */
-DualCdcdSerialDriver dual_cdcd_driver;
+static DualCdcdSerialDriver dual_cdcd_driver;
 
 /*---------------------------------------------------------------------------
  *         Internal functions
