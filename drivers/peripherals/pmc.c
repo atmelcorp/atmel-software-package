@@ -75,7 +75,7 @@
 #include "peripherals/pmc.h"
 #include "peripherals/slowclock.h"
 #include "trace.h"
-
+#include "barriers.h"
 /*----------------------------------------------------------------------------
  *        Types
  *----------------------------------------------------------------------------*/
@@ -86,7 +86,7 @@ struct _pmc_main_osc {
 };
 
 #define OSC_STARTUP_TIME	0xFFu
-#define MAINFRDY_TIMEOUT	32u
+#define MAINFRDY_TIMEOUT	32000u
 #define MOSCXTS_TIMEOUT		((OSC_STARTUP_TIME * 8) + 8)
 #define MOSCSELS_TIMEOUT	32u
 
@@ -397,9 +397,8 @@ static uint16_t _pmc_measure_main_osc_freq(bool external_xt)
 #ifdef CKGR_MCFR_RCMEAS
 	PMC->CKGR_MCFR |= CKGR_MCFR_RCMEAS;
 #endif
-	timeout = MAINFRDY_TIMEOUT;
-	while (!(PMC->CKGR_MCFR & CKGR_MCFR_MAINFRDY) && --timeout > 0);
-
+	dsb();
+	while (!(PMC->CKGR_MCFR & CKGR_MCFR_MAINFRDY) && (--timeout > 0));
 	return (timeout ?
 		((PMC->CKGR_MCFR & CKGR_MCFR_MAINF_Msk) >> CKGR_MCFR_MAINF_Pos) :
 		0u);
@@ -1603,6 +1602,30 @@ uint32_t pmc_get_utmi_clock_trim(void)
 		default:
 			return 12000000;
 	}
+#elif defined(PMC_PLL_UPDT_ID)
+	uint32_t mainf_xt;
+	uint32_t xt;
+	uint32_t fclk;
+
+	xt = 12000000;
+	mainf_xt = _pmc_measure_main_osc_freq(true);
+	/* To calculate the frequency of the measured clock:
+		fSELCK = (MAINF * fMD_SLCK) / 16 (where frequency is in MHz). */
+	fclk = (mainf_xt * 32000) / 16;
+	// Use 10% low and high margins
+	if (43200000u <= fclk && fclk <= 52800000u) {
+		xt = 48000000u;
+	} else if (21600000u <= fclk && fclk <= 26400000u) {
+		xt = 24000000u;
+	} else if (14400000u <= fclk && fclk <= 17600000u) {
+		xt = 16000000u;
+	} else if (10800000 <= fclk && fclk <= 13200000) {
+		xt = 12000000u;
+	} else if (7200000 <= fclk && fclk <= 8800000) {
+		xt = 8000000u;
+	}
+	_pmc_main_oscillators.crystal_freq = xt;
+	return xt;
 #else
 	return 12000000;
 #endif
