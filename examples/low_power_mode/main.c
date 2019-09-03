@@ -732,10 +732,8 @@ static void ramcode_init(void)
 }
 #endif
 
-extern struct pck_mck_cfg clock_setting_backup;
 #ifdef VARIANT_DDRAM
-extern volatile int _ddr_active_needed;
-RAMDATA uint32_t tmp_stack[128];
+RAMDATA static uint32_t tmp_stack[128];
 #if defined(__GNUC__)
 	__attribute__((optimize("O0")))
 #elif defined(__ICCARM__)

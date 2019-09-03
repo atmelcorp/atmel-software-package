@@ -88,6 +88,11 @@ struct _mpddrc_desc {
 	uint32_t refresh_cycles;
 };
 
+RAMDATA extern struct pck_mck_cfg clock_setting_backup;
+#ifdef CONFIG_RAMCODE
+RAMDATA extern volatile int _ddr_active_needed;
+#endif
+
 extern void mpddrc_configure(struct _mpddrc_desc* desc);
 
 /**
@@ -102,5 +107,7 @@ void ddr_self_refresh(void);
 
 void check_ddr_ready(void);
 
+#ifdef CONFIG_RAMCODE
 void ddram_active(void);
+#endif
 #endif
