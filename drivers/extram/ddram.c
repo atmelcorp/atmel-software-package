@@ -828,6 +828,48 @@ static void _init_mt46h64m16(struct _mpddrc_desc *desc)
 }
 #endif /* CONFIG_HAVE_LPDDR_MT46H64M16 */
 
+#ifdef CONFIG_HAVE_LPDDR_MT46H16M32
+static void _init_mt46h16m32(struct _mpddrc_desc *desc)
+{
+	uint32_t mck = pmc_get_master_clock() / 1000000;
+
+	desc->type = MPDDRC_TYPE_LPDDR;
+
+	desc->mode = MPDDRC_MD_MD_LPDDR_SDRAM
+	           | MPDDRC_MD_DBW_DBW_32_BITS;
+
+#ifdef CONFIG_HAVE_MPDDRC_DATA_PATH
+	desc->data_path = MPDDRC_RD_DATA_PATH_SHIFT_SAMPLING_SHIFT_ONE_CYCLE;
+#endif
+
+	desc->control = MPDDRC_CR_NR_13_ROW_BITS
+	              | MPDDRC_CR_NC_DDR_10_COL_BITS
+	              | MPDDRC_CR_CAS_DDR_CAS3
+	              | MPDDRC_CR_NB_4_BANKS
+	              | MPDDRC_CR_DECOD_INTERLEAVED
+	              | MPDDRC_CR_UNAL_SUPPORTED;
+
+	/* timings -5 (MCK = 200MHz) */
+
+	memset(&desc->timings, 0, sizeof(desc->timings));
+	desc->timings.tras   = NS2CYCLES(40, mck);  // 40ns
+	desc->timings.trcd   = NS2CYCLES(15, mck);  // 15ns
+	desc->timings.twr    = NS2CYCLES(15, mck);  // 15ns
+	desc->timings.trc    = NS2CYCLES(55, mck);  // 55ns
+	desc->timings.trp    = NS2CYCLES(15, mck);  // 15ns
+	desc->timings.trrd   = NS2CYCLES(10, mck);  // 10ns
+	desc->timings.twtr   = 2;                   // 2ck
+	desc->timings.tmrd   = 2;                   // 2ck
+	desc->timings.trfc   = NS2CYCLES(72, mck);  // 72ns
+	desc->timings.txsnr  = NS2CYCLES(113, mck); // 112.5ns
+	desc->timings.txp    = 2;                   // 2ck
+	desc->timings.trtp   = 2;                   // 2ck
+
+	desc->refresh_window = 64;   /* tref = 64ms */
+	desc->refresh_cycles = 8192; /* REFRESH count = 8K */
+}
+#endif /* CONFIG_HAVE_LPDDR_MT46H16M32 */
+
 #endif /* CONFIG_HAVE_MPDDR_LPDDR */
 
 #ifdef CONFIG_HAVE_MPDDRC_SDRAM
@@ -997,6 +1039,11 @@ void ddram_init_descriptor(struct _mpddrc_desc* desc,
   #ifdef CONFIG_HAVE_LPDDR_MT46H64M16
 	case MT46H64M16:
 		_init_mt46h64m16(desc);
+		break;
+  #endif
+  #ifdef CONFIG_HAVE_LPDDR_MT46H16M32
+	case MT46H16M32:
+		_init_mt46h16m32(desc);
 		break;
   #endif
 #endif
