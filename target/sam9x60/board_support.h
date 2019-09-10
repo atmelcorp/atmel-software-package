@@ -33,7 +33,7 @@
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
-
+#include <stdbool.h>
 #include <stdint.h>
 
 /*----------------------------------------------------------------------------
@@ -46,14 +46,14 @@
 extern const char* get_board_name(void);
 
 /**
+ *\brief Configure the board master clock using PMC base on selected preset
+ */
+extern void board_cfg_clocks_for_preset(uint32_t preset);
+
+/**
  * \brief Configure the board master clock using PMC
  */
 extern void board_cfg_clocks(void);
-
-/**
- * \brief Save power by disabling most peripherals
- */
-extern void board_save_misc_power(void);
 
 /**
  * \brief Performs the low-level initialization of the chip.
@@ -81,6 +81,11 @@ extern void board_cfg_matrix_for_ddr(void);
  * \brief Configure the MATRIX for NAND
  */
 extern void board_cfg_matrix_for_nand(void);
+
+/**
+ * \brief Configure the MATRIX for NAND
+ */
+extern void board_cfg_matrix_for_nand_ex(bool nfd0_on_d16);
 
 /**
  * \brief Configures DDR for the board (calls board_cfg_matrix_for_ddr)

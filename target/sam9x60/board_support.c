@@ -56,22 +56,31 @@
 #include "mm/l1cache.h"
 
 #include "board_support.h"
-
+#include "string.h"
 /*----------------------------------------------------------------------------
  *        Local constants
  *----------------------------------------------------------------------------*/
+#define PLLA_DIV 1
+#define PLLA_COUNT 0x3f
+#define PLLA_LOOP_FILTER 0
 
-static const char* board_name = BOARD_NAME;
+#define PLLA_CFG(_mul, _fracr)			\
+	{									\
+		.mul = (_mul),					\
+		.div = PLLA_DIV,				\
+		.count = PLLA_COUNT,			\
+		.fracr = (_fracr),				\
+		.loop_filter = PLLA_LOOP_FILTER,\
+	}
+
+#define PLLA_FRACR(_p, _q) ((uint32_t)((((uint64_t)(_p)) << 22) / (_q)))
 
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
+static const char* board_name = BOARD_NAME;
 
 SECTION(".region_ddr") ALIGNED(16384) static uint32_t tlb[4096];
-
-/*----------------------------------------------------------------------------
- *        Local functions
- *----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -82,47 +91,62 @@ const char* get_board_name(void)
 	return board_name;
 }
 
-void board_cfg_clocks(void)
+void board_cfg_clocks_for_preset(uint32_t preset)
 {
-	struct _pmc_plla_cfg plla_config = {
-		.mul = 199,
-		.div = 3,
-		.count = 0x3f,
-		.pll_id = PLL_ID_PLLA,
-	};
-	switch (pmc_get_main_oscillator_freq()) {
-	case 24000000:
+	struct _pmc_plla_cfg plla_config;
+
+#define MAX_PRESET 2 /* PCK/MCK (MHz) = { 600/200, 500/167 } */
+
+	static const struct _pmc_plla_cfg plla_configs[][MAX_PRESET] = {
+		/* MAINCK = 12MHz */
+		{ PLLA_CFG(99, 0), PLLA_CFG(82, PLLA_FRACR(1, 3)) },
+
+		/* MAINCK = 16MHz */
+		{ PLLA_CFG(74, 0), PLLA_CFG(61, PLLA_FRACR(1, 2)) },
+
+		/* MAINCK = 24MHz */
 #ifdef CONFIG_HAVE_CLASSD
-		plla_config.mul = 48;
-		plla_config.fracr = 0x9ba5e;
+		{ PLLA_CFG(48, 0x9ba5e), PLLA_CFG(40, PLLA_FRACR(2, 3)) },
 #else
-		plla_config.mul = 49;
+		{ PLLA_CFG(49, 0), PLLA_CFG(40, PLLA_FRACR(2, 3)) },
 #endif
-		plla_config.div = 1;
+		/* MAINCK = 48MHz */
+		{ PLLA_CFG(24, 0), PLLA_CFG(19, PLLA_FRACR(5, 6)) },
+	};
+	uint32_t row;
+
+	switch (pmc_get_main_oscillator_freq()) {
+	default:
+	case 12000000:
+		row = 0;
 		break;
 	case 16000000:
-		plla_config.mul = 74;
-		plla_config.div = 1;
+		row = 1;
 		break;
-	case 12000000:
-		plla_config.mul = 99;
-		plla_config.div = 1;
+	case 24000000:
+		row = 2;
 		break;
-	case 8000000:
-		plla_config.mul = 149;
-		plla_config.div = 1;
+	case 48000000:
+		row = 3;
 		break;
 	}
+
+	if (preset >= MAX_PRESET)
+		trace_fatal("Invalid preset for board: %lu (max %d).\r\n", preset, MAX_PRESET);
+	memcpy(&plla_config, &plla_configs[row][preset], sizeof(plla_config));
+
 	pmc_switch_mck_to_main();
 	pmc_set_mck_prescaler(PMC_MCKR_PRES_CLOCK);
-//	pmc_set_mck_divider(PMC_MCKR_MDIV_EQ_PCK);
-	//pmc_disable_plla();
 	pmc_select_external_osc(false);
 	pmc_configure_plla(&plla_config);
 	pmc_set_mck_divider(PMC_MCKR_MDIV_PCK_DIV3);
-//	pmc_set_mck_plladiv2(true);
 	pmc_set_mck_prescaler(PMC_MCKR_PRES_CLOCK);
 	pmc_switch_mck_to_pll();
+}
+
+void board_cfg_clocks(void)
+{
+	board_cfg_clocks_for_preset(0);
 }
 
 void board_cfg_lowlevel(bool clocks, bool ddram, bool mmu)
@@ -414,19 +438,17 @@ void board_cfg_mmu(void)
 
 void board_cfg_matrix_for_ddr(void)
 {
-	uint32_t cfg;
+	uint32_t reg;
 
-	cfg = SFR->SFR_CCFG_EBICSA;
-	SFR->SFR_CCFG_EBICSA = cfg
-	                     | SFR_CCFG_EBICSA_DDR_MP_EN
-	                     | SFR_CCFG_EBICSA_EBI_CS1A
-	                     | SFR_CCFG_EBICSA_NFD0_ON_D16;
-	if ((DBGU->DBGU_CIDR & DBGU_CIDR_VERSION_Msk) == 0) { /* fixed DDR I/O calibration is needed for this version */
-		cfg = SFR->SFR_CAL1;
-		cfg &= ~(SFR_CAL1_CALN_M_Msk | SFR_CAL1_CALP_M_Msk);
-		cfg |= SFR_CAL1_TEST_M | SFR_CAL1_CALN_M(VDDIOM_1V8_OUT_Z_CALN_TYP) | SFR_CAL1_CALP_M(VDDIOM_1V8_OUT_Z_CALP_TYP);
-		SFR->SFR_CAL1 = cfg;
-	}
+	SFR->SFR_CCFG_EBICSA |= SFR_CCFG_EBICSA_EBI_CS1A;
+	/*
+	 * On the first SAM9X60 V/DWB samples, automatic calibration computes
+	 * wrong value. Calibrate output impedance manually.
+	 */
+	reg = SFR->SFR_CAL1;
+	reg &= ~(SFR_CAL1_CALN_M_Msk | SFR_CAL1_CALP_M_Msk);
+	reg |= SFR_CAL1_TEST_M | SFR_CAL1_CALN_M(VDDIOM_1V8_OUT_Z_CALN_TYP) | SFR_CAL1_CALP_M(VDDIOM_1V8_OUT_Z_CALP_TYP);
+	SFR->SFR_CAL1 = reg;
 }
 
 void board_cfg_matrix_for_nand(void)
@@ -436,6 +458,20 @@ void board_cfg_matrix_for_nand(void)
 	uint32_t reg;
 
 	value |= SFR_CCFG_EBICSA_NFD0_ON_D16;
+
+	reg = SFR->SFR_CCFG_EBICSA;
+	reg = (reg & ~mask) | value;
+	SFR->SFR_CCFG_EBICSA = reg;
+}
+
+void board_cfg_matrix_for_nand_ex(bool nfd0_on_d16)
+{
+	uint32_t mask = SFR_CCFG_EBICSA_EBI_CS3A | SFR_CCFG_EBICSA_NFD0_ON_D16;
+	uint32_t value = SFR_CCFG_EBICSA_EBI_CS3A;
+	uint32_t reg;
+
+	if (nfd0_on_d16)
+		value |= SFR_CCFG_EBICSA_NFD0_ON_D16;
 
 	reg = SFR->SFR_CCFG_EBICSA;
 	reg = (reg & ~mask) | value;
