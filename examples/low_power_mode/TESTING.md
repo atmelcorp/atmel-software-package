@@ -57,14 +57,22 @@ In the terminal window, the following text should appear (values depend on the
  -- SAMxxxxx-xx
  -- Compiled: xxx xx xxxx xx:xx:xx --
  Select an option :
-NULL
+ 0 -> Enter BackUp mode
+ 1 -> Enter Low Power mode
 ```
 
 Tested with IAR and GCC, with the following process:
 
 Step | Text received from terminal | Expected Result | Result
 -----|-----------------------------|-----------------|-------
-NULL
+Press '0' | Enter Backup mode | PASSED | PASSED
+Press WAKE_UP |	RomBOOT | PASSED | PASSED
+Press '1' | Enter Low Power mode | PASSED | PASSED
+Press '0' or '1'... | Select low power mode | PASSED | PASSED
+Press 'a' or 'b'... | Set wake-up event | PASSED | PASSED
+Press 't' | Waiting for event to exit the low power mode ... Leave low power mode | PASSED | PASSED
+Press 'u' | Auto run all setting items with the selected event ... Leave low power mode | PASSED | PASSED
+
 ### VARIANT = SRAM
 
 In the terminal window, the following text should appear (values depend on the
@@ -75,14 +83,37 @@ In the terminal window, the following text should appear (values depend on the
  -- SAMxxxxx-xx
  -- Compiled: xxx xx xxxx xx:xx:xx --
  Select an option :
-NULL
+ 0 -> Enter BackUp mode
+ 1 -> Enter Low Power mode
+ A -> Init DDR
+ B -> Write data in DDR
+ C -> Check data in DDR
+ D -> Set DDR self-refresh mode and isolate Pads
+ E -> Reset DDR to normal mode and reconnect Pads
 ```
 
 Tested with IAR and GCC, with the following process:
 
 Step | Text received from terminal | Expected Result | Result
 -----|-----------------------------|-----------------|-------
-NULL
+Press '0' | Enter Backup mode | PASSED | PASSED
+Press WAKE_UP |	RomBOOT | PASSED | PASSED
+Press '1' | Enter Low Power mode | PASSED | PASSED
+Press '0' or '1'... | Select low power mode | PASSED | PASSED
+Press 'a' or 'b'... | Set wake-up event | PASSED | PASSED
+Press 't' | Waiting for event to exit the low power mode ... Leave low power mode | PASSED | PASSED
+Press 'u' | Auto run all setting items with the selected event ... Leave low power mode | PASSED | PASSED
+Press 'A' | Init DDR ... | PASSED | PASSED
+Press 'B' | Write data into DDR ... end of init | PASSED | PASSED
+Press 'C' | Verify data in DDR` ... `data OK | PASSED | PASSED
+Press 'D' | Set DDR into self-refresh | PASSED | PASSED
+Press 'E' | Out of DDR Self refresh state | PASSED | PASSED
+Press 'D' | Set DDR into self-refresh | PASSED | PASSED
+Press '1' | Enter Low Power mode | PASSED | PASSED
+Press '8' | Select low power mode | PASSED | PASSED
+Press 'a' | Set wake-up event | PASSED | PASSED
+Press 't' | Waiting for event to exit the low power mode ... Leave low power mode | PASSED | PASSED
+Press 'C' | Verify data in DDR` ... `data OK | PASSED | PASSED
 
 
 # Note:
