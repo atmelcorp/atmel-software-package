@@ -1659,6 +1659,43 @@ void pmc_enable_gck(uint32_t id)
 	PMC->PMC_PCR = pcr | PMC_PCR_CMD | PMC_PCR_GCKEN;
 
 #if defined(PMC_GCSR_PID0) || defined(PMC_GCSR0_GPID5)
+	/* check whether or not fGCLK(Max) is out of range */
+	switch(id) {
+	case ID_LCDC:
+		if (pmc_get_gck_clock(id) > 140000000) {
+			trace_warning("fGCK(Max) for LCDC should not exceed 140MHz!\r\n");
+		}
+		break;
+	case ID_CLASSD0:
+		if (pmc_get_gck_clock(id) > 100000000) {
+			trace_warning("fGCK(Max) for CLASSD should not exceed 100MHz!\r\n");
+		}
+		break;
+	case ID_SDMMC0:
+	case ID_SDMMC1:
+		if (pmc_get_gck_clock(id) > 105000000) {
+			trace_warning("fGCK(Max) for SDMMC should not exceed 105MHz!\r\n");
+		}
+		break;
+	case ID_I2SMCC:
+		if (pmc_get_gck_clock(id) > 105000000) {
+			trace_warning("fGCK(Max) for I2SMCC should not exceed 105MHz!\r\n");
+		}
+		break;
+	case ID_ADC:
+	case ID_TC0: case ID_TC1:
+	case ID_PIT64B:
+	case ID_DBGU:
+	case ID_FLEXCOM0: case ID_FLEXCOM1: case ID_FLEXCOM2: case ID_FLEXCOM3:
+	case ID_FLEXCOM4: case ID_FLEXCOM5: case ID_FLEXCOM6: case ID_FLEXCOM7:
+	case ID_FLEXCOM8: case ID_FLEXCOM9:	case ID_FLEXCOM10: case ID_FLEXCOM11:
+	case ID_FLEXCOM12:
+		if (3 * pmc_get_gck_clock(id) > pmc_get_master_clock()) {
+			trace_warning("fGCK(Max) for perpheral %d should not exceed fMCK/3!\r\n", id);
+		}
+		break;
+	}
+
 	while ((PMC->PMC_GCSR[(id >> 5) & 3] & (1 << (id & 31))) == 0);
 #elif defined (PMC_SR_GCKRDY)
 	while (!(PMC->PMC_SR & PMC_SR_GCKRDY));
