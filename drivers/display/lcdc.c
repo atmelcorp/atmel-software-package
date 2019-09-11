@@ -1442,7 +1442,7 @@ void lcdc_on(void)
 		struct _pmc_periph_cfg cfg = {
 			.gck = {
 				.css = PMC_PCR_GCKCSS_MCK_CLK,
-				.div = 1,
+				.div = 2,
 			},
 		};
 		pmc_configure_peripheral(ID_LCDC, &cfg, true);
