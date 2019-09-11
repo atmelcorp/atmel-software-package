@@ -68,13 +68,12 @@ static bool _emac_configure_mdc_clock(Emac *emac)
 		clk = EMAC_NCFGR_CLK_MCK_16; // MCK/16
 	} else if (mck <= 80000000) {
 		clk = EMAC_NCFGR_CLK_MCK_32; // MCK/32
-	} else if (mck <= 160000000) {
-		clk = EMAC_NCFGR_CLK_MCK_64; // MCK/64
 	} else {
-		trace_error("MCK too high, cannot configure MDC clock.\r\n");
-		return false;
+		clk = EMAC_NCFGR_CLK_MCK_64; // MCK/64
 	}
-
+	if (mck > 160000000) {
+		trace_info("MDC clock is %dHz\r\n",mck / 64);
+	}
 	/* configure MDC clock divider and enable RX/TX */
 	emac->EMAC_NCFGR = (emac->EMAC_NCFGR & ~EMAC_NCFGR_CLK_Msk) | clk;
 	emac->EMAC_NCR |= (EMAC_NCR_RE | EMAC_NCR_TE);
