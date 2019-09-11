@@ -34,11 +34,15 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#define u8_ZERO ((uint8_t)0x00)
+#define u16_ZERO ((uint16_t)0x0000)
+#define u32_ZERO ((uint32_t)0x00000000)
+
 /* definitions of error code */
 #define OTPC_NO_ERROR                        ((uint8_t)0x00)
 #define OTPC_ERROR_HW_WRITE_DISABLED         ((uint8_t)0x01)
 #define OTPC_ERROR_PACKET_OVERLAPPED         ((uint8_t)0x02)
-#define OTPC_ERROR_EMULATION                 ((uint8_t)0x03)
+#define OTPC_ERROR_CANNOT_ACTIVATE_EMULATION ((uint8_t)0x03)
 #define OTPC_ERROR_PACKET_NOT_FOUND          ((uint8_t)0x04)
 #define OTPC_ERROR_BUFFER_OVERFLOW           ((uint8_t)0x05)
 #define OTPC_ERROR_PACKET_INVALIDATED        ((uint8_t)0x06)
@@ -54,7 +58,7 @@
 #define OTPC_CANNOT_TRANSFER_KEY             ((uint8_t)0x12)
 #define OTPC_CANNOT_START_HIDING             ((uint8_t)0x13)
 #define OTPC_CANNOT_PERFORM_HIDING           ((uint8_t)0x14)
-#define OTPC_ERROR_MR_LOCKED                 ((uint8_t)0x15)
+#define OTPC_ERROR_PACKET_IS_INVALID         ((uint8_t)0x15)
 
 #define OTPC_PAYLOAD_SIZE(x) (((x) / 4) - 1) /*!< x must be multiple of 4 bytes */
 
@@ -94,6 +98,8 @@ union otp_packet_header {
 	} header;
 	uint32_t word;
 };
+
+typedef union otp_packet_header packet_header_t;
 
 /*!
   \brief

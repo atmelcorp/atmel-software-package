@@ -51,7 +51,6 @@
 #define OTPC_KEY_FOR_INVALIDATING OTPC_KEY_FOR_UPDATING
 #define OTPC_KEY_FOR_EMUL         OTPC_KEY_FOR_UPDATING
 
-#define OTPC_ADDR_MAX_VALUE       0x1FFF
 #define OTPC_MAX_PAYLOAD_ALLOWED  1024
 
 #define OTPC_4B_AND_REGULAR       (OTPC_HR_PACKET_REGULAR | OTPC_HR_ONE)
@@ -68,6 +67,8 @@
   #define OTPC_MR_KBDST_SET(value) ((OTPC->OTPC_MR & ~OTPC_MR_KBDST) | (((value) * (OTPC_MR_KBDST & ~(OTPC_MR_KBDST << 1))) & OTPC_MR_KBDST))
   #define OTPC_MR_KBDST_Msk OTPC_MR_KBDST
 #endif
+
+#define OTPC_MR_ALWAYS_RESET_Msk (OTPC_MR_KBDST_Msk | OTPC_MR_NPCKT)
 
 /*----------------------------------------------------------------------------
  *        Local functions
@@ -87,47 +88,44 @@ static uint32_t otp_wait_isr(uint32_t mask)
 }
 
 /*!
-  \brief The method will wait until a refresh operation is done
-  \param none
-  \return error code: - OTPC_CANNOT_REFRESH  - No refresh operation has occured
-                      - OTPC_NO_ERROR        - The refresh operation is done
-*/
-static uint8_t wait_for_refreshing(void)
-{
-	if (0 == otp_wait_isr(OTPC_ISR_EORF)) {
-#ifdef CONFIG_HAVE_OTP_DEBUG
-		trace_debug("OTP wait for End of refresh failed\r\n");
-#endif
-		return OTPC_CANNOT_REFRESH;
-	}
-	return OTPC_NO_ERROR;
-}
-
-/*!
   \brief The generic part used for both Atmel and User spaces
   \param hdr_addr Represents the address of the header given by value
-  \return error code
+  \return The value of the packet header or OTPC_READING_DID_NOT_STOP
  */
-static uint8_t otp_trigger_packet_read(const uint16_t hdr_addr)
+static uint32_t otp_trigger_packet_read(const uint16_t hdr_addr)
 {
-	/* let OTPC_MR writable */
-	if (OTPC->OTPC_MR & OTPC_MR_LOCK)
-		return OTPC_ERROR_MR_LOCKED;
-	OTPC->OTPC_WPMR = (OTPC->OTPC_WPMR & ~OTPC_WPMR_WPCFEN) | OTPC_WPMR_WPKEY_PASSWD;
+	uint32_t isr_reg;
+	uint32_t timeout = TIMEOUT;
+	uint32_t pckt_hdr = (uint32_t)0x00;
 
 	/* Write address of the header in OTPC_MR register (AADDR field)*/
-	OTPC->OTPC_MR &= ~(OTPC_MR_NPCKT | OTPC_MR_KBDST_Msk);
-	OTPC->OTPC_MR = (OTPC->OTPC_MR & ~OTPC_MR_ADDR_Msk) | OTPC_MR_ADDR(hdr_addr);
+	isr_reg = OTPC->OTPC_MR;
+	isr_reg &= ~OTPC_MR_ALWAYS_RESET_Msk;
+	isr_reg = (isr_reg & ~OTPC_MR_ADDR_Msk) | OTPC_MR_ADDR(hdr_addr);
+	OTPC->OTPC_MR = isr_reg;
 
 	/* Set READ bit in OTPC_CR register*/
 	OTPC->OTPC_CR = OTPC_CR_READ;
 
-	while ((OTPC->OTPC_SR & OTPC_SR_READ) == OTPC_SR_READ)
-		;
+	do
+	{
+		isr_reg = OTPC->OTPC_ISR;
+		timeout--;
 
-	if (0 == otp_wait_isr(OTPC_ISR_EOR))
-		return OTPC_READING_DID_NOT_STOP;
-	return OTPC_NO_ERROR;
+	} while (!(isr_reg & OTPC_ISR_EOR) && (timeout != 0));
+	/* Wait for EOR bit in OTPC_ISR to be 1 (packet was transfered )*/
+
+	if (!(isr_reg & OTPC_ISR_EOR) && (timeout == 0))
+	{
+		pckt_hdr = OTPC_READING_DID_NOT_STOP;
+	}
+	else
+	{
+		/* Read the header value from OTPC_HR */
+		pckt_hdr = OTPC->OTPC_HR;
+	}
+
+	return pckt_hdr;
 }
 
 static uint8_t otp_trans_key(uint32_t key_bus_dest)
@@ -173,47 +171,121 @@ static uint8_t otp_trans_key(uint32_t key_bus_dest)
   \return error code: - OTPC_ERROR_BUFFER_OVERFLOW - The payload is too big
                       - OTPC_NO_ERROR              - Payload read successfully
                       - OTPC_CANNOT_TRANSFER_KEY   - The key cannot be transfered safely
+                      - OTPC_ERROR_PACKET_IS_INVALID - The packet is invalid
  */
 uint8_t otp_read_packet(const uint16_t hdr_addr,
                         uint32_t *dest,
                         uint16_t buffer_size,
                         uint16_t *actually_read)
 {
-	union otp_packet_header hdr;
-	uint8_t error;
-	uint16_t read = 0;
+	packet_header_t *hdr = NULL;
+	uint32_t hdr_value = (uint32_t)0x00;
+	uint32_t timeout = TIMEOUT;
+	uint32_t isr_reg;
+	uint32_t value;
+	uint32_t mask;
+	uint32_t payload_offset = (uint32_t)0x00;
+	uint16_t payload_size = (uint16_t)0x00;
+	uint8_t error = OTPC_NO_ERROR;
 
-	while(1) {
-		if (0 != (error = otp_trigger_packet_read(hdr_addr)))
-			break;
+	if (!(OTPC->OTPC_MR & OTPC_MR_RDDIS))
+	{
+		hdr_value = otp_trigger_packet_read(hdr_addr);
 
-		hdr.word = OTPC->OTPC_HR;
-		if (hdr.header.packet == OTPC_HR_PACKET_KEY) {
-			error = otp_trans_key(*dest);
-		} else {
-			OTPC->OTPC_MR &= ~OTPC_MR_RDDIS;
-			if ((hdr.header.size + 1) * sizeof(uint32_t) <= buffer_size) {
-				OTPC->OTPC_AR = OTPC_AR_DADDR(0) | OTPC_AR_INCRT_AFTER_READ;
-				do {
-					*dest++ =  OTPC->OTPC_DR;
-				} while(read++ < hdr.header.size);
-				read *= sizeof(uint32_t);
-			} else
-				error = OTPC_ERROR_BUFFER_OVERFLOW;
+		if (hdr_value != OTPC_READING_DID_NOT_STOP)
+		{
+			hdr = (packet_header_t *)&hdr_value;
+
+			if ((hdr->word & OTPC_HR_INVLD_Msk) == OTPC_HR_INVLD_Msk)
+			{
+				error = OTPC_ERROR_PACKET_IS_INVALID;
+				goto _exit_;
+			}
+
+			if ((hdr->word & OTPC_HR_PACKET_Msk) == OTPC_HR_PACKET_KEY)
+			{
+				mask = OTPC_MR_KBDST_Msk;
+				switch (*dest) {
+#ifdef OTPC_MR_KBDST_AES
+				case OTPC_AES_MODULE:
+					value = OTPC_MR_KBDST_AES;
+					break;
+#endif
+
+#ifdef OTPC_MR_KBDST_TDES
+				case OTPC_TDES_MODULE:
+					value = OTPC_MR_KBDST_TDES;
+					break;
+#endif
+				default:
+					error = OTPC_CANNOT_TRANSFER_KEY;
+					goto _exit_;
+				}
+				OTPC->OTPC_MR = (OTPC->OTPC_MR & ~mask) | value;
+
+				OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_WRITING) | OTPC_CR_KBSTART;
+
+				do
+				{
+					isr_reg = OTPC->OTPC_ISR;
+					timeout--;
+
+				} while (!(isr_reg & OTPC_ISR_EOKT) && (timeout != 0));
+
+				if ((timeout == 0) || ((isr_reg & OTPC_ISR_EOKT) && (isr_reg & OTPC_ISR_KBERR)))
+				{
+					error = OTPC_CANNOT_TRANSFER_KEY;
+					goto _exit_;
+				}
+			}
+			else
+			{
+
+				/* The value read from header shall be interpreted as follows: */
+				/* 0   ==> 4 bytes */
+				/* 255 ==> 1024 bytes */
+				payload_size = (((hdr->word & OTPC_HR_SIZE_Msk) >> OTPC_HR_SIZE_Pos) * 4) + 4;
+
+				if (payload_size <= buffer_size)
+				{
+					while (payload_size != 0)
+					{
+
+						/* After read, auto-increment */
+						OTPC->OTPC_AR &= ~OTPC_AR_INCRT;
+
+						/* Start reading the payload (one word at a time) */
+						/* otpc_struct->OTPC_DR will be incremented automatically (default value) */
+						*dest++ =  OTPC->OTPC_DR;
+
+						payload_offset++;
+
+						/* Update the size of the payload to be read */
+						payload_size -= (uint16_t)4;
+					}
+
+					*actually_read = ((payload_offset - 1) * 4) + 4;
+				}
+				else
+				{
+					error = OTPC_ERROR_BUFFER_OVERFLOW;
+					goto _exit_;
+				}
+			}
 		}
-		break;
+		else
+		{
+			error = OTPC_READING_DID_NOT_STOP;
+			goto _exit_;
+		}
+	}
+	else
+	{
+		error = OTPC_CANNOT_START_READING;
 	}
 
-	if (actually_read)
-		*actually_read = read;
-#ifdef CONFIG_HAVE_OTP_DEBUG
-	if (error)
-		trace_debug("OTP read packet failed, header at 0x%04x, error code: 0x%02x\r\n",
-		    hdr_addr, error);
-	else
-		trace_debug("OTP read packet succeed, header 0x%08x at 0x%04x, size: %u\r\n",
-		    (unsigned int)hdr.word, hdr_addr, read);
-#endif
+_exit_:
+
 	return error;
 }
 
@@ -232,138 +304,203 @@ uint8_t otp_read_packet(const uint16_t hdr_addr,
                       - OTPC_READING_DID_NOT_STOP     - A read operation is not ended
                       - OTPC_FLUSHING_DID_NOT_END     - Flushing operation did not end
  */
-uint8_t otp_write_packet(const union otp_packet_header *packet_header,
+uint8_t otp_write_packet(const packet_header_t *header_data,
                          const uint32_t *src,
                          uint16_t *const pckt_hdr_addr,
                          uint16_t *actually_written)
 {
+	const packet_header_t *packet_header = header_data;
+	uint32_t backup_header_reg;
 	uint32_t backup_data_reg;
-	union otp_packet_header hdr_backup;
+	uint32_t timeout = TIMEOUT;
+	uint32_t backup_header_value = packet_header->word;
 	const uint32_t *backup_src = src;
-	uint8_t error = OTPC_NO_ERROR;
-	uint32_t isr_reg;
-	uint16_t payload_size = (uint16_t)((packet_header->header.size * 4) + 4);
+	uint32_t error = OTPC_NO_ERROR;
+	uint32_t isr_reg, sr_reg, mr_reg;
+	uint16_t payload_size = (uint16_t)((((packet_header->word & OTPC_HR_SIZE_Msk) >> OTPC_HR_SIZE_Pos) * 4) + 4);
 	uint16_t backup_size = payload_size;
 	uint16_t size_field;
-	uint16_t written = 0;
-	uint8_t payload_offset = 0;
+	uint8_t payload_offset = u8_ZERO;
 	bool must_invalidate = false;
 	bool is_key = false;
 
-	hdr_backup.word = packet_header->word;
 	if (payload_size <= OTPC_MAX_PAYLOAD_ALLOWED)
 	{
-		/* let OTPC_MR writable */
-		if (OTPC->OTPC_MR & OTPC_MR_LOCK) {
-			error = OTPC_ERROR_MR_LOCKED;
-			goto __exit__;
-		}
-		OTPC->OTPC_WPMR = (OTPC->OTPC_WPMR & ~OTPC_WPMR_WPCFEN) | OTPC_WPMR_WPKEY_PASSWD;
-
-		OTPC->OTPC_MR &= ~OTPC_MR_WRDIS;
-
-		if (packet_header->header.packet == OTPC_HR_PACKET_KEY) {
-			is_key = true;
-			hdr_backup.header.packet = OTPC_HR_PACKET_REGULAR;
-		}
-
-		/* Set MR_REG to its maximum value */
-		OTPC->OTPC_MR &= ~(OTPC_MR_NPCKT | OTPC_MR_KBDST_Msk);
-		OTPC->OTPC_MR = (OTPC->OTPC_MR & ~OTPC_MR_ADDR_Msk) | OTPC_MR_ADDR(OTPC_ADDR_MAX_VALUE);
-
-		/* Set the READ field */
-		OTPC->OTPC_CR = OTPC_CR_READ;
-
-		if (0 == otp_wait_isr(OTPC_ISR_EOR)) {
-			error = OTPC_READING_DID_NOT_STOP;
-			goto __exit__;
-		}
-		if (OTPC->OTPC_SR & OTPC_SR_READ) {
-			error = OTPC_READING_DID_NOT_START;
-			goto __exit__;
-		}
-
-		/* There is "1" */
-		if (OTPC->OTPC_SR & OTPC_SR_ONEF) {
-			size_field = (((OTPC->OTPC_HR & OTPC_HR_SIZE_Msk) >> OTPC_HR_SIZE_Pos) + 1) * 4;
-		trace_debug("OTP packet: header 0x%08x\r\n", (unsigned int)OTPC->OTPC_HR);
-
-			if ((OTPC->OTPC_HR | packet_header->word) != packet_header->word) {
-				/* Try to minimize the waste of memory, allocate 4 bytes and invalidate the packet */
-				must_invalidate = true;
-				goto start_programming;
+		/* Check against the hardware write disable */
+		if (!(OTPC->OTPC_MR & OTPC_MR_WRDIS))
+		{
+			if ((packet_header->word & OTPC_HR_PACKET_Msk) == OTPC_HR_PACKET_KEY)
+			{
+				is_key = true;
+				backup_header_value &= ~OTPC_HR_PACKET_Msk;
+				backup_header_value |= OTPC_HR_PACKET_REGULAR;
 			}
 
-			/* Header is safe to be written, but what about payload ? */
-			while (backup_size != 0) {
-				backup_data_reg = OTPC->OTPC_DR;
-				backup_data_reg |= *backup_src;
+			/* Set MR_ADDR to its maximum value, using isr_reg as temp value */
+			isr_reg = OTPC->OTPC_MR;
+			isr_reg &= ~OTPC_MR_ALWAYS_RESET_Msk;
+			isr_reg |= OTPC_MR_ADDR_Msk;
+			OTPC->OTPC_MR = isr_reg;
 
-				/* Can be payload safely written ? */
-				if (backup_data_reg != (*backup_src)) {
-					must_invalidate = true;
+			/* Set the READ field */
+			OTPC->OTPC_CR = OTPC_CR_READ;
+
+			timeout = TIMEOUT;
+			do
+			{
+				sr_reg = OTPC->OTPC_SR;
+				isr_reg = OTPC->OTPC_ISR;
+				timeout--;
+
+			} while (!(isr_reg & OTPC_ISR_EOR) && (timeout != 0));
+			/* Wait for EOR bit in OTPC_ISR to be 1 (packet was transfered )*/
+
+			if (!(isr_reg & OTPC_ISR_EOR) && (timeout == 0)) {
+				if (sr_reg & OTPC_SR_READ)
+				{
+					error = OTPC_READING_DID_NOT_STOP;
+					goto __exit__;
+				}
+				else
+				{
+					error = OTPC_READING_DID_NOT_START;
+					goto __exit__;
+				}
+			}
+
+			/* There is "1" */
+			if (OTPC->OTPC_SR & OTPC_SR_ONEF)
+			{
+				backup_header_reg = OTPC->OTPC_HR;
+				size_field = (backup_header_reg & OTPC_HR_SIZE_Msk) >> OTPC_HR_SIZE_Pos;
+				size_field = (size_field + 1) << 2;
+				backup_header_reg |= packet_header->word;
+
+				if (backup_header_reg != packet_header->word)
+				{
+					/* Try to minimize the waste of memory, allocate 4 bytes and invalidate the packet */
 					backup_size = size_field;
-					hdr_backup.word &= OTPC_4B_AND_REGULAR;
-					backup_src = src;
-					goto further;
+					backup_header_value &= OTPC_4B_AND_REGULAR;
+					must_invalidate = true;
+					goto start_programming;
 				}
 
-				backup_size -= 4;
-				backup_src++;
+				/* Header is safe to be written, but what about payload ? */
+				if (!must_invalidate)
+				{
+					while (backup_size != 0)
+					{
+						backup_data_reg = OTPC->OTPC_DR;
+						backup_data_reg |= *backup_src;
+
+						/* Can be payload safely written ? */
+						if (backup_data_reg != (*backup_src))
+						{
+							must_invalidate = true;
+							backup_size = size_field;
+							backup_header_value &= OTPC_4B_AND_REGULAR;
+							backup_src = src;
+							goto further;
+						}
+
+						backup_size -= 4;
+						backup_src++;
+					}
+				}
+
+				backup_size = payload_size;
 			}
 
-			backup_size = payload_size;
-		}
+		further:
+			/* Write OTPC_MR.ADDR to '0' and set NPCKT */
+			mr_reg = OTPC->OTPC_MR;
+			mr_reg &= ~(OTPC_MR_ALWAYS_RESET_Msk | OTPC_MR_ADDR_Msk);
+			mr_reg |= OTPC_MR_NPCKT;
+			OTPC->OTPC_MR = mr_reg;
 
-	further:
-		OTPC->OTPC_MR = (OTPC->OTPC_MR & ~OTPC_MR_ADDR_Msk) | OTPC_MR_NPCKT;
+			/* Check for flushing process */
+			if (OTPC->OTPC_SR & OTPC_SR_FLUSH)
+			{
+				timeout = TIMEOUT;
+				do
+				{
+					isr_reg = OTPC->OTPC_ISR;
+					timeout--;
 
-		/* Check for flushing process */
-		if (OTPC->OTPC_SR & OTPC_SR_FLUSH) {
-			if (0 == (error = otp_wait_isr(OTPC_ISR_EOF))) {
-				error = OTPC_FLUSHING_DID_NOT_END;
+				} while (!(isr_reg & OTPC_ISR_EOF) && (timeout != 0));
+				/* Wait until flush operation is done or timeout occured */
+
+				if (!(isr_reg & OTPC_ISR_EOF) && (timeout == 0))
+				{
+					error = OTPC_FLUSHING_DID_NOT_END;
+					goto __exit__;
+				}
+			}
+
+			OTPC->OTPC_HR = backup_header_value;
+
+			/* Clear DADDR field */
+			OTPC->OTPC_AR &= ~OTPC_AR_DADDR_Msk;
+
+			OTPC->OTPC_AR |= OTPC_AR_INCRT;
+
+			/* Start downloading data */
+			while (backup_size != u16_ZERO)
+			{
+				OTPC->OTPC_DR = *src++;
+
+				backup_size -= (uint16_t)4;
+
+				payload_offset++;
+			}
+
+			if (is_key == true)
+			{
+				backup_header_value &= ~OTPC_HR_PACKET_Msk;
+				backup_header_value |= OTPC_HR_PACKET_KEY;
+				OTPC->OTPC_HR = backup_header_value;
+			}
+
+		start_programming:
+
+			/* Set the KEY field * Set PGM field */
+			OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_WRITING) | OTPC_CR_PGM;
+
+			timeout = TIMEOUT;
+			do
+			{
+				isr_reg = OTPC->OTPC_ISR;
+				timeout--;
+
+			} while (!(isr_reg & OTPC_ISR_EOP) && (timeout != 0));
+			/* Check whether the data was written correctly */
+
+			if ((timeout == 0) || ((isr_reg & OTPC_ISR_EOP) && (isr_reg & OTPC_ISR_WERR)))
+			{
+				error = OTPC_CANNOT_START_PROGRAMMING;
 				goto __exit__;
 			}
+
+			/* Retrieve the address of the packet header */
+			*pckt_hdr_addr = (OTPC->OTPC_MR & OTPC_MR_ADDR_Msk) >> OTPC_MR_ADDR_Pos;
 		}
-
-		OTPC->OTPC_HR = hdr_backup.word;
-		OTPC->OTPC_AR = OTPC_AR_DADDR(0) | OTPC_AR_INCRT_AFTER_WRITE;
-
-		/* Start downloading data */
-		while (backup_size) {
-			OTPC->OTPC_DR = *src++;
-			backup_size -= (uint16_t)4;
-			payload_offset++;
-		}
-
-		if (is_key == true) {
-			hdr_backup.header.packet = OTPC_HR_PACKET_KEY;
-			OTPC->OTPC_HR = hdr_backup.word;
-		}
-
-	start_programming:
-		/* Set the KEY field * Set PGM field */
-		OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_WRITING) | OTPC_CR_PGM;
-
-		isr_reg = otp_wait_isr(OTPC_ISR_EOP);
-		if ((isr_reg == 0) || (isr_reg & OTPC_ISR_WERR)) {
-			error = OTPC_CANNOT_START_PROGRAMMING;
+		else
+		{
+			error = OTPC_ERROR_HW_WRITE_DISABLED;
 			goto __exit__;
 		}
 
-		/* Retrieve the address of the packet header */
-		*pckt_hdr_addr = (OTPC->OTPC_MR & OTPC_MR_ADDR_Msk) >> OTPC_MR_ADDR_Pos;
-
-		if (must_invalidate == true) {
+		if (must_invalidate == true)
+		{
 			/* Invalidate packet */
 			otp_invalidate_packet(*pckt_hdr_addr);
 
 			error = OTPC_ERROR_PACKET_INVALIDATED;
-			written = size_field;
+			*actually_written = size_field;
 		}
 		else
 		{
-			written = payload_size;
+			*actually_written = payload_size;
 		}
 	}
 	else
@@ -373,16 +510,7 @@ uint8_t otp_write_packet(const union otp_packet_header *packet_header,
 
 __exit__:
 	OTPC->OTPC_MR &= ~OTPC_MR_NPCKT;
-	if (actually_written)
-		*actually_written = written;
-#ifdef CONFIG_HAVE_OTP_DEBUG
-	if (error)
-		trace_debug("OTP write packet failed, header 0x%08x, error code: 0x%02x\r\n",
-		    (unsigned int)packet_header->word, error);
-	else
-		trace_debug("OTP write packet: header 0x%08x at 0x%08x, %u bytes wrote\r\n",
-		    (unsigned int)packet_header->word, *pckt_hdr_addr, written);
-#endif
+
 	return error;
 }
 
@@ -392,52 +520,85 @@ __exit__:
   \param src Represents the input buffer
   \return error code: - OTPC_NO_ERROR                  - Packet was updated successfully
                       - OTPC_CANNOT_START_PROGRAMMING  - The packet cannot be updated
+                      - OTPC_ERROR_PACKET_IS_INVALID   - The packet is invalid
  */
 uint8_t otp_update_payload(const uint16_t hdr_addr, const uint32_t *src)
 {
-	union otp_packet_header hdr;
+	packet_header_t *hdr = (packet_header_t *)NULL;
+	uint32_t hdr_value = u32_ZERO;
 	uint32_t timeout = TIMEOUT;
 	uint32_t reg;
-	uint16_t payload_offset = 0;
-	uint8_t error;
+	uint16_t payload_size = u16_ZERO;
+	uint16_t payload_offset = u8_ZERO;
+	uint8_t error = OTPC_NO_ERROR;
 
-	while(1) {
-		if (0 != (error = otp_trigger_packet_read(hdr_addr)))
-			break;
+	hdr_value = otp_trigger_packet_read(hdr_addr);
 
-		hdr.word = OTPC->OTPC_HR;
+	if (hdr_value != OTPC_READING_DID_NOT_STOP)
+	{
+		hdr = (packet_header_t *)&hdr_value;
 
-		while(1) {
+		if ((hdr->word & OTPC_HR_INVLD_Msk) == OTPC_HR_INVLD_Msk)
+		{
+			error = OTPC_ERROR_PACKET_IS_INVALID;
+			goto _exit_;
+		}
+
+		/* The value read from header shall be interpreted as follows: */
+		/* 0   ==> 4 bytes */
+		/* 255 ==> 1024 bytes */
+		payload_size = (((hdr->word & OTPC_HR_SIZE_Msk) >> OTPC_HR_SIZE_Pos) * 4) + 4;		
+
+		while (payload_size != u16_ZERO)
+		{
 			OTPC->OTPC_AR = (payload_offset & OTPC_AR_DADDR_Msk) | OTPC_AR_INCRT;
+
 			OTPC->OTPC_DR = *src++;
-			if (hdr.header.size == 0) break;
-			hdr.header.size--;
+
+			payload_size -= (uint16_t)4;
+
 			payload_offset++;
 		}
 
 		/* Set the KEY field && PGM */
 		OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_UPDATING) | OTPC_CR_PGM;
 
-		while ((OTPC->OTPC_SR & OTPC_SR_PGM) != OTPC_SR_PGM) {
-			if (timeout-- == 0) {
-				error = OTPC_CANNOT_START_PROGRAMMING;
-				break;
-			}
-		}
-		if (error)
-			break;
+		do
+		{
+			reg = OTPC->OTPC_SR;
+			timeout--;
 
-		reg = otp_wait_isr(OTPC_ISR_EOP);
-		if ((0 == reg) || (reg & OTPC_ISR_WERR))
+		} while (!(reg & OTPC_SR_PGM) && (timeout != 0));
+		/* Is the programming sequence started ? */
+
+		if (!(reg & OTPC_CR_PGM) && (timeout == 0))
+		{
 			error = OTPC_CANNOT_START_PROGRAMMING;
+			goto _exit_;
+		}
 
-		break;
+		/* Programming without errors */
+		timeout = TIMEOUT;
+		do
+		{
+			reg = OTPC->OTPC_ISR;
+			timeout--;
+
+		} while (!(reg & OTPC_ISR_EOP) && (timeout != 0));
+
+		if ((timeout == 0) || ((reg & OTPC_ISR_EOP) && (reg & OTPC_ISR_WERR)))
+		{
+			error = OTPC_CANNOT_START_PROGRAMMING;
+			goto _exit_;
+		}
+	}
+	else
+	{
+		error = OTPC_READING_DID_NOT_STOP;
 	}
 
-#ifdef CONFIG_HAVE_OTP_DEBUG
-	trace_debug("OTP update packet at 0x%04x, error code: 0x%02x\r\n",
-	    hdr_addr, error);
-#endif
+_exit_:
+
 	return error;
 }
 
@@ -446,21 +607,47 @@ uint8_t otp_update_payload(const uint16_t hdr_addr, const uint32_t *src)
   \param hdr_addr Represents the address of the packet header to be locked
   \return error code: - OTPC_CANNOT_LOCK - The packet cannot be locked
                       - OTPC_NO_ERROR    - The packet was locked susscessfully
+                      - OTPC_ERROR_PACKET_IS_INVALID - The packet is invalid
  */
 uint8_t otp_lock_packet(const uint16_t hdr_addr)
 {
-	uint8_t error;
+	packet_header_t hdr;
+	uint32_t timeout = TIMEOUT;
+	uint32_t reg;
+	uint8_t error = OTPC_NO_ERROR;
 
-	if (0 == (error = otp_trigger_packet_read(hdr_addr))) {
+	hdr.word = otp_trigger_packet_read(hdr_addr);
+
+	if (hdr.word != OTPC_READING_DID_NOT_STOP)
+	{
+		if ((hdr.word & OTPC_HR_INVLD_Msk) == OTPC_HR_INVLD_Msk)
+		{
+			error = OTPC_ERROR_PACKET_IS_INVALID;
+			goto _exit_;
+		}
+
 		/* Set the KEY field */
 		OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_LOCKING) | OTPC_CR_CKSGEN;
-		if (0 == otp_wait_isr(OTPC_ISR_EOL))
-			error =  OTPC_CANNOT_LOCK;
+
+		do
+		{
+			reg = OTPC->OTPC_ISR;
+			timeout--;
+
+		} while (!(reg & OTPC_ISR_EOL) && (timeout != 0));
+		/* Wait for locking the packet */
+
+		if (!(reg & OTPC_ISR_EOL) && (timeout == 0))
+			error = OTPC_CANNOT_LOCK;
+		else
+			error = OTPC_NO_ERROR;
 	}
-#ifdef CONFIG_HAVE_OTP_DEBUG
-	trace_debug("OTP lock packet at 0x%04x, error code: 0x%02x\r\n",
-	    hdr_addr, error);
-#endif
+	else
+	{
+		error = OTPC_READING_DID_NOT_STOP;
+	}
+
+_exit_:
 	return error;
 }
 
@@ -472,28 +659,34 @@ uint8_t otp_lock_packet(const uint16_t hdr_addr)
  */
 uint8_t otp_invalidate_packet(const uint16_t hdr_addr)
 {
+	uint32_t timeout = TIMEOUT;
+	uint32_t reg;
 	uint8_t error = OTPC_NO_ERROR;
 
-	while (1) {
-		/* let OTPC_MR writable */
-		if (OTPC->OTPC_MR & OTPC_MR_LOCK) {
-			error = OTPC_ERROR_MR_LOCKED;
-			break;
-		}
-		OTPC->OTPC_WPMR = (OTPC->OTPC_WPMR & ~OTPC_WPMR_WPCFEN) | OTPC_WPMR_WPKEY_PASSWD;
+	/* Set the header address and using reg as temp value */
+	reg = OTPC->OTPC_MR;
+	reg &= ~OTPC_MR_ALWAYS_RESET_Msk;
+	reg = (reg & ~OTPC_MR_ADDR_Msk) | OTPC_MR_ADDR(hdr_addr);
+	OTPC->OTPC_MR = reg;
 
-		OTPC->OTPC_MR = (OTPC->OTPC_MR & (~OTPC_MR_ADDR_Msk)) | OTPC_MR_ADDR(hdr_addr);
-		OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_INVALIDATING) | OTPC_CR_INVLD;
+	OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_INVALIDATING) | OTPC_CR_INVLD;
 
-		if (0 == otp_wait_isr(OTPC_ISR_EOI))
-			error = OTPC_CANNOT_INVALIDATE;
-		break;
+	do
+	{
+		reg = OTPC->OTPC_ISR;
+		timeout--;
+
+	} while (!(reg & OTPC_ISR_EOI) && (timeout != 0));
+	/* Wait for invalidating the packet */
+
+	if (!(reg & OTPC_ISR_EOI) && (timeout == 0))
+	{
+		error = OTPC_CANNOT_INVALIDATE;
+		goto _exit_;
 	}
 
-#ifdef CONFIG_HAVE_OTP_DEBUG
-	trace_debug("OTP invalidate packet at 0x%04x, error code: 0x%02x\r\n",
-	    hdr_addr, error);
-#endif
+_exit_:
+
 	return error;
 }
 
@@ -506,37 +699,40 @@ uint8_t otp_invalidate_packet(const uint16_t hdr_addr)
                     - OTPC_CANNOT_REFRESH    - The memory cannot be refreshed
                     - OTPC_ERROR_MR_LOCKED   - Register OTPC_MR is locked
  */
-uint8_t otp_emulation_mode(bool enable)
+uint8_t otp_emulation_mode(bool on_off)
 {
+	uint32_t timeout = TIMEOUT;
+	uint32_t reg;
 	uint8_t error = OTPC_NO_ERROR;
+	uint32_t mr_emul_value;
 
-	while (1) {
-		/* let OTPC_MR writable */
-		if (OTPC->OTPC_MR & OTPC_MR_LOCK) {
-			error = OTPC_ERROR_MR_LOCKED;
-			break;
-		}
-		OTPC->OTPC_WPMR = (OTPC->OTPC_WPMR & ~OTPC_WPMR_WPCFEN) | OTPC_WPMR_WPKEY_PASSWD;
+	mr_emul_value = (((uint32_t)!!on_off) * (OTPC_MR_EMUL & ((~OTPC_MR_EMUL) << 1)));
+	OTPC->OTPC_MR = (OTPC->OTPC_MR & (~OTPC_MR_EMUL)) | mr_emul_value;
 
-		if (enable)
-			OTPC->OTPC_MR |= OTPC_MR_EMUL;
-		else
-			OTPC->OTPC_MR &= ~OTPC_MR_EMUL;
-		OTPC->OTPC_CR = OTPC_CR_REFRESH | OTPC_CR_KEY(OTPC_KEY_FOR_EMUL);
+	OTPC->OTPC_CR = OTPC_CR_REFRESH | OTPC_CR_KEY(OTPC_KEY_FOR_EMUL);
 
-		error = wait_for_refreshing();
-		break;
+	do
+	{
+		reg = OTPC->OTPC_ISR;
+		timeout--;
+
+	} while (!(reg & OTPC_ISR_EORF) && (timeout != 0));
+	/* Wait for refreshing data */
+
+	if (!(reg & OTPC_ISR_EORF) && (timeout == 0))
+	{
+		error = OTPC_CANNOT_REFRESH;
+		goto _exit_;
 	}
 
-	if (error == OTPC_NO_ERROR) {
-		if (otp_is_emulation_enabled() != enable)
-			error = OTPC_ERROR_EMULATION;
+	/* Check if the Emulation mode state */
+	if ((!!(OTPC->OTPC_SR & OTPC_SR_EMUL)) ^ (!!on_off))
+	{
+		error = OTPC_ERROR_CANNOT_ACTIVATE_EMULATION;
 	}
 
-#ifdef CONFIG_HAVE_OTP_DEBUG
-	trace_debug("%s OTP emulation mode, error code: 0x%02x\r\n",
-	    enable ? "Enable" : "Disable", error);
-#endif
+_exit_:
+
 	return error;
 }
 
@@ -561,38 +757,43 @@ bool otp_is_emulation_enabled(void)
 uint8_t otp_hide_packet(const uint16_t hdr_addr)
 {
 	uint32_t timeout = TIMEOUT;
+	uint32_t reg;
 	uint8_t error = OTPC_NO_ERROR;
 
-	while(1) {
-		/* let OTPC_MR writable */
-		if (OTPC->OTPC_MR & OTPC_MR_LOCK) {
-			error = OTPC_ERROR_MR_LOCKED;
-			break;
-		}
-		OTPC->OTPC_WPMR = (OTPC->OTPC_WPMR & ~OTPC_WPMR_WPCFEN) | OTPC_WPMR_WPKEY_PASSWD;
+	reg = OTPC->OTPC_MR;
+	reg &= ~OTPC_MR_ALWAYS_RESET_Msk;
+	reg = (reg & ~OTPC_MR_ADDR_Msk) | OTPC_MR_ADDR(hdr_addr);
+	OTPC->OTPC_MR = reg;
 
-		OTPC->OTPC_MR &= ~(OTPC_MR_NPCKT | OTPC_MR_KBDST_Msk);
-		OTPC->OTPC_MR = (OTPC->OTPC_MR & ~OTPC_MR_ADDR_Msk) | OTPC_MR_ADDR(hdr_addr);
-		OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_WRITING) | OTPC_CR_HIDE;
+	OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_WRITING) | OTPC_CR_HIDE;
 
-		while ((OTPC->OTPC_SR & OTPC_SR_HIDE) != OTPC_SR_HIDE) {
-			if (timeout-- == 0) {
-				error = OTPC_CANNOT_START_HIDING;
-				break;
-			}
-		}
-		if (error)
-			break;
+	do
+	{
+		reg = OTPC->OTPC_SR;
+		timeout--;
 
-		if (0 == otp_wait_isr(OTPC_ISR_EOH))
-			error = OTPC_CANNOT_PERFORM_HIDING;
-		break;
+	} while (!(reg & OTPC_SR_HIDE) && (timeout != 0));
+
+	if((timeout == 0) || (!(reg & OTPC_SR_HIDE)))
+	{
+		error = OTPC_CANNOT_START_HIDING;
+		goto _exit_;
 	}
-#ifdef CONFIG_HAVE_OTP_DEBUG
-	if (error)
-		trace_debug("OTP hide packet 0x%08x failed, error code: 0x%02x\r\n",
-		    hdr_addr, error);
-#endif
+
+	timeout = TIMEOUT;
+	do
+	{
+		reg = OTPC->OTPC_ISR;
+		timeout--;
+
+	}while(!(reg & OTPC_ISR_EOH) && (timeout != 0));
+
+	if((reg & OTPC_ISR_EOH) || (timeout == 0))
+	{
+		error = OTPC_CANNOT_PERFORM_HIDING;
+	}
+
+_exit_:
 	return error;
 }
 
