@@ -54,7 +54,7 @@
 #define OTPC_ADDR_MAX_VALUE       0x1FFF
 #define OTPC_MAX_PAYLOAD_ALLOWED  1024
 
-#define OTPC_4B_AND_REGULAR       0x00000081
+#define OTPC_4B_AND_REGULAR       (OTPC_HR_PACKET_REGULAR | OTPC_HR_ONE)
 
 /*
  * writing one word lasts 350us
