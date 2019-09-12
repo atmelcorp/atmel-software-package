@@ -253,7 +253,7 @@ uint8_t otp_write_packet(const packet_header_t *packet_header,
 	uint32_t backup_header_value = packet_header->word;
 	const uint32_t *backup_src = src;
 	uint32_t error = OTPC_NO_ERROR;
-	uint32_t isr_reg, mr_reg;
+	uint32_t isr_reg, mr_reg, ar_reg;
 	uint16_t payload_size = (uint16_t)((((packet_header->word & OTPC_HR_SIZE_Msk) >> OTPC_HR_SIZE_Pos) * 4) + 4);
 	uint16_t backup_size = payload_size;
 	uint16_t size_field;
@@ -347,10 +347,14 @@ uint8_t otp_write_packet(const packet_header_t *packet_header,
 
 			OTPC->OTPC_HR = backup_header_value;
 
-			/* Clear DADDR field */
-			OTPC->OTPC_AR &= ~OTPC_AR_DADDR_Msk;
-
-			OTPC->OTPC_AR |= OTPC_AR_INCRT;
+			/*
+			 * Write packet payload from offset 0:
+			 * clear DADDR field and set INCRT to AFTER_WRITE
+			 */
+			ar_reg = OTPC->OTPC_AR;
+			ar_reg &= ~(OTPC_AR_DADDR_Msk | OTPC_AR_INCRT);
+			ar_reg |= OTPC_AR_INCRT_AFTER_WRITE;
+			OTPC->OTPC_AR = ar_reg;
 
 			/* Start downloading data */
 			while (backup_size) {
