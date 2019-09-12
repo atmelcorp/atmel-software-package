@@ -419,63 +419,53 @@ uint8_t otp_update_payload(const uint16_t hdr_addr, const uint32_t *src)
 	uint8_t error = OTPC_NO_ERROR;
 
 	error = otp_trigger_packet_read(hdr_addr, &hdr_value);
+	if (error != OTPC_NO_ERROR)
+		return error;
 
-	if (error == OTPC_NO_ERROR) {
-		hdr = (packet_header_t *)&hdr_value;
+	hdr = (packet_header_t *)&hdr_value;
 
-		if ((hdr->word & OTPC_HR_INVLD_Msk) == OTPC_HR_INVLD_Msk) {
-			error = OTPC_ERROR_PACKET_IS_INVALID;
-			goto _exit_;
-		}
+	if ((hdr->word & OTPC_HR_INVLD_Msk) == OTPC_HR_INVLD_Msk)
+		return OTPC_ERROR_PACKET_IS_INVALID;
 
-		/*
-		 * Write packet payload from offset 0:
-		 * clear DADDR field and set INCRT to AFTER_WRITE
-		 */
-		reg = OTPC->OTPC_AR;
-		reg &= ~(OTPC_AR_DADDR_Msk | OTPC_AR_INCRT);
-		reg |= OTPC_AR_INCRT_AFTER_WRITE;
-		OTPC->OTPC_AR = reg;
+	/*
+	 * Write packet payload from offset 0:
+	 * clear DADDR field and set INCRT to AFTER_WRITE
+	 */
+	reg = OTPC->OTPC_AR;
+	reg &= ~(OTPC_AR_DADDR_Msk | OTPC_AR_INCRT);
+	reg |= OTPC_AR_INCRT_AFTER_WRITE;
+	OTPC->OTPC_AR = reg;
 
-		/* The value read from header shall be interpreted as follows: */
-		/* 0   ==> 4 bytes */
-		/* 255 ==> 1024 bytes */
-		payload_size = otp_get_payload_size(hdr->word);
+	/* The value read from header shall be interpreted as follows: */
+	/* 0   ==> 4 bytes */
+	/* 255 ==> 1024 bytes */
+	payload_size = otp_get_payload_size(hdr->word);
 
-		while (payload_size) {
-			OTPC->OTPC_DR = *src++;
+	while (payload_size) {
+		OTPC->OTPC_DR = *src++;
 
-			payload_size -= sizeof(uint32_t);
-		}
-
-		/* Set the KEY field && PGM */
-		OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_UPDATING) | OTPC_CR_PGM;
-
-		do {
-			reg = OTPC->OTPC_SR;
-			timeout--;
-
-		} while (!(reg & OTPC_SR_PGM) && (timeout != 0));
-		/* Is the programming sequence started ? */
-
-		if (!(reg & OTPC_CR_PGM) && (timeout == 0)) {
-			error = OTPC_CANNOT_START_PROGRAMMING;
-			goto _exit_;
-		}
-
-		/* Programming without errors */
-		reg = otp_wait_isr(OTPC_ISR_EOP);
-		if (!(reg & OTPC_ISR_EOP) || (reg & OTPC_ISR_WERR)) {
-			error = OTPC_CANNOT_START_PROGRAMMING;
-			goto _exit_;
-		}
-	} else {
-		error = OTPC_READING_DID_NOT_STOP;
+		payload_size -= sizeof(uint32_t);
 	}
 
-_exit_:
+	/* Set the KEY field && PGM */
+	OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_UPDATING) | OTPC_CR_PGM;
 
-	return error;
+	do {
+		reg = OTPC->OTPC_SR;
+		timeout--;
+
+	} while (!(reg & OTPC_SR_PGM) && (timeout != 0));
+	/* Is the programming sequence started ? */
+
+	if (!(reg & OTPC_CR_PGM) && (timeout == 0))
+		return OTPC_CANNOT_START_PROGRAMMING;
+
+	/* Programming without errors */
+	reg = otp_wait_isr(OTPC_ISR_EOP);
+	if (!(reg & OTPC_ISR_EOP) || (reg & OTPC_ISR_WERR))
+		return OTPC_CANNOT_START_PROGRAMMING;
+
+	return OTPC_NO_ERROR;
 }
 
 /*!
