@@ -90,12 +90,12 @@ static uint32_t otp_wait_isr(uint32_t mask)
 /*!
   \brief The generic part used for both Atmel and User spaces
   \param hdr_addr Represents the address of the header given by value
-  \return The value of the packet header or OTPC_READING_DID_NOT_STOP
+  \param pckt_hdr Pointer to the output word where OTPC_HR is written into
+  \return OTPC_NO_ERROR is successfull, OTPC_READING_DID_NOT_STOP otherwise.
  */
-static uint32_t otp_trigger_packet_read(const uint16_t hdr_addr)
+static uint8_t otp_trigger_packet_read(uint16_t hdr_addr, uint32_t *pckt_hdr)
 {
 	uint32_t isr_reg, mr_reg;
-	uint32_t pckt_hdr = (uint32_t)0x00;
 
 	/* Write address of the header in OTPC_MR register (AADDR field)*/
 	mr_reg = OTPC->OTPC_MR;
@@ -108,14 +108,14 @@ static uint32_t otp_trigger_packet_read(const uint16_t hdr_addr)
 
 	/* Wait for EOR bit in OTPC_ISR to be 1 (packet was transfered )*/
 	isr_reg = otp_wait_isr(OTPC_ISR_EOR);
-	if (!(isr_reg & OTPC_ISR_EOR)) {
-		pckt_hdr = OTPC_READING_DID_NOT_STOP;
-	} else {
-		/* Read the header value from OTPC_HR */
-		pckt_hdr = OTPC->OTPC_HR;
-	}
+	if (!(isr_reg & OTPC_ISR_EOR))
+		return OTPC_READING_DID_NOT_STOP;
 
-	return pckt_hdr;
+	/* Read the header value from OTPC_HR */
+	if (pckt_hdr)
+		*pckt_hdr = OTPC->OTPC_HR;
+
+	return OTPC_NO_ERROR;
 }
 
 static uint8_t otp_trans_key(uint32_t key_bus_dest)
@@ -175,9 +175,9 @@ uint8_t otp_read_packet(const uint16_t hdr_addr,
 	uint8_t error = OTPC_NO_ERROR;
 
 	if (!(OTPC->OTPC_MR & OTPC_MR_RDDIS)) {
-		hdr_value = otp_trigger_packet_read(hdr_addr);
+		error = otp_trigger_packet_read(hdr_addr, &hdr_value);
 
-		if (hdr_value != OTPC_READING_DID_NOT_STOP) {
+		if (error == OTPC_NO_ERROR) {
 			hdr = (packet_header_t *)&hdr_value;
 
 			if ((hdr->word & OTPC_HR_INVLD_Msk) == OTPC_HR_INVLD_Msk) {
@@ -428,9 +428,9 @@ uint8_t otp_update_payload(const uint16_t hdr_addr, const uint32_t *src)
 	uint16_t payload_offset = 0;
 	uint8_t error = OTPC_NO_ERROR;
 
-	hdr_value = otp_trigger_packet_read(hdr_addr);
+	error = otp_trigger_packet_read(hdr_addr, &hdr_value);
 
-	if (hdr_value != OTPC_READING_DID_NOT_STOP) {
+	if (error == OTPC_NO_ERROR) {
 		hdr = (packet_header_t *)&hdr_value;
 
 		if ((hdr->word & OTPC_HR_INVLD_Msk) == OTPC_HR_INVLD_Msk) {
@@ -496,9 +496,9 @@ uint8_t otp_lock_packet(const uint16_t hdr_addr)
 	uint32_t reg;
 	uint8_t error = OTPC_NO_ERROR;
 
-	hdr.word = otp_trigger_packet_read(hdr_addr);
+	error = otp_trigger_packet_read(hdr_addr, &hdr.word);
 
-	if (hdr.word != OTPC_READING_DID_NOT_STOP) {
+	if (error == OTPC_NO_ERROR) {
 		if ((hdr.word & OTPC_HR_INVLD_Msk) == OTPC_HR_INVLD_Msk) {
 			error = OTPC_ERROR_PACKET_IS_INVALID;
 			goto _exit_;
