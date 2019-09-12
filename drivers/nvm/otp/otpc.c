@@ -260,7 +260,6 @@ uint8_t otp_write_packet(const packet_header_t *packet_header,
 	uint16_t payload_size = (uint16_t)((((packet_header->word & OTPC_HR_SIZE_Msk) >> OTPC_HR_SIZE_Pos) * 4) + 4);
 	uint16_t backup_size = payload_size;
 	uint16_t size_field;
-	uint8_t payload_offset = 0;
 	bool must_invalidate = false;
 	bool is_key = false;
 
@@ -361,8 +360,6 @@ uint8_t otp_write_packet(const packet_header_t *packet_header,
 				OTPC->OTPC_DR = *src++;
 
 				backup_size -= sizeof(uint32_t);
-
-				payload_offset++;
 			}
 
 			if (is_key) {
