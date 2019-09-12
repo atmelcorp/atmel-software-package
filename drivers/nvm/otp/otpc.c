@@ -537,7 +537,6 @@ uint8_t otp_invalidate_packet(const uint16_t hdr_addr)
 uint8_t otp_emulation_mode(bool on_off)
 {
 	uint32_t reg;
-	uint8_t error = OTPC_NO_ERROR;
 	uint32_t mr_emul_value;
 
 	mr_emul_value = (((uint32_t)!!on_off) * (OTPC_MR_EMUL & ((~OTPC_MR_EMUL) << 1)));
@@ -547,19 +546,14 @@ uint8_t otp_emulation_mode(bool on_off)
 
 	/* Wait for refreshing data */
 	reg = otp_wait_isr(OTPC_ISR_EORF);
-	if (!(reg & OTPC_ISR_EORF)) {
-		error = OTPC_CANNOT_REFRESH;
-		goto _exit_;
-	}
+	if (!(reg & OTPC_ISR_EORF))
+		return OTPC_CANNOT_REFRESH;
 
 	/* Check if the Emulation mode state */
-	if ((!!(OTPC->OTPC_SR & OTPC_SR_EMUL)) ^ (!!on_off)) {
-		error = OTPC_ERROR_CANNOT_ACTIVATE_EMULATION;
-	}
+	if ((!!(OTPC->OTPC_SR & OTPC_SR_EMUL)) ^ (!!on_off))
+		return OTPC_ERROR_CANNOT_ACTIVATE_EMULATION;
 
-_exit_:
-
-	return error;
+	return OTPC_NO_ERROR;
 }
 
 /*!
