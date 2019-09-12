@@ -172,6 +172,7 @@ uint8_t otp_read_packet(const uint16_t hdr_addr,
 	uint32_t hdr_value = (uint32_t)0x00;
 	uint16_t payload_size = (uint16_t)0x00;
 	uint8_t error = OTPC_NO_ERROR;
+	uint32_t ar_reg;
 
 	if (!(OTPC->OTPC_MR & OTPC_MR_RDDIS)) {
 		error = otp_trigger_packet_read(hdr_addr, &hdr_value);
@@ -189,6 +190,14 @@ uint8_t otp_read_packet(const uint16_t hdr_addr,
 				if (error)
 					goto _exit_;
 			} else {
+				/*
+				 * Read packet payload from offset 0:
+				 * clear DADDR field and set INCRT to AFTER_READ
+				 */
+				ar_reg = OTPC->OTPC_AR;
+				ar_reg &= ~(OTPC_AR_DADDR_Msk | OTPC_AR_INCRT);
+				ar_reg |= OTPC_AR_INCRT_AFTER_READ;
+				OTPC->OTPC_AR = ar_reg;
 
 				/* The value read from header shall be interpreted as follows: */
 				/* 0   ==> 4 bytes */
@@ -199,10 +208,6 @@ uint8_t otp_read_packet(const uint16_t hdr_addr,
 					*actually_read = payload_size;
 
 					while (payload_size != 0) {
-
-						/* After read, auto-increment */
-						OTPC->OTPC_AR &= ~OTPC_AR_INCRT;
-
 						/* Start reading the payload (one word at a time) */
 						/* otpc_struct->OTPC_DR will be incremented automatically (default value) */
 						*dest++ =  OTPC->OTPC_DR;
