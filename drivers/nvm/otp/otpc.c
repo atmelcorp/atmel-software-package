@@ -410,7 +410,6 @@ __exit__:
 uint8_t otp_update_payload(uint16_t hdr_addr, const uint32_t *src)
 {
 	uint32_t hdr_value = 0;
-	uint32_t timeout = TIMEOUT;
 	uint32_t reg;
 	uint16_t payload_size = 0;
 	uint8_t error = OTPC_NO_ERROR;
@@ -442,18 +441,11 @@ uint8_t otp_update_payload(uint16_t hdr_addr, const uint32_t *src)
 		payload_size -= sizeof(uint32_t);
 	}
 
+	/* dummy read on OTPC_ISR to clear pending interrupts */
+	(void)OTPC->OTPC_ISR;
+
 	/* Set the KEY field && PGM */
 	OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_UPDATING) | OTPC_CR_PGM;
-
-	do {
-		reg = OTPC->OTPC_SR;
-		timeout--;
-
-	} while (!(reg & OTPC_SR_PGM) && (timeout != 0));
-	/* Is the programming sequence started ? */
-
-	if (!(reg & OTPC_CR_PGM) && (timeout == 0))
-		return OTPC_CANNOT_START_PROGRAMMING;
 
 	/* Programming without errors */
 	reg = otp_wait_isr(OTPC_ISR_EOP);
