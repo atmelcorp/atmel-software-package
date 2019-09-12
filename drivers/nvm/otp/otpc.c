@@ -418,7 +418,7 @@ uint8_t otp_write_packet(const packet_header_t *header_data,
 				payload_offset++;
 			}
 
-			if (is_key == true) {
+			if (is_key) {
 				backup_header_value &= ~OTPC_HR_PACKET_Msk;
 				backup_header_value |= OTPC_HR_PACKET_KEY;
 				OTPC->OTPC_HR = backup_header_value;
@@ -449,7 +449,7 @@ uint8_t otp_write_packet(const packet_header_t *header_data,
 			goto __exit__;
 		}
 
-		if (must_invalidate == true) {
+		if (must_invalidate) {
 			/* Invalidate packet */
 			otp_invalidate_packet(*pckt_hdr_addr);
 
