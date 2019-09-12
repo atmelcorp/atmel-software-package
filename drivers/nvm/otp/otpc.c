@@ -421,7 +421,6 @@ uint8_t otp_update_payload(const uint16_t hdr_addr, const uint32_t *src)
 	uint32_t timeout = TIMEOUT;
 	uint32_t reg;
 	uint16_t payload_size = 0;
-	uint16_t payload_offset = 0;
 	uint8_t error = OTPC_NO_ERROR;
 
 	error = otp_trigger_packet_read(hdr_addr, &hdr_value);
@@ -434,19 +433,24 @@ uint8_t otp_update_payload(const uint16_t hdr_addr, const uint32_t *src)
 			goto _exit_;
 		}
 
+		/*
+		 * Write packet payload from offset 0:
+		 * clear DADDR field and set INCRT to AFTER_WRITE
+		 */
+		reg = OTPC->OTPC_AR;
+		reg &= ~(OTPC_AR_DADDR_Msk | OTPC_AR_INCRT);
+		reg |= OTPC_AR_INCRT_AFTER_WRITE;
+		OTPC->OTPC_AR = reg;
+
 		/* The value read from header shall be interpreted as follows: */
 		/* 0   ==> 4 bytes */
 		/* 255 ==> 1024 bytes */
 		payload_size = (((hdr->word & OTPC_HR_SIZE_Msk) >> OTPC_HR_SIZE_Pos) * 4) + 4;		
 
 		while (payload_size) {
-			OTPC->OTPC_AR = (payload_offset & OTPC_AR_DADDR_Msk) | OTPC_AR_INCRT;
-
 			OTPC->OTPC_DR = *src++;
 
 			payload_size -= sizeof(uint32_t);
-
-			payload_offset++;
 		}
 
 		/* Set the KEY field && PGM */
