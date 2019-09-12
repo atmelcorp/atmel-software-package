@@ -140,7 +140,7 @@ static uint8_t otp_trans_key(uint32_t key_bus_dest)
 	OTPC->OTPC_MR = (OTPC->OTPC_MR & ~OTPC_MR_KBDST_Msk) | value;
 	OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_WRITING) | OTPC_CR_KBSTART;
 	isr_reg = otp_wait_isr(OTPC_ISR_EOKT);
-	if ((isr_reg == 0) || (isr_reg & OTPC_ISR_KBERR))
+	if (!(isr_reg & OTPC_ISR_EOKT) || (isr_reg & OTPC_ISR_KBERR))
 		return OTPC_CANNOT_TRANSFER_KEY;
 	return 0;
 }
@@ -170,9 +170,6 @@ uint8_t otp_read_packet(const uint16_t hdr_addr,
 {
 	packet_header_t *hdr = NULL;
 	uint32_t hdr_value = (uint32_t)0x00;
-	uint32_t isr_reg;
-	uint32_t value;
-	uint32_t mask;
 	uint32_t payload_offset = (uint32_t)0x00;
 	uint16_t payload_size = (uint16_t)0x00;
 	uint8_t error = OTPC_NO_ERROR;
@@ -189,32 +186,9 @@ uint8_t otp_read_packet(const uint16_t hdr_addr,
 			}
 
 			if ((hdr->word & OTPC_HR_PACKET_Msk) == OTPC_HR_PACKET_KEY) {
-				mask = OTPC_MR_KBDST_Msk;
-				switch (*dest) {
-#ifdef OTPC_MR_KBDST_AES
-				case OTPC_AES_MODULE:
-					value = OTPC_MR_KBDST_AES;
-					break;
-#endif
-
-#ifdef OTPC_MR_KBDST_TDES
-				case OTPC_TDES_MODULE:
-					value = OTPC_MR_KBDST_TDES;
-					break;
-#endif
-				default:
-					error = OTPC_CANNOT_TRANSFER_KEY;
+				error = otp_trans_key(*dest);
+				if (error)
 					goto _exit_;
-				}
-				OTPC->OTPC_MR = (OTPC->OTPC_MR & ~mask) | value;
-
-				OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_WRITING) | OTPC_CR_KBSTART;
-
-				isr_reg = otp_wait_isr(OTPC_ISR_EOKT);
-				if (!(isr_reg & OTPC_ISR_EOKT) || (isr_reg & OTPC_ISR_KBERR)) {
-					error = OTPC_CANNOT_TRANSFER_KEY;
-					goto _exit_;
-				}
 			} else {
 
 				/* The value read from header shall be interpreted as follows: */
