@@ -94,15 +94,15 @@ static uint32_t otp_wait_isr(uint32_t mask)
  */
 static uint32_t otp_trigger_packet_read(const uint16_t hdr_addr)
 {
-	uint32_t isr_reg;
+	uint32_t isr_reg, mr_reg;
 	uint32_t timeout = TIMEOUT;
 	uint32_t pckt_hdr = (uint32_t)0x00;
 
 	/* Write address of the header in OTPC_MR register (AADDR field)*/
-	isr_reg = OTPC->OTPC_MR;
-	isr_reg &= ~OTPC_MR_ALWAYS_RESET_Msk;
-	isr_reg = (isr_reg & ~OTPC_MR_ADDR_Msk) | OTPC_MR_ADDR(hdr_addr);
-	OTPC->OTPC_MR = isr_reg;
+	mr_reg = OTPC->OTPC_MR;
+	mr_reg &= ~OTPC_MR_ALWAYS_RESET_Msk;
+	mr_reg = (mr_reg & ~OTPC_MR_ADDR_Msk) | OTPC_MR_ADDR(hdr_addr);
+	OTPC->OTPC_MR = mr_reg;
 
 	/* Set READ bit in OTPC_CR register*/
 	OTPC->OTPC_CR = OTPC_CR_READ;
@@ -313,11 +313,11 @@ uint8_t otp_write_packet(const packet_header_t *header_data,
 				backup_header_value |= OTPC_HR_PACKET_REGULAR;
 			}
 
-			/* Set MR_ADDR to its maximum value, using isr_reg as temp value */
-			isr_reg = OTPC->OTPC_MR;
-			isr_reg &= ~OTPC_MR_ALWAYS_RESET_Msk;
-			isr_reg |= OTPC_MR_ADDR_Msk;
-			OTPC->OTPC_MR = isr_reg;
+			/* Set MR_ADDR to its maximum value */
+			mr_reg = OTPC->OTPC_MR;
+			mr_reg &= ~OTPC_MR_ALWAYS_RESET_Msk;
+			mr_reg |= OTPC_MR_ADDR_Msk;
+			OTPC->OTPC_MR = mr_reg;
 
 			/* Set the READ field */
 			OTPC->OTPC_CR = OTPC_CR_READ;
