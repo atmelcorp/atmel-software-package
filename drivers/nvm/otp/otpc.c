@@ -578,7 +578,6 @@ uint8_t otp_hide_packet(const uint16_t hdr_addr)
 {
 	uint32_t timeout = TIMEOUT;
 	uint32_t reg;
-	uint8_t error = OTPC_NO_ERROR;
 
 	reg = OTPC->OTPC_MR;
 	reg &= ~OTPC_MR_ALWAYS_RESET_Msk;
@@ -593,18 +592,14 @@ uint8_t otp_hide_packet(const uint16_t hdr_addr)
 
 	} while (!(reg & OTPC_SR_HIDE) && (timeout != 0));
 
-	if((timeout == 0) || (!(reg & OTPC_SR_HIDE))) {
-		error = OTPC_CANNOT_START_HIDING;
-		goto _exit_;
-	}
+	if ((timeout == 0) || (!(reg & OTPC_SR_HIDE)))
+		return OTPC_CANNOT_START_HIDING;
 
 	reg = otp_wait_isr(OTPC_ISR_EOH);
-	if (!(reg & OTPC_ISR_EOH)) {
-		error = OTPC_CANNOT_PERFORM_HIDING;
-	}
+	if (!(reg & OTPC_ISR_EOH))
+		return OTPC_CANNOT_PERFORM_HIDING;
 
-_exit_:
-	return error;
+	return OTPC_NO_ERROR;
 }
 
 /*!
