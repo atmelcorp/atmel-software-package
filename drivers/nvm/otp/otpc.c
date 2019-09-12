@@ -250,7 +250,7 @@ uint8_t otp_read_packet(const uint16_t hdr_addr,
 						payload_size -= (uint16_t)4;
 					}
 
-					*actually_read = ((payload_offset - 1) * 4) + 4;
+					*actually_read = payload_offset * 4;
 				} else {
 					error = OTPC_ERROR_BUFFER_OVERFLOW;
 					goto _exit_;
