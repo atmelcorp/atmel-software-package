@@ -260,144 +260,139 @@ uint8_t otp_write_packet(const packet_header_t *packet_header,
 	bool must_invalidate = false;
 	bool is_key = false;
 
-	if (payload_size <= OTPC_MAX_PAYLOAD_ALLOWED) {
-		/* Check against the hardware write disable */
-		if (!(OTPC->OTPC_MR & OTPC_MR_WRDIS)) {
-			if ((packet_header->word & OTPC_HR_PACKET_Msk) == OTPC_HR_PACKET_KEY) {
-				is_key = true;
-				backup_header_value &= ~OTPC_HR_PACKET_Msk;
-				backup_header_value |= OTPC_HR_PACKET_REGULAR;
-			}
+	if (payload_size > OTPC_MAX_PAYLOAD_ALLOWED)
+		return OTPC_PACKET_TOO_BIG;
 
-			/* Set MR_ADDR to its maximum value */
-			mr_reg = OTPC->OTPC_MR;
-			mr_reg &= ~OTPC_MR_ALWAYS_RESET_Msk;
-			mr_reg |= OTPC_MR_ADDR_Msk;
-			OTPC->OTPC_MR = mr_reg;
+	/* Check against the hardware write disable */
+	if (OTPC->OTPC_MR & OTPC_MR_WRDIS)
+		return OTPC_ERROR_HW_WRITE_DISABLED;
 
-			/* Set the READ field */
-			OTPC->OTPC_CR = OTPC_CR_READ;
+	if ((packet_header->word & OTPC_HR_PACKET_Msk) == OTPC_HR_PACKET_KEY) {
+		is_key = true;
+		backup_header_value &= ~OTPC_HR_PACKET_Msk;
+		backup_header_value |= OTPC_HR_PACKET_REGULAR;
+	}
 
-			/* Wait for EOR bit in OTPC_ISR to be 1 (packet was transfered )*/
-			isr_reg = otp_wait_isr(OTPC_ISR_EOR);
-			if (!(isr_reg & OTPC_ISR_EOR)) {
-				if (OTPC->OTPC_SR & OTPC_SR_READ) {
-					error = OTPC_READING_DID_NOT_STOP;
-					goto __exit__;
-				} else {
-					error = OTPC_READING_DID_NOT_START;
-					goto __exit__;
-				}
-			}
+	/* Set MR_ADDR to its maximum value */
+	mr_reg = OTPC->OTPC_MR;
+	mr_reg &= ~OTPC_MR_ALWAYS_RESET_Msk;
+	mr_reg |= OTPC_MR_ADDR_Msk;
+	OTPC->OTPC_MR = mr_reg;
 
-			/* There is "1" */
-			if (OTPC->OTPC_SR & OTPC_SR_ONEF) {
-				backup_header_reg = OTPC->OTPC_HR;
-				size_field = otp_get_payload_size(backup_header_reg);
-				backup_header_reg |= packet_header->word;
+	/* Set the READ field */
+	OTPC->OTPC_CR = OTPC_CR_READ;
 
-				if (backup_header_reg != packet_header->word) {
-					/* Try to minimize the waste of memory, allocate 4 bytes and invalidate the packet */
+	/* Wait for EOR bit in OTPC_ISR to be 1 (packet was transfered )*/
+	isr_reg = otp_wait_isr(OTPC_ISR_EOR);
+	if (!(isr_reg & OTPC_ISR_EOR)) {
+		if (OTPC->OTPC_SR & OTPC_SR_READ) {
+			return OTPC_READING_DID_NOT_STOP;
+		} else {
+			return OTPC_READING_DID_NOT_START;
+		}
+	}
+
+	/* There is "1" */
+	if (OTPC->OTPC_SR & OTPC_SR_ONEF) {
+		backup_header_reg = OTPC->OTPC_HR;
+		size_field = otp_get_payload_size(backup_header_reg);
+		backup_header_reg |= packet_header->word;
+
+		if (backup_header_reg != packet_header->word) {
+			/* Try to minimize the waste of memory, allocate 4 bytes and invalidate the packet */
+			backup_size = size_field;
+			backup_header_value &= OTPC_4B_AND_REGULAR;
+			must_invalidate = true;
+			goto start_programming;
+		}
+
+		/* Header is safe to be written, but what about payload ? */
+		if (!must_invalidate) {
+			while (backup_size != 0) {
+				backup_data_reg = OTPC->OTPC_DR;
+				backup_data_reg |= *backup_src;
+
+				/* Can be payload safely written ? */
+				if (backup_data_reg != (*backup_src)) {
+					must_invalidate = true;
 					backup_size = size_field;
 					backup_header_value &= OTPC_4B_AND_REGULAR;
-					must_invalidate = true;
-					goto start_programming;
+					backup_src = src;
+					goto further;
 				}
-
-				/* Header is safe to be written, but what about payload ? */
-				if (!must_invalidate) {
-					while (backup_size != 0) {
-						backup_data_reg = OTPC->OTPC_DR;
-						backup_data_reg |= *backup_src;
-
-						/* Can be payload safely written ? */
-						if (backup_data_reg != (*backup_src)) {
-							must_invalidate = true;
-							backup_size = size_field;
-							backup_header_value &= OTPC_4B_AND_REGULAR;
-							backup_src = src;
-							goto further;
-						}
-
-						backup_size -= sizeof(uint32_t);
-						backup_src++;
-					}
-				}
-
-				backup_size = payload_size;
-			}
-
-		further:
-			/* Write OTPC_MR.ADDR to '0' and set NPCKT */
-			mr_reg = OTPC->OTPC_MR;
-			mr_reg &= ~(OTPC_MR_ALWAYS_RESET_Msk | OTPC_MR_ADDR_Msk);
-			mr_reg |= OTPC_MR_NPCKT;
-			OTPC->OTPC_MR = mr_reg;
-
-			/* Check for flushing process */
-			if (OTPC->OTPC_SR & OTPC_SR_FLUSH) {
-				/* Wait until flush operation is done or timeout occured */
-				isr_reg = otp_wait_isr(OTPC_ISR_EOF);
-				if (!(isr_reg & OTPC_ISR_EOF)) {
-					error = OTPC_FLUSHING_DID_NOT_END;
-					goto __exit__;
-				}
-			}
-
-			OTPC->OTPC_HR = backup_header_value;
-
-			/*
-			 * Write packet payload from offset 0:
-			 * clear DADDR field and set INCRT to AFTER_WRITE
-			 */
-			ar_reg = OTPC->OTPC_AR;
-			ar_reg &= ~(OTPC_AR_DADDR_Msk | OTPC_AR_INCRT);
-			ar_reg |= OTPC_AR_INCRT_AFTER_WRITE;
-			OTPC->OTPC_AR = ar_reg;
-
-			/* Start downloading data */
-			while (backup_size) {
-				OTPC->OTPC_DR = *src++;
 
 				backup_size -= sizeof(uint32_t);
+				backup_src++;
 			}
+		}
 
-			if (is_key) {
-				backup_header_value &= ~OTPC_HR_PACKET_Msk;
-				backup_header_value |= OTPC_HR_PACKET_KEY;
-				OTPC->OTPC_HR = backup_header_value;
-			}
+		backup_size = payload_size;
+	}
 
-		start_programming:
+further:
+	/* Write OTPC_MR.ADDR to '0' and set NPCKT */
+	mr_reg = OTPC->OTPC_MR;
+	mr_reg &= ~(OTPC_MR_ALWAYS_RESET_Msk | OTPC_MR_ADDR_Msk);
+	mr_reg |= OTPC_MR_NPCKT;
+	OTPC->OTPC_MR = mr_reg;
 
-			/* Set the KEY field * Set PGM field */
-			OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_WRITING) | OTPC_CR_PGM;
-
-			/* Check whether the data was written correctly */
-			isr_reg = otp_wait_isr(OTPC_ISR_EOP);
-			if (!(isr_reg & OTPC_ISR_EOP) || (isr_reg & OTPC_ISR_WERR)) {
-				error = OTPC_CANNOT_START_PROGRAMMING;
-				goto __exit__;
-			}
-
-			/* Retrieve the address of the packet header */
-			*pckt_hdr_addr = (OTPC->OTPC_MR & OTPC_MR_ADDR_Msk) >> OTPC_MR_ADDR_Pos;
-		} else {
-			error = OTPC_ERROR_HW_WRITE_DISABLED;
+	/* Check for flushing process */
+	if (OTPC->OTPC_SR & OTPC_SR_FLUSH) {
+		/* Wait until flush operation is done or timeout occured */
+		isr_reg = otp_wait_isr(OTPC_ISR_EOF);
+		if (!(isr_reg & OTPC_ISR_EOF)) {
+			error = OTPC_FLUSHING_DID_NOT_END;
 			goto __exit__;
 		}
+	}
 
-		if (must_invalidate) {
-			/* Invalidate packet */
-			otp_invalidate_packet(*pckt_hdr_addr);
+	OTPC->OTPC_HR = backup_header_value;
 
-			error = OTPC_ERROR_PACKET_INVALIDATED;
-			*actually_written = size_field;
-		} else {
-			*actually_written = payload_size;
-		}
+	/*
+	 * Write packet payload from offset 0:
+	 * clear DADDR field and set INCRT to AFTER_WRITE
+	 */
+	ar_reg = OTPC->OTPC_AR;
+	ar_reg &= ~(OTPC_AR_DADDR_Msk | OTPC_AR_INCRT);
+	ar_reg |= OTPC_AR_INCRT_AFTER_WRITE;
+	OTPC->OTPC_AR = ar_reg;
+
+	/* Start downloading data */
+	while (backup_size) {
+		OTPC->OTPC_DR = *src++;
+
+		backup_size -= sizeof(uint32_t);
+	}
+
+	if (is_key) {
+		backup_header_value &= ~OTPC_HR_PACKET_Msk;
+		backup_header_value |= OTPC_HR_PACKET_KEY;
+		OTPC->OTPC_HR = backup_header_value;
+	}
+
+start_programming:
+
+	/* Set the KEY field * Set PGM field */
+	OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_WRITING) | OTPC_CR_PGM;
+
+	/* Check whether the data was written correctly */
+	isr_reg = otp_wait_isr(OTPC_ISR_EOP);
+	if (!(isr_reg & OTPC_ISR_EOP) || (isr_reg & OTPC_ISR_WERR)) {
+		error = OTPC_CANNOT_START_PROGRAMMING;
+		goto __exit__;
+	}
+
+	/* Retrieve the address of the packet header */
+	*pckt_hdr_addr = (OTPC->OTPC_MR & OTPC_MR_ADDR_Msk) >> OTPC_MR_ADDR_Pos;
+
+	if (must_invalidate) {
+		/* Invalidate packet */
+		otp_invalidate_packet(*pckt_hdr_addr);
+
+		error = OTPC_ERROR_PACKET_INVALIDATED;
+		*actually_written = size_field;
 	} else {
-		error = OTPC_PACKET_TOO_BIG;
+		*actually_written = payload_size;
 	}
 
 __exit__:
