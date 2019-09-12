@@ -170,7 +170,6 @@ uint8_t otp_read_packet(const uint16_t hdr_addr,
 {
 	packet_header_t *hdr = NULL;
 	uint32_t hdr_value = (uint32_t)0x00;
-	uint32_t payload_offset = (uint32_t)0x00;
 	uint16_t payload_size = (uint16_t)0x00;
 	uint8_t error = OTPC_NO_ERROR;
 
@@ -197,6 +196,8 @@ uint8_t otp_read_packet(const uint16_t hdr_addr,
 				payload_size = (((hdr->word & OTPC_HR_SIZE_Msk) >> OTPC_HR_SIZE_Pos) * 4) + 4;
 
 				if (payload_size <= buffer_size) {
+					*actually_read = payload_size;
+
 					while (payload_size != 0) {
 
 						/* After read, auto-increment */
@@ -206,13 +207,9 @@ uint8_t otp_read_packet(const uint16_t hdr_addr,
 						/* otpc_struct->OTPC_DR will be incremented automatically (default value) */
 						*dest++ =  OTPC->OTPC_DR;
 
-						payload_offset++;
-
 						/* Update the size of the payload to be read */
 						payload_size -= sizeof(uint32_t);
 					}
-
-					*actually_read = payload_offset * 4;
 				} else {
 					error = OTPC_ERROR_BUFFER_OVERFLOW;
 					goto _exit_;
