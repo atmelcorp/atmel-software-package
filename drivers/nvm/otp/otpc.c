@@ -176,7 +176,6 @@ uint8_t otp_read_packet(const uint16_t hdr_addr,
                         uint16_t buffer_size,
                         uint16_t *actually_read)
 {
-	packet_header_t *hdr = NULL;
 	uint32_t hdr_value = 0;
 	uint16_t payload_size = 0;
 	uint8_t error = OTPC_NO_ERROR;
@@ -189,12 +188,10 @@ uint8_t otp_read_packet(const uint16_t hdr_addr,
 	if (error != OTPC_NO_ERROR)
 		return error;
 
-	hdr = (packet_header_t *)&hdr_value;
-
-	if ((hdr->word & OTPC_HR_INVLD_Msk) == OTPC_HR_INVLD_Msk)
+	if ((hdr_value & OTPC_HR_INVLD_Msk) == OTPC_HR_INVLD_Msk)
 		return OTPC_ERROR_PACKET_IS_INVALID;
 
-	if ((hdr->word & OTPC_HR_PACKET_Msk) == OTPC_HR_PACKET_KEY)
+	if ((hdr_value & OTPC_HR_PACKET_Msk) == OTPC_HR_PACKET_KEY)
 		return otp_trans_key(*dest);
 
 	/*
@@ -209,7 +206,7 @@ uint8_t otp_read_packet(const uint16_t hdr_addr,
 	/* The value read from header shall be interpreted as follows: */
 	/* 0   ==> 4 bytes */
 	/* 255 ==> 1024 bytes */
-	payload_size = otp_get_payload_size(hdr->word);
+	payload_size = otp_get_payload_size(hdr_value);
 
 	if (payload_size > buffer_size)
 		return OTPC_ERROR_BUFFER_OVERFLOW;
@@ -248,13 +245,14 @@ uint8_t otp_write_packet(const packet_header_t *packet_header,
                          uint16_t *const pckt_hdr_addr,
                          uint16_t *actually_written)
 {
+	uint32_t hdr_value = packet_header->word;
 	uint32_t backup_header_reg;
 	uint32_t backup_data_reg;
-	uint32_t backup_header_value = packet_header->word;
+	uint32_t backup_header_value = hdr_value;
 	const uint32_t *backup_src = src;
 	uint32_t error = OTPC_NO_ERROR;
 	uint32_t isr_reg, mr_reg, ar_reg;
-	uint16_t payload_size = otp_get_payload_size(packet_header->word);
+	uint16_t payload_size = otp_get_payload_size(hdr_value);
 	uint16_t backup_size = payload_size;
 	uint16_t size_field;
 	bool must_invalidate = false;
@@ -267,7 +265,7 @@ uint8_t otp_write_packet(const packet_header_t *packet_header,
 	if (OTPC->OTPC_MR & OTPC_MR_WRDIS)
 		return OTPC_ERROR_HW_WRITE_DISABLED;
 
-	if ((packet_header->word & OTPC_HR_PACKET_Msk) == OTPC_HR_PACKET_KEY) {
+	if ((hdr_value & OTPC_HR_PACKET_Msk) == OTPC_HR_PACKET_KEY) {
 		is_key = true;
 		backup_header_value &= ~OTPC_HR_PACKET_Msk;
 		backup_header_value |= OTPC_HR_PACKET_REGULAR;
@@ -296,9 +294,9 @@ uint8_t otp_write_packet(const packet_header_t *packet_header,
 	if (OTPC->OTPC_SR & OTPC_SR_ONEF) {
 		backup_header_reg = OTPC->OTPC_HR;
 		size_field = otp_get_payload_size(backup_header_reg);
-		backup_header_reg |= packet_header->word;
+		backup_header_reg |= hdr_value;
 
-		if (backup_header_reg != packet_header->word) {
+		if (backup_header_reg != hdr_value) {
 			/* Try to minimize the waste of memory, allocate 4 bytes and invalidate the packet */
 			backup_size = size_field;
 			backup_header_value &= OTPC_4B_AND_REGULAR;
@@ -411,7 +409,6 @@ __exit__:
  */
 uint8_t otp_update_payload(const uint16_t hdr_addr, const uint32_t *src)
 {
-	packet_header_t *hdr = (packet_header_t *)NULL;
 	uint32_t hdr_value = 0;
 	uint32_t timeout = TIMEOUT;
 	uint32_t reg;
@@ -422,9 +419,7 @@ uint8_t otp_update_payload(const uint16_t hdr_addr, const uint32_t *src)
 	if (error != OTPC_NO_ERROR)
 		return error;
 
-	hdr = (packet_header_t *)&hdr_value;
-
-	if ((hdr->word & OTPC_HR_INVLD_Msk) == OTPC_HR_INVLD_Msk)
+	if ((hdr_value & OTPC_HR_INVLD_Msk) == OTPC_HR_INVLD_Msk)
 		return OTPC_ERROR_PACKET_IS_INVALID;
 
 	/*
@@ -439,7 +434,7 @@ uint8_t otp_update_payload(const uint16_t hdr_addr, const uint32_t *src)
 	/* The value read from header shall be interpreted as follows: */
 	/* 0   ==> 4 bytes */
 	/* 255 ==> 1024 bytes */
-	payload_size = otp_get_payload_size(hdr->word);
+	payload_size = otp_get_payload_size(hdr_value);
 
 	while (payload_size) {
 		OTPC->OTPC_DR = *src++;
@@ -477,15 +472,15 @@ uint8_t otp_update_payload(const uint16_t hdr_addr, const uint32_t *src)
  */
 uint8_t otp_lock_packet(const uint16_t hdr_addr)
 {
-	packet_header_t hdr;
+	uint32_t hdr_value;
 	uint32_t reg;
 	uint8_t error = OTPC_NO_ERROR;
 
-	error = otp_trigger_packet_read(hdr_addr, &hdr.word);
+	error = otp_trigger_packet_read(hdr_addr, &hdr_value);
 	if (error != OTPC_NO_ERROR)
 		return error;
 
-	if ((hdr.word & OTPC_HR_INVLD_Msk) == OTPC_HR_INVLD_Msk)
+	if ((hdr_value & OTPC_HR_INVLD_Msk) == OTPC_HR_INVLD_Msk)
 		return OTPC_ERROR_PACKET_IS_INVALID;
 
 	/* Set the KEY field */
