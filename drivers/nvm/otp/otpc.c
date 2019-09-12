@@ -74,6 +74,14 @@
  *        Local functions
  *----------------------------------------------------------------------------*/
 
+static uint16_t otp_get_payload_size(uint32_t pckt_hdr)
+{
+	uint16_t pckt_size;
+
+	pckt_size = (pckt_hdr & OTPC_HR_SIZE_Msk) >> OTPC_HR_SIZE_Pos;
+	return (pckt_size + 1) * sizeof(uint32_t);
+}
+
 static uint32_t otp_wait_isr(uint32_t mask)
 {
 	uint32_t timeout = TIMEOUT;
@@ -202,7 +210,7 @@ uint8_t otp_read_packet(const uint16_t hdr_addr,
 				/* The value read from header shall be interpreted as follows: */
 				/* 0   ==> 4 bytes */
 				/* 255 ==> 1024 bytes */
-				payload_size = (((hdr->word & OTPC_HR_SIZE_Msk) >> OTPC_HR_SIZE_Pos) * 4) + 4;
+				payload_size = otp_get_payload_size(hdr->word);
 
 				if (payload_size <= buffer_size) {
 					*actually_read = payload_size;
@@ -259,7 +267,7 @@ uint8_t otp_write_packet(const packet_header_t *packet_header,
 	const uint32_t *backup_src = src;
 	uint32_t error = OTPC_NO_ERROR;
 	uint32_t isr_reg, mr_reg, ar_reg;
-	uint16_t payload_size = (uint16_t)((((packet_header->word & OTPC_HR_SIZE_Msk) >> OTPC_HR_SIZE_Pos) * 4) + 4);
+	uint16_t payload_size = otp_get_payload_size(packet_header->word);
 	uint16_t backup_size = payload_size;
 	uint16_t size_field;
 	bool must_invalidate = false;
@@ -298,8 +306,7 @@ uint8_t otp_write_packet(const packet_header_t *packet_header,
 			/* There is "1" */
 			if (OTPC->OTPC_SR & OTPC_SR_ONEF) {
 				backup_header_reg = OTPC->OTPC_HR;
-				size_field = (backup_header_reg & OTPC_HR_SIZE_Msk) >> OTPC_HR_SIZE_Pos;
-				size_field = (size_field + 1) << 2;
+				size_field = otp_get_payload_size(backup_header_reg);
 				backup_header_reg |= packet_header->word;
 
 				if (backup_header_reg != packet_header->word) {
@@ -451,7 +458,7 @@ uint8_t otp_update_payload(const uint16_t hdr_addr, const uint32_t *src)
 		/* The value read from header shall be interpreted as follows: */
 		/* 0   ==> 4 bytes */
 		/* 255 ==> 1024 bytes */
-		payload_size = (((hdr->word & OTPC_HR_SIZE_Msk) >> OTPC_HR_SIZE_Pos) * 4) + 4;		
+		payload_size = otp_get_payload_size(hdr->word);
 
 		while (payload_size) {
 			OTPC->OTPC_DR = *src++;
