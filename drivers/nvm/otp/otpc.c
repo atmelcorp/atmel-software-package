@@ -482,28 +482,21 @@ uint8_t otp_lock_packet(const uint16_t hdr_addr)
 	uint8_t error = OTPC_NO_ERROR;
 
 	error = otp_trigger_packet_read(hdr_addr, &hdr.word);
+	if (error != OTPC_NO_ERROR)
+		return error;
 
-	if (error == OTPC_NO_ERROR) {
-		if ((hdr.word & OTPC_HR_INVLD_Msk) == OTPC_HR_INVLD_Msk) {
-			error = OTPC_ERROR_PACKET_IS_INVALID;
-			goto _exit_;
-		}
+	if ((hdr.word & OTPC_HR_INVLD_Msk) == OTPC_HR_INVLD_Msk)
+		return OTPC_ERROR_PACKET_IS_INVALID;
 
-		/* Set the KEY field */
-		OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_LOCKING) | OTPC_CR_CKSGEN;
+	/* Set the KEY field */
+	OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_LOCKING) | OTPC_CR_CKSGEN;
 
-		/* Wait for locking the packet */
-		reg = otp_wait_isr(OTPC_ISR_EOL);
-		if (!(reg & OTPC_ISR_EOL))
-			error = OTPC_CANNOT_LOCK;
-		else
-			error = OTPC_NO_ERROR;
-	} else {
-		error = OTPC_READING_DID_NOT_STOP;
-	}
+	/* Wait for locking the packet */
+	reg = otp_wait_isr(OTPC_ISR_EOL);
+	if (!(reg & OTPC_ISR_EOL))
+		return OTPC_CANNOT_LOCK;
 
-_exit_:
-	return error;
+	return OTPC_NO_ERROR;
 }
 
 /*!
