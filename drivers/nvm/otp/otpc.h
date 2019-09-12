@@ -34,10 +34,6 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#define u8_ZERO ((uint8_t)0x00)
-#define u16_ZERO ((uint16_t)0x0000)
-#define u32_ZERO ((uint32_t)0x00000000)
-
 /* definitions of error code */
 #define OTPC_NO_ERROR                        ((uint8_t)0x00)
 #define OTPC_ERROR_HW_WRITE_DISABLED         ((uint8_t)0x01)

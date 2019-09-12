@@ -320,7 +320,7 @@ uint8_t otp_write_packet(const packet_header_t *header_data,
 	uint16_t payload_size = (uint16_t)((((packet_header->word & OTPC_HR_SIZE_Msk) >> OTPC_HR_SIZE_Pos) * 4) + 4);
 	uint16_t backup_size = payload_size;
 	uint16_t size_field;
-	uint8_t payload_offset = u8_ZERO;
+	uint8_t payload_offset = 0;
 	bool must_invalidate = false;
 	bool is_key = false;
 
@@ -445,7 +445,7 @@ uint8_t otp_write_packet(const packet_header_t *header_data,
 			OTPC->OTPC_AR |= OTPC_AR_INCRT;
 
 			/* Start downloading data */
-			while (backup_size != u16_ZERO)
+			while (backup_size)
 			{
 				OTPC->OTPC_DR = *src++;
 
@@ -525,11 +525,11 @@ __exit__:
 uint8_t otp_update_payload(const uint16_t hdr_addr, const uint32_t *src)
 {
 	packet_header_t *hdr = (packet_header_t *)NULL;
-	uint32_t hdr_value = u32_ZERO;
+	uint32_t hdr_value = 0;
 	uint32_t timeout = TIMEOUT;
 	uint32_t reg;
-	uint16_t payload_size = u16_ZERO;
-	uint16_t payload_offset = u8_ZERO;
+	uint16_t payload_size = 0;
+	uint16_t payload_offset = 0;
 	uint8_t error = OTPC_NO_ERROR;
 
 	hdr_value = otp_trigger_packet_read(hdr_addr);
@@ -549,7 +549,7 @@ uint8_t otp_update_payload(const uint16_t hdr_addr, const uint32_t *src)
 		/* 255 ==> 1024 bytes */
 		payload_size = (((hdr->word & OTPC_HR_SIZE_Msk) >> OTPC_HR_SIZE_Pos) * 4) + 4;		
 
-		while (payload_size != u16_ZERO)
+		while (payload_size)
 		{
 			OTPC->OTPC_AR = (payload_offset & OTPC_AR_DADDR_Msk) | OTPC_AR_INCRT;
 
