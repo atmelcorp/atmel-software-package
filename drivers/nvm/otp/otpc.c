@@ -182,63 +182,50 @@ uint8_t otp_read_packet(const uint16_t hdr_addr,
 	uint8_t error = OTPC_NO_ERROR;
 	uint32_t ar_reg;
 
-	if (!(OTPC->OTPC_MR & OTPC_MR_RDDIS)) {
-		error = otp_trigger_packet_read(hdr_addr, &hdr_value);
+	if (OTPC->OTPC_MR & OTPC_MR_RDDIS)
+		return  OTPC_CANNOT_START_READING;
 
-		if (error == OTPC_NO_ERROR) {
-			hdr = (packet_header_t *)&hdr_value;
+	error = otp_trigger_packet_read(hdr_addr, &hdr_value);
+	if (error != OTPC_NO_ERROR)
+		return error;
 
-			if ((hdr->word & OTPC_HR_INVLD_Msk) == OTPC_HR_INVLD_Msk) {
-				error = OTPC_ERROR_PACKET_IS_INVALID;
-				goto _exit_;
-			}
+	hdr = (packet_header_t *)&hdr_value;
 
-			if ((hdr->word & OTPC_HR_PACKET_Msk) == OTPC_HR_PACKET_KEY) {
-				error = otp_trans_key(*dest);
-				if (error)
-					goto _exit_;
-			} else {
-				/*
-				 * Read packet payload from offset 0:
-				 * clear DADDR field and set INCRT to AFTER_READ
-				 */
-				ar_reg = OTPC->OTPC_AR;
-				ar_reg &= ~(OTPC_AR_DADDR_Msk | OTPC_AR_INCRT);
-				ar_reg |= OTPC_AR_INCRT_AFTER_READ;
-				OTPC->OTPC_AR = ar_reg;
+	if ((hdr->word & OTPC_HR_INVLD_Msk) == OTPC_HR_INVLD_Msk)
+		return OTPC_ERROR_PACKET_IS_INVALID;
 
-				/* The value read from header shall be interpreted as follows: */
-				/* 0   ==> 4 bytes */
-				/* 255 ==> 1024 bytes */
-				payload_size = otp_get_payload_size(hdr->word);
+	if ((hdr->word & OTPC_HR_PACKET_Msk) == OTPC_HR_PACKET_KEY)
+		return otp_trans_key(*dest);
 
-				if (payload_size <= buffer_size) {
-					*actually_read = payload_size;
+	/*
+	 * Read packet payload from offset 0:
+	 * clear DADDR field and set INCRT to AFTER_READ
+	 */
+	ar_reg = OTPC->OTPC_AR;
+	ar_reg &= ~(OTPC_AR_DADDR_Msk | OTPC_AR_INCRT);
+	ar_reg |= OTPC_AR_INCRT_AFTER_READ;
+	OTPC->OTPC_AR = ar_reg;
 
-					while (payload_size != 0) {
-						/* Start reading the payload (one word at a time) */
-						/* otpc_struct->OTPC_DR will be incremented automatically (default value) */
-						*dest++ =  OTPC->OTPC_DR;
+	/* The value read from header shall be interpreted as follows: */
+	/* 0   ==> 4 bytes */
+	/* 255 ==> 1024 bytes */
+	payload_size = otp_get_payload_size(hdr->word);
 
-						/* Update the size of the payload to be read */
-						payload_size -= sizeof(uint32_t);
-					}
-				} else {
-					error = OTPC_ERROR_BUFFER_OVERFLOW;
-					goto _exit_;
-				}
-			}
-		} else {
-			error = OTPC_READING_DID_NOT_STOP;
-			goto _exit_;
-		}
-	} else {
-		error = OTPC_CANNOT_START_READING;
+	if (payload_size > buffer_size)
+		return OTPC_ERROR_BUFFER_OVERFLOW;
+
+	*actually_read = payload_size;
+
+	while (payload_size != 0) {
+		/* Start reading the payload (one word at a time) */
+		/* otpc_struct->OTPC_DR will be incremented automatically (default value) */
+		*dest++ =  OTPC->OTPC_DR;
+
+		/* Update the size of the payload to be read */
+		payload_size -= sizeof(uint32_t);
 	}
 
-_exit_:
-
-	return error;
+	return OTPC_NO_ERROR;
 }
 
 /*!
