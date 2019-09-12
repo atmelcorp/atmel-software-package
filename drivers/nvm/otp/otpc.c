@@ -571,7 +571,6 @@ bool otp_is_emulation_enabled(void)
 */
 uint8_t otp_hide_packet(uint16_t hdr_addr)
 {
-	uint32_t timeout = TIMEOUT;
 	uint32_t reg;
 
 	reg = OTPC->OTPC_MR;
@@ -579,16 +578,10 @@ uint8_t otp_hide_packet(uint16_t hdr_addr)
 	reg = (reg & ~OTPC_MR_ADDR_Msk) | OTPC_MR_ADDR(hdr_addr);
 	OTPC->OTPC_MR = reg;
 
+	/* dummy read on OTPC_ISR to clear pending interrupts */
+	(void)OTPC->OTPC_ISR;
+
 	OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_WRITING) | OTPC_CR_HIDE;
-
-	do {
-		reg = OTPC->OTPC_SR;
-		timeout--;
-
-	} while (!(reg & OTPC_SR_HIDE) && (timeout != 0));
-
-	if ((timeout == 0) || (!(reg & OTPC_SR_HIDE)))
-		return OTPC_CANNOT_START_HIDING;
 
 	reg = otp_wait_isr(OTPC_ISR_EOH);
 	if (!(reg & OTPC_ISR_EOH))
