@@ -209,7 +209,7 @@ uint8_t otp_read_packet(const uint16_t hdr_addr,
 						payload_offset++;
 
 						/* Update the size of the payload to be read */
-						payload_size -= (uint16_t)4;
+						payload_size -= sizeof(uint32_t);
 					}
 
 					*actually_read = payload_offset * 4;
@@ -324,7 +324,7 @@ uint8_t otp_write_packet(const packet_header_t *packet_header,
 							goto further;
 						}
 
-						backup_size -= 4;
+						backup_size -= sizeof(uint32_t);
 						backup_src++;
 					}
 				}
@@ -360,7 +360,7 @@ uint8_t otp_write_packet(const packet_header_t *packet_header,
 			while (backup_size) {
 				OTPC->OTPC_DR = *src++;
 
-				backup_size -= (uint16_t)4;
+				backup_size -= sizeof(uint32_t);
 
 				payload_offset++;
 			}
@@ -447,7 +447,7 @@ uint8_t otp_update_payload(const uint16_t hdr_addr, const uint32_t *src)
 
 			OTPC->OTPC_DR = *src++;
 
-			payload_size -= (uint16_t)4;
+			payload_size -= sizeof(uint32_t);
 
 			payload_offset++;
 		}
