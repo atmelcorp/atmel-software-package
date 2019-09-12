@@ -233,7 +233,7 @@ _exit_:
 
 /*!
   \brief
-  \param header_data Represents the value of the header to be written
+  \param packet_header Represents the value of the header to be written
   \param src Represents the payload to be written
   \param pckt_hdr_addr Represents the address of the header. It is an output
   \param actually_written Represents the actual size which was written
@@ -246,12 +246,11 @@ _exit_:
                       - OTPC_READING_DID_NOT_STOP     - A read operation is not ended
                       - OTPC_FLUSHING_DID_NOT_END     - Flushing operation did not end
  */
-uint8_t otp_write_packet(const packet_header_t *header_data,
+uint8_t otp_write_packet(const packet_header_t *packet_header,
                          const uint32_t *src,
                          uint16_t *const pckt_hdr_addr,
                          uint16_t *actually_written)
 {
-	const packet_header_t *packet_header = header_data;
 	uint32_t backup_header_reg;
 	uint32_t backup_data_reg;
 	uint32_t backup_header_value = packet_header->word;
