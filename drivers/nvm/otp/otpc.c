@@ -508,7 +508,6 @@ uint8_t otp_lock_packet(const uint16_t hdr_addr)
 uint8_t otp_invalidate_packet(const uint16_t hdr_addr)
 {
 	uint32_t reg;
-	uint8_t error = OTPC_NO_ERROR;
 
 	/* Set the header address and using reg as temp value */
 	reg = OTPC->OTPC_MR;
@@ -520,14 +519,10 @@ uint8_t otp_invalidate_packet(const uint16_t hdr_addr)
 
 	/* Wait for invalidating the packet */
 	reg = otp_wait_isr(OTPC_ISR_EOI);
-	if (!(reg & OTPC_ISR_EOI)) {
-		error = OTPC_CANNOT_INVALIDATE;
-		goto _exit_;
-	}
+	if (!(reg & OTPC_ISR_EOI))
+		return OTPC_CANNOT_INVALIDATE;
 
-_exit_:
-
-	return error;
+	return OTPC_NO_ERROR;
 }
 
 /*!
