@@ -45,8 +45,8 @@
 
 #define OTPC_UID_DISABLED 0XCAFECAFE
 
-#define OTPC_KEY_FOR_WRITING      ((uint32_t)0x7167)
-#define OTPC_KEY_FOR_UPDATING     ((uint32_t)0x7167)
+#define OTPC_KEY_FOR_WRITING      (0x7167U)
+#define OTPC_KEY_FOR_UPDATING     (0x7167U)
 #define OTPC_KEY_FOR_LOCKING      OTPC_KEY_FOR_UPDATING
 #define OTPC_KEY_FOR_INVALIDATING OTPC_KEY_FOR_UPDATING
 #define OTPC_KEY_FOR_EMUL         OTPC_KEY_FOR_UPDATING
@@ -169,8 +169,8 @@ uint8_t otp_read_packet(const uint16_t hdr_addr,
                         uint16_t *actually_read)
 {
 	packet_header_t *hdr = NULL;
-	uint32_t hdr_value = (uint32_t)0x00;
-	uint16_t payload_size = (uint16_t)0x00;
+	uint32_t hdr_value = 0;
+	uint16_t payload_size = 0;
 	uint8_t error = OTPC_NO_ERROR;
 	uint32_t ar_reg;
 
