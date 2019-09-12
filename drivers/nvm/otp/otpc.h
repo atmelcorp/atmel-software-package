@@ -113,7 +113,7 @@ typedef union otp_packet_header packet_header_t;
  */
 uint8_t otp_write_packet(const union otp_packet_header *header_data,
                          const uint32_t *src,
-                         uint16_t *const pckt_hdr_addr,
+                         uint16_t *pckt_hdr_addr,
                          uint16_t *actually_written);
 
 /*!
@@ -123,7 +123,7 @@ uint8_t otp_write_packet(const union otp_packet_header *header_data,
   \return error code: - OTPC_NO_ERROR                  - Packet was updated successfully
                       - OTPC_CANNOT_START_PROGRAMMING  - The packet cannot be updated
  */
-uint8_t otp_update_payload(const uint16_t hdr_addr, const uint32_t *src);
+uint8_t otp_update_payload(uint16_t hdr_addr, const uint32_t *src);
 
 /*!
   \brief Locking a packet
@@ -131,7 +131,7 @@ uint8_t otp_update_payload(const uint16_t hdr_addr, const uint32_t *src);
   \return error code: - OTPC_CANNOT_LOCK - The packet cannot be locked
                       - OTPC_NO_ERROR    - The packet was locked susscessfully
  */
-uint8_t otp_lock_packet(const uint16_t hdr_addr);
+uint8_t otp_lock_packet(uint16_t hdr_addr);
 
 /*!
   \brief Invalidating a packet
@@ -139,7 +139,7 @@ uint8_t otp_lock_packet(const uint16_t hdr_addr);
   \return error code:  - OTPC_CANNOT_INVALIDATE - The packet cannot be invalidated
                        - OTPC_NO_ERROR          - The packet was invalidated successfully
  */
-uint8_t otp_invalidate_packet(const uint16_t hdr_addr);
+uint8_t otp_invalidate_packet(uint16_t hdr_addr);
 
 /*!
   \brief Perform a read of a packet
@@ -154,7 +154,7 @@ uint8_t otp_invalidate_packet(const uint16_t hdr_addr);
                        - OTPC_NO_ERROR              - Payload read successfully
                        - OTPC_CANNOT_TRANSFER_KEY   - The key cannot be transfered safely
  */
-uint8_t otp_read_packet(const uint16_t hdr_addr, uint32_t *dest,
+uint8_t otp_read_packet(uint16_t hdr_addr, uint32_t *dest,
                         uint16_t buffer_size, uint16_t *actually_read);
 
 /*!
@@ -180,7 +180,7 @@ bool otp_is_emulation_enabled(void);
                      -OTPC_CANNOT_START_HIDING - Hiding operation cannot be started
                      -OTPC_CANNOT_PERFORM_HIDING - The hiding operation cannot be completed
 */
-uint8_t otp_hide_packet(const uint16_t hdr_addr);
+uint8_t otp_hide_packet(uint16_t hdr_addr);
 
 /*!
  \brief The routine checks whether or not the OTP is disabled

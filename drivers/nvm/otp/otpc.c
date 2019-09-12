@@ -171,7 +171,7 @@ static uint8_t otp_trans_key(uint32_t key_bus_dest)
                       - OTPC_CANNOT_TRANSFER_KEY   - The key cannot be transfered safely
                       - OTPC_ERROR_PACKET_IS_INVALID - The packet is invalid
  */
-uint8_t otp_read_packet(const uint16_t hdr_addr,
+uint8_t otp_read_packet(uint16_t hdr_addr,
                         uint32_t *dest,
                         uint16_t buffer_size,
                         uint16_t *actually_read)
@@ -242,7 +242,7 @@ uint8_t otp_read_packet(const uint16_t hdr_addr,
  */
 uint8_t otp_write_packet(const packet_header_t *packet_header,
                          const uint32_t *src,
-                         uint16_t *const pckt_hdr_addr,
+                         uint16_t *pckt_hdr_addr,
                          uint16_t *actually_written)
 {
 	uint32_t hdr_value = packet_header->word;
@@ -407,7 +407,7 @@ __exit__:
                       - OTPC_CANNOT_START_PROGRAMMING  - The packet cannot be updated
                       - OTPC_ERROR_PACKET_IS_INVALID   - The packet is invalid
  */
-uint8_t otp_update_payload(const uint16_t hdr_addr, const uint32_t *src)
+uint8_t otp_update_payload(uint16_t hdr_addr, const uint32_t *src)
 {
 	uint32_t hdr_value = 0;
 	uint32_t timeout = TIMEOUT;
@@ -470,7 +470,7 @@ uint8_t otp_update_payload(const uint16_t hdr_addr, const uint32_t *src)
                       - OTPC_NO_ERROR    - The packet was locked susscessfully
                       - OTPC_ERROR_PACKET_IS_INVALID - The packet is invalid
  */
-uint8_t otp_lock_packet(const uint16_t hdr_addr)
+uint8_t otp_lock_packet(uint16_t hdr_addr)
 {
 	uint32_t hdr_value;
 	uint32_t reg;
@@ -500,7 +500,7 @@ uint8_t otp_lock_packet(const uint16_t hdr_addr)
   \return error code: - OTPC_CANNOT_INVALIDATE - The packet cannot be invalidated
                       - OTPC_NO_ERROR          - The packet was invalidated successfully
  */
-uint8_t otp_invalidate_packet(const uint16_t hdr_addr)
+uint8_t otp_invalidate_packet(uint16_t hdr_addr)
 {
 	uint32_t reg;
 
@@ -569,7 +569,7 @@ bool otp_is_emulation_enabled(void)
                       - OTPC_CANNOT_START_HIDING   - Hiding operation cannot be started
                       - OTPC_CANNOT_PERFORM_HIDING - The hiding operation cannot be completed
 */
-uint8_t otp_hide_packet(const uint16_t hdr_addr)
+uint8_t otp_hide_packet(uint16_t hdr_addr)
 {
 	uint32_t timeout = TIMEOUT;
 	uint32_t reg;
