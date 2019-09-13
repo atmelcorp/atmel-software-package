@@ -55,6 +55,7 @@
 #define OTPC_CANNOT_START_HIDING             ((uint8_t)0x13)
 #define OTPC_CANNOT_PERFORM_HIDING           ((uint8_t)0x14)
 #define OTPC_ERROR_PACKET_IS_INVALID         ((uint8_t)0x15)
+#define OTPC_ERROR_BAD_HEADER                ((uint8_t)0x16)
 
 #define OTPC_PAYLOAD_SIZE(x) (((x) / 4) - 1) /*!< x must be multiple of 4 bytes */
 
@@ -82,20 +83,22 @@
      failed to match the checksum written in the OTP memory. It is impossible to modify the packet
      content */
 
-union otp_packet_header {
-	struct _header_ {
-		uint32_t packet    : 3;
-		uint32_t lock      : 1;
-		uint32_t invld     : 2;
-		uint32_t secure    : 1;
-		uint32_t one       : 1;
-		uint32_t size      : 8; /*!< Use OTPC_PAYLOAD_SIZE macro*/
-		uint32_t check_sum : 16;
-	} header;
-	uint32_t word;
+enum otp_packet_type {
+	OTP_PCKT_REGULAR,
+	OTP_PCKT_KEY,
+	OTP_PCKT_BOOT_CONFIGURATION,
+	OTP_PCKT_SECURE_BOOT_CONFIGURATION,
+	OTP_PCKT_HARDWARE_CONFIGURATION,
+	OTP_PCKT_CUSTOM,
+
+	OTP_PCKT_MAX_TYPE
 };
 
-typedef union otp_packet_header packet_header_t;
+struct otp_new_packet {
+	enum otp_packet_type    type;
+	uint32_t                size; /* size of the packet payload in bytes */
+	bool                    is_secure;
+};
 
 /*!
   \brief
@@ -111,7 +114,7 @@ typedef union otp_packet_header packet_header_t;
                       - OTPC_READING_DID_NOT_STOP     - A read operation is not ended
                       - OTPC_FLUSHING_DID_NOT_END     - Flushing operation did not end
  */
-uint8_t otp_write_packet(const union otp_packet_header *header_data,
+uint8_t otp_write_packet(const struct otp_new_packet *pckt,
                          const uint32_t *src,
                          uint16_t *pckt_hdr_addr,
                          uint16_t *actually_written);

@@ -97,6 +97,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 
 /*----------------------------------------------------------------------------
  *        Local definitions
@@ -135,7 +136,6 @@ static void show_packets(void)
 	uint32_t i;
 	uint32_t packet_addr;
 	uint32_t otpc_hr;
-	union otp_packet_header *hdr = (union otp_packet_header *)&otpc_hr;
 	uint16_t actually_read;
 
 	printf("\r\npacket type:\r\n");
@@ -148,8 +148,11 @@ static void show_packets(void)
 		if(OTPC_NO_ERROR != otp_read_packet(packet_addr, buf, sizeof(buf), &actually_read))
 			break;
 		otpc_hr = otp_get_header();
-		uint32_t pkt = hdr->header.packet;
-		if (hdr->header.check_sum == OTPC_CS_CORRUPTED) {
+		uint32_t pkt = (otpc_hr & OTPC_HR_PACKET_Msk) >> OTPC_HR_PACKET_Pos;
+		uint16_t check_sum = (otpc_hr & OTPC_HR_CHECKSUM_Msk) >> OTPC_HR_CHECKSUM_Pos;
+		bool is_invalid = (otpc_hr & OTPC_HR_INVLD_Msk) == OTPC_HR_INVLD_Msk;
+		bool is_locked = (otpc_hr & OTPC_HR_LOCK) == OTPC_HR_LOCK;
+		if (check_sum == OTPC_CS_CORRUPTED) {
 			trace_error("the header of the packet is corrupted!\r\n");
 			break;
 		}
@@ -159,10 +162,10 @@ static void show_packets(void)
 		}
 		printf("%4u |  0x%08x |    0x%04x |%5dB |   %s |   %s  |   %c ",
 		    (unsigned)i, (unsigned)packet_addr,
-		    hdr->header.check_sum,
+		    check_sum,
 		    actually_read,
-		    (hdr->header.invld != 3) ? "yes" : " no",
-		    hdr->header.lock ? "yes" : " no",
+		    is_invalid ? "yes" : " no",
+		    is_locked ? "yes" : " no",
 		    *otp_packet_type[pkt - 1]);
 		printf(" | %02x %02x %02x ...\r\n",
 		    *((uint8_t*)buf + 0), *((uint8_t*)buf + 1), *((uint8_t*)buf + 2));
@@ -223,10 +226,12 @@ static void console_handler(uint8_t key)
 		break;
 	case 'w': {
 		uint16_t packet_addr;
-		union otp_packet_header header;
 		uint32_t payload = 0xaabbccdd;
-		header.word = OTPC_HR_ONE | OTPC_HR_PACKET(OTPC_HR_PACKET_CUSTOM) | OTPC_HR_SIZE(0);
-		otp_write_packet(&header, &payload, &packet_addr, NULL);
+		struct otp_new_packet pckt;
+		memset(&pckt, 0, sizeof(pckt));
+		pckt.type = OTP_PCKT_CUSTOM;
+		pckt.size = sizeof(payload);
+		otp_write_packet(&pckt, &payload, &packet_addr, NULL);
 		break;
 	}
 	case 'm':
@@ -238,8 +243,8 @@ static void console_handler(uint8_t key)
 
 static void test_otp_in_emulation_mode(void)
 {
+	struct otp_new_packet pckt;
 	uint16_t packet_addr;
-	union otp_packet_header header;
 	uint32_t buf[16];
 	uint32_t i = 0;
 
@@ -247,26 +252,29 @@ static void test_otp_in_emulation_mode(void)
 		*((uint8_t *)buf + i) = i;
 	} while (++i < sizeof(buf));
 
+	memset(&pckt, 0, sizeof(pckt));
+	pckt.type = OTP_PCKT_CUSTOM;
+
 	// OTPC_HR_SIZE(0):   SIZE = 0 means payload is 32-bit size
 	// OTPC_HR_SIZE(255): SIZE = 255 means payload is 8192-bit size.
-	header.word = OTPC_HR_ONE | OTPC_HR_PACKET(OTPC_HR_PACKET_CUSTOM) | OTPC_HR_SIZE(0);
-	otp_write_packet(&header, &buf[0], &packet_addr, NULL);
+	pckt.size = 1 * sizeof(uint32_t);
+	otp_write_packet(&pckt, &buf[0], &packet_addr, NULL);
 
-	header.word = OTPC_HR_PACKET(OTPC_HR_PACKET_CUSTOM) | OTPC_HR_SIZE(1);
-	otp_write_packet(&header, &buf[1], &packet_addr, NULL);
+	pckt.size = 2 * sizeof(uint32_t);
+	otp_write_packet(&pckt, &buf[1], &packet_addr, NULL);
 	otp_update_payload(packet_addr, &buf[2]);
 
-	header.word = OTPC_HR_PACKET(OTPC_HR_PACKET_CUSTOM) | OTPC_HR_SIZE(2);
-	otp_write_packet(&header, &buf[5], &packet_addr, NULL);
+	pckt.size = 3 * sizeof(uint32_t);
+	otp_write_packet(&pckt, &buf[5], &packet_addr, NULL);
 
-	header.word = OTPC_HR_PACKET(OTPC_HR_PACKET_CUSTOM) | OTPC_HR_SIZE(3);
-	otp_write_packet(&header, &buf[7], &packet_addr, NULL);
+	pckt.size = 4 * sizeof(uint32_t);
+	otp_write_packet(&pckt, &buf[7], &packet_addr, NULL);
 
-	header.word = OTPC_HR_PACKET(OTPC_HR_PACKET_CUSTOM) | OTPC_HR_SIZE(1);
-	otp_write_packet(&header, &buf[9], &packet_addr, NULL);
+	pckt.size = 2 * sizeof(uint32_t);
+	otp_write_packet(&pckt, &buf[9], &packet_addr, NULL);
 
-	header.word = OTPC_HR_PACKET(OTPC_HR_PACKET_CUSTOM) | OTPC_HR_SIZE(3);
-	otp_write_packet(&header, &buf[7], &packet_addr, NULL);
+	pckt.size = 4 * sizeof(uint32_t);
+	otp_write_packet(&pckt, &buf[7], &packet_addr, NULL);
 
 	otp_invalidate_packet(0x0);
 	otp_lock_packet(0x9);

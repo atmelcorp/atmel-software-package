@@ -74,12 +74,75 @@
  *        Local functions
  *----------------------------------------------------------------------------*/
 
+static uint8_t otp_set_type(enum otp_packet_type type, uint32_t *pckt_hdr)
+{
+	*pckt_hdr &= ~OTPC_HR_PACKET_Msk;
+
+	switch (type) {
+	case OTP_PCKT_REGULAR:
+		*pckt_hdr |= OTPC_HR_PACKET_REGULAR;
+		break;
+
+	case OTP_PCKT_KEY:
+		*pckt_hdr |= OTPC_HR_PACKET_KEY;
+		break;
+
+	case OTP_PCKT_BOOT_CONFIGURATION:
+		*pckt_hdr |= OTPC_HR_PACKET_BOOT_CONFIGURATION;
+		break;
+
+	case OTP_PCKT_SECURE_BOOT_CONFIGURATION:
+		*pckt_hdr |= OTPC_HR_PACKET_SECURE_BOOT_CONFIGURATION;
+		break;
+
+	case OTP_PCKT_HARDWARE_CONFIGURATION:
+		*pckt_hdr |= OTPC_HR_PACKET_HARDWARE_CONFIGURATION;
+		break;
+
+	case OTP_PCKT_CUSTOM:
+		*pckt_hdr |= OTPC_HR_PACKET_CUSTOM;
+		break;
+
+	default:
+		return OTPC_ERROR_BAD_HEADER;
+	}
+
+	return OTPC_NO_ERROR;
+}
+
+static uint8_t otp_set_payload_size(uint32_t size, uint32_t *pckt_hdr)
+{
+	if (!size || (size & 3))
+		return OTPC_ERROR_BAD_HEADER;
+
+	*pckt_hdr &= ~OTPC_HR_SIZE_Msk;
+	*pckt_hdr |= OTPC_HR_SIZE((size >> 2) - 1);
+
+	return OTPC_NO_ERROR;
+}
+
 static uint16_t otp_get_payload_size(uint32_t pckt_hdr)
 {
 	uint16_t pckt_size;
 
 	pckt_size = (pckt_hdr & OTPC_HR_SIZE_Msk) >> OTPC_HR_SIZE_Pos;
 	return (pckt_size + 1) * sizeof(uint32_t);
+}
+
+static uint8_t otp_set_new_packet_header(const struct otp_new_packet *pckt,
+					 uint32_t *pckt_hdr)
+{
+	uint8_t error;
+
+	*pckt_hdr = OTPC_HR_ONE;
+	error = otp_set_type(pckt->type, pckt_hdr);
+	error = error ? error : otp_set_payload_size(pckt->size, pckt_hdr);
+#ifdef OTPC_HR_SECURE
+	if (pckt->is_secure)
+		*pckt_hdr |= OTPC_HR_SECURE;
+#endif
+
+	return error;
 }
 
 static uint32_t otp_wait_isr(uint32_t mask)
@@ -247,23 +310,31 @@ uint8_t otp_read_packet(uint16_t hdr_addr,
                       - OTPC_READING_DID_NOT_STOP     - A read operation is not ended
                       - OTPC_FLUSHING_DID_NOT_END     - Flushing operation did not end
  */
-uint8_t otp_write_packet(const packet_header_t *packet_header,
+uint8_t otp_write_packet(const struct otp_new_packet *pckt,
                          const uint32_t *src,
                          uint16_t *pckt_hdr_addr,
                          uint16_t *actually_written)
 {
-	uint32_t hdr_value = packet_header->word;
+	uint32_t hdr_value;
 	uint32_t backup_header_reg;
 	uint32_t backup_data_reg;
-	uint32_t backup_header_value = hdr_value;
+	uint32_t backup_header_value;
 	const uint32_t *backup_src = src;
 	uint32_t error = OTPC_NO_ERROR;
 	uint32_t isr_reg, mr_reg, ar_reg;
-	uint16_t payload_size = otp_get_payload_size(hdr_value);
-	uint16_t backup_size = payload_size;
+	uint16_t payload_size;
+	uint16_t backup_size;
 	uint16_t size_field;
 	bool must_invalidate = false;
 	bool is_key = false;
+
+	error = otp_set_new_packet_header(pckt, &hdr_value);
+	if (error != OTPC_NO_ERROR)
+		return error;
+
+	backup_header_value = hdr_value;
+	payload_size = otp_get_payload_size(hdr_value);
+	backup_size = payload_size;
 
 	if (payload_size > OTPC_MAX_PAYLOAD_ALLOWED)
 		return OTPC_PACKET_TOO_BIG;
