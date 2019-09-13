@@ -111,6 +111,9 @@ static uint8_t otp_trigger_packet_read(uint16_t hdr_addr, uint32_t *pckt_hdr)
 	mr_reg = (mr_reg & ~OTPC_MR_ADDR_Msk) | OTPC_MR_ADDR(hdr_addr);
 	OTPC->OTPC_MR = mr_reg;
 
+	/* dummy read on OTPC_ISR to clear pending interrupts */
+	(void)OTPC->OTPC_ISR;
+
 	/* Set READ bit in OTPC_CR register*/
 	OTPC->OTPC_CR = OTPC_CR_READ;
 
@@ -146,6 +149,10 @@ static uint8_t otp_trans_key(uint32_t key_bus_dest)
 		return OTPC_CANNOT_TRANSFER_KEY;
 	}
 	OTPC->OTPC_MR = (OTPC->OTPC_MR & ~OTPC_MR_KBDST_Msk) | value;
+
+	/* dummy read on OTPC_ISR to clear pending interrupts */
+	(void)OTPC->OTPC_ISR;
+
 	OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_WRITING) | OTPC_CR_KBSTART;
 	isr_reg = otp_wait_isr(OTPC_ISR_EOKT);
 	if (!(isr_reg & OTPC_ISR_EOKT) || (isr_reg & OTPC_ISR_KBERR))
@@ -277,6 +284,9 @@ uint8_t otp_write_packet(const packet_header_t *packet_header,
 	mr_reg |= OTPC_MR_ADDR_Msk;
 	OTPC->OTPC_MR = mr_reg;
 
+	/* dummy read on OTPC_ISR to clear pending interrupts */
+	(void)OTPC->OTPC_ISR;
+
 	/* Set the READ field */
 	OTPC->OTPC_CR = OTPC_CR_READ;
 
@@ -369,6 +379,8 @@ further:
 	}
 
 start_programming:
+	/* dummy read on OTPC_ISR to clear pending interrupts */
+	(void)OTPC->OTPC_ISR;
 
 	/* Set the KEY field * Set PGM field */
 	OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_WRITING) | OTPC_CR_PGM;
@@ -475,6 +487,9 @@ uint8_t otp_lock_packet(uint16_t hdr_addr)
 	if ((hdr_value & OTPC_HR_INVLD_Msk) == OTPC_HR_INVLD_Msk)
 		return OTPC_ERROR_PACKET_IS_INVALID;
 
+	/* dummy read on OTPC_ISR to clear pending interrupts */
+	(void)OTPC->OTPC_ISR;
+
 	/* Set the KEY field */
 	OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_LOCKING) | OTPC_CR_CKSGEN;
 
@@ -502,6 +517,9 @@ uint8_t otp_invalidate_packet(uint16_t hdr_addr)
 	reg = (reg & ~OTPC_MR_ADDR_Msk) | OTPC_MR_ADDR(hdr_addr);
 	OTPC->OTPC_MR = reg;
 
+	/* dummy read on OTPC_ISR to clear pending interrupts */
+	(void)OTPC->OTPC_ISR;
+
 	OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_INVALIDATING) | OTPC_CR_INVLD;
 
 	/* Wait for invalidating the packet */
@@ -528,6 +546,9 @@ uint8_t otp_emulation_mode(bool on_off)
 
 	mr_emul_value = (((uint32_t)!!on_off) * (OTPC_MR_EMUL & ((~OTPC_MR_EMUL) << 1)));
 	OTPC->OTPC_MR = (OTPC->OTPC_MR & (~OTPC_MR_EMUL)) | mr_emul_value;
+
+	/* dummy read on OTPC_ISR to clear pending interrupts */
+	(void)OTPC->OTPC_ISR;
 
 	OTPC->OTPC_CR = OTPC_CR_REFRESH | OTPC_CR_KEY(OTPC_KEY_FOR_EMUL);
 
