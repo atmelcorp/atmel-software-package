@@ -239,6 +239,9 @@ uint8_t otp_get_latest_matching_packet(uint32_t filters,
 				       struct otp_packet_header *result,
 				       uint16_t *hdr_addr);
 
+bool otp_can_update_payload(const void *old_payload, const void *new_payload,
+			    uint16_t payload_size);
+
 /*!
  \brief The routine gets the header information
  \param none

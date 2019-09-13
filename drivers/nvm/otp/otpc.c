@@ -868,3 +868,23 @@ uint8_t otp_get_latest_matching_packet(uint32_t filters,
 
 	return error;
 }
+
+bool otp_can_update_payload(const void *old_payload,
+			    const void *new_payload,
+			    uint16_t payload_size)
+{
+	const uint32_t *old_word = (const uint32_t *)old_payload;
+	const uint32_t *new_word = (const uint32_t *)new_payload;
+	size_t size = payload_size / sizeof(uint32_t);
+
+	while (size) {
+		if (*old_word != 0 && *old_word != *new_word)
+			return false;
+
+		old_word++;
+		new_word++;
+		size--;
+	}
+
+	return true;
+}
