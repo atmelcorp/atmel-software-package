@@ -32,6 +32,7 @@
  *----------------------------------------------------------------------------*/
 
 #include <assert.h>
+#include <string.h>
 
 #include "chip.h"
 #include "otpc.h"
@@ -110,6 +111,34 @@ static uint8_t otp_set_type(enum otp_packet_type type, uint32_t *pckt_hdr)
 	return OTPC_NO_ERROR;
 }
 
+static enum otp_packet_type otp_get_type(uint32_t pckt_hdr)
+{
+	switch (pckt_hdr & OTPC_HR_PACKET_Msk) {
+	case OTPC_HR_PACKET_REGULAR:
+		return OTP_PCKT_REGULAR;
+
+	case OTPC_HR_PACKET_KEY:
+		return OTP_PCKT_KEY;
+
+	case OTPC_HR_PACKET_BOOT_CONFIGURATION:
+		return OTP_PCKT_BOOT_CONFIGURATION;
+
+	case OTPC_HR_PACKET_SECURE_BOOT_CONFIGURATION:
+		return OTP_PCKT_SECURE_BOOT_CONFIGURATION;
+
+	case OTPC_HR_PACKET_HARDWARE_CONFIGURATION:
+		return OTP_PCKT_HARDWARE_CONFIGURATION;
+
+	case OTPC_HR_PACKET_CUSTOM:
+		return OTP_PCKT_CUSTOM;
+
+	default:
+		break;
+	}
+
+	return OTP_PCKT_MAX_TYPE;
+}
+
 static uint8_t otp_set_payload_size(uint32_t size, uint32_t *pckt_hdr)
 {
 	if (!size || (size & 3))
@@ -143,6 +172,75 @@ static uint8_t otp_set_new_packet_header(const struct otp_new_packet *pckt,
 #endif
 
 	return error;
+}
+
+static uint8_t otp_set_packet_filters(uint32_t filters,
+				      const struct otp_packet_header *match,
+				      uint32_t *value, uint32_t *mask)
+{
+	uint8_t error;
+
+	*value = 0;
+	*mask = 0;
+
+	if (filters & OTP_FILTER_TYPE) {
+		error = otp_set_type(match->type, value);
+		if (error)
+			return error;
+
+		*mask |= OTPC_HR_PACKET_Msk;
+	}
+
+	if (filters & OTP_FILTER_SIZE) {
+		error = otp_set_payload_size(match->size, value);
+		if (error)
+			return error;
+
+		*mask |= OTPC_HR_SIZE_Msk;
+	}
+
+	if (filters & OTP_FILTER_LOCKED) {
+		if (match->is_locked)
+			*value |= OTPC_HR_LOCK;
+
+		*mask |= OTPC_HR_LOCK;
+	}
+
+	if (filters & OTP_FILTER_INVALID) {
+		if (match->is_invalid)
+			*value |= OTPC_HR_INVLD_Msk;
+
+		*mask |= OTPC_HR_INVLD_Msk;
+	}
+
+	if (filters & OTP_FILTER_CHECKSUM) {
+		*value |= OTPC_HR_CHECKSUM(match->checksum);
+		*mask |= OTPC_HR_CHECKSUM_Msk;
+	}
+
+#ifdef OTPC_HR_SECURE
+	if (filters & OTP_FILTER_SECURE) {
+		if (match->is_secure)
+			*value |= OTPC_HR_SECURE;
+
+		*mask |= OTPC_HR_SECURE;
+	}
+#endif
+
+	return OTPC_NO_ERROR;
+}
+
+static void otp_header2packet(uint32_t pckt_hdr, struct otp_packet_header *pckt)
+{
+	memset(pckt, 0, sizeof(*pckt));
+	pckt->type = otp_get_type(pckt_hdr);
+	pckt->size = otp_get_payload_size(pckt_hdr);
+	pckt->is_locked = (pckt_hdr & OTPC_HR_LOCK) == OTPC_HR_LOCK;
+	pckt->is_invalid = (pckt_hdr & OTPC_HR_INVLD_Msk) == OTPC_HR_INVLD_Msk;
+#ifdef OTPC_HR_SECURE
+	pckt->is_secure = (pckt_hdr & OTPC_HR_SECURE) == OTPC_HR_SECURE;
+#endif
+	pckt->checksum = (pckt_hdr & OTPC_HR_CHECKSUM_Msk) >> OTPC_HR_CHECKSUM_Pos;
 }
 
 static uint32_t otp_wait_isr(uint32_t mask)
@@ -687,4 +785,86 @@ bool otp_is_disabled(void)
 	    (OTPC->OTPC_UIDxR[1] == OTPC_UID_DISABLED) &&
 	    (OTPC->OTPC_UIDxR[2] == OTPC_UID_DISABLED) &&
 	    (OTPC->OTPC_UIDxR[3] == OTPC_UID_DISABLED));
+}
+
+/*!
+ \brief Look up the OTP for the next packet matching the given packet header value
+ \param filters [IN] bitmask of packet header filters
+ \param match [IN] packet header value associated to filters
+ \result [OUT] if not NULL, the header value of the matching packet
+ \result [INOUT] if not NULL, the address to start the scan from and the address
+                 of the matching packet, if any
+ \return : - OTPC_NO_ERROR               - A matching packet was found
+           - OTPC_ERROR_PACKET_NOT_FOUND - No matching packet was found
+ */
+uint8_t otp_get_next_matching_packet(uint32_t filters,
+				     const struct otp_packet_header *match,
+				     struct otp_packet_header *result,
+				     uint16_t *hdr_addr)
+{
+	uint16_t addr = (hdr_addr) ? *hdr_addr : 0;
+	uint32_t pckt_hdr, value, mask;
+	uint8_t error;
+
+	error = otp_set_packet_filters(filters, match, &value, &mask);
+	if (error)
+		return error;
+
+	while (otp_trigger_packet_read(addr, &pckt_hdr) == OTPC_NO_ERROR) {
+		uint16_t crc = (pckt_hdr & OTPC_HR_CHECKSUM_Msk) >> OTPC_HR_CHECKSUM_Pos;
+		uint16_t size = (pckt_hdr & OTPC_HR_SIZE_Msk) >> OTPC_HR_SIZE_Pos;
+
+		if ((pckt_hdr & OTPC_HR_ONE) != OTPC_HR_ONE ||
+		    (crc != OTPC_CS_NOT_GENERATED &&
+		     crc != OTPC_CS_CHECK_OK &&
+		     crc != OTPC_CS_NOT_VALID))
+			break;
+
+		if ((pckt_hdr & mask) == value) {
+			if (result)
+				otp_header2packet(pckt_hdr, result);
+			if (hdr_addr)
+				*hdr_addr = addr;
+			return OTPC_NO_ERROR;
+		}
+
+		addr += size + 2;
+	}
+
+	return OTPC_ERROR_PACKET_NOT_FOUND;
+}
+
+/*!
+ \brief Look up the OTP for the latest packet matching the given packet header value
+ \param filters [IN] bitmask of packet header filters
+ \param match [IN] packet header value associated to filters
+ \result [OUT] if not NULL, the header value of the matching packet
+ \result [INOUT] if not NULL, the address to start the scan from and the address
+                 of the matching packet, if any
+ \return : - OTPC_NO_ERROR               - A matching packet was found
+           - OTPC_ERROR_PACKET_NOT_FOUND - No matching packet was found
+ */
+uint8_t otp_get_latest_matching_packet(uint32_t filters,
+				       const struct otp_packet_header *match,
+				       struct otp_packet_header *result,
+				       uint16_t *hdr_addr)
+{
+	uint16_t addr = (hdr_addr) ? *hdr_addr : 0;
+	struct otp_packet_header pos;
+	uint8_t error = OTPC_ERROR_PACKET_NOT_FOUND;
+
+	while (!otp_get_next_matching_packet(filters, match, &pos, &addr)) {
+		uint16_t size = (pos.size >> 2) - 1;
+
+		error = OTPC_NO_ERROR;
+
+		if (result)
+			memcpy(result, &pos, sizeof(*result));
+		if (hdr_addr)
+			*hdr_addr = addr;
+
+		addr += size + 2;
+	}
+
+	return error;
 }

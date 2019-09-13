@@ -100,6 +100,22 @@ struct otp_new_packet {
 	bool                    is_secure;
 };
 
+struct otp_packet_header {
+	enum otp_packet_type    type;
+	uint32_t                size; /* size of the packet payload in bytes */
+	bool                    is_locked;
+	bool                    is_invalid;
+	bool                    is_secure;
+	uint16_t                checksum;
+};
+
+#define OTP_FILTER_TYPE         (1U << 0)
+#define OTP_FILTER_SIZE         (1U << 1)
+#define OTP_FILTER_LOCKED       (1U << 2)
+#define OTP_FILTER_INVALID      (1U << 3)
+#define OTP_FILTER_CHECKSUM     (1U << 4)
+#define OTP_FILTER_SECURE       (1U << 5)
+
 /*!
   \brief
   \param header_data Represents the value of the header to be written
@@ -192,6 +208,36 @@ uint8_t otp_hide_packet(uint16_t hdr_addr);
          false - OTP is not disabled
 */
 bool otp_is_disabled(void);
+
+/*!
+ \brief Look up the OTP for the next packet matching the given packet header value
+ \param filters [IN] bitmask of packet header filters
+ \param match [IN] packet header value associated to filters
+ \result [OUT] if not NULL, the header value of the matching packet
+ \result [INOUT] if not NULL, the address to start the scan from and the address
+                 of the matching packet, if any
+ \return : - OTPC_NO_ERROR               - A matching packet was found
+           - OTPC_ERROR_PACKET_NOT_FOUND - No matching packet was found
+ */
+uint8_t otp_get_next_matching_packet(uint32_t filters,
+				     const struct otp_packet_header *match,
+				     struct otp_packet_header *result,
+				     uint16_t *hdr_addr);
+
+/*!
+ \brief Look up the OTP for the latest packet matching the given packet header value
+ \param filters [IN] bitmask of packet header filters
+ \param match [IN] packet header value associated to filters
+ \result [OUT] if not NULL, the header value of the matching packet
+ \result [INOUT] if not NULL, the address to start the scan from and the address
+                 of the matching packet, if any
+ \return : - OTPC_NO_ERROR               - A matching packet was found
+           - OTPC_ERROR_PACKET_NOT_FOUND - No matching packet was found
+ */
+uint8_t otp_get_latest_matching_packet(uint32_t filters,
+				       const struct otp_packet_header *match,
+				       struct otp_packet_header *result,
+				       uint16_t *hdr_addr);
 
 /*!
  \brief The routine gets the header information
