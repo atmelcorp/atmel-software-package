@@ -122,4 +122,6 @@ Press 'C' | Verify data in DDR` ... `data OK | PASSED | PASSED
  * The battery should be mounted and 'Force Power UP' jumper should be opened to support the BackUp mode correctly.
  * There are two ULP modes for SAMA5D2 while only one ULP mode for SAMA5D4.
  * The JTAG connection is lost with ULP1 or BackUp mode.
+ * The JTAG/SWD speed should be set to adaptive on sam9x60 sram project, because of the processor run with slow clock when switch mck to slck.
+ * The GDB adaptive command: JLinkGDBServer -select USB -device arm9 -if JTAG -speed adaptive.
  
