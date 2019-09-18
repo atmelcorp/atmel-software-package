@@ -1628,30 +1628,11 @@ uint32_t pmc_get_utmi_clock_trim(void)
 		default:
 			return 12000000;
 	}
-#elif defined(PMC_PLL_UPDT_ID)
-	uint32_t mainf_xt;
-	uint32_t xt;
-	uint32_t fclk;
+#elif defined(CONFIG_SOC_SAM9X60)
+	struct _pmc_plla_cfg plla;
 
-	xt = 12000000;
-	mainf_xt = _pmc_measure_main_osc_freq(true);
-	/* To calculate the frequency of the measured clock:
-		fSELCK = (MAINF * fMD_SLCK) / 16 (where frequency is in MHz). */
-	fclk = (mainf_xt * 32000) / 16;
-	// Use 10% low and high margins
-	if (43200000u <= fclk && fclk <= 52800000u) {
-		xt = 48000000u;
-	} else if (21600000u <= fclk && fclk <= 26400000u) {
-		xt = 24000000u;
-	} else if (14400000u <= fclk && fclk <= 17600000u) {
-		xt = 16000000u;
-	} else if (10800000 <= fclk && fclk <= 13200000) {
-		xt = 12000000u;
-	} else if (7200000 <= fclk && fclk <= 8800000) {
-		xt = 8000000u;
-	}
-	_pmc_main_oscillators.crystal_freq = xt;
-	return xt;
+	_pmc_get_pll_config(PLL_ID_UPLL, &plla);
+	return 480000000U * (plla.div + 1) / (plla.mul + 1);
 #else
 	return 12000000;
 #endif
