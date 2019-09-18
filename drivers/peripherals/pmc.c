@@ -69,6 +69,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <string.h>
 
 #include "chip.h"
 #include "timer.h"
@@ -533,31 +534,56 @@ static bool _pmc_pll_enabled(uint32_t pll_id)
 	return (PMC->PMC_PLL_ISR0 & (1 << (pll_id & 0xf))) != 0;
 }
 
-static uint32_t _pmc_get_pll_clock(uint32_t pll_id)
+static void _pmc_get_pll_config(uint32_t pll_id, struct _pmc_plla_cfg *plla)
 {
-	uint32_t mul, fracr, divpmc;
-	uint32_t f_core, f_ref;
+#ifdef PMC_PLL_UPDT_ID_Msk
+	uint32_t pll_updt;
 
+	pll_updt = PMC->PMC_PLL_UPDT;
+	pll_updt = (pll_updt & ~PMC_PLL_UPDT_ID_Msk) | PMC_PLL_UPDT_ID(pll_id);
+	PMC->PMC_PLL_UPDT = pll_updt;
+#else
 	if (pll_id)
-		PMC->PMC_PLL_UPDT = (PMC->PMC_PLL_UPDT | PMC_PLL_UPDT_ID);
+		PMC->PMC_PLL_UPDT |= PMC_PLL_UPDT_ID;
 	else 
 		PMC->PMC_PLL_UPDT &= ~PMC_PLL_UPDT_ID;
+#endif
 
-	mul = (PMC->PMC_PLL_CTRL1 & PMC_PLL_CTRL1_MUL_Msk) >> PMC_PLL_CTRL1_MUL_Pos;
-	fracr = (PMC->PMC_PLL_CTRL1 & PMC_PLL_CTRL1_FRACR_Msk) >> PMC_PLL_CTRL1_FRACR_Pos;
-	divpmc = (PMC->PMC_PLL_CTRL0 & PMC_PLL_CTRL0_DIVPMC_Msk) >> PMC_PLL_CTRL0_DIVPMC_Pos;
+	memset(plla, 0, sizeof(*plla));
+	plla->pll_id = pll_id;
+	plla->mul = (PMC->PMC_PLL_CTRL1 & PMC_PLL_CTRL1_MUL_Msk) >> PMC_PLL_CTRL1_MUL_Pos;
+	plla->fracr = (PMC->PMC_PLL_CTRL1 & PMC_PLL_CTRL1_FRACR_Msk) >> PMC_PLL_CTRL1_FRACR_Pos;
+	plla->div = (PMC->PMC_PLL_CTRL0 & PMC_PLL_CTRL0_DIVPMC_Msk) >> PMC_PLL_CTRL0_DIVPMC_Pos;
+
+#if defined(CONFIG_SOC_SAM9X60)
+	/*
+	 * On SAM9X60, the value of DIVPMC in PMC_PLL_CTRL0 is ignored for the
+	 * USB PLL as there is a fixed hardware divider of 2. Hence, we should
+	 * always consider that DIVPMC is actually read as 1, whatever its real
+	 * value.
+	 */
+	if (pll_id)
+		plla->div = 1;
+#endif
+}
+
+static uint32_t _pmc_get_pll_clock(uint32_t pll_id)
+{
+	struct _pmc_plla_cfg plla;
+	uint32_t f_core, f_ref;
 
 	if (pll_id == PLL_ID_PLLA) {
 		f_ref = pmc_get_main_clock();
 	} else if (pll_id == PLL_ID_UPLL){
 		f_ref = pmc_get_main_oscillator_freq();
-		_ASSERT(divpmc == 1);
 	} else {
 		TRACE_FATAL("Unknown PLL which index is %d\r\n", (int)pll_id);
 	}
 
-	f_core = f_ref * (mul + 1) + (uint32_t)((((uint64_t)f_ref) * fracr) >> 22);
-	return f_core / (divpmc + 1);
+	_pmc_get_pll_config(pll_id, &plla);
+
+	f_core = f_ref * (plla.mul + 1) + (uint32_t)((((uint64_t)f_ref) * plla.fracr) >> 22);
+	return f_core / (plla.div + 1);
 }
 #endif /* PMC_PLL_UPDT_ID */
 
