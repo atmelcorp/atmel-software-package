@@ -246,9 +246,9 @@ static void otp_header2packet(uint32_t pckt_hdr, struct otp_packet_header *pckt)
 static uint32_t otp_wait_isr(uint32_t mask)
 {
 	uint32_t timeout = TIMEOUT;
-	uint32_t reg;
+	uint32_t reg = 0;
 	do {
-		reg = OTPC->OTPC_ISR;
+		reg |= OTPC->OTPC_ISR;
 		if (reg & mask)
 			break;
 		timeout--;
@@ -292,6 +292,7 @@ static uint8_t otp_trigger_packet_read(uint16_t hdr_addr, uint32_t *pckt_hdr)
 
 static uint8_t otp_trans_key(uint32_t key_bus_dest)
 {
+	static const uint32_t isr_err = OTPC_ISR_KBERR;
 	uint32_t isr_reg;
 	uint32_t value;
 
@@ -315,8 +316,8 @@ static uint8_t otp_trans_key(uint32_t key_bus_dest)
 	(void)OTPC->OTPC_ISR;
 
 	OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_WRITING) | OTPC_CR_KBSTART;
-	isr_reg = otp_wait_isr(OTPC_ISR_EOKT);
-	if (!(isr_reg & OTPC_ISR_EOKT) || (isr_reg & OTPC_ISR_KBERR))
+	isr_reg = otp_wait_isr(OTPC_ISR_EOKT | isr_err);
+	if (!(isr_reg & OTPC_ISR_EOKT) || (isr_reg & isr_err))
 		return OTPC_CANNOT_TRANSFER_KEY;
 	return 0;
 }
@@ -413,6 +414,7 @@ uint8_t otp_write_packet(const struct otp_new_packet *pckt,
                          uint16_t *pckt_hdr_addr,
                          uint16_t *actually_written)
 {
+	static const uint32_t isr_err = OTPC_ISR_WERR | OTPC_ISR_PGERR;
 	uint32_t hdr_value;
 	uint32_t backup_header_reg;
 	uint32_t backup_data_reg;
@@ -538,8 +540,8 @@ start_programming:
 	OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_WRITING) | OTPC_CR_PGM;
 
 	/* Check whether the data was written correctly */
-	isr_reg = otp_wait_isr(OTPC_ISR_EOP);
-	if (!(isr_reg & OTPC_ISR_EOP) || (isr_reg & OTPC_ISR_WERR)) {
+	isr_reg = otp_wait_isr(OTPC_ISR_EOP | isr_err);
+	if (!(isr_reg & OTPC_ISR_EOP) || (isr_reg & isr_err)) {
 		error = OTPC_CANNOT_START_PROGRAMMING;
 		goto __exit__;
 	}
@@ -573,6 +575,7 @@ __exit__:
  */
 uint8_t otp_update_payload(uint16_t hdr_addr, const uint32_t *src)
 {
+	static const uint32_t isr_err = OTPC_ISR_WERR | OTPC_ISR_PGERR;
 	uint32_t hdr_value = 0;
 	uint32_t reg;
 	uint16_t payload_size = 0;
@@ -612,8 +615,8 @@ uint8_t otp_update_payload(uint16_t hdr_addr, const uint32_t *src)
 	OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_UPDATING) | OTPC_CR_PGM;
 
 	/* Programming without errors */
-	reg = otp_wait_isr(OTPC_ISR_EOP);
-	if (!(reg & OTPC_ISR_EOP) || (reg & OTPC_ISR_WERR))
+	reg = otp_wait_isr(OTPC_ISR_EOP | isr_err);
+	if (!(reg & OTPC_ISR_EOP) || (reg & isr_err))
 		return OTPC_CANNOT_START_PROGRAMMING;
 
 	return OTPC_NO_ERROR;
@@ -628,6 +631,7 @@ uint8_t otp_update_payload(uint16_t hdr_addr, const uint32_t *src)
  */
 uint8_t otp_lock_packet(uint16_t hdr_addr)
 {
+	static const uint32_t isr_err = OTPC_ISR_LKERR;
 	uint32_t hdr_value;
 	uint32_t reg;
 	uint8_t error = OTPC_NO_ERROR;
@@ -646,8 +650,8 @@ uint8_t otp_lock_packet(uint16_t hdr_addr)
 	OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_LOCKING) | OTPC_CR_CKSGEN;
 
 	/* Wait for locking the packet */
-	reg = otp_wait_isr(OTPC_ISR_EOL);
-	if (!(reg & OTPC_ISR_EOL))
+	reg = otp_wait_isr(OTPC_ISR_EOL | isr_err);
+	if (!(reg & OTPC_ISR_EOL) || (reg & isr_err))
 		return OTPC_CANNOT_LOCK;
 
 	return OTPC_NO_ERROR;
@@ -661,6 +665,7 @@ uint8_t otp_lock_packet(uint16_t hdr_addr)
  */
 uint8_t otp_invalidate_packet(uint16_t hdr_addr)
 {
+	static const uint32_t isr_err = OTPC_ISR_IVERR;
 	uint32_t reg;
 
 	/* Set the header address and using reg as temp value */
@@ -675,8 +680,8 @@ uint8_t otp_invalidate_packet(uint16_t hdr_addr)
 	OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_INVALIDATING) | OTPC_CR_INVLD;
 
 	/* Wait for invalidating the packet */
-	reg = otp_wait_isr(OTPC_ISR_EOI);
-	if (!(reg & OTPC_ISR_EOI))
+	reg = otp_wait_isr(OTPC_ISR_EOI | isr_err);
+	if (!(reg & OTPC_ISR_EOI) || (reg & isr_err))
 		return OTPC_CANNOT_INVALIDATE;
 
 	return OTPC_NO_ERROR;
@@ -693,6 +698,7 @@ uint8_t otp_invalidate_packet(uint16_t hdr_addr)
  */
 uint8_t otp_emulation_mode(bool on_off)
 {
+	static const uint32_t isr_err = OTPC_ISR_COERR | OTPC_ISR_CKERR;
 	uint32_t reg;
 	uint32_t mr_emul_value;
 
@@ -705,8 +711,8 @@ uint8_t otp_emulation_mode(bool on_off)
 	OTPC->OTPC_CR = OTPC_CR_REFRESH | OTPC_CR_KEY(OTPC_KEY_FOR_EMUL);
 
 	/* Wait for refreshing data */
-	reg = otp_wait_isr(OTPC_ISR_EORF);
-	if (!(reg & OTPC_ISR_EORF))
+	reg = otp_wait_isr(OTPC_ISR_EORF | isr_err);
+	if (!(reg & OTPC_ISR_EORF) || (reg & isr_err))
 		return OTPC_CANNOT_REFRESH;
 
 	/* Check if the Emulation mode state */
@@ -736,6 +742,7 @@ bool otp_is_emulation_enabled(void)
 */
 uint8_t otp_hide_packet(uint16_t hdr_addr)
 {
+	static const uint32_t isr_err = OTPC_ISR_HDERR;
 	uint32_t reg;
 
 	reg = OTPC->OTPC_MR;
@@ -748,8 +755,8 @@ uint8_t otp_hide_packet(uint16_t hdr_addr)
 
 	OTPC->OTPC_CR = OTPC_CR_KEY(OTPC_KEY_FOR_WRITING) | OTPC_CR_HIDE;
 
-	reg = otp_wait_isr(OTPC_ISR_EOH);
-	if (!(reg & OTPC_ISR_EOH))
+	reg = otp_wait_isr(OTPC_ISR_EOH | isr_err);
+	if (!(reg & OTPC_ISR_EOH) || (reg & isr_err))
 		return OTPC_CANNOT_PERFORM_HIDING;
 
 	return OTPC_NO_ERROR;
