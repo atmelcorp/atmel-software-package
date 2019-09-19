@@ -132,10 +132,11 @@ static void clear_sram1_for_emulation(void)
 
 static void show_packets(void)
 {
+	struct otp_packet_header match, result;
 	uint32_t buf[256];
 	uint32_t i;
-	uint32_t packet_addr;
-	uint32_t otpc_hr;
+	uint32_t filters;
+	uint16_t packet_addr;
 	uint16_t actually_read;
 
 	printf("\r\npacket type:\r\n");
@@ -143,32 +144,44 @@ static void show_packets(void)
 		printf("\t%c - %s\r\n", *otp_packet_type[i], otp_packet_type[i]);
 	}
 
+	/* No filter, match all packets */
+	memset(&match, 0, sizeof(match));
+	filters = 0;
+	packet_addr = 0;
+	i = 0;
+
 	printf(" idx | header addr | check sum |  size | valid | locked | type | payload\r\n");
-	for (i = 0, packet_addr = 0; ; i++, packet_addr += 1 + actually_read / 4) {
-		if(OTPC_NO_ERROR != otp_read_packet(packet_addr, buf, sizeof(buf), &actually_read))
+	while (!otp_get_next_matching_packet(filters, &match, &result, &packet_addr)) {
+		if (!result.is_invalid &&
+		    otp_read_packet(packet_addr, buf, sizeof(buf), &actually_read)) {
+			trace_error("failed to read packet payload\r\n");
 			break;
-		otpc_hr = otp_get_header();
-		uint32_t pkt = (otpc_hr & OTPC_HR_PACKET_Msk) >> OTPC_HR_PACKET_Pos;
-		uint16_t check_sum = (otpc_hr & OTPC_HR_CHECKSUM_Msk) >> OTPC_HR_CHECKSUM_Pos;
-		bool is_invalid = (otpc_hr & OTPC_HR_INVLD_Msk) == OTPC_HR_INVLD_Msk;
-		bool is_locked = (otpc_hr & OTPC_HR_LOCK) == OTPC_HR_LOCK;
-		if (check_sum == OTPC_CS_CORRUPTED) {
+		}
+		if (result.checksum == OTPC_CS_CORRUPTED) {
 			trace_error("the header of the packet is corrupted!\r\n");
 			break;
 		}
-		if (pkt < OTPC_HR_PACKET_REGULAR || pkt > OTPC_HR_PACKET_CUSTOM) {
+		if (result.type >= OTP_PCKT_MAX_TYPE) {
 			trace_error("invalid packet type!\r\n");
 			break;
 		}
-		printf("%4u |  0x%08x |    0x%04x |%5dB |   %s |   %s  |   %c ",
+		printf("%4u |  0x%08x |    0x%04x |%5luB |   %s |   %s  |   %c ",
 		    (unsigned)i, (unsigned)packet_addr,
-		    check_sum,
-		    actually_read,
-		    is_invalid ? "yes" : " no",
-		    is_locked ? "yes" : " no",
-		    *otp_packet_type[pkt - 1]);
-		printf(" | %02x %02x %02x ...\r\n",
-		    *((uint8_t*)buf + 0), *((uint8_t*)buf + 1), *((uint8_t*)buf + 2));
+		    result.checksum,
+		    result.size,
+		    !result.is_invalid ? "yes" : " no",
+		    result.is_locked ? "yes" : " no",
+		    *otp_packet_type[result.type]);
+		if (result.is_invalid)
+			printf(" | <invalid> \r\n");
+		else
+			printf(" | %02x %02x %02x ...\r\n",
+			    *((uint8_t*)buf + 0),
+			    *((uint8_t*)buf + 1),
+			    *((uint8_t*)buf + 2));
+
+		packet_addr += 1 + (result.size >> 2);
+		i++;
 	}
 	printf("\r\n");
 }
