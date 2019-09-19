@@ -2,21 +2,34 @@
 
 The Atmel Softpack can be found on [GitHub](https://github.com/atmelcorp/atmel-software-package).
 
-## Version 2.17 - 2019-08
+## Version 2.17 - 2019-09
+
+- Update SAM9X60 header files to the latest version
 
 ### New drivers/examples
 
+- New example usb_printer_basic to demo a Generic/Text Only USB printer
 - Add ddram configuration support for low_power_mode example
 - Add SHA HMAC support
+- Add support for LCDC Post Processing
+- SAM-BA applets updated for sam9x60
+- Add support for LPDDR MT46H16M32, SDRAM W9864G6KH
 
 ### Fixes
 
 - Fix the support for transmit un-aligned CAN buffers
+- Fix USB VBus configuration for sam9x60
+- Correct mutex implementation for ARMV7A and ARMV7M MPUs
+- Fix error message for EMAC's MDC(Management Data Clock) configuration
 
 ### Enhancements
 
 - Remove sram configuration for examples which memory for code is too small
 - Update documents for crypto_tdes/classd/can/low_power_mode examples
+- Update documents for usart_iso7816/usart_irda/test-pio/usart/usb_cdc_serial/usb_uvc_isi examples
+- Enable loop display effect on LCDC base layer in lcd example
+- Launch gdb (on Windows) through a Unix adapter allows breaking into the program
+- Update drivers for OTP
 
 ## Version 2.16 - 2019-07
 
