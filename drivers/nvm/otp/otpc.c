@@ -447,27 +447,10 @@ uint8_t otp_write_packet(const struct otp_new_packet *pckt,
 		backup_header_value |= OTPC_HR_PACKET_REGULAR;
 	}
 
-	/* Set MR_ADDR to its maximum value */
-	mr_reg = OTPC->OTPC_MR;
-	mr_reg &= ~OTPC_MR_ALWAYS_RESET_Msk;
-	mr_reg |= OTPC_MR_ADDR_Msk;
-	OTPC->OTPC_MR = mr_reg;
-
-	/* dummy read on OTPC_ISR to clear pending interrupts */
-	(void)OTPC->OTPC_ISR;
-
-	/* Set the READ field */
-	OTPC->OTPC_CR = OTPC_CR_READ;
-
-	/* Wait for EOR bit in OTPC_ISR to be 1 (packet was transfered )*/
-	isr_reg = otp_wait_isr(OTPC_ISR_EOR);
-	if (!(isr_reg & OTPC_ISR_EOR)) {
-		if (OTPC->OTPC_SR & OTPC_SR_READ) {
-			return OTPC_READING_DID_NOT_STOP;
-		} else {
-			return OTPC_READING_DID_NOT_START;
-		}
-	}
+	/* Set MR_ADDR to its maximum value then read packet */
+	error = otp_trigger_packet_read(~0, NULL);
+	if (error != OTPC_NO_ERROR)
+		return error;
 
 	/* There is "1" */
 	if (OTPC->OTPC_SR & OTPC_SR_ONEF) {
