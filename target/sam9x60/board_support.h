@@ -67,6 +67,11 @@ extern void board_cfg_lowlevel(bool clocks, bool ddram, bool mmu);
  */
 extern void board_restore_pio_reset_state(void);
 
+/*
+ * \brief Save power by disabling most peripherals
+ */
+extern void board_save_misc_power(void);
+
 /**
  * \brief Setup MMU for the board
  */
