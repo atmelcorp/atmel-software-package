@@ -37,7 +37,7 @@
 #include "board_support.h"
 #include "trace.h"
 #include "peripherals/pmc.h"
-
+#include "serial/console.h"
 /*----------------------------------------------------------------------------
  *         Private definitions
  *----------------------------------------------------------------------------*/
@@ -83,6 +83,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 
 	pck = pmc_get_processor_clock() / 1000000;
 	trace_warning_wp("Current processor clock: %d MHz\r\n", (unsigned)pck);
+	while(!console_is_tx_empty());
 
 #if defined(EXPECTED_PROC_CLOCK)
 	expected_pck = EXPECTED_PROC_CLOCK;
