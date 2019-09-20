@@ -74,4 +74,9 @@
 #define BOARD_TIMER_TC      TC1
 #define BOARD_TIMER_CHANNEL 0
 
+/* ================== PIN JTAG definition ======================= */
+
+/* JTAG TCK/TDI/TDO/TMS/NTRST -> PIOD14/15/16/17/18 */
+#define PIN_JTAG   0x00000000
+
 #endif /* #ifndef _BOARD_D2_H */
