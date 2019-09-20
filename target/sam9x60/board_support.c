@@ -49,9 +49,12 @@
 #include "sdmmc/sdmmc.h"
 #include "extram/smc.h"
 #include "peripherals/wdt.h"
-
-#include "extram/ddram.h"
-
+#ifdef BOARD_DDRAM_TYPE
+	#include "extram/ddram.h"
+#endif
+#ifdef BOARD_SDRAM_TYPE
+	#include "extram/sdram.h"
+#endif
 #include "arm/mmu_cp15.h"
 #include "mm/l1cache.h"
 
@@ -480,11 +483,16 @@ void board_cfg_matrix_for_nand_ex(bool nfd0_on_d16)
 
 void board_cfg_ddram(void)
 {
-#ifdef BOARD_DDRAM_TYPE
 	board_cfg_matrix_for_ddr();
+#ifdef BOARD_DDRAM_TYPE
 	struct _mpddrc_desc desc;
 	ddram_init_descriptor(&desc, BOARD_DDRAM_TYPE);
 	ddram_configure(&desc);
+#endif
+#ifdef BOARD_SDRAM_TYPE
+	struct _sdramc_desc desc;
+	sdram_init_descriptor(&desc, BOARD_DDRAM_TYPE);
+	sdram_configure(&desc);
 #endif
 }
 
