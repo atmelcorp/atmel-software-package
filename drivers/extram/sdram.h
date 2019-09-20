@@ -42,6 +42,10 @@ enum _sdram_devices {
 #ifdef CONFIG_HAVE_LPSDR_MT48H32M16
 	MT48H32M16,
 #endif
+#ifdef CONFIG_HAVE_SDRAM_W9864G6KH
+	W9864G6KH,
+#endif
+	DUMMY_DEVICE,
 };
 
 #ifdef __cplusplus
