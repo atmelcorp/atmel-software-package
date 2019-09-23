@@ -45,6 +45,7 @@ CONFIG_TIMER_POLLING = y
 
 ifeq ($(TARGET),sam9x60-generic)
 CONFIG_HAVE_OTPC = y
+CONFIG_HAVE_OTPC_SAM9X60_FIXUP = y
 endif
 
 obj-y += samba_applets/bootconfig/main.o

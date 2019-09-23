@@ -75,6 +75,56 @@
  *        Local functions
  *----------------------------------------------------------------------------*/
 
+#if defined(CONFIG_SOC_SAM9X60) && defined(CONFIG_HAVE_OTPC_SAM9X60_FIXUP)
+#include <component/dbgu.h>
+
+#define DBGU_CIDR_REVISION_Pos  0
+#define DBGU_CIDR_REVISION_Msk  (0x7u << DBGU_CIDR_REVISION_Pos)
+#define DBGU_CIDR_REVISION_A    (0x1u << DBGU_CIDR_REVISION_Pos)
+
+static void otp_sam9x60_fixup(void)
+{
+	static const uint32_t fixup_reg1[4] = {0x04194801, 0x01000000, 0x00000008, 0x00000000};
+	static const uint32_t fixup_reg2[4] = {0xfb964801, 0x4c017d12, 0x02120e01, 0x00004000};
+	__IO uint32_t *reg0 = (__IO uint32_t *)(0xeff00090);
+	__IO uint32_t *reg1 = (__IO uint32_t *)(0xeff000a0);
+	__IO uint32_t *reg2 = (__IO uint32_t *)(0xeff000b0);
+	uint32_t timeout;
+	int i;
+
+	if ((DBGU->DBGU_CIDR & DBGU_CIDR_REVISION_Msk) != DBGU_CIDR_REVISION_A)
+		return;
+
+	timeout = TIMEOUT;
+	*reg0 = 0x43910001;
+	while (!(OTPC->OTPC_SR & OTPC_SR_UNLOCK) && --timeout > 0);
+
+	for (i = 0; i < ARRAY_SIZE(fixup_reg1); i++)
+		reg1[i] = fixup_reg1[i];
+
+	for (i = 0; i < ARRAY_SIZE(fixup_reg2); i++)
+		reg2[i] = fixup_reg2[i];
+
+	timeout = TIMEOUT;
+	*reg0 = 0x43910000;
+	while ((OTPC->OTPC_SR & OTPC_SR_UNLOCK) && --timeout > 0);
+}
+#endif
+
+int otp_init(void)
+{
+#if defined(CONFIG_SOC_SAM9X60) && defined(CONFIG_HAVE_OTPC_SAM9X60_FIXUP)
+	otp_sam9x60_fixup();
+#endif
+
+	return 0;
+}
+
+void otp_cleanup(void)
+{
+
+}
+
 static uint8_t otp_set_type(enum otp_packet_type type, uint32_t *pckt_hdr)
 {
 	*pckt_hdr &= ~OTPC_HR_PACKET_Msk;

@@ -117,6 +117,20 @@ struct otp_packet_header {
 #define OTP_FILTER_SECURE       (1U << 5)
 
 /*!
+ \brief Initialize the OTPC driver
+ \param none
+ \return 0 if successful, a negative error code otherwise
+*/
+int otp_init(void);
+
+/*!
+ \brief Cleanup the OTPC driver and release all internal allocated resources
+ \param none
+ \return none
+*/
+void otp_cleanup(void);
+
+/*!
   \brief
   \param header_data Represents the value of the header to be written
   \param src Represents the payload to be written

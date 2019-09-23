@@ -311,6 +311,8 @@ int main(void)
 		while(1);
 	}
 
+	otp_init();
+
 	clear_sram1_for_emulation();
 	otp_emulation_mode(true);
 

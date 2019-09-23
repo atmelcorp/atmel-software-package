@@ -715,8 +715,7 @@ exit:
 
 int bootcfg_initialize(void)
 {
-	/* nothing here */
-	return 0;
+	return otp_init();
 }
 
 int bootcfg_print(uint32_t index, uint32_t value)
