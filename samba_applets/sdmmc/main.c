@@ -243,6 +243,62 @@ static char* get_supported_voltage_string(uint32_t supported_voltages)
 	str[strlen(str) - 1] = 0;
 	return str;
 }
+
+#ifdef CONFIG_SOC_SAMA5D2
+static int sdmmc_pre_init(uint32_t id)
+{
+	/* The SDMMC peripherals are clocked by their Peripheral Clock, the
+	 * Master Clock, and a Generated Clock (at least on SAMA5D2x).
+	 * Configure GCLKx = <PLLA clock> divided by 1
+	 * As of writing, the PLLA clock runs at 498 MHz */
+	struct _pmc_periph_cfg cfg = {
+		.gck = {
+			.css = PMC_PCR_GCKCSS_PLLA_CLK,
+			.div = 1,
+		},
+	};
+	pmc_configure_peripheral(id, &cfg, true);
+
+	return 0;
+}
+#endif /* CONFIG_SOC_SAMA5D2 */
+
+#ifdef CONFIG_SOC_SAM9X60
+#define MULTCLK_100MHZ  100000000U
+
+static int sdmmc_pre_init(uint32_t id)
+{
+	struct _pmc_periph_cfg cfg;
+	uint32_t caps0, caps0_mask;
+	uint32_t plla_clk, baseclkf;
+
+	plla_clk = pmc_get_plla_clock();
+
+	/*
+	 * The MULTCLK is the connected to the SDMMC generated clock:
+	 * we target a 100MHz MULTCLK.
+	 */
+	memset(&cfg, 0, sizeof(cfg));
+	cfg.gck.css = PMC_PCR_GCKCSS_PLLA_CLK;
+	cfg.gck.div = ROUND_INT_DIV(plla_clk, MULTCLK_100MHZ);
+	pmc_configure_peripheral(id, &cfg, true);
+
+	/* There is a hardware divider of 2 between MULTCLK and BASECLK. */
+	baseclkf = (pmc_get_gck_clock(id) >> 1) / 1000000U;
+
+	caps0_mask = SDMMC_CA0R_TEOCLKF_Msk |
+		     SDMMC_CA0R_TEOCLKU |
+		     SDMMC_CA0R_BASECLKF_Msk;
+	caps0 = SDMMC_CA0R_TEOCLKF(baseclkf) |
+		SDMMC_CA0R_TEOCLKU |
+		SDMMC_CA0R_BASECLKF(baseclkf);
+
+	sdmmc_set_capabilities(get_sdmmc_addr_from_id(id),
+			       caps0, caps0_mask, 0, 0);
+
+	return 0;
+}
+#endif /* CONFIG_SOC_SAM9X60 */
 #endif /* CONFIG_HAVE_SDMMC */
 
 static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
@@ -321,18 +377,9 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	pmc_configure_peripheral(TIMER0_MODULE, NULL, true);
 
 #if defined(CONFIG_HAVE_SDMMC)
-	/* The SDMMC peripherals are clocked by their Peripheral Clock, the
-	 * Master Clock, and a Generated Clock (at least on SAMA5D2x).
-	 * Configure GCLKx = <PLLA clock> divided by 1
-	 * As of writing, the PLLA clock runs at 498 MHz */
 	id = get_sdmmc_id_from_addr(instance_def->addr);
-	struct _pmc_periph_cfg cfg = {
-		.gck = {
-			.css = PMC_PCR_GCKCSS_PLLA_CLK,
-			.div = 1,
-		},
-	};
-	pmc_configure_peripheral(id, &cfg, true);
+	if (sdmmc_pre_init(id))
+		return APPLET_FAIL;
 
 	// set SDMMC controller capabilities
 	uint32_t caps0 = SDMMC_CA0R_SLTYPE_EMBEDDED;
