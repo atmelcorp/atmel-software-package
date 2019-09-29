@@ -124,4 +124,6 @@ Press 'C' | Verify data in DDR` ... `data OK | PASSED | PASSED
  * The JTAG connection is lost with ULP1 or BackUp mode.
  * The JTAG/SWD speed should be set to adaptive on sam9x60 sram project, because of the processor run with slow clock when switch mck to slck.
  * The GDB adaptive command: JLinkGDBServer -select USB -device arm9 -if JTAG -speed adaptive.
+ * Waking up from ulp0_512Hz mode with PB_USER button may take 15 seconds and even much longer for sama5d2-xplained.
+ * Need 37ms power down 3V3 after setting SHDN pin low on sama5d3-ek board, the processor will go on to print "enter backup failed", it not really means the backup failed. If D2 LED power-off, means successful backup.
  
