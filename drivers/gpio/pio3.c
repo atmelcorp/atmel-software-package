@@ -266,17 +266,18 @@ void pio_configure(const struct _pin *pin_list, uint32_t size)
 		if (pin->type == PIO_INPUT)
 			pmc_configure_peripheral(_pio_get_periph_id(pin->group), NULL, true);
 
+		/* Disable pull-down and pull-up resistors */
+		assert((pin->attribute & (PIO_PULLUP | PIO_PULLDOWN)) != (PIO_PULLUP | PIO_PULLDOWN));
+		pio->PIO_PPDDR = pin->mask;
+		pio->PIO_PUDR = pin->mask;
+
 		/* Enable pull-up resistors as requested */
 		if (pin->attribute & PIO_PULLUP)
 			pio->PIO_PUER = pin->mask;
-		else
-			pio->PIO_PUDR = pin->mask;
 
 		/* Enable pull-down resistors as requested */
 		if (pin->attribute & PIO_PULLDOWN)
 			pio->PIO_PPDER = pin->mask;
-		else
-			pio->PIO_PPDDR = pin->mask;
 
 		/* Select open-drain output stage as requested */
 		if (pin->attribute & PIO_OPENDRAIN)
