@@ -85,7 +85,7 @@
 static void otp_sam9x60_fixup(void)
 {
 	static const uint32_t fixup_reg1[4] = {0x04194801, 0x01000000, 0x00000008, 0x00000000};
-	static const uint32_t fixup_reg2[4] = {0xfb964801, 0x4c017d12, 0x02120e01, 0x00004000};
+	static const uint32_t fixup_reg2[4] = {0xfb164801, 0x4c017d12, 0x02120e01, 0x00004000};
 	__IO uint32_t *reg0 = (__IO uint32_t *)(0xeff00090);
 	__IO uint32_t *reg1 = (__IO uint32_t *)(0xeff000a0);
 	__IO uint32_t *reg2 = (__IO uint32_t *)(0xeff000b0);
