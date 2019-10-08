@@ -59,11 +59,20 @@
 /** Frequency of the board main clock oscillator */
 #define BOARD_MAIN_CLOCK_EXT_OSC 12000000
 
+#if 0
 /** /def Definition of DDRAM's type */
 #define BOARD_DDRAM_TYPE         MT47H128M16
 
 /** \def Board DDR memory size in bytes */
 #define BOARD_DDR_MEMORY_SIZE    512*1024*1024
+#else
+
+/** /def Definition of DDRAM's type */
+#define BOARD_DDRAM_TYPE         MT47H64M16_X2
+
+/** \def Board DDR memory size in bytes */
+#define BOARD_DDR_MEMORY_SIZE    256*1024*1024
+#endif
 
 /** \def Board System timer */
 #define BOARD_TIMER_TC      TC1
