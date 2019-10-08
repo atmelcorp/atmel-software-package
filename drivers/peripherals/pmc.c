@@ -1599,9 +1599,9 @@ uint32_t pmc_get_upll_clock(void)
 RAMCODE bool pmc_ext32k_monitor(void)
 {
 	bool bypass = false;
-	volatile int count;
 	/* 32.768kHz crystal oscillator frequency monitor  */
 #if defined(CKGR_MOR_XT32KFME) && defined(SCKC_CR_OSC32BYP)
+	volatile int count;
 	if(!slowclock_is_internal(SLOWCLOCK_DOMAIN_DEFAULT)) {
 		slowclock_set_bypass(false);
 
