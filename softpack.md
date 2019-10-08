@@ -105,6 +105,7 @@ This release contains the following examples:
 * usb_iad_cdc_hid: Example of USB composite device: virtual com port and usb mass storage device
 * usb_iad_cdc_msd: Example of a CDC USB Mass Storage device
 * usb_mass_storage: Example of a USB Mass Storage device
+* usb_printer_basic: Example of a USB printer device
 * usb_uvc_isi: Example of a USB Video Device
 * usb_uvc_isc: Example of a USB Video Device
 * wdt: Example using watchdog timer
@@ -184,6 +185,7 @@ usb_iad_cdc_cdc        | OK             | OK               | OK               | 
 usb_iad_cdc_hid        | OK             | OK               | OK               | OK               | OK         | OK               | OK
 usb_iad_cdc_msd        | OK             | OK               | OK               | OK               | OK         | OK               | OK
 usb_mass_storage       | OK             | OK               | OK               | OK               | OK         | OK               | OK
+usb_printer_basic      | OK             | OK               | OK               | OK               | OK         | OK               | OK
 usb_uvc_isc            | x              | OK               | OK               | x                | x          | x                | x
 usb_uvc_isi            | x              | x                | x                | x                | OK         | x                | OK
 wdt                    | OK             | OK               | OK               | x                | x          | OK               | OK
@@ -259,6 +261,7 @@ usb_iad_cdc_cdc        | OK         | OK         | OK              | OK
 usb_iad_cdc_hid        | OK         | OK         | OK              | OK
 usb_iad_cdc_msd        | OK         | OK         | OK              | OK
 usb_mass_storage       | OK         | OK         | OK              | OK
+usb_printer_basic      | OK         | OK         | OK              | OK
 usb_uvc_isc            | x          | x          | x               | x
 usb_uvc_isi            | OK         | OK         | TODO            | TODO
 wdt                    | x          | OK         | OK              | OK
