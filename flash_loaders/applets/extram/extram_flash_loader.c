@@ -146,8 +146,12 @@ uint32_t FlashInit(void *base_of_flash,
 #endif
 #ifdef CONFIG_HAVE_DDR2_MT47H64M16
 	case 1:
-		trace_warning_wp("Preset 1 (MT47H64M16)\r\n");
+		trace_warning_wp("Preset 1 (1 x MT47H64M16)\r\n");
 		device = MT47H64M16;
+		break;
+	case 17:
+		trace_warning_wp("Preset 17 (2 x MT47H64M16)\r\n");
+		device = MT47H64M16_X2;
 		break;
 #endif
 #ifdef CONFIG_HAVE_DDR2_MT47H128M16
