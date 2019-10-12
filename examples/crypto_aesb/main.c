@@ -147,7 +147,7 @@ int main(void)
 	p = (uint32_t *)(DDR_AES_CS_ADDR + DDR_RESERVED_LEN);
 	for (i = 0; i < 64; i++)
 		*p++ = i;
-	cache_clean_region((void*)(DDR_AES_CS_ADDR + DDR_RESERVED_LEN), 64);
+	cache_clean_region((void*)(DDR_AES_CS_ADDR + DDR_RESERVED_LEN), 64 * sizeof(uint32_t));
 	
 	printf("-I- Read data from address of AESB IP scope\r\n");
 
@@ -158,6 +158,7 @@ int main(void)
 	
 	printf("\r\n-I- Read data from address outside of AESB IP scope. This test is expeted to fail.\r\n");
 
+	cache_invalidate_region((void*)(DDR_CS_ADDR + DDR_RESERVED_LEN), 64 * sizeof(uint32_t));
 	p = (uint32_t*)(DDR_CS_ADDR + DDR_RESERVED_LEN);
 	for (i = 0; i < 64; i++)
 		printf("%x ", (unsigned)*p++);
