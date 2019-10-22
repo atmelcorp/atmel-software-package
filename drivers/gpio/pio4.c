@@ -164,6 +164,22 @@ static void _handler_push(uint32_t group, uint32_t mask, pio_handler_t handler, 
 	i++;
 }
 
+static bool _handler_check(uint32_t group, uint32_t mask, pio_handler_t handler, void *user_arg)
+{
+	int i = 0;
+	assert(i <= (ARRAY_SIZE(_handlers) - 1));
+	for (i = 0; i < IRQ_PIO_HANDLERS_SIZE; i++)
+	{
+		if ((_handlers[i].group == group)     && \
+			(_handlers[i].mask == mask)       && \
+			(_handlers[i].handler == handler) && \
+			(_handlers[i].user_arg == user_arg)) {
+			return true;
+		}
+	}
+	return false;
+}
+
 static void _pio_handle_interrupt(uint32_t group)
 {
 	int i;
@@ -389,6 +405,12 @@ void pio_add_handler_to_group(uint32_t group, uint32_t mask,
 
 	irq_add_handler(periph_id, _pio_handler, NULL);
 	irq_enable(periph_id);
+}
+
+bool pio_check_handler_in_group(uint32_t group, uint32_t mask,
+			      pio_handler_t handler, void *user_arg)
+{
+	return _handler_check(group, mask, handler, user_arg);
 }
 
 void pio_reset_all_it(void)

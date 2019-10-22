@@ -164,10 +164,14 @@ static void _configure_buttons(void)
 		/* Configure pios as inputs. */
 		pio_configure(&button_pins[i], 1);
 
-		/* Initialize pios interrupt with its handlers, see */
-		/* PIO definition in board.h. */
-		pio_add_handler_to_group(button_pins[i].group,
-			button_pins[i].mask, _pio_handler, NULL);
+		/* Check handler in group before add it */
+		if (!pio_check_handler_in_group(button_pins[i].group,
+				button_pins[i].mask, _pio_handler, NULL)) {
+			/* Initialize pios interrupt with its handlers, see */
+			/* PIO definition in board.h. */
+			pio_add_handler_to_group(button_pins[i].group,
+				button_pins[i].mask, _pio_handler, NULL);
+		}
 		/* Enable PIO line interrupts. */
 		pio_enable_it(button_pins);
 	}

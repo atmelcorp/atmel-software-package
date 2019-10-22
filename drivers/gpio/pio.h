@@ -37,6 +37,7 @@
  *------------------------------------------------------------------------------*/
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /*------------------------------------------------------------------------------
  *         Definitions
@@ -205,6 +206,19 @@ extern void pio_output_low(uint32_t group, uint32_t mask);
  */
 extern void pio_add_handler_to_group(uint32_t group, uint32_t mask,
                                      pio_handler_t handler, void* user_arg);
+
+/**
+ * \brief Check an interrupt handler with som masked pins of a given PIO group.
+ * Will return true if the handler has added in the group
+ * Return false if the handler hasn't added yet.
+ *
+ * \param group    PIO group number
+ * \param mask     Bitmask of one or more pin(s)
+ * \param handler  Interrupt handler
+ * \param user_arg User-defined argument that is passed as-is to the handler
+ */
+extern bool pio_check_handler_in_group(uint32_t group, uint32_t mask,
+                                     pio_handler_t handler, void *user_arg);
 
 /**
  * \brief Disable interrupts for all pins on all PIO groups.
