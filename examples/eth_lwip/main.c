@@ -116,6 +116,7 @@
 #include "liblwip.h"
 #include "lwip/apps/httpd.h"
 #include "lwip/apps/lwiperf.h"
+#include "lwip/prot/dhcp.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -171,10 +172,8 @@ int main(void)
 	ip_addr_t ipaddr, netmask, gw;
 	struct netif NetIf, *netif;
 	uint8_t eth_port = 0;
+	int ip_print = 0;
 
-#if LWIP_DHCP
-	u8_t dhcp_state = DHCP_INIT;
-#endif
 
 	/* Output example information */
 	console_example_info("ETH lwIP Example");
@@ -213,12 +212,33 @@ int main(void)
 	netif_set_default(netif);
 	netif_set_up(netif);
 
+#if LWIP_DHCP   
+	netif_set_link_up(netif);
+	if (ERR_OK != dhcp_start(netif)) {
+		printf("ERR_OK != dhcp_start");
+		}
+	else
+		printf("DHCP Started\n\r");
+#endif
+
 	/* Initialize http server application */
 	httpd_init();
-	lwiperf_start_tcp_server_default(lwiperf_report, NULL);
+	lwiperf_start_tcp_server_default(lwiperf_report, NULL); 
+#if !LWIP_DHCP   
 	printf ("Type the IP address of the device in a web browser, http://192.168.1.3 \n\r");
+#endif
+
 	while (1) {
 		/* Run polling tasks */
 		ethif_poll(netif);
+#if LWIP_DHCP   
+		if(dhcp_supplied_address(netif) && ip_print==0){
+			ip_print = 1;
+			printf ("Type the IP address of the device in a web browser, ");
+			printf("http://%d.%d.%d.%d \n\r",
+				(netif->ip_addr.addr)&0xFF,(netif->ip_addr.addr>>8)&0xFF,
+				(netif->ip_addr.addr>>16)&0xFF,(netif->ip_addr.addr>>24)&0xFF);  
+		}
+#endif
 	}
 }

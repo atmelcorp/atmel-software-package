@@ -22,7 +22,7 @@
 
 #define LWIP_RAW                        0
 
-#define LWIP_DHCP                       0
+#define LWIP_DHCP                       1
 
 #define LWIP_AUTOIP                     0
 
