@@ -202,10 +202,14 @@ void board_cfg_lowlevel(bool clocks, bool ddram, bool mmu)
 void board_restore_pio_reset_state(void)
 {
 	int i;
-
-	/* all pins, excluding JTAG and NTRST */
+#ifdef PINS_PUSHBUTTONS
+	const struct _pin button_pins = PIN_PUSHBUTTON_1;
+#else
+	const struct _pin button_pins = { 0x0, 0x0, 0x0, 0x0 };
+#endif
+	/* all pins, excluding JTAG, BUTTON PINS and NTRST */
 	struct _pin pins[] = {
-		{ PIO_GROUP_A, 0xFFFFFFFF, PIO_INPUT, PIO_PULLUP },
+		{ PIO_GROUP_A, 0xFFFFFFFF ^ (button_pins.mask), PIO_INPUT, PIO_PULLUP },
 		{ PIO_GROUP_B, 0xFFFFFFFF, PIO_INPUT, PIO_PULLUP },
 		{ PIO_GROUP_C, 0xFFFFFFFF, PIO_INPUT, PIO_PULLUP },
 		{ PIO_GROUP_D, 0xFFFFFFFF ^ PIN_JTAG, PIO_INPUT, PIO_PULLUP },
