@@ -338,7 +338,7 @@
 /* ================== PIN JTAG definition ======================= */
 
 /* JTAG TCK/TDI/TDO/TMS/NTRST -> PIOD14/15/16/17/18 */
-#define PIN_JTAG   0x78000000
+#define PIN_JTAG   0xf8000000
 
 /* =========================== BOARD INFO  ============================= */
 
