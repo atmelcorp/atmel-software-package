@@ -33,6 +33,13 @@
 
 #include "board_timer.h"
 #include "timer.h"
+#include "peripherals/tc.h"
+
+/*----------------------------------------------------------------------------
+ *        Exported variables
+ *----------------------------------------------------------------------------*/
+
+RAMDATA volatile uint32_t count_val = 0;
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -45,4 +52,14 @@ void board_cfg_timer(void)
 #else
 	timer_configure(BOARD_TIMER_TC, BOARD_TIMER_CHANNEL, TC_CMR_TCCLKS_TIMER_CLOCK4);
 #endif
+}
+
+RAMCODE void board_get_timer(void)
+{
+	count_val = tc_get_cv(BOARD_TIMER_TC, BOARD_TIMER_CHANNEL);
+}
+
+uint32_t board_get_channel_freq(void)
+{
+	return tc_get_channel_freq(BOARD_TIMER_TC, BOARD_TIMER_CHANNEL);
 }

@@ -29,6 +29,18 @@
 
 #ifndef BOARD_TIMER_H
 #define BOARD_TIMER_H
+/*----------------------------------------------------------------------------
+ *         Headers
+ *----------------------------------------------------------------------------*/
+
+#include <stdint.h>
+#include "compiler.h"
+
+/*----------------------------------------------------------------------------
+ *        Types
+ *----------------------------------------------------------------------------*/
+
+RAMDATA extern volatile uint32_t count_val;
 
 /*----------------------------------------------------------------------------
  *        Functions
@@ -38,5 +50,15 @@
  * \brief Configure the system timer
  */
 extern void board_cfg_timer(void);
+
+/**
+ * \brief Get the system timer
+ */
+RAMCODE extern void board_get_timer(void);
+
+/**
+ * \brief Get tc channel frequency
+ */
+extern uint32_t board_get_channel_freq(void);
 
 #endif  /* BOARD_TIMER_H */
