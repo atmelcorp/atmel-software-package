@@ -88,19 +88,11 @@ static void _rtc_handler(uint32_t source, void* user_arg)
 
 	assert(source == ID_RTC);
 
-	/* Second increment interrupt */
-	if ((dwStatus & RTC_SR_SEC) == RTC_SR_SEC) {
-		/* Disable RTC interrupt */
-		rtc_disable_it(RTC_IDR_SECDIS);
-		rtc_clear_sccr(RTC_SCCR_SECCLR);
-	}
 	/* Time or date alarm */
-	else {
-		if ((dwStatus & RTC_SR_ALARM) == RTC_SR_ALARM) {
-			/* Disable RTC interrupt */
-			rtc_disable_it(RTC_IDR_ALRDIS);
-			rtc_clear_sccr(RTC_SCCR_ALRCLR);
-		}
+	if ((dwStatus & RTC_SR_ALARM) == RTC_SR_ALARM) {
+		/* Disable RTC interrupt */
+		rtc_disable_it(RTC_IDR_ALRDIS);
+		rtc_clear_sccr(RTC_SCCR_ALRCLR);
 	}
 }
 
