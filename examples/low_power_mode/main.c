@@ -114,6 +114,10 @@
 #include "board_console.h"
 #include "board_led.h"
 #include "board_twi.h"
+#ifdef CONFIG_TIMER
+#include "board_timer.h"
+#include "timer.h"
+#endif
 #include "chip.h"
 #include "extram/mpddrc.h"
 #include "irq/irq.h"
@@ -132,7 +136,9 @@
  *        Local variables
  *----------------------------------------------------------------------------
  */
-
+#ifdef CONFIG_TIMER
+RAMDATA uint32_t entry_start_val, entry_end_val, exit_start_val, exit_end_val;
+#endif
 volatile unsigned int MenuChoice;
 uint8_t modechoice, test_setting_size, eventchoice, eventchoice_bak;
 static char message[100] = { 0 };
@@ -243,6 +249,26 @@ static void menu_backup(void)
 	printf("\n\r ! ! ! ! ! ! ! Enter Backup FAILED ! ! ! ! ! ! ! !");
 }
 
+
+/**
+ *  \brief compute interval time
+ *  \param end   the value of end time
+ *  \param start the value of start time
+ */
+#ifdef CONFIG_TIMER
+static uint32_t get_interval_ms(uint32_t end, uint32_t start)
+{
+	uint32_t val;
+	if (end >= start) {
+		val = end - start;
+	} else {
+		val = end + (0xffffffffu - start) + 1;
+	}
+	/* The timer unit is milliseconds */
+	return val * 1000 / board_get_channel_freq();
+}
+#endif
+
 #ifdef CONFIG_RAMCODE
 #if defined(__GNUC__)
 	extern uint32_t _ramcode_lma, _sramcode, _eramcode;
@@ -312,11 +338,24 @@ RAMCODE static void _low_power_run(uint8_t mode)
 #endif /* VARIANT_DDRAM */
 		/* config PCK and MCK */
 		pmc_set_custom_pck_mck(&clock_cfg);
+
+#ifdef CONFIG_TIMER
+		/* Get entry end time */
+		board_get_timer();
+		entry_end_val = count_val;
+		count_val = 0;
+#endif
+
 		processor_ulp(value);
 		/* wait for the PMC_SR.MCKRDY bit to be set. */
 		while ((PMC->PMC_SR & PMC_SR_MCKRDY) == 0);
 #ifdef VARIANT_DDRAM
 		if (_ddr_active_needed == 1) {
+#ifdef CONFIG_TIMER
+			/* Get exit begin time */
+			board_get_timer();
+			exit_start_val = count_val;
+#endif
 			pmc_set_custom_pck_mck(&clock_setting_backup);
 			check_ddr_ready();
 	}
@@ -324,6 +363,13 @@ RAMCODE static void _low_power_run(uint8_t mode)
 		/* To capture wakeup time */
 		led_toggle(0);
 #ifdef VARIANT_SRAM
+#ifdef CONFIG_TIMER
+		/* Get exit begin time */
+		if (count_val == 0) {
+			board_get_timer();
+			exit_start_val = count_val;
+		}
+#endif
 		/* Restore default PCK and MCK */
 		pmc_set_custom_pck_mck(&clock_setting_backup);
 #endif
@@ -346,12 +392,26 @@ static void _low_power_configure(uint8_t mode, uint8_t event)
 	/* config a led for indicator to capture wake-up time */
 	board_cfg_led();
 #endif
+
+	/* Init wakeup event */
+	wakeup_event(event);
+
+#ifdef CONFIG_TIMER
+	uint32_t val;
+	/* Get entry begin time */
+	board_get_timer();
+	entry_start_val = count_val;
+#endif
+
 	if(test_setting[mode].mode == IDLE) {
-		wakeup_event(event);
+#ifdef CONFIG_TIMER
+		/* Get entry end time */
+		board_get_timer();
+		entry_end_val = count_val;
+#endif
 		processor_idle();
 	} else {
 		low_power_cfg(test_setting[mode].mode);
-		wakeup_event(event);
 		_low_power_run(mode);
 		_restore_console();
 		low_power_exit(test_setting[mode].mode);
@@ -360,6 +420,23 @@ static void _low_power_configure(uint8_t mode, uint8_t event)
 #ifdef CONFIG_HAVE_LED
 	/* config a led for indicator to capture wake-up time */
 	board_cfg_led();
+#endif
+
+#ifdef CONFIG_TIMER
+	/* Get exit start time which recorded in interrupt handler */
+	exit_start_val = count_val;
+
+	/* Get exit end time */
+	board_get_timer();
+	exit_end_val = count_val;
+
+	/* Print entry/exit time value */
+	printf("Entry ");
+	val = get_interval_ms(entry_end_val, entry_start_val);
+	printf("time (end:%d - start:%d) is %d ms\n\r", (int)entry_end_val, (int)entry_start_val, (int)val);
+	val = get_interval_ms(exit_end_val, exit_start_val);
+	printf("Exit ");
+	printf("time (end:%d - start:%d) is %d ms\n\r", (int)exit_end_val, (int)exit_start_val, (int)val);
 #endif
 }
 
@@ -518,6 +595,11 @@ int main(void)
 
 	/* Get PMC configuration */
 	clock_setting_backup = pmc_get_pck_mck_cfg();
+
+#ifdef CONFIG_TIMER
+	/* configure tc to select slow clock*/
+	timer_configure(BOARD_TIMER_TC, BOARD_TIMER_CHANNEL, TC_CMR_TCCLKS_TIMER_CLOCK5);
+#endif
 
 	/* Disable all AIC interrupt sources */
 	unsigned int i;

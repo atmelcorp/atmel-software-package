@@ -46,6 +46,10 @@ BINNAME = low_power_mode
 CONFIG_TWI = y
 CONFIG_LED = y
 CONFIG_RAMCODE = y
+ifneq (,$(filter $(TARGET), sam9x60-ek))
+else
+	CONFIG_TIMER = y
+endif
 
 obj-y += examples/low_power_mode/main.o
 obj-y += examples/low_power_mode/clk-config.o
