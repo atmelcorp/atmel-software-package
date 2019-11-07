@@ -115,6 +115,7 @@ void l2cc_set_config(const struct _l2cc_config* cfg)
 	L2CC->L2CC_ACR = (cfg->high_prior_so ? L2CC_ACR_HPSO : 0) |
 	                 (cfg->store_buff_dev_limit ? L2CC_ACR_SBDLE : 0) |
 	                 (cfg->shared_attr_invalidate ? L2CC_ACR_SAIE : 0) |
+	                 L2CC_ACR_WAYSIZE_16KB_WAY |
 	                 (cfg->evt_mon_bus ? L2CC_ACR_EMBEN : 0) |
 	                 (cfg->parity ? L2CC_ACR_PEN : 0) |
 	                 (cfg->shared_attr_override ? L2CC_ACR_SAOEN : 0) |
