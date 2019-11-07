@@ -78,8 +78,10 @@ static const struct _l2cc_config l2cc_cfg = {
 	/* Disable Write back (enables write through, Use this setting
 	   if DDR2 mem is not write-back) */
 	//cfg.no_write_back = true,
-	.force_write_alloc = L2CC_FWA_NO_ALLOCATE,
-	.offset = 31,
+	.non_sec_lockdown = true,
+	.cache_replacement = true,
+	.force_write_alloc = L2CC_FWA_DEFAULT,
+	.offset = 1,
 	.prefetch_drop = true,
 	.standby_mode = true,
 	.dyn_clock_gating = true
@@ -508,6 +510,8 @@ void board_cfg_mmu(void)
 	icache_enable();
 	mmu_enable();
 	dcache_enable();
+
+	board_cfg_l2cc();
 }
 
 void board_cfg_l2cc(void)
