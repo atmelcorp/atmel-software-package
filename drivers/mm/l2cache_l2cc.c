@@ -413,8 +413,8 @@ void l2cc_configure(const struct _l2cc_config* cfg)
 	/* Clear all L2CC Interrupt */
 	l2cc_it_clear(0xFF);
 
-	/* Set exclusive mode */
-	l2cache_set_exclusive();
+	/* Set non-exclusive mode */
+	l2cache_set_non_exclusive();
 
 	/* Enable L2CC */
 	l2cache_enable();
