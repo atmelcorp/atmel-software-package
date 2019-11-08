@@ -29,10 +29,15 @@
 # Makefile for compiling the low_power_mode example
 AVAILABLE_TARGETS = sama5d2-ptc-ek sama5d2-xplained sama5d27-som1-ek \
                     sama5d3-xplained sama5d3-ek \
+                    sam9x35-ek sam9x25-ek sam9g35-ek sam9g25-ek sam9g15-ek\
                     sam9x60-ek \
                     sama5d4-xplained sama5d4-ek
 
-AVAILABLE_VARIANTS = sram ddram
+ifneq (,$(filter $(TARGET), sam9x35-ek sam9x25-ek sam9g35-ek sam9g25-ek sam9g15-ek))
+	AVAILABLE_VARIANTS = ddram
+else
+	AVAILABLE_VARIANTS = sram ddram
+endif
 
 TOP := ../..
 

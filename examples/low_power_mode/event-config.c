@@ -67,6 +67,7 @@ const char *event_menu[] = {
  *
  *  Handle process led1 status change.
  */
+#ifdef PINS_PUSHBUTTONS 
 static void _pio_handler(uint32_t group, uint32_t status, void *user_arg)
 {
 	/* unused */
@@ -76,6 +77,7 @@ static void _pio_handler(uint32_t group, uint32_t status, void *user_arg)
 	/* Handle process led1 status change: to do */
 
 }
+#endif
 
 /**
  * \brief Interrupt handler for the RTC. Refreshes the display.
@@ -152,12 +154,12 @@ static void _start_rtc_timer_for_wakeup(unsigned int wakup_in_seconds, bool enab
  */
 static void _configure_buttons(void)
 {
+#ifdef PINS_PUSHBUTTONS 
 	int i;
 
 	/* Adjust pio debounce filter parameters, uses 10 Hz filter. */
 	pio_set_debounce_filter(10);
 
-#ifdef PINS_PUSHBUTTONS
 	for (i = 0; i < ARRAY_SIZE(button_pins); ++i) {
 		/* Configure pios as inputs. */
 		pio_configure(&button_pins[i], 1);

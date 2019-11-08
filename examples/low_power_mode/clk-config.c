@@ -37,12 +37,17 @@
 /*----------------------------------------------------------------------------
  *        Types
  *----------------------------------------------------------------------------*/
+#ifdef CONFIG_SOC_SAM9XX5
+#define EVENT RTC_INT
+#else
+#define EVENT USER_BTN | RTC_INT
+#endif
 
 struct test_mode test_setting[] = {
 	{
 		.name = "idle",
 		.mode = IDLE,
-		.event = USER_BTN | RTC_INT,
+		.event = EVENT,
 		/* PCK = MCK = BOARD_OSC */
 		.clock_test_setting = {
 			.pck_input = (uint32_t)NULL,
@@ -59,7 +64,7 @@ struct test_mode test_setting[] = {
 	{
 		.name = "ulp0_osc",
 		.mode = ULP0,
-		.event = USER_BTN | RTC_INT,
+		.event = EVENT,
 		/* PCK = MCK = BOARD_OSC */
 		.clock_test_setting = {
 			.pck_input = PMC_MCKR_CSS_MAIN_CLK,
@@ -80,7 +85,7 @@ struct test_mode test_setting[] = {
 	{
 		.name = "ulp0_OSC/16",
 		.mode = ULP0,
-		.event = USER_BTN | RTC_INT,
+		.event = EVENT,
 		/* PCK = MCK = BOARD_OSC/16 */
 		.clock_test_setting = {
 			.pck_input = PMC_MCKR_CSS_MAIN_CLK,
@@ -101,7 +106,7 @@ struct test_mode test_setting[] = {
 	{
 		.name = "ulp0_OSC/64",
 		.mode = ULP0,
-		.event = USER_BTN | RTC_INT,
+		.event = EVENT,
 		/* PCK = MCK = BOARD_OSC/64 */
 		.clock_test_setting = {
 			.pck_input = PMC_MCKR_CSS_MAIN_CLK,
@@ -122,7 +127,7 @@ struct test_mode test_setting[] = {
 	{
 		.name = "ulp0_32.768kHz",
 		.mode = ULP0,
-		.event = USER_BTN | RTC_INT,
+		.event = EVENT,
 		/* PCK = MCK = 32.768 kHz */
 		.clock_test_setting = {
 			.pck_input = PMC_MCKR_CSS_SLOW_CLK,
@@ -143,7 +148,7 @@ struct test_mode test_setting[] = {
 	{
 		.name = "ulp0_512Hz",
 		.mode = ULP0,
-		.event = USER_BTN,
+		.event = EVENT,
 		/* PCK = MCK = 32768/64 = 512 Hz */
 		.clock_test_setting = {
 			.pck_input = PMC_MCKR_CSS_SLOW_CLK,
@@ -160,7 +165,7 @@ struct test_mode test_setting[] = {
 	{
 		.name = "ulp0_rc_12MHz",
 		.mode = ULP0,
-		.event = USER_BTN | RTC_INT,
+		.event = EVENT,
 		/* PCK = MCK = 12 MHz (RC) */
 		.clock_test_setting = {
 			.pck_input = PMC_MCKR_CSS_MAIN_CLK,
@@ -181,7 +186,7 @@ struct test_mode test_setting[] = {
 	{
 		.name = "ulp0_plla/3",
 		.mode = ULP0,
-		.event = USER_BTN | RTC_INT,
+		.event = EVENT,
 		/* PLLA = BOARD_OSC*50/2, PCK = PLLA, MCK = PCK/3 */
 		.clock_test_setting = {
 			.pck_input = PMC_MCKR_CSS_PLLA_CLK,
