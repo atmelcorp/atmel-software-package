@@ -27,6 +27,11 @@ of `VDDCORE` or `VDDBU`.
 * SAMA5D4-EK
 * SAMA5D4-XPLAINED
 * SAM9X60-EK
+* SAM9X35-EK
+* SAM9X25-EK
+* SAM9G35-EK
+* SAM9G25-EK
+* SAM9G15-EK
 
 ## Setup
 
@@ -125,5 +130,5 @@ Press 'C' | Verify data in DDR` ... `data OK | PASSED | PASSED
  * The JTAG/SWD speed should be set to adaptive on sam9x60 sram project, because of the processor run with slow clock when switch mck to slck.
  * The GDB adaptive command: JLinkGDBServer -select USB -device arm9 -if JTAG -speed adaptive.
  * Waking up from ulp0_512Hz mode with PB_USER button may take 15 seconds and even much longer for sama5d2-xplained.
- * Need 37ms power down 3V3 after setting SHDN pin low on sama5d3-ek board, the processor will go on to print "enter backup failed", it not really means the backup failed. If D2 LED power-off, means successful backup.
- 
+ * Need 37ms power down 3V3 after setting SHDN pin low on sama5d3-ek/sam9xx5-ek boards, the processor will go on to print "enter backup failed", it not really means the backup failed. If D2 LED power-off, means successful backup.
+ * SAM9XX5-EK only support variant ddram, because of 32-Kbyte of sram is too small to load the sram binary.
