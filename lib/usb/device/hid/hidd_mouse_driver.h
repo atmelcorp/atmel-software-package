@@ -45,8 +45,8 @@
  *    keys are pressed/released.
  */
 
-#ifndef HIDDKEYBOARDDRIVER_H
-#define HIDDKEYBOARDDRIVER_H
+#ifndef HIDDMOUSEDRIVER_H
+#define HIDDMOUSEDRIVER_H
 
 /** \addtogroup usbd_hid_mouse
  *@{
@@ -140,5 +140,5 @@ extern void hidd_mouse_driver_remote_wakeup(void);
 
 /**@}*/
 
-#endif /*#ifndef HIDDKEYBOARDDRIVER_H */
+#endif /*#ifndef HIDDMOUSEDRIVER_H */
 

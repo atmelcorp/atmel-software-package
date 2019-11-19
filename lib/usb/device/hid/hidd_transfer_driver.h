@@ -47,8 +47,8 @@
  *   received data from host.
  */
 
-#ifndef HIDDKEYBOARDDRIVER_H
-#define HIDDKEYBOARDDRIVER_H
+#ifndef HIDDTRANSFERDRIVER_H
+#define HIDDTRANSFERDRIVER_H
 
 /** \addtogroup usbd_hid_tran
  *@{
@@ -130,5 +130,5 @@ extern void hidd_transfer_driver_remote_wakeup(void);
 
 /**@}*/
 
-#endif /*#ifndef HIDDKEYBOARDDRIVER_H*/
+#endif /*#ifndef HIDDTRANSFERDRIVER_H*/
 
