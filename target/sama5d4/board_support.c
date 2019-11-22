@@ -493,8 +493,7 @@ void board_cfg_matrix_for_ddr(void)
 			H64MX_SLAVE_SRAM, MATRIX_AREA_64K, 0x1);
 
 	/* External DDR */
-	/* DDR port 0 not used */
-	for (i = H64MX_SLAVE_DDR_PORT1; i <= H64MX_SLAVE_DDR_PORT7; i++) {
+	for (i = H64MX_SLAVE_DDR_PORT0; i <= H64MX_SLAVE_DDR_PORT7; i++) {
 		matrix_configure_slave_sec(MATRIX0, i, 0xff, 0xff, 0xff);
 		matrix_set_slave_split_addr(MATRIX0, i, MATRIX_AREA_128M, 0xf);
 		matrix_set_slave_region_size(MATRIX0, i, MATRIX_AREA_128M, 0x1);
