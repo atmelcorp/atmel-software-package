@@ -63,7 +63,7 @@ typedef struct {
 	__I  uint32_t Reserved6[1];
 	__IO uint32_t MATRIX_SASSR[15]; /**< \brief (Matrix Offset: 0x0240) Security Areas Split Slave x Register */
 	__I  uint32_t Reserved7[1];
-	__IO uint32_t MATRIX_SRTSR[15]; /**< \brief (Matrix Offset: 0x0284) Security Region Top Slave x Register */
+	__IO uint32_t MATRIX_SRTSR[15]; /**< \brief (Matrix Offset: 0x0280) Security Region Top Slave x Register */
 	__I  uint32_t Reserved8[1];
 	__IO uint32_t MATRIX_SPSELR[3]; /**< \brief (Matrix Offset: 0x02C0) Security Peripheral Select x Register */
 } Matrix;
@@ -246,7 +246,7 @@ typedef struct {
 #define MATRIX_SASSR_SASPLIT7_Pos 28
 #define MATRIX_SASSR_SASPLIT7_Msk (0xfu << MATRIX_SASSR_SASPLIT7_Pos) /**< \brief (MATRIX_SASSR[15]) Security Areas Split for HSELx Security Region */
 #define MATRIX_SASSR_SASPLIT7(value) ((MATRIX_SASSR_SASPLIT7_Msk & ((value) << MATRIX_SASSR_SASPLIT7_Pos)))
-/* -------- MATRIX_SRTSR[15] : (MATRIX Offset: 0x0284) Security Region Top Slave 1 Register -------- */
+/* -------- MATRIX_SRTSR[15] : (MATRIX Offset: 0x0280) Security Region Top Slave 0 Register -------- */
 #define MATRIX_SRTSR_SRTOP0_Pos 0
 #define MATRIX_SRTSR_SRTOP0_Msk (0xfu << MATRIX_SRTSR_SRTOP0_Pos) /**< \brief (MATRIX_SRTSR[15]) HSELx Security Region Top */
 #define MATRIX_SRTSR_SRTOP0(value) ((MATRIX_SRTSR_SRTOP0_Msk & ((value) << MATRIX_SRTSR_SRTOP0_Pos)))
