@@ -526,6 +526,13 @@ void board_cfg_matrix_for_ddr(void)
 	/* Disable write protection */
 	matrix_remove_write_protection(MATRIX0);
 
+	/* 128 KiB internal SRAM: Non-secure */
+	matrix_configure_slave_sec(MATRIX0, H64MX_SLAVE_SRAM, 0x1, 0, 0);
+	matrix_set_slave_region_size(MATRIX0, H64MX_SLAVE_SRAM,
+			MATRIX_AREA_128K, 0x1);
+	matrix_set_slave_split_addr(MATRIX0, H64MX_SLAVE_SRAM,
+			MATRIX_AREA_128K, 0x1);
+
 	/* External DDR */
 	for (i = H64MX_SLAVE_DDR_PORT0; i <= H64MX_SLAVE_DDR_PORT7; i++) {
 		matrix_configure_slave_sec(MATRIX0, i, 0xff, 0xff, 0xff);
