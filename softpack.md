@@ -221,7 +221,7 @@ getting_started        | OK         | OK         | OK              | OK
 isc                    | x          | x          | x               | x
 isi                    | x          | x          | x               | x
 lcd                    | OK         | OK         | x               | TODO
-low_power_mode         | TODO       | OK         | TODO            | TODO
+low_power_mode         | OK         | OK         | TODO            | TODO
 otp                    | x          | OK         | x               | x
 pdmic                  | x          | x          | TODO            | TODO
 pmc_clock_switching    | OK         | OK         | TODO            | OK
