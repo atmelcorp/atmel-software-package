@@ -45,7 +45,7 @@ Connect FLEXUSART4 (RX on J15B:5, TX on J15B:6)
 
 ### sama5d2-xplained
 --------------------
-Connect USART0 (RX on J22:3, TX on J22:4)
+Connect FLEXUSART0 (RX on J22:3, TX on J22:4)
 
 ### sama5d27-som1-ek
 --------------------
