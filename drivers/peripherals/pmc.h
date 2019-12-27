@@ -61,6 +61,7 @@ struct _pmc_plla_cfg {
 	uint32_t pll_id;
 	uint32_t fracr;
 	uint32_t loop_filter;
+	uint32_t lock_thr;
 #endif
 };
 

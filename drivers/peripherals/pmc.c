@@ -440,6 +440,7 @@ RAMCODE static void _pmc_configure_pll(const struct _pmc_plla_cfg* plla)
 	reg = PMC->PMC_PLL_ACR;
 	reg &= ~PMC_PLL_ACR_LOOP_FILTER_Msk;
 	reg |= PMC_PLL_ACR_LOOP_FILTER(plla->loop_filter);
+	reg |= PMC_PLL_ACR_LOCK_THR(plla->lock_thr);
 	PMC->PMC_PLL_ACR = reg;
 
 	/* 3. Define the MUL and FRACR to be applied to PLL(n) in PMC_PLL_CTRL1. */
@@ -1718,6 +1719,8 @@ struct pck_mck_cfg pmc_get_pck_mck_cfg(void)
 		PMC->PMC_PLL_UPDT = (PMC->PMC_PLL_UPDT & ~PMC_PLL_UPDT_ID) | cfg.plla.pll_id;
 		cfg.plla.mul = (PMC->PMC_PLL_CTRL1 & PMC_PLL_CTRL1_MUL_Msk) >> PMC_PLL_CTRL1_MUL_Pos;
 		cfg.plla.div = (PMC->PMC_PLL_CTRL0 & PMC_PLL_CTRL0_DIVPMC_Msk) >> PMC_PLL_CTRL0_DIVPMC_Pos;
+		cfg.plla.loop_filter = (PMC->PMC_PLL_ACR & PMC_PLL_ACR_LOOP_FILTER_Msk) >> PMC_PLL_ACR_LOOP_FILTER_Pos;
+		cfg.plla.lock_thr = (PMC->PMC_PLL_ACR & PMC_PLL_ACR_LOCK_THR_Msk) >> PMC_PLL_ACR_LOCK_THR_Pos;
 	}
 #else
 	if(cfg.pck_input == PMC_MCKR_CSS_PLLA_CLK) {

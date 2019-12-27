@@ -65,7 +65,8 @@
  *----------------------------------------------------------------------------*/
 #define PLLA_DIV 1
 #define PLLA_COUNT 0x3f
-#define PLLA_LOOP_FILTER 0
+#define PLLA_LOOP_FILTER 0x1b
+#define PLLA_LOCK_THR 0x4
 
 #define PLLA_CFG(_mul, _fracr)			\
 	{									\
@@ -74,6 +75,7 @@
 		.count = PLLA_COUNT,			\
 		.fracr = (_fracr),				\
 		.loop_filter = PLLA_LOOP_FILTER,\
+		.lock_thr = PLLA_LOCK_THR,      \
 	}
 
 #define PLLA_FRACR(_p, _q) ((uint32_t)((((uint64_t)(_p)) << 22) / (_q)))
