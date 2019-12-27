@@ -604,8 +604,6 @@ RAMCODE void mpddrc_issue_low_power_command(uint32_t cmd)
 
 RAMCODE void ddr_self_refresh(void)
 {
-	mpddrc_issue_low_power_command(MPDDRC_LPR_LPCB_SELFREFRESH);
-
 #ifdef CONFIG_HAVE_SFRBU
 	if (!sfrbu_is_ddr_backup_enabled()) {
 		/* Disable the DDR Controller clock signal at PMC level*/
@@ -615,6 +613,13 @@ RAMCODE void ddr_self_refresh(void)
 
 		sfrbu_enable_ddr_backup();
 	}
+#else
+	/* Disable the DDR Controller clock signal at PMC level*/
+	pmc_disable_peripheral(ID_MPDDRC);
+	/* Disable ddrclk */
+	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_DDR);
+	/* Enable DDR Self-refresh mode */
+	mpddrc_issue_low_power_command(MPDDRC_LPR_LPCB_SELFREFRESH);
 #endif
 }
 
@@ -629,9 +634,14 @@ RAMCODE void check_ddr_ready(void)
 		/* Disable DDR Backup mode */
 		sfrbu_disable_ddr_backup();
 	}
-#endif
-
+#else
+	/* Enable the DDR Controller clock signal at PMC level */
+	pmc_configure_peripheral(ID_MPDDRC, NULL, true);
+	/* Enable ddrclk */
+	pmc_enable_system_clock(PMC_SYSTEM_CLOCK_DDR);
+	/* Disable DDR Self-refresh mode */
 	mpddrc_issue_low_power_command(MPDDRC_LPR_LPCB_DISABLED);
+#endif
 }
 
 RAMDATA struct pck_mck_cfg clock_setting_backup = {0};

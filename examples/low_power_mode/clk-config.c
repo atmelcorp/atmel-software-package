@@ -74,11 +74,7 @@ struct test_mode test_setting[] = {
 				.mul = 0,
 			},
 			.pck_pres = PMC_MCKR_PRES_CLOCK,
-#if defined(CONFIG_SOC_SAM9X60)
-			.mck_div = PMC_MCKR_MDIV_PCK_DIV3,
-#else
 			.mck_div = PMC_MCKR_MDIV_EQ_PCK,
-#endif
 		},
 	},
 
@@ -95,11 +91,7 @@ struct test_mode test_setting[] = {
 				.mul = 0,
 			},
 			.pck_pres = PMC_MCKR_PRES_CLOCK_DIV16,
-#if defined(CONFIG_SOC_SAM9X60)
-			.mck_div = PMC_MCKR_MDIV_PCK_DIV3,
-#else
 			.mck_div = PMC_MCKR_MDIV_EQ_PCK,
-#endif
 		},
 	},
 
@@ -116,11 +108,7 @@ struct test_mode test_setting[] = {
 				.mul = 0,
 			},
 			.pck_pres = PMC_MCKR_PRES_CLOCK_DIV64,
-#if defined(CONFIG_SOC_SAM9X60)
-			.mck_div = PMC_MCKR_MDIV_PCK_DIV3,
-#else
 			.mck_div = PMC_MCKR_MDIV_EQ_PCK,
-#endif
 		},
 	},
 
@@ -137,11 +125,7 @@ struct test_mode test_setting[] = {
 				.mul = 0,
 			},
 			.pck_pres = PMC_MCKR_PRES_CLOCK,
-#if defined(CONFIG_SOC_SAM9X60)
-			.mck_div = PMC_MCKR_MDIV_PCK_DIV3,
-#else
 			.mck_div = PMC_MCKR_MDIV_EQ_PCK,
-#endif
 		},
 	},	
 
@@ -175,11 +159,7 @@ struct test_mode test_setting[] = {
 				.mul = 0,
 			},
 			.pck_pres = PMC_MCKR_PRES_CLOCK,
-#if defined(CONFIG_SOC_SAM9X60)
-			.mck_div = PMC_MCKR_MDIV_PCK_DIV3,
-#else
 			.mck_div = PMC_MCKR_MDIV_EQ_PCK,
-#endif
 		},
 	},
 
