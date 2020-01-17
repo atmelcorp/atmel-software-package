@@ -294,6 +294,8 @@ static void print_menu(void)
 	       "|      print the result string (block call)             |\r\n"
 	       "| w str                                                 |\r\n"
 	       "|      Write 'str' throught usart                       |\r\n"
+	       "| c                                                     |\r\n"
+	       "|      Demo Comparision Function                        |\r\n"
 	       "| m polling                                             |\r\n"
 	       "| m async                                               |\r\n"
 	       "| m dma                                                 |\r\n"
@@ -324,6 +326,33 @@ static void _usart_feature_arg_parser(const uint8_t* buffer, uint32_t len)
 }
 #endif /* CONFIG_HAVE_USART_FIFO */
 
+static int usart_finish_compare_callback(void* arg, void* arg2)
+{
+	uint8_t *buf = (uint8_t *)arg;
+	uint32_t i = 0;
+	usartd_finish_rx_transfer(0);
+	printf("\r\nmessage received on comparison match: ");
+	do
+		printf("%c", buf[i++]);
+	while (i < (uint32_t)arg2);
+	return 0;
+}
+
+static void demo_simple_comparison(uint8_t val1, uint8_t val2)
+{
+	struct _buffer rx = {
+		.data = (unsigned char*)read_buffer,
+		.size = sizeof(read_buffer),
+		.attr = USARTD_BUF_ATTR_READ,
+	};
+	struct _callback _cb = {
+		.method = usart_finish_compare_callback,
+		.arg = read_buffer,
+	};
+	usartd_compare_receive(0, val1, val2, &rx, &_cb);
+	usartd_wait_rx_transfer(0);
+}
+
 static void _usart_mode_arg_parser(const uint8_t* buffer, uint32_t len)
 {
 	if (!strncmp((char*)buffer, "polling", 7)) {
@@ -346,6 +375,16 @@ static void _usart_cmd_parser(const uint8_t* buffer, uint32_t len)
 		print_menu();
 		return;
 	}
+	if ((*buffer == 'c') || (*buffer == 'C')) {
+		printf("\r\nUSART Comparison function: ");
+		printf("\r\ntring send some short messages to USART, the message would be printed out once \"5\" is sent...");
+		demo_simple_comparison('5', '5');
+		demo_simple_comparison('5', '5');
+		demo_simple_comparison('5', '5');
+		print_menu();
+		return;
+	}
+
 	if (*(buffer+1) != ' ') {
 		printf("Commands can only be one caracter size\r\n");
 		printf("%c%c\r\n", *buffer, *(buffer+1));
