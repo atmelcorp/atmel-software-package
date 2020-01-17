@@ -146,6 +146,30 @@ static void _usartd_dma_write(uint8_t iface)
 	dma_start_transfer(desc->dma.tx.channel);
 }
 
+static int _usartd_compare_callback(void* arg, void* arg2)
+{
+	uint8_t iface = (uint32_t)arg;
+	assert(iface < USART_IFACE_COUNT);
+	struct _usart_desc *desc = _serial[iface];
+
+	struct _dma_channel* channel = desc->dma.rx.channel;
+
+	if (!dma_is_transfer_done(channel))
+		dma_stop_transfer(channel);
+	dma_fifo_flush(channel);
+
+	desc->rx.transferred = dma_get_transferred_data_len(channel, desc->dma.rx.cfg_dma.chunk_size, desc->dma.rx.cfg.len);
+	if (desc->rx.transferred > 0)
+		cache_invalidate_region(desc->dma.rx.cfg.daddr, desc->rx.transferred);
+
+	dma_reset_channel(desc->dma.rx.channel);
+	mutex_unlock(&desc->rx.mutex);
+
+	callback_call(&desc->rx.callback, (void*)desc->rx.transferred);
+
+	return 0;
+}
+
 static void _usartd_handler(uint32_t source, void* user_arg)
 {
 	int iface;
@@ -171,6 +195,11 @@ static void _usartd_handler(uint32_t source, void* user_arg)
 	status = usart_get_masked_status(addr);
 	desc->rx.has_timeout = false;
 
+	if ((status & US_CSR_CMP) == US_CSR_CMP) {
+		usart_disable_it(addr, US_IDR_CMP);
+		_usartd_compare_callback((void *)iface, NULL);
+		usart_disable_it(desc->addr, US_IDR_RXRDY);
+	}
 	if (USART_STATUS_RXRDY(status)) {
 		if (desc->rx.buffer.size) {
 			desc->rx.buffer.data[desc->rx.transferred] = usart_get_char(addr);
@@ -433,6 +462,36 @@ uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf, struct _callback* c
 	}
 
 	return USARTD_SUCCESS;
+}
+
+uint32_t usartd_compare_receive(uint8_t iface, uint8_t val1, uint8_t val2, struct _buffer* buf, struct _callback* cb)
+{
+	struct _callback _cb;
+	assert(iface < USART_IFACE_COUNT);
+	struct _usart_desc *desc = _serial[iface];
+
+	desc->rx.transferred = 0;
+	desc->rx.buffer.data = buf->data;
+	desc->rx.buffer.size = buf->size;
+	callback_copy(&desc->rx.callback, cb);
+
+	if (!mutex_try_lock(&desc->rx.mutex))
+		return USARTD_ERROR_LOCK;
+
+	desc->addr->US_CR = US_CR_REQCLR | US_CR_RSTSTA;
+	desc->addr->US_CMPR = US_CMPR_CMPMODE_FLAG_ONLY | US_CMPR_VAL1(val1) | US_CMPR_VAL2(val2);
+	usart_enable_it(desc->addr, US_IER_CMP);
+	usart_set_rx_timeout(desc->addr, 115200, 0);
+
+	memset(&desc->dma.rx.cfg, 0x0, sizeof(desc->dma.rx.cfg));
+	desc->dma.rx.cfg.saddr = (void *)&desc->addr->US_RHR;
+	desc->dma.rx.cfg.daddr = desc->rx.buffer.data;
+	desc->dma.rx.cfg.len = desc->rx.buffer.size;
+	dma_configure_transfer(desc->dma.rx.channel, &desc->dma.rx.cfg_dma, &desc->dma.rx.cfg, 1);
+	callback_set(&_cb, _usartd_compare_callback, (void*)(uint32_t)iface);
+	dma_set_callback(desc->dma.rx.channel, &_cb);
+	dma_start_transfer(desc->dma.rx.channel);
+	return 0;
 }
 
 void usartd_finish_rx_transfer(uint8_t iface)
