@@ -80,6 +80,9 @@ F_BIT           DEFINE 0x40
         EXTERN  prefetch_abort_irq_handler
         EXTERN  data_abort_irq_handler
         EXTERN  software_interrupt_irq_handler
+#ifdef CONFIG_TIMER
+        EXTERN  board_get_timer
+#endif
 #ifdef CONFIG_RAMCODE
         EXTERN  _ddr_active_needed
         EXTERN  ddram_active
@@ -172,7 +175,9 @@ irqHandler:
         stmfd       sp!, {lr}
         mrs         lr, SPSR
         stmfd       sp!, {r0, lr}
-
+#ifdef CONFIG_TIMER
+        bl board_get_timer
+#endif
 #ifdef CONFIG_RAMCODE
         ldr r0, =_ddr_active_needed
         ldr r0, [r0]
