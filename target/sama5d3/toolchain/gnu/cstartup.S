@@ -105,6 +105,9 @@ irqHandler:
 	stmfd   sp!, {lr}
 	mrs     lr, SPSR
 	stmfd   sp!, {r0, lr}
+#ifdef CONFIG_TIMER
+	bl board_get_timer
+#endif
 
 #ifdef CONFIG_RAMCODE
 	ldr r0, =_ddr_active_needed
