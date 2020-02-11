@@ -189,12 +189,18 @@ void board_restore_pio_reset_state(void)
 {
 	int i;
 
-	/* all pins, excluding JTAG and NTRST */
+#ifdef PINS_PUSHBUTTONS
+	const struct _pin button_pins = PIN_PUSHBUTTON_1;
+#else
+	const struct _pin button_pins = { 0x0, 0x0, 0x0, 0x0 };
+#endif
+	/* all pins, except button pins */
 	struct _pin pins[] = {
 		{ PIO_GROUP_A, 0xFFFFFFFF, PIO_INPUT, PIO_PULLUP },
 		{ PIO_GROUP_B, 0xFFFFFFFF, PIO_INPUT, PIO_PULLUP },
 		{ PIO_GROUP_C, 0xFFFFFFFF, PIO_INPUT, PIO_PULLUP },
-		{ PIO_GROUP_D, 0xFFF83FFF, PIO_INPUT, PIO_PULLUP },
+		{ PIO_GROUP_D, 0xFFFFFFFF, PIO_INPUT, PIO_PULLUP },
+		{ PIO_GROUP_E, 0xFFFFFFFF ^ (button_pins.mask), PIO_INPUT, PIO_PULLUP },
 	};
 
 	/* For low_power_mode example, power consumption results can be affected
@@ -246,7 +252,7 @@ void board_save_misc_power(void)
 
 	/* disable all peripheral clocks except PIOA for JTAG, serial debug port */
 	for (i = ID_PIT; i < ID_PERIPH_COUNT; i++) {
-		if (i == ID_PIOA)
+		if (i == ID_PIOE)
 			continue;
 		if (i == tc_id)
 			continue;
