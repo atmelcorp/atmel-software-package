@@ -45,7 +45,7 @@ typedef struct {
 /** \brief PmeccRem hardware registers */
 typedef struct {
   __I uint32_t PMECC_REM[12]; /**< \brief (PmeccRem Offset: 0x0) PMECC REM x Register */
-  __I uint32_t Reserved2[4];
+  __I uint32_t Reserved1[4];
 } PmeccRem;
 /** \brief Pmecc hardware registers */
 #define PMECCECC_NUMBER 8

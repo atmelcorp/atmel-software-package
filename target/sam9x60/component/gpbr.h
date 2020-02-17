@@ -39,12 +39,12 @@
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief Gpbr hardware registers */
 typedef struct {
-  __IO uint32_t GPBR_MR;     /**< \brief (Gpbr Offset: 0x0) GPBR Mode Register */
-  __IO uint32_t GPBR_FCLR;   /**< \brief (Gpbr Offset: 0x4) GPBR Full Clear Register */
+  __IO uint32_t GPBR_MR;     /**< \brief (Gpbr Offset: 0x0) Mode Register */
+  __IO uint32_t GPBR_FCLR;   /**< \brief (Gpbr Offset: 0x4) Full Clear Register */
   __IO uint32_t SYS_GPBR[8]; /**< \brief (Gpbr Offset: 0x8) General Purpose Backup Register */
 } Gpbr;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
-/* -------- GPBR_MR : (GPBR Offset: 0x0) GPBR Mode Register -------- */
+/* -------- GPBR_MR : (GPBR Offset: 0x0) Mode Register -------- */
 #define GPBR_MR_GPBRWP0 (0x1u << 0) /**< \brief (GPBR_MR) GPBRx Write Protection */
 #define GPBR_MR_GPBRWP1 (0x1u << 1) /**< \brief (GPBR_MR) GPBRx Write Protection */
 #define GPBR_MR_GPBRWP2 (0x1u << 2) /**< \brief (GPBR_MR) GPBRx Write Protection */
@@ -77,11 +77,11 @@ typedef struct {
 #define GPBR_MR_GPBRRP13 (0x1u << 29) /**< \brief (GPBR_MR) GPBRx Read Protection */
 #define GPBR_MR_GPBRRP14 (0x1u << 30) /**< \brief (GPBR_MR) GPBRx Read Protection */
 #define GPBR_MR_GPBRRP15 (0x1u << 31) /**< \brief (GPBR_MR) GPBRx Read Protection */
-/* -------- GPBR_FCLR : (GPBR Offset: 0x4) GPBR Full Clear Register -------- */
+/* -------- GPBR_FCLR : (GPBR Offset: 0x4) Full Clear Register -------- */
 #define GPBR_FCLR_FCLR (0x1u << 0) /**< \brief (GPBR_FCLR) Full Clear Enable */
 /* -------- SYS_GPBR[8] : (GPBR Offset: 0x8) General Purpose Backup Register -------- */
 #define SYS_GPBR_GPBR_VALUE_Pos 0
-#define SYS_GPBR_GPBR_VALUE_Msk (0xffffffffu << SYS_GPBR_GPBR_VALUE_Pos) /**< \brief (SYS_GPBR[8]) Value of SYS_GPBR x */
+#define SYS_GPBR_GPBR_VALUE_Msk (0xffffffffu << SYS_GPBR_GPBR_VALUE_Pos) /**< \brief (SYS_GPBR[8]) Value of SYS_GPBRx */
 #define SYS_GPBR_GPBR_VALUE(value) ((SYS_GPBR_GPBR_VALUE_Msk & ((value) << SYS_GPBR_GPBR_VALUE_Pos)))
 
 /*@}*/

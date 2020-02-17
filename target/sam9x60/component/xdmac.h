@@ -377,29 +377,29 @@ typedef struct {
 #define XDMAC_CIS_ROIS (0x1u << 6) /**< \brief (XDMAC_CIS) Request Overflow Error Interrupt Status */
 /* -------- XDMAC_CSA : (XDMAC Offset: N/A) Channel Source Address Register -------- */
 #define XDMAC_CSA_SA_Pos 0
-#define XDMAC_CSA_SA_Msk (0xffffffffu << XDMAC_CSA_SA_Pos) /**< \brief (XDMAC_CSA) Channel 0 Source Address */
+#define XDMAC_CSA_SA_Msk (0xffffffffu << XDMAC_CSA_SA_Pos) /**< \brief (XDMAC_CSA) Channel x Source Address */
 #define XDMAC_CSA_SA(value) ((XDMAC_CSA_SA_Msk & ((value) << XDMAC_CSA_SA_Pos)))
 /* -------- XDMAC_CDA : (XDMAC Offset: N/A) Channel Destination Address Register -------- */
 #define XDMAC_CDA_DA_Pos 0
-#define XDMAC_CDA_DA_Msk (0xffffffffu << XDMAC_CDA_DA_Pos) /**< \brief (XDMAC_CDA) Channel 0 Destination Address */
+#define XDMAC_CDA_DA_Msk (0xffffffffu << XDMAC_CDA_DA_Pos) /**< \brief (XDMAC_CDA) Channel x Destination Address */
 #define XDMAC_CDA_DA(value) ((XDMAC_CDA_DA_Msk & ((value) << XDMAC_CDA_DA_Pos)))
 /* -------- XDMAC_CNDA : (XDMAC Offset: N/A) Channel Next Descriptor Address Register -------- */
-#define XDMAC_CNDA_NDAIF (0x1u << 0) /**< \brief (XDMAC_CNDA) Channel 0 Next Descriptor Interface */
+#define XDMAC_CNDA_NDAIF (0x1u << 0) /**< \brief (XDMAC_CNDA) Channel x Next Descriptor Interface */
 #define XDMAC_CNDA_NDA_Pos 2
-#define XDMAC_CNDA_NDA_Msk (0x3fffffffu << XDMAC_CNDA_NDA_Pos) /**< \brief (XDMAC_CNDA) Channel 0 Next Descriptor Address */
+#define XDMAC_CNDA_NDA_Msk (0x3fffffffu << XDMAC_CNDA_NDA_Pos) /**< \brief (XDMAC_CNDA) Channel x Next Descriptor Address */
 #define XDMAC_CNDA_NDA(value) ((XDMAC_CNDA_NDA_Msk & ((value) << XDMAC_CNDA_NDA_Pos)))
 /* -------- XDMAC_CNDC : (XDMAC Offset: N/A) Channel Next Descriptor Control Register -------- */
-#define XDMAC_CNDC_NDE (0x1u << 0) /**< \brief (XDMAC_CNDC) Channel 0 Next Descriptor Enable */
+#define XDMAC_CNDC_NDE (0x1u << 0) /**< \brief (XDMAC_CNDC) Channel x Next Descriptor Enable */
 #define   XDMAC_CNDC_NDE_DSCR_FETCH_DIS (0x0u << 0) /**< \brief (XDMAC_CNDC) Descriptor fetch is disabled. */
 #define   XDMAC_CNDC_NDE_DSCR_FETCH_EN (0x1u << 0) /**< \brief (XDMAC_CNDC) Descriptor fetch is enabled. */
-#define XDMAC_CNDC_NDSUP (0x1u << 1) /**< \brief (XDMAC_CNDC) Channel 0 Next Descriptor Source Update */
+#define XDMAC_CNDC_NDSUP (0x1u << 1) /**< \brief (XDMAC_CNDC) Channel x Next Descriptor Source Update */
 #define   XDMAC_CNDC_NDSUP_SRC_PARAMS_UNCHANGED (0x0u << 1) /**< \brief (XDMAC_CNDC) Source parameters remain unchanged. */
 #define   XDMAC_CNDC_NDSUP_SRC_PARAMS_UPDATED (0x1u << 1) /**< \brief (XDMAC_CNDC) Source parameters are updated when the descriptor is retrieved. */
-#define XDMAC_CNDC_NDDUP (0x1u << 2) /**< \brief (XDMAC_CNDC) Channel 0 Next Descriptor Destination Update */
+#define XDMAC_CNDC_NDDUP (0x1u << 2) /**< \brief (XDMAC_CNDC) Channel x Next Descriptor Destination Update */
 #define   XDMAC_CNDC_NDDUP_DST_PARAMS_UNCHANGED (0x0u << 2) /**< \brief (XDMAC_CNDC) Destination parameters remain unchanged. */
 #define   XDMAC_CNDC_NDDUP_DST_PARAMS_UPDATED (0x1u << 2) /**< \brief (XDMAC_CNDC) Destination parameters are updated when the descriptor is retrieved. */
 #define XDMAC_CNDC_NDVIEW_Pos 3
-#define XDMAC_CNDC_NDVIEW_Msk (0x3u << XDMAC_CNDC_NDVIEW_Pos) /**< \brief (XDMAC_CNDC) Channel 0 Next Descriptor View */
+#define XDMAC_CNDC_NDVIEW_Msk (0x3u << XDMAC_CNDC_NDVIEW_Pos) /**< \brief (XDMAC_CNDC) Channel x Next Descriptor View */
 #define XDMAC_CNDC_NDVIEW(value) ((XDMAC_CNDC_NDVIEW_Msk & ((value) << XDMAC_CNDC_NDVIEW_Pos)))
 #define   XDMAC_CNDC_NDVIEW_NDV0 (0x0u << 3) /**< \brief (XDMAC_CNDC) Next Descriptor View 0 */
 #define   XDMAC_CNDC_NDVIEW_NDV1 (0x1u << 3) /**< \brief (XDMAC_CNDC) Next Descriptor View 1 */
@@ -410,34 +410,34 @@ typedef struct {
 #define XDMAC_CNDC_QOS(value) ((XDMAC_CNDC_QOS_Msk & ((value) << XDMAC_CNDC_QOS_Pos)))
 /* -------- XDMAC_CUBC : (XDMAC Offset: N/A) Channel Microblock Control Register -------- */
 #define XDMAC_CUBC_UBLEN_Pos 0
-#define XDMAC_CUBC_UBLEN_Msk (0xffffffu << XDMAC_CUBC_UBLEN_Pos) /**< \brief (XDMAC_CUBC) Channel 0 Microblock Length */
+#define XDMAC_CUBC_UBLEN_Msk (0xffffffu << XDMAC_CUBC_UBLEN_Pos) /**< \brief (XDMAC_CUBC) Channel x Microblock Length */
 #define XDMAC_CUBC_UBLEN(value) ((XDMAC_CUBC_UBLEN_Msk & ((value) << XDMAC_CUBC_UBLEN_Pos)))
 /* -------- XDMAC_CBC : (XDMAC Offset: N/A) Channel Block Control Register -------- */
 #define XDMAC_CBC_BLEN_Pos 0
-#define XDMAC_CBC_BLEN_Msk (0xfffu << XDMAC_CBC_BLEN_Pos) /**< \brief (XDMAC_CBC) Channel 0 Block Length */
+#define XDMAC_CBC_BLEN_Msk (0xfffu << XDMAC_CBC_BLEN_Pos) /**< \brief (XDMAC_CBC) Channel x Block Length */
 #define XDMAC_CBC_BLEN(value) ((XDMAC_CBC_BLEN_Msk & ((value) << XDMAC_CBC_BLEN_Pos)))
 /* -------- XDMAC_CC : (XDMAC Offset: N/A) Channel Configuration Register -------- */
-#define XDMAC_CC_TYPE (0x1u << 0) /**< \brief (XDMAC_CC) Channel 0 Transfer Type */
+#define XDMAC_CC_TYPE (0x1u << 0) /**< \brief (XDMAC_CC) Channel x Transfer Type */
 #define   XDMAC_CC_TYPE_MEM_TRAN (0x0u << 0) /**< \brief (XDMAC_CC) Self-triggered mode (memory-to-memory transfer). */
 #define   XDMAC_CC_TYPE_PER_TRAN (0x1u << 0) /**< \brief (XDMAC_CC) Synchronized mode (peripheral-to-memory or memory-to-peripheral transfer). */
 #define XDMAC_CC_MBSIZE_Pos 1
-#define XDMAC_CC_MBSIZE_Msk (0x3u << XDMAC_CC_MBSIZE_Pos) /**< \brief (XDMAC_CC) Channel 0 Memory Burst Size */
+#define XDMAC_CC_MBSIZE_Msk (0x3u << XDMAC_CC_MBSIZE_Pos) /**< \brief (XDMAC_CC) Channel x Memory Burst Size */
 #define XDMAC_CC_MBSIZE(value) ((XDMAC_CC_MBSIZE_Msk & ((value) << XDMAC_CC_MBSIZE_Pos)))
 #define   XDMAC_CC_MBSIZE_SINGLE (0x0u << 1) /**< \brief (XDMAC_CC) The memory burst size is set to one. */
 #define   XDMAC_CC_MBSIZE_FOUR (0x1u << 1) /**< \brief (XDMAC_CC) The memory burst size is set to four. */
 #define   XDMAC_CC_MBSIZE_EIGHT (0x2u << 1) /**< \brief (XDMAC_CC) The memory burst size is set to eight. */
 #define   XDMAC_CC_MBSIZE_SIXTEEN (0x3u << 1) /**< \brief (XDMAC_CC) The memory burst size is set to sixteen. */
-#define XDMAC_CC_DSYNC (0x1u << 4) /**< \brief (XDMAC_CC) Channel 0 Synchronization */
+#define XDMAC_CC_DSYNC (0x1u << 4) /**< \brief (XDMAC_CC) Channel x Synchronization */
 #define   XDMAC_CC_DSYNC_PER2MEM (0x0u << 4) /**< \brief (XDMAC_CC) Peripheral-to-memory transfer. */
 #define   XDMAC_CC_DSYNC_MEM2PER (0x1u << 4) /**< \brief (XDMAC_CC) Memory-to-peripheral transfer */
-#define XDMAC_CC_SWREQ (0x1u << 6) /**< \brief (XDMAC_CC) Channel 0 Software Request Trigger */
+#define XDMAC_CC_SWREQ (0x1u << 6) /**< \brief (XDMAC_CC) Channel x Software Request Trigger */
 #define   XDMAC_CC_SWREQ_HWR_CONNECTED (0x0u << 6) /**< \brief (XDMAC_CC) Hardware request line is connected to the peripheral request line. */
 #define   XDMAC_CC_SWREQ_SWR_CONNECTED (0x1u << 6) /**< \brief (XDMAC_CC) Software request is connected to the peripheral request line. */
-#define XDMAC_CC_MEMSET (0x1u << 7) /**< \brief (XDMAC_CC) Channel 0 Fill Block of Memory */
+#define XDMAC_CC_MEMSET (0x1u << 7) /**< \brief (XDMAC_CC) Channel x Fill Block of Memory */
 #define   XDMAC_CC_MEMSET_NORMAL_MODE (0x0u << 7) /**< \brief (XDMAC_CC) Memset is not activated. */
 #define   XDMAC_CC_MEMSET_HW_MODE (0x1u << 7) /**< \brief (XDMAC_CC) Sets the block of memory pointed by DA field to the specified value. This operation is performed on 8-, 16- or 32-bit basis. */
 #define XDMAC_CC_CSIZE_Pos 8
-#define XDMAC_CC_CSIZE_Msk (0x7u << XDMAC_CC_CSIZE_Pos) /**< \brief (XDMAC_CC) Channel 0 Chunk Size */
+#define XDMAC_CC_CSIZE_Msk (0x7u << XDMAC_CC_CSIZE_Pos) /**< \brief (XDMAC_CC) Channel x Chunk Size */
 #define XDMAC_CC_CSIZE(value) ((XDMAC_CC_CSIZE_Msk & ((value) << XDMAC_CC_CSIZE_Pos)))
 #define   XDMAC_CC_CSIZE_CHK_1 (0x0u << 8) /**< \brief (XDMAC_CC) 1 data transferred */
 #define   XDMAC_CC_CSIZE_CHK_2 (0x1u << 8) /**< \brief (XDMAC_CC) 2 data transferred */
@@ -445,26 +445,26 @@ typedef struct {
 #define   XDMAC_CC_CSIZE_CHK_8 (0x3u << 8) /**< \brief (XDMAC_CC) 8 data transferred */
 #define   XDMAC_CC_CSIZE_CHK_16 (0x4u << 8) /**< \brief (XDMAC_CC) 16 data transferred */
 #define XDMAC_CC_DWIDTH_Pos 11
-#define XDMAC_CC_DWIDTH_Msk (0x3u << XDMAC_CC_DWIDTH_Pos) /**< \brief (XDMAC_CC) Channel 0 Data Width */
+#define XDMAC_CC_DWIDTH_Msk (0x3u << XDMAC_CC_DWIDTH_Pos) /**< \brief (XDMAC_CC) Channel x Data Width */
 #define XDMAC_CC_DWIDTH(value) ((XDMAC_CC_DWIDTH_Msk & ((value) << XDMAC_CC_DWIDTH_Pos)))
 #define   XDMAC_CC_DWIDTH_BYTE (0x0u << 11) /**< \brief (XDMAC_CC) The data size is set to 8 bits */
 #define   XDMAC_CC_DWIDTH_HALFWORD (0x1u << 11) /**< \brief (XDMAC_CC) The data size is set to 16 bits */
 #define   XDMAC_CC_DWIDTH_WORD (0x2u << 11) /**< \brief (XDMAC_CC) The data size is set to 32 bits */
-#define XDMAC_CC_SIF (0x1u << 13) /**< \brief (XDMAC_CC) Channel 0 Source Interface Identifier */
+#define XDMAC_CC_SIF (0x1u << 13) /**< \brief (XDMAC_CC) Channel x Source Interface Identifier */
 #define   XDMAC_CC_SIF_AHB_IF0 (0x0u << 13) /**< \brief (XDMAC_CC) The data is read through system bus interface 0. */
 #define   XDMAC_CC_SIF_AHB_IF1 (0x1u << 13) /**< \brief (XDMAC_CC) The data is read through system bus interface 1. */
-#define XDMAC_CC_DIF (0x1u << 14) /**< \brief (XDMAC_CC) Channel 0 Destination Interface Identifier */
+#define XDMAC_CC_DIF (0x1u << 14) /**< \brief (XDMAC_CC) Channel x Destination Interface Identifier */
 #define   XDMAC_CC_DIF_AHB_IF0 (0x0u << 14) /**< \brief (XDMAC_CC) The data is written through system bus interface 0. */
 #define   XDMAC_CC_DIF_AHB_IF1 (0x1u << 14) /**< \brief (XDMAC_CC) The data is written though system bus interface 1. */
 #define XDMAC_CC_SAM_Pos 16
-#define XDMAC_CC_SAM_Msk (0x3u << XDMAC_CC_SAM_Pos) /**< \brief (XDMAC_CC) Channel 0 Source Addressing Mode */
+#define XDMAC_CC_SAM_Msk (0x3u << XDMAC_CC_SAM_Pos) /**< \brief (XDMAC_CC) Channel x Source Addressing Mode */
 #define XDMAC_CC_SAM(value) ((XDMAC_CC_SAM_Msk & ((value) << XDMAC_CC_SAM_Pos)))
 #define   XDMAC_CC_SAM_FIXED_AM (0x0u << 16) /**< \brief (XDMAC_CC) The address remains unchanged. */
 #define   XDMAC_CC_SAM_INCREMENTED_AM (0x1u << 16) /**< \brief (XDMAC_CC) The addressing mode is incremented (the increment size is set to the data size). */
 #define   XDMAC_CC_SAM_UBS_AM (0x2u << 16) /**< \brief (XDMAC_CC) The microblock stride is added at the microblock boundary. */
 #define   XDMAC_CC_SAM_UBS_DS_AM (0x3u << 16) /**< \brief (XDMAC_CC) The microblock stride is added at the microblock boundary, the data stride is added at the data boundary. */
 #define XDMAC_CC_DAM_Pos 18
-#define XDMAC_CC_DAM_Msk (0x3u << XDMAC_CC_DAM_Pos) /**< \brief (XDMAC_CC) Channel 0 Destination Addressing Mode */
+#define XDMAC_CC_DAM_Msk (0x3u << XDMAC_CC_DAM_Pos) /**< \brief (XDMAC_CC) Channel x Destination Addressing Mode */
 #define XDMAC_CC_DAM(value) ((XDMAC_CC_DAM_Msk & ((value) << XDMAC_CC_DAM_Pos)))
 #define   XDMAC_CC_DAM_FIXED_AM (0x0u << 18) /**< \brief (XDMAC_CC) The address remains unchanged. */
 #define   XDMAC_CC_DAM_INCREMENTED_AM (0x1u << 18) /**< \brief (XDMAC_CC) The addressing mode is incremented (the increment size is set to the data size). */
@@ -480,22 +480,22 @@ typedef struct {
 #define   XDMAC_CC_WRIP_DONE (0x0u << 23) /**< \brief (XDMAC_CC) No active write transaction on the bus. */
 #define   XDMAC_CC_WRIP_IN_PROGRESS (0x1u << 23) /**< \brief (XDMAC_CC) A write transaction is in progress. */
 #define XDMAC_CC_PERID_Pos 24
-#define XDMAC_CC_PERID_Msk (0x7fu << XDMAC_CC_PERID_Pos) /**< \brief (XDMAC_CC) Channel 0 Peripheral Hardware Request Line Identifier */
+#define XDMAC_CC_PERID_Msk (0x7fu << XDMAC_CC_PERID_Pos) /**< \brief (XDMAC_CC) Channel x Peripheral Hardware Request Line Identifier */
 #define XDMAC_CC_PERID(value) ((XDMAC_CC_PERID_Msk & ((value) << XDMAC_CC_PERID_Pos)))
 /* -------- XDMAC_CDS_MSP : (XDMAC Offset: N/A) Channel Data Stride Memory Set Pattern -------- */
 #define XDMAC_CDS_MSP_SDS_MSP_Pos 0
-#define XDMAC_CDS_MSP_SDS_MSP_Msk (0xffffu << XDMAC_CDS_MSP_SDS_MSP_Pos) /**< \brief (XDMAC_CDS_MSP) Channel 0 Source Data stride or Memory Set Pattern */
+#define XDMAC_CDS_MSP_SDS_MSP_Msk (0xffffu << XDMAC_CDS_MSP_SDS_MSP_Pos) /**< \brief (XDMAC_CDS_MSP) Channel x Source Data stride or Memory Set Pattern */
 #define XDMAC_CDS_MSP_SDS_MSP(value) ((XDMAC_CDS_MSP_SDS_MSP_Msk & ((value) << XDMAC_CDS_MSP_SDS_MSP_Pos)))
 #define XDMAC_CDS_MSP_DDS_MSP_Pos 16
-#define XDMAC_CDS_MSP_DDS_MSP_Msk (0xffffu << XDMAC_CDS_MSP_DDS_MSP_Pos) /**< \brief (XDMAC_CDS_MSP) Channel 0 Destination Data Stride or Memory Set Pattern */
+#define XDMAC_CDS_MSP_DDS_MSP_Msk (0xffffu << XDMAC_CDS_MSP_DDS_MSP_Pos) /**< \brief (XDMAC_CDS_MSP) Channel x Destination Data Stride or Memory Set Pattern */
 #define XDMAC_CDS_MSP_DDS_MSP(value) ((XDMAC_CDS_MSP_DDS_MSP_Msk & ((value) << XDMAC_CDS_MSP_DDS_MSP_Pos)))
 /* -------- XDMAC_CSUS : (XDMAC Offset: N/A) Channel Source Microblock Stride -------- */
 #define XDMAC_CSUS_SUBS_Pos 0
-#define XDMAC_CSUS_SUBS_Msk (0xffffffu << XDMAC_CSUS_SUBS_Pos) /**< \brief (XDMAC_CSUS) Channel 0 Source Microblock Stride */
+#define XDMAC_CSUS_SUBS_Msk (0xffffffu << XDMAC_CSUS_SUBS_Pos) /**< \brief (XDMAC_CSUS) Channel x Source Microblock Stride */
 #define XDMAC_CSUS_SUBS(value) ((XDMAC_CSUS_SUBS_Msk & ((value) << XDMAC_CSUS_SUBS_Pos)))
 /* -------- XDMAC_CDUS : (XDMAC Offset: N/A) Channel Destination Microblock Stride -------- */
 #define XDMAC_CDUS_DUBS_Pos 0
-#define XDMAC_CDUS_DUBS_Msk (0xffffffu << XDMAC_CDUS_DUBS_Pos) /**< \brief (XDMAC_CDUS) Channel 0 Destination Microblock Stride */
+#define XDMAC_CDUS_DUBS_Msk (0xffffffu << XDMAC_CDUS_DUBS_Pos) /**< \brief (XDMAC_CDUS) Channel x Destination Microblock Stride */
 #define XDMAC_CDUS_DUBS(value) ((XDMAC_CDUS_DUBS_Msk & ((value) << XDMAC_CDUS_DUBS_Pos)))
 
 /*@}*/

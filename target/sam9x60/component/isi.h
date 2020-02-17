@@ -71,6 +71,7 @@ typedef struct {
 #define ISI_CFG1_HSYNC_POL (0x1u << 2) /**< \brief (ISI_CFG1) Horizontal Synchronization Polarity */
 #define ISI_CFG1_VSYNC_POL (0x1u << 3) /**< \brief (ISI_CFG1) Vertical Synchronization Polarity */
 #define ISI_CFG1_PIXCLK_POL (0x1u << 4) /**< \brief (ISI_CFG1) Pixel Clock Polarity */
+#define ISI_CFG1_GRAYLE (0x1u << 5) /**< \brief (ISI_CFG1) Grayscale Little Endian */
 #define ISI_CFG1_EMB_SYNC (0x1u << 6) /**< \brief (ISI_CFG1) Embedded Synchronization */
 #define ISI_CFG1_CRC_SYNC (0x1u << 7) /**< \brief (ISI_CFG1) Embedded Synchronization Correction */
 #define ISI_CFG1_FRATE_Pos 8

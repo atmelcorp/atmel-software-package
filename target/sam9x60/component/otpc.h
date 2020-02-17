@@ -67,7 +67,7 @@ typedef struct {
 #define OTPC_CR_CKSGEN (0x1u << 1) /**< \brief (OTPC_CR) Generate Checksum */
 #define OTPC_CR_INVLD (0x1u << 2) /**< \brief (OTPC_CR) Invalidate Packet */
 #define OTPC_CR_HIDE (0x1u << 4) /**< \brief (OTPC_CR) Hide Packet */
-#define OTPC_CR_READ (0x1u << 6) /**< \brief (OTPC_CR) Read Area */
+#define OTPC_CR_READ (0x1u << 6) /**< \brief (OTPC_CR) Read Packet */
 #define OTPC_CR_FLUSH (0x1u << 7) /**< \brief (OTPC_CR) Flush Temporary Registers */
 #define OTPC_CR_KBSTART (0x1u << 8) /**< \brief (OTPC_CR) Key Bus Transfer Start */
 #define OTPC_CR_KBSTOP (0x1u << 9) /**< \brief (OTPC_CR) Key Bus Transfer Stop */

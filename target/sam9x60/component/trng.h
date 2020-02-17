@@ -67,9 +67,9 @@ typedef struct {
 #define TRNG_PKBCR_KSLAVE_Pos 4
 #define TRNG_PKBCR_KSLAVE_Msk (0x3u << TRNG_PKBCR_KSLAVE_Pos) /**< \brief (TRNG_PKBCR) Key Bus Slave */
 #define TRNG_PKBCR_KSLAVE(value) ((TRNG_PKBCR_KSLAVE_Msk & ((value) << TRNG_PKBCR_KSLAVE_Pos)))
-#define   TRNG_PKBCR_KSLAVE_TDES_ID (0x0u << 4) /**< \brief (TRNG_PKBCR) Selects the TDES. */
-#define   TRNG_PKBCR_KSLAVE_AES_ID (0x1u << 4) /**< \brief (TRNG_PKBCR) Selects the AES. */
-#define   TRNG_PKBCR_KSLAVE_OTPC_ID (0x2u << 4) /**< \brief (TRNG_PKBCR) Selects the OTPC. */
+#define   TRNG_PKBCR_KSLAVE_TDES_ID (0x0u << 4) /**< \brief (TRNG_PKBCR) TDES selection. */
+#define   TRNG_PKBCR_KSLAVE_AES_ID (0x1u << 4) /**< \brief (TRNG_PKBCR) AES selection. */
+#define   TRNG_PKBCR_KSLAVE_OTPC_ID (0x2u << 4) /**< \brief (TRNG_PKBCR) OTPC selection. */
 #define TRNG_PKBCR_KLENGTH_Pos 8
 #define TRNG_PKBCR_KLENGTH_Msk (0xffu << TRNG_PKBCR_KLENGTH_Pos) /**< \brief (TRNG_PKBCR) Key Length */
 #define TRNG_PKBCR_KLENGTH(value) ((TRNG_PKBCR_KLENGTH_Msk & ((value) << TRNG_PKBCR_KLENGTH_Pos)))

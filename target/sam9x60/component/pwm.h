@@ -116,25 +116,25 @@ typedef struct {
 #define PWM_SR_CHID2 (0x1u << 2) /**< \brief (PWM_SR) Channel ID */
 #define PWM_SR_CHID3 (0x1u << 3) /**< \brief (PWM_SR) Channel ID */
 /* -------- PWM_IER : (PWM Offset: 0x10) PWM Interrupt Enable Register -------- */
-#define PWM_IER1_CHID0 (0x1u << 0) /**< \brief (PWM_IER1) Counter Event on Channel 0 Interrupt Enable */
-#define PWM_IER1_CHID1 (0x1u << 1) /**< \brief (PWM_IER1) Counter Event on Channel 1 Interrupt Enable */
-#define PWM_IER1_CHID2 (0x1u << 2) /**< \brief (PWM_IER1) Counter Event on Channel 2 Interrupt Enable */
-#define PWM_IER1_CHID3 (0x1u << 3) /**< \brief (PWM_IER1) Counter Event on Channel 3 Interrupt Enable */
+#define PWM_IER1_CHID0 (0x1u << 0) /**< \brief (PWM_IER) Channel ID */
+#define PWM_IER1_CHID1 (0x1u << 1) /**< \brief (PWM_IER) Channel ID */
+#define PWM_IER1_CHID2 (0x1u << 2) /**< \brief (PWM_IER) Channel ID */
+#define PWM_IER1_CHID3 (0x1u << 3) /**< \brief (PWM_IER) Channel ID */
 /* -------- PWM_IDR : (PWM Offset: 0x14) PWM Interrupt Disable Register -------- */
-#define PWM_IDR1_CHID0 (0x1u << 0) /**< \brief (PWM_IDR1) Counter Event on Channel 0 Interrupt Disable */
-#define PWM_IDR1_CHID1 (0x1u << 1) /**< \brief (PWM_IDR1) Counter Event on Channel 1 Interrupt Disable */
-#define PWM_IDR1_CHID2 (0x1u << 2) /**< \brief (PWM_IDR1) Counter Event on Channel 2 Interrupt Disable */
-#define PWM_IDR1_CHID3 (0x1u << 3) /**< \brief (PWM_IDR1) Counter Event on Channel 3 Interrupt Disable */
+#define PWM_IDR1_CHID0 (0x1u << 0) /**< \brief (PWM_IDR) Channel ID */
+#define PWM_IDR1_CHID1 (0x1u << 1) /**< \brief (PWM_IDR) Channel ID */
+#define PWM_IDR1_CHID2 (0x1u << 2) /**< \brief (PWM_IDR) Channel ID */
+#define PWM_IDR1_CHID3 (0x1u << 3) /**< \brief (PWM_IDR) Channel ID */
 /* -------- PWM_IMR : (PWM Offset: 0x18) PWM Interrupt Mask Register -------- */
-#define PWM_IMR1_CHID0 (0x1u << 0) /**< \brief (PWM_IMR1) Counter Event on Channel 0 Interrupt Mask */
-#define PWM_IMR1_CHID1 (0x1u << 1) /**< \brief (PWM_IMR1) Counter Event on Channel 1 Interrupt Mask */
-#define PWM_IMR1_CHID2 (0x1u << 2) /**< \brief (PWM_IMR1) Counter Event on Channel 2 Interrupt Mask */
-#define PWM_IMR1_CHID3 (0x1u << 3) /**< \brief (PWM_IMR1) Counter Event on Channel 3 Interrupt Mask */
+#define PWM_IMR1_CHID0 (0x1u << 0) /**< \brief (PWM_IMR) Channel ID */
+#define PWM_IMR1_CHID1 (0x1u << 1) /**< \brief (PWM_IMR) Channel ID */
+#define PWM_IMR1_CHID2 (0x1u << 2) /**< \brief (PWM_IMR) Channel ID */
+#define PWM_IMR1_CHID3 (0x1u << 3) /**< \brief (PWM_IMR) Channel ID */
 /* -------- PWM_ISR : (PWM Offset: 0x1C) PWM Interrupt Status Register -------- */
-#define PWM_ISR1_CHID0 (0x1u << 0) /**< \brief (PWM_ISR1) Counter Event on Channel 0 */
-#define PWM_ISR1_CHID1 (0x1u << 1) /**< \brief (PWM_ISR1) Counter Event on Channel 1 */
-#define PWM_ISR1_CHID2 (0x1u << 2) /**< \brief (PWM_ISR1) Counter Event on Channel 2 */
-#define PWM_ISR1_CHID3 (0x1u << 3) /**< \brief (PWM_ISR1) Counter Event on Channel 3 */
+#define PWM_ISR1_CHID0 (0x1u << 0) /**< \brief (PWM_ISR) Channel ID */
+#define PWM_ISR1_CHID1 (0x1u << 1) /**< \brief (PWM_ISR) Channel ID */
+#define PWM_ISR1_CHID2 (0x1u << 2) /**< \brief (PWM_ISR) Channel ID */
+#define PWM_ISR1_CHID3 (0x1u << 3) /**< \brief (PWM_ISR) Channel ID */
 /* -------- PWM_CMR : (PWM Offset: N/A) PWM Channel Mode Register -------- */
 #define PWM_CMR_CPRE_Pos 0
 #define PWM_CMR_CPRE_Msk (0xfu << PWM_CMR_CPRE_Pos) /**< \brief (PWM_CMR) Channel Prescaler */

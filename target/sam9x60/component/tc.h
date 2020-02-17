@@ -81,9 +81,9 @@ typedef struct {
 #define TC_CMR_TCCLKS_Msk (0x7u << TC_CMR_TCCLKS_Pos) /**< \brief (TC_CMR) Clock Selection */
 #define TC_CMR_TCCLKS(value) ((TC_CMR_TCCLKS_Msk & ((value) << TC_CMR_TCCLKS_Pos)))
 #define   TC_CMR_TCCLKS_TIMER_CLOCK1 (0x0u << 0) /**< \brief (TC_CMR) Clock selected: internal GCLK [17], GCLK[45] clock signal (from PMC) */
-#define   TC_CMR_TCCLKS_TIMER_CLOCK2 (0x1u << 0) /**< \brief (TC_CMR) Clock selected: internal div8 clock signal (from PMC) */
-#define   TC_CMR_TCCLKS_TIMER_CLOCK3 (0x2u << 0) /**< \brief (TC_CMR) Clock selected: internal div32 clock signal (from PMC) */
-#define   TC_CMR_TCCLKS_TIMER_CLOCK4 (0x3u << 0) /**< \brief (TC_CMR) Clock selected: internal div128 clock signal (from PMC) */
+#define   TC_CMR_TCCLKS_TIMER_CLOCK2 (0x1u << 0) /**< \brief (TC_CMR) Clock selected: internal MCK/8 clock signal (from PMC) */
+#define   TC_CMR_TCCLKS_TIMER_CLOCK3 (0x2u << 0) /**< \brief (TC_CMR) Clock selected: internal MCK/32 clock signal (from PMC) */
+#define   TC_CMR_TCCLKS_TIMER_CLOCK4 (0x3u << 0) /**< \brief (TC_CMR) Clock selected: internal MCK/128 clock signal (from PMC) */
 #define   TC_CMR_TCCLKS_TIMER_CLOCK5 (0x4u << 0) /**< \brief (TC_CMR) Clock selected: internal MD_SLCK clock signal (from PMC) */
 #define   TC_CMR_TCCLKS_XC0 (0x5u << 0) /**< \brief (TC_CMR) Clock selected: XC0 */
 #define   TC_CMR_TCCLKS_XC1 (0x6u << 0) /**< \brief (TC_CMR) Clock selected: XC1 */
@@ -240,7 +240,7 @@ typedef struct {
 #define TC_SR_LDRAS (0x1u << 5) /**< \brief (TC_SR) RA Loading Status (cleared on read) */
 #define TC_SR_LDRBS (0x1u << 6) /**< \brief (TC_SR) RB Loading Status (cleared on read) */
 #define TC_SR_ETRGS (0x1u << 7) /**< \brief (TC_SR) External Trigger Status (cleared on read) */
-#define TC_SR_SECE (0x1u << 10) /**< \brief (TC_SR) Security and/or Safety Event (cleared on read) */
+#define TC_SR_SECE (0x1u << 8) /**< \brief (TC_SR) Security and/or Safety Event (cleared on read) */
 #define TC_SR_CLKSTA (0x1u << 16) /**< \brief (TC_SR) Clock Enabling Status */
 #define TC_SR_MTIOA (0x1u << 17) /**< \brief (TC_SR) TIOAx Mirror */
 #define TC_SR_MTIOB (0x1u << 18) /**< \brief (TC_SR) TIOBx Mirror */
@@ -299,8 +299,8 @@ typedef struct {
 #define TC_SSR_WPVSRC_Msk (0xffffu << TC_SSR_WPVSRC_Pos) /**< \brief (TC_SSR) Write Protection Violation Source (cleared on read) */
 #define TC_SSR_SWETYP_Pos 24
 #define TC_SSR_SWETYP_Msk (0xfu << TC_SSR_SWETYP_Pos) /**< \brief (TC_SSR) Software Error Type (cleared on read) */
-#define   TC_SSR_SWETYP_READ_WO (0x0u << 24) /**< \brief (TC_SSR) TC Channel 0 is enabled and a write-only register has been read (Warning). */
-#define   TC_SSR_SWETYP_WRITE_RO (0x1u << 24) /**< \brief (TC_SSR) TC Channel 0 is enabled and a write access has been performed on a read-only register (Warning). */
+#define   TC_SSR_SWETYP_READ_WO (0x0u << 24) /**< \brief (TC_SSR) TC Channel x is enabled and a write-only register has been read (Warning). */
+#define   TC_SSR_SWETYP_WRITE_RO (0x1u << 24) /**< \brief (TC_SSR) TC Channel x is enabled and a write access has been performed on a read-only register (Warning). */
 #define   TC_SSR_SWETYP_UNDEF_RW (0x2u << 24) /**< \brief (TC_SSR) Access to an undefined address of the TC (Warning). */
 #define   TC_SSR_SWETYP_W_RARB_CAPT (0x3u << 24) /**< \brief (TC_SSR) TC_RAx or TC_RBx are written while channel is enabled and configured in capture mode (Error). */
 #define TC_SSR_ECLASS (0x1u << 31) /**< \brief (TC_SSR) Software Error Class */

@@ -32,12 +32,12 @@
 
 /* ========== Register definition for GPBR peripheral ========== */
 #if (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-  #define REG_GPBR_MR                    (0xFFFFFE60U) /**< \brief (GPBR) GPBR Mode Register */
-  #define REG_GPBR_FCLR                  (0xFFFFFE64U) /**< \brief (GPBR) GPBR Full Clear Register */
+  #define REG_GPBR_MR                    (0xFFFFFE60U) /**< \brief (GPBR) Mode Register */
+  #define REG_GPBR_FCLR                  (0xFFFFFE64U) /**< \brief (GPBR) Full Clear Register */
   #define REG_SYS_GPBR                   (0xFFFFFE68U) /**< \brief (GPBR) General Purpose Backup Register */
 #else
-  #define REG_GPBR_MR   (*(__IO uint32_t*)0xFFFFFE60U) /**< \brief (GPBR) GPBR Mode Register */
-  #define REG_GPBR_FCLR (*(__IO uint32_t*)0xFFFFFE64U) /**< \brief (GPBR) GPBR Full Clear Register */
+  #define REG_GPBR_MR   (*(__IO uint32_t*)0xFFFFFE60U) /**< \brief (GPBR) Mode Register */
+  #define REG_GPBR_FCLR (*(__IO uint32_t*)0xFFFFFE64U) /**< \brief (GPBR) Full Clear Register */
   #define REG_SYS_GPBR  (*(__IO uint32_t*)0xFFFFFE68U) /**< \brief (GPBR) General Purpose Backup Register */
 #endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
