@@ -52,6 +52,7 @@
 #define USARTD_ERROR_LOCK      (3)
 #define USARTD_ERROR_DUPLEX    (4)
 #define USARTD_ERROR_TIMEOUT   (5)
+#define USARTD_ERROR           (6)
 
 /*----------------------------------------------------------------------------
  *        Type definitions
@@ -60,6 +61,7 @@
 enum _usartd_buf_attr {
 	USARTD_BUF_ATTR_WRITE = 0x01,
 	USARTD_BUF_ATTR_READ  = 0x02,
+	USARTD_BUF_ATTR_PINGPONG = 0x04, /* the buffer is splited into 2 and used as the ping/pong buffer */
 };
 
 struct _usart_desc
@@ -102,6 +104,14 @@ struct _usart_desc
 			struct _dma_cfg cfg_dma;
 		} tx;
 	} dma;
+
+	/* extra variables needed for receive with DMA ping/pong buffer */
+	struct {
+		uint32_t total;        /* total bytes received */
+		uint32_t processed;    /* bytes processed in the ping/pong buffer */
+		uint32_t buf_switch;
+		struct _dma_transfer_cfg cfg[2];
+	} dma_pingpong;
 };
 
 enum _usartd_trans_mode
@@ -121,6 +131,8 @@ extern uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf, struct _call
 #ifdef US_CSR_CMP
 extern uint32_t usartd_compare_receive(uint8_t iface, uint8_t val1, uint8_t val2, struct _buffer* buf, struct _callback* cb);
 #endif /* US_CSR_CMP */
+extern uint32_t usartd_dma_pingpong_read(uint8_t iface, uint8_t* buf, uint32_t size, uint32_t* actural_read);
+extern void usartd_dma_pingpong_stop(uint8_t iface);
 extern void usartd_finish_rx_transfer(uint8_t iface);
 extern uint32_t usartd_rx_is_busy(const uint8_t iface);
 extern void usartd_wait_rx_transfer(const uint8_t iface);

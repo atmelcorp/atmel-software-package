@@ -170,6 +170,79 @@ static int _usartd_compare_callback(void* arg, void* arg2)
 	return 0;
 }
 
+static int _usartd_pingpong_dma_callback(void* arg, void* arg2)
+{
+	struct _usart_desc *desc = (struct _usart_desc *)arg;
+	desc->dma_pingpong.buf_switch++;
+	return 0;
+}
+
+static int _usartd_pingpong_callback(void* arg, void* arg2)
+{
+	uint8_t iface = (uint32_t)arg;
+	assert(iface < USART_IFACE_COUNT);
+	struct _usart_desc *desc = _serial[iface];
+	struct _dma_channel* channel = desc->dma.rx.channel;
+	uint32_t i, len;
+
+	desc->addr->US_CR = US_CR_STTTO;
+	usart_restart_rx_timeout(desc->addr);
+	dma_fifo_flush(channel);
+	len = dma_get_transferred_data_len(channel, desc->dma.rx.cfg_dma.chunk_size, desc->rx.buffer.size / 2);
+	i = desc->dma_pingpong.total % (desc->rx.buffer.size / 2);
+	desc->dma_pingpong.total += (desc->rx.buffer.size / 2) * desc->dma_pingpong.buf_switch;
+	desc->dma_pingpong.buf_switch = 0;
+	if (len != i)
+		desc->dma_pingpong.total = desc->dma_pingpong.total - i + len;
+	desc->rx.transferred = desc->dma_pingpong.total - desc->dma_pingpong.processed;
+
+	if (desc->rx.transferred > 0) {
+		/* restrict the counters not go to the maximun of uint32_t */
+		if (desc->dma_pingpong.processed > (desc->rx.buffer.size << 4)) {
+			desc->dma_pingpong.processed -= (desc->rx.buffer.size << 4);
+			desc->dma_pingpong.total -= (desc->rx.buffer.size << 4);
+		}
+
+		cache_invalidate_region(desc->rx.buffer.data, desc->rx.buffer.size);
+		callback_call(&desc->rx.callback, (void*)iface);
+	}
+	return 0;
+}
+
+static uint32_t _usartd_pingpong_transfer(struct _usart_desc *desc, struct _buffer* buf, struct _callback* cb)
+{
+	struct _callback _cb;
+
+	usart_set_rx_timeout(desc->addr, desc->baudrate, desc->timeout);
+	usart_enable_it(desc->addr, US_IER_TIMEOUT);
+
+	desc->dma.rx.cfg_dma.loop = true;
+
+	desc->dma_pingpong.total = 0;
+	desc->dma_pingpong.buf_switch = 0;
+	desc->dma_pingpong.processed = 0;
+
+	memset(desc->dma_pingpong.cfg, 0x0, sizeof(desc->dma_pingpong.cfg));
+	desc->dma_pingpong.cfg[0].saddr = (void *)&desc->addr->US_RHR;
+	desc->dma_pingpong.cfg[0].daddr = buf->data;
+	desc->dma_pingpong.cfg[0].len = buf->size / 2;
+	desc->dma_pingpong.cfg[1].saddr = (void *)&desc->addr->US_RHR;
+	desc->dma_pingpong.cfg[1].daddr = buf->data + buf->size / 2;
+	desc->dma_pingpong.cfg[1].len = buf->size / 2;
+	desc->dma.rx.cfg.len = buf->size / 2;
+	dma_configure_transfer(desc->dma.rx.channel, &desc->dma.rx.cfg_dma, desc->dma_pingpong.cfg, 2);
+#if defined(CONFIG_HAVE_XDMAC)
+	xdmac_enable_channel_it(desc->dma.rx.channel->hw, desc->dma.rx.channel->id, XDMAC_CIE_BIE);
+#elif defined(CONFIG_HAVE_DMAC)
+	trace_debug("receive with DMA (ping/pong buffer used) is not support yet");
+	return USARTD_ERROR;
+#endif
+	callback_set(&_cb, _usartd_pingpong_dma_callback, (void*)desc);
+	dma_set_callback(desc->dma.rx.channel, &_cb);
+	dma_start_transfer(desc->dma.rx.channel);
+	return 0;
+}
+
 static void _usartd_handler(uint32_t source, void* user_arg)
 {
 	int iface;
@@ -228,6 +301,10 @@ static void _usartd_handler(uint32_t source, void* user_arg)
 	}
 
 	if (USART_STATUS_TIMEOUT(status)) {
+		if (desc->rx.buffer.attr & USARTD_BUF_ATTR_PINGPONG) {
+			_usartd_pingpong_callback((void *)iface, NULL);
+			return;
+		}
 		switch (desc->transfer_mode) {
 		case USARTD_MODE_ASYNC:
 			desc->addr->US_CR = US_CR_STTTO;
@@ -334,6 +411,9 @@ uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf, struct _callback* c
 
 		desc->rx.has_timeout = false;
 	}
+
+	if (buf->attr & USARTD_BUF_ATTR_PINGPONG)
+		return _usartd_pingpong_transfer(desc, buf, cb);
 
 	if (buf->attr & USARTD_BUF_ATTR_WRITE) {
 		if (!mutex_try_lock(&desc->tx.mutex))
@@ -497,6 +577,53 @@ uint32_t usartd_compare_receive(uint8_t iface, uint8_t val1, uint8_t val2, struc
 	return 0;
 }
 #endif /* US_CSR_CMP */
+
+uint32_t usartd_dma_pingpong_read(uint8_t iface, uint8_t* buf, uint32_t size, uint32_t* actural_read)
+{
+	uint32_t i;
+	uint32_t remain;
+	uint8_t* cur;
+	uint8_t* end;
+	assert(iface < USART_IFACE_COUNT);
+	struct _usart_desc *desc = _serial[iface];
+
+	if (0 == (desc->rx.buffer.attr & USARTD_BUF_ATTR_PINGPONG)) {
+		*actural_read = 0;
+		return 0;
+	}
+
+	desc->rx.transferred = desc->dma_pingpong.total - desc->dma_pingpong.processed;
+
+	if (desc->rx.transferred >= size) {
+		*actural_read = size;
+		remain = desc->rx.transferred - size;
+	} else {
+		*actural_read = desc->rx.transferred;
+		remain = 0;
+	}
+
+	cur = desc->rx.buffer.data + desc->dma_pingpong.processed % desc->rx.buffer.size;
+	end = desc->rx.buffer.data + desc->rx.buffer.size;
+	for (i = 0; i < *actural_read; i++) {
+		buf[i] = *cur++;
+		if (cur == end)
+			cur = desc->rx.buffer.data;
+	}
+	desc->dma_pingpong.processed += *actural_read;
+
+	return remain;
+}
+
+void usartd_dma_pingpong_stop(uint8_t iface)
+{
+	assert(iface < USART_IFACE_COUNT);
+	struct _usart_desc *desc = _serial[iface];
+
+	if (desc->rx.buffer.attr & USARTD_BUF_ATTR_PINGPONG) {
+		usart_disable_it(desc->addr, US_IDR_TIMEOUT);
+		dma_stop_transfer(desc->dma.rx.channel);
+	}
+}
 
 void usartd_finish_rx_transfer(uint8_t iface)
 {
