@@ -298,6 +298,8 @@ static void print_menu(void)
 	       "| c                                                     |\r\n"
 	       "|      Demo Comparision Function                        |\r\n"
 #endif /* US_CSR_CMP */
+	       "| p                                                     |\r\n"
+	       "|      receive with DMA (ping/pong buffer used)         |\r\n"
 	       "| m polling                                             |\r\n"
 	       "| m async                                               |\r\n"
 	       "| m dma                                                 |\r\n"
@@ -357,6 +359,21 @@ static void demo_simple_comparison(uint8_t val1, uint8_t val2)
 }
 #endif /* US_CSR_CMP */
 
+static int usart_dma_pingpong_callback(void* arg, void* arg2)
+{
+	uint8_t iface = (uint32_t)arg2;
+	uint8_t buf[8];
+	uint32_t read, remain, i;
+
+	printf("\r\nmessage received: ");
+	do {
+		remain = usartd_dma_pingpong_read(iface, buf, sizeof(buf), &read);
+		for (i = 0; i < read; i++)
+			printf("%c", buf[i]);
+	} while(remain);
+	return 0;
+}
+
 static void _usart_mode_arg_parser(const uint8_t* buffer, uint32_t len)
 {
 	if (!strncmp((char*)buffer, "polling", 7)) {
@@ -390,6 +407,24 @@ static void _usart_cmd_parser(const uint8_t* buffer, uint32_t len)
 		return;
 	}
 #endif /* US_CSR_CMP */
+	if ((*buffer == 'p') || (*buffer == 'P')) {
+		printf("\r\nUSART receive with DMA (ping/pong buffer used): ");
+		printf("\r\n  Note: the max length of one message should not execeed the size of buffer");
+		printf("\r\n  callback would be called after data received and timeout occurs.");
+		printf("\r\n  call usartd_dma_pingpong_stop() could stop the reception.\r\n");
+
+		struct _buffer rx = {
+			.data = (unsigned char*)read_buffer,
+			.size = 64,
+			.attr = USARTD_BUF_ATTR_READ | USARTD_BUF_ATTR_PINGPONG,
+		};
+		struct _callback _cb = {
+			.method = usart_dma_pingpong_callback,
+			.arg = 0,
+		};
+		usartd_transfer(0, &rx, &_cb);
+		return;
+	}
 
 	if (*(buffer+1) != ' ') {
 		printf("Commands can only be one caracter size\r\n");
