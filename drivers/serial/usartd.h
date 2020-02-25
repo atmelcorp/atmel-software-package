@@ -118,7 +118,9 @@ enum _usartd_trans_mode
 
 extern void usartd_configure(uint8_t iface, struct _usart_desc* desc);
 extern uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf, struct _callback* cb);
+#ifdef US_CSR_CMP
 extern uint32_t usartd_compare_receive(uint8_t iface, uint8_t val1, uint8_t val2, struct _buffer* buf, struct _callback* cb);
+#endif /* US_CSR_CMP */
 extern void usartd_finish_rx_transfer(uint8_t iface);
 extern uint32_t usartd_rx_is_busy(const uint8_t iface);
 extern void usartd_wait_rx_transfer(const uint8_t iface);

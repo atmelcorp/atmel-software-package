@@ -195,11 +195,13 @@ static void _usartd_handler(uint32_t source, void* user_arg)
 	status = usart_get_masked_status(addr);
 	desc->rx.has_timeout = false;
 
+#ifdef US_CSR_CMP
 	if ((status & US_CSR_CMP) == US_CSR_CMP) {
 		usart_disable_it(addr, US_IDR_CMP);
 		_usartd_compare_callback((void *)iface, NULL);
 		usart_disable_it(desc->addr, US_IDR_RXRDY);
 	}
+#endif /* US_CSR_CMP */
 	if (USART_STATUS_RXRDY(status)) {
 		if (desc->rx.buffer.size) {
 			desc->rx.buffer.data[desc->rx.transferred] = usart_get_char(addr);
@@ -464,6 +466,7 @@ uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf, struct _callback* c
 	return USARTD_SUCCESS;
 }
 
+#ifdef US_CSR_CMP
 uint32_t usartd_compare_receive(uint8_t iface, uint8_t val1, uint8_t val2, struct _buffer* buf, struct _callback* cb)
 {
 	struct _callback _cb;
@@ -493,6 +496,7 @@ uint32_t usartd_compare_receive(uint8_t iface, uint8_t val1, uint8_t val2, struc
 	dma_start_transfer(desc->dma.rx.channel);
 	return 0;
 }
+#endif /* US_CSR_CMP */
 
 void usartd_finish_rx_transfer(uint8_t iface)
 {
