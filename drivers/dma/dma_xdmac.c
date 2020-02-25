@@ -199,6 +199,11 @@ void dma_irq_handler(uint32_t source, void* user_arg)
 				channel->state = DMA_STATE_DONE;
 				exec = 1;
 			}
+		} else {
+			uint32_t cis = xdmac_get_channel_isr(xdmac, chan);
+
+			if (cis & XDMAC_CIS_BIS)
+				exec = 1;
 		}
 
 		/* Execute callback */
