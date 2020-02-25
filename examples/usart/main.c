@@ -294,8 +294,10 @@ static void print_menu(void)
 	       "|      print the result string (block call)             |\r\n"
 	       "| w str                                                 |\r\n"
 	       "|      Write 'str' throught usart                       |\r\n"
+#ifdef US_CSR_CMP
 	       "| c                                                     |\r\n"
 	       "|      Demo Comparision Function                        |\r\n"
+#endif /* US_CSR_CMP */
 	       "| m polling                                             |\r\n"
 	       "| m async                                               |\r\n"
 	       "| m dma                                                 |\r\n"
@@ -326,6 +328,7 @@ static void _usart_feature_arg_parser(const uint8_t* buffer, uint32_t len)
 }
 #endif /* CONFIG_HAVE_USART_FIFO */
 
+#ifdef US_CSR_CMP
 static int usart_finish_compare_callback(void* arg, void* arg2)
 {
 	uint8_t *buf = (uint8_t *)arg;
@@ -352,6 +355,7 @@ static void demo_simple_comparison(uint8_t val1, uint8_t val2)
 	usartd_compare_receive(0, val1, val2, &rx, &_cb);
 	usartd_wait_rx_transfer(0);
 }
+#endif /* US_CSR_CMP */
 
 static void _usart_mode_arg_parser(const uint8_t* buffer, uint32_t len)
 {
@@ -375,6 +379,7 @@ static void _usart_cmd_parser(const uint8_t* buffer, uint32_t len)
 		print_menu();
 		return;
 	}
+#ifdef US_CSR_CMP
 	if ((*buffer == 'c') || (*buffer == 'C')) {
 		printf("\r\nUSART Comparison function: ");
 		printf("\r\ntring send some short messages to USART, the message would be printed out once \"5\" is sent...");
@@ -384,6 +389,7 @@ static void _usart_cmd_parser(const uint8_t* buffer, uint32_t len)
 		print_menu();
 		return;
 	}
+#endif /* US_CSR_CMP */
 
 	if (*(buffer+1) != ' ') {
 		printf("Commands can only be one caracter size\r\n");
