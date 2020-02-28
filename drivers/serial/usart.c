@@ -126,6 +126,11 @@ void usart_configure(Usart *usart, uint32_t mode, uint32_t baudrate)
 	usart->US_CR = US_CR_RXEN | US_CR_TXEN;
 }
 
+void usart_set_cr(Usart *usart, uint32_t value)
+{
+	usart->US_CR = value;
+}
+
 uint32_t usart_get_status(Usart *usart)
 {
 	return usart->US_CSR;
@@ -235,6 +240,15 @@ void usart_reset_nack(Usart *usart)
 void usart_restart_rx_timeout(Usart *usart)
 {
 	usart->US_CR = US_CR_RETTO;
+}
+
+void usart_set_cmpr(Usart *usart, uint8_t mode, uint8_t parity, uint16_t val1, uint16_t val2)
+{
+	uint32_t cmpr = US_CMPR_CMPMODE(mode);
+	if (parity)
+		cmpr |= US_CMPR_CMPPAR;
+
+	usart->US_CMPR = cmpr | US_CMPR_VAL1(val1) | US_CMPR_VAL2(val2);
 }
 
 void usart_write(Usart *usart, uint16_t data, volatile uint32_t timeout)

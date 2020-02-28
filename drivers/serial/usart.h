@@ -103,6 +103,13 @@ extern void usart_reset_status(Usart *usart);
 extern void usart_configure(Usart *usart, uint32_t mode, uint32_t baudrate);
 
 /**
+ * \brief Configures an USART Control Register.
+ *  \param usart  Pointer to the USART peripheral to configure.
+ *  \param value Desired value for the USART control register.
+ */
+extern void usart_set_cr(Usart *usart, uint32_t value);
+
+/**
  * \brief   Get present status
  * \param usart  Pointer to an USART peripheral.
  */
@@ -186,6 +193,18 @@ extern void usart_reset_rx(Usart *usart);
  * \param timeout The value of receive timeout.
  */
 extern void usart_set_rx_timeout(Usart *usart, uint32_t baudrate, uint32_t timeout);
+
+/**
+ * \brief Configure the comparison register.
+ *
+ * \param usart Pointer to a USART instance.
+ * \param mode Comparison Mode.
+ * \param parity Compare Parity.
+ * \param val1 First Comparison Value for Received Character.
+ * \param val2 Second Comparison Value for Received Character.
+ *
+ */
+extern void usart_set_cmpr(Usart *usart, uint8_t mode, uint8_t parity, uint16_t val1, uint16_t val2);
 
 /**
  * \brief Start transmission of a break.
