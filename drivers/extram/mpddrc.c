@@ -655,6 +655,7 @@ RAMDATA volatile int _ddr_active_needed = 0;
 RAMCODE void ddram_active(void) {
 	/* Restore default PCK and MCK */
 	while ((PMC->PMC_SR & PMC_SR_MCKRDY) == 0);
+	pmc_set_mck_prescaler(0);
 	pmc_set_custom_pck_mck(&clock_setting_backup);
 	check_ddr_ready();
 	_ddr_active_needed = 0;

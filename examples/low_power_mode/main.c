@@ -356,6 +356,10 @@ RAMCODE static void _low_power_run(uint8_t mode)
 			board_get_timer();
 			exit_start_val = count_val;
 #endif
+			/* Set PMC PRES to sero */
+			if(clock_cfg.pck_pres > 0) {
+				pmc_set_mck_prescaler(0);
+			}
 			pmc_set_custom_pck_mck(&clock_setting_backup);
 			check_ddr_ready();
 	}
@@ -370,6 +374,10 @@ RAMCODE static void _low_power_run(uint8_t mode)
 			exit_start_val = count_val;
 		}
 #endif
+		/* Set PMC PRES to sero */
+		if(clock_cfg.pck_pres > 0) {
+			pmc_set_mck_prescaler(0);
+		}
 		/* Restore default PCK and MCK */
 		pmc_set_custom_pck_mck(&clock_setting_backup);
 #endif
