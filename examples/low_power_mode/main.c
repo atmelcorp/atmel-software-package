@@ -392,6 +392,14 @@ static void _low_power_configure(uint8_t mode, uint8_t event)
 	/* config a led for indicator to capture wake-up time */
 	board_cfg_led();
 #endif
+	/* config slow clock */
+	if((test_setting[mode].sclk) == true){
+		clock_setting_backup.ext32k = true;
+		pmc_select_external_crystal();
+	} else {
+		clock_setting_backup.ext32k = false;
+		pmc_select_internal_crystal();
+	}
 
 	/* Init wakeup event */
 	wakeup_event(event);
@@ -431,6 +439,12 @@ static void _low_power_configure(uint8_t mode, uint8_t event)
 	exit_end_val = count_val;
 
 	/* Print entry/exit time value */
+	if(clock_setting_backup.ext32k == true){
+		printf("External_32k\n\r");
+	} else {
+		printf("Internal_32k\n\r");
+	}
+
 	printf("Entry ");
 	val = get_interval_ms(entry_end_val, entry_start_val);
 	printf("time (end:%d - start:%d) is %d ms\n\r", (int)entry_end_val, (int)entry_start_val, (int)val);
@@ -454,8 +468,12 @@ static void _low_power_menu(void)
 		} else {
 			m[i] = ' ';
 		}
-		sprintf(message, "%s %s \n\r", "[%c] %x: ", test_setting[i].name);
-		printf(message, m[i], i);
+		sprintf(message, "%s %s \n\r", "[%c] %c: ", test_setting[i].name);
+		if(i >= 0xa) {
+			printf(message, m[i], i + 'a' - 0xa);
+		} else {
+			printf(message, m[i], i + 0x30);
+		}
 		i++;
 	}
 
@@ -474,13 +492,12 @@ static void _low_power_menu(void)
 	i = 0;
 	printf("\n\r=>Press [a|b....] to set wake-up event\n\r\n\r");
 	while(i < a) {
-		printf("%c: ", (char)(i + 'a'));
-		sprintf(message, "%s %s \n\r", "[%c] ", event_menu[m[i]]);		
+		sprintf(message, "%s %s \n\r", "[%c] %c", event_menu[m[i]]);
 		if(eventchoice == i) {
-			printf(message, 'x');
+			printf(message, 'X', i + test_setting_size + 'a' - 0xa);
 			eventchoice_bak = 1 << m[i];
 		} else {
-			printf(message, ' ');
+			printf(message, ' ', i + test_setting_size + 'a' - 0xa);
 		}
 		i++;
 	}
@@ -495,13 +512,20 @@ static void _low_power_main(void){
 	/* Display menu */
 	_low_power_menu();
 	MenuChoice = 0;
+	eventchoice = 0;
+	modechoice = 0;
 	while (1) {
-		if (MenuChoice >= '0' && MenuChoice < (test_setting_size + 0x30)){
-			modechoice = MenuChoice - '0';
-			_low_power_menu();
-			MenuChoice = ' ';
-		} else if (MenuChoice >= 'a' && MenuChoice <= 'f') {
-			eventchoice = MenuChoice - 'a';
+		if (MenuChoice >= '0' && MenuChoice < 's'){
+			if(MenuChoice <= '9') {
+				MenuChoice = MenuChoice - '0';
+			} else if (MenuChoice >= 'a') {
+				MenuChoice = MenuChoice - 'a' + 10;
+			}
+			if(MenuChoice >= test_setting_size) {
+				eventchoice = MenuChoice - test_setting_size;
+			} else {
+				modechoice = MenuChoice;
+			}
 			_low_power_menu();
 			MenuChoice = ' ';
 		} else if (MenuChoice == 't') {

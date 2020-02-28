@@ -63,6 +63,7 @@ struct test_mode test_setting[] = {
 
 	{
 		.name = "ulp0_osc",
+		.sclk = true, //false: internal sclk, true: external sclk
 		.mode = ULP0,
 		.event = EVENT,
 		/* PCK = MCK = BOARD_OSC */
@@ -79,7 +80,26 @@ struct test_mode test_setting[] = {
 	},
 
 	{
+		.name = "ulp0_osc_int32K",
+		.sclk = true, //false: internal sclk, true: external sclk
+		.mode = ULP0,
+		.event = EVENT,
+		/* PCK = MCK = BOARD_OSC, internal 32KHz */
+		.clock_test_setting = {
+			.pck_input = PMC_MCKR_CSS_MAIN_CLK,
+			.extosc = true,
+			.ext32k = false,
+			.plla = {
+				.mul = 0,
+			},
+			.pck_pres = PMC_MCKR_PRES_CLOCK,
+			.mck_div = PMC_MCKR_MDIV_EQ_PCK,
+		},
+	},
+
+	{
 		.name = "ulp0_OSC/16",
+		.sclk = true, //false: internal sclk, true: external sclk
 		.mode = ULP0,
 		.event = EVENT,
 		/* PCK = MCK = BOARD_OSC/16 */
@@ -97,6 +117,7 @@ struct test_mode test_setting[] = {
 
 	{
 		.name = "ulp0_OSC/64",
+		.sclk = true, //false: internal sclk, true: external sclk
 		.mode = ULP0,
 		.event = EVENT,
 		/* PCK = MCK = BOARD_OSC/64 */
@@ -113,7 +134,8 @@ struct test_mode test_setting[] = {
 	},
 
 	{
-		.name = "ulp0_32.768kHz",
+		.name = "ulp0_32.768KHz",
+		.sclk = true, //false: internal sclk, true: external sclk
 		.mode = ULP0,
 		.event = EVENT,
 		/* PCK = MCK = 32.768 kHz */
@@ -131,6 +153,7 @@ struct test_mode test_setting[] = {
 
 	{
 		.name = "ulp0_512Hz",
+		.sclk = true, //false: internal sclk, true: external sclk
 		.mode = ULP0,
 		.event = EVENT,
 		/* PCK = MCK = 32768/64 = 512 Hz */
@@ -147,10 +170,11 @@ struct test_mode test_setting[] = {
 	},
 
 	{
-		.name = "ulp0_rc_12MHz",
+		.name = "ulp0_rc_12MHz_int32K",
+		.sclk = true, //false: internal sclk, true: external sclk
 		.mode = ULP0,
 		.event = EVENT,
-		/* PCK = MCK = 12 MHz (RC) */
+		/* PCK = MCK = 12 MHz (RC), internal 32KHz */
 		.clock_test_setting = {
 			.pck_input = PMC_MCKR_CSS_MAIN_CLK,
 			.extosc = false,
@@ -164,7 +188,26 @@ struct test_mode test_setting[] = {
 	},
 
 	{
+		.name = "ulp0_rc_12MHz",
+		.sclk = true, //false: internal sclk, true: external sclk
+		.mode = ULP0,
+		.event = EVENT,
+		/* PCK = MCK = 12 MHz (RC), external 32.768KHz */
+		.clock_test_setting = {
+			.pck_input = PMC_MCKR_CSS_MAIN_CLK,
+			.extosc = false,
+			.ext32k = true,
+			.plla = {
+				.mul = 0,
+			},
+			.pck_pres = PMC_MCKR_PRES_CLOCK,
+			.mck_div = PMC_MCKR_MDIV_EQ_PCK,
+		},
+	},
+
+	{
 		.name = "ulp0_plla/3",
+		.sclk = true, //false: internal sclk, true: external sclk
 		.mode = ULP0,
 		.event = EVENT,
 		/* PLLA = BOARD_OSC*50/2, PCK = PLLA, MCK = PCK/3 */
@@ -190,6 +233,7 @@ struct test_mode test_setting[] = {
 #if defined(CONFIG_SOC_SAMA5D2)
 	{
 		.name = "ulp1_rc_12MHz",
+		.sclk = true, //false: internal sclk, true: external sclk
 		.mode = ULP1,
 		.event = RTC_ALARM | WAKE_UP,
 		/* PCK = MCK = 12 MHz (RC) */
@@ -207,6 +251,214 @@ struct test_mode test_setting[] = {
 #elif defined(CONFIG_SOC_SAM9X60)
 	{
 		.name = "ulp1_rc_12MHz",
+		.sclk = true, //false: internal sclk, true: external sclk
+		.mode = ULP1,
+		.event = RTC_ALARM,
+		/* PCK = MCK = 12 MHz (RC) */
+		.clock_test_setting = {
+			.pck_input = PMC_MCKR_CSS_MAIN_CLK,
+			.extosc = false,
+			.ext32k = false,
+			.plla = {
+				.mul = 0,
+			},
+			.pck_pres = PMC_MCKR_PRES_CLOCK,
+			.mck_div = PMC_MCKR_MDIV_PCK_DIV3,
+		},
+	},	
+#endif
+        
+	{
+		.name = "ulp0_osc",
+		.sclk = false, //false: internal sclk, true: external sclk
+		.mode = ULP0,
+		.event = EVENT,
+		/* PCK = MCK = BOARD_OSC, External 32.768KHz */
+		.clock_test_setting = {
+			.pck_input = PMC_MCKR_CSS_MAIN_CLK,
+			.extosc = true,
+			.ext32k = true,
+			.plla = {
+				.mul = 0,
+			},
+			.pck_pres = PMC_MCKR_PRES_CLOCK,
+			.mck_div = PMC_MCKR_MDIV_EQ_PCK,
+		},
+	},
+
+	{
+		.name = "ulp0_osc_int32K",
+		.sclk = false, //false: internal sclk, true: external sclk
+		.mode = ULP0,
+		.event = EVENT,
+		/* PCK = MCK = BOARD_OSC, internal 32KHz */
+		.clock_test_setting = {
+			.pck_input = PMC_MCKR_CSS_MAIN_CLK,
+			.extosc = true,
+			.ext32k = false,
+			.plla = {
+				.mul = 0,
+			},
+			.pck_pres = PMC_MCKR_PRES_CLOCK,
+			.mck_div = PMC_MCKR_MDIV_EQ_PCK,
+		},
+	},
+
+	{
+		.name = "ulp0_OSC/16",
+		.sclk = false, //false: internal sclk, true: external sclk
+		.mode = ULP0,
+		.event = EVENT,
+		/* PCK = MCK = BOARD_OSC/16 */
+		.clock_test_setting = {
+			.pck_input = PMC_MCKR_CSS_MAIN_CLK,
+			.extosc = true,
+			.ext32k = true,
+			.plla = {
+				.mul = 0,
+			},
+			.pck_pres = PMC_MCKR_PRES_CLOCK_DIV16,
+			.mck_div = PMC_MCKR_MDIV_EQ_PCK,
+		},
+	},
+
+	{
+		.name = "ulp0_OSC/64",
+		.sclk = false, //false: internal sclk, true: external sclk
+		.mode = ULP0,
+		.event = EVENT,
+		/* PCK = MCK = BOARD_OSC/64 */
+		.clock_test_setting = {
+			.pck_input = PMC_MCKR_CSS_MAIN_CLK,
+			.extosc = true,
+			.ext32k = true,
+			.plla = {
+				.mul = 0,
+			},
+			.pck_pres = PMC_MCKR_PRES_CLOCK_DIV64,
+			.mck_div = PMC_MCKR_MDIV_EQ_PCK,
+		},
+	},
+
+	{
+		.name = "ulp0_32.768kHz",
+		.sclk = false, //false: internal sclk, true: external sclk
+		.mode = ULP0,
+		.event = EVENT,
+		/* PCK = MCK = 32.768 kHz */
+		.clock_test_setting = {
+			.pck_input = PMC_MCKR_CSS_SLOW_CLK,
+			.extosc = true,
+			.ext32k = true,
+			.plla = {
+				.mul = 0,
+			},
+			.pck_pres = PMC_MCKR_PRES_CLOCK,
+			.mck_div = PMC_MCKR_MDIV_EQ_PCK,
+		},
+	},	
+
+	{
+		.name = "ulp0_512Hz",
+		.sclk = false, //false: internal sclk, true: external sclk
+		.mode = ULP0,
+		.event = EVENT,
+		/* PCK = MCK = 32768/64 = 512 Hz */
+		.clock_test_setting = {
+			.pck_input = PMC_MCKR_CSS_SLOW_CLK,
+			.extosc = true,
+			.ext32k = true,
+			.plla = {
+				.mul = 0,
+			},
+			.pck_pres = PMC_MCKR_PRES_CLOCK_DIV64,
+			.mck_div = PMC_MCKR_MDIV_EQ_PCK,
+		},
+	},
+
+	{
+		.name = "ulp0_rc_12MHz_int32K",
+		.sclk = false, //false: internal sclk, true: external sclk
+		.mode = ULP0,
+		.event = EVENT,
+		/* PCK = MCK = 12 MHz (RC), internal 32KHz */
+		.clock_test_setting = {
+			.pck_input = PMC_MCKR_CSS_MAIN_CLK,
+			.extosc = false,
+			.ext32k = false,
+			.plla = {
+				.mul = 0,
+			},
+			.pck_pres = PMC_MCKR_PRES_CLOCK,
+			.mck_div = PMC_MCKR_MDIV_EQ_PCK,
+		},
+	},
+
+	{
+		.name = "ulp0_rc_12MHz",
+		.sclk = false, //false: internal sclk, true: external sclk
+		.mode = ULP0,
+		.event = EVENT,
+		/* PCK = MCK = 12 MHz (RC), external 32.768KHz */
+		.clock_test_setting = {
+			.pck_input = PMC_MCKR_CSS_MAIN_CLK,
+			.extosc = false,
+			.ext32k = true,
+			.plla = {
+				.mul = 0,
+			},
+			.pck_pres = PMC_MCKR_PRES_CLOCK,
+			.mck_div = PMC_MCKR_MDIV_EQ_PCK,
+		},
+	},
+
+	{
+		.name = "ulp0_plla/3",
+		.sclk = false, //false: internal sclk, true: external sclk
+		.mode = ULP0,
+		.event = EVENT,
+		/* PLLA = BOARD_OSC*50/2, PCK = PLLA, MCK = PCK/3 */
+		.clock_test_setting = {
+			.pck_input = PMC_MCKR_CSS_PLLA_CLK,
+			.extosc = true,
+			.ext32k = true,
+			.plla = {
+				.mul = 49,
+				.div = 1,
+				.count = 0x3f,
+			},
+			.pck_pres = PMC_MCKR_PRES_CLOCK,
+			.mck_div = PMC_MCKR_MDIV_PCK_DIV3,
+#ifdef CONFIG_HAVE_PMC_PLLADIV2
+			.plla_div2 = true,
+#endif
+#ifdef CONFIG_HAVE_PMC_H32MXDIV
+			.h32mx_div2 = true,
+#endif
+		},
+	},
+#if defined(CONFIG_SOC_SAMA5D2)
+	{
+		.name = "ulp1_rc_12MHz",
+		.sclk = false, //false: internal sclk, true: external sclk
+		.mode = ULP1,
+		.event = RTC_ALARM | WAKE_UP,
+		/* PCK = MCK = 12 MHz (RC) */
+		.clock_test_setting = {
+			.pck_input = PMC_MCKR_CSS_MAIN_CLK,
+			.extosc = false,
+			.ext32k = false,
+			.plla = {
+				.mul = 0,
+			},
+			.pck_pres = PMC_MCKR_PRES_CLOCK,
+			.mck_div = PMC_MCKR_MDIV_EQ_PCK,
+		},
+	},
+#elif defined(CONFIG_SOC_SAM9X60)
+	{
+		.name = "ulp1_rc_12MHz",
+		.sclk = false, //false: internal sclk, true: external sclk
 		.mode = ULP1,
 		.event = RTC_ALARM,
 		/* PCK = MCK = 12 MHz (RC) */

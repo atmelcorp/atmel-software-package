@@ -53,6 +53,9 @@ struct test_mode {
 	/** Test name */
 	const char *name;
 
+	/** Select Slow Clock */
+	bool sclk; //false: internal slow clock. true: external slow clock.
+
 	/** Low power mode */
 	uint8_t mode;
 
