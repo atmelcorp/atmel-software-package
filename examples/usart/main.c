@@ -328,35 +328,6 @@ static void _usart_feature_arg_parser(const uint8_t* buffer, uint32_t len)
 		}
 	}
 }
-#endif /* CONFIG_HAVE_USART_FIFO */
-
-#ifdef US_CSR_CMP
-static int usart_finish_compare_callback(void* arg, void* arg2)
-{
-	uint8_t *buf = (uint8_t *)arg;
-	uint32_t i = 0;
-	usartd_finish_rx_transfer(0);
-	printf("\r\nmessage received on comparison match: ");
-	do
-		printf("%c", buf[i++]);
-	while (i < (uint32_t)arg2);
-	return 0;
-}
-
-static void demo_simple_comparison(uint8_t val1, uint8_t val2)
-{
-	struct _buffer rx = {
-		.data = (unsigned char*)read_buffer,
-		.size = sizeof(read_buffer),
-		.attr = USARTD_BUF_ATTR_READ,
-	};
-	struct _callback _cb = {
-		.method = usart_finish_compare_callback,
-		.arg = read_buffer,
-	};
-	usartd_compare_receive(0, val1, val2, &rx, &_cb);
-	usartd_wait_rx_transfer(0);
-}
 #endif /* US_CSR_CMP */
 
 static int usart_dma_pingpong_callback(void* arg, void* arg2)
@@ -398,12 +369,22 @@ static void _usart_cmd_parser(const uint8_t* buffer, uint32_t len)
 	}
 #ifdef US_CSR_CMP
 	if ((*buffer == 'c') || (*buffer == 'C')) {
-		printf("\r\nUSART Comparison function: ");
-		printf("\r\ntring send some short messages to USART, the message would be printed out once \"5\" is sent...");
-		demo_simple_comparison('5', '5');
-		demo_simple_comparison('5', '5');
-		demo_simple_comparison('5', '5');
-		print_menu();
+		printf("\r\nUSART Comparison function (ping/pong buffer used): ");
+		printf("\r\n  callback would be called once \"5\" is received.");
+		usart_desc.cmp.enable = 1;
+		usart_desc.cmp.val1 = '5';
+		usart_desc.cmp.val2 = '5';
+		usart_desc.timeout = 0;
+		struct _buffer rx = {
+			.data = (unsigned char*)read_buffer,
+			.size = 64,
+			.attr = USARTD_BUF_ATTR_READ | USARTD_BUF_ATTR_PINGPONG,
+		};
+		struct _callback _cb = {
+			.method = usart_dma_pingpong_callback,
+			.arg = 0,
+		};
+		usartd_transfer(0, &rx, &_cb);
 		return;
 	}
 #endif /* US_CSR_CMP */
@@ -411,8 +392,8 @@ static void _usart_cmd_parser(const uint8_t* buffer, uint32_t len)
 		printf("\r\nUSART receive with DMA (ping/pong buffer used): ");
 		printf("\r\n  Note: the max length of one message should not execeed the size of buffer");
 		printf("\r\n  callback would be called after data received and timeout occurs.");
-		printf("\r\n  call usartd_dma_pingpong_stop() could stop the reception.\r\n");
 
+		usart_desc.timeout = 500;
 		struct _buffer rx = {
 			.data = (unsigned char*)read_buffer,
 			.size = 64,
