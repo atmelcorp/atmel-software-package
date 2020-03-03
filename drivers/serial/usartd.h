@@ -105,6 +105,17 @@ struct _usart_desc
 		} tx;
 	} dma;
 
+#ifdef US_CSR_CMP
+	/* variables needed for comparison function */
+	struct {
+		uint32_t enable;
+		uint16_t val1;   /* First Comparison Value for Received Character*/
+		uint16_t val2;   /* Second Comparison Value for Received Character */
+		uint8_t mode;    /* Comparison Mode */
+		uint8_t parity;  /* Compare Parity */
+	} cmp;
+#endif /* US_CSR_CMP */
+
 	/* extra variables needed for receive with DMA ping/pong buffer */
 	struct {
 		uint32_t total;        /* total bytes received */
@@ -128,11 +139,7 @@ enum _usartd_trans_mode
 
 extern void usartd_configure(uint8_t iface, struct _usart_desc* desc);
 extern uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf, struct _callback* cb);
-#ifdef US_CSR_CMP
-extern uint32_t usartd_compare_receive(uint8_t iface, uint8_t val1, uint8_t val2, struct _buffer* buf, struct _callback* cb);
-#endif /* US_CSR_CMP */
 extern uint32_t usartd_dma_pingpong_read(uint8_t iface, uint8_t* buf, uint32_t size, uint32_t* actural_read);
-extern void usartd_dma_pingpong_stop(uint8_t iface);
 extern void usartd_finish_rx_transfer(uint8_t iface);
 extern uint32_t usartd_rx_is_busy(const uint8_t iface);
 extern void usartd_wait_rx_transfer(const uint8_t iface);
