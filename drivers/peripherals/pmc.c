@@ -1691,21 +1691,6 @@ struct pck_mck_cfg pmc_get_pck_mck_cfg(void)
 	} else {
 		cfg.ext32k = false;
 	}
-#if defined(CKGR_MOR_XT32KFME) && defined(SCKC_CR_OSC32BYP)
-	/* Enable internal osc to compute ext32k frequency drift */
-	pmc_enable_internal_osc();
-
-	/* Get ext32k bypass state*/
-	if(slowclock_is_internal(SLOWCLOCK_DOMAIN_DEFAULT)) {
-		slowclock_select_external(SLOWCLOCK_DOMAIN_DEFAULT);
-		cfg.ext32k_bypass = pmc_ext32k_monitor();
-		slowclock_select_internal(SLOWCLOCK_DOMAIN_DEFAULT);
-	} else {
-		slowclock_select_internal(SLOWCLOCK_DOMAIN_DEFAULT);
-		slowclock_select_external(SLOWCLOCK_DOMAIN_DEFAULT);
-		cfg.ext32k_bypass = pmc_ext32k_monitor();
-	}
-#endif
 	cfg.pck_pres = (PMC->PMC_MCKR & PMC_MCKR_PRES_Msk);
 	cfg.mck_div = (PMC->PMC_MCKR & PMC_MCKR_MDIV_Msk);
 
