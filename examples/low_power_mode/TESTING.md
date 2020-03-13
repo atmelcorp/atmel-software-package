@@ -14,6 +14,8 @@ mode, users can also change the settings of clock and DDR.
 Power consumptions could be measured by ammeters connected between the jumpers
 of `VDDCORE` or `VDDBU`.
 
+Low power enter/exit time measured by Timer Counter, TC clock select internal
+slow_clock clock signal (from PMC).
 
 # Test
 ------
@@ -123,6 +125,7 @@ Press 'C' | Verify data in DDR` ... `data OK | PASSED | PASSED
 
 # Note:
 -------
+ * SAM9X60-EK don't support low power enter/exit timer at this time. 
  * Some DDR related operations are omitted while running out of DDR.
  * The battery should be mounted and 'Force Power UP' jumper should be opened to support the BackUp mode correctly.
  * There are two ULP modes for SAMA5D2 while only one ULP mode for SAMA5D4.
