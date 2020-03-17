@@ -194,6 +194,7 @@ extern void usart_reset_rx(Usart *usart);
  */
 extern void usart_set_rx_timeout(Usart *usart, uint32_t baudrate, uint32_t timeout);
 
+#ifdef US_CSR_CMP
 /**
  * \brief Configure the comparison register.
  *
@@ -205,6 +206,7 @@ extern void usart_set_rx_timeout(Usart *usart, uint32_t baudrate, uint32_t timeo
  *
  */
 extern void usart_set_cmpr(Usart *usart, uint8_t mode, uint8_t parity, uint16_t val1, uint16_t val2);
+#endif
 
 /**
  * \brief Start transmission of a break.

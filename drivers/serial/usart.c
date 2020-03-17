@@ -242,6 +242,7 @@ void usart_restart_rx_timeout(Usart *usart)
 	usart->US_CR = US_CR_RETTO;
 }
 
+#ifdef US_CSR_CMP
 void usart_set_cmpr(Usart *usart, uint8_t mode, uint8_t parity, uint16_t val1, uint16_t val2)
 {
 	uint32_t cmpr = US_CMPR_CMPMODE(mode);
@@ -250,6 +251,7 @@ void usart_set_cmpr(Usart *usart, uint8_t mode, uint8_t parity, uint16_t val1, u
 
 	usart->US_CMPR = cmpr | US_CMPR_VAL1(val1) | US_CMPR_VAL2(val2);
 }
+#endif
 
 void usart_write(Usart *usart, uint16_t data, volatile uint32_t timeout)
 {

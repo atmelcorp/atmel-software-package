@@ -246,9 +246,10 @@ static uint32_t _usartd_pingpong_transfer(struct _usart_desc *desc, struct _buff
 #endif
 	callback_set(&_cb, _usartd_pingpong_dma_callback, (void*)desc);
 	dma_set_callback(desc->dma.rx.channel, &_cb);
-
+#ifdef US_CSR_CMP
 	if (desc->cmp.enable)
 		usart_enable_it(desc->addr, US_IER_CMP);
+#endif
 	usart_set_rx_timeout(desc->addr, desc->baudrate, desc->timeout);
 	usart_enable_it(desc->addr, US_IER_TIMEOUT);
 
