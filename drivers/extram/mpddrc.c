@@ -615,7 +615,9 @@ RAMCODE void ddr_self_refresh(void)
 	}
 #else
 	/* Disable the DDR Controller clock signal at PMC level*/
+#ifdef ID_MPDDRC
 	pmc_disable_peripheral(ID_MPDDRC);
+#endif
 	/* Disable ddrclk */
 	pmc_disable_system_clock(PMC_SYSTEM_CLOCK_DDR);
 	/* Enable DDR Self-refresh mode */
@@ -636,7 +638,9 @@ RAMCODE void check_ddr_ready(void)
 	}
 #else
 	/* Enable the DDR Controller clock signal at PMC level */
+#ifdef ID_MPDDRC
 	pmc_configure_peripheral(ID_MPDDRC, NULL, true);
+#endif
 	/* Enable ddrclk */
 	pmc_enable_system_clock(PMC_SYSTEM_CLOCK_DDR);
 	/* Disable DDR Self-refresh mode */
