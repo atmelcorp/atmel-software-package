@@ -19,6 +19,6 @@ do not initialize { zi };
 
 place at address mem:__ICFEDIT_intvec_start__ { section .intvec } ;
 
-place at start of RAM_region { block RamTop with fixed order {readonly, section LOWEND} } ;
-place at end of RAM_region { block RamBottom with fixed order {section HIGHSTART, readwrite, section .init, block CSTACK} } ;
+place at start of RAM_region { block RamTop with fixed order {readonly, section .data, section LOWEND} };
+place at end of RAM_region { block RamBottom with fixed order { section HIGHSTART, section .bss, section .noinit, section .init, section __DLIB_PERTHREAD, block CSTACK} } ;
 
