@@ -74,6 +74,8 @@ the target, it is needed when running examples out of "ddram" or "qspi".
 |ddram | W9712G6KB      | 15         | 32
 |sdram | W9751G6KB      | 16         | 16
 |ddram | MT47H64M16_X2  | 17         | 32
+|ddram | W9864G6KH      | 18         | 16
+
 
   Note: ``--preset`` is flash_loader argument in ddram/sdram flash_loader application to indicate which ddram/sdram device used in target board.
 
