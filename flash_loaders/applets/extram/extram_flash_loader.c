@@ -61,6 +61,7 @@
 #include <board.h>
 #include "board_console.h"
 #include "extram/ddram.h"
+#include "extram/sdram.h"
 #include "flash_loader.h"
 #include "flash_loader_extra.h"
 #include "gpio/pio.h"
@@ -118,8 +119,10 @@ uint32_t FlashInit(void *base_of_flash,
 {
 	enum _ddram_devices device;
 	struct _mpddrc_desc desc;
+	struct _sdramc_desc desc_sdr;
 	const char *arg;
 	uint32_t preset;
+	uint8_t is_sdr = 0;
 
 	/* stop warning */
 	base_of_flash = base_of_flash;
@@ -187,8 +190,7 @@ uint32_t FlashInit(void *base_of_flash,
 		trace_warning_wp("Preset 6 (IS42S16100E)\r\n");
 
 		sprintf(message, "%s", "Preset 6 (IS42S16100E)\r\n");
-	cSpyMessageLog(message);
-
+		is_sdr = 1;
 		device = IS42S16100E;
 		break;
 #endif
@@ -196,8 +198,10 @@ uint32_t FlashInit(void *base_of_flash,
 	case 7:
 		trace_warning_wp("Preset 7 (W981216BH)\r\n");
 		device = W981216BH;
+		is_sdr = 1;
 		break;
 #endif
+
 #ifdef CONFIG_HAVE_DDR2_W971GG6SB
 	case 8:
 		trace_warning_wp("Preset 8 (W971GG6SB)\r\n");
@@ -232,6 +236,7 @@ uint32_t FlashInit(void *base_of_flash,
 	case 10:
 		printf("Preset 10 (AS4C16M16SA)\r\n");
 		device = AS4C16M16SA;
+		is_sdr = 1;
 		break;
 #endif
 #ifdef CONFIG_HAVE_LPDDR2_AD220032D
@@ -246,6 +251,13 @@ uint32_t FlashInit(void *base_of_flash,
 		device = AD210032D;
 		break;
 #endif
+#ifdef CONFIG_HAVE_SDRAM_W9864G6KH
+	case 18:
+		trace_warning_wp("Preset 18 (W9864G6KH)\r\n");
+		device = W9864G6KH;
+		is_sdr = 1;
+		break;
+#endif
 	default:
 		trace_warning_wp("Unsupported DRAM preset (%u).\r\n",
 				(unsigned)preset);
@@ -256,8 +268,13 @@ uint32_t FlashInit(void *base_of_flash,
 	pio_configure(ddram_pins, ARRAY_SIZE(ddram_pins));
 #endif
 	board_cfg_matrix_for_ddr();
-	ddram_init_descriptor(&desc, device);
-	ddram_configure(&desc);
+	if(!is_sdr){
+		ddram_init_descriptor(&desc, device);
+		ddram_configure(&desc);
+	} else {
+		sdram_init_descriptor(&desc_sdr, device);
+		sdram_configure(&desc_sdr);
+	}
 	return RESULT_OK;
 }
 
