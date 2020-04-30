@@ -108,6 +108,8 @@ extern uint16_t nand_onfi_get_pages_per_block(void);
 
 extern uint16_t nand_onfi_get_blocks_per_lun(void);
 
+extern uint8_t nand_onfi_get_lun_count(void);
+
 extern uint8_t nand_onfi_get_ecc_correctability(void);
 
 extern bool nand_onfi_get_model(struct _nand_flash_model *model);

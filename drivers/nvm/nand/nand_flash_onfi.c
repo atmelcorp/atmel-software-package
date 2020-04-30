@@ -238,6 +238,11 @@ uint16_t nand_onfi_get_blocks_per_lun(void)
 	return onfi_parameter.blocks_per_lun;
 }
 
+uint8_t nand_onfi_get_lun_count(void)
+{
+	return onfi_parameter.logical_units;
+}
+
 uint8_t nand_onfi_get_ecc_correctability(void)
 {
 	return onfi_parameter.ecc_correctability;
@@ -331,7 +336,7 @@ bool nand_onfi_get_model(struct _nand_flash_model *model)
 		model->page_size = nand_onfi_get_page_size();
 		model->spare_size = nand_onfi_get_spare_size();
 		model->block_size = nand_onfi_get_pages_per_block() * nand_onfi_get_page_size();
-		model->device_size = ((model->block_size / 1024) * nand_onfi_get_blocks_per_lun()) / 1024;
+		model->device_size = nand_onfi_get_lun_count() * ((model->block_size / 1024) * nand_onfi_get_blocks_per_lun()) / 1024;
 		return true;
 	}
 	return false;
