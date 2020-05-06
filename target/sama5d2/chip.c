@@ -137,7 +137,7 @@ static const struct peripheral_xdma _xdmac_peripherals[] = {
 	{ ID_TC0,      0xff,   45 },
 	{ ID_TC1,      0xff,   46 },
 	{ ID_CLASSD0,    47, 0xff },
-	{ ID_QSPI0,      48,   49 },
+	{ ID_QSPI1,      48,   49 },
 	{ ID_PDMIC0,   0xff,   50 },
 };
 
