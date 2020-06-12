@@ -2837,31 +2837,26 @@ MmcInit(sSdCard * pSd)
 
 	pSd->wCurrBlockLen = SDMMC_BLOCK_SIZE;
 
+	pSd->dwNbBlocks = 0;
 	if (MMC_IsCSDVer1_2(pSd) && MMC_IsVer4(pSd)) {
-		if (MMC_EXT_DATA_SECTOR_SIZE(pSd->EXT)
-		    == MMC_EXT_DATA_SECT_4KIB)
+		/* Parse EXT_CSD */
+		if (MMC_EXT_DATA_SECTOR_SIZE(pSd->EXT) == MMC_EXT_DATA_SECT_4KIB)
 			pSd->wBlockSize = 4096;
 		else
 			pSd->wBlockSize = 512;
-		pSd->dwNbBlocks = MMC_EXT_SEC_COUNT(pSd->EXT)
-		    / (pSd->wBlockSize / 512UL);
-		if(MMC_CSD_C_SIZE(pSd->CSD) == 0xfff) {
-			/* Device density >= 4 GiB does not fit 32-bit dwTotalSize */
-			pSd->dwTotalSize = MMC_EXT_SEC_COUNT(pSd->EXT);
-			pSd->dwTotalSize *= 512UL;
-		}
-		else {
-			pSd->dwNbBlocks = MMC_CSD_C_SIZE(pSd->CSD)
-							* (1 << (MMC_CSD_C_SIZE_MULT(pSd->CSD) + 2));
-			pSd->dwTotalSize = pSd->dwNbBlocks * (1 << MMC_CSD_READ_BL_LEN(pSd->CSD));
-		}
+		pSd->dwNbBlocks = MMC_EXT_SEC_COUNT(pSd->EXT);
+		/* Device density >= 4 GiB does not fit 32-bit dwTotalSize */
+		pSd->dwTotalSize = pSd->dwNbBlocks >= 0x800000 ? 0xFFFFFFFF
+		    : pSd->dwNbBlocks * 512UL;
+		pSd->dwNbBlocks /= pSd->wBlockSize / 512U;
 	}
-	else {
+	if (!(pSd->bCardType & CARD_TYPE_bmHC) || pSd->dwNbBlocks == 0) {
+		/* Get size from CSD */
 		pSd->wBlockSize = 512;
-		mem_size = SD_CSD_TOTAL_SIZE(pSd->CSD);
+		mem_size = ((uint64_t)MMC_CSD_BLOCKNR(pSd->CSD)
+		    * MMC_CSD_BLOCK_LEN(pSd->CSD));
 		pSd->dwNbBlocks = (uint32_t)(mem_size >> 9);
-		pSd->dwTotalSize = mem_size >> 32 ? 0xFFFFFFFF
-		    : (uint32_t)mem_size;
+		pSd->dwTotalSize = mem_size >> 32 ? 0xFFFFFFFF : (uint32_t)mem_size;
 	}
 
 	/* Check device status and eat past exceptions, which would otherwise
