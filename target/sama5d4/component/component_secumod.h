@@ -79,13 +79,13 @@ typedef struct {
 #define SECUMOD_CR_AUTOBKP_Pos 5
 #define SECUMOD_CR_AUTOBKP_Msk (0x3u << SECUMOD_CR_AUTOBKP_Pos) /**< \brief (SECUMOD_CR) Automatic Normal to Backup Mode Switching */
 #define SECUMOD_CR_AUTOBKP(value) ((SECUMOD_CR_AUTOBKP_Msk & ((value) << SECUMOD_CR_AUTOBKP_Pos)))
-#define SECUMOD_CR_AUTOBKP_SW_SWITCH   (0x2u << 3) /**< \brief (SECUMOD_CR) When in Normal mode, software must switch to Backup mode before powering down the core */
-#define SECUMOD_CR_AUTOBKP_AUTO_SWITCH (0x1u << 3) /**< \brief (SECUMOD_CR) When in Normal mode, the power down of the core supply will automatically switch the mode to Backup mode, simultaneously with core to backup isolation barrier activation. (default) */
+#define SECUMOD_CR_AUTOBKP_SW_SWITCH   (0x2u << 5) /**< \brief (SECUMOD_CR) When in Normal mode, software must switch to Backup mode before powering down the core */
+#define SECUMOD_CR_AUTOBKP_AUTO_SWITCH (0x1u << 5) /**< \brief (SECUMOD_CR) When in Normal mode, the power down of the core supply will automatically switch the mode to Backup mode, simultaneously with core to backup isolation barrier activation. (default) */
 #define SECUMOD_CR_SCRAMB_Pos 9
 #define SECUMOD_CR_SCRAMB_Msk (0x3u << SECUMOD_CR_SCRAMB_Pos) /**< \brief (SECUMOD_CR) Memory Scrambling Enable */
 #define SECUMOD_CR_SCRAMB(value) ((SECUMOD_CR_SCRAMB_Msk & ((value) << SECUMOD_CR_SCRAMB_Pos)))
-#define SECUMOD_CR_SCRAMB_DISABLE (0x2u << 3) /**< \brief (SECUMOD_CR) Memories are not scrambled */
-#define SECUMOD_CR_SCRAMB_ENABLE  (0x1u << 3) /**< \brief (SECUMOD_CR) Memories are scrambled (default) */
+#define SECUMOD_CR_SCRAMB_DISABLE (0x2u << 9) /**< \brief (SECUMOD_CR) Memories are not scrambled */
+#define SECUMOD_CR_SCRAMB_ENABLE  (0x1u << 9) /**< \brief (SECUMOD_CR) Memories are scrambled (default) */
 #define SECUMOD_CR_KEY_Pos 16
 #define SECUMOD_CR_KEY_Msk (0xffffu << SECUMOD_CR_KEY_Pos) /**< \brief (SECUMOD_CR) Password */
 #define SECUMOD_CR_KEY(value) ((SECUMOD_CR_KEY_Msk & ((value) << SECUMOD_CR_KEY_Pos)))
