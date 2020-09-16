@@ -131,7 +131,7 @@ static void _default_irq_handler(void)
 
 void irq_initialize(void)
 {
-	
+
 #ifdef CONFIG_ARCH_ARMV7A
 	/*
 	 * This ensures that the interrupt vector table is located at the base of memory (0x00000000).
@@ -142,7 +142,7 @@ void irq_initialize(void)
 	/* Set VBAR to 0x00000000 */
 	asm("mcr p15, 0, %0, c12, c0, 0" :: "r"(vbar));
 #endif
-	
+
 	_initialize_handlers_pool();
 
 #if defined(CONFIG_HAVE_AIC2) || defined(CONFIG_HAVE_AIC5)
