@@ -2418,7 +2418,7 @@ mmcDetectBuswidth(sSdCard * pSd)
 	assert(sizeof(pSd->sandbox2) >= 8);
 
 	memset(pSd->sandbox1, 0, 8);
-	for (busWidth = 8; busWidth != 0; busWidth /= busWidth == 8 ? 2 : 4) {
+	for (busWidth = pSd->bMaxBusWidth; busWidth != 0; busWidth /= busWidth == 8 ? 2 : 4) { /* xxx lgl 2020-0916 modify this for init loop busWidth = 8; */
 		error = _HwSetBusWidth(pSd, busWidth);
 		if (error)
 			continue;

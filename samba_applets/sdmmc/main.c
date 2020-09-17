@@ -366,6 +366,7 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 	else
 		trace_warning_wp(", user partition");
 	trace_warning_wp(", %d-bit", (unsigned)config.bus_width);
+	lib.bMaxBusWidth = config.bus_width;
 #if defined(CONFIG_HAVE_SDMMC)
 	trace_warning_wp(", %s", get_supported_voltage_string(config.supported_voltages));
 #endif
