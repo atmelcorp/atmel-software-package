@@ -412,6 +412,8 @@ static uint32_t handle_cmd_initialize(uint32_t cmd, uint32_t *mailbox)
 		return APPLET_FAIL;
 	}
 
+	mmc_configure_max_bus_width(&lib, config.bus_width);
+
 	rc = SD_Init(&lib);
 	if (rc != SDMMC_OK) {
 		trace_error("SD/MMC device initialization failed: %s\n\r",
