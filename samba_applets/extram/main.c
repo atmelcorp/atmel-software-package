@@ -88,6 +88,10 @@ static bool init_extram_from_preset(uint32_t preset)
 		trace_warning_wp("Preset 2 (2 x MT47H128M16)\r\n");
 		device = MT47H128M16;
 		break;
+	case 18:
+		trace_warning_wp("Preset 18 (1 x MT47H128M16)\r\n");
+		device = MT47H128M16_X1;
+		break;
 #endif
 #ifdef CONFIG_HAVE_LPDDR2_MT42L128M16
 	case 3:
