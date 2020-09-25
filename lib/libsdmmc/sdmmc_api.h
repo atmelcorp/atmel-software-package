@@ -650,6 +650,7 @@ extern uint32_t SD_GetTotalSizeKB(const sSdCard * pSd);
 
 extern uint8_t mmc_configure_partition(sSdCard * pSd, uint32_t config);
 extern uint8_t mmc_configure_boot_bus(sSdCard * pSd, uint32_t config);
+extern void mmc_configure_max_bus_width(sSdCard * pSd, uint8_t busWidth);
 
 extern uint8_t SD_ReadBlocks(sSdCard * pSd,
 			     uint32_t dwAddr, void *pData, uint32_t dwNbBlocks);

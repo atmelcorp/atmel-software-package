@@ -461,6 +461,7 @@ typedef struct _SdCard {
 	uint8_t bStatus;	/**< Unrecovered error */
 	uint8_t bSetBlkCnt;	/**< Explicit SET_BLOCK_COUNT command used */
 	uint8_t bStopMultXfer;	/**< Explicit STOP_TRANSMISSION command used */
+	uint8_t bMmcBuswidthDetect;	/**< The first bus width value used when detecting the bus width of MMC, normal detection order: 8, 4, 1 bit */
 } sSdCard;
 
 /** \addtogroup sdmmc_struct_cmdarg SD/MMC command arguments

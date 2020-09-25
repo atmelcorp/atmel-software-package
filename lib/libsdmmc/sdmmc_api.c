@@ -2418,7 +2418,10 @@ mmcDetectBuswidth(sSdCard * pSd)
 	assert(sizeof(pSd->sandbox2) >= 8);
 
 	memset(pSd->sandbox1, 0, 8);
-	for (busWidth = 8; busWidth != 0; busWidth /= busWidth == 8 ? 2 : 4) {
+	busWidth = pSd->bMmcBuswidthDetect;
+	if ((busWidth != 4) && (busWidth != 1) )
+		busWidth = 8;
+	for (; busWidth != 0; busWidth /= busWidth == 8 ? 2 : 4) {
 		error = _HwSetBusWidth(pSd, busWidth);
 		if (error)
 			continue;
@@ -3329,6 +3332,7 @@ SDD_Initialize(sSdCard * pSd,
 	pSd->pHalf = (sSdHalFunctions *) pHalf;
 	pSd->pExt = NULL;
 	pSd->bSlot = bSlot;
+	pSd->bMmcBuswidthDetect = 8;
 
 	_SdParamReset(pSd);
 }
@@ -4499,6 +4503,11 @@ mmc_configure_boot_bus(sSdCard * pSd, uint32_t config)
 	}
 
 	return SDMMC_OK;
+}
+
+void mmc_configure_max_bus_width(sSdCard * pSd, uint8_t busWidth)
+{
+	pSd->bMmcBuswidthDetect = busWidth;
 }
 
 /**@}*/
