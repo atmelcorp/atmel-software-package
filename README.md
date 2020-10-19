@@ -13,16 +13,26 @@ This softpack is hosted on [GitHub](https://github.com/atmelcorp/atmel-software-
 
 ## Supported Platforms
 
-Windows and Linux with the gnu **GCC ARM Embedded** toolchain. It is downloadable
-at this address: [launchpad.net/gcc-arm-embedded](https://launchpad.net/gcc-arm-embedded)
+### Windows and Linux with the gnu **GCC ARM Embedded** toolchain
+
+It is downloadable at this address: [launchpad.net/gcc-arm-embedded](https://launchpad.net/gcc-arm-embedded)
 (Mac OS X should also work but as not been tested yet).
+
+As it is announced all new binary and source packages will not be released on Launchpad, toolchains can also be downloaded at these address: [developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) and [developer.arm.com/open-source/gnu-toolchain/gnu-a/downloads](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-a/downloads)
+
+Suggested version of toolchain: gcc-arm-none-eabi-8-2018-q4-major
+
+Here a few tips that may prove useful in resolving compatibility issues met with other toolchain versions:
+- link error of "uses VFP register arguments" for SAMA5: replace "-mcpu=cortex-a5" with "-march=armv7-a" in file [scripts/Makefile.vars.sama5d*](scripts)
+- link error of "cannot find -lc_nano": remove "--specs=nano.specs" from [scripts/Makefile.vars](scripts/Makefile.vars)
 
 Dependencies:
 - GNU make (from MinGW, Cygwin or GnuWin32 for Windows architectures)
 - bash (from MinGW, Cygwin for Windows architectures)
 - *recommended on Windows architectures:* winpty (from MSYS2's package manager)
 
-Windows with **IAR Embedded Workbench**.
+### Windows with **IAR Embedded Workbench**
+
 Dependencies:
 - IAR Embedded Workbench (Tested on version 7.80)
 - bash (from MinGW, Cygwin or GnuWin32) for IAR project generation
