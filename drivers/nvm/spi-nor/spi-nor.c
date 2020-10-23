@@ -775,6 +775,7 @@ int spi_nor_write(struct spi_flash *flash, size_t to, const uint8_t* buf, size_t
 		cmd.addr = to;
 		cmd.data_len = page_remain;
 		cmd.tx_data = buf;
+		cmd.timeout = TIMEOUT_WRITE;
 
 		rc = spi_flash_write_enable(flash);
 		if (rc < 0)
@@ -820,6 +821,7 @@ int spi_nor_erase(struct spi_flash *flash, size_t offset, size_t len)
 #ifdef CONFIG_HAVE_AESB
 	cmd.use_aesb = flash->use_aesb;
 #endif
+	cmd.timeout = TIMEOUT_ERASE;
 	while (len) {
 		const struct spi_flash_erase_command *erase = NULL;
 		size_t i;

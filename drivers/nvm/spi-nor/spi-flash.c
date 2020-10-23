@@ -39,12 +39,6 @@
  *        Local Definitions
  *----------------------------------------------------------------------------*/
 
-/* Default timeout values (in timer ticks, for 1000 Hz timer) */
-#define TIMEOUT_DEFAULT       100 /* 0.1s */
-#define TIMEOUT_WRITE         800 /* 0.8s */
-#define TIMEOUT_ERASE        3000 /* 3s */
-#define TIMEOUT_ERASE_CHIP 500000 /* 500s */
-
 /*----------------------------------------------------------------------------
  *        Public functions
  *----------------------------------------------------------------------------*/
