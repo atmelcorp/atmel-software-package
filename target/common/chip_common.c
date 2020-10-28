@@ -206,6 +206,18 @@ uint32_t get_flexcom_id_from_addr(const Flexcom* addr)
 	if (addr == FLEXCOM9)
 		return ID_FLEXCOM9;
 #endif
+#ifdef FLEXCOM10
+	if (addr == FLEXCOM10)
+		return ID_FLEXCOM10;
+#endif
+#ifdef FLEXCOM11
+	if (addr == FLEXCOM11)
+		return ID_FLEXCOM11;
+#endif
+#ifdef FLEXCOM12
+	if (addr == FLEXCOM12)
+		return ID_FLEXCOM12;
+#endif
 	return ID_PERIPH_COUNT;
 }
 
@@ -250,6 +262,18 @@ Flexcom* get_flexcom_addr_from_id(uint32_t id)
 #ifdef FLEXCOM9
 	if (id == ID_FLEXCOM9)
 		return FLEXCOM9;
+#endif
+#ifdef FLEXCOM10
+	if (id == ID_FLEXCOM10)
+		return FLEXCOM10;
+#endif
+#ifdef FLEXCOM11
+	if (id == ID_FLEXCOM11)
+		return FLEXCOM11;
+#endif
+#ifdef FLEXCOM12
+	if (id == ID_FLEXCOM12)
+		return FLEXCOM12;
 #endif
 	return NULL;
 }
@@ -733,6 +757,18 @@ uint32_t get_twi_id_from_addr(const Twi* addr)
 	if (addr == FLEXTWI9)
 		return ID_FLEXCOM9;
 #endif
+#ifdef FLEXTWI10
+	if (addr == FLEXTWI10)
+		return ID_FLEXCOM10;
+#endif
+#ifdef FLEXTWI11
+	if (addr == FLEXTWI11)
+		return ID_FLEXCOM11;
+#endif
+#ifdef FLEXTWI12
+	if (addr == FLEXTWI12)
+		return ID_FLEXCOM12;
+#endif
 	return ID_PERIPH_COUNT;
 }
 
@@ -797,6 +833,18 @@ Twi* get_twi_addr_from_id(uint32_t id)
 #ifdef FLEXTWI9
 	if (id == ID_FLEXCOM9)
 		return FLEXTWI9;
+#endif
+#ifdef FLEXTWI10
+	if (id == ID_FLEXCOM10)
+		return FLEXTWI10;
+#endif
+#ifdef FLEXTWI11
+	if (id == ID_FLEXCOM11)
+		return FLEXTWI11;
+#endif
+#ifdef FLEXTWI12
+	if (id == ID_FLEXCOM12)
+		return FLEXTWI12;
 #endif
 	return NULL;
 }
@@ -917,6 +965,18 @@ uint32_t get_usart_id_from_addr(const Usart* addr)
 	if (addr == FLEXUSART9)
 		return ID_FLEXCOM9;
 #endif
+#ifdef FLEXUSART10
+	if (addr == FLEXUSART10)
+		return ID_FLEXCOM10;
+#endif
+#ifdef FLEXUSART11
+	if (addr == FLEXUSART11)
+		return ID_FLEXCOM11;
+#endif
+#ifdef FLEXUSART12
+	if (addr == FLEXUSART12)
+		return ID_FLEXCOM12;
+#endif
 	return ID_PERIPH_COUNT;
 }
 
@@ -981,6 +1041,18 @@ Usart* get_usart_addr_from_id(uint32_t id)
 #ifdef FLEXUSART9
 	if (id == ID_FLEXCOM9)
 		return FLEXUSART9;
+#endif
+#ifdef FLEXUSART10
+	if (id == ID_FLEXCOM10)
+		return FLEXUSART10;
+#endif
+#ifdef FLEXUSART11
+	if (id == ID_FLEXCOM11)
+		return FLEXUSART11;
+#endif
+#ifdef FLEXUSART12
+	if (id == ID_FLEXCOM12)
+		return FLEXUSART12;
 #endif
 	return NULL;
 }
