@@ -38,6 +38,7 @@
 #include "errno.h"
 #include "peripherals/bus.h"
 #ifdef CONFIG_HAVE_SPI_BUS
+#include "spi/spi.h"
 #include "spi/spid.h"
 #endif
 #ifdef CONFIG_HAVE_I2C_BUS
@@ -112,6 +113,7 @@ static int _bus_fifo_enable(uint8_t bus_id)
 	case BUS_TYPE_SPI:
 #ifdef CONFIG_HAVE_SPI_FIFO
 		_bus[bus_id].iface.spid.use_fifo = true;
+		spi_fifo_enable(_bus[bus_id].iface.spid.addr);
 #endif
 		break;
 #endif
@@ -143,6 +145,7 @@ static int _bus_fifo_disable(uint8_t bus_id)
 	case BUS_TYPE_SPI:
 #ifdef CONFIG_HAVE_SPI_FIFO
 		_bus[bus_id].iface.spid.use_fifo = false;
+		spi_fifo_disable(_bus[bus_id].iface.spid.addr);
 #endif
 		break;
 #endif
