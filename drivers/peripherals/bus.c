@@ -119,6 +119,7 @@ static int _bus_fifo_enable(uint8_t bus_id)
 	case BUS_TYPE_I2C:
 #ifdef CONFIG_HAVE_TWI_FIFO
 		_bus[bus_id].iface.twid.use_fifo = true;
+		twi_fifo_enable(_bus[bus_id].iface.twid.addr, true);
 #endif
 		break;
 #endif
@@ -149,6 +150,7 @@ static int _bus_fifo_disable(uint8_t bus_id)
 	case BUS_TYPE_I2C:
 #ifdef CONFIG_HAVE_TWI_FIFO
 		_bus[bus_id].iface.twid.use_fifo = false;
+		twi_fifo_disable(_bus[bus_id].iface.twid.addr, true);
 #endif
 		break;
 #endif
