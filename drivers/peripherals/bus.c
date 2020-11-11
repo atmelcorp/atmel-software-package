@@ -37,10 +37,10 @@
 #include "dma/dma.h"
 #include "errno.h"
 #include "peripherals/bus.h"
-#ifdef CONFIG_HAVE_BUS_SPI
+#ifdef CONFIG_HAVE_SPI_BUS
 #include "spi/spid.h"
 #endif
-#ifdef CONFIG_HAVE_BUS_I2C
+#ifdef CONFIG_HAVE_I2C_BUS
 #include "i2c/twid.h"
 #endif
 #include "timer.h"
