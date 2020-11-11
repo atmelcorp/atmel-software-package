@@ -324,6 +324,9 @@ void twi_fifo_enable(Twi *twi, bool master)
 		twi->TWI_CR = TWI_CR_MSEN;
 	else
 		twi->TWI_CR = TWI_CR_SVEN;
+
+	while(twi_is_byte_received(twi))
+		(void)twi_read_byte(twi);
 }
 
 void twi_fifo_disable(Twi *twi, bool master)
@@ -339,6 +342,9 @@ void twi_fifo_disable(Twi *twi, bool master)
 		twi->TWI_CR = TWI_CR_MSEN;
 	else
 		twi->TWI_CR = TWI_CR_SVEN;
+
+	while(twi_is_byte_received(twi))
+		(void)twi_read_byte(twi);
 }
 
 uint32_t twi_fifo_get_rx_size(Twi *twi)
