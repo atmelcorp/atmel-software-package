@@ -189,7 +189,7 @@ static int _twid_dma_read_callback(void* arg, void* arg2)
 	if (desc->flags & BUS_I2C_BUF_ATTR_STOP)
 		twi_send_stop_condition(desc->addr);
 
-#ifdef CONFIG_HAVE_FIFO
+#ifdef CONFIG_HAVE_TWI_FIFO
 	if (!desc->use_fifo)
 #endif
 	{
