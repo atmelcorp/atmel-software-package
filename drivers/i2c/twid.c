@@ -738,10 +738,8 @@ static int _twid_transfer(struct _twi_desc* desc, struct _buffer* buf,  struct _
 				desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_TXRDYM_Msk) | TWI_FMR_TXRDYM_FOUR_DATA;
 #endif /* CONFIG_HAVE_TWI_FIFO */
 
-			/* Start twi with send first byte */
-			async_desc[adesc_index].transferred = 1;
+			/* Enable TWI TXRDY interrupt, data would be sent in ISR */
 			twi_enable_it(desc->addr, TWI_IER_TXRDY);
-			twi_write_byte(desc->addr, buf->data[0]);
 		} else {
 #ifdef CONFIG_HAVE_TWI_FIFO
 			if (desc->use_fifo)
