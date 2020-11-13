@@ -177,7 +177,23 @@ static int _twid_dma_read_callback(void* arg, void* arg2)
 {
 	struct _twi_desc* desc = (struct _twi_desc *)arg;
 
-	cache_invalidate_region(desc->dma.rx.cfg.daddr, desc->dma.rx.cfg.len);
+#ifdef CONFIG_HAVE_TWI_FIFO
+	if (desc->use_fifo) {
+		switch (desc->dma.rx.cfg_dma.data_width) {
+			case DMA_DATA_WIDTH_WORD:
+				cache_invalidate_region(desc->dma.rx.cfg.daddr, desc->dma.rx.cfg.len * 4);
+				break;
+			case DMA_DATA_WIDTH_HALF_WORD:
+				cache_invalidate_region(desc->dma.rx.cfg.daddr, desc->dma.rx.cfg.len * 2);
+				break;
+			case DMA_DATA_WIDTH_BYTE:
+			default:
+				cache_invalidate_region(desc->dma.rx.cfg.daddr, desc->dma.rx.cfg.len);
+				break;
+		}
+	} else
+#endif
+		cache_invalidate_region(desc->dma.rx.cfg.daddr, desc->dma.rx.cfg.len);
 
 	dma_reset_channel(desc->dma.rx.channel);
 
@@ -229,14 +245,16 @@ static void _twid_dma_read(struct _twi_desc* desc, struct _buffer* buffer)
 		if ((buffer->size % 4) == 0) {
 			desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_RXRDYM_Msk) | TWI_FMR_RXRDYM_FOUR_DATA;
 			desc->dma.rx.cfg_dma.data_width = DMA_DATA_WIDTH_WORD;
+			desc->dma.rx.cfg.len = buffer->size / 4;
 		} else if ((buffer->size % 2) == 0)  {
 			desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_RXRDYM_Msk) | TWI_FMR_RXRDYM_TWO_DATA;
 			desc->dma.rx.cfg_dma.data_width = DMA_DATA_WIDTH_HALF_WORD;
+			desc->dma.rx.cfg.len = buffer->size / 2;
 		} else {
 			desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_RXRDYM_Msk) | TWI_FMR_RXRDYM_ONE_DATA;
 			desc->dma.rx.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
+			desc->dma.rx.cfg.len = buffer->size;
 		}
-		desc->dma.rx.cfg.len = buffer->size;
 	} else {
 		desc->dma.rx.cfg.len = buffer->size - 2;
 		desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_RXRDYM_Msk) | TWI_FMR_RXRDYM_ONE_DATA;
@@ -299,14 +317,16 @@ static void _twid_dma_write(struct _twi_desc* desc, struct _buffer* buffer)
 		if ((buffer->size % 4) == 0) {
 			desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_TXRDYM_Msk) | TWI_FMR_TXRDYM_FOUR_DATA;
 			desc->dma.tx.cfg_dma.data_width = DMA_DATA_WIDTH_WORD;
+			desc->dma.tx.cfg.len = buffer->size / 4;
 		} else if ((buffer->size % 2) == 0) {
 			desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_TXRDYM_Msk) | TWI_FMR_TXRDYM_TWO_DATA;
 			desc->dma.tx.cfg_dma.data_width = DMA_DATA_WIDTH_HALF_WORD;
+			desc->dma.tx.cfg.len = buffer->size / 2;
 		} else {
 			desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_TXRDYM_Msk) | TWI_FMR_TXRDYM_ONE_DATA;
 			desc->dma.tx.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
+			desc->dma.tx.cfg.len = buffer->size;
 		}
-		desc->dma.tx.cfg.len = buffer->size;
 	} else {
 		desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_TXRDYM_Msk) | TWI_FMR_TXRDYM_ONE_DATA;
 		desc->dma.tx.cfg.len = buffer->size - 1;
@@ -319,7 +339,7 @@ static void _twid_dma_write(struct _twi_desc* desc, struct _buffer* buffer)
 	dma_configure_transfer(desc->dma.tx.channel, &desc->dma.tx.cfg_dma, &desc->dma.tx.cfg, 1);
 	callback_set(&_cb, _twid_dma_write_callback, (void*)desc);
 	dma_set_callback(desc->dma.tx.channel, &_cb);
-	cache_clean_region(desc->dma.tx.cfg.saddr, desc->dma.tx.cfg.len);
+	cache_clean_region(desc->dma.tx.cfg.saddr, buffer->size);
 	dma_start_transfer(desc->dma.tx.channel);
 }
 
