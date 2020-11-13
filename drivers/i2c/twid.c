@@ -289,8 +289,8 @@ static int _twid_dma_write_callback(void* arg, void* arg2)
 
 #ifdef CONFIG_HAVE_TWI_FIFO
 	if (!desc->use_fifo)
-		twi_write_byte(desc->addr, ((uint8_t *)desc->dma.tx.cfg.saddr)[desc->dma.tx.cfg.len]);
 #endif
+		twi_write_byte(desc->addr, ((uint8_t *)desc->dma.tx.cfg.saddr)[desc->dma.tx.cfg.len]);
 
 	mutex_unlock(&desc->mutex);
 
