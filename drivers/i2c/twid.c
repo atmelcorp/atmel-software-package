@@ -243,21 +243,21 @@ static void _twid_dma_read(struct _twi_desc* desc, struct _buffer* buffer)
 #ifdef CONFIG_HAVE_TWI_FIFO
 	if (desc->use_fifo) {
 		if ((buffer->size % 4) == 0) {
-			desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_RXRDYM_Msk) | TWI_FMR_RXRDYM_FOUR_DATA;
+			twi_fifo_mode_set(desc->addr, TWI_FMR_RXRDYM_Msk, TWI_FMR_RXRDYM_FOUR_DATA);
 			desc->dma.rx.cfg_dma.data_width = DMA_DATA_WIDTH_WORD;
 			desc->dma.rx.cfg.len = buffer->size / 4;
 		} else if ((buffer->size % 2) == 0)  {
-			desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_RXRDYM_Msk) | TWI_FMR_RXRDYM_TWO_DATA;
+			twi_fifo_mode_set(desc->addr, TWI_FMR_RXRDYM_Msk, TWI_FMR_RXRDYM_TWO_DATA);
 			desc->dma.rx.cfg_dma.data_width = DMA_DATA_WIDTH_HALF_WORD;
 			desc->dma.rx.cfg.len = buffer->size / 2;
 		} else {
-			desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_RXRDYM_Msk) | TWI_FMR_RXRDYM_ONE_DATA;
+			twi_fifo_mode_set(desc->addr, TWI_FMR_RXRDYM_Msk, TWI_FMR_RXRDYM_ONE_DATA);
 			desc->dma.rx.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
 			desc->dma.rx.cfg.len = buffer->size;
 		}
 	} else {
 		desc->dma.rx.cfg.len = buffer->size - 2;
-		desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_RXRDYM_Msk) | TWI_FMR_RXRDYM_ONE_DATA;
+		twi_fifo_mode_set(desc->addr, TWI_FMR_RXRDYM_Msk, TWI_FMR_RXRDYM_ONE_DATA);
 		desc->dma.rx.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
 	}
 #else
@@ -315,20 +315,20 @@ static void _twid_dma_write(struct _twi_desc* desc, struct _buffer* buffer)
 #ifdef CONFIG_HAVE_TWI_FIFO
 	if (desc->use_fifo) {
 		if ((buffer->size % 4) == 0) {
-			desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_TXRDYM_Msk) | TWI_FMR_TXRDYM_FOUR_DATA;
+			twi_fifo_mode_set(desc->addr, TWI_FMR_TXRDYM_Msk, TWI_FMR_TXRDYM_FOUR_DATA);
 			desc->dma.tx.cfg_dma.data_width = DMA_DATA_WIDTH_WORD;
 			desc->dma.tx.cfg.len = buffer->size / 4;
 		} else if ((buffer->size % 2) == 0) {
-			desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_TXRDYM_Msk) | TWI_FMR_TXRDYM_TWO_DATA;
+			twi_fifo_mode_set(desc->addr, TWI_FMR_TXRDYM_Msk, TWI_FMR_TXRDYM_TWO_DATA);
 			desc->dma.tx.cfg_dma.data_width = DMA_DATA_WIDTH_HALF_WORD;
 			desc->dma.tx.cfg.len = buffer->size / 2;
 		} else {
-			desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_TXRDYM_Msk) | TWI_FMR_TXRDYM_ONE_DATA;
+			twi_fifo_mode_set(desc->addr, TWI_FMR_TXRDYM_Msk, TWI_FMR_TXRDYM_ONE_DATA);
 			desc->dma.tx.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
 			desc->dma.tx.cfg.len = buffer->size;
 		}
 	} else {
-		desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_TXRDYM_Msk) | TWI_FMR_TXRDYM_ONE_DATA;
+		twi_fifo_mode_set(desc->addr, TWI_FMR_TXRDYM_Msk, TWI_FMR_TXRDYM_ONE_DATA);
 		desc->dma.tx.cfg.len = buffer->size - 1;
 		desc->dma.tx.cfg_dma.data_width = DMA_DATA_WIDTH_BYTE;
 	}
@@ -369,11 +369,11 @@ static void _twid_handler(uint32_t source, void* user_arg)
 			adesc->transferred += twi_fifo_read(addr, &adesc->buf.data[adesc->transferred], size);
 
 			if ((adesc->buf.size - adesc->transferred) >= 4)
-				addr->TWI_FMR = (addr->TWI_FMR & ~TWI_FMR_RXRDYM_Msk) | TWI_FMR_RXRDYM_FOUR_DATA;
+				twi_fifo_mode_set(addr, TWI_FMR_RXRDYM_Msk, TWI_FMR_RXRDYM_FOUR_DATA);
 			else if ((adesc->buf.size - adesc->transferred) >= 2)
-				addr->TWI_FMR = (addr->TWI_FMR & ~TWI_FMR_RXRDYM_Msk) | TWI_FMR_RXRDYM_TWO_DATA;
+				twi_fifo_mode_set(addr, TWI_FMR_RXRDYM_Msk, TWI_FMR_RXRDYM_TWO_DATA);
 			else
-				addr->TWI_FMR = (addr->TWI_FMR & ~TWI_FMR_RXRDYM_Msk) | TWI_FMR_RXRDYM_ONE_DATA;
+				twi_fifo_mode_set(addr, TWI_FMR_RXRDYM_Msk, TWI_FMR_RXRDYM_ONE_DATA);
 
 			buf_size = adesc->buf.size;
 #endif /* CONFIG_HAVE_TWI_FIFO */
@@ -415,11 +415,11 @@ static void _twid_handler(uint32_t source, void* user_arg)
 					twi_send_stop_condition(addr);
 
 			if ((adesc->buf.size - adesc->transferred) >= 4)
-				addr->TWI_FMR = (addr->TWI_FMR & ~TWI_FMR_TXRDYM_Msk) | TWI_FMR_TXRDYM_FOUR_DATA;
+				twi_fifo_mode_set(addr, TWI_FMR_TXRDYM_Msk, TWI_FMR_TXRDYM_FOUR_DATA);
 			else if ((adesc->buf.size - adesc->transferred) >= 2)
-				addr->TWI_FMR = (addr->TWI_FMR & ~TWI_FMR_TXRDYM_Msk) | TWI_FMR_TXRDYM_TWO_DATA;
+				twi_fifo_mode_set(addr, TWI_FMR_TXRDYM_Msk, TWI_FMR_TXRDYM_TWO_DATA);
 			else
-				addr->TWI_FMR = (addr->TWI_FMR & ~TWI_FMR_TXRDYM_Msk) | TWI_FMR_TXRDYM_ONE_DATA;
+				twi_fifo_mode_set(addr, TWI_FMR_TXRDYM_Msk, TWI_FMR_TXRDYM_ONE_DATA);
 #endif /* CONFIG_HAVE_TWI_FIFO */
 		} else {
 			/* Transfer finished ? */
@@ -735,7 +735,7 @@ static int _twid_transfer(struct _twi_desc* desc, struct _buffer* buf,  struct _
 
 #ifdef CONFIG_HAVE_TWI_FIFO
 			if (desc->use_fifo)
-				desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_TXRDYM_Msk) | TWI_FMR_TXRDYM_FOUR_DATA;
+				twi_fifo_mode_set(desc->addr, TWI_FMR_TXRDYM_Msk, TWI_FMR_TXRDYM_FOUR_DATA);
 #endif /* CONFIG_HAVE_TWI_FIFO */
 
 			/* Enable TWI TXRDY interrupt, data would be sent in ISR */
@@ -743,7 +743,7 @@ static int _twid_transfer(struct _twi_desc* desc, struct _buffer* buf,  struct _
 		} else {
 #ifdef CONFIG_HAVE_TWI_FIFO
 			if (desc->use_fifo)
-				desc->addr->TWI_FMR = (desc->addr->TWI_FMR & ~TWI_FMR_RXRDYM_Msk) | TWI_FMR_RXRDYM_FOUR_DATA;
+				twi_fifo_mode_set(desc->addr, TWI_FMR_RXRDYM_Msk, TWI_FMR_RXRDYM_FOUR_DATA);
 #endif /* CONFIG_HAVE_TWI_FIFO */
 
 			/* Enable read interrupt and start the transfer */

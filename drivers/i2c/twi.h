@@ -253,6 +253,14 @@ extern void twi_alt_cmd_disable(Twi *twi);
 extern void twi_fifo_configure(Twi *twi, uint8_t tx_thres, uint8_t rx_thres, uint32_t rdym);
 
 /**
+ * \brief  Set FIFO Mode Rgeister
+ * \param twi       Pointer to an Twi instance.
+ * \param mask      Mask of the bits to set value
+ * \param val       Value to set to the register
+ */
+extern void twi_fifo_mode_set(Twi *twi, uint32_t mask, uint32_t val);
+
+/**
  * \brief  Enable FIFO
  * \param twi  Pointer to an Twi instance.
  */

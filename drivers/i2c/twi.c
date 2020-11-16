@@ -311,6 +311,12 @@ void twi_fifo_configure(Twi *twi, uint8_t tx_thres, uint8_t rx_thres, uint32_t r
 	twi->TWI_FMR = TWI_FMR_TXFTHRES(tx_thres) | TWI_FMR_RXFTHRES(rx_thres) | rdym;
 }
 
+void twi_fifo_mode_set(Twi *twi, uint32_t mask, uint32_t val)
+{
+	assert(twi != NULL);
+	twi->TWI_FMR = (twi->TWI_FMR & (~mask)) | val;
+}
+
 void twi_fifo_enable(Twi *twi, bool master)
 {
 	assert(twi != NULL);
