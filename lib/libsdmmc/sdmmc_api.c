@@ -81,6 +81,7 @@ struct stringEntry_s
 /** \addtogroup sdmmc_status_bm SD/MMC Status register constants
  *      @{*/
 #define STATUS_APP_CMD          (1UL << 5)
+#define STATUS_EXCEPTION_EVENT  (1UL << 6)
 #define STATUS_SWITCH_ERROR     (1UL << 7)
 #define STATUS_READY_FOR_DATA   (1UL << 8)
 #define STATUS_IDLE             (0UL << 9)
@@ -165,9 +166,12 @@ struct stringEntry_s
                             | STATUS_CC_ERROR \
                             | STATUS_ERROR \
                             | STATUS_ERASE_RESET \
-                            /*| STATUS_STATE*/ \
-                            /*| STATUS_READY_FOR_DATA*/ \
                             | STATUS_SWITCH_ERROR ))
+
+#define STATUS_MMC_INIT_ERROR ((uint32_t)( STATUS_COM_CRC_ERROR \
+                            | STATUS_ILLEGAL_COMMAND \
+                            | STATUS_CC_ERROR \
+                            | STATUS_ERROR ))
 /**     @}*/
 
 /** \addtogroup sdio_status_bm SDIO Status definitions
@@ -2735,8 +2739,8 @@ MmcInit(sSdCard * pSd)
 			error = _HwSetHsMode(pSd, SDMMC_TIM_MMC_HS_SDR);
 		if (error == SDMMC_OK)
 			error = Cmd13(pSd, &status);
-		if (error == SDMMC_OK && (status & ~STATUS_STATE
-		    & ~STATUS_READY_FOR_DATA
+		if (error == SDMMC_OK
+		    && (status & (STATUS_SWITCH_ERROR | STATUS_MMC_INIT_ERROR)
 		    || (status & STATUS_STATE) != STATUS_TRAN))
 			error = SDMMC_ERROR_STATE;
 		if (error == SDMMC_OK) {
@@ -2768,8 +2772,8 @@ MmcInit(sSdCard * pSd)
 				error = _HwSetHsMode(pSd, tim_mode);
 			if (error == SDMMC_OK)
 				error = Cmd13(pSd, &status);
-			if (error == SDMMC_OK && (status & ~STATUS_STATE
-			    & ~STATUS_READY_FOR_DATA
+			if (error == SDMMC_OK
+			    && (status & (STATUS_SWITCH_ERROR | STATUS_MMC_INIT_ERROR)
 			    || (status & STATUS_STATE) != STATUS_TRAN))
 				error = SDMMC_ERROR_STATE;
 			if (error == SDMMC_OK
@@ -2798,8 +2802,8 @@ MmcInit(sSdCard * pSd)
 			error = _HwSetHsMode(pSd, tim_mode);
 		if (error == SDMMC_OK) {
 			error = Cmd13(pSd, &status);
-			if (error == SDMMC_OK && (status & ~STATUS_STATE
-			    & ~STATUS_READY_FOR_DATA
+			if (error == SDMMC_OK
+			    && (status & (STATUS_SWITCH_ERROR | STATUS_MMC_INIT_ERROR)
 			    || (status & STATUS_STATE) != STATUS_TRAN))
 				error = SDMMC_ERROR_STATE;
 		}
