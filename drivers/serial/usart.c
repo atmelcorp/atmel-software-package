@@ -396,6 +396,9 @@ void usart_fifo_enable(Usart *usart)
 
 	/* Reenable receiver & transmitter */
 	usart->US_CR = US_CR_RXEN | US_CR_TXEN;
+
+	while(usart_is_rx_ready(usart))
+	(void)usart_get_char(usart);
 }
 
 void usart_fifo_disable(Usart *usart)
@@ -405,6 +408,9 @@ void usart_fifo_disable(Usart *usart)
 
 	/* Reenable receiver & transmitter */
 	usart->US_CR = US_CR_RXEN | US_CR_TXEN;
+
+	while(usart_is_rx_ready(usart))
+	(void)usart_get_char(usart);
 }
 
 void usart_fifo_enable_it(Usart *usart, uint32_t interrupt_mask)
