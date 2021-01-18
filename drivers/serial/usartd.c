@@ -502,18 +502,13 @@ uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf, struct _callback* c
 			if (i < desc->rx.buffer.size) {
 #ifdef CONFIG_HAVE_USART_FIFO
 				if (desc->use_fifo) {
-					if ((desc->fifo.rx.size - usart_fifo_get_rx_size(desc->addr)) > 0) {
-						if ((desc->rx.buffer.size - i) >= 4) {
-							readw(&desc->addr->US_RHR, (uint32_t*)&desc->rx.buffer.data[i]);
-							i += 4;
-						} else if (usart_fifo_get_rx_size(desc->addr) >= 2) {
-							readhw(&desc->addr->US_RHR, (uint16_t*)&desc->rx.buffer.data[i]);
-							i += 2;
-						} else {
-							readb(&desc->addr->US_RHR, (uint8_t*)&desc->rx.buffer.data[i]);
-							i += 1;
-						}
-					}
+					uint8_t len = usart_fifo_get_rx_size(desc->addr);
+
+					if (len > buf->size - i)
+						len = buf->size - i;
+
+					while (len --)
+						readb(&desc->addr->US_RHR, (uint8_t*)&desc->rx.buffer.data[i++]);
 				} else
 #endif /* CONFIG_HAVE_USART_FIFO */
 				{
