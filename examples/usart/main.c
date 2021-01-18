@@ -323,7 +323,7 @@ static void _usart_feature_arg_parser(const uint8_t* buffer, uint32_t len)
 			printf("Enable FIFO\r\n");
 		} else {
 			usart_desc.use_fifo = false;
-			usart_fifo_enable(usart_desc.addr);
+			usart_fifo_disable(usart_desc.addr);
 			printf("Disable FIFO\r\n");
 		}
 	}
