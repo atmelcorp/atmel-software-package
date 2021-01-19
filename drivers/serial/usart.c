@@ -433,4 +433,14 @@ uint32_t usart_fifo_get_tx_size(Usart *usart)
 	return (usart->US_FLR & US_FLR_TXFL_Msk) >> US_FLR_TXFL_Pos;
 }
 
+void usart_fifo_clear_tx(Usart *usart)
+{
+	usart->US_CR = US_CR_TXFCLR;
+}
+
+void usart_fifo_clear_rx(Usart *usart)
+{
+	usart->US_CR = US_CR_RXFCLR;
+}
+
 #endif /* CONFIG_HAVE_USART_FIFO */

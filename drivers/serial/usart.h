@@ -410,6 +410,21 @@ extern uint32_t usart_fifo_get_rx_size(Usart *usart);
  * \return Size occupied in the output FIFO (not sent yet) in octet
  */
 extern uint32_t usart_fifo_get_tx_size(Usart *usart);
+
+/**
+ * \brief Clear FIFO TX of USART device.
+ *
+ * \param usart Pointer to an USART instance.
+ */
+extern void usart_fifo_clear_tx(Usart *usart);
+
+/**
+ * \brief Clear FIFO RX of USART device.
+ *
+ * \param usart Pointer to an USART instance.
+ */
+extern void usart_fifo_clear_rx(Usart *usart);
+
 #endif
 
 #ifdef __cplusplus
