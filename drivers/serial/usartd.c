@@ -53,10 +53,6 @@
 /*----------------------------------------------------------------------------
  *        Definition
  *----------------------------------------------------------------------------*/
-
-#define USARTD_ATTRIBUTE_MASK     (0)
-#define USARTD_POLLING_THRESHOLD  16
-
 static struct _usart_desc *_serial[USART_IFACE_COUNT];
 
 /*----------------------------------------------------------------------------
@@ -175,7 +171,7 @@ static int _usartd_compare_callback(void* arg, void* arg2)
 	dma_reset_channel(desc->dma.rx.channel);
 	mutex_unlock(&desc->rx.mutex);
 
-	callback_call(&desc->rx.callback, (void*)desc->rx.transferred);
+	callback_call(&desc->rx.callback, (void*)(uint32_t)desc->rx.transferred);
 
 	return 0;
 }
@@ -214,7 +210,7 @@ static int _usartd_pingpong_callback(void* arg, void* arg2)
 		}
 
 		cache_invalidate_region(desc->rx.buffer.data, desc->rx.buffer.size);
-		callback_call(&desc->rx.callback, (void*)iface);
+		callback_call(&desc->rx.callback, (void*)(uint32_t)iface);
 	}
 	return 0;
 }
@@ -262,8 +258,9 @@ static void _usartd_handler(uint32_t source, void* user_arg)
 	int iface;
 	uint32_t status = 0;
 	Usart* addr = get_usart_addr_from_id(source);
-	bool _rx_stop = true;
-	bool _tx_stop = true;
+	bool _rx_stop = false;
+	bool _tx_stop = false;
+	uint8_t dummy;
 
 	for (iface = 0; iface < USART_IFACE_COUNT; iface++) {
 		if (_serial[iface]->addr == addr) {
@@ -280,7 +277,6 @@ static void _usartd_handler(uint32_t source, void* user_arg)
 
 	struct _usart_desc* desc = _serial[iface];
 	status = usart_get_masked_status(addr);
-	desc->rx.has_timeout = false;
 
 #ifdef US_CSR_CMP
 	if ((status & US_CSR_CMP) == US_CSR_CMP) {
@@ -298,26 +294,49 @@ static void _usartd_handler(uint32_t source, void* user_arg)
 #endif /* US_CSR_CMP */
 	if (USART_STATUS_RXRDY(status)) {
 		if (desc->rx.buffer.size) {
-			desc->rx.buffer.data[desc->rx.transferred] = usart_get_char(addr);
-			desc->rx.transferred++;
-
-			if (desc->rx.transferred >= desc->rx.buffer.size)
+#ifdef CONFIG_HAVE_USART_FIFO
+			if (desc->use_fifo) {
+				uint32_t count = usart_fifo_get_rx_size(addr);
+				while (count--) {
+					desc->rx.buffer.data[desc->rx.transferred++] = *(volatile const uint8_t*)(&addr->US_RHR);
+					if (desc->rx.transferred >= desc->rx.buffer.size)
+						break;
+				}
+			} else
+#endif
+			{
+				desc->rx.buffer.data[desc->rx.transferred] = usart_get_char(addr);
+				desc->rx.transferred++;
+				usart_restart_rx_timeout(desc->addr);
+			}
+			if (desc->rx.transferred >= desc->rx.buffer.size) {
 				usart_disable_it(addr, US_IDR_RXRDY);
-			else
-				_rx_stop = false;
+				_rx_stop = true;
+			}
 		}
 	}
 
 	if (USART_STATUS_TXRDY(status)) {
 		if (desc->tx.buffer.size) {
-			usart_put_char(addr, desc->tx.buffer.data[desc->tx.transferred]);
-			desc->tx.transferred++;
-
-			if (desc->tx.transferred > desc->tx.buffer.size) {
+#ifdef CONFIG_HAVE_USART_FIFO
+			if (desc->use_fifo) {
+				uint32_t count = desc->fifo.tx.size - usart_fifo_get_tx_size(addr);
+				while (count--) {
+					*(volatile uint8_t*)(&addr->US_THR) = desc->tx.buffer.data[desc->tx.transferred++];
+					if (desc->tx.transferred >= desc->tx.buffer.size)
+						break;
+				}
+			} else
+#endif
+			{
+				usart_put_char(addr, desc->tx.buffer.data[desc->tx.transferred]);
+				desc->tx.transferred++;
+			}
+ 
+			if (desc->tx.transferred >= desc->tx.buffer.size) {
 				usart_disable_it(addr, US_IDR_TXRDY);
 				usart_enable_it(addr, US_IER_TXEMPTY);
 			}
-			_tx_stop = false;
 		}
 	}
 
@@ -330,6 +349,18 @@ static void _usartd_handler(uint32_t source, void* user_arg)
 		case USARTD_MODE_ASYNC:
 			desc->addr->US_CR = US_CR_STTTO;
 			usart_disable_it(addr, US_IDR_TIMEOUT);
+			usart_disable_it(addr, US_IDR_RXRDY);
+#ifdef CONFIG_HAVE_USART_FIFO
+			if (desc->use_fifo)
+				usart_fifo_clear_rx(desc->addr);
+#endif
+			if (desc->rx.buffer.size) {
+				uint32_t count = desc->rx.buffer.size - desc->rx.transferred;
+				while (count--) {
+					readb(&desc->addr->US_RHR, (uint8_t*)&dummy);
+				}
+			}
+			_rx_stop = true;
 			break;
 		case USARTD_MODE_DMA:
 			_usartd_dma_read_callback((void *)iface, NULL);
@@ -342,21 +373,23 @@ static void _usartd_handler(uint32_t source, void* user_arg)
 		if (desc->tx.buffer.size)
 			usart_disable_it(addr, US_IDR_TXRDY | US_IDR_TXEMPTY);
 
-		desc->rx.has_timeout = true;
 	}
 
 	if (USART_STATUS_TXEMPTY(status)) {
 		usart_disable_it(addr, US_IDR_TXEMPTY);
+		_tx_stop = true;
 	}
 
 	if (_rx_stop) {
 		desc->addr->US_CR = US_CR_STTTO;
 		desc->rx.buffer.size = 0;
 		mutex_unlock(&desc->rx.mutex);
+		callback_call(&desc->rx.callback, (void*)(uint32_t)desc->rx.transferred);
 	}
 	if (_tx_stop) {
 		desc->tx.buffer.size = 0;
 		mutex_unlock(&desc->tx.mutex);
+		callback_call(&desc->tx.callback, NULL);
 	}
 }
 
@@ -430,7 +463,6 @@ uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf, struct _callback* c
 		desc->rx.buffer.attr = buf->attr;
 		callback_copy(&desc->rx.callback, cb);
 
-		desc->rx.has_timeout = false;
 	}
 
 #ifdef US_CSR_CMP
@@ -456,11 +488,6 @@ uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf, struct _callback* c
 	}
 
 	tmode = desc->transfer_mode;
-
-	/* If short transfer detected, use POLLING mode */
-	if (tmode != USARTD_MODE_POLLING)
-		if (buf->size < USARTD_POLLING_THRESHOLD)
-			tmode = USARTD_MODE_POLLING;
 
 	switch (tmode) {
 	case USARTD_MODE_POLLING:
@@ -533,20 +560,28 @@ uint32_t usartd_transfer(uint8_t iface, struct _buffer* buf, struct _callback* c
 				if (desc->rx.transferred >= desc->rx.buffer.size) {
 					desc->rx.buffer.size = 0;
 					mutex_unlock(&desc->rx.mutex);
-					callback_call(&desc->rx.callback, NULL);
+					callback_call(&desc->rx.callback, (void*)(uint32_t)desc->rx.transferred);
 				}
 			}
 		}
 		break;
 
 	case USARTD_MODE_ASYNC:
-		if (buf->attr & USARTD_BUF_ATTR_WRITE)
+		if (buf->attr & USARTD_BUF_ATTR_WRITE) {
+#ifdef CONFIG_HAVE_USART_FIFO
+			if (desc->use_fifo)
+				usart_fifo_clear_tx(desc->addr);
+#endif
 			usart_enable_it(desc->addr, US_IER_TXRDY);
+		}
 
 		if (buf->attr & USARTD_BUF_ATTR_READ) {
 			usart_get_status(desc->addr);
-
-			usart_restart_rx_timeout(desc->addr);
+#ifdef CONFIG_HAVE_USART_FIFO
+			if (desc->use_fifo)
+				usart_fifo_clear_rx(desc->addr);
+#endif
+			desc->addr->US_CR = US_CR_STTTO;
 			usart_enable_it(desc->addr, US_IER_RXRDY | US_IER_TIMEOUT);
 		}
 		break;

@@ -78,7 +78,6 @@ struct _usart_desc
 
 		struct _buffer buffer;
 		uint16_t transferred;
-		bool has_timeout;
 
 		struct _callback callback;
 	} rx, tx;
