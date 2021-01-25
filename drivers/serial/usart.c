@@ -374,6 +374,16 @@ uint32_t usart_set_async_baudrate(Usart *usart, uint32_t baudrate)
 	return 0;
 }
 
+void usart_loopback_enable(Usart *usart)
+{
+	usart->US_MR |= US_MR_CHMODE_LOCAL_LOOPBACK; 
+}
+
+void usart_loopback_disable(Usart *usart)
+{
+	usart->US_MR &= ~US_MR_CHMODE_LOCAL_LOOPBACK;
+}
+
 /*-----------------------------------------------------------------------------
 *        Functions if FIFO are used
  *---------------------------------------------------------------------------*/

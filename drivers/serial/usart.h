@@ -351,6 +351,19 @@ extern uint32_t usart_init_hw_handshaking(Usart *usart);
  */
 extern uint32_t usart_set_async_baudrate(Usart *usart, uint32_t baudrate);
 
+/**
+ * \brief Enable local loopback mode of USART device.
+ *
+ * \param usart Pointer to an USART instance.
+ */
+extern void usart_loopback_enable(Usart *usart);
+/**
+ * \brief Disable local loopback mode of USART device.
+ *
+ * \param usart Pointer to an USART instance.
+ */
+extern void usart_loopback_disable(Usart *usart);
+
 #ifdef CONFIG_HAVE_USART_FIFO
 /**
  * \brief Configure the FIFO of USART device
