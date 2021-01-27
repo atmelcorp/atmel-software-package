@@ -180,55 +180,42 @@ int32_t get_peripheral_fifo_depth(void* addr)
 	uint32_t tmp = (uint32_t)addr;
 	switch (tmp) {
 	case (uint32_t)FLEXUSART0:
-#ifdef FLEXUSART1
 	case (uint32_t)FLEXUSART1:
-#endif
-#ifdef FLEXUSART2
 	case (uint32_t)FLEXUSART2:
-#endif
-#ifdef FLEXUSART3
 	case (uint32_t)FLEXUSART3:
-#endif
-#ifdef FLEXUSART4
 	case (uint32_t)FLEXUSART4:
-#endif
+	case (uint32_t)FLEXUSART5:
+	case (uint32_t)FLEXUSART6:
+	case (uint32_t)FLEXUSART7:
+	case (uint32_t)FLEXUSART8:
+	case (uint32_t)FLEXUSART9:
+	case (uint32_t)FLEXUSART10:
+	case (uint32_t)FLEXUSART11:
+	case (uint32_t)FLEXUSART12:
 		size = FLEXCOM_USART_FIFO_DEPTH;
 		break;
 
 	case (uint32_t)FLEXSPI0:
-#ifdef FLEXSPI1
 	case (uint32_t)FLEXSPI1:
-#endif
-#ifdef FLEXSPI2
 	case (uint32_t)FLEXSPI2:
-#endif
-#ifdef FLEXSPI3
 	case (uint32_t)FLEXSPI3:
-#endif
-#ifdef FLEXSPI4
 	case (uint32_t)FLEXSPI4:
-#endif
+	case (uint32_t)FLEXSPI5:
 		size = FLEXCOM_SPI_FIFO_DEPTH;
 		break;
 	case (uint32_t)FLEXTWI0:
-#ifdef FLEXTWI1
 	case (uint32_t)FLEXTWI1:
-#endif
-#ifdef FLEXTWI2
 	case (uint32_t)FLEXTWI2:
-#endif
-#ifdef FLEXTWI3
 	case (uint32_t)FLEXTWI3:
-#endif
-#ifdef FLEXTWI4
 	case (uint32_t)FLEXTWI4:
-#endif
-#ifdef TWI0
-	case (uint32_t)TWI0:
-#endif
-#ifdef TWI1
-	case (uint32_t)TWI1:
-#endif
+	case (uint32_t)FLEXTWI5:
+	case (uint32_t)FLEXTWI6:
+	case (uint32_t)FLEXTWI7:
+	case (uint32_t)FLEXTWI8:
+	case (uint32_t)FLEXTWI9:
+	case (uint32_t)FLEXTWI10:
+	case (uint32_t)FLEXTWI11:
+	case (uint32_t)FLEXTWI12:
 		size = TWI_FIFO_DEPTH;
 		break;
 	default:
