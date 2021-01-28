@@ -105,6 +105,7 @@
 #define CMD_BUFFER_SIZE  256
 #define READ_BUFFER_SIZE  256
 #endif
+#define TEST_BUFFER_SIZE 36
 
 #if defined(CONFIG_BOARD_SAMA5D2_PTC_EK)
 #define USART_ADDR FLEXUSART4
@@ -174,9 +175,10 @@ static const struct _pin usart_pins[] = USART_PINS;
 
 CACHE_ALIGNED static uint8_t cmd_buffer[CMD_BUFFER_SIZE];
 CACHE_ALIGNED static uint8_t read_buffer[READ_BUFFER_SIZE];
+static const uint8_t test_patten[TEST_BUFFER_SIZE] = "abcdefghijklmnopqrstuvwxyz0123456789";
 
 typedef void (*_parser)(const uint8_t*, uint32_t);
-
+static bool is_loopback = false;
 static _parser _cmd_parser;
 static volatile uint32_t cmd_index = 0;
 
@@ -217,7 +219,7 @@ static void console_handler(uint8_t key)
 static int _usart_finish_rx_transfer_callback(void* arg, void* arg2)
 {
 	uint32_t received = (uint32_t)arg2;
-	printf("R:%lu bytes ", received);
+	if (!is_loopback) printf("R:%lu bytes ", received);
 	for (uint32_t i = 0; i < received; i++)
 		printf("%c", read_buffer[i]);
 	printf("\r\n");
@@ -307,6 +309,8 @@ static void print_menu(void)
 	       "| f fifo                                                |\r\n"
 	       "|      Toggle FIFO feature                              |\r\n"
 #endif /* CONFIG_HAVE_USART_FIFO */
+	       "| l                                                     |\r\n"
+	       "|      Local Loopback test                              |\r\n"
 	       "| h                                                     |\r\n"
 	       "|      Print this menu                                  |\r\n"
 	       "|=======================================================|\r\n");
@@ -365,6 +369,57 @@ static void _usart_mode_arg_parser(const uint8_t* buffer, uint32_t len)
 	printf("Timeout %lums\r\n",usart_desc.timeout );
 }
 
+static void _usart_loopback_autotest(void)
+{
+	uint32_t size;
+	printf("Start local loopback test\r\n");
+	for (uint8_t mode = USARTD_MODE_ASYNC; mode <= USARTD_MODE_DMA; mode++) {
+		usart_desc.transfer_mode  = mode;
+		printf("Mode:%s\r\n", mode == USARTD_MODE_ASYNC? "ASYNC": "DMA");
+#ifdef CONFIG_HAVE_USART_FIFO
+		for (uint8_t fifo = 0; fifo <= (mode == USARTD_MODE_DMA? 0 : 1); fifo++) {
+			if (!fifo) {
+				printf("FIFO disabled\r\n");
+				usart_desc.use_fifo = false;
+				usart_fifo_disable(usart_desc.addr);
+			} else {
+				printf("FIFO enabled\r\n");
+				usart_desc.use_fifo = true;
+				usart_fifo_enable(usart_desc.addr);
+			}
+#endif
+			for (size = 1; size <= TEST_BUFFER_SIZE; size++) {
+				struct _buffer tx = {
+					.data = (unsigned char*)test_patten,
+					.size = size,
+					.attr = USARTD_BUF_ATTR_WRITE,
+				};
+				struct _callback _cb_tx = {
+					.method = _usart_finish_tx_transfer_callback,
+					.arg = 0,
+				};
+				memset(read_buffer, 0x0, sizeof(read_buffer));
+				cache_clean_region(read_buffer, ARRAY_SIZE(read_buffer));
+				struct _buffer rx = {
+					.data = (unsigned char*)read_buffer,
+					.size = size,
+					.attr = USARTD_BUF_ATTR_READ,
+				};
+				struct _callback _cb_rx = {
+					.method = _usart_finish_rx_transfer_callback,
+					.arg = 0,
+				};
+				usartd_transfer(0, &rx, &_cb_rx);
+				usartd_transfer(0, &tx, &_cb_tx);
+				usartd_wait_tx_transfer(0);
+				usartd_wait_rx_transfer(0);
+				printf("%s\r\n", read_buffer);
+			}
+#ifdef CONFIG_HAVE_USART_FIFO
+		}
+#endif
+	}
+}
 static void _usart_cmd_parser(const uint8_t* buffer, uint32_t len)
 {
 	if ((*buffer == 'h') || (*buffer == 'H')) {
@@ -410,7 +465,15 @@ static void _usart_cmd_parser(const uint8_t* buffer, uint32_t len)
 		usartd_transfer(0, &rx, &_cb);
 		return;
 	}
-
+	if ((*buffer == 'l') || (*buffer == 'L')) {
+		usart_loopback_enable(usart_desc.addr);
+		is_loopback = true;
+		printf("Enable Loopback test\r\n");
+		_usart_loopback_autotest();
+		usart_loopback_disable(usart_desc.addr);
+		is_loopback = false;
+		return;
+	}
 	if (*(buffer+1) != ' ') {
 		printf("Commands can only be one caracter size\r\n");
 		printf("%c%c\r\n", *buffer, *(buffer+1));
