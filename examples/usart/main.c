@@ -185,7 +185,7 @@ static struct _usart_desc usart_desc = {
 	.baudrate       = 115200,
 	.mode           = US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT,
 	.transfer_mode  = USARTD_MODE_POLLING,
-	.timeout        = 500, // unit: ms
+	.timeout        = 0, // unit: ms
 };
 
 static void console_handler(uint8_t key)
@@ -216,7 +216,11 @@ static void console_handler(uint8_t key)
 
 static int _usart_finish_rx_transfer_callback(void* arg, void* arg2)
 {
-	usartd_finish_rx_transfer(0);
+	uint32_t received = (uint32_t)arg2;
+	printf("R:%lu bytes ", received);
+	for (uint32_t i = 0; i < received; i++)
+		printf("%c", read_buffer[i]);
+	printf("\r\n");
 	return 0;
 }
 
@@ -224,8 +228,7 @@ static void _usart_read_arg_parser(const uint8_t* buffer, uint32_t len)
 {
 	memset(read_buffer, 0x0, sizeof(read_buffer));
 	char* end_addr = NULL;
-	unsigned int size = strtoul((char*)buffer, &end_addr, 0);
-	unsigned int _len = 0;
+	uint32_t size = strtoul((char*)buffer, &end_addr, 0);
 	if (end_addr == (char*)buffer) {
 		printf("Args: %s\r\n"
 		       "Invalid address\r\n",
@@ -235,26 +238,22 @@ static void _usart_read_arg_parser(const uint8_t* buffer, uint32_t len)
 
 	memset(read_buffer, 0, ARRAY_SIZE(read_buffer));
 	cache_clean_region(read_buffer, ARRAY_SIZE(read_buffer));
-	while (_len < size) {
-		struct _buffer rx = {
-			.data = (unsigned char*)read_buffer + _len,
-			.size = size - _len,
-			.attr = USARTD_BUF_ATTR_READ,
-		};
-		struct _callback _cb = {
-			.method = _usart_finish_rx_transfer_callback,
-			.arg = 0,
-		};
-		usartd_transfer(0, &rx, &_cb);
-		usartd_wait_rx_transfer(0);
-		_len += usart_desc.rx.transferred;
-	}
-	printf("%s\r\n", read_buffer);
+	
+	struct _buffer rx = {
+		.data = (unsigned char*)read_buffer,
+		.size = size,
+		.attr = USARTD_BUF_ATTR_READ,
+	};
+	struct _callback _cb = {
+		.method = _usart_finish_rx_transfer_callback,
+		.arg = 0,
+	};
+	usartd_transfer(0, &rx, &_cb);
+	usartd_wait_rx_transfer(0);
 }
 
 static int _usart_finish_tx_transfer_callback(void* arg, void* arg2)
 {
-	usartd_finish_tx_transfer(0);
 	return 0;
 }
 
@@ -349,16 +348,21 @@ static void _usart_mode_arg_parser(const uint8_t* buffer, uint32_t len)
 {
 	if (!strncmp((char*)buffer, "polling", 7)) {
 		usart_desc.transfer_mode = USARTD_MODE_POLLING;
+		usart_desc.timeout = 0;
 		printf("Use POLLING mode\r\n");
 	}
 	else if (!strncmp((char*)buffer, "async", 5)) {
 		usart_desc.transfer_mode = USARTD_MODE_ASYNC;
+		usart_desc.timeout = 500; //ms
 		printf("Use ASYNC mode\r\n");
 	}
 	else if (!strncmp((char*)buffer, "dma", 3)) {
 		usart_desc.transfer_mode = USARTD_MODE_DMA;
+		usart_desc.timeout = 0;
 		printf("Use DMA mode\r\n");
 	}
+	usart_set_rx_timeout(usart_desc.addr, usart_desc.baudrate, usart_desc.timeout);
+	printf("Timeout %lums\r\n",usart_desc.timeout );
 }
 
 static void _usart_cmd_parser(const uint8_t* buffer, uint32_t len)
