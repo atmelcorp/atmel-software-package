@@ -99,7 +99,7 @@ static int _usartd_dma_read_callback(void* arg, void* arg2)
 
 	mutex_unlock(&desc->rx.mutex);
 
-	callback_call(&desc->rx.callback, NULL);
+	callback_call(&desc->rx.callback, (void*)(uint32_t)desc->rx.transferred);
 
 	return 0;
 }
