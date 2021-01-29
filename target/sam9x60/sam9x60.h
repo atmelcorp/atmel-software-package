@@ -490,7 +490,7 @@ typedef enum IRQn
 /*   MEMORY MAPPING DEFINITIONS FOR SAM9X60 */
 /* ************************************************************************** */
 
-#define IRAM_SIZE (0x20000u)
+#define IRAM_SIZE (0x10000u)
 #define ECC_ROM_ADDR    (0x00100000u) /**< ECC ROM base address */
 #define IRAM0_ADDR      (0x00300000u) /**< Internal RAM 0 base address */
 #define IRAM1_ADDR      (0x00400000u) /**< Internal RAM 1 base address */
