@@ -91,8 +91,8 @@ static int spi_flash_is_ready(struct spi_flash *flash)
 
 int spi_flash_wait_till_ready_timeout(struct spi_flash *flash, unsigned long timeout)
 {
-	unsigned long delay = 1L; /* 1ms */
-	unsigned long loop = (timeout + delay - 1) / (delay);
+	unsigned long delay = 1L; /* 1us */
+	unsigned long loop = (timeout * 1000 + delay - 1) / delay;
 	int rc;
 
 	if (!loop)
@@ -104,7 +104,7 @@ int spi_flash_wait_till_ready_timeout(struct spi_flash *flash, unsigned long tim
 		if (rc)
 			return 0;
 
-		msleep(delay);
+		usleep(delay);
 	}
 
 	return -ETIMEDOUT;
