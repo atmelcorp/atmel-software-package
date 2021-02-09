@@ -65,7 +65,7 @@
  *----------------------------------------------------------------------------*/
 #define PLLA_DIV 1
 #define PLLA_COUNT 0x3f
-#define PLLA_LOOP_FILTER 0x1b
+#define PLLA_LOOP_FILTER 0
 #define PLLA_LOCK_THR 0x4
 
 #define PLLA_CFG(_mul, _fracr)			\
