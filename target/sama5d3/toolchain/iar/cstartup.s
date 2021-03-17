@@ -255,6 +255,11 @@ __iar_program_start:
         ldr     sp, =SFE(CSTACK)
         bic     sp, sp, #0x7
 
+        ; Initialize VFP (if needed)
+
+        FUNCALL __iar_program_start, __iar_init_vfp
+        bl      __iar_init_vfp
+
         ; Execute relocations & zero BSS
 
         FUNCALL __iar_program_start, __iar_data_init3
@@ -268,11 +273,6 @@ __iar_program_start:
 
         FUNCALL __iar_program_start, __iar_init_core
         bl      __iar_init_core
-
-        ; Initialize VFP (if needed)
-
-        FUNCALL __iar_program_start, __iar_init_vfp
-        bl      __iar_init_vfp
 
         ; Perform board initialization
 
