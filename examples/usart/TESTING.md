@@ -7,8 +7,7 @@ This example aims to perform peripheral data transfer over USART.
 
 # Example Description
 ---------------------
-The example handles the transfer between two USART peripherals,
-transfer/receive data to/from USART each other with polling mode, using IRQs, or DMA.
+This example demonstrates how to send/receive data to/from the PC and show it in the terminal. There are plenty of options available for UART to USB convertors and PC serial terminal software. The USART will be configured for asynchronous, dma and polling mode.
 
 # Test
 ------
@@ -27,7 +26,7 @@ transfer/receive data to/from USART each other with polling mode, using IRQs, or
 
 ## Setup
 --------
-On the computer, open and configure a terminal application
+On the computer, open and configure a terminal application for normal mode.
 (e.g. HyperTerminal on Microsoft Windows) with these settings:
  - 115200 bauds
  - 8 bits of data
@@ -35,21 +34,37 @@ On the computer, open and configure a terminal application
  - 1 stop bit
  - No flow control
 
+or handshaking mode.
+(e.g. HyperTerminal on Microsoft Windows) with these settings:
+ - 115200 bauds
+ - 8 bits of data
+ - No parity
+ - 1 stop bit
+ - hardware
+ 
 ### sam9x60-ek
 --------------------
-Connect FLEXUSART2 (40-pin GPIO/RPi connector: RX on pin 26, TX on pin 24)
+FLEXUSART4 (40-pin GPIO/RPi connector: RX on pin 23, TX on pin 21, CTS on pin 22, RTS on pin 24)
+normal mode connection: rx<->tx, tx<->rx
+handshaking mode connection: rx<->tx, tx<->rx, rts<->cts, cts<->rts
 
 ### sama5d2-ptc-ek
 --------------------
-Connect FLEXUSART4 (RX on J15B:5, TX on J15B:6)
+FLEXUSART4 (RX on J15B:5, TX on J15B:6, CTS on J15:4, RTS on J15A:1)
+normal mode connection: rx<->tx, tx<->rx
+handshaking mode connection: rx<->tx, tx<->rx, rts<->cts, cts<->rts
 
 ### sama5d2-xplained
 --------------------
-Connect FLEXUSART0 (RX on J22:3, TX on J22:4)
+FLEXUSART0 (RX on J22:4, TX on J22:3, CTS on J25:11, RTS on J25:12))
+normal mode connection: rx<->tx, tx<->rx
+handshaking mode connection: rx<->tx, tx<->rx, rts<->cts, cts<->rts
 
 ### sama5d27-som1-ek
 --------------------
-Connect FLEXUSART3 (RX on ISC:28, TX on ISC:29)
+FLEXUSART3 (RX on ISC:28, TX on ISC:29, CTS on ISC:16, RTS on ISC:12)
+normal mode connection: rx<->tx, tx<->rx
+handshaking mode connection: rx<->tx, tx<->rx, rts<->cts, cts<->rts
 
 ### sama5d4-xplained
 --------------------
@@ -89,9 +104,14 @@ In order to test this example, the process is the following:
 
 Step | Description | Expected Result | Result
 -----|-------------|-----------------|-------
-Press 'w 11223344' | write string throught usart1 | receive "11223344" in usart4 | PASSED
-Press 'r 200' | Receive 100 characters from usart4 | Waiting... | PASSED
-Send text file from usart4|Send string | Receive 100 characters from usart4 | PASSED
+Press 'w 11223344' | write string throught usart| receive "11223344" from PC serial terminal  | PASSED
+Press 'r 100'      | Receive 100 characters from from PC serial terminal, on PC serial terminal, send text file  | R:1234567....|PASSED
+
+Press 'f fifo'     | Toggle FIFO feature |  enabled/disable fifo | PASSED
+Press 'f handshaking' | Toggle Handshaking and normal mode | switch to handshaking mode or normal mode | PASSED
+Press 'm polling'     | switch to polling mode |  | PASSED
+Press 'm async'    | switch to asynchronous mode |  | PASSED
+Press 'm dma'      | switch to dma mode |  | PASSED
 
 press 'l'
 Enable Loopback test

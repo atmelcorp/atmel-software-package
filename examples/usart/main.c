@@ -109,15 +109,15 @@
 
 #if defined(CONFIG_BOARD_SAMA5D2_PTC_EK)
 #define USART_ADDR FLEXUSART4
-#define USART_PINS PINS_FLEXCOM4_USART_IOS3
+#define USART_PINS PINS_FLEXCOM4_USART_HS_IOS3
 
 #elif defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
 #define USART_ADDR FLEXUSART0
-#define USART_PINS PINS_FLEXCOM0_USART_IOS1
+#define USART_PINS PINS_FLEXCOM0_USART_HS_IOS1
 
 #elif defined(CONFIG_BOARD_SAMA5D27_SOM1_EK)
 #define USART_ADDR FLEXUSART3
-#define USART_PINS PINS_FLEXCOM3_USART_IOS2
+#define USART_PINS PINS_FLEXCOM3_USART_HS_IOS2
 
 #elif defined(CONFIG_BOARD_SAMA5D4_XPLAINED)
 #define USART_ADDR USART4
@@ -156,8 +156,8 @@
 #define USART_PINS PINS_USART0
 
 #elif defined(CONFIG_BOARD_SAM9X60_EK)
-#define USART_ADDR FLEXUSART2
-#define USART_PINS PINS_FLEXCOM2_USART_IOS1
+#define USART_ADDR FLEXUSART4
+#define USART_PINS PINS_FLEXCOM4_USART_HS_IOS1
 
 #elif defined(CONFIG_BOARD_SAME70_XPLAINED)
 #define USART_ADDR USART2
@@ -308,6 +308,8 @@ static void print_menu(void)
 #ifdef CONFIG_HAVE_USART_FIFO
 	       "| f fifo                                                |\r\n"
 	       "|      Toggle FIFO feature                              |\r\n"
+	       "| f handshaking                                         |\r\n"
+	       "|      Toggle Handshaking and normal mode               |\r\n"
 #endif /* CONFIG_HAVE_USART_FIFO */
 	       "| l                                                     |\r\n"
 	       "|      Local Loopback test                              |\r\n"
@@ -329,6 +331,24 @@ static void _usart_feature_arg_parser(const uint8_t* buffer, uint32_t len)
 			usart_fifo_disable(usart_desc.addr);
 			printf("Disable FIFO\r\n");
 		}
+	}
+	if (!strncmp((char*)buffer, "handshaking", 11)) {
+		if ((usart_desc.mode & US_MR_USART_MODE_HW_HANDSHAKING) != US_MR_USART_MODE_HW_HANDSHAKING) {
+			if (!usart_desc.use_fifo) {
+				usart_desc.use_fifo = true;
+				usart_fifo_enable(usart_desc.addr);
+			}
+			usart_desc.mode = US_MR_USART_MODE_HW_HANDSHAKING | US_MR_PAR_NO | US_MR_CHRL_8_BIT;
+			usart_desc.fifo.tx.threshold = 8;
+			usart_desc.fifo.rx.threshold = 8;
+			usart_desc.fifo.rx.threshold2 = 4;
+			printf(" Switch to handshaking mode with FIFO enabled\r\n");
+			printf(" RTS pin will be controlled by Receive FIFO thresholds\r\n");
+		} else {
+			usart_desc.mode = US_MR_CHMODE_NORMAL | US_MR_PAR_NO | US_MR_CHRL_8_BIT;
+			printf(" Switch to usart normal mode\r\n");
+		}
+		usartd_configure(0, &usart_desc);
 	}
 }
 #endif /* US_CSR_CMP */
