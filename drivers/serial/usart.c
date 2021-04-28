@@ -393,7 +393,7 @@ void usart_fifo_configure(Usart *usart, uint8_t tx_thres, uint8_t rx_down_thres,
 {
 	/* Configure FIFO */
 	usart->US_FMR = US_FMR_TXFTHRES(tx_thres) | US_FMR_RXFTHRES(rx_down_thres)
-		| US_FMR_RXFTHRES2(rx_up_thres) | US_FMR_RXRDYM_ONE_DATA | US_FMR_TXRDYM_FOUR_DATA;
+		| US_FMR_RXFTHRES2(rx_up_thres) | US_FMR_RXRDYM_ONE_DATA | US_FMR_TXRDYM_FOUR_DATA | US_FMR_FRTSC;
 
 	/* Disable all fifo related interrupts */
 	usart->US_FIDR = 0xFFFFFFFF;
@@ -414,7 +414,7 @@ void usart_fifo_enable(Usart *usart)
 void usart_fifo_disable(Usart *usart)
 {
 	/* Reset and disable receiver & transmitter */
-	usart->US_CR = US_CR_RSTRX | US_CR_RSTTX | US_CR_RXDIS | US_CR_TXDIS;
+	usart->US_CR = US_CR_RSTRX | US_CR_RSTTX | US_CR_RXDIS | US_CR_TXDIS | US_CR_FIFODIS;
 
 	/* Reenable receiver & transmitter */
 	usart->US_CR = US_CR_RXEN | US_CR_TXEN;
