@@ -417,8 +417,15 @@ void usartd_configure(uint8_t iface, struct _usart_desc* config)
 #ifdef CONFIG_HAVE_USART_FIFO
 	config->fifo.rx.size = get_peripheral_fifo_depth(config->addr);
 	config->fifo.tx.size = get_peripheral_fifo_depth(config->addr);
-	usart_fifo_configure(config->addr, config->fifo.tx.threshold,
-						 config->fifo.rx.threshold, config->fifo.rx.threshold);
+	if ((config->fifo.tx.threshold <= config->fifo.tx.size) &&
+		(config->fifo.rx.threshold <= config->fifo.rx.size) &&
+		(config->fifo.rx.threshold2 <= config->fifo.rx.size)) {
+		usart_fifo_configure(config->addr, config->fifo.tx.threshold,
+						 config->fifo.rx.threshold, config->fifo.rx.threshold2);
+	} else {
+		usart_fifo_configure(config->addr, config->fifo.tx.size / 2,
+						 config->fifo.rx.size / 2 , config->fifo.rx.size / 2 - 1);
+	}
 	if (config->use_fifo)
 		usart_fifo_enable(config->addr);
 #endif

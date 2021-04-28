@@ -88,6 +88,7 @@ struct _usart_desc
 		struct {
 			uint16_t size;
 			uint16_t threshold;
+			uint16_t threshold2;
 		} rx, tx;
 	} fifo;
 #endif
