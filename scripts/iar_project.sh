@@ -238,6 +238,9 @@ generate-bodies-ewd() {
         sed -i -e "s%__REPLACE_FLASH_LOADER__%1%g" "$tpl"
         local win_path=$(helper-use-windows-path "$iar_flashloader_script_y")
         sed -i -e "s%__REPLACE_FLASH_LOADER_V3__%\$PROJ_DIR\$\\\\$win_path%g" "$tpl"
+    else
+        sed -i -e "s%__REPLACE_FLASH_LOADER__%0%g" "$tpl"
+        sed -i -e "s%__REPLACE_FLASH_LOADER_V3__%%g" "$tpl"
     fi
 
     tpl-set-configuration "$tpl" $TARGET $variant
