@@ -401,7 +401,7 @@ static void send_message(uint8_t bus)
 		};
 	tx_buf = &buf_tx_msg1;
 	tx_buf->size = (mode > CAN_MODE_CAN) ? MSG_LEN_1_CAN_FD : MSG_LEN_1_CAN;
-	trace_info("CAN%u -> %u, ID 0x%lx, len %u:", (unsigned)bus, (unsigned)bus_rx, id[0], (unsigned)tx_buf->size);
+	trace_info("CAN%u -> %u, ID 0x%lx, len %u:", (unsigned)bus, (unsigned)bus_rx, id[1], (unsigned)tx_buf->size);
 	print_buffer(tx_buf->size, tx_buf->data);
 	buf_rx_simple_ext.attr &= ~CAND_BUF_ATTR_TRANSFER_DONE;
 	buf_rx_simple_ext.size = sizeof(rx_buffers[0]);
