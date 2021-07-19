@@ -34,9 +34,12 @@ gnu-debug-lib-y ?= $(TOP)/target/sama5d2/toolchain/gnu/common.gdb
 gnu-cstartup-y ?= target/sama5d2/toolchain/gnu/cstartup.o
 iar-cstartup-y ?= target/sama5d2/toolchain/iar/cstartup.o
 
+xc32-cstartup-y ?= target/sama5d2/toolchain/xc32/cstartup.o
+xc32-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/xc32/
+
 # SRAM variant
 ifeq ($(VARIANT),sram)
-gnu-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/sram.ld
+gnu-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/$(COMPILER)/sram.ld
 gnu-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/sram.gdb
 iar-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/sram.icf
 iar-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/sram.mac
@@ -44,9 +47,9 @@ endif
 
 # DDRAM variant
 ifeq ($(VARIANT),ddram)
-gnu-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/ddram.ld
+gnu-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/$(COMPILER)/ddram.ld
 gnu-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/ddram.gdb
-bootstrap-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/gnu/sram.ld
+bootstrap-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/$(COMPILER)/sram.ld
 iar-linker-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/ddram.icf
 iar-debug-script-y ?= $(TOP)/target/sama5d2/toolchain/iar/ddram.mac
 iar-flashloader-script-$(CONFIG_BOARD_SAMA5D2_XPLAINED) ?= $(TOP)/flash_loaders/sama5d2-generic/sama5d2-xplained.board
