@@ -1,0 +1,61 @@
+# ----------------------------------------------------------------------------
+#         SAM Software Package License
+# ----------------------------------------------------------------------------
+# Copyright (c) 2019, Atmel Corporation
+#
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# - Redistributions of source code must retain the above copyright notice,
+# this list of conditions and the disclaimer below.
+#
+# Atmel's name may not be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+# IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+# DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+# OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+# LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+# EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# ----------------------------------------------------------------------------
+
+mplab_project-template-y ?= $(TOP)/scripts/mplab_project.template
+mplab_configuration-template-y ?= $(TOP)/scripts/mplab_configurations.template
+
+mplab:
+	+$(Q)bash $(TOP)/scripts/mplab_project.sh "$(shell pwd)" "$(TOP)" "$(BINNAME)" \
+		"$(SELECTED_TARGET)" "$(filter $(ALL_VARIANTS), sram ddram)" \
+		"$(mplab_project-template-y)" "$(mplab_configuration-template-y)"
+
+clean-mplab-env:
+	rm -f .mplab-$(VARIANT).sh
+
+mplab-env:
+	$(Q)rm -f .mplab-$(VARIANT).sh
+	$(Q)echo GEN Environment .mplab-$(VARIANT).sh
+	$(Q)touch .mplab-$(VARIANT).sh
+	$(Q)echo TOP=\"$(TOP)\"                               >> .mplab-$(VARIANT).sh
+	$(Q)echo CFLAGS_CPU=\"$(CFLAGS_CPU) -std=gnu99\"      >> .mplab-$(VARIANT).sh
+	$(Q)echo CFLAGS_DEFS=\"$(subst \",\\\",$(CFLAGS_DEFS))\" >> .mplab-$(VARIANT).sh
+	$(Q)echo CFLAGS_INC=\"$(CFLAGS_INC)\"                 >> .mplab-$(VARIANT).sh
+	$(Q)echo gnu_linker_script_y=\"$(gnu-linker-script-y)\"     >> .mplab-$(VARIANT).sh
+	$(Q)echo target_y=\"$(target-y)\"                     >> .mplab-$(VARIANT).sh
+	$(Q)echo startup_ARM=\"$(gnu-cstartup-y)\"            >> .mplab-$(VARIANT).sh
+	$(Q)echo utils_y=\"$(utils-y)\"                       >> .mplab-$(VARIANT).sh
+	$(Q)echo arch_y=\"$(arch-y)\"                         >> .mplab-$(VARIANT).sh
+	$(Q)echo drivers_y=\"$(drivers-y)\"                   >> .mplab-$(VARIANT).sh
+	$(Q)echo lwip_y=\"$(lwip-y)\"                         >> .mplab-$(VARIANT).sh
+	$(Q)echo uip_y=\"$(uip-y)\"                           >> .mplab-$(VARIANT).sh
+	$(Q)echo usb_y=\"$(usb-y)\"                           >> .mplab-$(VARIANT).sh
+	$(Q)echo libsdmmc_y=\"$(libsdmmc-y)\"                 >> .mplab-$(VARIANT).sh
+	$(Q)echo libfatfs_y=\"$(libfatfs-y)\"                 >> .mplab-$(VARIANT).sh
+	$(Q)echo libfreertos_y=\"$(libfreertos-y)\"           >> .mplab-$(VARIANT).sh
+	$(Q)echo obj_y=\"$(obj-y)\"                           >> .mplab-$(VARIANT).sh
+	$(Q)sed -i 's/\(SOFTPACK_VERSION=".*\) \(.*"\) /\1:\2 /' .mplab-$(VARIANT).sh

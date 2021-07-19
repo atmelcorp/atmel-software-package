@@ -121,3 +121,4 @@ debug: $(BUILDDIR)/$(BINNAME).elf
 	$(Q)$(GDB) -cd $(BUILDDIR) -x "$(realpath $(gnu-debug-script-y))" -ex "reset" -readnow -se $(realpath $(BUILDDIR)/$(BINNAME).elf)
 
 include $(TOP)/scripts/Makefile.iar
+include $(TOP)/scripts/Makefile.mplab

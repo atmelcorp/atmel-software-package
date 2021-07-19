@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="65">
+  <logicalFolder name="root" displayName="root" projectFiles="true">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="LinkerScript"
+                   displayName="Linker Files"
+                   projectFiles="true">__REPLACE_LINK_SCRIPT__
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">__REPLACE_PROJECT_FILES__
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceRootList>
+    <Elem>../../..</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf>name="__REPLACE_TARGET_____REPLACE_CONF__" type="2">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <targetDevice>__REPLACE_CHIP__</targetDevice>
+        <targetHeader></targetHeader>
+        <targetPluginBoard></targetPluginBoard>
+        <platformTool>samice</platformTool>
+        <languageToolchain>__REPLACE_TOOLCHAIN__</languageToolchain>
+        <languageToolchainVersion>__REPLACE_TOOLCHAIN_VERSION__</languageToolchainVersion>
+        <platform>3</platform>
+      </toolsSet>
+      <packs>
+        <pack name="CMSIS" vendor="ARM" version="5.4.0"/>
+        __REPLACE_DFP__
+      </packs>
+      <ScriptingSettings>
+        <ScriptingSetting key="boot.load_adr" value=""/>
+        <ScriptingSetting key="boot.use" value="__REPLACE_BOOTSTRAP_USE__"/>
+        <ScriptingSetting key="boot.entry_adr" value=""/>
+        <ScriptingSetting key="boot.path" value="__REPLACE_BOOTSTRAP_PATH__"/>
+        <ScriptingSetting key="boot.prj" value=""/>
+      </ScriptingSettings>__REPLACE_LINK_SCRIPT_EX__
+      <ARM-GCC>
+        <property key="additional-warnings" value="true"/>
+        <property key="called-functions-located" value="true"/>
+        <property key="default-bitfield-type" value="false"/>
+        <property key="default-char-type" value="false"/>
+        <property key="extra-include-directories" value=""/>
+        <property key="extra-warnings" value="false"/>
+        <property key="fast-math" value="false"/>
+        <property key="garbage-collect-data" value="false"/>
+        <property key="garbage-collect-functions" value="true"/>
+        <property key="inhibit-all" value="false"/>
+        <property key="make-warnings-into-errors" value="false"/>
+        <property key="no-system-directories" value="false"/>
+        <property key="optimization-level" value="-Os"/>
+        <property key="position-independent" value="false"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="preprocessor-macros-undefined" value=""/>
+        <property key="strict-ansi" value="false"/>
+        <property key="strict-ansi-errors" value="false"/>
+        <property key="support-ansi" value="false"/>
+        <property key="syntax-only" value="false"/>
+        <property key="undefined-identifier" value="false"/>
+        <property key="unsafe-math" value="false"/>
+        <property key="verbose" value="false"/>
+      </ARM-GCC>
+      <ARM-Global>
+        <property key="bin" value="true"/>__REPLACE_INCLUDES__
+        <property key="eep" value="false"/>
+        <property key="hex" value="true"/>
+        <property key="lss" value="false"/>
+        <property key="omit-pack-options" value="false"/>
+        <property key="processor-mode" value="-marm"/>
+        <property key="srec" value="false"/>
+        <property key="user-pack-include" value=""/>__REPLACE_ADDITIONAL_OPT__
+      </ARM-Global>
+      <ARM-LD>
+        <property key="additional-specs" value="--specs=nosys.specs"/>
+        <property key="exclude-standard-libraries" value="false"/>
+        <property key="extra-lib-directories" value=""/>
+        <property key="fast-math" value="false"/>
+        <property key="flash-segment" value=""/>
+        <property key="generate-map-file" value="true"/>
+        <property key="input-libraries" value=""/>
+        <property key="no-default-libs" value="false"/>
+        <property key="no-shared-libraries" value="false"/>
+        <property key="no-startup-files" value="false"/>
+        <property key="omit-symbol-information" value="false"/>
+        <property key="other-options" value=""/>
+        <property key="position-independent" value="false"/>
+        <property key="remove-unused-sections" value="true"/>
+        <property key="size-optimized-library" value="true"/>
+        <property key="sram-segment" value=""/>
+        <property key="unsafe-math" value="false"/>
+      </ARM-LD>
+      <jlink>
+        <property key="AutoSelectMemRanges" value="manual"/>
+        <property key="communication.autoselectspeed" value="true"/>
+        <property key="communication.interface" value="4wire"/>
+        <property key="communication.speed" value="4"/>
+      </jlink>
+    </conf>
+  </confs>
+</configurationDescriptor>
