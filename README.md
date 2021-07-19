@@ -39,6 +39,13 @@ Dependencies:
 - GNU make (from MinGW, Cygwin or GnuWin32) for IAR project generation
 - mktemp (from MinGW, Cygwin or GnuWin32) for IAR project generation
 
+### Windows and Linux with the MPLAB **MPLAB X IDE** toolchain
+Dependencies:
+- MPLAB X IDE (Tested on version 5.50)
+- bash (from MinGW, Cygwin or GnuWin32) for MPLAB project generation
+- GNU make (from MinGW, Cygwin or GnuWin32) for MPLAB project generation
+- mktemp (from MinGW, Cygwin or GnuWin32) for MPLAB project generation
+
 ## Contents
 
 ### Directory Architecture
@@ -127,6 +134,29 @@ driver, as for other setting, you can set up in IAR IDE to suit your connection 
 cmsis-dap driver. IAR flash loader is an agent that is downloaded to the target, more
 flash loaders are provided in this software package, each build variant, for example
 "sram","ddram", "flash" or "qspi", have it's dedicated flash loader.
+
+Notice:
+GNU make may fail on Windows platforms if the Makefile contains UNIX line endings.
+You can use unix2dos on all Makefile files in scripts/ directory to fix this issue.
+
+## Usage (MPLAB)
+
+The pregenerated MPLAB X IDE projects of softpack are compatible with version v5.50.
+
+### MPLAB X IDE Project generation
+
+A MPLAB X IDE project can be generated with GNU make, run in the example directory:
+
+``make TARGET=target mplab``
+
+All needed MPLAB X IDE project files will be put in a folder named with the target
+under the example directory. Users may configure the debugger, DFP and toolchains before
+build, debug and run the examples. For configuration "sram" no bootstrap is needed,
+and for ddram configurations a bootstrap (at91bootstrap may be used) is needed to debug
+or run the example properly (Configured in Project Properties -> Conf -> Bootstrap).
+
+The GNU toolchain is also supported in MPLAB X IDE, tested with the version of
+toolchain: gcc-arm-none-eabi-10-2020-q4-major
 
 Notice:
 GNU make may fail on Windows platforms if the Makefile contains UNIX line endings.
