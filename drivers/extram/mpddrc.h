@@ -90,7 +90,11 @@ struct _mpddrc_desc {
 
 RAMDATA extern struct pck_mck_cfg clock_setting_backup;
 #ifdef CONFIG_RAMCODE
+#ifndef __XC32
 RAMDATA extern volatile int _ddr_active_needed;
+#else
+RAMDATA extern int _ddr_active_needed;
+#endif
 #endif
 
 extern void mpddrc_configure(struct _mpddrc_desc* desc);

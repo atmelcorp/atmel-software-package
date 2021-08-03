@@ -650,7 +650,11 @@ RAMCODE void check_ddr_ready(void)
 
 RAMDATA struct pck_mck_cfg clock_setting_backup = {0};
 #ifdef CONFIG_RAMCODE
+#ifndef __XC32
 RAMDATA volatile int _ddr_active_needed = 0;
+#else
+RAMDATA int _ddr_active_needed = 0;
+#endif
 
 RAMCODE void ddram_active(void) {
 	/* Restore default PCK and MCK */
