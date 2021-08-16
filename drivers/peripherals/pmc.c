@@ -103,13 +103,10 @@ static struct _pmc_main_osc _pmc_main_oscillators = {
 #ifdef CONFIG_RAMCODE
 	#define TRACE_FATAL(...) ((void)0)
 	#define _ASSERT(x) ((void)0)
-	#define _SLEEP(x) do { for(volatile uint32_t count = 0; count < 100; count++);} while(0)
 #else
 	#define TRACE_FATAL trace_fatal
 	#define _ASSERT assert
-	#define _SLEEP(x) do { usleep(x); } while(0)
 #endif
-
 /*----------------------------------------------------------------------------
  *        Private functions
  *----------------------------------------------------------------------------*/
@@ -433,7 +430,7 @@ RAMCODE static void _pmc_configure_pll(const struct _pmc_plla_cfg* plla)
 		reg |= PMC_PLL_ACR_UTMIBG;
 		PMC->PMC_PLL_ACR = reg;
 		/* 3. Wait 10 us. */
-		_SLEEP(10);
+		for(volatile uint32_t count = 0; count < 100; count++);
 	}
 
 	/* 2. Configure PMC_PLL_ACR.LOOP_FILTER. */
@@ -453,7 +450,7 @@ RAMCODE static void _pmc_configure_pll(const struct _pmc_plla_cfg* plla)
 		reg |= PMC_PLL_ACR_UTMIBG;
 		PMC->PMC_PLL_ACR = reg;
 		/* 5. Wait 10 us. */
-		_SLEEP(10);
+		for(volatile uint32_t count = 0; count < 100; count++);
 
 		/* 6. Write PMC_PLL_ACR.UTMIVR to '1' to enable the UTMI internal regulator. */
 		reg = PMC->PMC_PLL_ACR;
@@ -461,7 +458,7 @@ RAMCODE static void _pmc_configure_pll(const struct _pmc_plla_cfg* plla)
 		PMC->PMC_PLL_ACR = reg;
 
 		/* 7. Wait 10 us. */
-		_SLEEP(10);
+		for(volatile uint32_t count = 0; count < 100; count++);
 	}
 
 	/* 8. Set PMC_PLL_UPDT.UPDATE to '1'. PMC_PLL_UPDT.ID must equal the one written during step
