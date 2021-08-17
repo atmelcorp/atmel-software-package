@@ -451,7 +451,7 @@ void board_cfg_matrix_for_ddr(void)
 {
 	uint32_t reg;
 
-	SFR->SFR_CCFG_EBICSA |= SFR_CCFG_EBICSA_EBI_CS1A;
+	SFR->SFR_CCFG_EBICSA |= SFR_CCFG_EBICSA_EBI_CS1A | SFR_CCFG_EBICSA_NFD0_ON_D16 | SFR_CCFG_EBICSA_DDR_MP_EN;
 	/*
 	 * On the first SAM9X60 V/DWB samples, automatic calibration computes
 	 * wrong value. Calibrate output impedance manually.
@@ -460,6 +460,11 @@ void board_cfg_matrix_for_ddr(void)
 	reg &= ~(SFR_CAL1_CALN_M_Msk | SFR_CAL1_CALP_M_Msk);
 	reg |= SFR_CAL1_TEST_M | SFR_CAL1_CALN_M(VDDIOM_1V8_OUT_Z_CALN_TYP) | SFR_CAL1_CALP_M(VDDIOM_1V8_OUT_Z_CALP_TYP);
 	SFR->SFR_CAL1 = reg;
+}
+
+void board_cfg_matrix_for_sdr(void)
+{
+	SFR->SFR_CCFG_EBICSA |= SFR_CCFG_EBICSA_EBI_CS1A | SFR_CCFG_EBICSA_NFD0_ON_D16;
 }
 
 void board_cfg_matrix_for_nand(void)
@@ -491,15 +496,16 @@ void board_cfg_matrix_for_nand_ex(bool nfd0_on_d16)
 
 void board_cfg_ddram(void)
 {
-	board_cfg_matrix_for_ddr();
 #ifdef BOARD_DDRAM_TYPE
 	struct _mpddrc_desc desc;
+	board_cfg_matrix_for_ddr();
 	ddram_init_descriptor(&desc, BOARD_DDRAM_TYPE);
 	ddram_configure(&desc);
 #endif
 #ifdef BOARD_SDRAM_TYPE
 	struct _sdramc_desc desc;
-	sdram_init_descriptor(&desc, BOARD_DDRAM_TYPE);
+	board_cfg_matrix_for_sdr();
+	sdram_init_descriptor(&desc, BOARD_SDRAM_TYPE);
 	sdram_configure(&desc);
 #endif
 }

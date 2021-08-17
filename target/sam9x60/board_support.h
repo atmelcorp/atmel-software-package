@@ -83,6 +83,11 @@ extern void board_cfg_mmu(void);
 extern void board_cfg_matrix_for_ddr(void);
 
 /**
+ * \brief Configure the MATRIX for SDRAM
+ */
+extern void board_cfg_matrix_for_sdr(void);
+
+/**
  * \brief Configure the MATRIX for NAND
  */
 extern void board_cfg_matrix_for_nand(void);
