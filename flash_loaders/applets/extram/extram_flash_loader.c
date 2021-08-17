@@ -267,14 +267,21 @@ uint32_t FlashInit(void *base_of_flash,
 	const struct _pin ddram_pins[] = BOARD_DDRAM_PINS;
 	pio_configure(ddram_pins, ARRAY_SIZE(ddram_pins));
 #endif
-	board_cfg_matrix_for_ddr();
+#ifdef CONFIG_BOARD_SAM9X60_GENERIC
 	if(!is_sdr){
+		board_cfg_matrix_for_ddr();
 		ddram_init_descriptor(&desc, device);
 		ddram_configure(&desc);
 	} else {
+		board_cfg_matrix_for_sdr();
 		sdram_init_descriptor(&desc_sdr, device);
 		sdram_configure(&desc_sdr);
 	}
+#else
+	board_cfg_matrix_for_ddr();
+	ddram_init_descriptor(&desc, device);
+	ddram_configure(&desc);
+#endif
 	return RESULT_OK;
 }
 
