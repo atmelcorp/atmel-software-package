@@ -37,6 +37,7 @@
 #include "chip.h"
 #include "otpc.h"
 #include "trace.h"
+#include "peripherals/pmc.h"
 
 /*----------------------------------------------------------------------------
  *        Marcos
@@ -95,6 +96,7 @@ static void otp_sam9x60_fixup(void)
 	if ((DBGU->DBGU_CIDR & DBGU_CIDR_REVISION_Msk) != DBGU_CIDR_REVISION_A)
 		return;
 
+	pmc_enable_internal_osc();
 	timeout = TIMEOUT;
 	*reg0 = 0x43910001;
 	while (!(OTPC->OTPC_SR & OTPC_SR_UNLOCK) && --timeout > 0);
