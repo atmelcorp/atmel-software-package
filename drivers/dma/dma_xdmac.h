@@ -80,6 +80,14 @@ extern int xdmacd_configure_transfer(struct _dma_channel* channel,
 				     uint32_t desc_ctrl,
 				     void* desc_addr);
 
+
+/**
+ * \brief Configure DMA hardware line
+ * \param channel Channel pointer
+ * \param request_line_id HW request ID
+ */
+extern int xdmacd_set_hw_request(struct _dma_channel* channel, uint8_t request_line_id);
+
 /**     @}*/
 
 /**@}*/

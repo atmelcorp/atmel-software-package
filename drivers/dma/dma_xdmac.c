@@ -94,6 +94,27 @@ int dma_prepare_channel(struct _dma_channel* channel)
 	return 0;
 }
 
+int xdmacd_set_hw_request(struct _dma_channel* channel, uint8_t request_line_id)
+{
+	Xdmac* xdmac = channel->hw;
+	uint32_t cfg;
+
+	if (channel->state == DMA_STATE_FREE)
+		return -EPERM;
+	else if (channel->state == DMA_STATE_STARTED)
+		return -EBUSY;
+	/* replace PERID with TC compare counter ID */
+	cfg = xdmac_get_channel_config(xdmac, channel->id);
+	cfg &=~XDMAC_CC_PERID_Msk;
+	cfg |= XDMAC_CC_PERID(request_line_id);
+	/* Synchronized mode (what ever memory-to-memory, peripheral-to-memory or memory-to-peripheral transfer) */
+	cfg |=XDMAC_CC_TYPE_PER_TRAN;
+	/* Hardware request line is connected to the peripheral request line.*/
+	cfg &=~XDMAC_CC_SWREQ_SWR_CONNECTED;
+	xdmac_set_channel_config(xdmac, channel->id, cfg);
+	return 0;
+}
+
 int xdmacd_configure_transfer(struct _dma_channel* channel,
 			      struct _xdmacd_cfg *cfg,
 			      uint32_t desc_cntrl,
