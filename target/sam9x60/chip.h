@@ -69,6 +69,16 @@ struct _console_cfg;
 
 /*@}*/
 
+/* Interface ID for DMA trigger with TC compareA or TC compareC */
+#define ID_TC1_CPA   43
+#define ID_TC4_CPA   44
+#define ID_TC1_CPB   45
+#define ID_TC4_CPB   46
+#define ID_TC1_CPC   47
+#define ID_TC4_CPC   48
+#define ID_TC1_EXT   49
+#define ID_TC4_EXT   50
+
 /* ************************************************************************** */
 /* INCLUDE FOR SAM9x60 */
 /* ************************************************************************** */
