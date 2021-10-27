@@ -70,6 +70,15 @@
 extern void tc_configure (Tc* tc, uint32_t channel, uint32_t mode);
 
 /**
+ * \brief Get TC configures
+ *
+ * Return TC_CMR value. 
+ * \param tc  Pointer to a Tc instance.
+ * \param channel Channel number.
+ */
+extern uint32_t tc_get_config(Tc *tc, uint32_t channel);
+
+/**
  * \brief Reset and Start the TC Channel
  *
  * Enables the timer clock and performs a software reset to start the counting.

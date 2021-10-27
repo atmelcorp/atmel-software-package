@@ -124,6 +124,12 @@ extern int tcd_configure_waveform(
 		uint16_t duty_cycle);
 
 /**
+ * \brief Enable waveform with external trigger
+ * \param desc   TC driver descriptor
+ */
+extern int tcd_waveform_enable_exteral_trigger(struct _tcd_desc* desc);
+
+/**
  * \brief Configure a timer to capture a signal
  * \param frequency   Frequency of the timer
  * \param buffer      Buffer to store captured samples

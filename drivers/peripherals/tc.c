@@ -103,6 +103,17 @@ void tc_configure(Tc *tc, uint32_t channel, uint32_t mode)
 	ch->TC_CMR = mode;
 }
 
+uint32_t tc_get_config(Tc *tc, uint32_t channel)
+{
+	TcChannel* ch;
+
+	assert(channel < ARRAY_SIZE(tc->TC_CHANNEL));
+
+	ch = &tc->TC_CHANNEL[channel];
+	/*  Get mode */
+	return ch->TC_CMR;
+}
+
 void tc_start(Tc *tc, uint32_t channel)
 {
 	TcChannel *ch;

@@ -190,6 +190,22 @@ int tcd_configure_waveform(struct _tcd_desc* desc, uint32_t min_timer_freq, uint
 	return chan_freq / rc;
 }
 
+/**
+ * \brief Enable waveform with external trigger
+ * \param desc   TC driver descriptor
+ */
+int tcd_waveform_enable_exteral_trigger(struct _tcd_desc* desc)
+{
+	uint32_t config;
+
+	config = tc_get_config(desc->addr, desc->channel);
+	if ((config & TC_CMR_WAVE) != TC_CMR_WAVE)
+		return -EINVAL;
+	config |= TC_CMR_ETRGEDG_RISING | TC_CMR_ABETRG | TC_CMR_ENETRG;
+	tc_configure(desc->addr, desc->channel, config);
+	return 0;
+}
+
 int tcd_configure_capture(struct _tcd_desc* desc, uint32_t frequency, struct _buffer* buffer)
 {
 	uint32_t tc_id = get_tc_id_from_addr(desc->addr, desc->channel);
