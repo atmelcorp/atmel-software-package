@@ -196,6 +196,9 @@ ifeq ($(CONFIG_CHIP_SAMA5D28),y)
 	CONFIG_HAVE_MCAN = y
 endif
 
-CFLAGS_CPU += -mcpu=cortex-a5 -mfpu=vfpv4-d16 -mfloat-abi=hard
-
+ifeq ($(CROSS_COMPILE),xc32-)
+	CFLAGS_CPU += -mprocessor=ATSAMA5D27
+else
+	CFLAGS_CPU += -mcpu=cortex-a5 -mfpu=vfpv4-d16 -mfloat-abi=hard
+endif
 endif

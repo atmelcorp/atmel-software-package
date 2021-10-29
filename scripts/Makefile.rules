@@ -50,7 +50,11 @@ include $(TOP)/scripts/Makefile.freertos
 vpath %.c $(TOP)
 vpath %.S $(TOP)
 
+ifeq ($(CROSS_COMPILE),xc32-)
+OBJS := $(addprefix $(BUILDDIR)/,$(xc32-cstartup-y) $(obj-y))
+else
 OBJS := $(addprefix $(BUILDDIR)/,$(gnu-cstartup-y) $(obj-y))
+endif
 LIBS := $(addprefix $(BUILDDIR)/,$(lib-y))
 
 -include $(OBJS:.o=.d)

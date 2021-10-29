@@ -43,6 +43,7 @@ CFLAGS_INC += -I$(TOP)/$(FREERTOS_SOURCE_TOP)/Demo/Common/include
 CFLAGS_INC += -I$(TOP)/$(FREERTOS_PORT)/$(chip-family)/
 iar-cstartup-y := $(FREERTOS_PORT)/$(chip-family)/iar/cstartup_freertos.o $(FREERTOS_PORT)/$(chip-family)/iar/portASM.o
 gnu-cstartup-y := $(FREERTOS_PORT)/$(chip-family)/gcc/cstartup_freertos.o $(FREERTOS_PORT)/$(chip-family)/gcc/portASM.o
+xc32-cstartup-y := $(FREERTOS_PORT)/$(chip-family)/xc32/cstartup_freertos.o $(FREERTOS_PORT)/$(chip-family)/xc32/portASM.o
 libfreertos-y += $(FREERTOS_PORT)/$(chip-family)/port.o
 libfreertos-y += $(FREERTOS_PORT)/$(chip-family)/FreeRTOS_tick_config.o
 

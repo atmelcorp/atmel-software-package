@@ -43,10 +43,13 @@ mplab-env:
 	$(Q)touch .mplab-$(VARIANT).sh
 	$(Q)echo TOP=\"$(TOP)\"                               >> .mplab-$(VARIANT).sh
 	$(Q)echo CFLAGS_CPU=\"$(CFLAGS_CPU) -std=gnu99\"      >> .mplab-$(VARIANT).sh
-	$(Q)echo CFLAGS_DEFS=\"$(subst \",\\\",$(CFLAGS_DEFS))\" >> .mplab-$(VARIANT).sh
+	$(Q)echo CFLAGS_DEFS=\"$(subst \",\&quot;,$(CFLAGS_DEFS))\" >> .mplab-$(VARIANT).sh
+
 	$(Q)echo CFLAGS_INC=\"$(CFLAGS_INC)\"                 >> .mplab-$(VARIANT).sh
+	$(Q)echo xc32_linker_script_y=\"$(xc32-linker-script-y)\"   >> .mplab-$(VARIANT).sh
 	$(Q)echo gnu_linker_script_y=\"$(gnu-linker-script-y)\"     >> .mplab-$(VARIANT).sh
 	$(Q)echo target_y=\"$(target-y)\"                     >> .mplab-$(VARIANT).sh
+	$(Q)echo startup_XC32=\"$(xc32-cstartup-y)\"          >> .mplab-$(VARIANT).sh
 	$(Q)echo startup_ARM=\"$(gnu-cstartup-y)\"            >> .mplab-$(VARIANT).sh
 	$(Q)echo utils_y=\"$(utils-y)\"                       >> .mplab-$(VARIANT).sh
 	$(Q)echo arch_y=\"$(arch-y)\"                         >> .mplab-$(VARIANT).sh

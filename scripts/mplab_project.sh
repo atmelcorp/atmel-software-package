@@ -16,7 +16,7 @@ DEBUG_TEMPLATE="$8"
 ### Global variable
 SCRIPTS="$DIR/$TOP/scripts"
 folder_idx=1
-TOOLCHAINS="ARM"
+TOOLCHAINS="ARM XC32"
 
 tpl-split() {
     local template_src="$1"
@@ -119,10 +119,19 @@ tpl-set-version() {
 }
 
 tpl-set-defines() {
-    echo "$CFLAGS_DEFS" > ${TARGET}.X/compile_options_$2_$3
-    if [ $3 = "ARM" ]; then
-        sed -i -e 's/\"/\\\"/g' ${TARGET}.X/compile_options_$2_$3
-    fi
+    local tpl="$1"
+    local tmpxml=`mktemp -p "$DIR"`
+    echo -n "          value=\"" > "$tmpxml"
+    for flag in $CFLAGS_DEFS; do
+        flag=${flag//:/ }
+        echo -n "${flag//-D/};"
+    done >> "$tmpxml"
+    echo -n "\"" >> "$tmpxml"
+
+    sed -i -e "/__REPLACE_DEFINES__/r $tmpxml" "$tpl"
+    sed -i -e "s/__REPLACE_DEFINES__//g" "$tpl"
+
+    rm -f "$tmpxml" 2>&1 > /dev/null
 }
 
 tpl-set-includes() {
@@ -147,7 +156,9 @@ tpl-set-linker-script() {
     local script_path=""
 
     for toolchain in ${TOOLCHAINS}; do
-        if [ $toolchain = "ARM" ]; then
+        if [ $toolchain = "XC32" ]; then
+            script_path=$xc32_linker_script_y
+        elif [ $toolchain = "ARM" ]; then
             script_path=${gnu_linker_script_y%/*}/
         else
             echo "Compiler Toolchain $toolchain is not supported!" 1>&2
@@ -214,10 +225,12 @@ tpl-set-chip() {
     echo "SET CHIP=$chip"
     if [ "$chip" = ATSAM9X60 ]; then
         sed -i "s/__REPLACE_CHIP__/SAM9X60/g" "$tpl"
-        sed -i "s/__REPLACE_DFP__/<pack name=\"SAM9X6_DFP\" vendor=\"Microchip\" version=\"1.5.50\"\/>/g" "$tpl"
+        sed -i "s/__REPLACE_DFP__/<pack name=\"SAM9X6_DFP\" vendor=\"Microchip\" version=\"1.7.85\"\/>/g" "$tpl"
+        sed -i "s/__REPLACE_ADDITIONAL_OPT__/\n        <appendMe value=\"-mfloat-abi=soft\"\/>/g" "$tpl"
     elif [ "$chip" = ATSAMA5D27 ]; then
         sed -i "s/__REPLACE_CHIP__/$chip/g" "$tpl"
-        sed -i "s/__REPLACE_DFP__/<pack name=\"SAMA5D2_DFP\" vendor=\"Microchip\" version=\"1.5.53\"\/>/g" "$tpl"
+        sed -i "s/__REPLACE_DFP__/<pack name=\"SAMA5D2_DFP\" vendor=\"Microchip\" version=\"1.9.106\"\/>/g" "$tpl"
+        sed -i "s/__REPLACE_ADDITIONAL_OPT__/\n        <appendMe value=\"-mfloat-abi=hard\"\/>/g" "$tpl"
     fi
 }
 
@@ -235,15 +248,30 @@ generate-bodies-conf() {
         tpl-set-configuration "$tpl" $TARGET ${variant}_${toolchain}
 
         local tmpxml=`mktemp -p "$DIR"`
-        if [ $toolchain = "ARM" ]; then
+        if [ $toolchain = "XC32" ]; then
+            for var in $AVAILABLE_VARIANTS; do
+                if [ ! $var = $variant ]; then
+                    echo "<item path=\"../${xc32_linker_script_y}$var.ld\" ex=\"true\" overriding=\"false\"></item>" >> $tmpxml
+                fi
+                echo "<item path=\"../${gnu_linker_script_y%/*}/$var.ld\" ex=\"true\" overriding=\"false\"></item>" >> $tmpxml
+            done
+            for path in ${startup_ARM}; do
+                path=$(find-source "$DIR/$TOP" "$path")
+                echo "<item path=\"../../../$path\" ex=\"true\" overriding=\"false\"></item>" >> $tmpxml
+            done
+            sed -i -e "s/__REPLACE_TOOLCHAIN_VERSION__//g" "$tpl"
+        elif [ $toolchain = "ARM" ]; then
             for var in $AVAILABLE_VARIANTS; do
                 if [ ! $var = $variant ]; then
                     echo "<item path=\"../${gnu_linker_script_y%/*}/$var.ld\" ex=\"true\" overriding=\"false\"></item>" >> $tmpxml
                 fi
-                echo "<item path=\"../$mplab_linker_script_y$var.ld\" ex=\"true\" overriding=\"false\"></item>" >> $tmpxml
+                echo "<item path=\"../$xc32_linker_script_y$var.ld\" ex=\"true\" overriding=\"false\"></item>" >> $tmpxml
+            done
+            for path in ${startup_XC32}; do
+                path=$(find-source "$DIR/$TOP" "$path")
+                echo "<item path=\"../../../$path\" ex=\"true\" overriding=\"false\"></item>" >> $tmpxml
             done
             sed -i -e "s/__REPLACE_TOOLCHAIN_VERSION__/10.2.1/g" "$tpl"
-            sed -i "s/__REPLACE_ADDITIONAL_OPT__/\n        <appendMe value=\"@compile_options_${variant}_${toolchain} $CFLAGS_CPU\"\/>/g" "$tpl"
         else
             echo "Compiler Toolchain $toolchain is not supported!" 1>&2
             exit 3
@@ -307,6 +335,7 @@ generate-conf() {
     tpl-set-deps      "$tpl" "uip"           "$uip_y"
     tpl-set-deps      "$tpl" "target"        "$target_y"
     tpl-set-deps      "$tpl" "startup_ARM"   "$startup_ARM"
+    tpl-set-deps      "$tpl" "startup_XC32"  "$startup_XC32"
     tpl-set-deps      "$tpl" "lwip"          "$lwip_y"
     tpl-set-deps      "$tpl" "libsdmmc"      "$libsdmmc_y"
     tpl-set-deps      "$tpl" "libfatfs"      "$libfatfs_y"
