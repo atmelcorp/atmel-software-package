@@ -1,18 +1,20 @@
-IAR Flash Loader
+Flash Loader
 ----------------
 
 ## Overview
 
-A flash loader is an agent of **IAR Embedded Workbench** that is downloaded to
-the target, it is needed when running examples out of "ddram" or "qspi".
+A flash loader is an agent that is downloaded to the target, it is needed when running examples out of "ddram" or "qspi".
 
 ## Directory Architecture
 
 ### flash_loaders/applets
   Source code for IAR flash loader
 
+### flash_loaders/mplab
+  MPLAB X IDE related flash loader(named as `Bootstrap`), see [mplab/README.md](mplab/README.md) for detail
+
 ### flash_loaders/samxxx-generic
-  Files for the flash loaders (.out, .mac, .board, .flash)
+  Files for the IAR flash loaders (.out, .mac, .board, .flash)
 
 #### board-file
   The flash memory system specification file is an XML file (filename extension `board`) which describes for C-SPY the flash loading properties of the complete development board. This file can sometimes contain references to more than one flash memory (through the appropriate .flash), if the board has more than one type of flash memory that needs to be programmed separately in several passes. In this case, the .board also specifies specific address ranges of the image which belongs to different flash memories.
