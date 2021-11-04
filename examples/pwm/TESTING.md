@@ -68,10 +68,13 @@ Connect PC11 (J2 pin 27) and PA22 (J1 pin 18) on the board.
 
 ### SAM9X60-EK
 ----------------
-Pins for SAM9X60 Evaluation Kit(rev. A):
-Connect PB11 (J17 pin 32) and PA21 (J15 pin 14) on the board.
-Pins for SAM9X60 Evaluation Kit(rev. B):
-Connect PB11 (J16 pin 32) and PA21 (J14 pin 14) on the board.
+Connect PB11 and PA21 on the board.
+- PB11
+	- J17 pin 32 (rev. A)
+	- J16 pin 32 (rev. B)
+- PA21
+	- J15 pin 14 (rev. A)
+	- J14 pin 14 (rev. B)
 
 ### SAME70-XPLAINED
 ----------------
@@ -104,48 +107,68 @@ Connect PC19 (EXT2 pin 7) and PA0 (J503 pin 3) on the board.
 Tested with IAR and GCC (sram and ddram configurations)
 
 In order to test this example, the process is the following:
-
-Step | Description | Expected Result | Result
------|-------------|-----------------|-------
 # For SAMA5D2X-XXX , SAMV71-XXX boards
-Press 'c' | Print `Start capture, result will be dumped to console when finished.` on screen | PASSED | PASSED
-Press 'a' | Print `-- PWM Channel 2 Duty cycle: 0% Signal Period: 20 ms--` ... `-- PWM Channel 2 Duty cycle: 42% Signal Period: 20 ms--` ... `Captured 32 pulses from TC capture channel:` `Captured[0] frequency =` ... `Captured[31] frequency = ` ... on screen | PASSED | PASSED
-Press 'h' | Print the menu on screen | PASSED | PASSED
-Press 'c' | Print `Start capture, result will be dumped to console when finished.` on screen | PASSED | PASSED
-Press 'd' | Print `Captured 32 pulses from TC capture channel:`, `Captured[0] frequency =` ... `Captured[31] frequency = ` ... on screen | PASSED | PASSED
-Press 'h' | Print the menu on screen | PASSED | PASSED
-Press 'f' | initialize fault mode | PASSED | PASSED
-Press 'F' | clear and disable fault mode | PASSED | PASSED
-Press 'm' | test 2-bit gray mode | PASSED | PASSED
-Press 'o' | Print `Input options:`, `0/1: override to 0/1`, `others: set dead-time` on screen | PASSED | PASSED
-Press '0' | test override 0 | PASSED | PASSED
-Press 'o' | Print `Input options:`, `0/1: override to 0/1`, `others: set dead-time` on screen | PASSED | PASSED
-Press '1' | test override 1 | PASSED | PASSED
-Press 'o' | Print `Input options:`, `0/1: override to 0/1`, `others: set dead-time` on screen | PASSED | PASSED
-Press 'x' | test dead-time | PASSED | PASSED
-Press 'h' | Print the menu on screen | PASSED | PASSED
+|Step | Description | Expected Result | Result
+|-----|-------------|-----------------|-------
+|Press 'c' | Print `Start capture, result will be dumped to console when finished.` on screen | PASSED | PASSED
+|Press 'a' | Print PWM waveform information | `-- PWM Channel 2 Duty cycle: 0% Signal Period: 20 ms--` | PASSED
+|          | Print PWM waveform information | `-- PWM Channel 2 Duty cycle: 42% Signal Period: 20 ms--`| PASSED 
+|          | Print PWM waveform information | ` ...` | PASSED 
+|          | Print PWM captured information | ` Captured 32 pulses from TC capture channel:` | PASSED
+|          | Print PWM captured information | ` Captured[0] frequency =` | PASSED
+|          | Print PWM captured information | ` ...` | PASSED
+|          | Print PWM captured information | ` Captured[31] frequency = ` | PASSED
+|Press 'h' | Print the menu on screen | PASSED | PASSED
+|Press 'c' | Print `Start capture, result will be dumped to console when finished.` on screen | PASSED | PASSED
+|Press 'd' | Print `Captured 32 pulses from TC capture channel:`, `Captured[0] frequency =` ... `Captured[31] frequency = ` ... on screen | PASSED | PASSED
+|Press 'h' | Print the menu on screen | PASSED | PASSED
+|Press 'f' | initialize fault mode | PASSED | PASSED
+|Press 'F' | clear and disable fault mode | PASSED | PASSED
+|Press 'm' | test 2-bit gray mode | PASSED | PASSED
+|Press 'o' | Print `Input options:`, `0/1: override to 0/1`, `others: set dead-time` on screen | PASSED | PASSED
+|Press '0' | test override 0 | PASSED | PASSED
+|Press 'o' | Print `Input options:`, `0/1: override to 0/1`, `others: set dead-time` on screen | PASSED | PASSED
+|Press '1' | test override 1 | PASSED | PASSED
+|Press 'o' | Print `Input options:`, `0/1: override to 0/1`, `others: set dead-time` on screen | PASSED | PASSED
+|Press 'x' | test dead-time | PASSED | PASSED
+|Press 'h' | Print the menu on screen | PASSED | PASSED
 
 # For SAMA5D3-XXX, SAMA5D4-XXX boards
-Press 'c' | Print `Start capture, result will be dumped to console when finished.` on screen | PASSED | PASSED
-Press 'a' | Print `-- PWM Channel 2 Duty cycle: 0% Signal Period: 20 ms--` ... `-- PWM Channel 2 Duty cycle: 42% Signal Period: 20 ms--` ... `Captured 32 pulses from TC capture channel:` `Captured[0] frequency =` ... `Captured[31] frequency = ` ... on screen | PASSED | PASSED
-Press 'h' | Print the menu on screen | PASSED | PASSED
-Press 'c' | Print `Start capture, result will be dumped to console when finished.` on screen | PASSED | PASSED
-Press 'h' | Print the menu on screen | PASSED | PASSED
-Press 'f' | initialize fault mode | PASSED | PASSED
-Press 'F' | clear and disable fault mode | PASSED | PASSED
-Press 'm' | test 2-bit gray mode | PASSED | PASSED
-Press 'o' | Print `Input options:`, `0/1: override to 0/1`, `others: set dead-time` on screen | PASSED | PASSED
-Press '0' | test override 0 | PASSED | PASSED
-Press 'o' | Print `Input options:`, `0/1: override to 0/1`, `others: set dead-time` on screen | PASSED | PASSED
-Press '1' | test override 1 | PASSED | PASSED
-Press 'o' | Print `Input options:`, `0/1: override to 0/1`, `others: set dead-time` on screen | PASSED | PASSED
-Press 'x' | test dead-time | PASSED | PASSED
-Press 'h' | Print the menu on screen | PASSED | PASSED
+|Step | Description | Expected Result | Result
+|-----|-------------|-----------------|-------
+|Press 'c' | Print `Start capture, result will be dumped to console when finished.` on screen | PASSED | PASSED
+|Press 'a' | Print PWM waveform information | `-- PWM Channel 2 Duty cycle: 0% Signal Period: 20 ms--` | PASSED
+|          | Print PWM waveform information | `-- PWM Channel 2 Duty cycle: 42% Signal Period: 20 ms--`| PASSED 
+|          | Print PWM waveform information | ` ...` | PASSED 
+|          | Print PWM captured information | ` Captured 32 pulses from TC capture channel:` | PASSED
+|          | Print PWM captured information | ` Captured[0] frequency =` | PASSED
+|          | Print PWM captured information | ` ...` | PASSED
+|          | Print PWM captured information | ` Captured[31] frequency = ` | PASSED
+|Press 'h' | Print the menu on screen | PASSED | PASSED
+|Press 'c' | Print `Start capture, result will be dumped to console when finished.` on screen | PASSED | PASSED
+|Press 'h' | Print the menu on screen | PASSED | PASSED
+|Press 'f' | initialize fault mode | PASSED | PASSED
+|Press 'F' | clear and disable fault mode | PASSED | PASSED
+|Press 'm' | test 2-bit gray mode | PASSED | PASSED
+|Press 'o' | Print `Input options:`, `0/1: override to 0/1`, `others: set dead-time` on screen | PASSED | PASSED
+|Press '0' | test override 0 | PASSED | PASSED
+|Press 'o' | Print `Input options:`, `0/1: override to 0/1`, `others: set dead-time` on screen | PASSED | PASSED
+|Press '1' | test override 1 | PASSED | PASSED
+|Press 'o' | Print `Input options:`, `0/1: override to 0/1`, `others: set dead-time` on screen | PASSED | PASSED
+|Press 'x' | test dead-time | PASSED | PASSED
+|Press 'h' | Print the menu on screen | PASSED | PASSED
 
 # For SAM9X60-XXX, SAM9XX5-XXX boards
-Press 'c' | Print `Start capture, result will be dumped to console when finished.` on screen | PASSED | PASSED
-Press 'a' | Print `-- PWM Channel 2 Duty cycle: 0% Signal Period: 20 ms--` ... `-- PWM Channel 2 Duty cycle: 42% Signal Period: 20 ms--` ... `Captured 32 pulses from TC capture channel:` `Captured[0] frequency =` ... `Captured[31] frequency = ` ... on screen | PASSED | PASSED
-Press 'h' | Print the menu on screen | PASSED | PASSED
-Press 'c' | Print `Start capture, result will be dumped to console when finished.` on screen | PASSED | PASSED
-Press 'h' | Print the menu on screen | PASSED | PASSED
-
+|Step | Description | Expected Result | Result
+|-----|-------------|-----------------|-------
+|Press 'c' | Print `Start capture, result will be dumped to console when finished.` on screen | PASSED | PASSED
+|Press 'a' | Print PWM waveform information | `-- PWM Channel 2 Duty cycle: 0% Signal Period: 20 ms--` | PASSED
+|          | Print PWM waveform information | `-- PWM Channel 2 Duty cycle: 42% Signal Period: 20 ms--`| PASSED 
+|          | Print PWM waveform information | ` ...` | PASSED 
+|          | Print PWM captured information | ` Captured 32 pulses from TC capture channel:` | PASSED
+|          | Print PWM captured information | ` Captured[0] frequency =` | PASSED
+|          | Print PWM captured information | ` ...` | PASSED
+|          | Print PWM captured information | ` Captured[31] frequency = ` | PASSED
+|Press 'h' | Print the menu on screen | PASSED | PASSED
+|Press 'c' | Print `Start capture, result will be dumped to console when finished.` on screen | PASSED | PASSED
+|Press 'h' | Print the menu on screen | PASSED | PASSED
