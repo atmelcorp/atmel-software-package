@@ -583,8 +583,11 @@ bool board_cfg_sdmmc(uint32_t periph_id)
 	case ID_SDMMC1:
 	{
 #if defined(BOARD_SDMMC1_CAPS0) && defined(BOARD_SDMMC1_PINS)
-		const struct _pin pins[] = BOARD_SDMMC1_PINS;
+		struct _pin pins[] = BOARD_SDMMC1_PINS;
 		uint32_t caps0 = BOARD_SDMMC1_CAPS0;
+#ifdef BOARD_SDMMC1_PIO_ATTR
+		uint8_t ix;
+#endif
 
 		/* Program capabilities for SDMMC1 */
 		board_cfg_sd_clk_caps(ID_SDMMC1, &caps0);
@@ -594,6 +597,14 @@ bool board_cfg_sdmmc(uint32_t periph_id)
 		    SDMMC_CA0R_TEOCLKF_Msk, 0, 0);
 
 		/* Configure SDMMC1 pins */
+#ifdef BOARD_SDMMC1_PIO_ATTR
+		/* Tune the attributes of CMD, CK and DAT* peripheral outputs */
+		for (ix = 0; ix < ARRAY_SIZE(pins); ix++) {
+			if (pins[ix].type == PIO_INPUT)
+				continue;
+			pins[ix].attribute |= BOARD_SDMMC1_PIO_ATTR;
+		}
+#endif
 		pio_configure(pins, ARRAY_SIZE(pins));
 		return true;
 #else

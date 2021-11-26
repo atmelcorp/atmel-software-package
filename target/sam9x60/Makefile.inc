@@ -55,6 +55,7 @@ iar-flashloader-script-$(CONFIG_BOARD_SAM9X60_EK) ?= $(TOP)/flash_loaders/sam9x6
 else
 iar-flashloader-script-$(CONFIG_BOARD_SAM9X60_EK) ?= $(TOP)/flash_loaders/sam9x60-generic/sam9x60-ek.board
 endif
+iar-flashloader-script-$(CONFIG_BOARD_SAM9X60_CURIOSITY) ?= $(TOP)/flash_loaders/sam9x60-generic/sam9x60-curiosity.board
 
 endif
 

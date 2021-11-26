@@ -34,6 +34,8 @@
   #include "board_sam9x60-generic.h"
 #elif defined(CONFIG_BOARD_SAM9X60_EK)
   #include "board_sam9x60-ek.h"
+#elif defined(CONFIG_BOARD_SAM9X60_CURIOSITY)
+  #include "board_sam9x60-curiosity.h"
 #else
   #error "No board defined"
 #endif
