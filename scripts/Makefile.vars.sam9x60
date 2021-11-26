@@ -1,9 +1,13 @@
 SAM9X60_TARGETS = sam9x60-generic \
-                  sam9x60-ek
+                  sam9x60-ek sam9x60-curiosity
 
 ifneq ($(strip $(foreach board,$(SAM9X60_TARGETS),$(if $(call eq,$(TARGET),$(board)),$(board)))),)
 
+ifeq ($(TARGET),sam9x60-curiosity)
+COMPATIBLE_VARIANTS = sram ddram
+else
 COMPATIBLE_VARIANTS = sram ddram qspi0
+endif
 
 CONFIG_ARCH_ARMV5TE = y
 CONFIG_SOC_SAM9X60 = y
@@ -94,6 +98,20 @@ CONFIG_HAVE_SPI_AT25 = y
 CONFIG_HAVE_TWI_AT24 = y
 CONFIG_HAVE_NAND_FLASH = y
 CONFIG_HAVE_IMAGE_SENSOR = y
+endif
+
+ifeq ($(TARGET),sam9x60-curiosity)
+CONFIG_CHIP_SAM9X60 = y
+CONFIG_BOARD_SAM9X60_CURIOSITY = y
+CONFIG_HAVE_LED = y
+ifeq ($(CONFIG_CAN),y)
+	CONFIG_SERIALD_USART = y
+else
+	CONFIG_SERIALD_DBGU = y
+endif
+CONFIG_HAVE_DDR2_W972GG6KB = y
+CONFIG_HAVE_TWI_AT24 = y
+CONFIG_HAVE_NAND_FLASH = y
 endif
 
 # features that are different between chips
