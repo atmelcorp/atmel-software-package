@@ -17,6 +17,7 @@ DMA.
 ## Supported targets
 --------------------
 * SAM9X60-EK
+* SAM9X60-CURIOSITY
 * SAMA5D2-PTC-EK
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK
@@ -60,7 +61,10 @@ Press '2','l','d','s' | SHA256, long-msg, dma | Digest successfully verified | P
 Press '3','l','d','s' | SHA384, long-msg, dma | Digest successfully verified | PASSED
 Press '4','l','d','s' | SHA512, long-msg, dma | Digest successfully verified | PASSED
 
-press 'c' swtich HMAC
+Press 'c' to switch HMAC and continue the test:
+
+Step | Description | Expected Result | Result
+-----|-------------|-----------------|-------
 Press '0','o','p','s' | SHA1, single block, polling | HMAC generated | PASSED
 Press '1','o','p','s' | SHA224, single block, polling | HMAC generated | PASSED
 Press '2','o','p','s' | SHA256, single block, polling | HMAC generated | PASSED
@@ -77,7 +81,7 @@ Press '2','l','d','s' | SHA256, long-msg, dma | HMAC generated | PASSED
 Press '3','l','d','s' | SHA384, long-msg, dma | HMAC generated | PASSED
 Press '4','l','d','s' | SHA512, long-msg, dma | HMAC generated | PASSED
 
-Press 'f'
+Press 'f' to do Full SHA test, following is the output:
 
 ```
 ========================

@@ -15,6 +15,7 @@ This example shows how to configure TDES in encryption and decryption modes. In
 encryption mode, it encrypts plain text in one of the ECB/CBC/OFB/CFB modes.
 Programmable key mode with Single DES, Triple DES or XTEA encryption, with or
 without DMA support.
+
 In decryption mode, it decrypts cipher data generated at encryption step, and
 prints the result, which should match the initial plain value.
 
@@ -23,6 +24,7 @@ prints the result, which should match the initial plain value.
 ## Supported targets
 --------------------
 * SAM9X60-EK
+* SAM9X60-CURIOSITY
 * SAMA5D2-PTC-EK
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK

@@ -11,6 +11,7 @@ Encryption Standard (AES).
 This example shows how to configure AES in encryption and decryption mode. In
 encryption mode, it encrypts plain text in one of the ECB/CBC/OFB/CFB/CTR/GCM/XTS
 modes.
+
 Programmable key mode with processing using with or without DMA support.
 In decryption mode, it decrypts cipher data generated from encryption mode,
 and compares the result against the initial plain value.
@@ -20,6 +21,7 @@ and compares the result against the initial plain value.
 ## Supported targets
 --------------------
 * SAM9X60-EK
+* SAM9X60-CURIOSITY
 * SAMA5D2-PTC-EK
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK

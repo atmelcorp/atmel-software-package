@@ -34,6 +34,7 @@ In this case, the GMAC will be configured with a default IP address ( / MAC addr
 * SAME70-XPLAINED
 * SAMV71-XPLAINED
 * SAM9X60-EK
+* SAM9X60-CURIOSITY
 
 ## Setup
 --------

@@ -16,6 +16,7 @@ DMA multiple buffers transfer can be switched by the corresponding options.
 --------------------
 * SAM9XX5-EK
 * SAM9X60-EK
+* SAM9X60-CURIOSITY
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK
 * SAMA5D2-PTC-EK
@@ -63,14 +64,9 @@ Press 'a','0','4','s','t' | BYTE, FIXED_S, FIXED_D,Single block | PASSED | PASSE
 Press 'a','1','5','s','t' | BYTE, INC_S, INC_D,Single block | PASSED | PASSED
 Press 'b','1','5','s','t' | HALFWORD, INC_S, INC_D,Single block | PASSED | PASSED
 Press 'c','1','5','s','t' | WORD, INC_S, INC_D,Single block | PASSED | PASSED
-
---- For SAMA5 only
+Following for SAMA5 only
 Press 'd','1','5','s','t' | DWORD, INC_S, INC_D,Single block | PASSED | PASSED
-
---- For SAMA5 only
 Press 'a','l','t' | BYTE, linker_list| PASSED | PASSED
 Press 'b','l','t' | HALFWORD,linker_list| PASSED | PASSED
 Press 'c','l','t' | WORD, linker_list| PASSED | PASSED
-
---- For SAMA5 only
 Press 'd','l','t' | DWORD,linker_list| PASSED | PASSED
