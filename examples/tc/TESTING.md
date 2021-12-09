@@ -25,6 +25,19 @@ The code can be roughly broken down as follows:
 
 # Test
 ------
+## Supported targets
+--------------------
+* SAM9XX5-EK
+* SAMA5D2-PTC-EK
+* SAMA5D2-XPLAINED
+* SAMA5D27-SOM1-EK
+* SAMA5D3-EK
+* SAMA5D4-EK
+* SAMA5D4-XPLAINED
+* SAME70-XPLAINED
+* SAMV71-XPLAINED
+* SAM9X60-CURIOSITY
+
 ## Setup
 --------
 On the computer, open and configure a terminal application
@@ -59,6 +72,10 @@ Connect PE27 (J22 pin 11) and PC12 (J2 pin 29) on the board.
 ### SAMA9XX5-EK
 ---------------
 Connect PA22 (J1 pin 18) and PA23 (J1 pin 20) on the board.
+
+### SAMA9X60-CURIOSITY
+---------------
+Connect PA21 (J9 pin 21) and PA23 (J9 pin 23) on the board.
 
 ### SAME70-XPLAINED
 -------------------
@@ -106,14 +123,15 @@ Press '1' 'c' | Capture waveform | Captured wave frequency = 180 Hz, Duty cycle 
 Press '2' 'c' | Capture waveform | Captured wave frequency = 400 Hz, Duty cycle = 75% | PASSED
 Press '3' 'c' | Capture waveform | Captured wave frequency = 500 Hz, Duty cycle = 80% | PASSED
 Press '4' 'c' | Capture waveform | Captured wave frequency = 2000 Hz, Duty cycle = 55% | PASSED
+Press 'h' | Print the menu | Display the menu | PASSED
 
---------------------------------------------------------------------------------------------------
-# For SAMA5D2-XLUT and SAMV71-XLUT
+__For SAMA5D2-XPLAINED and SAMV71-XPLAINED__
+Step | Description | Expected Result | Result
+-----|-------------|-----------------|-------
 Press '0' 'c' 'd'| Capture waveform with DMA| Captured wave frequency = 80 Hz, Duty cycle = 30% | PASSED
 Press '1' 'c' 'd'| Capture waveform with DMA| Captured wave frequency = 180 Hz, Duty cycle = 50% | PASSED
 Press '2' 'c' 'd'| Capture waveform with DMA| Captured wave frequency = 400 Hz, Duty cycle = 75% | PASSED
 Press '3' 'c' 'd'| Capture waveform with DMA| Captured wave frequency = 500 Hz, Duty cycle = 80% | PASSED
 Press '4' 'c' 'd'| Capture waveform with DMA| Captured wave frequency = 2000 Hz, Duty cycle = 55% | PASSED
-
 Press 'h' | Print the menu | Display the menu | PASSED
 

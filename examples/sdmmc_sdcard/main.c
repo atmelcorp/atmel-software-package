@@ -53,6 +53,7 @@
  * - SAM9X25-EK 
  * - SAM9X35-EK
  * - SAM9X60-EK
+ * - SAM9X60-CURIOSITY
  * - SAME70-XPLAINED 
  * - SAMV71-XPLAINED
  *
@@ -212,6 +213,11 @@
 #  define SLOT0_ID                    ID_SDMMC0
 #  define SLOT0_TAG                   "(SD/MMC)"
 /* TODO: SDIO support for the WILC3000 on SLOT1 */
+#elif defined(CONFIG_BOARD_SAM9X60_CURIOSITY)
+#  define SLOT0_ID                    ID_SDMMC0
+#  define SLOT0_TAG                   "(microSD)"
+#  define SLOT1_ID                    ID_SDMMC1
+#  define SLOT1_TAG                   "(SD/MMC)"
 #elif defined(CONFIG_BOARD_SAME70_XPLAINED)
 #  define SLOT0_ID                    ID_HSMCI0
 #  define SLOT0_TAG                   "(SD/MMC)"

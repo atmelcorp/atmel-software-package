@@ -17,6 +17,7 @@ The example demos how to use the OTP, some operations (read, write, update, inva
 ## Supported targets
 --------------------
 * SAM9X60-EK
+* SAM9X60-CURIOSITY
 
 ## Setup
 --------

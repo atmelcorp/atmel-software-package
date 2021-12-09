@@ -25,6 +25,7 @@ This example demonstrates how to use PWM module.
 * SAME70-XPLAINED
 * SAMV71-XPLAINED
 * SAM9X60-EK
+* SAM9X60-CURIOSITY
 
 ## Setup
 --------
@@ -75,6 +76,10 @@ Connect PB11 and PA21 on the board.
 - PA21
 	- J15 pin 14 (rev. A)
 	- J14 pin 14 (rev. B)
+
+### SAM9X60-CURIOSITY
+----------------
+Connect PB11 (J9 pin 29) and PA21 (J9 pin 21) on the board.
 
 ### SAME70-XPLAINED
 ----------------

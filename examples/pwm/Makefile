@@ -31,7 +31,7 @@ AVAILABLE_TARGETS = sama5d2-xplained sama5d27-som1-ek \
                     sama5d3-ek \
                     sama5d4-ek sama5d4-xplained \
                     sam9g15-ek sam9g25-ek sam9g35-ek sam9x25-ek sam9x35-ek \
-                    sam9x60-ek \
+                    sam9x60-ek sam9x60-curiosity \
                     same70-xplained samv71-xplained
 
 TOP := ../..

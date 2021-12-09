@@ -19,6 +19,7 @@ access data on a AT24 device.
 --------------------
 
 * SAM9X60-EK
+* SAM9X60-CURIOSITY
 * SAM9XX5-EK
 * SAMA5D2-PTC-EK
 * SAMA5D2-XPLAINED
@@ -82,6 +83,11 @@ __Pins for SAM9X60 EK:__
 Master SCL                   | Master SDA                  | Slave SCL                       | Slave SDA
 ---------------------------- | --------------------------- | ------------------------------- | -------------------------------
 MBUS_TWCK_PA01 on J15 pin 12 | MBUS_TWD_PA0 on J15 pin 11  | Flexcom4_IO1_PA11 on J17 pin 21 | Flexcom4_IO0_PA12 on J17 pin 19
+
+__Pins for SAM9X60 Curiosity:__
+Master SCL                 | Master SDA                | Slave SCL                  | Slave SDA
+-------------------------- | ------------------------- | -------------------------- | --------------------------
+MBUS_TWCK_PA1 on J8 pin 12 | MBUS_TWD_PA0 on J8 pin 11 | MBUS_MISO_PA11 on J8 pin 5 | MBUS_MOSI_PA12 on J8 pin 6
 
 __Pins for SAMA5D2 PTC EK:__
 Master SCL                   | Master SDA                  | Slave SCL                | Slave SDA

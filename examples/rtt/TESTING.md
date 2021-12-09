@@ -17,6 +17,7 @@ The RTT enables timer and allows the user to set alarm.
 ## Supported targets
 --------------------
 * SAM9X60-EK
+* SAM9X60-CURIOSITY
 
 ## Setup
 --------

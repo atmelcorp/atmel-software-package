@@ -28,7 +28,7 @@
 
 # Makefile for compiling the RTT example
 
-AVAILABLE_TARGETS = sam9x60-ek
+AVAILABLE_TARGETS = sam9x60-ek sam9x60-curiosity
 
 TOP := ../..
 

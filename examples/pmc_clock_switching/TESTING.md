@@ -25,6 +25,7 @@ MCK) or change divider, also shows how to change SLCK (32K OSC or internal RC).
 * SAMA5D4-EK
 * SAM9XX5-EK
 * SAM9X60-EK
+* SAM9X60-CURIOSITY
 
 ## Setup
 --------

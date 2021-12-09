@@ -24,6 +24,8 @@ This example does automatic test of the PIO features.
 * SAMA5D4-XPLAINED
 * SAME70-XPLAINED
 * SAMV71-XPLAINED
+* SAM9X60-EK
+* SAM9X60-CURIOSITY
 
 The test output follows a JUnit XML format for traces.
 
@@ -71,6 +73,9 @@ Connect PA2 (pin 11 on J17) to PA3 (pin 13 on J17)
 
 __Pins for SAM9X60 Evaluation Kit(rev. B):__
 Connect PA2 (pin 11 on J16) to PA3 (pin 15 on J16)
+
+__Pins for SAM9X60 Curiosity:__
+Connect PA26 (pin 11 on J9) to PA27 (pin 13 on J9)
 
 __Pins for SAME70 Xplained Ultra:__
 Connect D7 PA2 (pin 8 on J503) to D6 PC19 (pin 7 on J503)

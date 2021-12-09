@@ -24,6 +24,8 @@ events like a configurable alarm, second change, and calendar change.
 * SAMA5D3-XPLAINED
 * SAMA5D4-EK
 * SAMA5D4-XPLAINED
+* SAM9X60-EK
+* SAM9X60-CURIOSITY
 
 ## Setup
 --------
@@ -52,7 +54,6 @@ Step needed to set up the example.
  d - Set date
  i - Set time alarm
  m - Set date alarm
- q - Quit
 ```
 
 Tested with IAR and GCC (sram and ddram configurations)
@@ -67,6 +68,5 @@ Press 'd' | Print `Set date(mm/dd/yyyy):` on screen then set the date | PASSED |
 Press 'i' | Print `Set time alarm(hh:mm:ss):` on screen then set the alarm time | PASSED | PASSED
 Press 'm' | Print `Set date alarm(mm/dd/):` on screen then set the alarm date | PASSED | PASSED
 Press 'p' | do calibration | PASSED | PASSED
-Press 'q' | Print `Software Interrupt` on screen | PASSED | PASSED
-
+Press 'c' | Clear the trigger flag when `[Alarm Triggered]` is printed | PASSED | PASSED
 

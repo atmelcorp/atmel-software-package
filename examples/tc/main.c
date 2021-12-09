@@ -160,6 +160,8 @@
 	#include "config_sam9xx5-ek.h"
 #elif defined(CONFIG_BOARD_SAM9X35_EK)
 	#include "config_sam9xx5-ek.h"
+#elif defined(CONFIG_BOARD_SAM9X60_CURIOSITY)
+	#include "config_sam9x60-curiosity.h"
 #elif defined(CONFIG_BOARD_SAME70_XPLAINED)
 	#include "config_same70-xplained.h"
 #elif defined(CONFIG_BOARD_SAMV71_XPLAINED)

@@ -20,40 +20,45 @@ acts as a receiver. The infrared modules should keep face to face
 * SAMA5D4-EK
 * SAMA5D4-XPLAINED
 * SAM9X60-EK
+* SAM9X60-CURIOSITY
 
 ## Setup
 --------
-On the computer, open and configure a terminal application
-(e.g. HyperTerminal on Microsoft Windows) with these settings:
- - 115200 bauds
- - 8 bits of data
- - No parity
- - 1 stop bit
- - No flow control
+Step needed to set up the example.
 
-## Start the application
---------
- Setting of jumpers on Fieldbus shield board:
-   - Keep JP24 and JP25 open
-   - Short 1&2, 3&4, 5&6 of J11
-
-  For SAM9X60-EK Rev A
-    - IRDA TX pin : PA00 (MBUS_TWD_PA00 on SAM9X60-EK MikroBUS pin 11) 
-    - IRDA RX pin : PA01 (MBUS_TWCK_PA01 on SAM9X60-EK MikroBUS pin 12) 
-    - Connect TX to COM4_TX4 (pin 1 on IRDA Interface J11 of Fieldbus shield board)
-    - Connect RX to COM4_RX4 (pin 3 on IRDA Interface J11 of Fieldbus shield board)
-  
-  For SAM9X60-EK rev. B
-    - IRDA TX pin : PA00 (MBUS_TWD on 40-pin GPIO/RPi connector pin 3)
-    - IRDA RX pin : PA01 (MBUS_TWCK on 40-pin GPIO/RPi connector pin 5)
-    - Connect TX to COM4_TX4 (pin 1 on IRDA Interface J11 of Fieldbus shield board)
-    - Connect RX to COM4_RX4 (pin 3 on IRDA Interface J11 of Fieldbus shield board)
+* Build the program and download it inside the evaluation board.
+* On the computer, open and configure a terminal application (e.g. HyperTerminal
+ on Microsoft Windows) with these settings:
+	- 115200 bauds
+	- 8 bits of data
+	- No parity
+	- 1 stop bit
+	- No flow control
+* Start the application
+* In the terminal window, the following text should appear (values depend on the
+ board and chip used):
+```
+Initializing IrDA interface
+IrDA interface initialized.
 
 Menu:
-t: transmit data throught IrDA
-r: receive data from IrDA
+  t - transmit data throught IrDA
+  r - receive data from IrDA
+```
 
-Tested with IAR and GCC (sram ddram configration)
+__Connections before running this example:__
+- FIELBUS-SHIELD board can be used in this example, there is an IrDA transceiver (TFDU4101) on it
+- Short pin 5 to pin 6 of J11
+
+__Pins to connect to the transceiver:__
+|       board           | TFDU4101 TXD on Fieldbus shield J11 pin 2 | TFDU4101 RXD on Fieldbus shield J11 pin 4 |
+|-----------------------|-------------------------------------------|-------------------------------------------|
+| SAM9X60 EK rev A      | PA00 (MBUS_TWD_PA00 on MikroBUS pin 11)   | PA01 (MBUS_TWCK_PA01 on MikroBUS pin 12)  |
+| SAM9X60 EK rev B      | PA00 (MBUS_TWD on J16 pin 3)              | PA01 (MBUS_TWCK on J16 pin 5)             |
+| SAM9X60 CURIOSITY     | PA00 (MBUS_TWD_PA0 on MikroBUS pin 11)    | PA01 (MBUS_TWCK_PA1 on MikroBUS pin 12)   |
+
+
+Tested with IAR and GCC (sram and ddram configurations)
 
 In order to test this example, the process is the following:
 
