@@ -142,7 +142,7 @@
  *----------------------------------------------------------------------------*/
 
 /** Size in bytes of the packet used for reading data from the USB & USART */
-#define DATAPACKETSIZE (64)
+#define DATAPACKETSIZE (1024)
 
 /** Size in bytes of the buffer used for reading data from the USB & USART */
 #define DATABUFFERSIZE (DATAPACKETSIZE+2)
