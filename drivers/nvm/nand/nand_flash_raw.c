@@ -542,6 +542,13 @@ static uint8_t _read_page_with_pmecc(const struct _nand_flash *nand,
 	/* Start a Data Phase */
 	pmecc_start_data_phase();
 #ifdef CONFIG_HAVE_NFC
+	if (nand_is_using_nfc_sram_scrambling()) {
+		nfc_wait_xfr_done();
+		/* Wait until the kernel of the PMECC is not busy */
+		pmecc_wait_ready();
+		pmecc_auto_disable();
+		return 0;
+	}
 	_data_array_in(nand, nand_is_nfc_sram_enabled(),
 	               data, data_size + pmecc_get_ecc_end_address());
 #else
@@ -587,10 +594,16 @@ static uint8_t _write_page(const struct _nand_flash *nand,
 		/* Start a Data Phase */
 #ifdef CONFIG_HAVE_NFC
 		if (nand_is_nfc_sram_enabled()) {
+			if (nand_is_using_nfc_sram_scrambling()) {
+				//smc_nfc_scrambling_enable();
+			}
 			_data_array_out(nand, true, data, data_size, 0);
-			if (spare)
+			if (nand_is_using_nfc_sram_scrambling()) {
+				smc_nfc_scrambling_disable();
+			}
+			if (spare) {
 				_data_array_out(nand, true, spare, spare_size, data_size);
-
+			}
 			_send_cle_ale(nand, CLE_WRITE_EN | ALE_COL_EN | ALE_ROW_EN | CLE_DATA_EN,
 			              NAND_CMD_WRITE_1, 0, 0, row_address);
 
@@ -660,6 +673,9 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 	if (nand_is_nfc_enabled()) {
 		uint32_t spare_size = nand_model_get_page_spare_size(&nand->model);
 		nfc_configure(data_size, spare_size, false, false);
+		if (nand_is_using_nfc_sram_scrambling()) {
+			smc_nfc_scrambling_enable();
+		}
 	}
 #endif
 
@@ -683,6 +699,9 @@ static uint8_t _write_page_with_pmecc(const struct _nand_flash *nand,
 		              NAND_CMD_WRITE_1, 0, 0, row_address);
 
 		nfc_wait_xfr_done();
+		if (nand_is_using_nfc_sram_scrambling()) {
+			smc_nfc_scrambling_disable();
+		}
 	} else
 #endif
 	{

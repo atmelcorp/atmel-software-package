@@ -40,6 +40,7 @@
 #include "mm/cache.h"
 
 #include "nand_flash.h"
+#include "nand_flash_dma.h"
 #include "nand_flash_common.h"
 #include "nand_flash_ecc.h"
 
@@ -58,6 +59,30 @@ CACHE_ALIGNED static uint8_t spare_buf[NAND_MAX_PAGE_SPARE_SIZE];
 /*---------------------------------------------------------------------- */
 /*         Local functions                                               */
 /*---------------------------------------------------------------------- */
+/**
+ * \brief Transfer data from NAND to the provided buffer.
+ * \param nfc_sram True if the NFC SRAM is to be used, false otherwise
+ * \param buffer   Buffer from which the data will be read
+ * \param size     Number of bytes that will be read
+ */
+static void _data_array_in_nfc(const struct _nand_flash *nand, uint8_t *buffer)
+{
+	uint32_t address = NFC_RAM_ADDR;
+	uint32_t size = nand_model_get_page_data_size(&nand->model);
+	uint32_t i;
+
+	if (nand_is_dma_enabled()) {
+		nand_dma_read(address, (uint32_t)buffer, size);
+	} else {
+		uint8_t *buff8 = buffer;
+		volatile uint8_t *data8 = (volatile uint8_t*)address;
+		for(i = size; i != 0; i--) {
+			*buff8 = *data8;
+			data8++;
+			buff8++;
+		}
+	}
+}
 
 /**
  * \brief Reads the data page of a NANDFLASH chip, and verify that
@@ -74,7 +99,6 @@ static uint8_t ecc_read_page_with_pmecc(const struct _nand_flash *nand,
 {
 	volatile uint32_t pmecc_status;
 	uint8_t error;
-	uint16_t i;
 	uint16_t page_spare_size = nand_model_get_page_spare_size(&nand->model);
 
 	if (!data)
@@ -87,17 +111,40 @@ static uint8_t ecc_read_page_with_pmecc(const struct _nand_flash *nand,
 		return error;
 	}
 	pmecc_status = pmecc_error_status();
+#ifdef CONFIG_SOC_SAMA5D3
 	if (pmecc_status) {
 		/* Check if the spare area was erased */
 		nand_raw_read_page(nand, block, page, NULL, spare_buf);
-		for (i = 0 ; i < page_spare_size; i++) {
+		for (int i = 0 ; i < page_spare_size; i++) {
 			if (spare_buf[i] != 0xff)
 				break;
 		}
 		if (i == page_spare_size)
 			pmecc_status = 0;
 	}
-
+#endif
+#ifdef CONFIG_HAVE_NFC
+	if (nand_is_using_nfc_sram_scrambling()) {
+		if (pmecc_status && pmecc_correction(pmecc_status, NFC_RAM_ADDR)) {
+			pmecc_auto_disable();
+			pmecc_disable();
+			trace_error("ecc_read_page_with_pmecc: at B%d.P%d Unrecoverable data\r\n",
+			block, page);
+			return NAND_ERROR_CORRUPTEDDATA;
+		}
+		smc_nfc_scrambling_enable();
+		_data_array_in_nfc(nand, data);
+		smc_nfc_scrambling_disable();
+	} else {
+	/* bit correction will be done directly in destination buffer. */
+		if (pmecc_status && pmecc_correction(pmecc_status, (uint32_t)data)) {
+			pmecc_auto_disable();
+			pmecc_disable();
+			trace_error("ecc_read_page_with_pmecc: at B%d.P%d Unrecoverable data\r\n",block, page);
+			return NAND_ERROR_CORRUPTEDDATA;
+		}
+	}
+#else
 	/* bit correction will be done directly in destination buffer. */
 	if (pmecc_status && pmecc_correction(pmecc_status, (uint32_t)data)) {
 		pmecc_auto_disable();
@@ -106,7 +153,7 @@ static uint8_t ecc_read_page_with_pmecc(const struct _nand_flash *nand,
 				block, page);
 		return NAND_ERROR_CORRUPTEDDATA;
 	}
-
+#endif
 	pmecc_auto_disable();
 	pmecc_disable();
 	return 0;

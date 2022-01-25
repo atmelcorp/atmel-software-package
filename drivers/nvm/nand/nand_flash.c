@@ -51,6 +51,7 @@ struct _nand_cfg {
 	uint8_t ecc_type;
 	bool nfc_enabled;
 	bool nfc_sram_enabled;
+	bool nfc_sram_scrambling;
 	bool dma_enabled;
 };
 
@@ -199,6 +200,26 @@ void nand_set_nfc_sram_enabled(bool enabled)
 bool nand_is_nfc_sram_enabled(void)
 {
 	return nand_cfg.nfc_sram_enabled;
+}
+
+/**
+ * \brief Enable or Disable use of NFC SRAM scrambling
+ */
+void nand_set_nfc_sram_scrambling(bool enabled)
+{
+	if (enabled && !nand_cfg.nfc_sram_enabled) {
+		trace_warning("Cannot enable NFC SRAM scrambling because NFC sram is disabled\r\n");
+		return;
+	}
+	nand_cfg.nfc_sram_scrambling = enabled;
+}
+
+/**
+ * \brief Return true if NAND work with NFC/SRAM scrambling.
+ */
+bool nand_is_using_nfc_sram_scrambling(void)
+{
+	return nand_cfg.nfc_sram_scrambling;
 }
 
 #endif /* CONFIG_HAVE_NFC */

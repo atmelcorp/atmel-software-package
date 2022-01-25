@@ -113,7 +113,11 @@ extern bool nand_is_nfc_enabled(void);
 extern void nand_set_nfc_sram_enabled(bool enabled);
 
 extern bool nand_is_nfc_sram_enabled(void);
+#ifdef CONFIG_HAVE_SMC_SCRAMBLING
+extern bool nand_is_using_nfc_sram_scrambling(void);
 
+extern void nand_set_nfc_sram_scrambling(bool enabled);
+#endif
 #endif /* CONFIG_HAVE_NFC */
 
 extern void nand_set_dma_enabled(bool enabled);
