@@ -118,6 +118,7 @@
 #include "serial/console.h"
 #include "mm/cache.h"
 #include "led/led.h"
+#include "extram/smc.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -134,6 +135,9 @@ enum {
 #ifdef CONFIG_HAVE_NFC
 	CONF_NFC,
 	CONF_NFC_SRAM,
+#ifdef CONFIG_HAVE_SMC_SCRAMBLING
+	CONF_NFC_SCRAMBLING,
+#endif
 #endif /* CONFIG_HAVE_NFC */
 };
 
@@ -158,6 +162,9 @@ static bool dma_enabled = false;
 #ifdef CONFIG_HAVE_NFC
 static bool nfc_enabled = false;
 static bool nfc_sram_enabled = false;
+#ifdef CONFIG_HAVE_SMC_SCRAMBLING
+static bool nfc_sram_scrambling = false;
+#endif
 #endif /* CONFIG_HAVE_NFC */
 
 /** Number of bits of ECC correction */
@@ -223,6 +230,12 @@ static void _dump_smc_configuration(void)
 				"when data is transferred.\n\r");
 	else
 		printf("-I- SMC NFC Host SRAM is disabled.\n\r");
+#ifdef CONFIG_HAVE_SMC_SCRAMBLING
+	if (nfc_sram_scrambling)
+		printf("-I NFC scrambling enabled \n\r");
+	else 
+		printf("-I NFC scrambling disabled \n\r");
+#endif
 #endif /* CONFIG_HAVE_NFC */
 }
 
@@ -270,6 +283,16 @@ static void _smc_configure(uint8_t mode)
 		}
 #endif
 		break;
+#ifdef CONFIG_HAVE_SMC_SCRAMBLING
+	case CONF_NFC_SCRAMBLING:
+		if (nfc_enabled == true) {
+			if (nfc_sram_scrambling == true)
+				nfc_sram_scrambling = false;
+			else
+				nfc_sram_scrambling = true;
+		}
+		break;
+#endif
 #endif /* CONFIG_HAVE_NFC */
 	}
 
@@ -278,6 +301,9 @@ static void _smc_configure(uint8_t mode)
 #ifdef CONFIG_HAVE_NFC
 	nand_set_nfc_enabled(nfc_enabled);
 	nand_set_nfc_sram_enabled(nfc_sram_enabled);
+#ifdef CONFIG_HAVE_SMC_SCRAMBLING
+	nand_set_nfc_sram_scrambling(nfc_sram_scrambling);
+#endif
 #endif /* CONFIG_HAVE_NFC */
 }
 
@@ -308,6 +334,19 @@ static void _page_access(void)
 	} else {
 		printf("-I- Read data matches buffer.\n\r");
 	}
+#ifdef CONFIG_HAVE_SMC_SCRAMBLING
+	nand_set_nfc_sram_scrambling(false);
+	printf("-I- Read block when scrambling is disabled\n\r");
+	memset(page_buffer, 0, page_size);
+	nand_skipblock_read_page(&nand, block, page, page_buffer, 0);
+	/* Test if the read contains expected data */
+	if (memcmp(pattern_buffer, page_buffer, page_size)) {
+		printf("-I- Read data is scrambled, test passed\n\r");
+	} else {
+		printf("-I- Read data matches buffer, test failed.\n\r");
+	}
+	nand_set_nfc_sram_scrambling(true);
+#endif
 }
 
 /**
@@ -358,7 +397,11 @@ static void _write_page_with_simulated_error_bits(void)
 	pmecc_disable();
 	nand_set_ecc_type(ECC_NO);
 	nand_raw_read_page(&nand, block, page, 0, spare_buffer);
-
+#ifdef CONFIG_HAVE_SMC_SCRAMBLING
+	if (nand_is_using_nfc_sram_scrambling()) {
+		nand_raw_read_page(&nand, block, page, page_buffer, 0);
+	}
+#endif
 	printf("-I- Erase page\n\r");
 	nand_skipblock_erase_block(&nand, block, SCRUB_ERASE);
 
@@ -534,6 +577,10 @@ static void _display_menu(uint8_t menu_idx)
 
 	x = nfc_sram_enabled ? 'X' : ' ';
 	printf("[%c] h: NFC host sram\n\r", x);
+#ifdef CONFIG_HAVE_SMC_SCRAMBLING
+	x = nfc_sram_scrambling ? 'X' : ' ';
+	printf("[%c] s: NFC sram scrambling\n\r", x);
+#endif
 #endif /* CONFIG_HAVE_NFC */
 
 	printf("\n\r");
@@ -581,26 +628,35 @@ static void _loop_pmecc(void)
 	ecc_type = ECC_PMECC;
 	nand_set_ecc_type(ecc_type);
 	_configure_correction(1);
-
+#ifdef CONFIG_HAVE_SMC_SCRAMBLING
+	smc_scrambling_set_key(0x11223344, 0xaabbccdd);
+#endif
 	for (;;) {
 		key = console_get_char();
 		switch (key) {
 		case 'd':
 		case 'D':
 			_smc_configure(CONF_DMA);
-			_display_menu(3);
+			_display_menu(2);
 			break;
 #ifdef CONFIG_HAVE_NFC
 		case 'n':
 		case 'N':
 			_smc_configure(CONF_NFC);
-			_display_menu(3);
+			_display_menu(2);
 			break;
 		case 'h':
 		case 'H':
 			_smc_configure(CONF_NFC_SRAM);
-			_display_menu(3);
+			_display_menu(2);
 			break;
+#ifdef CONFIG_HAVE_SMC_SCRAMBLING
+		case 's':
+		case 'S':
+			_smc_configure(CONF_NFC_SCRAMBLING);
+			_display_menu(2);
+			break;
+#endif
 #endif /* CONFIG_HAVE_NFC */
 		case '0':
 		case '1':
@@ -643,7 +699,7 @@ static void _loop_pmecc(void)
 			break;
 		case 'm':
 		case 'M':
-			_display_menu(3);
+			_display_menu(2);
 			break;
 		case 'b':
 		case 'B':
@@ -686,6 +742,13 @@ static void _loop_raw(void)
 			_smc_configure(CONF_NFC_SRAM);
 			_display_menu(1);
 			break;
+#ifdef CONFIG_HAVE_SMC_SCRAMBLING
+		case 's':
+		case 'S':
+			_smc_configure(CONF_NFC_SCRAMBLING);
+			_display_menu(1);
+			break;
+#endif
 #endif /* CONFIG_HAVE_NFC */
 		case 'p':
 		case 'P':
@@ -787,6 +850,9 @@ int main(void)
 #ifdef CONFIG_HAVE_NFC
 	nfc_enabled = false;
 	nfc_sram_enabled = false;
+#ifdef CONFIG_HAVE_SMC_SCRAMBLING
+	nfc_sram_scrambling = false;
+#endif
 #endif /* CONFIG_HAVE_NFC */
 	sector_idx = 0;
 

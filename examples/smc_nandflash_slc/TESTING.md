@@ -53,6 +53,7 @@ Menu: press a key to select test mode.
  --- NFC Configuration
 [ ] n: NFC
 [ ] h: NFC host sram
+[ ] s: NFC sram scrambling * For sama5d2 only
 [ ] d: DMA
 PMECC Menu:
 ------
