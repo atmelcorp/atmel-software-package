@@ -83,4 +83,17 @@ extern void smc_scrambling_disable(void);
  */
 extern bool smc_scrambling_is_enabled(void);
 
+
+#ifdef CONFIG_HAVE_SMC_SCRAMBLING
+/**
+ * \brief Enables SMC nfc scrambling
+ */
+extern void smc_nfc_scrambling_enable(void);
+
+/**
+ * \brief Disables SMC nfc scrambling
+ */
+extern void smc_nfc_scrambling_disable(void);
+#endif
+
 #endif /* SMC_H_ */

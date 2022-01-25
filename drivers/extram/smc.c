@@ -143,4 +143,15 @@ bool smc_scrambling_is_enabled(void)
 	return SMC->SMC_OCMS & SMC_OCMS_SMSE;
 }
 
+void smc_nfc_scrambling_enable(void)
+{
+	SMC->SMC_OCMS &= ~SMC_OCMS_SMSE;
+	SMC->SMC_OCMS |= SMC_OCMS_SRSE;
+}
+
+void smc_nfc_scrambling_disable(void)
+{
+	SMC->SMC_OCMS &= ~SMC_OCMS_SRSE;
+}
+
 #endif /* CONFIG_HAVE_SMC_SCRAMBLING */
