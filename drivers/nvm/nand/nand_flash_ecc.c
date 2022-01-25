@@ -112,15 +112,26 @@ static uint8_t ecc_read_page_with_pmecc(const struct _nand_flash *nand,
 	}
 	pmecc_status = pmecc_error_status();
 #ifdef CONFIG_SOC_SAMA5D3
+	uint32_t i;
+	uint8_t set_nfc = 0;
 	if (pmecc_status) {
+		if (nand_is_using_nfc_sram_scrambling()) {
+			if (nand_is_nfc_sram_enabled()) {
+				nand_set_nfc_sram_enabled(false);
+				set_nfc = 1;
+			}
+		}
 		/* Check if the spare area was erased */
 		nand_raw_read_page(nand, block, page, NULL, spare_buf);
-		for (int i = 0 ; i < page_spare_size; i++) {
+		for (i = 0 ; i < page_spare_size; i++) {
 			if (spare_buf[i] != 0xff)
 				break;
 		}
 		if (i == page_spare_size)
 			pmecc_status = 0;
+		if (set_nfc) {
+			nand_set_nfc_sram_enabled(true);
+		}
 	}
 #endif
 #ifdef CONFIG_HAVE_NFC
