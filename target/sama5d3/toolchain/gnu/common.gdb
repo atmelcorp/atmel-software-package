@@ -24,7 +24,7 @@ end
 # to avoid corrupted RAM data on soft reset.
 define disable_ddr
   set *0xFFFFFC04 = 0x4
-  set *0xFFFFFC14 = (1 << 16)
+  set *0xFFFFFD04 = (1 << 17)
 end
 
 define reset_registers
