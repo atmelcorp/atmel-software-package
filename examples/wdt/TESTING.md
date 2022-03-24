@@ -34,6 +34,7 @@ system.
 ## Supported targets
 --------------------
 * SAM9X60-EK
+* SAM9X60-CURIOSITY
 * SAMA5D2-PTC-EK
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK
