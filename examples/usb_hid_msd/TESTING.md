@@ -20,6 +20,7 @@ ramdisk and input characters through board.
 --------------------
 * SAM9XX5-EK
 * SAM9X60-EK
+* SAM9X60-CURIOSITY
 * SAMA5D2-PTC-EK
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK

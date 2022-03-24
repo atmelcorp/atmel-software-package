@@ -21,6 +21,7 @@ software.
 --------------------
 * SAM9XX5-EK
 * SAM9X60-EK
+* SAM9X60-CURIOSITY
 * SAMA5D2-PTC-EK
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK
@@ -62,13 +63,3 @@ Open serial | Open serial through host software e.g. HyperTerminal on Microsoft 
 Format ramdisk | Format ramdisk | PASSED | PASSED
 Write and read disk | Create a file on disk, write some string to file and save, close the file and then read the content | PASSED | PASSED
 
-
-# Log
------
-
-## Current version
-------------------
- - v1.3
-
-## History
-----------

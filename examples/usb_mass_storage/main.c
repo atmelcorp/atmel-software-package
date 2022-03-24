@@ -187,6 +187,12 @@
 #  define SLOT0_ID                    ID_SDMMC0
 #  define SLOT0_TAG                   "(SD/MMC)"
 #  define BOARD_NUM_SDMMC             (1)
+#elif defined(CONFIG_BOARD_SAM9X60_CURIOSITY)
+#  define SLOT0_ID                    ID_SDMMC0
+#  define SLOT0_TAG                   "(microSD)"
+#  define SLOT1_ID                    ID_SDMMC1
+#  define SLOT1_TAG                   "(SD/MMC)"
+#  define BOARD_NUM_SDMMC             (2)
 #elif defined(CONFIG_BOARD_SAME70_XPLAINED) ||\
 	  defined(CONFIG_BOARD_SAMV71_XPLAINED)
 #  define SLOT0_ID                    ID_HSMCI0

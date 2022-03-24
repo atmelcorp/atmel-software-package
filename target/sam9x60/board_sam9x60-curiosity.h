@@ -160,6 +160,10 @@
 
 /* =================== USB device definition =================== */
 
+/** USB-A port VBus detect pin */
+#define PIN_USB_VBUS \
+	{ PIO_GROUP_C, PIO_PC24, PIO_INPUT, PIO_IT_BOTH_EDGE }
+
 /** USB attributes configuration descriptor (bus or self powered,
  * remote wakeup) */
 #define BOARD_USB_BMATTRIBUTES \

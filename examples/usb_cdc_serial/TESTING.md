@@ -20,6 +20,7 @@ to the board, and forward to USART port of board.
 --------------------
 * SAM9XX5-EK
 * SAM9X60-EK
+* SAM9X60-CURIOSITY
 * SAMA5D2-PTC-EK
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK
@@ -47,6 +48,10 @@ Connect USART0
 ### sam9x60-ek
 --------------------
 Connect FLEXUSART2 (40-pin GPIO/RPi connector: RX on pin 26, TX on pin 24)
+
+### sam9x60-curiosity
+--------------------
+Connect FLEXUSART2 (40-pin GPIO connector J16: RX on pin 26, TX on pin 24)
 
 ### sama5d2-ptc-ek
 --------------------
