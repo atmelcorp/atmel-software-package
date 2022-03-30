@@ -29,6 +29,7 @@ stack and the webserver example.
 * SAME70-XPLAINED
 * SAMV71-XPLAINED
 * SAM9X60-EK
+* SAM9X60-CURIOSITY
 
 ## Setup
 --------
