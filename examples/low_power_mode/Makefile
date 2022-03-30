@@ -30,7 +30,7 @@
 AVAILABLE_TARGETS = sama5d2-ptc-ek sama5d2-xplained sama5d27-som1-ek \
                     sama5d3-xplained sama5d3-ek \
                     sam9x35-ek sam9x25-ek sam9g35-ek sam9g25-ek sam9g15-ek\
-                    sam9x60-ek \
+                    sam9x60-ek sam9x60-curiosity \
                     sama5d4-xplained sama5d4-ek
 
 ifneq (,$(filter $(TARGET), sam9x35-ek sam9x25-ek sam9g35-ek sam9g25-ek sam9g15-ek))
@@ -46,7 +46,7 @@ BINNAME = low_power_mode
 CONFIG_TWI = y
 CONFIG_LED = y
 CONFIG_RAMCODE = y
-ifneq (,$(filter $(TARGET), sam9x60-ek))
+ifneq (,$(filter $(TARGET), sam9x60-ek sam9x60-curiosity))
 else
 	CONFIG_TIMER = y
 endif
