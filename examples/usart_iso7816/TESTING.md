@@ -31,6 +31,7 @@ definitions according to the hardware used.
 * SAMA5D4-EK
 * SAMA5D4-XPLAINED
 * SAM9X60-EK
+* SAM9X60-CURIOSITY
 
 ## Setup
 --------
@@ -59,6 +60,7 @@ SAM9XX5-EK        | PA1A (J1 pin 7)   | PA2A (J1 pin 9)   | PA4A (J1 pin 13)  | 
 SAMV71-XPLAINED   | PB0 (EXT1 pin 13) | PB3 (EXT1 pin 5)  | PB13(ADCH pin 5)  | GND      | PB1 (EXT1 pin 14) |
 SAM9X60-EK Rev A  | PA11 (J15 pin 5)  | PA0 (J15 pin 11)  | PA13 (J15 pin 4)  | GND      | PA12 (J15 pin 6)  |
 SAM9X60-EK rev. B | PA11 (J14 pin 5)  | PA0 (J16 pin 3)   | PA13 (J14 pin 4)  | GND      | PA12 (J14 pin 6)  |
+SAM9X60-CURIOSITY | PA11 (J8 pin 5)   | PA0 (J8 pin 11)   | PA13 (J8 pin 4)   | GND      | PA12 (J8 pin 6)   |
 
 If necessary, another pin can be connected on the card reader for detecting the
 insertion and removal: 7816_IRQ.

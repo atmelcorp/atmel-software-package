@@ -8,8 +8,7 @@ This example aims to test the LIN interface.
 # Example Description
 ---------------------
 This example demonstrates how to use the LIN peripheral.
-The LIN interface is integrated in the FLEXCOM peripheral in SAMA5D2x
-micro-controllers.
+The LIN interface is integrated in the FLEXCOM peripheral in SAMA5D2x and SAM9X60 MPUs.
 
 # Test
 ------
@@ -17,6 +16,7 @@ micro-controllers.
 --------------------
 * SAMA5D2-XPLAINED
 * SAM9X60-EK
+* SAM9X60-CURIOSITY
 
 ## Setup
 --------
@@ -45,6 +45,27 @@ Step needed to set up the example.
    Q: Stop demo and Quit
   ------
 ```
+
+__Connections before running this example:__
+- FIELBUS-SHIELD board can be used in this example, there are 2 LIN transceivers (NCV7321D10G) on it.
+- Mount the FIELBUS-SHIELD to the XPLAINED board or connect USART signals through wires.
+- Connect the LIN and VBB(with power supply) pins of the two transceivers.
+
+__Pins to connect to NCV7321D10G 1:__
+|       board           | TXD                        | RXD                        | EN (Enable input)              |
+|-----------------------|--------------------------- | -------------------------- | ------------------------------ |
+| fieldbus_shield LIN 1 | LIN_1_TXD   JP22 pin 6     | LIN_1_RXD   JP19 pin 6     | LIN_1_RTS   JP26 pin 6         |
+| SAM9X60 EK rev A      | PA00 (MikroBUS J15 pin 11) | PA01 (MikroBUS J15 pin 12) | PA02 (40-pin GPIO, J17 pin 11) |
+| SAM9X60 EK rev B      | PA00 (RPI J16 pin 3)       | PA01 (RPI J16 pin 5)       | PA02 (40-pin GPIO, J17 pin 11) |
+| SAM9X60 CURIOSITY     | PA12 (MikroBUS J8 pin 7)   | PA11 (J8 pin 6)            | PA00 (J8 pin 11)               |
+
+__Pins to connect to NCV7321D10G 2:__
+|       board           | TXD                        | RXD                        | EN (Enable input)              |
+|-----------------------|--------------------------- | -------------------------- | ------------------------------ |
+| fieldbus_shield LIN 2 | LIN_2_TXD   JP23 pin 6     | LIN_2_RXD   JP20 pin 6     | LIN_2_RTS   JP27 pin 6         |
+| SAM9X60 EK rev A      | PA07 (J17 pin 24)          | PA08 (J17 pin 26)          | PA03 (J17 pin 13)              |
+| SAM9X60 EK rev B      | PA07 (RPI J16 pin 24)      | PA08 (RPI J16 pin 26)      | PA03 (RPI J16 pin 15)          |
+| SAM9X60 CURIOSITY     | PA22 (RPI J9 pin 19)       | PA21 (RPI J9 pin 21)       | PA07 (RPI J9 pin 24)           |
 
 Tested with IAR and GCC (sram and ddram configurations)
 

@@ -27,7 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the USART LIN example
-AVAILABLE_TARGETS = sam9x60-ek sama5d2*
+AVAILABLE_TARGETS = sam9x60-ek sam9x60-curiosity sama5d2*
 
 TOP := ../..
 

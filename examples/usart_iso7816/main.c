@@ -171,6 +171,8 @@
 #include "config_samv72-xplained.h"
 #elif defined(CONFIG_BOARD_SAM9X60_EK)
 #include "config_sam9x60-ek.h"
+#elif defined(CONFIG_BOARD_SAM9X60_CURIOSITY)
+#include "config_sam9x60-curiosity.h"
 #else
 #error Unsupported board!
 #endif
