@@ -19,6 +19,7 @@ waiting for SPI slave & DBGU input.
 --------------------
 * SAM9XX5-EK
 * SAM9X60-EK
+* SAM9X60-CURIOSITY
 * SAMA5D2-XPLAINED
 * SAMA5D27-SOM1-EK
 * SAMA5D3-EK
@@ -123,6 +124,15 @@ SPI0_MISO (PA11 on J15 pin 5)  | SPI1_MISO (PA01 on J15 pin 12)
 SPI0_MOSI (PA12 on J15 pin 6)  | SPI1_MOSI (PA00 on J15 pin 11)
 SPI0_SPCK (PA13 on J15 pin 4)  | SPI1_SPCK (PA04 on J17 pin 15)
 SPI0_NPCS0 (PA14 on J15 pin 3) | SPI1_NPCS1 (PA03 on J17 pin 13)
+
+__Connection for SAM9X60 CURIOSITY:__
+
+MASTER (SPI0)                  | SLAVE (SPI1)
+------------------------------ | ------------------------------
+SPI0_MISO (PA11 on J8 pin 5)  | SPI1_MISO (PA22 on J9 pin 19)
+SPI0_MOSI (PA12 on J8 pin 6)  | SPI1_MOSI (PA21 on J9 pin 21)
+SPI0_SPCK (PA13 on J8 pin 4)  | SPI1_SPCK (PA23 on J9 pin 23)
+SPI0_NPCS0 (PA14 on J8 pin 3) | SPI1_NPCS1 (PA8 on J9 pin 26)
 
 Tested with IAR and GCC (sram and ddram configurations)
 

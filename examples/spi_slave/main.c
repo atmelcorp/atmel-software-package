@@ -190,6 +190,8 @@
 	#include "config_sam9xx5-ek.h"
 #elif defined(CONFIG_BOARD_SAM9X60_EK)
 	#include "config_sam9x60-ek.h"
+#elif defined(CONFIG_BOARD_SAM9X60_CURIOSITY)
+	#include "config_sam9x60-ek.h"
 #else
 	#error Unsupported board!
 #endif
