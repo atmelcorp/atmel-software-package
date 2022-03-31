@@ -27,7 +27,7 @@
 # ----------------------------------------------------------------------------
 
 # Makefile for compiling the smc_nandflash_slc example
-AVAILABLE_TARGETS = sam9x60-ek \
+AVAILABLE_TARGETS = sam9x60-ek sam9x60-curiosity \
                     sama5d2-ptc-ek \
                     sama5d3-xplained sama5d3-ek \
                     sama5d4-xplained sama5d4-ek \
