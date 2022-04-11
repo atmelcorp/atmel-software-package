@@ -65,6 +65,7 @@ CACHE_ALIGNED static uint8_t spare_buf[NAND_MAX_PAGE_SPARE_SIZE];
  * \param buffer   Buffer from which the data will be read
  * \param size     Number of bytes that will be read
  */
+#ifdef CONFIG_HAVE_NFC
 static void _data_array_in_nfc(const struct _nand_flash *nand, uint8_t *buffer)
 {
 	uint32_t address = NFC_RAM_ADDR;
@@ -83,7 +84,7 @@ static void _data_array_in_nfc(const struct _nand_flash *nand, uint8_t *buffer)
 		}
 	}
 }
-
+#endif
 /**
  * \brief Reads the data page of a NANDFLASH chip, and verify that
  * the data is valid by PMECC module. If one
