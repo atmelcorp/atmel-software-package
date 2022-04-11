@@ -201,7 +201,7 @@ bool nand_is_nfc_sram_enabled(void)
 {
 	return nand_cfg.nfc_sram_enabled;
 }
-
+#ifdef CONFIG_HAVE_SMC_SCRAMBLING
 /**
  * \brief Enable or Disable use of NFC SRAM scrambling
  */
@@ -221,7 +221,7 @@ bool nand_is_using_nfc_sram_scrambling(void)
 {
 	return nand_cfg.nfc_sram_scrambling;
 }
-
+#endif
 #endif /* CONFIG_HAVE_NFC */
 
 /**
