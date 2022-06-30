@@ -239,7 +239,7 @@
 /* =================== Display device definition =================== */
 
 /** PIO pins for LCD */
-#define BOARD_LCD_PINS              PINS_LCD
+#define BOARD_LCD_PINS              PINS_LCD_IOS1
 
 /** Display width in pixels. */
 #define BOARD_LCD_WIDTH             800

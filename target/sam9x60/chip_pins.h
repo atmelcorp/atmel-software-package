@@ -123,7 +123,10 @@
 /* ========== Pio PIN definition for LCDC peripheral ========== */
 
 /* LCD 24 bits */
-#define PINS_LCD { { PIO_GROUP_C, 0x7DFFFFFF, PIO_PERIPH_A, PIO_DEFAULT } }
+#define PINS_LCD_IOS1 { { PIO_GROUP_C, 0x7DFFFFFF, PIO_PERIPH_A, PIO_DEFAULT } }
+
+/* LCD 18 bits */
+#define PINS_LCD_IOS2 { { PIO_GROUP_C, 0x7DFCFCFC, PIO_PERIPH_A, PIO_DEFAULT } }
 
 /* ========== Pio PIN definition for ISI peripheral ========== */
 

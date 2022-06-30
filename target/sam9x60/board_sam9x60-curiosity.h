@@ -219,6 +219,35 @@
 #define BOARD_NANDFLASH_PINS      PINS_NAND8
 #define BOARD_NANDFLASH_BUS_WIDTH 8
 
+/* =================== Display device definition =================== */
+
+/* SAM9X60-Curiosity REV 1,2,3 have an on-board RGB to MIPI DSI Display
+ * Interface Bridge and a MIPI-DSI connector.
+ * SAM9X60-Curiosity REV 4 has a RGB666 (18-bit data) parallel LCD connector. */
+
+/** PIO pins for LCD */
+#define BOARD_LCD_PINS            PINS_LCD_IOS2
+
+/** Display width in pixels. */
+#define BOARD_LCD_WIDTH           800
+/** Display height in pixels. */
+#define BOARD_LCD_HEIGHT          480
+/** Frame rate in Hz. */
+#define BOARD_LCD_FRAMERATE       40
+
+/** Vertical front porch in number of lines. */
+#define BOARD_LCD_TIMING_VFP      22
+/** Vertical back porch in number of lines. */
+#define BOARD_LCD_TIMING_VBP      21
+/** Vertical pulse width in number of lines. */
+#define BOARD_LCD_TIMING_VPW      2
+/** Horizontal front porch in LCDDOTCLK cycles. */
+#define BOARD_LCD_TIMING_HFP      64
+/** Horizontal back porch in LCDDOTCLK cycles. */
+#define BOARD_LCD_TIMING_HBP      64
+/** Horizontal pulse width in LCDDOTCLK cycles. */
+#define BOARD_LCD_TIMING_HPW      128
+
 /* ================== CAN bus definition ====================== */
 
 #define BOARD_CAN_BUS0      CAN0
