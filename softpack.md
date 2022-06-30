@@ -221,7 +221,7 @@ freertos_uip           | OK         | OK         | OK                | TODO     
 getting_started        | OK         | OK         | OK                | OK              | OK
 isc                    | x          | x          | x                 | x               | x
 isi                    | x          | x          | x                 | x               | x
-lcd                    | OK         | OK         | x                 | x               | TODO
+lcd                    | OK         | OK         | OK                | x               | TODO
 low_power_mode         | OK         | OK         | OK                | TODO            | TODO
 otp                    | x          | OK         | OK                | x               | x
 pdmic                  | x          | x          | x                 | TODO            | TODO
