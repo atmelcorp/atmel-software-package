@@ -39,9 +39,10 @@ Dependencies:
 - GNU make (from MinGW, Cygwin or GnuWin32) for IAR project generation
 - mktemp (from MinGW, Cygwin or GnuWin32) for IAR project generation
 
-### Windows and Linux with the MPLAB **MPLAB X IDE** toolchain
+### Windows and Linux with the MPLAB **MPLAB X IDE & MPLAB XC32** toolchain
 Dependencies:
-- MPLAB X IDE (Tested on version 5.50)
+- MPLAB X IDE (Tested on version 6.05)
+- MPLAB XC32 (Tested on version 4.20)
 - bash (from MinGW, Cygwin or GnuWin32) for MPLAB project generation
 - GNU make (from MinGW, Cygwin or GnuWin32) for MPLAB project generation
 - mktemp (from MinGW, Cygwin or GnuWin32) for MPLAB project generation
