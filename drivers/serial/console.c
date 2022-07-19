@@ -120,6 +120,15 @@ void console_example_info(const char *example_name)
 
 	/* Output example information */
 	printf("-- %s --\r\n", example_name);
+#if defined(__ICCARM__)
+	printf("Compiled by IAR\r\n");
+#elif defined(__GNUC__)
+#if defined(__XC32)
+	printf("Compiled by XC32 v%d\r\n", __XC32_VERSION);
+#else
+	printf("Compiled by GCC\r\n");
+#endif
+#endif
 #ifndef NDEBUG
 	printf("Softpack v%s\r\n", SOFTPACK_VERSION);
 	printf("Built for %s\r\n", get_board_name());
@@ -296,3 +305,20 @@ void console_echo(uint8_t c)
 		console_put_char(c);
 	}
 }
+
+#if defined(__XC32)
+int _mon_getc(int canblock);
+void _mon_putc(char c);
+
+int _mon_getc(int canblock)
+{
+	volatile int c = 0;
+	c = console_get_char();
+	return c;
+}
+
+void _mon_putc(char c)
+{
+	console_put_char(c);
+}
+#endif
