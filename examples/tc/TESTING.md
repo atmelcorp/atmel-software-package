@@ -20,8 +20,8 @@ The code can be roughly broken down as follows:
  - Configure capture Register A be loaded when rising edge of TIOA occurs.
  - Configure capture Register B be loaded when failing edge of TIOA occurs.
  - Configure an interrupt for TC and enable the RB load interrupt.
- - 'c' start capture.
- - 's' will stop capture,and dump the informations what have been captured.
+ - 'c' start capture, show the frequency and duty cycle of the wave after it is captured.
+ - 'p'/'d' to change TC capture mode to polling/DMA.
 
 # Test
 ------
@@ -82,14 +82,15 @@ board and chip used):
 Menu :
   -----
   Output waveform property:
-  0: Set Frequency =  80 Hz, Duty Cycle = 30%
+  0: Set Frequency =   80 Hz, Duty Cycle = 30%
   1: Set Frequency =  180 Hz, Duty Cycle = 50%
   2: Set Frequency =  400 Hz, Duty Cycle = 75%
   3: Set Frequency =  500 Hz, Duty Cycle = 80%
   4: Set Frequency = 2000 Hz, Duty Cycle = 55%
+  5: Set Frequency = 5000 Hz, Duty Cycle = 20%
   -------------------------------------------
+  [p|d] to set capture mode (polling/dma)
   c: Capture waveform from TC capture channel
-  s: Stop capture and display informations what have been captured
   h: Display menu
   ------
 ```

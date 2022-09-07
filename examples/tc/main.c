@@ -59,8 +59,8 @@
  * <li>Configure capture Register A be loaded when rising edge of TIOA occurs.
  * <li>Configure capture Register B be loaded when failing edge of TIOA occurs.
  * <li>Configure an interrupt for TC and enable the RB load interrupt.
- * <li> 'c' start capture.
- * <li> 's' will stop capture,and dump the informations what have been captured.
+ * <li> 'c' start capture, show the frequency and duty cycle of the wave after it is captured.
+ * <li> 'p'/'d' to change TC capture mode to polling/DMA.
  * </ul>
  *
  * \section Usage
@@ -97,9 +97,10 @@
  *       2: Set Frequency =  400 Hz, Duty Cycle = 75%
  *       3: Set Frequency =  500 Hz, Duty Cycle = 80%
  *       4: Set Frequency = 2000 Hz, Duty Cycle = 55%
+ *       5: Set Frequency = 5000 Hz, Duty Cycle = 20%
  *       -------------------------------------------
+ *       [p|d] to set capture mode (polling/dma)
  *       c: Capture waveform from TC capture channel
- *       s: Stop capture and display informations what have been captured
  *       h: Display menu
  *     ------
  *    \endcode
