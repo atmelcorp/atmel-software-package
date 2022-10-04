@@ -150,7 +150,7 @@ static struct mcan_config mcan_cfg = {
 	.buf_size_tx = 64,
 };
 
-static struct _cand_ram_item mcan_ram_item[MSG_RAM_ITEM_CNT];
+static struct _cand_ram_item mcan_ram_item[CAN_IFACE_COUNT][MSG_RAM_ITEM_CNT];
 
 static struct _mcan_desc mcan_desc[CAN_IFACE_COUNT];
 
@@ -1211,8 +1211,8 @@ int mcand_configure(struct _mcan_desc* desc)
 	index += mcan_cfg.item_count[MCAN_RAM_TX_BUFFER];
 	mcan_cfg.ram_index[MCAN_RAM_TX_FIFO]    = index;
 	index += mcan_cfg.item_count[MCAN_RAM_TX_FIFO];
-	assert(index <= ARRAY_SIZE(mcan_ram_item));
-	desc->ram_item = mcan_ram_item;
+	assert(index <= ARRAY_SIZE(mcan_ram_item[0]));
+	desc->ram_item = mcan_ram_item[mcan_get_index(mcan)];
 
 	err = mcan_initialize(desc, &mcan_cfg);
 	if (err < 0) {
