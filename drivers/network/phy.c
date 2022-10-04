@@ -193,7 +193,7 @@ static int phy_reset_omsor(const struct _phy* phy)
 		phy->op->phy_read(phy->desc->addr, phy->phy_addr, GMII_OMSOR, &temp,
 		                  phy->desc->timeout.idle);
 		timeout--;
-	} while ((temp != GMII_OMSOR_RMII_OVERRIDE) && timeout);
+	} while ((temp != value) && timeout);
 
 	phy->op->disable_mido(phy->desc->addr);
 
@@ -347,16 +347,18 @@ int phy_auto_negotiate_wait_for_completion(const struct _phy* phy)
 
 	uint16_t base_tc, base_ts;
 
-	err = phy->op->phy_read(phy->desc->addr, phy->desc->phy_addr,
-				GMII_1000BTCR, &base_tc, phy->desc->timeout.idle);
-	if (err < 0)
-		goto exit;
+	if (phy->dev->model == PHY_KSZ9021 || phy->dev->model == PHY_KSZ9031) {
+		err = phy->op->phy_read(phy->desc->addr, phy->desc->phy_addr,
+					GMII_1000BTCR, &base_tc, phy->desc->timeout.idle);
+		if (err < 0)
+			goto exit;
 
-	base_tc |= GMII_1000BTCR_1000BASET_HD | GMII_1000BTCR_1000BASET_FD;
-	err = phy->op->phy_write(phy->desc->addr, phy->desc->phy_addr,
-				 GMII_1000BTCR, base_tc, phy->desc->timeout.idle);
-	if (err < 0)
-		goto exit;
+		base_tc |= GMII_1000BTCR_1000BASET_HD | GMII_1000BTCR_1000BASET_FD;
+		err = phy->op->phy_write(phy->desc->addr, phy->desc->phy_addr,
+					 GMII_1000BTCR, base_tc, phy->desc->timeout.idle);
+		if (err < 0)
+			goto exit;
+	}
 
 	/* Wait for auto-negotiation completion */
 	tick_start = timer_get_tick();
