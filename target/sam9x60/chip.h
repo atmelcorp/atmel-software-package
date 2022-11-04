@@ -95,7 +95,7 @@ struct _console_cfg;
 #define L1_CACHE_WAYS (4)
 
 /** Number of sets of L1 data cache */
-#define L1_CACHE_SETS (128)
+#define L1_CACHE_SETS (256)
 
 /** Build a set/way parameter for cache operations */
 #define L1_CACHE_SETWAY(set, way) (((set) << 5) | ((way) << 30))
