@@ -29,6 +29,7 @@
 ifeq ($(CONFIG_LIB_LWIP),y)
 
 CFLAGS_INC += -I$(TOP)/lib/lwip
+CFLAGS_DEFS += -DLWIP_NO_UNISTD_H=1
 
 lib-y += lib/lwip.a
 
