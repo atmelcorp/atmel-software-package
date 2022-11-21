@@ -107,7 +107,7 @@ SECTIONS
 	} >sram
 
 	.data : {
-		*(.data .data.*);
+		*(.data .data*);
 	} > sram
 
 	/* .ARM.exidx is sorted, so has to go in its own output section.  */
@@ -126,26 +126,26 @@ SECTIONS
 	.region_cache_aligned_const :
 	{
 		. = ALIGN(32);
-		*(.region_cache_aligned_const)
+		*(.region_cache_aligned_const*)
 		. = ALIGN(32);
 	} >sram
 
 	.region_sram (NOLOAD) :
 	{
 		. = ALIGN(4);
-		*(.region_sram)
+		*(.region_sram*)
 	} >sram
 
 	.region_ddr (NOLOAD) :
 	{
 		. = ALIGN(4);
-		*(.region_ddr)
+		*(.region_ddr*)
 	} >ddr
 
 	.region_nocache (NOLOAD) :
 	{
 		. = ALIGN(4);
-		*(.region_nocache)
+		*(.region_nocache*)
 	} >ddr_nocache
 
 	/* .bss section which is used for uninitialized data */
@@ -164,14 +164,14 @@ SECTIONS
 	.region_cache_aligned (NOLOAD) :
 	{
 		. = ALIGN(32);
-		*(.region_cache_aligned)
+		*(.region_cache_aligned*)
 		. = ALIGN(32);
 	} >sram
 
 	.region_ddr_cache_aligned (NOLOAD) :
 	{
 		. = ALIGN(32);
-		*(.region_ddr_cache_aligned)
+		*(.region_ddr_cache_aligned*)
 		. = ALIGN(32);
 	} >ddr
 
