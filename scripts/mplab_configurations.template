@@ -46,6 +46,14 @@
         <ScriptingSetting key="boot.path" value="__REPLACE_BOOTSTRAP_PATH__"/>
         <ScriptingSetting key="boot.prj" value=""/>
       </ScriptingSettings>__REPLACE_LINK_SCRIPT_EX__
+      <ARM-AS-PRE>
+        <property key="announce-version" value="false"/>
+        <property key="include-paths" value=""/>
+        <property key="preprocessor-macros"__REPLACE_DEFINES__
+/>
+        <property key="preprocessor-macros-undefined" value=""/>
+        <property key="suppress-warnings" value="false"/>
+      </ARM-AS-PRE>
       <ARM-GCC>
         <property key="additional-warnings" value="true"/>
         <property key="called-functions-located" value="true"/>
@@ -148,7 +156,8 @@
         <property key="oXC32asm-list-to-file" value="false"/>
         <property key="omit-debug-dirs" value="false"/>
         <property key="omit-forms" value="false"/>
-        <property key="preprocessor-macros" value=""/>
+        <property key="preprocessor-macros"__REPLACE_DEFINES__
+/>
         <property key="warning-level" value=""/>
       </C32-AS>
       <C32-CO>
