@@ -34,7 +34,7 @@ AVAILABLE_TARGETS = sama5d2-ptc-ek sama5d2-xplained sama5d27-som1-ek\
                     same70-xplained samv71-xplained \
                     sam9x60-ek sam9x60-curiosity
 
-AVAILABLE_VARIANTS = ddram
+AVAILABLE_VARIANTS = ddram qspi0
 
 VARIANT ?= ddram
 

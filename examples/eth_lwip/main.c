@@ -137,6 +137,13 @@ static const uint8_t _gw_ip_addr[4] = {192, 168, 1, 2};
 /* The NetMask address */
 static const uint8_t _netmask[4] = {255, 255, 255, 0};
 
+/* The IP address used for iperf server */
+static uint8_t _ip_iperf_s[4] = {192, 168, 1, 10};
+
+static volatile unsigned int MenuChoice = 0;
+
+static void *lwiperf_session = NULL;
+
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
@@ -158,6 +165,38 @@ lwiperf_report(void *arg, enum lwiperf_report_type report_type,
 	       (unsigned)bandwidth_kbitpsec);
 }
 
+static uint32_t _get_ip_address(uint8_t *ip)
+{
+	uint8_t idx;
+	uint8_t key;
+	uint32_t value = 0;
+
+	for (idx = 0; idx < 4; idx++){
+		value = 0;
+		while(1) {
+			key = console_get_char();
+			console_put_char(key);
+			if (key >= '0' && key <= '9') {
+				value = (value * 10) + (key - '0');
+				if (value <= 255) {
+					ip[idx] = value;
+					continue;
+				}
+			} else if (key == 0x0D || key == ' ') {
+				if (idx == 3) {
+//					printf("\n\r IP address: %d.%d.%d.%d\n\r", ip[0], ip[1], ip[2], ip[3]);
+					break;
+				}
+			} else if (key == '.') {
+				break;
+			}
+			printf("\n\r Wrong IP address enterd!\n\r");
+			return 1;
+		}
+	}
+	return 0;
+}
+
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
@@ -173,6 +212,7 @@ int main(void)
 	struct netif NetIf, *netif;
 	uint8_t eth_port = 0;
 	int ip_print = 0;
+	ip_addr_t iperf_server;
 
 
 	/* Output example information */
@@ -221,9 +261,12 @@ int main(void)
 		printf("DHCP Started\n\r");
 #endif
 
+	printf("\n\r----------- iperf test menu --------------------\n\r"
+	"  c - run in iperf client mode\n\r"
+	"  s - run in iperf sever mode\n\r\n\r");
+
 	/* Initialize http server application */
 	httpd_init();
-	lwiperf_start_tcp_server_default(lwiperf_report, NULL); 
 #if !LWIP_DHCP   
 	printf ("Type the IP address of the device in a web browser, http://192.168.1.3 \n\r");
 #endif
@@ -240,5 +283,25 @@ int main(void)
 				(netif->ip_addr.addr>>16)&0xFF,(netif->ip_addr.addr>>24)&0xFF);  
 		}
 #endif
+		if (console_is_rx_ready()) {
+			switch (console_get_char()) {
+			case 's':
+				if (lwiperf_session) lwiperf_abort(lwiperf_session);
+				printf("\n\r  run in iperf server mode ...\n\r");
+				lwiperf_session = lwiperf_start_tcp_server_default(lwiperf_report, NULL);
+				break;
+			case 'c':
+				if (lwiperf_session) lwiperf_abort(lwiperf_session);
+				printf("\n\r  Enter iperf server's IP address: ");
+				if (0 != _get_ip_address(_ip_iperf_s)) break;
+				IP4_ADDR(&iperf_server, _ip_iperf_s[0], _ip_iperf_s[1], _ip_iperf_s[2], _ip_iperf_s[3]);
+				printf("\n\r  run in iperf client mode ...\n\r");
+				lwiperf_session = lwiperf_start_tcp_client(&iperf_server, 5001,
+					LWIPERF_CLIENT, lwiperf_report, NULL);
+				break;
+			default:
+				break;
+			}
+		}
 	}
 }
