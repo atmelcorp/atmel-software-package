@@ -110,6 +110,8 @@ typedef struct {
 #define   US_MR_USART_MODE_IRDA (0x8u << 0) /**< \brief (US_MR) IrDA */
 #define   US_MR_USART_MODE_LIN_MASTER (0xAu << 0) /**< \brief (US_MR) LIN Master */
 #define   US_MR_USART_MODE_LIN_SLAVE (0xBu << 0) /**< \brief (US_MR) LIN Slave */
+#define   US_MR_USART_MODE_SPI_MASTER (0xEu << 0) /**< \brief (US_MR) SPI Master */
+#define   US_MR_USART_MODE_SPI_SLAVE (0xFu << 0) /**< \brief (US_MR) SPI Slave */
 #define US_MR_USCLKS_Pos 4
 #define US_MR_USCLKS_Msk (0x3u << US_MR_USCLKS_Pos) /**< \brief (US_MR) Clock Selection */
 #define US_MR_USCLKS(value) ((US_MR_USCLKS_Msk & ((value) << US_MR_USCLKS_Pos)))
@@ -125,6 +127,7 @@ typedef struct {
 #define   US_MR_CHRL_7_BIT (0x2u << 6) /**< \brief (US_MR) Character length is 7 bits */
 #define   US_MR_CHRL_8_BIT (0x3u << 6) /**< \brief (US_MR) Character length is 8 bits */
 #define US_MR_SYNC (0x1u << 8) /**< \brief (US_MR) Synchronous Mode Select */
+#define US_MR_CPHA (0x1u << 8) /**< \brief (US_MR) SPI Clock Phase */
 #define US_MR_PAR_Pos 9
 #define US_MR_PAR_Msk (0x7u << US_MR_PAR_Pos) /**< \brief (US_MR) Parity Type */
 #define US_MR_PAR(value) ((US_MR_PAR_Msk & ((value) << US_MR_PAR_Pos)))
@@ -148,10 +151,12 @@ typedef struct {
 #define   US_MR_CHMODE_LOCAL_LOOPBACK (0x2u << 14) /**< \brief (US_MR) Local Loopback. Transmitter output is connected to the Receiver Input. */
 #define   US_MR_CHMODE_REMOTE_LOOPBACK (0x3u << 14) /**< \brief (US_MR) Remote Loopback. RXD pin is internally connected to the TXD pin. */
 #define US_MR_MSBF (0x1u << 16) /**< \brief (US_MR) Bit Order */
+#define US_MR_CPOL (0x1u << 16) /**< \brief (US_MR) SPI Clock Polarity */
 #define US_MR_MODE9 (0x1u << 17) /**< \brief (US_MR) 9-bit Character Length */
 #define US_MR_CLKO (0x1u << 18) /**< \brief (US_MR) Clock Output Select */
 #define US_MR_OVER (0x1u << 19) /**< \brief (US_MR) Oversampling Mode */
 #define US_MR_INACK (0x1u << 20) /**< \brief (US_MR) Inhibit Non Acknowledge */
+#define US_MR_WRDBT (0x1u << 20) /**< \brief (US_MR) Wait Read Data Before Transfer */
 #define US_MR_DSNACK (0x1u << 21) /**< \brief (US_MR) Disable Successive NACK */
 #define US_MR_VAR_SYNC (0x1u << 22) /**< \brief (US_MR) Variable Synchronization of Command/Data Sync Start Frame Delimiter */
 #define US_MR_INVDATA (0x1u << 23) /**< \brief (US_MR) Inverted Data */
@@ -172,8 +177,10 @@ typedef struct {
 #define US_IER_TIMEOUT (0x1u << 8) /**< \brief (US_IER) Timeout Interrupt Enable */
 #define US_IER_TXEMPTY (0x1u << 9) /**< \brief (US_IER) TXEMPTY Interrupt Enable */
 #define US_IER_ITER (0x1u << 10) /**< \brief (US_IER) Max number of Repetitions Reached Interrupt Enable */
+#define US_IER_UNRE (0x1u << 10) /**< \brief (US_IER) SPI Underrun Error Interrupt Enable */
 #define US_IER_NACK (0x1u << 13) /**< \brief (US_IER) Non Acknowledge Interrupt Enable */
 #define US_IER_CTSIC (0x1u << 19) /**< \brief (US_IER) Clear to Send Input Change Interrupt Enable */
+#define US_IER_NSSE (0x1u << 19) /**< \brief (US_IER) SPI NSS Line Rising/Falling edge event Interrupt Enable */
 #define US_IER_CMP (0x1u << 22) /**< \brief (US_IER) Comparison Interrupt Enable */
 #define US_IER_MANE (0x1u << 24) /**< \brief (US_IER) Manchester Error Interrupt Enable */
 #define US_IER_LINBK (0x1u << 13) /**< \brief (US_IER) LIN Break Sent or LIN Break Received Interrupt Enable */
@@ -196,8 +203,10 @@ typedef struct {
 #define US_IDR_TIMEOUT (0x1u << 8) /**< \brief (US_IDR) Timeout Interrupt Disable */
 #define US_IDR_TXEMPTY (0x1u << 9) /**< \brief (US_IDR) TXEMPTY Interrupt Disable */
 #define US_IDR_ITER (0x1u << 10) /**< \brief (US_IDR) Max Number of Repetitions Reached Interrupt Disable */
+#define US_IDR_UNRE (0x1u << 10) /**< \brief (US_IDR) SPI Underrun Error Interrupt Disable */
 #define US_IDR_NACK (0x1u << 13) /**< \brief (US_IDR) Non Acknowledge Interrupt Disable */
 #define US_IDR_CTSIC (0x1u << 19) /**< \brief (US_IDR) Clear to Send Input Change Interrupt Disable */
+#define US_IDR_NSSE (0x1u << 19) /**< \brief (US_IDR)  SPI NSS Line Rising/Falling edge event Interrupt Disable */
 #define US_IDR_CMP (0x1u << 22) /**< \brief (US_IDR) Comparison Interrupt Disable */
 #define US_IDR_MANE (0x1u << 24) /**< \brief (US_IDR) Manchester Error Interrupt Disable */
 #define US_IDR_LINBK (0x1u << 13) /**< \brief (US_IDR) LIN Break Sent or LIN Break Received Interrupt Disable */
@@ -220,8 +229,10 @@ typedef struct {
 #define US_IMR_TIMEOUT (0x1u << 8) /**< \brief (US_IMR) Timeout Interrupt Mask */
 #define US_IMR_TXEMPTY (0x1u << 9) /**< \brief (US_IMR) TXEMPTY Interrupt Mask */
 #define US_IMR_ITER (0x1u << 10) /**< \brief (US_IMR) Max Number of Repetitions Reached Interrupt Mask */
+#define US_IMR_UNRE (0x1u << 10) /**< \brief (US_IMR) SPI Underrun Error Interrupt Mask */
 #define US_IMR_NACK (0x1u << 13) /**< \brief (US_IMR) Non Acknowledge Interrupt Mask */
 #define US_IMR_CTSIC (0x1u << 19) /**< \brief (US_IMR) Clear to Send Input Change Interrupt Mask */
+#define US_IMR_NSSE (0x1u << 19) /**< \brief (US_IMR)  SPI NSS Line Rising/Falling edge event Interrupt Mask */
 #define US_IMR_CMP (0x1u << 22) /**< \brief (US_IMR) Comparison Interrupt Mask */
 #define US_IMR_MANE (0x1u << 24) /**< \brief (US_IMR) Manchester Error Interrupt Mask */
 #define US_IMR_LINBK (0x1u << 13) /**< \brief (US_IMR) LIN Break Sent or LIN Break Received Interrupt Mask */
@@ -244,10 +255,13 @@ typedef struct {
 #define US_CSR_TIMEOUT (0x1u << 8) /**< \brief (US_CSR) Receiver Timeout */
 #define US_CSR_TXEMPTY (0x1u << 9) /**< \brief (US_CSR) Transmitter Empty */
 #define US_CSR_ITER (0x1u << 10) /**< \brief (US_CSR) Max Number of Repetitions Reached */
+#define US_CSR_UNRE (0x1u << 10) /**< \brief (US_CSR) Underrun Error */
 #define US_CSR_NACK (0x1u << 13) /**< \brief (US_CSR) Non Acknowledge */
 #define US_CSR_CTSIC (0x1u << 19) /**< \brief (US_CSR) Clear to Send Input Change Flag */
+#define US_CSR_NSSE (0x1u << 19) /**< \brief (US_CSR)  SPI NSS Line Rising/Falling edge event */
 #define US_CSR_CMP (0x1u << 22) /**< \brief (US_CSR) Comparison Status */
 #define US_CSR_CTS (0x1u << 23) /**< \brief (US_CSR) Image of CTS Input */
+#define US_CSR_NSS (0x1u << 23) /**< \brief (US_CSR) SPI NSS Line */
 #define US_CSR_MANE (0x1u << 24) /**< \brief (US_CSR) Manchester Error */
 #define US_CSR_LINBK (0x1u << 13) /**< \brief (US_CSR) LIN Break Sent or LIN Break Received */
 #define US_CSR_LINID (0x1u << 14) /**< \brief (US_CSR) LIN Identifier Sent or LIN Identifier Received */
